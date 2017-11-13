@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 // TODO(@jackson): Add accessors to pretty up the names
+// TODO(@jackson): Recheck the objects against the documentation
 namespace ModIO
 {
     public enum LogoVersion
@@ -31,7 +32,7 @@ namespace ModIO
         public string instructions; // Eg. "Instructions here on how to develop for your game.",
         public string url; // Eg. "https://rogue-knight.mod.io"
 
-        public Member member;
+        public User submitted_by;
         public ImageData icon;
         public Logo logo;
         // public Header header;
@@ -41,32 +42,37 @@ namespace ModIO
     [System.Serializable]
     public class Mod
     {
-        public int id; // Unique id of the mod.
-        public int game; // Unique id of the parent game.
-        public Member member; // Unique id of the member who has ownership of the game.
-        public double price; //  Numeric representation of the price.
-        public int datereg; // Unix timestamp of date registered.
-        public int dateup; // Unix timestamp of date updated.
-        public Logo logo;
-        public string homepage; //  Official homepage of the mod.
-        public string name; //  Name of the mod.
-        public string nameid; //  The unique SEO friendly URL for your game.
-        public string summary; //  Summary of the mod.
-        public string description; //  An extension of the summary. HTML Supported.
-        public string metadata; //  Comma-separated list of metadata words.
-        public string url;
-        // media
-        public int modfile; // Unique id of the file object marked as current release.
-        public Tag[] tags;
-
-        // public string status; //  OAuth 2 only. The status of the mod (only recognised by game admins), default is 'auth'.
+        public int id;  // int32)  Unique mod id.
+        public int game;    // int32)  Unique game id.
+        public User submitted_by;    // Contains member data.
+        public float price;     // Sale price if applicable, in USD.
+        public int datereg;     // int32)  Unix timestamp of date registered.
+        public int dateup;  // int32)  Unix timestamp of date last updated.
+        public Logo logo;    // Contains logo data.
+        public string homepage;     // Mod homepage URL.
+        public string name;     // Name of the mod.
+        public string nameid;   // Unique SEO-friendly mod uri.
+        public string summary;  // Brief summary of the mod.
+        public string description;  // Description of the mod.
+        public string metadata;     // Metadata for the mod.
+        public string url;  // Official website url for the mod.
+        public ModFile modfile;  // Contains file data.
+        public object media;    // Contains media data.
+        public Rating ratings;   // Contains ratings data.
+        public ModTag[] tags;     // Contains Tags data.
 
         // Accessors
+        public Rating rating
+        {
+            get { return ratings; }
+            set { ratings = value; }
+        }
+
         public IEnumerable<string> tagStrings
         {
             get
             {
-                foreach(Tag tag in tags)
+                foreach(ModTag tag in tags)
                 {
                     yield return tag.tag;
                 }
@@ -75,16 +81,15 @@ namespace ModIO
     }
 
     [System.Serializable]
-    public class Member
+    public class Rating
     {
-        public int id;
-        public string nameid;
-        public string username;
-        public int online; // DateTime?
-        // avatar
-        // "timezone":"Australia\/Brisbane",
-        // "language":"en",
-        // "url":"https:\/\/mod.io\/members\/melodatron"
+        public int total;  // (int32)  Total ratings count.
+        public int positive;  // int32)  Positive ratings count.
+        public int negative;  // int32)  Negative ratings count.
+        public float weighted;  // Weighted rating taking into account positive & negative ratings.
+        public int percentage;  // (int32)  Rating of the mod as a percentage.
+        public int stars;  // (int32)  The amount of stars the mod has, between 0 and 5.
+        public string text;  // Text representation of the rating total.
     }
 
     [System.Serializable]
@@ -97,10 +102,10 @@ namespace ModIO
     }
 
     [System.Serializable]
-    public class Tag
+    public class ModTag
     {
-        public int game; // Eg: 8,
-        public int mod; // Eg: 41,
+        // public int game; // Eg: 8,
+        // public int mod; // Eg: 41,
         public int date; // Eg: 1508132357,
         public string tag; // Eg: "Weapon"
     }
@@ -108,13 +113,15 @@ namespace ModIO
     [System.Serializable]
     public class User
     {
-        public int id; // Unique id of the user.
-        public string nameid;  // SEO-friendly representation of the username. This is the same field that forms the URL link to their profile.
-        public string username;  // Username of the member.
-        public string permission;  // Status of the user account.
-        // permission: Field Options 0 = Unauthorized 1 = Authorized 2 = Banned 3 = Archived 4 = Deleted
-        public string timezone;  // Timezone of the user, format is country/city.
-        public string language;  // 2-character representation of language.
+        public int id; // (int32)  Unique id of the user.
+        public string nameid; // Unique nameid of user which forms end of their profile URL.
+        public string username; // Non-unique username of the user.
+        public int online; // (int32)  Unix timestamp on when the user was last online.
+        public string timezone; // The Timezone of the user, shown in {Country}/{City} format.
+        public string language; // The users language preference, limited to two characters.
+        public string url; // URL to the user profile.
+
+        // public Avatar avatar; // Contains avatar data.
     }
 
     [System.Serializable]
@@ -122,7 +129,6 @@ namespace ModIO
     {
         public int id; // Unique id of the file.
         public int mod; // Unique id of the mod.
-        public Member member; // Unique id of the member who published the file.
         public int date; // Unix timestamp of date added.
         public int datevirus; // Date it was last virus checked.
         public int virusstatus; // Current filescan status of the file. For newly added files that have yet to be scanned this field could change frequently until a scan is complete.
@@ -160,7 +166,7 @@ namespace ModIO
     public class ModActivity
     {
         public int id; // (int32)  Unique id of activity object.
-        public Member member; // Contains member data.
+        public User member; // Contains member data.
         public int dateup; // (int32)  Unix timestamp of when the update occurred.
         public string _event; // The type of resource and action that occurred.
         public object changes; // No description

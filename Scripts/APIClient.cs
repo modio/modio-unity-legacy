@@ -1,5 +1,6 @@
 ﻿#define LOG_QUERIES
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -251,6 +252,38 @@ namespace ModIO
         // View Mod Comment
         
         // Browse Mod Team Members
+
+        // Browse Mod Updates By Game
+        private static readonly DateTime UNIX_DATETIME_OFFSET = new DateTime(1970, 1, 1);
+        public void BrowseModUpdates_All(DateTime startTimestamp, DateTime endTimestamp,
+                                     ModQueryFilter filter, ObjectArrayCallback<ModFile> callback)
+        {
+            string query = "games/" + gameID + "/mods/updates?";
+            query += filter.GenerateQueryString();
+            query += "&start=" + (Int32)(startTimestamp.Subtract(UNIX_DATETIME_OFFSET)).TotalSeconds;
+            query += "&end=" + (Int32)(endTimestamp.Subtract(UNIX_DATETIME_OFFSET)).TotalSeconds;
+            query += "&primary=false";
+            query += "&api_key=" + apiKey;
+
+            StartCoroutine(APIClient.RequestObjectArray<ModFile>(query,
+                                                                 callback,
+                                                                 OnAPIRequestError));
+        }
+        public void BrowseModUpdates_Primary(DateTime startTimestamp, DateTime endTimestamp,
+                                     ModQueryFilter filter, ObjectArrayCallback<ModFile> callback)
+        {
+            string query = "games/" + gameID + "/mods/updates?";
+            query += filter.GenerateQueryString();
+            query += "&start=" + (Int32)(startTimestamp.Subtract(UNIX_DATETIME_OFFSET)).TotalSeconds;
+            query += "&end=" + (Int32)(endTimestamp.Subtract(UNIX_DATETIME_OFFSET)).TotalSeconds;
+            query += "&primary=true";
+            query += "&api_key=" + apiKey;
+
+            StartCoroutine(APIClient.RequestObjectArray<ModFile>(query,
+                                                                 callback,
+                                                                 OnAPIRequestError));
+        }
+
 
 
         // ---------[ PUSH ENDPOINTS ]---------

@@ -11,11 +11,15 @@ namespace ModIO
         {
             ID = 0,
             Name,
-            Author,
+            SubmittedBy,
             DateRegistered,
             DateUpdated,
             Price,
-            Tags
+            Tags,
+            Popularity,
+            Downloads,
+            Rating,
+            Subscribers
         };
         
         public readonly static ModQueryFilter EMPTY = new ModQueryFilter();
@@ -98,7 +102,7 @@ namespace ModIO
                     sortString = "name";
                 }
                 break;
-                // case Field.Author:
+                // case Field.SubmittedBy:
                 // {
                 //     sortDelegate = (a,b) => { return a.member.name.CompareTo(b.member.name); };
                 // }
@@ -119,6 +123,34 @@ namespace ModIO
                 {
                     sortDelegate = (a,b) => { return a.price.CompareTo(b.price); };
                     sortString = "price";
+                }
+                break;
+                case Field.Popularity:
+                {
+                    // TODO(@jackson): sortDelegate = (a,b) => { return a.popularity.CompareTo(b.popularity); }
+                    Debug.LogWarning("Local Sorting not yet implemented for popularity");
+                    sortString = "popularity";
+                }
+                break;
+                case Field.Downloads:
+                {
+                    // TODO(@jackson): sortDelegate = (a,b) => { return a.subscribers.CompareTo(b.downloads); }
+                    Debug.LogWarning("Local Sorting not yet implemented for downloads");
+                    sortString = "downloads";
+                }
+                break;
+                case Field.Rating:
+                {
+                    sortDelegate = (a,b) => { return a.rating.weighted.CompareTo(b.rating.weighted); };
+                    sortString = "rating";
+
+                }
+                break;
+                case Field.Subscribers:
+                {
+                    // TODO(@jackson): sortDelegate = (a,b) => { return a.downloads.CompareTo(b.downloads); }
+                    Debug.LogWarning("Local Sorting not yet implemented for subscribers");
+                    sortString = "subscribers";
                 }
                 break;
 
@@ -165,6 +197,33 @@ namespace ModIO
                 {
                     sortDelegate = (a,b) => { return b.price.CompareTo(a.price); };
                     sortString = "-price";
+                }
+                break;
+                case Field.Popularity:
+                {
+                    // TODO(@jackson): sortDelegate = (a,b) => { return b.popularity.CompareTo(a.popularity); }
+                    Debug.LogWarning("Local Sorting not yet implemented for popularity");
+                    sortString = "-popularity";
+                }
+                break;
+                case Field.Downloads:
+                {
+                    // TODO(@jackson): sortDelegate = (a,b) => { return b.subscribers.CompareTo(a.downloads); }
+                    Debug.LogWarning("Local Sorting not yet implemented for downloads");
+                    sortString = "-downloads";
+                }
+                break;
+                case Field.Rating:
+                {
+                    sortDelegate = (a,b) => { return b.rating.weighted.CompareTo(a.rating.weighted); };
+                    sortString = "-rating";
+                }
+                break;
+                case Field.Subscribers:
+                {
+                    // TODO(@jackson): sortDelegate = (a,b) => { return b.downloads.CompareTo(a.downloads); }
+                    Debug.LogWarning("Local Sorting not yet implemented for subscribers");
+                    sortString = "-subscribers";
                 }
                 break;
 
@@ -217,15 +276,15 @@ namespace ModIO
             filterStringMap.Remove(Field.Price);
         }
 
-        public void ApplyAuthorMatch(int authorID)
+        public void ApplySubmittedByMatch(int authorID)
         {
-            filterQueryMap[Field.Author] = (Mod m) => { return m.member.id == authorID; };
-            filterStringMap[Field.Author] = "member=" + authorID;
+            filterQueryMap[Field.SubmittedBy] = (Mod m) => { return m.submitted_by.id == authorID; };
+            filterStringMap[Field.SubmittedBy] = "submitted_by=" + authorID;
         }
-        public void RemoveAuthorFilter()
+        public void RemoveSubmittedByFilter()
         {
-            filterQueryMap.Remove(Field.Author);
-            filterStringMap.Remove(Field.Author);
+            filterQueryMap.Remove(Field.SubmittedBy);
+            filterStringMap.Remove(Field.SubmittedBy);
         }
 
         public void ApplySingleTagMatch(string tag)
