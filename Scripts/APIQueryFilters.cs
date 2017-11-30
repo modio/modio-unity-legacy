@@ -10,9 +10,11 @@ namespace ModIO
     {
         public readonly static Filter NONE = new Filter();
 
+        protected int limit = 20;
+
         public virtual string GenerateQueryString()
         {
-            return "";
+            return "_limit=" + limit;
         }
     }
 
@@ -39,7 +41,6 @@ namespace ModIO
         }
 
         // ------[ VARIABLES ]------
-        protected int limit = 100;
         protected string sortString = "";
         protected Comparison<T> sortDelegate = null;
 

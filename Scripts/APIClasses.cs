@@ -23,8 +23,19 @@ namespace ModIO
     [Serializable]
     public class APIError
     {
-        public int code; // (int32)  HTTP code of the error.
-        public string message; // The server response to your request. Responses will vary from endpoint but object structure will persist.
+        [Serializable]
+        private class APIErrorObject
+        {
+            public int code = -1; // (int32)  HTTP code of the error.
+            public string message = ""; // The server response to your request. Responses will vary from endpoint but object structure will persist.
+        }
+        [SerializeField]
+        private APIErrorObject error = new APIErrorObject();
+
+        public int code { get { return error.code; } set { error.code = value; } }
+        public string message { get { return error.message; } set { error.message = value; } }
+        public string url = "";
+        public Dictionary<string, string> headers = new Dictionary<string, string>(0);
     }
 
     [Serializable]
