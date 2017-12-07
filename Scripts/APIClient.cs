@@ -13,34 +13,6 @@ namespace ModIO
     public delegate void ObjectArrayCallback<T>(T[] objectArray);
     public delegate void DownloadCallback(byte[] data);
 
-    public class APIRequest
-    {
-        public class BinaryData
-        {
-            public byte[] contents = null;
-            public string fileName = null;
-            public string mimeType = null;
-        }
-
-        public string endpoint = "";
-        public string oAuthToken = "";
-        public Filter filter = Filter.NONE;
-        public Dictionary<string, string> fieldValues = new Dictionary<string, string>();
-        public Dictionary<string, BinaryData> fieldData = new Dictionary<string, BinaryData>();
-
-        public void AddFieldsToForm(WWWForm form)
-        {
-            foreach(KeyValuePair<string, string> kvp in fieldValues)
-            {
-                form.AddField(kvp.Key, kvp.Value);
-            }
-            foreach(KeyValuePair<string, APIRequest.BinaryData> kvp in fieldData)
-            {
-                form.AddBinaryData(kvp.Key, kvp.Value.contents, kvp.Value.fileName, kvp.Value.mimeType);
-            }
-        }
-    }
-
     public class APIClient : MonoBehaviour
     {
         private static APIError GenerateNotImplementedError(string url)
@@ -49,6 +21,36 @@ namespace ModIO
             retVal.message = "This APIClient function has not yet been implemented";
             retVal.url = url;
             return retVal;
+        }
+
+        // ---------[ INNER CLASSES ]---------
+        // TODO(@jackson): Specialize
+        public class Request
+        {
+            public class BinaryData
+            {
+                public byte[] contents = null;
+                public string fileName = null;
+                public string mimeType = null;
+            }
+
+            public string endpoint = "";
+            public string oAuthToken = "";
+            public Filter filter = Filter.NONE;
+            public Dictionary<string, string> fieldValues = new Dictionary<string, string>();
+            public Dictionary<string, BinaryData> fieldData = new Dictionary<string, BinaryData>();
+
+            public void AddFieldsToForm(WWWForm form)
+            {
+                foreach(KeyValuePair<string, string> kvp in fieldValues)
+                {
+                    form.AddField(kvp.Key, kvp.Value);
+                }
+                foreach(KeyValuePair<string, Request.BinaryData> kvp in fieldData)
+                {
+                    form.AddBinaryData(kvp.Key, kvp.Value.contents, kvp.Value.fileName, kvp.Value.mimeType);
+                }
+            }
         }
 
         // ---------[ CONSTANTS ]---------
@@ -132,7 +134,7 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
-        public static IEnumerator ExecuteGetRequest<T>(APIRequest request,
+        public static IEnumerator ExecuteGetRequest<T>(Request request,
                                                        ObjectCallback<T> onSuccess,
                                                        ErrorCallback onError)
         {
@@ -173,7 +175,7 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
-        public static IEnumerator ExecutePostRequest<T>(APIRequest request,
+        public static IEnumerator ExecutePostRequest<T>(Request request,
                                                         ObjectCallback<T> onSuccess,
                                                         ErrorCallback onError)
         {
@@ -205,7 +207,7 @@ namespace ModIO
                 {
                     formFields += "\n" + kvp.Key + "=" + kvp.Value;
                 }
-                foreach(KeyValuePair<string, APIRequest.BinaryData> kvp in request.fieldData)
+                foreach(KeyValuePair<string, Request.BinaryData> kvp in request.fieldData)
                 {
                     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
                 }
@@ -224,7 +226,7 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
-        public static IEnumerator ExecuteDeleteRequest<T>(APIRequest request,
+        public static IEnumerator ExecuteDeleteRequest<T>(Request request,
                                                           ObjectCallback<T> onSuccess,
                                                           ErrorCallback onError)
         {
@@ -257,7 +259,7 @@ namespace ModIO
                 {
                     formFields += "\n" + kvp.Key + "=" + kvp.Value;
                 }
-                foreach(KeyValuePair<string, APIRequest.BinaryData> kvp in request.fieldData)
+                foreach(KeyValuePair<string, Request.BinaryData> kvp in request.fieldData)
                 {
                     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
                 }
@@ -332,43 +334,16 @@ namespace ModIO
         {
             Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
 
-            if(webRequest.isNetworkError
-               || webRequest.responseCode == 404)
+            APIError error = APIError.GenerateFromWebRequest(webRequest);
+
+            #if LOG_ALL_QUERIES
+            if(onError != APIClient.LogError)
             {
-                APIError errorInfo = new APIError();
-                errorInfo.code = (int)webRequest.responseCode;
-                errorInfo.message = webRequest.error;
-                errorInfo.url = webRequest.url;
-                errorInfo.headers = new Dictionary<string, string>();
-
-                #if LOG_ALL_QUERIES
-                if(onError != APIClient.LogError)
-                {
-                    APIClient.LogError(errorInfo);
-                }
-                #endif
-
-                onError(errorInfo);
+                APIClient.LogError(error);
             }
-            else // if(webRequest.isHttpError)
-            {
-                
-                APIError error = JsonUtility.FromJson<APIError>(webRequest.downloadHandler.text);
-                APIError errorInfo = new APIError();
-                errorInfo.code = error.code;
-                errorInfo.message = error.message;
-                errorInfo.url = webRequest.url;
-                errorInfo.headers = webRequest.GetResponseHeaders();
+            #endif
 
-                #if LOG_ALL_QUERIES
-                if(onError != APIClient.LogError)
-                {
-                    APIClient.LogError(errorInfo);
-                }
-                #endif
-
-                onError(errorInfo);
-            }
+            onError(error);
         }
 
 
@@ -377,7 +352,7 @@ namespace ModIO
                                         ObjectCallback<APIMessage> onSuccess,
                                         ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "oauth/emailrequest";
             request.fieldValues.Add("api_key", apiKey);
             request.fieldValues.Add("email", emailAddress);
@@ -390,7 +365,7 @@ namespace ModIO
                                       ObjectCallback<AuthenticationData> onSuccess,
                                       ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "oauth/emailexchange";
             request.fieldValues.Add("api_key", apiKey);
             request.fieldValues.Add("security_code", securityCode);
@@ -531,7 +506,7 @@ namespace ModIO
         public void SubscribeToMod(int modID,
                                    ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "games/" + gameID + "/mods/" + modID + "/subscribe";
             request.oAuthToken = oAuthToken;
 
@@ -542,7 +517,7 @@ namespace ModIO
         public void UnsubscribeFromMod(int modID,
                                        ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "games/" + gameID + "/mods/" + modID + "/subscribe";
             request.oAuthToken = oAuthToken;
 
@@ -799,7 +774,7 @@ namespace ModIO
         public void GetResourceOwner(ResourceType resourceType, int resourceID,
                                      ObjectCallback<User> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "general/owner";
             request.oAuthToken = oAuthToken;
             request.fieldValues.Add("resource_type", resourceType.ToString().ToLower());
@@ -848,7 +823,7 @@ namespace ModIO
         // Get Authenticated User
         public void GetAuthenticatedUser(ObjectCallback<User> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "me";
             request.oAuthToken = oAuthToken;
 
@@ -860,7 +835,7 @@ namespace ModIO
         public void GetUserSubscriptions(GetUserSubscriptionsFilter filter,
                                          ObjectCallback<Mod[]> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "me/subscribed";
             request.oAuthToken = oAuthToken;
             request.filter = filter;
@@ -872,7 +847,7 @@ namespace ModIO
         // Get User Games
         public void GetUserGames(ObjectCallback<Game[]> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "me/games";
             request.oAuthToken = oAuthToken;
 
@@ -883,7 +858,7 @@ namespace ModIO
         // Get User Mods
         public void GetUserMods(ObjectCallback<Mod[]> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "me/mods";
             request.oAuthToken = oAuthToken;
 
@@ -894,7 +869,7 @@ namespace ModIO
         // Get User Files
         public void GetUserModfiles(ObjectCallback<Modfile[]> onSuccess, ErrorCallback onError)
         {
-            APIRequest request = new APIRequest();
+            Request request = new Request();
             request.endpoint = "me/files";
             request.oAuthToken = oAuthToken;
 

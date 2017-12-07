@@ -36,7 +36,34 @@ namespace ModIO
         public string message { get { return error.message; } set { error.message = value; } }
         public string url = "";
         public Dictionary<string, string> headers = new Dictionary<string, string>(0);
+
+        public static APIError GenerateFromWebRequest(UnityEngine.Networking.UnityWebRequest webRequest)
+        {
+            Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
+            
+            APIError retVal = new APIError();
+            retVal.url = webRequest.url;
+
+            if(webRequest.isNetworkError
+               || webRequest.responseCode == 404)
+            {
+                retVal.code = (int)webRequest.responseCode;
+                retVal.message = webRequest.error;
+                retVal.headers = new Dictionary<string, string>();
+            }
+            else // if(webRequest.isHttpError)
+            {
+                APIError error = JsonUtility.FromJson<APIError>(webRequest.downloadHandler.text);
+                retVal.code = error.code;
+                retVal.message = error.message;
+                retVal.headers = webRequest.GetResponseHeaders();
+            }
+
+            return retVal;
+        }
     }
+
+
 
     [Serializable]
     public class APIObjectArray<T>
