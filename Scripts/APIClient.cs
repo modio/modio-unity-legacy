@@ -278,36 +278,6 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
-        public static IEnumerator DownloadData(string url,
-                                               DownloadCallback onSuccess,
-                                               ErrorCallback onError)
-        {
-            #if LOG_ALL_QUERIES
-            Debug.Log("REQUESTING FILE DOWNLOAD"
-                      + "\nSourceURI: " + url);
-            #endif
-
-            UnityWebRequest webRequest = UnityWebRequest.Get(url);
-            yield return webRequest.SendWebRequest();
-            
-
-            // - Handle Errors -
-            if(webRequest.isNetworkError || webRequest.isHttpError)
-            {
-                HandleRequestError(webRequest, onError);
-            }
-            else
-            {
-                #if LOG_ALL_QUERIES
-                Debug.Log("DOWNLOAD SUCEEDED"
-                          + "\nSourceURI: " + url);
-                #endif
-
-                byte[] downloadedData = webRequest.downloadHandler.data;
-                onSuccess(downloadedData);
-            }
-        }
-
         private static void ProcessJSONResponse<T>(UnityWebRequest webRequest,
                                                    ObjectCallback<T> onSuccess,
                                                    ErrorCallback onError)
@@ -329,6 +299,7 @@ namespace ModIO
             onSuccess(response);
         }
 
+        // TODO(@jackson): Remove
         private static void HandleRequestError(UnityWebRequest webRequest,
                                                ErrorCallback onError)
         {

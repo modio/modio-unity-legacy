@@ -38,7 +38,6 @@ namespace ModIO
         public static APIClient APIClient { get { return client; } }
         public static User CurrentUser { get { return userData == null ? null : userData.user; } }
 
-
         // --------- [ INITIALISATION ]---------
         public static void Initialize(int gameID, string apiKey)
         {
@@ -79,7 +78,7 @@ namespace ModIO
                 client.oAuthToken = manifest.lastOAuthToken;
             }
 
-            // iterate through folders, load moddata
+            // iterate through folders, load ModInfo
             string[] modDirectories = Directory.GetDirectories(MODIO_DIR);
             foreach(string modDir in modDirectories)
             {
@@ -87,6 +86,8 @@ namespace ModIO
                 Mod mod = JsonUtility.FromJson<Mod>(File.ReadAllText(modDir + "/mod.data"));
                 modCache.Add(mod);
             }
+
+            // TODO(@jackson): Load partial downloads
         }
 
         // ---------[ USER MANAGEMENT ]---------
@@ -151,7 +152,7 @@ namespace ModIO
                                   (message) =>
                                   {
                                     userData.subscribedModIDs.Add(modID);
-                                    onSuccess(GetModDataForID(modID));
+                                    onSuccess(GetModInfoForID(modID));
                                   },
                                   onError);
         }
@@ -164,7 +165,7 @@ namespace ModIO
                                       (message) =>
                                       {
                                         userData.subscribedModIDs.Remove(modID);
-                                        onSuccess(GetModDataForID(modID));
+                                        onSuccess(GetModInfoForID(modID));
                                       },
                                       onError);
         }
@@ -184,7 +185,12 @@ namespace ModIO
 
         private static List<Mod> modCache = new List<Mod>();
 
-        public static Mod GetModDataForID(int modID)
+        public static string GetModDirectory(Mod mod)
+        {
+            return MODIO_DIR + mod.ID + "/";
+        }
+
+        public static Mod GetModInfoForID(int modID)
         {
             foreach(Mod mod in modCache)
             {
@@ -198,19 +204,19 @@ namespace ModIO
         }
 
         // NOTE(@jackson): Currently dumb. Needs improvement.
-        public static void DownloadModDataToDiskAndCache()
+        public static void DownloadModInfoToDiskAndCache()
         {
-            client.GetAllMods(GetAllModsFilter.NONE, SaveModsToDiskAndCache, APIClient.LogError);
+            client.GetAllMods(GetAllModsFilter.NONE, SaveModInfoToDiskAndCache, APIClient.LogError);
         }
-        private static void SaveModsToDiskAndCache(Mod[] modData)
+        private static void SaveModInfoToDiskAndCache(Mod[] modInfo)
         {
-            modCache = new List<Mod>(modData);
+            modCache = new List<Mod>(modInfo);
 
-            foreach(Mod mod in modData)
+            foreach(Mod mod in modInfo)
             {
-                string modDir = MODIO_DIR + mod.ID + "/";
+                string modDir = GetModDirectory(mod);
                 Directory.CreateDirectory(modDir);
-                File.WriteAllText(MODIO_DIR + mod.ID + "/mod.data", JsonUtility.ToJson(mod));
+                File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
 
                 if(OnModUpdated != null)
                 {
@@ -227,6 +233,29 @@ namespace ModIO
             // client.BrowseMods(filter, callback);
         }
 
+        // TODO(@jackson): Add callbacks
+        public static FileDownload StartModDownload(Mod mod)
+        {
+
+            // TODO(@jackson): Download.status? (init, inprogress, paused, error, completed)
+            // TODO(@jackson): Reacquire ModHeader
+
+            FileDownload download = new FileDownload();
+
+            ObjectCallback<Modfile> onModfileReceived = (modfile) =>
+            {
+                download.sourceURI = modfile.downloadURL;
+                download.fileURI = GetModDirectory(mod) + modfile.ID + "_" + modfile.dateAdded + ".zip";
+                download.Start();
+            };
+
+            // TODO(@jackson): Convert to "Update Modfile" function
+            client.GetModfile(mod.ID, mod.modfile.ID,
+                              onModfileReceived, APIClient.LogError);
+
+            return download;
+        }
+
         // ---------[ LOGO MANAGEMENT ]---------
         private class LogoTemplate
         {
@@ -237,7 +266,7 @@ namespace ModIO
                 versionArray[(int)LogoVersion.Original] = new LogoTemplate();
                 versionArray[(int)LogoVersion.Original].version = LogoVersion.Original;
                 versionArray[(int)LogoVersion.Original].localFilename = "logo_original.png";
-                // How to handle dimensions?...
+                // TOOD(@jackson): How to handle dimensions?...
                 versionArray[(int)LogoVersion.Original].getRemoteLogoURI = (Mod m) => { return m.logo.original; };
 
                 versionArray[(int)LogoVersion.Thumb_320x180] = new LogoTemplate();
@@ -263,17 +292,17 @@ namespace ModIO
             }
 
             private static LogoTemplate[] versionArray;
+            public static LogoTemplate ForLogoVersion(LogoVersion version)
+            {
+                return versionArray[(int)version];
+            }
 
+            // - Fields -
             public LogoVersion version = LogoVersion.Original;
             public string localFilename = "";
             public int width = -1;
             public int height = -1;
             public Func<Mod, string> getRemoteLogoURI = null;
-
-            public static LogoTemplate ForLogoVersion(LogoVersion version)
-            {
-                return versionArray[(int)version];
-            }
         }
 
         public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
@@ -294,7 +323,7 @@ namespace ModIO
             {
                 LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
 
-                string localURI = MODIO_DIR + mod.ID + "/" + logoTemplate.localFilename;
+                string localURI = GetModDirectory(mod) + logoTemplate.localFilename;
                 if(File.Exists(localURI))
                 {
                     Texture2D logoTexture = new Texture2D(logoTemplate.width, logoTemplate.height);
@@ -306,36 +335,38 @@ namespace ModIO
                 }
                 else
                 {
-                    client.StartCoroutine(DownloadModLogo(mod, logoTemplate));
+                    DownloadModLogo(mod, logoTemplate);
                     return modLogoDownloading;
                 }
             }
         }
-        private static IEnumerator DownloadModLogo(Mod mod, LogoTemplate logoTemplate)
+        // TODO(@jackson): Make public
+        private static void DownloadModLogo(Mod mod, LogoTemplate logoTemplate)
         {
-            byte[] imageData = null;
-            yield return client.StartCoroutine(DownloadAndStoreFile(logoTemplate.getRemoteLogoURI(mod),
-                                                                    mod.ID + "/",
-                                                                    logoTemplate.localFilename,
-                                                                    (byte[] downloadedData) => { imageData = downloadedData; },
-                                                                    APIClient.LogError));
+            Debug.LogError("Needs to be reimplemented");
+            // DownloadAndStoreFile(logoTemplate.getRemoteLogoURI(mod),
+            //                      GetModDirectory(mod),
+            //                      logoTemplate.localFilename,
+            //                      (imageData) =>
+            //                      {
+            //                         if(imageData != null
+            //                            && imageData.Length > 0)
+            //                         {
+            //                             Texture2D logoTexture = new Texture2D( logoTemplate.width, logoTemplate.height);
+            //                             logoTexture.LoadImage(imageData);
 
-            if(imageData != null
-               && imageData.Length > 0)
-            {
-                Texture2D logoTexture = new Texture2D( logoTemplate.width, logoTemplate.height);
-                logoTexture.LoadImage(imageData);
+            //                             modLogoCache[mod.ID]
+            //                                 = Sprite.Create(logoTexture,
+            //                                                 new Rect(0,0, logoTemplate.width,logoTemplate.height),
+            //                                                 Vector2.zero);
 
-                modLogoCache[mod.ID]
-                    = Sprite.Create(logoTexture,
-                                    new Rect(0,0, logoTemplate.width,logoTemplate.height),
-                                    Vector2.zero);
-
-                if(OnMogLogoUpdated != null)
-                {
-                    OnMogLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
-                }
-            }
+            //                             if(OnMogLogoUpdated != null)
+            //                             {
+            //                                 OnMogLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
+            //                             }
+            //                         }
+            //                      },
+            //                      APIClient.LogError);
         }
 
         public static void PreloadModLogos(Mod[] modLogosToPreload,
@@ -357,7 +388,7 @@ namespace ModIO
             {
                 if(!modLogoCache.ContainsKey(mod.ID))
                 {
-                    string localURI = MODIO_DIR + mod.ID + "/" + logoTemplate.localFilename;
+                    string localURI = GetModDirectory(mod) + logoTemplate.localFilename;
                     if(File.Exists(localURI))
                     {
                         Debug.Log("Found Logo: " + localURI);
@@ -390,13 +421,18 @@ namespace ModIO
                                                                       logoTemplate));
         }
 
+        // TODO(@jackson): Reimplement this with download manager
         private static IEnumerator ChainDownloadModLogosToDiskAndCache(List<Mod> modList,
                                                                        LogoTemplate logoTemplate)
         {
-            foreach(Mod mod in modList)
-            {
-                yield return DownloadModLogo(mod, logoTemplate);
-            }
+            // foreach(Mod mod in modList)
+            // {
+            //     DownloadModLogo(mod, logoTemplate,
+            //                     )
+
+            //     yield return DownloadModLogo(mod, logoTemplate);
+            // }
+            yield return null;
         }
 
         // ---------[ MISC ]------------
@@ -416,28 +452,6 @@ namespace ModIO
                             onSuccess(retVal);
                            },
                            onError);
-        }
-
-        public static IEnumerator DownloadAndStoreFile(string url,
-                                                       string targetDirectoryRelative,
-                                                       string targetFilename,
-                                                       DownloadCallback onSuccess,
-                                                       ErrorCallback onError)
-        {
-            byte[] downloadedData = null;
-            yield return client.StartCoroutine(APIClient.DownloadData(url,
-                                                                      (byte[] bd) => { downloadedData = bd; },
-                                                                      onError));
-
-            string absDir = MODIO_DIR + targetDirectoryRelative;
-            Directory.CreateDirectory(absDir);
-            File.WriteAllBytes(absDir + targetFilename, downloadedData);
-
-            Debug.Log("[ Completed Download of File ]"
-                      + "\nSourceURI: " + url
-                      + "\nDestinationURI: " + absDir + targetFilename);
-
-            onSuccess(downloadedData);
         }
 
         private static void WriteManifestToDisk()
