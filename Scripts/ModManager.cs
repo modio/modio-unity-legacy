@@ -236,8 +236,6 @@ namespace ModIO
         // TODO(@jackson): Add callbacks
         public static FileDownload StartModDownload(Mod mod)
         {
-
-            // TODO(@jackson): Download.status? (init, inprogress, paused, error, completed)
             // TODO(@jackson): Reacquire ModHeader
 
             FileDownload download = new FileDownload();

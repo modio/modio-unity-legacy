@@ -7,9 +7,17 @@ using UnityEngine.Networking;
 
 namespace ModIO
 {
-    [Serializable]
+    // TODO(@jackson): Create getters where necessary
     public abstract class Download
     {
+        public enum Status
+        {
+            NotStarted,
+            InProgress,
+            Completed,
+            Error
+        }
+
         // --- EVENTS ---
         public event Action OnStarted;
         public event Action OnCompleted;
@@ -18,36 +26,38 @@ namespace ModIO
         // --- FIELDS ---
         public string sourceURI = "";
         public DateTime startTime = new DateTime();
-        public Func<float> getDownloadedPercentage = null;
-        public Func<ulong> getDownloadedByteCount = null;
+        public Status status = Status.NotStarted;
+        public Func<float> GetCompletedPercentage = null;
+        public Func<ulong> GetDownloadedByteCount = null;
 
         // --- INTERFACE ---
         public void Start()
         {
-            // Debug.Assert(IsNotDownloadingAlready);
+            Debug.Assert(status != Status.InProgress);
             Debug.Assert(!String.IsNullOrEmpty(sourceURI));
 
-            #if ADD_SECRET_TO_URL
-            sourceURI += "?shhh=secret";
-            #endif
-
             UnityWebRequest webRequest = UnityWebRequest.Get(sourceURI);
-            getDownloadedPercentage = () => webRequest.downloadProgress;
-            getDownloadedByteCount = () => webRequest.downloadedBytes;
+            GetCompletedPercentage = () => webRequest.downloadProgress;
+            GetDownloadedByteCount = () => webRequest.downloadedBytes;
 
             ModifyWebRequest(webRequest);
 
+            #if ADD_SECRET_TO_URL
+            webRequest.url += "?shhh=secret";
+            #endif
+
             #if LOG_DOWNLOADS
             Debug.Log("STARTING DOWNLOAD"
-                      + "\nSourceURI: " + sourceURI);
+                      + "\nSourceURI: " + webRequest.url);
             #endif
 
             // Start Download
-            // client.StartCoroutine(DownloadData(webRequest, download));
+            startTime = DateTime.Now;
+            status = Status.InProgress;
+
             UnityWebRequestAsyncOperation downloadOperation = webRequest.SendWebRequest();
             downloadOperation.completed += Finalize;
 
-            startTime = DateTime.Now;
             if(OnStarted != null)
             {
                 OnStarted();
@@ -63,6 +73,8 @@ namespace ModIO
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
+                status = Status.Error;
+
                 APIError error = APIError.GenerateFromWebRequest(webRequest);
                 
                 #if LOG_DOWNLOADS
@@ -76,6 +88,8 @@ namespace ModIO
             }
             else
             {
+                status = Status.Completed;
+
                 #if LOG_DOWNLOADS
                 Debug.Log("DOWNLOAD SUCEEDED"
                           + "\nSourceURI: " + webRequest.url);
@@ -86,12 +100,9 @@ namespace ModIO
                     OnCompleted();
                 }
             }
-
-
         }
     }
 
-    [Serializable]
     public class FileDownload : Download
     {
         public string fileURI = "";
@@ -103,7 +114,6 @@ namespace ModIO
         }
     }
 
-    [Serializable]
     public class TextureDownload : Download
     {
         public Texture2D texture = null;
