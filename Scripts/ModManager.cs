@@ -255,6 +255,7 @@ namespace ModIO
         }
 
         // ---------[ LOGO MANAGEMENT ]---------
+        // TODO(@jackson): Remove W/H. No longer necessary.
         private class LogoTemplate
         {
             static LogoTemplate()
@@ -333,38 +334,45 @@ namespace ModIO
                 }
                 else
                 {
-                    DownloadModLogo(mod, logoTemplate);
+                    StartLogoDownload(mod, logoTemplate);
                     return modLogoDownloading;
                 }
             }
         }
-        // TODO(@jackson): Make public
-        private static void DownloadModLogo(Mod mod, LogoTemplate logoTemplate)
+
+        private static void StartLogoDownload(Mod mod, LogoTemplate logoTemplate)
         {
-            Debug.LogError("Needs to be reimplemented");
-            // DownloadAndStoreFile(logoTemplate.getRemoteLogoURL(mod),
-            //                      GetModDirectory(mod),
-            //                      logoTemplate.localFilename,
-            //                      (imageData) =>
-            //                      {
-            //                         if(imageData != null
-            //                            && imageData.Length > 0)
-            //                         {
-            //                             Texture2D logoTexture = new Texture2D( logoTemplate.width, logoTemplate.height);
-            //                             logoTexture.LoadImage(imageData);
+            TextureDownload download = new TextureDownload();
+            download.sourceURL = logoTemplate.getRemoteLogoURL(mod);
+                                 
+            download.OnFailed += APIClient.LogError;
 
-            //                             modLogoCache[mod.ID]
-            //                                 = Sprite.Create(logoTexture,
-            //                                                 new Rect(0,0, logoTemplate.width,logoTemplate.height),
-            //                                                 Vector2.zero);
+            download.OnCompleted += () =>
+            {
+                Texture2D logoTexture = download.texture;
 
-            //                             if(OnMogLogoUpdated != null)
-            //                             {
-            //                                 OnMogLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
-            //                             }
-            //                         }
-            //                      },
-            //                      APIClient.LogError);
+                // - Cache -
+                if(cachedLogoVersion == logoTemplate.version)
+                {
+                    modLogoCache[mod.ID]
+                        = Sprite.Create(logoTexture,
+                                        new Rect(0, 0, logoTexture.width, logoTexture.height),
+                                        Vector2.zero);
+                }
+
+                // - Save to disk -
+                string localURL = GetModDirectory(mod) + logoTemplate.localFilename;
+                byte[] bytes = logoTexture.EncodeToPNG();
+                File.WriteAllBytes(localURL, bytes);
+
+                // - Notify -
+                if(OnMogLogoUpdated != null)
+                {
+                    OnMogLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
+                }
+            };
+
+            download.Start();
         }
 
         public static void PreloadModLogos(Mod[] modLogosToPreload,
@@ -414,23 +422,11 @@ namespace ModIO
 
             if(modsMissingLogosList.Count == 0) { return; }
 
-
-            client.StartCoroutine(ChainDownloadModLogosToDiskAndCache(modsMissingLogosList,
-                                                                      logoTemplate));
-        }
-
-        // TODO(@jackson): Reimplement this with download manager
-        private static IEnumerator ChainDownloadModLogosToDiskAndCache(List<Mod> modList,
-                                                                       LogoTemplate logoTemplate)
-        {
-            // foreach(Mod mod in modList)
-            // {
-            //     DownloadModLogo(mod, logoTemplate,
-            //                     )
-
-            //     yield return DownloadModLogo(mod, logoTemplate);
-            // }
-            yield return null;
+            // TODO(@jackson): Reimplement this with download management
+            foreach(Mod mod in modsMissingLogosList)
+            {
+                StartLogoDownload(mod, logoTemplate);
+            }
         }
 
         // ---------[ MISC ]------------

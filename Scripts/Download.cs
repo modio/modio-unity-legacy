@@ -70,37 +70,41 @@ namespace ModIO
         private void Finalize(AsyncOperation operation)
         {
             UnityWebRequest webRequest = (operation as UnityWebRequestAsyncOperation).webRequest;
-
+            
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
-                status = Status.Error;
-
                 APIError error = APIError.GenerateFromWebRequest(webRequest);
+                OnFinalize_Failed(webRequest.downloadHandler, error);
                 
-                #if LOG_DOWNLOADS
-                APIClient.LogError(error);
-                #endif
-                
+                status = Status.Error;
                 if(OnFailed != null)
                 {
                     OnFailed(error);
                 }
+
+                #if LOG_DOWNLOADS
+                APIClient.LogError(error);
+                #endif
             }
             else
             {
+                OnFinalize_Succeeded(webRequest.downloadHandler);
+
                 status = Status.Completed;
+                if(OnCompleted != null)
+                {
+                    OnCompleted();
+                }
 
                 #if LOG_DOWNLOADS
                 Debug.Log("DOWNLOAD SUCEEDED"
                           + "\nSourceURL: " + webRequest.url);
                 #endif
-
-                if(OnCompleted != null)
-                {
-                    OnCompleted();
-                }
             }
         }
+
+        protected virtual void OnFinalize_Failed(DownloadHandler handler, APIError error) {}
+        protected virtual void OnFinalize_Succeeded(DownloadHandler handler) {}
     }
 
     public class FileDownload : Download
@@ -120,8 +124,16 @@ namespace ModIO
 
         protected override void ModifyWebRequest(UnityWebRequest webRequest)
         {
-            DownloadHandlerTexture downloadHandler = new DownloadHandlerTexture(false);
+            // true = Texture is accessible from script
+            DownloadHandlerTexture downloadHandler = new DownloadHandlerTexture(true);
             webRequest.downloadHandler = downloadHandler;
+        }
+
+        protected override void OnFinalize_Succeeded(DownloadHandler handler)
+        {
+            DownloadHandlerTexture textureHandler = handler as DownloadHandlerTexture;
+
+            texture = textureHandler.texture;
         }
     }
 }
