@@ -12,6 +12,14 @@ namespace ModIO
                                                     Sprite modLogo,
                                                     LogoVersion logoVersion);
 
+    // TODO(@jackson): Add invalid/partial/downloading?
+    public enum ModfileStatus
+    {
+        Missing,
+        RequiresUpdate,
+        UpToDate
+    }
+
     public static class ModManager
     {
         // ---------[ INNER CLASSES ]---------
@@ -25,7 +33,6 @@ namespace ModIO
         [System.Serializable]
         private class ManifestData
         {
-            public int[] installedMods;
             public string lastOAuthToken;
         }
 
@@ -67,7 +74,6 @@ namespace ModIO
             {
                 // --- INITIALIZE FIRST RUN ---
                 manifest = new ManifestData();
-                manifest.installedMods = new int[0];
                 manifest.lastOAuthToken = "";
 
                 File.WriteAllText(manifestURL, JsonUtility.ToJson(manifest));
@@ -86,8 +92,6 @@ namespace ModIO
                 Mod mod = JsonUtility.FromJson<Mod>(File.ReadAllText(modDir + "/mod.data"));
                 modCache.Add(mod);
             }
-
-            // TODO(@jackson): Load partial downloads
         }
 
         // ---------[ USER MANAGEMENT ]---------
@@ -237,14 +241,14 @@ namespace ModIO
         public static FileDownload StartModDownload(Mod mod)
         {
             // TODO(@jackson): Reacquire ModHeader
-
             FileDownload download = new FileDownload();
 
             ObjectCallback<Modfile> onModfileReceived = (modfile) =>
             {
                 download.sourceURL = modfile.downloadURL;
-                download.fileURL = GetModDirectory(mod) + modfile.ID + "_" + modfile.dateAdded + ".zip";
-                download.Start();
+                download.fileURL = GetModDirectory(mod) + "modfile_" + modfile.ID + ".zip";
+
+                DownloadManager.AddQueuedDownload(download);
             };
 
             // TODO(@jackson): Convert to "Update Modfile" function
@@ -252,6 +256,26 @@ namespace ModIO
                               onModfileReceived, APIClient.LogError);
 
             return download;
+        }
+
+        public static ModfileStatus GetModfileStatus(Mod mod)
+        {
+            if(File.Exists(GetModDirectory(mod) + "modfile_" + mod.modfile.ID + ".zip"))
+            {
+                 return ModfileStatus.UpToDate;
+            }
+            else
+            {
+                string[] modfileURLs = Directory.GetFiles(GetModDirectory(mod), "modfile_*.zip");
+                if(modfileURLs.Length > 0)
+                {
+                    return ModfileStatus.RequiresUpdate;
+                }
+                else
+                {
+                    return ModfileStatus.Missing;
+                }
+            }
         }
 
         // ---------[ LOGO MANAGEMENT ]---------
@@ -342,14 +366,14 @@ namespace ModIO
 
         private static void StartLogoDownload(Mod mod, LogoTemplate logoTemplate)
         {
-            TextureDownload download = new TextureDownload();
-            download.sourceURL = logoTemplate.getRemoteLogoURL(mod);
-                                 
-            download.OnFailed += APIClient.LogError;
+            string logoURL = logoTemplate.getRemoteLogoURL(mod);
 
-            download.OnCompleted += () =>
+            TextureDownload download = new TextureDownload();
+            download.sourceURL = logoURL;
+            download.OnCompleted += (d) =>
             {
-                Texture2D logoTexture = download.texture;
+                TextureDownload textureDownload = download as TextureDownload;
+                Texture2D logoTexture = textureDownload.texture;
 
                 // - Cache -
                 if(cachedLogoVersion == logoTemplate.version)
@@ -372,9 +396,10 @@ namespace ModIO
                 }
             };
 
-            download.Start();
+            DownloadManager.AddConcurrentDownload(download);
         }
 
+        // TODO(@jackson): Clean up
         public static void PreloadModLogos(Mod[] modLogosToPreload,
                                            LogoVersion logoVersion,
                                            int startingIndex)

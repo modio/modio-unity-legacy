@@ -24,8 +24,13 @@ namespace ModIO
         }
 
         // ---------[ INNER CLASSES ]---------
-        // TODO(@jackson): Specialize
-        public class Request
+        public class GetRequest
+        {
+            public string endpoint = "";
+            public string oAuthToken = "";
+            public Filter filter = Filter.NONE;
+        }
+        public class PostRequest
         {
             public class BinaryData
             {
@@ -36,7 +41,6 @@ namespace ModIO
 
             public string endpoint = "";
             public string oAuthToken = "";
-            public Filter filter = Filter.NONE;
             public Dictionary<string, string> fieldValues = new Dictionary<string, string>();
             public Dictionary<string, BinaryData> fieldData = new Dictionary<string, BinaryData>();
 
@@ -46,11 +50,16 @@ namespace ModIO
                 {
                     form.AddField(kvp.Key, kvp.Value);
                 }
-                foreach(KeyValuePair<string, Request.BinaryData> kvp in fieldData)
+                foreach(KeyValuePair<string, PostRequest.BinaryData> kvp in fieldData)
                 {
                     form.AddBinaryData(kvp.Key, kvp.Value.contents, kvp.Value.fileName, kvp.Value.mimeType);
                 }
             }
+        }
+        public class DeleteRequest
+        {
+            public string endpoint = "";
+            public string oAuthToken = "";
         }
 
         // ---------[ CONSTANTS ]---------
@@ -134,14 +143,10 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
-        public static IEnumerator ExecuteGetRequest<T>(Request request,
+        public static IEnumerator ExecuteGetRequest<T>(GetRequest request,
                                                        ObjectCallback<T> onSuccess,
                                                        ErrorCallback onError)
         {
-            Debug.Assert((request.fieldValues == null || request.fieldValues.Count == 0)
-                         && (request.fieldData == null || request.fieldData.Count == 0),
-                         "Get Requests cannot submit field data");
-
             string constructedURL = URL + request.endpoint + "?" + request.filter.GenerateQueryString();
             
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
@@ -175,11 +180,11 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
-        public static IEnumerator ExecutePostRequest<T>(Request request,
+        public static IEnumerator ExecutePostRequest<T>(PostRequest request,
                                                         ObjectCallback<T> onSuccess,
                                                         ErrorCallback onError)
         {
-            string constructedURL = URL + request.endpoint + "?" + request.filter.GenerateQueryString();
+            string constructedURL = URL + request.endpoint;// + "?" + request.filter.GenerateQueryString();
 
             WWWForm form = new WWWForm();
             request.AddFieldsToForm(form);
@@ -207,7 +212,7 @@ namespace ModIO
                 {
                     formFields += "\n" + kvp.Key + "=" + kvp.Value;
                 }
-                foreach(KeyValuePair<string, Request.BinaryData> kvp in request.fieldData)
+                foreach(KeyValuePair<string, PostRequest.BinaryData> kvp in request.fieldData)
                 {
                     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
                 }
@@ -226,16 +231,16 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
-        public static IEnumerator ExecuteDeleteRequest<T>(Request request,
+        public static IEnumerator ExecuteDeleteRequest<T>(DeleteRequest request,
                                                           ObjectCallback<T> onSuccess,
                                                           ErrorCallback onError)
         {
-            string constructedURL = URL + request.endpoint + "?" + request.filter.GenerateQueryString();
+            string constructedURL = URL + request.endpoint;// + "?" + request.filter.GenerateQueryString();
 
             WWWForm form = new WWWForm();
-            request.AddFieldsToForm(form);
+            // request.AddFieldsToForm(form);
 
-            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, form);
+            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, "");
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
             webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);
 
@@ -254,20 +259,20 @@ namespace ModIO
                     }
                 }
 
-                string formFields = "";
-                foreach(KeyValuePair<string, string> kvp in request.fieldValues)
-                {
-                    formFields += "\n" + kvp.Key + "=" + kvp.Value;
-                }
-                foreach(KeyValuePair<string, Request.BinaryData> kvp in request.fieldData)
-                {
-                    formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
-                }
+                // string formFields = "";
+                // foreach(KeyValuePair<string, string> kvp in request.fieldValues)
+                // {
+                //     formFields += "\n" + kvp.Key + "=" + kvp.Value;
+                // }
+                // foreach(KeyValuePair<string, Request.BinaryData> kvp in request.fieldData)
+                // {
+                //     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
+                // }
 
                 Debug.Log("EXECUTING DELETE REQUEST"
                           + "\nEndpoint: " + constructedURL
                           + "\nHeaders: " + requestHeaders
-                          + "\nFields: " + formFields
+                          // + "\nFields: " + formFields
                           + "\n"
                           );
             }
@@ -323,7 +328,7 @@ namespace ModIO
                                         ObjectCallback<APIMessage> onSuccess,
                                         ErrorCallback onError)
         {
-            Request request = new Request();
+            PostRequest request = new PostRequest();
             request.endpoint = "oauth/emailrequest";
             request.fieldValues.Add("api_key", apiKey);
             request.fieldValues.Add("email", emailAddress);
@@ -336,7 +341,7 @@ namespace ModIO
                                       ObjectCallback<AuthenticationData> onSuccess,
                                       ErrorCallback onError)
         {
-            Request request = new Request();
+            PostRequest request = new PostRequest();
             request.endpoint = "oauth/emailexchange";
             request.fieldValues.Add("api_key", apiKey);
             request.fieldValues.Add("security_code", securityCode);
@@ -477,7 +482,7 @@ namespace ModIO
         public void SubscribeToMod(int modID,
                                    ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            PostRequest request = new PostRequest();
             request.endpoint = "games/" + gameID + "/mods/" + modID + "/subscribe";
             request.oAuthToken = oAuthToken;
 
@@ -488,7 +493,7 @@ namespace ModIO
         public void UnsubscribeFromMod(int modID,
                                        ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            DeleteRequest request = new DeleteRequest();
             request.endpoint = "games/" + gameID + "/mods/" + modID + "/subscribe";
             request.oAuthToken = oAuthToken;
 
@@ -745,15 +750,15 @@ namespace ModIO
         public void GetResourceOwner(ResourceType resourceType, int resourceID,
                                      ObjectCallback<User> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            PostRequest request = new PostRequest();
             request.endpoint = "general/owner";
             request.oAuthToken = oAuthToken;
             request.fieldValues.Add("resource_type", resourceType.ToString().ToLower());
             request.fieldValues.Add("resource_id", resourceID.ToString());
 
-            StartCoroutine(ExecuteGetRequest<User>(request,
-                                                   onSuccess,
-                                                   onError));
+            StartCoroutine(ExecutePostRequest<User>(request,
+                                                    onSuccess,
+                                                    onError));
         }
         // Get All Users
         public void GetAllUsers(GetAllUsersFilter filter,
@@ -794,7 +799,7 @@ namespace ModIO
         // Get Authenticated User
         public void GetAuthenticatedUser(ObjectCallback<User> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            GetRequest request = new GetRequest();
             request.endpoint = "me";
             request.oAuthToken = oAuthToken;
 
@@ -806,7 +811,7 @@ namespace ModIO
         public void GetUserSubscriptions(GetUserSubscriptionsFilter filter,
                                          ObjectCallback<Mod[]> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            GetRequest request = new GetRequest();
             request.endpoint = "me/subscribed";
             request.oAuthToken = oAuthToken;
             request.filter = filter;
@@ -818,7 +823,7 @@ namespace ModIO
         // Get User Games
         public void GetUserGames(ObjectCallback<Game[]> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            GetRequest request = new GetRequest();
             request.endpoint = "me/games";
             request.oAuthToken = oAuthToken;
 
@@ -829,7 +834,7 @@ namespace ModIO
         // Get User Mods
         public void GetUserMods(ObjectCallback<Mod[]> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            GetRequest request = new GetRequest();
             request.endpoint = "me/mods";
             request.oAuthToken = oAuthToken;
 
@@ -840,7 +845,7 @@ namespace ModIO
         // Get User Files
         public void GetUserModfiles(ObjectCallback<Modfile[]> onSuccess, ErrorCallback onError)
         {
-            Request request = new Request();
+            GetRequest request = new GetRequest();
             request.endpoint = "me/files";
             request.oAuthToken = oAuthToken;
 

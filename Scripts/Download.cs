@@ -7,6 +7,10 @@ using UnityEngine.Networking;
 
 namespace ModIO
 {
+    public delegate void DownloadStartedCallback(Download download);
+    public delegate void DownloadCompletedCallback(Download download);
+    public delegate void DownloadFailedCallback(Download download, APIError error);
+
     // TODO(@jackson): Create getters where necessary
     public abstract class Download
     {
@@ -19,9 +23,9 @@ namespace ModIO
         }
 
         // --- EVENTS ---
-        public event Action OnStarted;
-        public event Action OnCompleted;
-        public event ErrorCallback OnFailed;
+        public event DownloadStartedCallback OnStarted;
+        public event DownloadCompletedCallback OnCompleted;
+        public event DownloadFailedCallback OnFailed;
 
         // --- FIELDS ---
         public string sourceURL = "";
@@ -46,21 +50,21 @@ namespace ModIO
             webRequest.url += "?shhh=secret";
             #endif
 
+
+            UnityWebRequestAsyncOperation downloadOperation = webRequest.SendWebRequest();
+            downloadOperation.completed += Finalize;
+
+            startTime = DateTime.Now;
+            status = Status.InProgress;
+
             #if LOG_DOWNLOADS
             Debug.Log("STARTING DOWNLOAD"
                       + "\nSourceURL: " + webRequest.url);
             #endif
 
-            // Start Download
-            startTime = DateTime.Now;
-            status = Status.InProgress;
-
-            UnityWebRequestAsyncOperation downloadOperation = webRequest.SendWebRequest();
-            downloadOperation.completed += Finalize;
-
             if(OnStarted != null)
             {
-                OnStarted();
+                OnStarted(this);
             }
         }
 
@@ -76,30 +80,30 @@ namespace ModIO
                 APIError error = APIError.GenerateFromWebRequest(webRequest);
                 OnFinalize_Failed(webRequest.downloadHandler, error);
                 
-                status = Status.Error;
-                if(OnFailed != null)
-                {
-                    OnFailed(error);
-                }
-
                 #if LOG_DOWNLOADS
                 APIClient.LogError(error);
                 #endif
+
+                status = Status.Error;
+                if(OnFailed != null)
+                {
+                    OnFailed(this, error);
+                }
             }
             else
             {
                 OnFinalize_Succeeded(webRequest.downloadHandler);
 
-                status = Status.Completed;
-                if(OnCompleted != null)
-                {
-                    OnCompleted();
-                }
-
                 #if LOG_DOWNLOADS
                 Debug.Log("DOWNLOAD SUCEEDED"
                           + "\nSourceURL: " + webRequest.url);
                 #endif
+
+                status = Status.Completed;
+                if(OnCompleted != null)
+                {
+                    OnCompleted(this);
+                }
             }
         }
 
