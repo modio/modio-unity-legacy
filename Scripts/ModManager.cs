@@ -62,19 +62,19 @@ namespace ModIO
                 Directory.CreateDirectory(MODIO_DIR);
             }
 
-            string manifestURI = MODIO_DIR + ".manifest";
-            if(!File.Exists(manifestURI))
+            string manifestURL = MODIO_DIR + ".manifest";
+            if(!File.Exists(manifestURL))
             {
                 // --- INITIALIZE FIRST RUN ---
                 manifest = new ManifestData();
                 manifest.installedMods = new int[0];
                 manifest.lastOAuthToken = "";
 
-                File.WriteAllText(manifestURI, JsonUtility.ToJson(manifest));
+                File.WriteAllText(manifestURL, JsonUtility.ToJson(manifest));
             }
             else
             {
-                manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(manifestURI));
+                manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(manifestURL));
                 client.oAuthToken = manifest.lastOAuthToken;
             }
 
@@ -242,8 +242,8 @@ namespace ModIO
 
             ObjectCallback<Modfile> onModfileReceived = (modfile) =>
             {
-                download.sourceURI = modfile.downloadURL;
-                download.fileURI = GetModDirectory(mod) + modfile.ID + "_" + modfile.dateAdded + ".zip";
+                download.sourceURL = modfile.downloadURL;
+                download.fileURL = GetModDirectory(mod) + modfile.ID + "_" + modfile.dateAdded + ".zip";
                 download.Start();
             };
 
@@ -265,28 +265,28 @@ namespace ModIO
                 versionArray[(int)LogoVersion.Original].version = LogoVersion.Original;
                 versionArray[(int)LogoVersion.Original].localFilename = "logo_original.png";
                 // TOOD(@jackson): How to handle dimensions?...
-                versionArray[(int)LogoVersion.Original].getRemoteLogoURI = (Mod m) => { return m.logo.original; };
+                versionArray[(int)LogoVersion.Original].getRemoteLogoURL = (Mod m) => { return m.logo.original; };
 
                 versionArray[(int)LogoVersion.Thumb_320x180] = new LogoTemplate();
                 versionArray[(int)LogoVersion.Thumb_320x180].version = LogoVersion.Thumb_320x180;
                 versionArray[(int)LogoVersion.Thumb_320x180].localFilename = "logo_320x180.png";
                 versionArray[(int)LogoVersion.Thumb_320x180].width = 320;
                 versionArray[(int)LogoVersion.Thumb_320x180].height = 180;
-                versionArray[(int)LogoVersion.Thumb_320x180].getRemoteLogoURI = (Mod m) => { return m.logo.thumb_320x180; };
+                versionArray[(int)LogoVersion.Thumb_320x180].getRemoteLogoURL = (Mod m) => { return m.logo.thumb_320x180; };
 
                 versionArray[(int)LogoVersion.Thumb_640x360] = new LogoTemplate();
                 versionArray[(int)LogoVersion.Thumb_640x360].version = LogoVersion.Thumb_640x360;
                 versionArray[(int)LogoVersion.Thumb_640x360].localFilename = "logo_640x360.png";
                 versionArray[(int)LogoVersion.Thumb_640x360].width = 640;
                 versionArray[(int)LogoVersion.Thumb_640x360].height = 360;
-                versionArray[(int)LogoVersion.Thumb_640x360].getRemoteLogoURI = (Mod m) => { return m.logo.thumb_640x360; };
+                versionArray[(int)LogoVersion.Thumb_640x360].getRemoteLogoURL = (Mod m) => { return m.logo.thumb_640x360; };
 
                 versionArray[(int)LogoVersion.Thumb_1280x720] = new LogoTemplate();
                 versionArray[(int)LogoVersion.Thumb_1280x720].version = LogoVersion.Thumb_1280x720;
                 versionArray[(int)LogoVersion.Thumb_1280x720].localFilename = "logo_1280x720.png";
                 versionArray[(int)LogoVersion.Thumb_1280x720].width = 1280;
                 versionArray[(int)LogoVersion.Thumb_1280x720].height = 720;
-                versionArray[(int)LogoVersion.Thumb_1280x720].getRemoteLogoURI = (Mod m) => { return m.logo.thumb_1280x720; };
+                versionArray[(int)LogoVersion.Thumb_1280x720].getRemoteLogoURL = (Mod m) => { return m.logo.thumb_1280x720; };
             }
 
             private static LogoTemplate[] versionArray;
@@ -300,7 +300,7 @@ namespace ModIO
             public string localFilename = "";
             public int width = -1;
             public int height = -1;
-            public Func<Mod, string> getRemoteLogoURI = null;
+            public Func<Mod, string> getRemoteLogoURL = null;
         }
 
         public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
@@ -321,11 +321,11 @@ namespace ModIO
             {
                 LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
 
-                string localURI = GetModDirectory(mod) + logoTemplate.localFilename;
-                if(File.Exists(localURI))
+                string localURL = GetModDirectory(mod) + logoTemplate.localFilename;
+                if(File.Exists(localURL))
                 {
                     Texture2D logoTexture = new Texture2D(logoTemplate.width, logoTemplate.height);
-                    logoTexture.LoadImage(File.ReadAllBytes(localURI));
+                    logoTexture.LoadImage(File.ReadAllBytes(localURL));
 
                     return Sprite.Create(logoTexture,
                                          new Rect(0, 0, logoTemplate.width, logoTemplate.height),
@@ -342,7 +342,7 @@ namespace ModIO
         private static void DownloadModLogo(Mod mod, LogoTemplate logoTemplate)
         {
             Debug.LogError("Needs to be reimplemented");
-            // DownloadAndStoreFile(logoTemplate.getRemoteLogoURI(mod),
+            // DownloadAndStoreFile(logoTemplate.getRemoteLogoURL(mod),
             //                      GetModDirectory(mod),
             //                      logoTemplate.localFilename,
             //                      (imageData) =>
@@ -386,13 +386,13 @@ namespace ModIO
             {
                 if(!modLogoCache.ContainsKey(mod.ID))
                 {
-                    string localURI = GetModDirectory(mod) + logoTemplate.localFilename;
-                    if(File.Exists(localURI))
+                    string localURL = GetModDirectory(mod) + logoTemplate.localFilename;
+                    if(File.Exists(localURL))
                     {
-                        Debug.Log("Found Logo: " + localURI);
+                        Debug.Log("Found Logo: " + localURL);
 
                         Texture2D logoTexture = new Texture2D(logoTemplate.width, logoTemplate.height);
-                        logoTexture.LoadImage(File.ReadAllBytes(localURI));
+                        logoTexture.LoadImage(File.ReadAllBytes(localURL));
 
                         modLogoCache[mod.ID]
                             = Sprite.Create(logoTexture,

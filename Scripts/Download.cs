@@ -24,7 +24,7 @@ namespace ModIO
         public event ErrorCallback OnFailed;
 
         // --- FIELDS ---
-        public string sourceURI = "";
+        public string sourceURL = "";
         public DateTime startTime = new DateTime();
         public Status status = Status.NotStarted;
         public Func<float> GetCompletedPercentage = null;
@@ -34,9 +34,9 @@ namespace ModIO
         public void Start()
         {
             Debug.Assert(status != Status.InProgress);
-            Debug.Assert(!String.IsNullOrEmpty(sourceURI));
+            Debug.Assert(!String.IsNullOrEmpty(sourceURL));
 
-            UnityWebRequest webRequest = UnityWebRequest.Get(sourceURI);
+            UnityWebRequest webRequest = UnityWebRequest.Get(sourceURL);
             GetCompletedPercentage = () => webRequest.downloadProgress;
             GetDownloadedByteCount = () => webRequest.downloadedBytes;
 
@@ -48,7 +48,7 @@ namespace ModIO
 
             #if LOG_DOWNLOADS
             Debug.Log("STARTING DOWNLOAD"
-                      + "\nSourceURI: " + webRequest.url);
+                      + "\nSourceURL: " + webRequest.url);
             #endif
 
             // Start Download
@@ -92,7 +92,7 @@ namespace ModIO
 
                 #if LOG_DOWNLOADS
                 Debug.Log("DOWNLOAD SUCEEDED"
-                          + "\nSourceURI: " + webRequest.url);
+                          + "\nSourceURL: " + webRequest.url);
                 #endif
 
                 if(OnCompleted != null)
@@ -105,11 +105,11 @@ namespace ModIO
 
     public class FileDownload : Download
     {
-        public string fileURI = "";
+        public string fileURL = "";
 
         protected override void ModifyWebRequest(UnityWebRequest webRequest)
         {
-            DownloadHandlerFile downloadHandler = new DownloadHandlerFile(fileURI);
+            DownloadHandlerFile downloadHandler = new DownloadHandlerFile(fileURL);
             webRequest.downloadHandler = downloadHandler;
         }
     }
