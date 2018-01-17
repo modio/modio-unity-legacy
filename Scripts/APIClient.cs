@@ -106,7 +106,7 @@ namespace ModIO
             string errorMessage = "API ERROR";
             errorMessage += "\nURL: " + error.url;
             errorMessage += "\nCode: " + error.code;
-            errorMessage += "\nMessage:" + error.message;
+            errorMessage += "\nMessage: " + error.message;
             errorMessage += "\nHeaders:";
             foreach(KeyValuePair<string, string> header in error.headers)
             {

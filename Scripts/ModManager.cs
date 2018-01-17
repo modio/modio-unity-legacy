@@ -253,8 +253,6 @@ namespace ModIO
                                         {
                                             OnModfileChanged(mod.ID, mod.modfile);
                                         }
-                                        
-                                        // TODO(@jackson): if GetBinaryStatus(mod) == RequiresUpdate?
                                       },
                                       APIClient.LogError);
 
@@ -270,8 +268,6 @@ namespace ModIO
                                         {
                                             OnModfileChanged(mod.ID, modfile);
                                         }
-
-                                        // TODO(@jackson): if GetBinaryStatus(mod) == RequiresUpdate?
                                       },
                                       APIClient.LogError);
                 }
@@ -514,7 +510,6 @@ namespace ModIO
             // client.BrowseMods(filter, callback);
         }
 
-        // TODO(@jackson): Add Callbacks
         public static FileDownload StartBinaryDownload(int modID, int modfileID)
         {
             FileDownload download = new FileDownload();
@@ -528,7 +523,8 @@ namespace ModIO
             };
 
             client.GetModfile(modID, modfileID,
-                              queueBinaryDownload, APIClient.LogError);
+                              queueBinaryDownload,
+                              download.MarkAsFailed);
 
             return download;
         }

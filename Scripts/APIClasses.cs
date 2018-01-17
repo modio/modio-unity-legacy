@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO(@jackson): Clean up class layout, getters/setters, etc
 namespace ModIO
 {
     public enum LogoVersion
@@ -225,11 +226,10 @@ namespace ModIO
         [Flags]
         public enum APIAccessOptions
         {
-            Disabled = 0,
-            Restricted = 1, // This game allows 3rd parties to access the mods API
-            Unrestricted = 2, // This game allows mods to be downloaded directly without API validation
+            RestrictAll = 0,
+            AllowPublicAccess = 1, // This game allows 3rd parties to access the mods API
+            AllowDirectDownloads = 2, // This game allows mods to be downloaded directly without API validation
         }
-
 
         // - API snake_case fields -
         [SerializeField] private int id;
