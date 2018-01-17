@@ -1258,7 +1258,7 @@ namespace ModIO
 
         private static Dictionary<Field, FieldInformation> fieldInformationMap;
 
-        static void GetAllGamesFilter()
+        static GetUserSubscriptionsFilter()
         {
             fieldInformationMap = new Dictionary<Field, FieldInformation>(Enum.GetNames(typeof(Field)).Length);
 
@@ -1348,6 +1348,7 @@ namespace ModIO
 
         public override string GenerateQueryString()
         {
+            // TODO(@jackson): REMOVE THIS DEPENDENCY!
             Debug.Assert(ModManager.APIClient != null
                          && ModManager.APIClient.gameID > 0,
                          "This filter cannot be used until the ModManager has been initialized and the APIClient given a valid Game ID");
