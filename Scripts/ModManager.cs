@@ -5,15 +5,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// TODO(@jackson): Handle API Errors better. (Reattempt, etc. Query tickets?)
+// TODO(@jackson): Rename InitializeUser
+// TODO(@jackson): Distinguish between "Cache Update" and "Remote Update" events
 namespace ModIO
 {
     public delegate void ModUpdatedEventHandler(int modID);
     public delegate void ModLogoUpdatedEventHandler(int modID,
                                                     Sprite modLogo,
                                                     LogoVersion logoVersion);
+    public delegate void ModSubscriptionUpdateEventHandler(int modID);
 
     // TODO(@jackson): Add invalid/partial/downloading?
-    public enum ModfileStatus
+    public enum ModBinaryStatus
     {
         Missing,
         RequiresUpdate,
@@ -26,14 +30,16 @@ namespace ModIO
         [System.Serializable]
         private class UserData
         {
+            public string oAuthToken = "";
             public User user = null;
-            public List<int> subscribedModIDs = null;
+            public List<int> subscribedModIDs = new List<int>();
         }
 
         [System.Serializable]
         private class ManifestData
         {
-            public string lastOAuthToken;
+            public ModIOTimestamp lastUpdateTimestamp;
+            public List<ModEvent> unresolvedEvents;
         }
 
         // ---------[ VARIABLES ]---------
@@ -41,25 +47,26 @@ namespace ModIO
         private static ManifestData manifest = null;
         private static UserData userData = null;
 
-        public static string MODIO_DIR { get { return Application.persistentDataPath + "/.modio/"; } }
+        public static string MODIO_DIR { get { return Application.persistentDataPath + "/modio/"; } }
         public static APIClient APIClient { get { return client; } }
         public static User CurrentUser { get { return userData == null ? null : userData.user; } }
+
+        private static string MANIFEST_URL { get { return MODIO_DIR + "manifest.data"; } }
+        private static string USERDATA_URL { get { return MODIO_DIR + "user.data"; } }
 
         // --------- [ INITIALISATION ]---------
         public static void Initialize(int gameID, string apiKey)
         {
             if(client != null)
             {
-                Debug.Assert(client.gameID == gameID && client.apiKey == apiKey,
-                             "ModIO Initialization Error: Cannot re-intialise with different data.");
+                Debug.LogWarning("Cannot re-initialize ModManager");
                 return;
             }
 
             // --- Create Client ---
             GameObject go = new GameObject("ModIO API Client");
             client = go.AddComponent<APIClient>();
-            client.gameID = gameID;
-            client.apiKey = apiKey;
+            client.SetAccessContext(gameID, apiKey);
 
             GameObject.DontDestroyOnLoad(go);
 
@@ -69,94 +76,333 @@ namespace ModIO
                 Directory.CreateDirectory(MODIO_DIR);
             }
 
-            string manifestURL = MODIO_DIR + ".manifest";
-            if(!File.Exists(manifestURL))
+            if(!File.Exists(MANIFEST_URL))
             {
                 // --- INITIALIZE FIRST RUN ---
                 manifest = new ManifestData();
-                manifest.lastOAuthToken = "";
+                manifest.lastUpdateTimestamp = new ModIOTimestamp();
+                manifest.unresolvedEvents = new List<ModEvent>();
 
-                File.WriteAllText(manifestURL, JsonUtility.ToJson(manifest));
+                WriteManifestToDisk();
             }
             else
             {
-                manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(manifestURL));
-                client.oAuthToken = manifest.lastOAuthToken;
+                manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(MANIFEST_URL));
             }
 
-            // iterate through folders, load ModInfo
+            // iterate through folders, load Mod
             string[] modDirectories = Directory.GetDirectories(MODIO_DIR);
             foreach(string modDir in modDirectories)
             {
                 // Load Mod from Disk
                 Mod mod = JsonUtility.FromJson<Mod>(File.ReadAllText(modDir + "/mod.data"));
-                modCache.Add(mod);
+                modCache.Add(mod.ID, mod);
+            }
+
+            // Attempt to load user
+            if(File.Exists(USERDATA_URL))
+            {
+                userData = JsonUtility.FromJson<UserData>(File.ReadAllText(USERDATA_URL));
+
+                client.GetAuthenticatedUser(userData.oAuthToken,
+                                            APIClient.IgnoreSuccess,
+                                            (error) =>
+                                            {
+                                                if(error.code == 401) // Failed authentication
+                                                {
+                                                    userData = null;
+                                                    DeleteUserDataFromDisk();
+                                                    // TODO(@jackson): Fire Event
+                                                };
+                                            });
+            }
+
+            // TODO(@jackson): Add Event Listeners
+
+            // --- Start Update Polling Loop ---
+            Debug.Log("ModManager Initialized."
+                      + "\nModIO Directory: " + MODIO_DIR);
+        }
+
+        // ---------[ AUTOMATED UPDATING ]---------
+        // TODO(@jackson): Include subscription polling
+        private const float SECONDS_BETWEEN_POLLING = 15.0f;
+        private static bool isUpdatePollingEnabled = false;
+        private static bool isUpdatePollingRunning = false;
+
+        public static void EnableUpdatePolling()
+        {
+            isUpdatePollingEnabled = true;
+            
+            if(!isUpdatePollingRunning)
+            {
+                client.StartCoroutine(PollForUpdates());
+            }
+        }
+        public static void DisableUpdatePolling()
+        {
+            isUpdatePollingEnabled = false;
+        }
+
+        private static IEnumerator PollForUpdates()
+        {
+            if(isUpdatePollingEnabled)
+            {
+                isUpdatePollingRunning = true;
+                
+                ModIOTimestamp fromTimestamp = manifest.lastUpdateTimestamp;
+                ModIOTimestamp untilTimestamp = ModIOTimestamp.Now();
+
+                // - Get Mod Events -
+                GetAllModEventsFilter eventFilter = new GetAllModEventsFilter();
+                eventFilter.ApplyIntRange(GetAllModEventsFilter.Field.DateAdded, 
+                                          fromTimestamp.AsServerTimestamp(), true, 
+                                          untilTimestamp.AsServerTimestamp(), false);
+                eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest, 
+                                           true);
+
+                client.GetAllModEvents(eventFilter, 
+                                       (eventArray) => 
+                                       {
+                                        manifest.lastUpdateTimestamp = untilTimestamp;
+                                        ProcessModEvents(eventArray);
+                                       },
+                                       APIClient.LogError);
+
+                // - Get Subscription Updates -
+                if(userData != null)
+                {
+                    GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
+                    subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameID, client.gameID);
+
+                    APIClient.GetUserSubscriptions(userData.oAuthToken, 
+                                                   subscriptionFilter, 
+                                                   UpdateSubscriptions, 
+                                                   APIClient.LogError);
+                }
+
+
+                yield return new WaitForSeconds(SECONDS_BETWEEN_POLLING);
+                isUpdatePollingRunning = false;
+
+                client.StartCoroutine(PollForUpdates());
+            }
+        }
+
+        private static void ProcessModEvents(ModEvent[] eventArray)
+        {
+            // - Mod Processing Options -
+            Action<ModEvent> processModLive = (modEvent) =>
+            {
+                // TODO(@jackson): Untested code
+                Debug.Log("Processing Mod Live: ID[" + modEvent.ID + "]");
+
+                client.GetMod(modEvent.modID,
+                              (mod) =>
+                              {
+                                CacheMod(mod);
+                                manifest.unresolvedEvents.Remove(modEvent);
+                              },
+                              APIClient.LogError);
+            };
+
+            Action<ModEvent> processModVisibilityChange = (modEvent) =>
+            {
+                string modVisibilityAfterChange = modEvent.changes[0].after;
+                if(modVisibilityAfterChange.ToUpper().Equals("TRUE"))
+                {
+                    client.GetMod(modEvent.modID,
+                                  (mod) =>
+                                  {
+                                    CacheMod(mod);
+                                    manifest.unresolvedEvents.Remove(modEvent);
+                                  },
+                                  APIClient.LogError);
+                }
+                else
+                {
+                    Mod mod = GetMod(modEvent.modID);
+                    if(mod != null)
+                    {
+                        UncacheMod(mod);
+                    }
+                    manifest.unresolvedEvents.Remove(modEvent);
+                }
+            };
+
+            Action<ModEvent> processModfileChange = (modEvent) =>
+            {
+                Debug.Log("Processing Modfile Change: ID[" + modEvent.ID + "]");
+
+                Mod mod = GetMod(modEvent.modID);
+
+                if(mod == null)
+                {
+                    // TODO(@jackson): Do something else here?
+                    Debug.Log("Received Modfile change for uncached mod. Ignoring.");
+                    manifest.unresolvedEvents.Remove(modEvent);
+                }
+                else
+                {
+                    int modfileID = 0;
+
+                    if(!Int32.TryParse(modEvent.changes[0].after, out modfileID))
+                    {
+                        // TODO(@jackson): Implement mod re-caching and rechecking?
+                        Debug.LogError("Unable to parse the new Modfile ID from the ModEvent data. Updating Mod information in cache and rechecking.");
+                        manifest.unresolvedEvents.Remove(modEvent);
+                        return;
+                    }
+
+                    client.GetModfile(modEvent.modID, modfileID,
+                                      (modfile) =>
+                                      {
+                                        mod.modfile = modfile;
+                                        // TODO(@jackson): EVENT!
+                                        // TODO(@jackson): if GetBinaryStatus(mod) == RequiresUpdate?
+                                      },
+                                      APIClient.LogError);
+                }
+            };
+
+            // - Handle Mod Event -
+            foreach(ModEvent modEvent in eventArray)
+            {
+                string eventSummary = "Timestamp (Local)=" + modEvent.GetDateAdded().AsLocalDateTime();
+                eventSummary += "\nMod=" + modEvent.modID;
+                eventSummary += "\nEventType=" + modEvent.GetEventType().ToString();
+                
+                Debug.Log("[PROCESSING MOD EVENT]\n" + eventSummary);
+
+
+                manifest.unresolvedEvents.Add(modEvent);
+
+                switch(modEvent.GetEventType())
+                {
+                    case ModEvent.EventType.ModVisibilityChange:
+                    {
+                        processModVisibilityChange(modEvent);
+                    }
+                    break;
+                    case ModEvent.EventType.ModLive:
+                    {
+                        processModLive(modEvent);
+                    }
+                    break;
+                    case ModEvent.EventType.ModfileChange:
+                    {
+                        processModfileChange(modEvent);
+                    }
+                    break;
+                    default:
+                    {
+                        Debug.LogError("Unhandled Event Type: " + modEvent.GetEventType().ToString());
+                    }
+                    break;
+                }
+            }
+        }
+
+        private static void UpdateSubscriptions(Mod[] subscribedMods)
+        {
+            if(userData == null) { return; }
+
+            List<int> addedMods = new List<int>();
+            List<int> removedMods = new List<int>(userData.subscribedModIDs);
+            userData.subscribedModIDs = new List<int>(subscribedMods.Length);
+
+            foreach(Mod mod in subscribedMods)
+            {
+                userData.subscribedModIDs.Add(mod.ID);
+
+                if(removedMods.Contains(mod.ID))
+                {
+                    removedMods.Remove(mod.ID);
+                }
+                else
+                {
+                    addedMods.Add(mod.ID);
+                }
+            }
+
+            WriteUserDataToDisk();
+
+            // - Notify -
+            if(OnModSubscriptionAdded != null)
+            {
+                foreach(int modID in addedMods)
+                {
+                    OnModSubscriptionAdded(modID);
+                }
+            }
+            if(OnModSubscriptionRemoved != null)
+            {
+                foreach(int modID in removedMods)
+                {
+                    OnModSubscriptionRemoved(modID);
+                }
             }
         }
 
         // ---------[ USER MANAGEMENT ]---------
-        public static void RequestAndStoreOAuthToken(string securityCode,
-                                                     Action onSuccess,
-                                                     ErrorCallback onError)
+        public static event ModSubscriptionUpdateEventHandler OnModSubscriptionAdded;
+        public static event ModSubscriptionUpdateEventHandler OnModSubscriptionRemoved;
+
+        public static void RequestOAuthToken(string securityCode,
+                                             ObjectCallback<string> onSuccess,
+                                             ErrorCallback onError)
         {
             client.RequestOAuthToken(securityCode,
-                                     (oAuthToken) =>
-                                     {
-                                        client.oAuthToken = oAuthToken.accessToken;
-                                        manifest.lastOAuthToken = oAuthToken.accessToken;
-                                        onSuccess();
-                                        WriteManifestToDisk();
-                                     },
+                                     (authentication) => onSuccess(authentication.accessToken),
                                      onError);
         }
 
-        public static void AttemptUserInitialization(ObjectCallback<User> onSuccess,
-                                                     ErrorCallback onError)
+        public static void AttemptUserLogin(string userOAuthToken, 
+                                            ObjectCallback<User> onSuccess, 
+                                            ErrorCallback onError)
         {
-            client.GetAuthenticatedUser(user =>
-                                        {
-                                            InitializeUser(user, onSuccess, onError);
-                                        },
-                                        onError);
-        }
+            Action fetchUserSubscriptions = () =>
+            {
+                GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
+                subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameID, client.gameID);
 
-        private static void InitializeUser(User user,
-                                           ObjectCallback<User> onSuccess,
-                                           ErrorCallback onError)
-        {
-            client.GetUserSubscriptions(GetUserSubscriptionsFilter.NONE,
-                                        modArray =>
+                APIClient.GetUserSubscriptions(userOAuthToken, 
+                                               subscriptionFilter, 
+                                               UpdateSubscriptions, 
+                                               APIClient.LogError);
+            };
+
+            client.GetAuthenticatedUser(userOAuthToken,
+                                        user =>
                                         {
                                             userData = new UserData();
+                                            userData.oAuthToken = userOAuthToken;
                                             userData.user = user;
 
-                                            int[] subscribedModIDs = new int[modArray.Length];
-                                            for(int i = 0;
-                                                i < modArray.Length;
-                                                ++i)
-                                            {
-                                                subscribedModIDs[i] = modArray[i].ID;
-                                            }
-                                            userData.subscribedModIDs = new List<int>(subscribedModIDs);
+                                            fetchUserSubscriptions();
+
+                                            WriteUserDataToDisk();
+
                                             onSuccess(user);
                                         },
                                         onError);
         }
 
-        public static bool IsUserInitialized()
+        public static User GetActiveUser()
         {
-            return userData != null;
+            return (userData == null ? null : userData.user);
         }
 
         public static void SubscribeToMod(int modID,
                                           ObjectCallback<Mod> onSuccess,
                                           ErrorCallback onError)
         {
-            client.SubscribeToMod(modID,
+            client.SubscribeToMod(userData.oAuthToken,
+                                  modID,
                                   (message) =>
                                   {
                                     userData.subscribedModIDs.Add(modID);
-                                    onSuccess(GetModInfoForID(modID));
+                                    onSuccess(GetMod(modID));
                                   },
                                   onError);
         }
@@ -165,11 +411,12 @@ namespace ModIO
                                               ObjectCallback<Mod> onSuccess,
                                               ErrorCallback onError)
         {
-            client.UnsubscribeFromMod(modID,
+            client.UnsubscribeFromMod(userData.oAuthToken,
+                                      modID,
                                       (message) =>
                                       {
                                         userData.subscribedModIDs.Remove(modID);
-                                        onSuccess(GetModInfoForID(modID));
+                                        onSuccess(GetMod(modID));
                                       },
                                       onError);
         }
@@ -185,95 +432,116 @@ namespace ModIO
 
         // ---------[ MOD MANAGEMENT ]---------
         public static event ModUpdatedEventHandler OnModUpdated;
-        public static event ModLogoUpdatedEventHandler OnMogLogoUpdated;
+        public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
 
-        private static List<Mod> modCache = new List<Mod>();
+        private static Dictionary<int, Mod> modCache = new Dictionary<int, Mod>();
 
-        public static string GetModDirectory(Mod mod)
+        public static string GetModDirectory(int modID)
         {
-            return MODIO_DIR + mod.ID + "/";
+            return MODIO_DIR + modID + "/";
         }
 
-        public static Mod GetModInfoForID(int modID)
+        public static Mod GetMod(int modID)
         {
-            foreach(Mod mod in modCache)
-            {
-                if(mod.ID == modID)
-                {
-                    return mod;
-                }
-            }
-
-            return null;
+            Mod mod = null;
+            modCache.TryGetValue(modID, out mod);
+            return mod;
         }
 
         // NOTE(@jackson): Currently dumb. Needs improvement.
-        public static void DownloadModInfoToDiskAndCache()
+        public static void UpdateModCacheFromServer()
         {
-            client.GetAllMods(GetAllModsFilter.NONE, SaveModInfoToDiskAndCache, APIClient.LogError);
+            client.GetAllMods(GetAllModsFilter.None, CacheModArray, APIClient.LogError);
         }
-        private static void SaveModInfoToDiskAndCache(Mod[] modInfo)
+
+        private static void CacheMod(Mod mod)
         {
-            modCache = new List<Mod>(modInfo);
+            string modDir = GetModDirectory(mod.ID);
+            Directory.CreateDirectory(modDir);
+            File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
 
-            foreach(Mod mod in modInfo)
+            modCache[mod.ID] = mod;
+
+            if(OnModUpdated != null)
             {
-                string modDir = GetModDirectory(mod);
-                Directory.CreateDirectory(modDir);
-                File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
-
-                if(OnModUpdated != null)
-                {
-                    OnModUpdated(mod.ID);
-                }
+                OnModUpdated(mod.ID);
             }
+        }
+        private static void CacheModArray(Mod[] modArray)
+        {
+            foreach(Mod mod in modArray)
+            {
+                CacheMod(mod);
+            }
+        }
+        private static void UncacheMod(Mod mod)
+        {
+            // NOTE(@jackson): This would theoretically uninstall as well right?...
+            // What about subscribed mods, etc?
+            // TODO(@jackson): Check for installs, subscriptions, etc.
+
+            modCache.Remove(mod.ID);
+
+            string modDir = GetModDirectory(mod.ID);
+            Directory.Delete(modDir, true);
+
+            // TODO(@jackson): Create Event
         }
 
         public static void RequestMods(GetAllModsFilter filter, ObjectArrayCallback<Mod> callback)
         {
-            Mod[] retVal = filter.GetFilteredArray(modCache.ToArray());
+            Mod[] retVal = filter.FilterCollection(modCache.Values);
             callback(retVal);
 
             // client.BrowseMods(filter, callback);
         }
 
-        // TODO(@jackson): Add callbacks
-        public static FileDownload StartModDownload(Mod mod)
+        // TODO(@jackson): Add Callbacks
+        public static FileDownload StartBinaryDownload(int modID, int modfileID)
         {
-            // TODO(@jackson): Reacquire ModHeader
             FileDownload download = new FileDownload();
 
-            ObjectCallback<Modfile> onModfileReceived = (modfile) =>
+            ObjectCallback<Modfile> queueBinaryDownload = (modfile) =>
             {
                 download.sourceURL = modfile.downloadURL;
-                download.fileURL = GetModDirectory(mod) + "modfile_" + modfile.ID + ".zip";
+                download.fileURL = GetModDirectory(modID) + "modfile_" + modfile.ID + ".zip";
 
                 DownloadManager.AddQueuedDownload(download);
             };
 
             // TODO(@jackson): Convert to "Update Modfile" function
-            client.GetModfile(mod.ID, mod.modfile.ID,
-                              onModfileReceived, APIClient.LogError);
+            client.GetModfile(modID, modfileID,
+                              queueBinaryDownload, APIClient.LogError);
 
             return download;
         }
 
-        public static ModfileStatus GetModfileStatus(Mod mod)
+        public static void DeleteDownloadedBinaries(Mod mod)
         {
-            if(File.Exists(GetModDirectory(mod) + "modfile_" + mod.modfile.ID + ".zip"))
+            string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(mod.ID), "modfile_*.zip");
+            foreach(string binaryFilePath in binaryFilePaths)
             {
-                 return ModfileStatus.UpToDate;
+                File.Delete(binaryFilePath);   
+            }
+        }
+
+        public static ModBinaryStatus GetBinaryStatus(Mod mod)
+        {
+            if(File.Exists(GetModDirectory(mod.ID) + "modfile_" + mod.modfile.ID + ".zip"))
+            {
+                // TODO(@jackson): Check that IDs need to be changed on update
+                return ModBinaryStatus.UpToDate;
             }
             else
             {
-                string[] modfileURLs = Directory.GetFiles(GetModDirectory(mod), "modfile_*.zip");
+                string[] modfileURLs = Directory.GetFiles(GetModDirectory(mod.ID), "modfile_*.zip");
                 if(modfileURLs.Length > 0)
                 {
-                    return ModfileStatus.RequiresUpdate;
+                    return ModBinaryStatus.RequiresUpdate;
                 }
                 else
                 {
-                    return ModfileStatus.Missing;
+                    return ModBinaryStatus.Missing;
                 }
             }
         }
@@ -346,7 +614,7 @@ namespace ModIO
             {
                 LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
 
-                string localURL = GetModDirectory(mod) + logoTemplate.localFilename;
+                string localURL = GetModDirectory(mod.ID) + logoTemplate.localFilename;
                 if(File.Exists(localURL))
                 {
                     Texture2D logoTexture = new Texture2D(logoTemplate.width, logoTemplate.height);
@@ -385,14 +653,14 @@ namespace ModIO
                 }
 
                 // - Save to disk -
-                string localURL = GetModDirectory(mod) + logoTemplate.localFilename;
+                string localURL = GetModDirectory(mod.ID) + logoTemplate.localFilename;
                 byte[] bytes = logoTexture.EncodeToPNG();
                 File.WriteAllBytes(localURL, bytes);
 
                 // - Notify -
-                if(OnMogLogoUpdated != null)
+                if(OnModLogoUpdated != null)
                 {
-                    OnMogLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
+                    OnModLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
                 }
             };
 
@@ -419,11 +687,9 @@ namespace ModIO
             {
                 if(!modLogoCache.ContainsKey(mod.ID))
                 {
-                    string localURL = GetModDirectory(mod) + logoTemplate.localFilename;
+                    string localURL = GetModDirectory(mod.ID) + logoTemplate.localFilename;
                     if(File.Exists(localURL))
                     {
-                        Debug.Log("Found Logo: " + localURL);
-
                         Texture2D logoTexture = new Texture2D(logoTemplate.width, logoTemplate.height);
                         logoTexture.LoadImage(File.ReadAllBytes(localURL));
 
@@ -432,9 +698,9 @@ namespace ModIO
                                             new Rect(0, 0, logoTemplate.width, logoTemplate.height),
                                             Vector2.zero);
 
-                        if(OnMogLogoUpdated != null)
+                        if(OnModLogoUpdated != null)
                         {
-                            OnMogLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
+                            OnModLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
                         }
                     }
                     else
@@ -475,7 +741,17 @@ namespace ModIO
 
         private static void WriteManifestToDisk()
         {
-            File.WriteAllText(MODIO_DIR + ".manifest", JsonUtility.ToJson(manifest));
+            File.WriteAllText(MANIFEST_URL, JsonUtility.ToJson(manifest));
+        }
+
+        private static void WriteUserDataToDisk()
+        {
+            File.WriteAllText(USERDATA_URL, JsonUtility.ToJson(userData));
+        }
+
+        private static void DeleteUserDataFromDisk()
+        {
+            File.Delete(USERDATA_URL);
         }
     }
 }

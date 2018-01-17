@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO(@jackson): Remove setters from readonly fields
 namespace ModIO
 {
     public enum LogoVersion
@@ -63,23 +64,19 @@ namespace ModIO
         }
     }
 
-
-
     [Serializable]
     public class APIObjectArray<T>
     {
         // - API snake_case fields -
-        [SerializeField] private int cursor_id = -1;
-        [SerializeField] private int prev_id = -1;
-        [SerializeField] private int next_id = -1;
-        [SerializeField] private int result_count = 0;
+        [SerializeField] private int result_count;
+        [SerializeField] private int result_limit;
+        [SerializeField] private int result_offset;
 
         // - Unity named fields -
         public T[] data = null;
-        public int cursorID { get { return cursor_id; } set { cursor_id = value; } }
-        public int previousID { get { return prev_id; } set { prev_id = value; } }
-        public int nextID { get { return next_id; } set { next_id = value; } }
         public int resultCount { get { return result_count; } set { result_count = value; } }
+        public int resultLimit { get { return result_limit; } set { result_limit = value; } }
+        public int resultOffset { get { return result_offset; } set { result_offset = value; } }
     }
 
     // --------- API DATA OBJECTS ---------
@@ -99,6 +96,8 @@ namespace ModIO
     {
         public string filename; // Image filename, including file extension.
         public string original; // Full URL to the image.
+        public string thumb_50x50; // URL to the small thumbnail image.
+        public string thumb_100x100;   // URL to the medium thumbnail image.
     }
 
     [Serializable]
@@ -129,11 +128,6 @@ namespace ModIO
             get { return submitted_by; }
             set { submitted_by = value; }
         }
-        public int dateAdded // (int32)  Unix timestamp of when the comment was published.
-        {
-            get { return date_added; }
-            set { date_added = value; }
-        }
         public int replyID // (int32)  Unique id of the reply used to submitting a nested reply to the published comment.
         {
             get { return reply_id; }
@@ -151,13 +145,19 @@ namespace ModIO
             set { karma_guest = value; }
         }
         public string summary; // The displayed comment.
+
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+        }
     }
 
     [Serializable]
     public class MetadataKVP
     {
-        public string key; // The key of the key-value pair.
-        public string value; // The value of the key-value pair.
+        public string metakey; // The key of the key-value pair.
+        public string metavalue; // The value of the key-value pair.
     }
 
     [Serializable]
@@ -177,13 +177,74 @@ namespace ModIO
     [Serializable]
     public class Game
     {
+        // - Enum -
+        public enum Status
+        {
+            NotAccepted = 0,
+            Accepted = 1,
+            Archived = 2,
+            Deleted = 3,
+        }
+
+        public enum PresentationOption
+        {
+            GridView = 0,
+            TableView = 1,
+        }
+
+        public enum SubmissionOption
+        {
+            ToolOnly = 0,
+            Unrestricted = 1,
+        }
+
+        public enum CurationOption
+        {
+            None = 0,
+            Paid = 1,
+            Full = 2,
+        }
+
+        [Flags]
+        public enum CommunityOptions
+        {
+            Disabled = 0,
+            DiscussionBoard = 0x01,
+            GuidesAndNews = 0x02,
+        }
+
+        [Flags]
+        public enum RevenueOptions
+        {
+            Disabled = 0,
+            AllowSales = 0x01,
+            AllowDonations = 0x02,
+            AllowModTrading = 0x04,
+            AllowModScarcity = 0x08,
+        }
+
+        [Flags]
+        public enum APIAccessOptions
+        {
+            Disabled = 0,
+            Restricted = 1, // This game allows 3rd parties to access the mods API
+            Unrestricted = 2, // This game allows mods to be downloaded directly without API validation
+        }
+
+
         // - API snake_case fields -
         [SerializeField] private int id;
+        [SerializeField] private int status;
         [SerializeField] private User submitted_by;
         [SerializeField] private int date_added;
         [SerializeField] private int date_updated;
         [SerializeField] private int date_live;
-        [SerializeField] private int api;
+        [SerializeField] private int presentation_options;
+        [SerializeField] private int submission_options;
+        [SerializeField] private int curation_options;
+        [SerializeField] private int community_options;
+        [SerializeField] private int revenue_options;
+        [SerializeField] private int api_options;
         [SerializeField] private string ugc_name;
         [SerializeField] private string name_id;
         [SerializeField] private string profile_url;
@@ -199,31 +260,6 @@ namespace ModIO
         {
             get { return submitted_by; }
             set { submitted_by = value; }
-        }
-        public int dateAdded // Unix timestamp of date registered.
-        {
-            get { return date_added; }
-            set { date_added = value; }
-        }
-        public int dateUpdated // Unix timestamp of date updated.
-        {
-            get { return date_updated; }
-            set { date_updated = value; }
-        }
-        public int dateLive // Unix timestamp of when game was set live.
-        {
-            get { return date_live; }
-            set { date_live = value; }
-        }
-        public int presentation; // Determines which presentation style you want to use for your game on the mod.io website
-        public int community; // Determines the rights community members have with the game.
-        public int submission; // Determines the submission process you want modders to follow.
-        public int curation; // Determines the curation process for the game.
-        public int revenue; // Bitwise. Determines the revenue capabilities for mods of the game. For selecting multiple options you need to submit the bitwise value. i.e. If you want to allow user-generated content to be sold(1), to receive donations(2) and allow them to control their supply and scarcity(8) your would submit 11 (8 + 2 + 1).
-        public int API // Determines what permissions you want to enable via the mod.io API.
-        {
-            get { return api; }
-            set { api = value; }
         }
         public string UGCName // Singular string that best describes the type of user-generated content.
         {
@@ -253,102 +289,75 @@ namespace ModIO
             set { tag_options = value; }
         }
 
-        #region --- FieldNotes ---
-            /***
-            *   .presentation
-            *       0 = Grid View: Displays mods in a grid (visual but less informative, default setting)
-            *       1 = Table View: Displays mods in a table (easier to browse).
-            *   .community
-            *       0 = Discussion board disabled, community cannot share guides and news
-            *       1 = Discussion Board enabled only
-            *       2 = Community can only share guides and news
-            *       3 = Discussion Board enabled and community can share news and guides
-            *   .submission
-            *       0 = Control the upload process. You will have to build an upload system
-            *           either in-game or via a standalone app, which enables developers to
-            *           submit mods to the tags you have configured. Because you control the
-            *           flow, you can pre-validate and compile mods, to ensure they will work
-            *           in your game. In the long run this option will save you time as you
-            *           can accept more submissions, but it requires more setup to get running
-            *           and isn't as open as the above option.
-            *           NOTE: mod profiles can still be created online, but uploads will have
-            *           to occur via the tools you supply.
-            *       1 = Enable mod uploads from anywhere. Allow developers to upload mods via
-            *           the website and API, and pick the tags their mod is built for. No
-            *           validation will be done on the files submitted, it will be the
-            *           responsibility of your game and apps built to process the mods
-            *           installation based on the tags selected and determine if the mod is
-            *           valid and works. For example a mod might be uploaded to the 'map' tag.
-            *           When a user subscribes to this mod, your game will need to verify it
-            *           contains a map file and install it where maps are located. If this
-            *           fails, your game or the community will have to flag the mod as
-            *           'incompatible' to remove it from the listing.
-            *   .curation
-            *       0 = Mods are immediately available to play, without any intervention or
-            *           work from your team.
-            *       1 = Screen only mods the author wants to sell, before they are available to
-            *           purchase via the API.
-            *       2 = All mods must be accepted by someone on your team. This option is useful
-            *           for games that have a small number of mods and want to control the
-            *           experience, or you need to set the parameters attached to a mod
-            *           (i.e. a weapon may require the rate of fire, power level, clip size etc).
-            *           It can also be used for complex mods, which you may need to build into
-            *           your game or distribute as DLC.
-            *   .revenue
-            *       1 = Allow user-generated content to be sold
-            *       2 = Allow user-generated content to receive donations
-            *       4 = Allow user-generated content to be traded (not subject to revenue share)
-            *       8 = Allow user-generated content to control supply and scarcity.
-            *   .api
-            *       0 = Third parties cannot access your mods API and mods cannot be downloaded
-            *           directly without API validation.
-            *       1 = Allow 3rd parties to access your mods API (recommended, an open API will
-            *           encourage a healthy ecosystem of tools and apps) but mods cannot be
-            *           downloaded directly
-            *       2 = Allow mods to be downloaded directly but 3rd parties cannot access your
-            *           mods API.
-            *       3 = Allow third parties to access your mods API and allow mods to be
-            *           downloaded directly without api validation.
-            ***/
-        #endregion
-    }
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+        }
+        public ModIOTimestamp GetDateUpdated()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_updated);
+        }
+        public ModIOTimestamp GetDateLive()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_live);
+        }
 
-    [Serializable]
-    public class GameActivity
-    {
-        // - API snake_case fields -
-        [SerializeField] private int id;
-        [SerializeField] private int game_id;
-        [SerializeField] private int user_id;
-        [SerializeField] private string date_added;
-        [SerializeField] private string _event;
-
-        // - Unity named fields -
-        public int ID // Unique id of activity record.
+        public Status GetStatus()
         {
-            get { return id; }
-            set { id = value; }
+            return (Status)status;
         }
-        public int gameID // Unique id of the parent game.
+        public void SetStatus(Status value)
         {
-            get { return game_id; }
-            set { game_id = value; }
+            status = (int)value;
         }
-        public int userID // Unique id of the user who triggered the action.
+        public PresentationOption GetPresentationOption()
         {
-            get { return user_id; }
-            set { user_id = value; }
+            return (PresentationOption)presentation_options;
         }
-        public string dateAdded // Unix timestamp of when the event occured.
+        public void SetPresentationOption(PresentationOption value)
         {
-            get { return date_added; }
-            set { date_added = value; }
+            presentation_options = (int)value;
         }
-        public FieldChange[] changes; // Contains all changes for the event.
-        public string eventType // Type of event the activity was. ie. GAME_UPDATE or GAME_VISIBILITY_CHANGE.
+        public SubmissionOption GetSubmissionOption()
         {
-            get { return _event; }
-            set { _event = value; }
+            return (SubmissionOption)submission_options;
+        }
+        public void SetSubmissionOption(SubmissionOption value)
+        {
+            submission_options = (int)value;
+        }
+        public CurationOption GetCurationOption()
+        {
+            return (CurationOption)curation_options;
+        }
+        public void SetCurationOption(CurationOption value)
+        {
+            curation_options = (int)value;
+        }
+        public CommunityOptions GetCommunityOptions()
+        {
+            return (CommunityOptions)community_options;
+        }
+        public void SetCommunityOptions(CommunityOptions value)
+        {
+            community_options = (int)value;
+        }
+        public RevenueOptions GetRevenueOptions()
+        {
+            return (RevenueOptions)revenue_options;
+        }
+        public void SetRevenueOptions(RevenueOptions value)
+        {
+            revenue_options = (int)value;
+        }
+        public APIAccessOptions GetAPIAccessOptions()
+        {
+            return (APIAccessOptions)api_options;
+        }
+        public void SetAPIAccessOptions(APIAccessOptions value)
+        {
+            api_options = (int)value;
         }
     }
 
@@ -381,7 +390,9 @@ namespace ModIO
     {
         public string filename; // Image filename, with file extension included.
         public string original; // URL to full-sized image.
-        public string thumb_320x180; // URL to small thumbnail image.
+        public string thumb_64x64; // URL to the small thumbnail image.
+        public string thumb_128x128; // URL to the medium thumbnail image.
+        public string thumb_256x256; // URL to the large thumbnail image.
     }
 
     [Serializable]
@@ -391,7 +402,6 @@ namespace ModIO
         public string thumbnail; // URL to the thumbnail image.
         public string filename; // Image filename, with the extension included.
     }
-
 
     [Serializable]
     public class Logo
@@ -406,9 +416,25 @@ namespace ModIO
     [Serializable]
     public class Mod
     {
+        // - Enums -
+        public enum Status
+        {
+            NotAccepted = 0,
+            Accepted = 1,
+            Archived = 2,
+            Deleted = 3,
+        }
+        public enum Visibility
+        {
+            Hidden = 0,
+            Public = 1,
+        }
+
         // - API snake_case fields -
         [SerializeField] private int id;
         [SerializeField] private int game_id;
+        [SerializeField] private int status;
+        [SerializeField] private int visible;
         [SerializeField] private User submitted_by;
         [SerializeField] private int date_added;
         [SerializeField] private int date_updated;
@@ -424,7 +450,7 @@ namespace ModIO
             get { return id; }
             set { id = value; }
         }
-        public int gameID //Unique game id.
+        public int gameID // Unique game id.
         {
             get { return game_id; }
             set { game_id = value; }
@@ -433,21 +459,6 @@ namespace ModIO
         {
             get { return submitted_by; }
             set { submitted_by = value; }
-        }
-        public int dateAdded // Unix timestamp of date registered.
-        {
-            get { return date_added; }
-            set { date_added = value; }
-        }
-        public int dateUpdated // Unix timestamp of date last updated.
-        {
-            get { return date_updated; }
-            set { date_updated = value; }
-        }
-        public int dateLive // (int32)  Unix timestamp of date mod was set live.
-        {
-            get { return date_live; }
-            set { date_live = value; }
         }
         public Logo logo; // Contains logo data.
         public string homepage; // Mod homepage URL.
@@ -478,7 +489,37 @@ namespace ModIO
         }
         public ModTag[] tags; // Contains Mod Tag data.
 
-        // - Unity named fields -
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+        }
+        public ModIOTimestamp GetDateUpdated()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_updated);
+        }
+        public ModIOTimestamp GetDateLive()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_live);
+        }
+
+        public Status GetStatus()
+        {
+            return (Status)status;
+        }
+        public void SetStatus(Status value)
+        {
+            status = (int)value;
+        }
+        public Visibility GetVisible()
+        {
+            return (Visibility)visible;
+        }
+        public void SetVisible(Visibility value)
+        {
+            visible = (int)value;
+        }
+
         public string[] GetTagNames()
         {
             string[] retVal = new string[tags.Length];
@@ -505,22 +546,54 @@ namespace ModIO
             get { return mod_id; }
             set { mod_id = value; }
         }
-        public int dateAdded // (int32)  Unix timestamp of when the dependency was added.
+
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
         {
-            get { return date_added; }
-            set { date_added = value; }
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
         }
     }
 
     [Serializable]
-    public class ModActivity
+    public class ModEvent
     {
+        // - Enums -
+        public enum EventType
+        {
+            ModVisibilityChange,
+            ModLive,
+            ModfileChange,
+        }
+
+        private static Dictionary<string, EventType> eventNameMap;
+        static ModEvent()
+        {
+            eventNameMap = new Dictionary<string, EventType>();
+
+            eventNameMap["MODFILE_CHANGE"] = EventType.ModfileChange;
+            eventNameMap["MOD_VISIBILITY_CHANGE"] = EventType.ModVisibilityChange;
+            eventNameMap["MOD_LIVE"] = EventType.ModLive;
+        }
+
+        public static string GetNameForType(EventType value)
+        {
+            foreach(KeyValuePair<string, EventType> kvp in eventNameMap)
+            {
+                if(kvp.Value == value)
+                {
+                    return kvp.Key;
+                }
+            }
+            Debug.LogError("EventType \'" + value.ToString() + "\' has no corresponding name entry in ModEvent.eventNameMap");
+            return "";
+        }
+
         // - API snake_case fields -
         [SerializeField] private int id;
         [SerializeField] private int mod_id;
         [SerializeField] private int user_id;
-        [SerializeField] private string date_added;
-        [SerializeField] private string _event;
+        [SerializeField] private int date_added;
+        [SerializeField] private string event_type;
 
         // - Unity named fields -
         public int ID // Unique id of activity record.
@@ -538,16 +611,21 @@ namespace ModIO
             get { return user_id; }
             set { user_id = value; }
         }
-        public string dateAdded // Unix timestamp of when the event occured.
-        {
-            get { return date_added; }
-            set { date_added = value; }
-        }
         public FieldChange[] changes; // Contains all changes for the event.
-        public string eventType // Type of event the activity was. ie. GAME_UPDATE or GAME_VISIBILITY_CHANGE.
+
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
         {
-            get { return _event; }
-            set { _event = value; }
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+        }
+
+        public EventType GetEventType()
+        {
+            return eventNameMap[event_type];
+        }
+        public void SetEventType(EventType value)
+        {
+            event_type = ModEvent.GetNameForType(value);
         }
     }
 
@@ -561,6 +639,7 @@ namespace ModIO
         [SerializeField] private int date_scanned;
         [SerializeField] private int virus_status;
         [SerializeField] private int virus_positive;
+        [SerializeField] private string metadata_blob;
         [SerializeField] private string download_url;
         
         // - Unity named fields -
@@ -573,16 +652,6 @@ namespace ModIO
         {
             get { return mod_id; }
             set { mod_id = value; }
-        }
-        public int dateAdded // (int32)  Unix timestamp of file upload time.
-        {
-            get { return date_added; }
-            set { date_added = value; }
-        }
-        public int dateScanned // (int32)  Unix timestamp of file virus scan.
-        {
-            get { return date_scanned; }
-            set { date_scanned = value; }
         }
         public int virusStatus // (int32)  The status of the virus scan for the file.
         {
@@ -600,10 +669,25 @@ namespace ModIO
         public string version; // The release version this file represents.
         public string virustotal; // Text output from virustotal scan.
         public string changelog; // List of all changes in this file release.
+        public string metadataBlob // Metadata stored by the game developer for this file.
+        {
+            get { return metadata_blob; }
+            set { metadata_blob = value; }
+        }
         public string downloadURL // Link to download the file from the mod.io CDN.
         {
             get { return download_url; }
             set { download_url = value; }
+        }
+
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+        }
+        public ModIOTimestamp GetDateScanned()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_scanned);
         }
     }
 
@@ -615,10 +699,11 @@ namespace ModIO
 
         // - Unity named fields -
         public string name; // The displayed tag.
-        public int dateAdded // (int32)  Unix timestamp of when tag was applied.
+
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
         {
-            get { return date_added; }
-            set { date_added = value; }
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
         }
     }
 
@@ -667,11 +752,22 @@ namespace ModIO
     }
 
     [Serializable]
-    public class TeamMember // Access
+    public class TeamMember
     {
+        // - Enums -
+        public enum PermissionLevel
+        {
+            Guest = 0,
+            Member = 1,
+            Contributor = 2,
+            Manager = 4,
+            Leader = 8,
+        }
+
         // - API snake_case fields -
         [SerializeField] private int id;
         [SerializeField] private int date_added;
+        [SerializeField] private int level;
 
         // - Unity named fields -
         public int ID // (int32)  Unique access id.
@@ -680,24 +776,22 @@ namespace ModIO
             set { id = value; }
         }
         public User user; // Contains user data.
-        public int level; // (int32)  The level of permissions the member has within the team.
-        public int dateAdded // (int32)  Unix timestamp of date the member joined the team.
-        {
-            get { return date_added; }
-            set { date_added = value; }
-        }
         public string position; // Custom title, has no effect on any access rights.
 
-        #region --- Field Notes ---
-            /***
-            * .type
-            *   0 = Guest
-            *   1 = Member
-            *   2 = Contributor
-            *   4 = Manager
-            *   8 = Leader
-            ***/
-        #endregion
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateAdded()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+        }
+
+        public PermissionLevel GetPermissionLevel()
+        {
+            return (PermissionLevel)level;
+        }
+        public void SetPermissionLevel(PermissionLevel value)
+        {
+            level = (int)value;
+        }
     }
 
     [Serializable]
@@ -721,11 +815,6 @@ namespace ModIO
             set { name_id = value; }
         }
         public string username; // Non-unique username of the user.
-        public int dateOnline // (int32)  Unix timestamp of when the user was last online.
-        {
-            get { return date_online; }
-            set { date_online = value; }
-        }
         public Avatar avatar; // Contains avatar data.
         public string timezone; // The Timezone of the user, shown in {Country}/{City} format.
         public string language; // The users language preference, limited to two characters.
@@ -733,6 +822,12 @@ namespace ModIO
         {
             get { return profile_url; }
             set { profile_url = value; }
+        }
+
+        // - Accessor Functions -
+        public ModIOTimestamp GetDateOnline()
+        {
+            return ModIOTimestamp.GenerateFromServerTimestamp(date_online);
         }
     }
 }
