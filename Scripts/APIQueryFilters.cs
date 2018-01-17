@@ -75,23 +75,26 @@ namespace ModIO
 
             return filterString;
         }
+
+        public bool Accepts(T objectToTest)
+        {
+            foreach(FieldFilterDelegate isObjectAccepted in filterDelegateMap.Values)
+            {
+                if(!isObjectAccepted(objectToTest))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public T[] FilterCollection(ICollection<T> objectCollection)
         {
             List<T> filteredList = new List<T>(objectCollection.Count);
 
             foreach(T o in objectCollection)
             {
-                bool doAdd = true;
-                foreach(FieldFilterDelegate isObjectAccepted in filterDelegateMap.Values)
-                {
-                    if(!isObjectAccepted(o))
-                    {
-                        doAdd = false;
-                        break;
-                    }
-                }
-
-                if(doAdd)
+                if(this.Accepts(o))
                 {
                     filteredList.Add(o);
                 }

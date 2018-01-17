@@ -208,11 +208,7 @@ namespace ModIO
                 }
                 else
                 {
-                    Mod mod = GetMod(modEvent.modID);
-                    if(mod != null)
-                    {
-                        UncacheMod(mod);
-                    }
+                    UncacheMod(modEvent.modID);
                     manifest.unresolvedEvents.Remove(modEvent);
                 }
             };
@@ -240,10 +236,8 @@ namespace ModIO
                                       {
                                         mod = updatedMod;
 
-                                        string modDir = GetModDirectory(mod.ID);
-                                        Directory.CreateDirectory(modDir);
-                                        File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
                                         modCache[mod.ID] = mod;
+                                        WriteModToDisk(mod);
 
                                         if(OnModfileChanged != null)
                                         {
@@ -442,6 +436,8 @@ namespace ModIO
         }
 
         // ---------[ MOD MANAGEMENT ]---------
+        public static event ModEventHandler OnModAdded;
+        public static event ModIDEventHandler OnModRemoved;
         public static event ModIDEventHandler OnModUpdated;
         public static event ModfileEventHandler OnModfileChanged;
         public static event ModLogoEventHandler OnModLogoUpdated;
@@ -468,15 +464,26 @@ namespace ModIO
 
         private static void CacheMod(Mod mod)
         {
-            string modDir = GetModDirectory(mod.ID);
-            Directory.CreateDirectory(modDir);
-            File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
+            bool isUpdate = modCache.ContainsKey(mod.ID);
 
             modCache[mod.ID] = mod;
+            WriteModToDisk(mod);
 
-            if(OnModUpdated != null)
+            // Handle events
+            if(isUpdate)
             {
-                OnModUpdated(mod.ID);
+                if(OnModUpdated != null)
+                {
+                    OnModUpdated(mod.ID);
+                }
+            }
+            else
+            {
+
+                if(OnModAdded != null)
+                {
+                    OnModAdded(mod);
+                }
             }
         }
         private static void CacheModArray(Mod[] modArray)
@@ -486,24 +493,24 @@ namespace ModIO
                 CacheMod(mod);
             }
         }
-        private static void UncacheMod(Mod mod)
+        private static void UncacheMod(int modID)
         {
             // TODO(@jackson): Check for installs, subscriptions, etc.
 
-            modCache.Remove(mod.ID);
-
-            string modDir = GetModDirectory(mod.ID);
+            string modDir = GetModDirectory(modID);
             Directory.Delete(modDir, true);
 
-            // TODO(@jackson): Create Event
+            if(modCache.Remove(modID)
+               && OnModRemoved != null)
+            {
+                OnModRemoved(modID);
+            }
         }
 
-        public static void RequestMods(GetAllModsFilter filter, ObjectArrayCallback<Mod> callback)
+        public static void GetMods(GetAllModsFilter filter, ObjectArrayCallback<Mod> callback)
         {
             Mod[] retVal = filter.FilterCollection(modCache.Values);
             callback(retVal);
-
-            // client.BrowseMods(filter, callback);
         }
 
         public static FileDownload StartBinaryDownload(int modID, int modfileID)
@@ -596,7 +603,7 @@ namespace ModIO
 
         public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
         public static Dictionary<int, Sprite> modLogoCache = new Dictionary<int, Sprite>();
-        public static Sprite modLogoDownloading;
+        public static Sprite modLogoDownloadingPlaceholder;
 
         public static Sprite GetModLogo(Mod mod, LogoVersion logoVersion)
         {
@@ -625,7 +632,7 @@ namespace ModIO
                 else
                 {
                     StartLogoDownload(mod, logoTemplate);
-                    return modLogoDownloading;
+                    return modLogoDownloadingPlaceholder;
                 }
             }
         }
@@ -703,12 +710,12 @@ namespace ModIO
                 }
                 else
                 {
-                    modLogoCache.Add(mod.ID, modLogoDownloading);
+                    modLogoCache.Add(mod.ID, modLogoDownloadingPlaceholder);
                     missingLogoList.Add(mod);
                     
                     if(OnModLogoUpdated != null)
                     {
-                        OnModLogoUpdated(mod.ID, modLogoDownloading, logoTemplate.version);
+                        OnModLogoUpdated(mod.ID, modLogoDownloadingPlaceholder, logoTemplate.version);
                     }
                 }
             }
@@ -747,6 +754,13 @@ namespace ModIO
         private static void WriteUserDataToDisk()
         {
             File.WriteAllText(USERDATA_URL, JsonUtility.ToJson(userData));
+        }
+
+        private static void WriteModToDisk(Mod mod)
+        {
+            string modDir = GetModDirectory(mod.ID);
+            Directory.CreateDirectory(modDir);
+            File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
         }
 
         private static void DeleteUserDataFromDisk()
