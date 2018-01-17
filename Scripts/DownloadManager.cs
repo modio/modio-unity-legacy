@@ -2,8 +2,6 @@
 
 namespace ModIO
 {
-    // TODO(@jackson): DownloadRequest? (Check in ModManager)
-
     public static class DownloadManager
     {
         private static List<Download> concurrentDownloads = new List<Download>();
@@ -40,8 +38,6 @@ namespace ModIO
             {
                 return;
             }
-
-            // TODO(@jackson): Check download queue
 
             concurrentDownloads.Add(download);
 

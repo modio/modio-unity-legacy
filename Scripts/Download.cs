@@ -1,5 +1,4 @@
 ﻿#define LOG_DOWNLOADS
-#define ADD_SECRET_TO_URL
 
 using System;
 using UnityEngine;
@@ -11,7 +10,6 @@ namespace ModIO
     public delegate void DownloadCompletedCallback(Download download);
     public delegate void DownloadFailedCallback(Download download, APIError error);
 
-    // TODO(@jackson): Create getters where necessary
     public abstract class Download
     {
         public enum Status
@@ -46,11 +44,6 @@ namespace ModIO
 
             ModifyWebRequest(webRequest);
 
-            #if ADD_SECRET_TO_URL
-            webRequest.url += "?shhh=secret";
-            #endif
-
-
             UnityWebRequestAsyncOperation downloadOperation = webRequest.SendWebRequest();
             downloadOperation.completed += Finalize;
 
@@ -65,6 +58,17 @@ namespace ModIO
             if(OnStarted != null)
             {
                 OnStarted(this);
+            }
+        }
+
+        public void MarkAsFailed(APIError error)
+        {
+            this.OnCancelled();
+
+            status = Status.Error;
+            if(OnFailed != null)
+            {
+                OnFailed(this, error);
             }
         }
 
@@ -107,8 +111,9 @@ namespace ModIO
             }
         }
 
-        protected virtual void OnFinalize_Failed(DownloadHandler handler, APIError error) {}
         protected virtual void OnFinalize_Succeeded(DownloadHandler handler) {}
+        protected virtual void OnFinalize_Failed(DownloadHandler handler, APIError error) {}
+        protected virtual void OnCancelled() {}
     }
 
     public class FileDownload : Download
