@@ -7,14 +7,10 @@ using UnityEngine.Networking;
 
 namespace ModIO
 {
-    public delegate void ModUpdatedEventHandler(int modID);
-    public delegate void ModLogoUpdatedEventHandler(int modID,
-                                                    Sprite modLogo,
-                                                    LogoVersion logoVersion);
-    public delegate void ModSubscriptionUpdateEventHandler(int modID);
-    public delegate void ModfileChangedEventHandler(int modID, Modfile newModfile);
-
-    public delegate void UserLoggedOutEventHandler();
+    public delegate void ModEventHandler(Mod mod);
+    public delegate void ModIDEventHandler(int modID);
+    public delegate void ModfileEventHandler(int modID, Modfile newModfile);
+    public delegate void ModLogoEventHandler(int modID, Sprite modLogo, LogoVersion logoVersion);
 
     public enum ModBinaryStatus
     {
@@ -353,9 +349,9 @@ namespace ModIO
         }
 
         // ---------[ USER MANAGEMENT ]---------
-        public static event UserLoggedOutEventHandler OnUserLoggedOut;
-        public static event ModSubscriptionUpdateEventHandler OnModSubscriptionAdded;
-        public static event ModSubscriptionUpdateEventHandler OnModSubscriptionRemoved;
+        public static event Action OnUserLoggedOut;
+        public static event ModIDEventHandler OnModSubscriptionAdded;
+        public static event ModIDEventHandler OnModSubscriptionRemoved;
 
         public static void RequestOAuthToken(string securityCode,
                                              ObjectCallback<string> onSuccess,
@@ -446,9 +442,9 @@ namespace ModIO
         }
 
         // ---------[ MOD MANAGEMENT ]---------
-        public static event ModUpdatedEventHandler OnModUpdated;
-        public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
-        public static event ModfileChangedEventHandler OnModfileChanged;
+        public static event ModIDEventHandler OnModUpdated;
+        public static event ModfileEventHandler OnModfileChanged;
+        public static event ModLogoEventHandler OnModLogoUpdated;
 
         private static Dictionary<int, Mod> modCache = new Dictionary<int, Mod>();
 
