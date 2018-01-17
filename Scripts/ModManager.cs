@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-// TODO(@jackson): Handle API Errors better. (Reattempt, etc. Query tickets?)
-// TODO(@jackson): Rename InitializeUser
-// TODO(@jackson): Distinguish between "Cache Update" and "Remote Update" events
+// TODO(@jackson): Distinguish between "Cache Update" and "Remote Update" events?
 namespace ModIO
 {
     public delegate void ModUpdatedEventHandler(int modID);
@@ -15,6 +13,7 @@ namespace ModIO
                                                     Sprite modLogo,
                                                     LogoVersion logoVersion);
     public delegate void ModSubscriptionUpdateEventHandler(int modID);
+    public delegate void ModfileChangedEventHandler(int modID, Modfile newModfile);
 
     // TODO(@jackson): Add invalid/partial/downloading?
     public enum ModBinaryStatus
@@ -38,7 +37,7 @@ namespace ModIO
         [System.Serializable]
         private class ManifestData
         {
-            public ModIOTimestamp lastUpdateTimestamp;
+            public TimeStamp lastUpdateTimeStamp;
             public List<ModEvent> unresolvedEvents;
         }
 
@@ -80,7 +79,7 @@ namespace ModIO
             {
                 // --- INITIALIZE FIRST RUN ---
                 manifest = new ManifestData();
-                manifest.lastUpdateTimestamp = new ModIOTimestamp();
+                manifest.lastUpdateTimeStamp = new TimeStamp();
                 manifest.unresolvedEvents = new List<ModEvent>();
 
                 WriteManifestToDisk();
@@ -125,7 +124,6 @@ namespace ModIO
         }
 
         // ---------[ AUTOMATED UPDATING ]---------
-        // TODO(@jackson): Include subscription polling
         private const float SECONDS_BETWEEN_POLLING = 15.0f;
         private static bool isUpdatePollingEnabled = false;
         private static bool isUpdatePollingRunning = false;
@@ -150,21 +148,21 @@ namespace ModIO
             {
                 isUpdatePollingRunning = true;
                 
-                ModIOTimestamp fromTimestamp = manifest.lastUpdateTimestamp;
-                ModIOTimestamp untilTimestamp = ModIOTimestamp.Now();
+                TimeStamp fromTimeStamp = manifest.lastUpdateTimeStamp;
+                TimeStamp untilTimeStamp = TimeStamp.Now();
 
                 // - Get Mod Events -
                 GetAllModEventsFilter eventFilter = new GetAllModEventsFilter();
                 eventFilter.ApplyIntRange(GetAllModEventsFilter.Field.DateAdded, 
-                                          fromTimestamp.AsServerTimestamp(), true, 
-                                          untilTimestamp.AsServerTimestamp(), false);
+                                          fromTimeStamp.AsServerTimeStamp(), true, 
+                                          untilTimeStamp.AsServerTimeStamp(), false);
                 eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest, 
                                            true);
 
                 client.GetAllModEvents(eventFilter, 
                                        (eventArray) => 
                                        {
-                                        manifest.lastUpdateTimestamp = untilTimestamp;
+                                        manifest.lastUpdateTimeStamp = untilTimeStamp;
                                         ProcessModEvents(eventArray);
                                        },
                                        APIClient.LogError);
@@ -238,7 +236,6 @@ namespace ModIO
 
                 if(mod == null)
                 {
-                    // TODO(@jackson): Do something else here?
                     Debug.Log("Received Modfile change for uncached mod. Ignoring.");
                     manifest.unresolvedEvents.Remove(modEvent);
                 }
@@ -248,17 +245,21 @@ namespace ModIO
 
                     if(!Int32.TryParse(modEvent.changes[0].after, out modfileID))
                     {
-                        // TODO(@jackson): Implement mod re-caching and rechecking?
-                        Debug.LogError("Unable to parse the new Modfile ID from the ModEvent data. Updating Mod information in cache and rechecking.");
+                        // TODO(@jackson): Re-Get Mod
                         manifest.unresolvedEvents.Remove(modEvent);
                         return;
                     }
 
-                    client.GetModfile(modEvent.modID, modfileID,
+                    client.GetModfile(mod.ID, modfileID,
                                       (modfile) =>
                                       {
                                         mod.modfile = modfile;
-                                        // TODO(@jackson): EVENT!
+                                        
+                                        if(OnModfileChanged != null)
+                                        {
+                                            OnModfileChanged(mod.ID, modfile);
+                                        }
+
                                         // TODO(@jackson): if GetBinaryStatus(mod) == RequiresUpdate?
                                       },
                                       APIClient.LogError);
@@ -268,7 +269,7 @@ namespace ModIO
             // - Handle Mod Event -
             foreach(ModEvent modEvent in eventArray)
             {
-                string eventSummary = "Timestamp (Local)=" + modEvent.GetDateAdded().AsLocalDateTime();
+                string eventSummary = "TimeStamp (Local)=" + modEvent.GetDateAdded().AsLocalDateTime();
                 eventSummary += "\nMod=" + modEvent.modID;
                 eventSummary += "\nEventType=" + modEvent.GetEventType().ToString();
                 
@@ -433,6 +434,7 @@ namespace ModIO
         // ---------[ MOD MANAGEMENT ]---------
         public static event ModUpdatedEventHandler OnModUpdated;
         public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
+        public static event ModfileChangedEventHandler OnModfileChanged;
 
         private static Dictionary<int, Mod> modCache = new Dictionary<int, Mod>();
 
@@ -476,8 +478,6 @@ namespace ModIO
         }
         private static void UncacheMod(Mod mod)
         {
-            // NOTE(@jackson): This would theoretically uninstall as well right?...
-            // What about subscribed mods, etc?
             // TODO(@jackson): Check for installs, subscriptions, etc.
 
             modCache.Remove(mod.ID);
@@ -529,7 +529,6 @@ namespace ModIO
         {
             if(File.Exists(GetModDirectory(mod.ID) + "modfile_" + mod.modfile.ID + ".zip"))
             {
-                // TODO(@jackson): Check that IDs need to be changed on update
                 return ModBinaryStatus.UpToDate;
             }
             else
@@ -713,7 +712,6 @@ namespace ModIO
 
             if(modsMissingLogosList.Count == 0) { return; }
 
-            // TODO(@jackson): Reimplement this with download management
             foreach(Mod mod in modsMissingLogosList)
             {
                 StartLogoDownload(mod, logoTemplate);

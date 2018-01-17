@@ -11,7 +11,6 @@ namespace ModIO
     public delegate void DownloadCompletedCallback(Download download);
     public delegate void DownloadFailedCallback(Download download, APIError error);
 
-    // TODO(@jackson): Create getters where necessary
     public abstract class Download
     {
         public enum Status

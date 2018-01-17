@@ -2,8 +2,6 @@
 
 namespace ModIO
 {
-    // TODO(@jackson): DownloadRequest? (Check in ModManager)
-
     public static class DownloadManager
     {
         private static List<Download> concurrentDownloads = new List<Download>();

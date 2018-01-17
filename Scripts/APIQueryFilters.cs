@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// TODO(@jackson): Set "default" values in constructors to improve understanding
 namespace ModIO
 {
     // ---------[ BASE CLASSES ]---------
@@ -626,16 +625,16 @@ namespace ModIO
                           (a,b) => a.submittedBy.ID.CompareTo(b.submittedBy.ID));
             StoreIntField(fieldInformationMap,
                           Field.DateAdded, "date_added",
-                          (game) => game.GetDateAdded().AsServerTimestamp(),
-                          (a,b) => a.GetDateAdded().AsServerTimestamp().CompareTo(b.GetDateAdded().AsServerTimestamp()));
+                          (game) => game.GetDateAdded().AsServerTimeStamp(),
+                          (a,b) => a.GetDateAdded().AsServerTimeStamp().CompareTo(b.GetDateAdded().AsServerTimeStamp()));
             StoreIntField(fieldInformationMap,
                           Field.DateUpdated, "date_updated",
-                          (game) => game.GetDateUpdated().AsServerTimestamp(),
-                          (a,b) => a.GetDateUpdated().AsServerTimestamp().CompareTo(b.GetDateUpdated().AsServerTimestamp()));
+                          (game) => game.GetDateUpdated().AsServerTimeStamp(),
+                          (a,b) => a.GetDateUpdated().AsServerTimeStamp().CompareTo(b.GetDateUpdated().AsServerTimeStamp()));
             StoreIntField(fieldInformationMap,
                           Field.DateLive, "date_live",
-                          (game) => game.GetDateLive().AsServerTimestamp(),
-                          (a,b) => a.GetDateLive().AsServerTimestamp().CompareTo(b.GetDateLive().AsServerTimestamp()));
+                          (game) => game.GetDateLive().AsServerTimeStamp(),
+                          (a,b) => a.GetDateLive().AsServerTimeStamp().CompareTo(b.GetDateLive().AsServerTimeStamp()));
             StoreStringField(fieldInformationMap,
                              Field.Name, "name",
                              (game) => game.name,
@@ -803,18 +802,18 @@ namespace ModIO
             // integer(int32)  Unix timestamp of date registered.
             StoreIntField(fieldInformationMap, 
                           Field.DateAdded, "date_added", 
-                          (mod) => mod.GetDateAdded().AsServerTimestamp(),
-                          (a,b) => a.GetDateAdded().AsServerTimestamp().CompareTo(b.GetDateAdded().AsServerTimestamp()));
+                          (mod) => mod.GetDateAdded().AsServerTimeStamp(),
+                          (a,b) => a.GetDateAdded().AsServerTimeStamp().CompareTo(b.GetDateAdded().AsServerTimeStamp()));
             // integer(int32)  Unix timestamp of date updated.
             StoreIntField(fieldInformationMap, 
                           Field.DateUpdated, "date_updated", 
-                          (mod) => mod.GetDateUpdated().AsServerTimestamp(),
-                          (a,b) => a.GetDateUpdated().AsServerTimestamp().CompareTo(b.GetDateUpdated().AsServerTimestamp()));
+                          (mod) => mod.GetDateUpdated().AsServerTimeStamp(),
+                          (a,b) => a.GetDateUpdated().AsServerTimeStamp().CompareTo(b.GetDateUpdated().AsServerTimeStamp()));
             // integer(int32)  Unix timestamp of date mod was set live.
             StoreIntField(fieldInformationMap, 
                           Field.DateLive, "date_live", 
-                          (mod) => mod.GetDateLive().AsServerTimestamp(),
-                          (a,b) => a.GetDateLive().AsServerTimestamp().CompareTo(b.GetDateLive().AsServerTimestamp()));
+                          (mod) => mod.GetDateLive().AsServerTimeStamp(),
+                          (a,b) => a.GetDateLive().AsServerTimeStamp().CompareTo(b.GetDateLive().AsServerTimeStamp()));
 
             // string  The filename of the logo.
             StoreStringField(fieldInformationMap,
@@ -856,7 +855,6 @@ namespace ModIO
                           Field.Modfile, "modfile", 
                           (mod) => mod.modfile.ID, 
                           (a,b) => a.modfile.ID.CompareTo(b.modfile.ID));
-            // TODO(@jackson): Check this filter name
             // string  Sort results by weighted rating using _sort filter, value should be ratings for descending or -ratings for ascending results.
             StoreFloatField(fieldInformationMap,
                             Field.Ratings, "ratings", 
@@ -1007,8 +1005,8 @@ namespace ModIO
                           (a,b) => a.userID.CompareTo(b.userID));
             StoreIntField(fieldInformationMap,
                           Field.DateAdded, "date_added",
-                          (e) => e.GetDateAdded().AsServerTimestamp(),
-                          (a,b) => a.GetDateAdded().AsServerTimestamp().CompareTo(b.GetDateAdded().AsServerTimestamp()));
+                          (e) => e.GetDateAdded().AsServerTimeStamp(),
+                          (a,b) => a.GetDateAdded().AsServerTimeStamp().CompareTo(b.GetDateAdded().AsServerTimeStamp()));
             
             StoreStringField(fieldInformationMap,
                              Field.EventType, "event_type",
@@ -1278,16 +1276,16 @@ namespace ModIO
                           (a,b) => a.submittedBy.ID.CompareTo(b.submittedBy.ID));
             StoreIntField(fieldInformationMap,
                           Field.DateAdded, "date_added",
-                          (mod) => mod.GetDateAdded().AsServerTimestamp(),
-                          (a,b) => a.GetDateAdded().AsServerTimestamp().CompareTo(b.GetDateAdded().AsServerTimestamp()));
+                          (mod) => mod.GetDateAdded().AsServerTimeStamp(),
+                          (a,b) => a.GetDateAdded().AsServerTimeStamp().CompareTo(b.GetDateAdded().AsServerTimeStamp()));
             StoreIntField(fieldInformationMap,
                           Field.DateUpdated, "date_updated",
-                          (mod) => mod.GetDateUpdated().AsServerTimestamp(),
-                          (a,b) => a.GetDateUpdated().AsServerTimestamp().CompareTo(b.GetDateUpdated().AsServerTimestamp()));
+                          (mod) => mod.GetDateUpdated().AsServerTimeStamp(),
+                          (a,b) => a.GetDateUpdated().AsServerTimeStamp().CompareTo(b.GetDateUpdated().AsServerTimeStamp()));
             StoreIntField(fieldInformationMap,
                           Field.DateLive, "date_live",
-                          (mod) => mod.GetDateLive().AsServerTimestamp(),
-                          (a,b) => a.GetDateLive().AsServerTimestamp().CompareTo(b.GetDateLive().AsServerTimestamp()));
+                          (mod) => mod.GetDateLive().AsServerTimeStamp(),
+                          (a,b) => a.GetDateLive().AsServerTimeStamp().CompareTo(b.GetDateLive().AsServerTimeStamp()));
             StoreStringField(fieldInformationMap,
                              Field.Name, "name",
                              (mod) => mod.name,

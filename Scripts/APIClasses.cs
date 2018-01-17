@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO(@jackson): Remove setters from readonly fields
 namespace ModIO
 {
     public enum LogoVersion
@@ -147,9 +146,9 @@ namespace ModIO
         public string summary; // The displayed comment.
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
     }
 
@@ -290,17 +289,17 @@ namespace ModIO
         }
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
-        public ModIOTimestamp GetDateUpdated()
+        public TimeStamp GetDateUpdated()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_updated);
+            return TimeStamp.GenerateFromServerTimeStamp(date_updated);
         }
-        public ModIOTimestamp GetDateLive()
+        public TimeStamp GetDateLive()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_live);
+            return TimeStamp.GenerateFromServerTimeStamp(date_live);
         }
 
         public Status GetStatus()
@@ -490,17 +489,17 @@ namespace ModIO
         public ModTag[] tags; // Contains Mod Tag data.
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
-        public ModIOTimestamp GetDateUpdated()
+        public TimeStamp GetDateUpdated()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_updated);
+            return TimeStamp.GenerateFromServerTimeStamp(date_updated);
         }
-        public ModIOTimestamp GetDateLive()
+        public TimeStamp GetDateLive()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_live);
+            return TimeStamp.GenerateFromServerTimeStamp(date_live);
         }
 
         public Status GetStatus()
@@ -548,9 +547,9 @@ namespace ModIO
         }
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
     }
 
@@ -614,9 +613,9 @@ namespace ModIO
         public FieldChange[] changes; // Contains all changes for the event.
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
 
         public EventType GetEventType()
@@ -681,13 +680,13 @@ namespace ModIO
         }
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
-        public ModIOTimestamp GetDateScanned()
+        public TimeStamp GetDateScanned()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_scanned);
+            return TimeStamp.GenerateFromServerTimeStamp(date_scanned);
         }
     }
 
@@ -701,9 +700,9 @@ namespace ModIO
         public string name; // The displayed tag.
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
     }
 
@@ -779,9 +778,9 @@ namespace ModIO
         public string position; // Custom title, has no effect on any access rights.
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateAdded()
+        public TimeStamp GetDateAdded()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_added);
+            return TimeStamp.GenerateFromServerTimeStamp(date_added);
         }
 
         public PermissionLevel GetPermissionLevel()
@@ -825,9 +824,9 @@ namespace ModIO
         }
 
         // - Accessor Functions -
-        public ModIOTimestamp GetDateOnline()
+        public TimeStamp GetDateOnline()
         {
-            return ModIOTimestamp.GenerateFromServerTimestamp(date_online);
+            return TimeStamp.GenerateFromServerTimeStamp(date_online);
         }
     }
 }
