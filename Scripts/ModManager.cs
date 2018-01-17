@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-// TODO(@jackson): Distinguish between "Cache Update" and "Remote Update" events?
 namespace ModIO
 {
     public delegate void ModUpdatedEventHandler(int modID);
@@ -15,7 +14,8 @@ namespace ModIO
     public delegate void ModSubscriptionUpdateEventHandler(int modID);
     public delegate void ModfileChangedEventHandler(int modID, Modfile newModfile);
 
-    // TODO(@jackson): Add invalid/partial/downloading?
+    public delegate void UserLoggedOutEventHandler();
+
     public enum ModBinaryStatus
     {
         Missing,
@@ -109,14 +109,10 @@ namespace ModIO
                                             {
                                                 if(error.code == 401) // Failed authentication
                                                 {
-                                                    userData = null;
-                                                    DeleteUserDataFromDisk();
-                                                    // TODO(@jackson): Fire Event
+                                                    LogUserOut();
                                                 };
                                             });
             }
-
-            // TODO(@jackson): Add Event Listeners
 
             // --- Start Update Polling Loop ---
             Debug.Log("ModManager Initialized."
@@ -192,9 +188,6 @@ namespace ModIO
             // - Mod Processing Options -
             Action<ModEvent> processModLive = (modEvent) =>
             {
-                // TODO(@jackson): Untested code
-                Debug.Log("Processing Mod Live: ID[" + modEvent.ID + "]");
-
                 client.GetMod(modEvent.modID,
                               (mod) =>
                               {
@@ -230,8 +223,6 @@ namespace ModIO
 
             Action<ModEvent> processModfileChange = (modEvent) =>
             {
-                Debug.Log("Processing Modfile Change: ID[" + modEvent.ID + "]");
-
                 Mod mod = GetMod(modEvent.modID);
 
                 if(mod == null)
@@ -245,8 +236,28 @@ namespace ModIO
 
                     if(!Int32.TryParse(modEvent.changes[0].after, out modfileID))
                     {
-                        // TODO(@jackson): Re-Get Mod
+                        Debug.Log("Unable to parse Modfile ID from Mod Event. Updating Mod directly");
                         manifest.unresolvedEvents.Remove(modEvent);
+
+                        client.GetMod(mod.ID,
+                                      (updatedMod) =>
+                                      {
+                                        mod = updatedMod;
+
+                                        string modDir = GetModDirectory(mod.ID);
+                                        Directory.CreateDirectory(modDir);
+                                        File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
+                                        modCache[mod.ID] = mod;
+
+                                        if(OnModfileChanged != null)
+                                        {
+                                            OnModfileChanged(mod.ID, mod.modfile);
+                                        }
+                                        
+                                        // TODO(@jackson): if GetBinaryStatus(mod) == RequiresUpdate?
+                                      },
+                                      APIClient.LogError);
+
                         return;
                     }
 
@@ -346,6 +357,7 @@ namespace ModIO
         }
 
         // ---------[ USER MANAGEMENT ]---------
+        public static event UserLoggedOutEventHandler OnUserLoggedOut;
         public static event ModSubscriptionUpdateEventHandler OnModSubscriptionAdded;
         public static event ModSubscriptionUpdateEventHandler OnModSubscriptionRemoved;
 
@@ -358,17 +370,14 @@ namespace ModIO
                                      onError);
         }
 
-        public static void AttemptUserLogin(string userOAuthToken, 
-                                            ObjectCallback<User> onSuccess, 
-                                            ErrorCallback onError)
+        public static void TryLogUserIn(string userOAuthToken, 
+                                        ObjectCallback<User> onSuccess, 
+                                        ErrorCallback onError)
         {
             Action fetchUserSubscriptions = () =>
             {
-                GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
-                subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameID, client.gameID);
-
                 APIClient.GetUserSubscriptions(userOAuthToken, 
-                                               subscriptionFilter, 
+                                               GetUserSubscriptionsFilter.None, 
                                                UpdateSubscriptions, 
                                                APIClient.LogError);
             };
@@ -379,14 +388,23 @@ namespace ModIO
                                             userData = new UserData();
                                             userData.oAuthToken = userOAuthToken;
                                             userData.user = user;
-
-                                            fetchUserSubscriptions();
-
                                             WriteUserDataToDisk();
 
                                             onSuccess(user);
+
+                                            fetchUserSubscriptions();
                                         },
                                         onError);
+        }
+
+        public static void LogUserOut()
+        {
+            userData = null;
+            DeleteUserDataFromDisk();
+            if(OnUserLoggedOut != null)
+            {
+                OnUserLoggedOut();
+            }
         }
 
         public static User GetActiveUser()
@@ -509,7 +527,6 @@ namespace ModIO
                 DownloadManager.AddQueuedDownload(download);
             };
 
-            // TODO(@jackson): Convert to "Update Modfile" function
             client.GetModfile(modID, modfileID,
                               queueBinaryDownload, APIClient.LogError);
 

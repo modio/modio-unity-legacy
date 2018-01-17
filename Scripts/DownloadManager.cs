@@ -39,8 +39,6 @@ namespace ModIO
                 return;
             }
 
-            // TODO(@jackson): Check download queue
-
             concurrentDownloads.Add(download);
 
             download.OnCompleted += (d) => concurrentDownloads.Remove(d);
