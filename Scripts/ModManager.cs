@@ -559,7 +559,6 @@ namespace ModIO
         }
 
         // ---------[ LOGO MANAGEMENT ]---------
-        // TODO(@jackson): Remove W/H. No longer necessary.
         private class LogoTemplate
         {
             static LogoTemplate()
@@ -670,53 +669,56 @@ namespace ModIO
             DownloadManager.AddConcurrentDownload(download);
         }
 
-        // TODO(@jackson): Clean up
-        public static void PreloadModLogos(Mod[] modLogosToPreload,
-                                           LogoVersion logoVersion,
-                                           int startingIndex)
+        public static void CacheModLogos(Mod[] modLogosToCache, 
+                                         LogoVersion logoVersion)
         {
+            LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
+            List<Mod> missingLogoList = new List<Mod>(modLogosToCache.Length);
+            
+            // Reset Cache if logoVersion is incorrect
             if(logoVersion != cachedLogoVersion)
             {
-                modLogoCache = new Dictionary<int, Sprite>(modLogosToPreload.Length);
+                modLogoCache = new Dictionary<int, Sprite>(modLogosToCache.Length);
             }
 
-            Mod initialMod = modLogosToPreload[startingIndex];
-            modLogosToPreload[startingIndex] = modLogosToPreload[0];
-            modLogosToPreload[0] = initialMod;
-
-            LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
-            List<Mod> modsMissingLogosList = new List<Mod>(modLogosToPreload.Length);
-            foreach(Mod mod in modLogosToPreload)
+            // Check which logos are missing
+            foreach(Mod mod in modLogosToCache)
             {
-                if(!modLogoCache.ContainsKey(mod.ID))
+                if(modLogoCache.ContainsKey(mod.ID))
                 {
-                    string localURL = GetModDirectory(mod.ID) + logoTemplate.localFilename;
-                    if(File.Exists(localURL))
+                    continue;
+                }
+
+                string logoFilepath = GetModDirectory(mod.ID) + logoTemplate.localFilename;
+                if(File.Exists(logoFilepath))
+                {
+                    Texture2D logoTexture = new Texture2D(0,0);
+                    logoTexture.LoadImage(File.ReadAllBytes(logoFilepath));
+
+                    modLogoCache[mod.ID]
+                        = Sprite.Create(logoTexture,
+                                        new Rect(0, 0, logoTexture.width, logoTexture.height),
+                                        Vector2.zero);
+
+                    if(OnModLogoUpdated != null)
                     {
-                        Texture2D logoTexture = new Texture2D(0,0);
-                        logoTexture.LoadImage(File.ReadAllBytes(localURL));
-
-                        modLogoCache[mod.ID]
-                            = Sprite.Create(logoTexture,
-                                            new Rect(0, 0, logoTexture.width, logoTexture.height),
-                                            Vector2.zero);
-
-                        if(OnModLogoUpdated != null)
-                        {
-                            OnModLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
-                        }
+                        OnModLogoUpdated(mod.ID, modLogoCache[mod.ID], logoTemplate.version);
                     }
-                    else
+                }
+                else
+                {
+                    modLogoCache.Add(mod.ID, modLogoDownloading);
+                    missingLogoList.Add(mod);
+                    
+                    if(OnModLogoUpdated != null)
                     {
-                        modLogoCache.Add(mod.ID, modLogoDownloading);
-                        modsMissingLogosList.Add(mod);
+                        OnModLogoUpdated(mod.ID, modLogoDownloading, logoTemplate.version);
                     }
                 }
             }
 
-            if(modsMissingLogosList.Count == 0) { return; }
-
-            foreach(Mod mod in modsMissingLogosList)
+            // Download
+            foreach(Mod mod in missingLogoList)
             {
                 StartLogoDownload(mod, logoTemplate);
             }
