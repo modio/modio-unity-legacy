@@ -78,10 +78,11 @@ namespace ModIO
         private void Finalize(AsyncOperation operation)
         {
             UnityWebRequest webRequest = (operation as UnityWebRequestAsyncOperation).webRequest;
-            
+            APIError error;
+
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
-                APIError error = APIError.GenerateFromWebRequest(webRequest);
+                error = APIError.GenerateFromWebRequest(webRequest);
                 OnFinalize_Failed(webRequest.downloadHandler, error);
                 
                 #if LOG_DOWNLOADS
@@ -94,9 +95,24 @@ namespace ModIO
                     OnFailed(this, error);
                 }
             }
+            else if(!IsErrorFree(webRequest.downloadHandler, out error))
+            {
+            	OnFinalize_Failed(webRequest.downloadHandler, error);
+
+                #if LOG_DOWNLOADS
+                Debug.Log("DOWNLOAD FAILED"
+                          + "\nSourceURL: " + webRequest.url);
+                #endif
+
+                status = Status.Error;
+                if(OnFailed != null)
+                {
+                	OnFailed(this, error);
+                }
+            }
             else
             {
-                OnFinalize_Succeeded(webRequest.downloadHandler);
+            	OnFinalize_Succeeded(webRequest.downloadHandler);
 
                 #if LOG_DOWNLOADS
                 Debug.Log("DOWNLOAD SUCEEDED"
@@ -111,7 +127,8 @@ namespace ModIO
             }
         }
 
-        protected virtual void OnFinalize_Succeeded(DownloadHandler handler) {}
+        protected virtual bool IsErrorFree(DownloadHandler handler, out APIError error) { error = null; return true; }
+        protected virtual void OnFinalize_Succeeded(DownloadHandler handler) { }
         protected virtual void OnFinalize_Failed(DownloadHandler handler, APIError error) {}
         protected virtual void OnCancelled() {}
     }
@@ -120,10 +137,50 @@ namespace ModIO
     {
         public string fileURL = "";
 
+        private string expectedMD5 = "";
+
+        public void EnableFilehashVerification(string md5)
+        {
+            expectedMD5 = md5;
+        }
+
         protected override void ModifyWebRequest(UnityWebRequest webRequest)
         {
             DownloadHandlerFile downloadHandler = new DownloadHandlerFile(fileURL);
             webRequest.downloadHandler = downloadHandler;
+        }
+
+        protected override bool IsErrorFree(DownloadHandler handler, out APIError error)
+        {
+            if(expectedMD5 != "")
+            {
+                using (var md5 = System.Security.Cryptography.MD5.Create())
+                {
+                    using (var stream = System.IO.File.OpenRead(fileURL))
+                    {
+
+                        var hash = md5.ComputeHash(stream);
+                        string hashString = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                        bool isValidHash = (hashString == expectedMD5);
+
+                    	Debug.Log("Checking Hashes: [" + isValidHash + "]"
+                                  +"\nExpected Hash: " + expectedMD5
+                                  +"\nDownload Hash: " + hashString);
+
+                        if(!isValidHash)
+                        {
+                        	error = new APIError();
+                            error.code = -1;
+                            error.message = "Downloaded file failed Hash-check";
+                            error.url = sourceURL;
+
+                            return false;
+                        }
+                    }
+                }
+            }
+            error = null;
+            return true;
         }
     }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ModIO
 {
     [Serializable]
-    public struct TimeStamp
+    public struct TimeStamp : IComparable<TimeStamp>, IEquatable<TimeStamp>
     {
         // --- CONSTS ---
         private static readonly DateTime UNIX_EPOCH = new DateTime(1970,1,1,0,0,0,0,System.DateTimeKind.Utc);
@@ -59,6 +59,56 @@ namespace ModIO
         }
 
         public int AsServerTimeStamp()
+        {
+            return serverTimeStamp;
+        }
+
+        // --- INTERFACES ---
+        public int CompareTo(TimeStamp other)
+        {
+        	return serverTimeStamp.CompareTo(other.serverTimeStamp);
+        }
+
+        public bool Equals(TimeStamp other)
+        {
+        	return this.serverTimeStamp == other.serverTimeStamp;
+        }
+
+        // --- OPERATOR OVERLOADS ---
+        public static bool operator == (TimeStamp a, TimeStamp b)
+        {
+            return a.serverTimeStamp == b.serverTimeStamp;
+        }
+        public static bool operator != (TimeStamp a, TimeStamp b)
+        {
+            return a.serverTimeStamp != b.serverTimeStamp;
+        }
+        public static bool operator > (TimeStamp a, TimeStamp b)
+        {
+            return a.serverTimeStamp > b.serverTimeStamp;
+        }
+        public static bool operator >= (TimeStamp a, TimeStamp b)
+        {
+            return a.serverTimeStamp >= b.serverTimeStamp;
+        }
+        public static bool operator < (TimeStamp a, TimeStamp b)
+        {
+            return a.serverTimeStamp < b.serverTimeStamp;
+        }
+        public static bool operator <= (TimeStamp a, TimeStamp b)
+        {
+            return a.serverTimeStamp <= b.serverTimeStamp;
+        }
+
+        public override bool Equals(object o)
+        {
+            if(o == null) { return false; }
+
+            TimeStamp other = (TimeStamp)o;
+            return this.Equals(other);
+        }
+
+        public override int GetHashCode()
         {
             return serverTimeStamp;
         }
