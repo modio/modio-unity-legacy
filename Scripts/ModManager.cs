@@ -515,12 +515,27 @@ namespace ModIO
 
         public static FileDownload StartBinaryDownload(int modID, int modfileID)
         {
+            string fileURL = GetModDirectory(modID) + "modfile_" + modfileID + ".zip";
+            
             FileDownload download = new FileDownload();
+            download.OnCompleted += (d) =>
+            {
+                // Remove any other binaries
+                string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(modID), "modfile_*.zip");
+                foreach(string binaryFilePath in binaryFilePaths)
+                {
+                    if(binaryFilePath != fileURL)
+                    {
+                        File.Delete(binaryFilePath);
+                    }
+                }
+            };
 
             ObjectCallback<Modfile> queueBinaryDownload = (modfile) =>
             {
                 download.sourceURL = modfile.downloadURL;
-                download.fileURL = GetModDirectory(modID) + "modfile_" + modfile.ID + ".zip";
+                download.fileURL = fileURL;
+                download.EnableFilehashVerification(modfile.filehash.md5);
 
                 DownloadManager.AddQueuedDownload(download);
             };
@@ -532,7 +547,7 @@ namespace ModIO
             return download;
         }
 
-        public static void DeleteDownloadedBinaries(Mod mod)
+        public static void DeleteAllDownloadedBinaries(Mod mod)
         {
             string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(mod.ID), "modfile_*.zip");
             foreach(string binaryFilePath in binaryFilePaths)
@@ -559,6 +574,23 @@ namespace ModIO
                     return ModBinaryStatus.Missing;
                 }
             }
+        }
+
+        public static string GetBinaryPath(Mod mod)
+        {
+            if(File.Exists(GetModDirectory(mod.ID) + "modfile_" + mod.modfile.ID + ".zip"))
+            {
+                return GetModDirectory(mod.ID) + "modfile_" + mod.modfile.ID + ".zip";
+            }
+            else
+            {
+                string[] modfileURLs = Directory.GetFiles(GetModDirectory(mod.ID), "modfile_*.zip");
+                if(modfileURLs.Length > 0)
+                {
+                    return modfileURLs[0];
+                }
+            }
+            return null;
         }
 
         // ---------[ LOGO MANAGEMENT ]---------
