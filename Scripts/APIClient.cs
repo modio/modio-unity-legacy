@@ -30,6 +30,14 @@ namespace ModIO
             public string oAuthToken = "";
             public Filter filter = Filter.None;
         }
+        public class PutRequest
+        {
+            public string endpoint = "";
+            public string oAuthToken = "";
+
+            // public byte[] data;
+            public string data = "";
+        }
         public class PostRequest
         {
             public class BinaryData
@@ -164,7 +172,7 @@ namespace ModIO
                            && headerValue.Length > 14) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 20) + "[token truncated]";   
+                                + headerValue.Substring(0, 20) + " [token truncated]";   
                         }
                         else
                         {
@@ -186,11 +194,58 @@ namespace ModIO
             ProcessJSONResponse<T>(webRequest, onSuccess, onError);
         }
 
+        public static IEnumerator ExecutePutRequest<T>(PutRequest request,
+                                                       ObjectCallback<T> onSuccess,
+                                                       ErrorCallback onError)
+        {
+            string constructedURL = URL + request.endpoint;
+            
+            UnityWebRequest webRequest = UnityWebRequest.Put(constructedURL, request.data);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);
+
+            #if LOG_ALL_QUERIES
+            {
+                string requestHeaders = "";
+                List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
+                requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
+
+                foreach(string headerKey in requestKeys)
+                {
+                    string headerValue = webRequest.GetRequestHeader(headerKey);
+                    if(headerValue != null)
+                    {
+                        if(headerKey == "Authorization"
+                           && headerValue.Length > 14) // Contains more than "Bearer "
+                        {
+                            requestHeaders += "\n" + headerKey + ": "
+                                + headerValue.Substring(0, 20) + " [token truncated]";   
+                        }
+                        else
+                        {
+                            requestHeaders += "\n" + headerKey + ": " + headerValue;
+                        }
+                    }
+                }
+
+                Debug.Log("EXECUTING PUT REQUEST"
+                          + "\nEndpoint: " + constructedURL
+                          + "\nHeaders: " + requestHeaders
+                          + "\nData:\n" + request.data
+                          + "\n"
+                          );
+            }
+            #endif
+
+            yield return webRequest.SendWebRequest();
+
+            ProcessJSONResponse<T>(webRequest, onSuccess, onError);
+        }
+
         public static IEnumerator ExecutePostRequest<T>(PostRequest request,
                                                         ObjectCallback<T> onSuccess,
                                                         ErrorCallback onError)
         {
-            string constructedURL = URL + request.endpoint;// + "?" + request.filter.GenerateQueryString();
+            string constructedURL = URL + request.endpoint;
 
             WWWForm form = new WWWForm();
             request.AddFieldsToForm(form);
@@ -405,7 +460,7 @@ namespace ModIO
         public void EditGame(ObjectCallback<Game> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameID;
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            onError(GenerateNotImplementedError(endpoint + ":PUT"));
         }
 
         // ---------[ MOD ENDPOINTS ]---------
