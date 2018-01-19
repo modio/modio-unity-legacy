@@ -208,7 +208,14 @@ namespace ModIO
                 }
                 else
                 {
-                    UncacheMod(modEvent.modID);
+                    // TODO(@jackson): Facilitate marking Mods as installed 
+                    bool isModInstalled = (userData != null
+                                           && userData.subscribedModIDs.Contains(modEvent.modID));
+
+                    if(!isModInstalled)
+                    {
+                        UncacheMod(modEvent.modID);
+                    }
                     manifest.unresolvedEvents.Remove(modEvent);
                 }
             };
@@ -459,7 +466,7 @@ namespace ModIO
         // NOTE(@jackson): Currently dumb. Needs improvement.
         public static void UpdateModCacheFromServer()
         {
-            client.GetAllMods(GetAllModsFilter.None, CacheModArray, APIClient.LogError);
+            client.GetAllMods(GetAllModsFilter.None, CacheMods, APIClient.LogError);
         }
 
         private static void CacheMod(Mod mod)
@@ -486,7 +493,7 @@ namespace ModIO
                 }
             }
         }
-        private static void CacheModArray(Mod[] modArray)
+        private static void CacheMods(Mod[] modArray)
         {
             foreach(Mod mod in modArray)
             {
@@ -495,8 +502,6 @@ namespace ModIO
         }
         private static void UncacheMod(int modID)
         {
-            // TODO(@jackson): Check for installs, subscriptions, etc.
-
             string modDir = GetModDirectory(modID);
             Directory.Delete(modDir, true);
 
