@@ -8,7 +8,7 @@ namespace ModIO
 {
     public delegate void DownloadStartedCallback(Download download);
     public delegate void DownloadCompletedCallback(Download download);
-    public delegate void DownloadFailedCallback(Download download, APIError error);
+    public delegate void DownloadFailedCallback(Download download, ErrorInfo error);
 
     public abstract class Download
     {
@@ -61,7 +61,7 @@ namespace ModIO
             }
         }
 
-        public void MarkAsFailed(APIError error)
+        public void MarkAsFailed(ErrorInfo error)
         {
             this.OnCancelled();
 
@@ -78,11 +78,11 @@ namespace ModIO
         private void Finalize(AsyncOperation operation)
         {
             UnityWebRequest webRequest = (operation as UnityWebRequestAsyncOperation).webRequest;
-            APIError error;
+            ErrorInfo error;
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
-                error = APIError.GenerateFromWebRequest(webRequest);
+                error = ErrorInfo.GenerateFromWebRequest(webRequest);
                 OnFinalize_Failed(webRequest.downloadHandler, error);
                 
                 #if LOG_DOWNLOADS
@@ -127,9 +127,9 @@ namespace ModIO
             }
         }
 
-        protected virtual bool IsErrorFree(DownloadHandler handler, out APIError error) { error = null; return true; }
+        protected virtual bool IsErrorFree(DownloadHandler handler, out ErrorInfo error) { error = null; return true; }
         protected virtual void OnFinalize_Succeeded(DownloadHandler handler) { }
-        protected virtual void OnFinalize_Failed(DownloadHandler handler, APIError error) {}
+        protected virtual void OnFinalize_Failed(DownloadHandler handler, ErrorInfo error) {}
         protected virtual void OnCancelled() {}
     }
 
@@ -150,7 +150,7 @@ namespace ModIO
             webRequest.downloadHandler = downloadHandler;
         }
 
-        protected override bool IsErrorFree(DownloadHandler handler, out APIError error)
+        protected override bool IsErrorFree(DownloadHandler handler, out ErrorInfo error)
         {
             if(expectedMD5 != "")
             {
@@ -169,8 +169,8 @@ namespace ModIO
 
                         if(!isValidHash)
                         {
-                        	error = new APIError();
-                            error.code = -1;
+                        	error = new ErrorInfo();
+                            error.httpStatusCode = -1;
                             error.message = "Downloaded file failed Hash-check";
                             error.url = sourceURL;
 
