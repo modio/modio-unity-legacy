@@ -1,4 +1,6 @@
-﻿using System;
+﻿// #define TEST_IGNORE_CACHE
+
+using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -74,6 +76,17 @@ namespace ModIO
                 Directory.CreateDirectory(MODIO_DIR);
             }
 
+            #if TEST_IGNORE_CACHE
+            
+            // --- INITIALIZE FIRST RUN ---
+            manifest = new ManifestData();
+            manifest.lastUpdateTimeStamp = new TimeStamp();
+            manifest.unresolvedEvents = new List<ModEvent>();
+
+            WriteManifestToDisk();
+
+            #else
+
             if(!File.Exists(MANIFEST_URL))
             {
                 // --- INITIALIZE FIRST RUN ---
@@ -87,6 +100,7 @@ namespace ModIO
             {
                 manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(MANIFEST_URL));
             }
+
 
             // iterate through folders, load ModInfo
             string[] modDirectories = Directory.GetDirectories(MODIO_DIR);
@@ -113,7 +127,60 @@ namespace ModIO
                                             });
             }
 
-            // --- Start Update Polling Loop ---
+            #endif
+
+            FetchAndCacheAllMods();
+        }
+
+        private static void FetchAndCacheAllMods()
+        {
+            ObjectCallback<ModInfo[]> AddModsToCache = (mods) =>
+            {
+                // TODO(@jackson): Implement mod is unavailable
+                // TODO(@jackson): Check for modfile change
+
+                manifest.lastUpdateTimeStamp = TimeStamp.Now();
+                WriteManifestToDisk();
+
+                List<ModInfo> updatedMods = new List<ModInfo>();
+                List<ModInfo> addedMods = new List<ModInfo>();
+
+                foreach(ModInfo mod in mods)
+                {
+                    ModInfo cachedMod;
+                    if(modCache.TryGetValue(mod.id, out cachedMod)
+                       && !cachedMod.Equals(mod))
+                    {
+                        CacheMod(mod);
+                        updatedMods.Add(mod);
+                    }
+                    else
+                    {
+                        CacheMod(mod);
+                        addedMods.Add(mod);
+                    }
+                }
+
+                if(OnModAdded != null)
+                {
+                    foreach(ModInfo mod in addedMods)
+                    {
+                        OnModAdded(mod);
+                    }
+                }
+
+                if(OnModUpdated != null)
+                {
+                    foreach(ModInfo mod in updatedMods)
+                    {
+                        OnModUpdated(mod.id);
+                    }
+                }
+            };
+
+            client.GetAllMods(GetAllModsFilter.None,
+                              AddModsToCache,
+                              APIClient.LogError);
         }
 
         // ---------[ AUTOMATED UPDATING ]---------
@@ -468,12 +535,6 @@ namespace ModIO
             return mod;
         }
 
-        // NOTE(@jackson): Currently dumb. Needs improvement.
-        public static void UpdateModCacheFromServer()
-        {
-            client.GetAllMods(GetAllModsFilter.None, CacheMods, APIClient.LogError);
-        }
-
         private static void CacheMod(ModInfo mod)
         {
             modCache[mod.id] = mod;
@@ -636,6 +697,7 @@ namespace ModIO
             {
                 LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
 
+                #if !TEST_IGNORE_CACHE
                 string localURL = GetModDirectory(mod.id) + logoTemplate.localFilename;
                 if(File.Exists(localURL))
                 {
@@ -647,6 +709,7 @@ namespace ModIO
                                          Vector2.zero);
                 }
                 else
+                #endif
                 {
                     StartLogoDownload(mod, logoTemplate);
                     return modLogoDownloadingPlaceholder;
@@ -709,6 +772,7 @@ namespace ModIO
                     continue;
                 }
 
+                #if !TEST_IGNORE_CACHE
                 string logoFilepath = GetModDirectory(mod.id) + logoTemplate.localFilename;
                 if(File.Exists(logoFilepath))
                 {
@@ -726,6 +790,7 @@ namespace ModIO
                     }
                 }
                 else
+                #endif
                 {
                     modLogoCache.Add(mod.id, modLogoDownloadingPlaceholder);
                     missingLogoList.Add(mod);
