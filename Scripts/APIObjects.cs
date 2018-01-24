@@ -14,14 +14,7 @@ namespace ModIO.API
     [Serializable]
     public struct ErrorObject
     {
-        [Serializable]
-        public struct InternalErrorObject
-        {
-            public int code;    // HTTP code of the error.
-            public string message; // The server response to your request. Responses will vary depending on the endpoint, but the object structure will persist.
-        }
-
-        public InternalErrorObject error;
+        public MessageObject error;
     }
 
     [Serializable]
