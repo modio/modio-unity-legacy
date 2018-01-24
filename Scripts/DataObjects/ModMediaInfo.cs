@@ -11,9 +11,10 @@ namespace ModIO
             this._data = apiObject;
 
             // - Load Images -
-            this.images = new ImageInfo[apiObject.images.Length];
+            int imageCount = (apiObject.images == null ? 0 : apiObject.images.Length);
+            this.images = new ImageInfo[imageCount];
             for(int i = 0;
-                i < apiObject.images.Length;
+                i < imageCount;
                 ++i)
             {
                 this.images[i] = new ImageInfo();

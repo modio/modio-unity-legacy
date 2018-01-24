@@ -104,9 +104,10 @@ namespace ModIO
             this.headerImage = new HeaderImageURLInfo();
             this.headerImage.WrapAPIObject(apiObject.header);
 
-            this.taggingOptions = new GameTagOption[apiObject.tag_options.Length];
+            int taggingOptionCount = (apiObject.tag_options == null ? 0 : apiObject.tag_options.Length);
+            this.taggingOptions = new GameTagOption[taggingOptionCount];
             for(int i = 0;
-                i < apiObject.tag_options.Length;
+                i < taggingOptionCount;
                 ++i)
             {
                 this.taggingOptions[i] = new GameTagOption();

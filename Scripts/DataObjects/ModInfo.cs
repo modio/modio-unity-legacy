@@ -65,10 +65,11 @@ namespace ModIO
             this.ratingSummary = new RatingSummary();
             this.ratingSummary.WrapAPIObject(apiObject.rating_summary);
             
-            this.tags = new ModTag[apiObject.tags.Length];
-            this.tagNames = new string[apiObject.tags.Length];
+            int tagCount = (apiObject.tags == null ? 0 : apiObject.tags.Length);
+            this.tags = new ModTag[tagCount];
+            this.tagNames = new string[tagCount];
             for(int i = 0;
-                i < apiObject.tags.Length;
+                i < tagCount;
                 ++i)
             {
                 this.tags[i]      = new ModTag();
