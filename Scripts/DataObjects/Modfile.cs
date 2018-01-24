@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class Modfile : IEquatable<Modfile>
+    public class Modfile : IEquatable<Modfile>, IAPIObjectWrapper<API.ModfileObject>
     {
         // - Enums -
         public enum VirusScanStatus
@@ -19,34 +19,6 @@ namespace ModIO
         {
             NoThreatsDetected = 0,
             FlaggedAsMalicious = 1,
-        }
-
-        // - Constructors - 
-        public static Modfile GenerateFromAPIObject(API.ModfileObject apiObject)
-        {
-            Modfile newModfile = new Modfile();
-            newModfile._data = apiObject;
-
-            newModfile.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-            newModfile.dateScanned = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_scanned);
-            newModfile.filehash = Filehash.GenerateFromAPIObject(apiObject.filehash);
-            newModfile.download = ModfileDownload.GenerateFromAPIObject(apiObject.download);
-
-            return newModfile;
-        }
-
-        public static Modfile[] GenerateFromAPIObjectArray(API.ModfileObject[] apiObjectArray)
-        {
-            Modfile[] objectArray = new Modfile[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = Modfile.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
         }
 
         // - Fields -
@@ -67,6 +39,24 @@ namespace ModIO
         public string changelog                 { get { return _data.changelog; } }
         public string metadataBlob              { get { return _data.metadata_blob; } }
         public ModfileDownload download         { get; private set; }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.ModfileObject apiObject)
+        {
+            this._data = apiObject;
+
+            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+            this.dateScanned = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_scanned);
+            this.filehash = new Filehash();
+            this.filehash.WrapAPIObject(apiObject.filehash);
+            this.download = new ModfileDownload();
+            this.download.WrapAPIObject(apiObject.download);
+        }
+
+        public API.ModfileObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

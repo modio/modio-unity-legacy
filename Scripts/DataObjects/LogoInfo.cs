@@ -3,30 +3,8 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class LogoURLInfo : IEquatable<LogoURLInfo>
+    public class LogoURLInfo : IEquatable<LogoURLInfo>, IAPIObjectWrapper<API.LogoObject>
     {
-        // - Constructors - 
-        public static LogoURLInfo GenerateFromAPIObject(API.LogoObject apiObject)
-        {
-            LogoURLInfo newLogo = new LogoURLInfo();
-            newLogo._data = apiObject;
-            return newLogo;
-        }
-
-        public static LogoURLInfo[] GenerateFromAPIObjectArray(API.LogoObject[] apiObjectArray)
-        {
-            LogoURLInfo[] objectArray = new LogoURLInfo[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = LogoURLInfo.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
-        }
-
         // - Fields -
         [UnityEngine.SerializeField]
         private API.LogoObject _data;
@@ -36,6 +14,17 @@ namespace ModIO
         public string thumb320x180      { get { return _data.thumb_320x180; } }
         public string thumb640x360      { get { return _data.thumb_640x360; } }
         public string thumb1280x720     { get { return _data.thumb_1280x720; } }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.LogoObject apiObject)
+        {
+            this._data = apiObject;
+        }
+
+        public API.LogoObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

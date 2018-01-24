@@ -3,36 +3,25 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class MetadataKVP : IEquatable<MetadataKVP>
+    public class MetadataKVP : IEquatable<MetadataKVP>, IAPIObjectWrapper<API.MetadataKVPObject>
     {
-        // - Constructors - 
-        public static MetadataKVP GenerateFromAPIObject(API.MetadataKVPObject apiObject)
-        {
-            MetadataKVP newMetadataKVP = new MetadataKVP();
-            newMetadataKVP._data = apiObject;
-            return newMetadataKVP;
-        }
-
-        public static MetadataKVP[] GenerateFromAPIObjectArray(API.MetadataKVPObject[] apiObjectArray)
-        {
-            MetadataKVP[] objectArray = new MetadataKVP[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = MetadataKVP.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
-        }
-
         // - Fields -
         [UnityEngine.SerializeField]
         private API.MetadataKVPObject _data;
 
         public string key   { get { return _data.metakey; } }
         public string value { get { return _data.metavalue; } }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.MetadataKVPObject apiObject)
+        {
+            this._data = apiObject;
+        }
+
+        public API.MetadataKVPObject GetAPIObject()
+        {
+            return this._data;
+        }
         
         // - Equality Overrides -
         public override int GetHashCode()

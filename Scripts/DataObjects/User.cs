@@ -3,32 +3,21 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class User : IEquatable<User>
+    public class User : IEquatable<User>, IAPIObjectWrapper<API.UserObject>
     {
-        // - Constructors - 
-        public static User GenerateFromAPIObject(API.UserObject apiObject)
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.UserObject apiObject)
         {
-            User newUser = new User();
-            newUser._data = apiObject;
+            this._data = apiObject;
 
-            newUser.dateOnline = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_online);
-            newUser.avatar = AvatarInfo.GenerateFromAPIObject(apiObject.avatar);
-
-            return newUser;
+            this.dateOnline = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_online);
+            this.avatar = new AvatarURLInfo();
+            this.avatar.WrapAPIObject(apiObject.avatar);
         }
 
-        public static User[] GenerateFromAPIObjectArray(API.UserObject[] apiObjectArray)
+        public API.UserObject GetAPIObject()
         {
-            User[] objectArray = new User[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = User.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
+            return this._data;
         }
 
         // - Fields -
@@ -39,7 +28,7 @@ namespace ModIO
         public string nameId        { get { return _data.name_id; } }
         public string username      { get { return _data.username; } }
         public TimeStamp dateOnline { get; private set; }
-        public AvatarInfo avatar    { get; private set; }
+        public AvatarURLInfo avatar    { get; private set; }
         public string timezone      { get { return _data.timezone; } }
         public string language      { get { return _data.language; } }
         public string profileURL    { get { return _data.profile_url; } }

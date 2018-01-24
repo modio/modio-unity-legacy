@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class UserComment : IEquatable<UserComment>
+    public class UserComment : IEquatable<UserComment>, IAPIObjectWrapper<API.CommentObject>
     {
         // - Inner Classes -
         [Serializable]
@@ -16,56 +16,45 @@ namespace ModIO
             public int subReplyThread = -1;
         }
 
-        // - Constructors - 
-        public static UserComment GenerateFromAPIObject(API.CommentObject apiObject)
+        // - Interface - 
+        public void WrapAPIObject(API.CommentObject apiObject)
         {
-            UserComment newUserComment = new UserComment();
-            newUserComment._data = apiObject;
+            this._data = apiObject;
 
-            newUserComment.submittedBy = User.GenerateFromAPIObject(apiObject.submitted_by);
-            newUserComment.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+            this.submittedBy = new User();
+            this.submittedBy.WrapAPIObject(apiObject.submitted_by);
+            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
 
             // - Parse the position of the comment -
-            newUserComment.position = new CommentPosition();
+            this.position = new CommentPosition();
 
             int positionValue;
             string[] positionStrings = apiObject.reply_position.Split('.');
 
-            newUserComment.position.depth = positionStrings.Length;
+            this.position.depth = positionStrings.Length;
             if(positionStrings.Length > 0
                && int.TryParse(positionStrings[0], out positionValue))
             {
-                newUserComment.position.mainThread = positionValue;
+                this.position.mainThread = positionValue;
 
                 if(positionStrings.Length > 1 
                    && int.TryParse(positionStrings[1], out positionValue))
                 {
-                    newUserComment.position.replyThread = positionValue;
+                    this.position.replyThread = positionValue;
 
                     if(positionStrings.Length > 2
                        && int.TryParse(positionStrings[2], out positionValue))
                     {
-                        newUserComment.position.subReplyThread = positionValue;
+                        this.position.subReplyThread = positionValue;
                     }
 
                 }
             }
-
-            return newUserComment;
         }
 
-        public static UserComment[] GenerateFromAPIObjectArray(API.CommentObject[] apiObjectArray)
+        public API.CommentObject GetAPIObject()
         {
-            UserComment[] objectArray = new UserComment[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = UserComment.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
+            return this._data;
         }
 
         // - Fields -

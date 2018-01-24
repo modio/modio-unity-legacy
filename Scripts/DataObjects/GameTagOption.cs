@@ -3,59 +3,13 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class GameTagOption : IEquatable<GameTagOption>
+    public class GameTagOption : IEquatable<GameTagOption>, IAPIObjectWrapper<API.GameTagOptionObject>
     {
         // - Enum -
         public enum TagType
         {
             SingleValue,
             MultiValue
-        }
-
-        // - Constructors - 
-        public static GameTagOption GenerateFromAPIObject(API.GameTagOptionObject apiObject)
-        {
-            GameTagOption newGameTagOption = new GameTagOption();
-            newGameTagOption._data = apiObject;
-
-            // - Parse Fields -
-            switch(apiObject.type.ToUpper())
-            {
-                case "CHECKBOXES":
-                {
-                    newGameTagOption.tagType = TagType.SingleValue;
-                }
-                break;
-                case "MULTIVALUE":
-                {
-                    newGameTagOption.tagType = TagType.MultiValue;
-                }
-                break;
-                default:
-                {
-                    UnityEngine.Debug.LogWarning("Unrecognised tag type: " + newGameTagOption.ToString());
-                }
-                break;
-            }
-         
-            newGameTagOption.isHidden = (apiObject.hidden > 0);
-
-
-            return newGameTagOption;
-        }
-
-        public static GameTagOption[] GenerateFromAPIObjectArray(API.GameTagOptionObject[] apiObjectArray)
-        {
-            GameTagOption[] objectArray = new GameTagOption[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = GameTagOption.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
         }
 
         // - Fields -
@@ -66,6 +20,39 @@ namespace ModIO
         public TagType tagType  { get; private set; }
         public bool isHidden    { get; private set; }
         public string[] tags    { get { return _data.tags; } }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.GameTagOptionObject apiObject)
+        {
+            this._data = apiObject;
+
+            // - Parse Fields -
+            switch(apiObject.type.ToUpper())
+            {
+                case "CHECKBOXES":
+                {
+                    this.tagType = TagType.SingleValue;
+                }
+                break;
+                case "MULTIVALUE":
+                {
+                    this.tagType = TagType.MultiValue;
+                }
+                break;
+                default:
+                {
+                    UnityEngine.Debug.LogWarning("Unrecognised tag type: " + apiObject.type.ToString());
+                }
+                break;
+            }
+         
+            this.isHidden = (apiObject.hidden > 0);
+        }
+
+        public API.GameTagOptionObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

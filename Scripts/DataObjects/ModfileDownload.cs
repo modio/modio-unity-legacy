@@ -3,39 +3,27 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModfileDownload : IEquatable<ModfileDownload>
+    public class ModfileDownload : IEquatable<ModfileDownload>, IAPIObjectWrapper<API.ModfileDownloadObject>
     {
-        // - Constructors - 
-        public static ModfileDownload GenerateFromAPIObject(API.ModfileDownloadObject apiObject)
-        {
-            ModfileDownload newModfileDownload = new ModfileDownload();
-            newModfileDownload._data = apiObject;
-
-            newModfileDownload.dateExpires = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_expires);
-
-            return newModfileDownload;
-        }
-
-        public static ModfileDownload[] GenerateFromAPIObjectArray(API.ModfileDownloadObject[] apiObjectArray)
-        {
-            ModfileDownload[] objectArray = new ModfileDownload[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = ModfileDownload.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
-        }
-
         // - Fields -
         [UnityEngine.SerializeField]
         private API.ModfileDownloadObject _data;
 
         public string binaryURL         { get { return _data.binary_url; } }
         public TimeStamp dateExpires    { get; private set; }
+
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.ModfileDownloadObject apiObject)
+        {
+            this._data = apiObject;
+            
+            this.dateExpires = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_expires);
+        }
+
+        public API.ModfileDownloadObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

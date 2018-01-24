@@ -34,7 +34,6 @@ namespace ModIO
         public int httpStatusCode;
         public string message;
 
-
         // - Equality Overrides -
         public override int GetHashCode()
         {

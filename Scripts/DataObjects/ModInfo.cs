@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModInfo : IEquatable<ModInfo>
+    public class ModInfo : IEquatable<ModInfo>, IAPIObjectWrapper<API.ModObject>
     {
         // - Enums -
         public enum Status
@@ -17,48 +17,6 @@ namespace ModIO
         {
             Hidden = 0,
             Public = 1,
-        }
-
-        // - Constructors - 
-        public static ModInfo GenerateFromAPIObject(API.ModObject apiObject)
-        {
-            ModInfo newMod = new ModInfo();
-            newMod._data = apiObject;
-
-            newMod.submittedBy =    User.GenerateFromAPIObject(apiObject.submitted_by);
-            newMod.dateAdded =      TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-            newMod.dateUpdated =    TimeStamp.GenerateFromServerTimeStamp(apiObject.date_updated);
-            newMod.dateLive =       TimeStamp.GenerateFromServerTimeStamp(apiObject.date_live);
-            newMod.logo =           LogoURLInfo.GenerateFromAPIObject(apiObject.logo);
-            newMod.modfile =        Modfile.GenerateFromAPIObject(apiObject.modfile);
-            newMod.media =          ModMediaInfo.GenerateFromAPIObject(apiObject.media);
-            newMod.ratingSummary =  RatingSummary.GenerateFromAPIObject(apiObject.rating_summary);
-            
-            newMod.tags     = new ModTag[apiObject.tags.Length];
-            newMod.tagNames = new string[apiObject.tags.Length];
-            for(int i = 0;
-                i < apiObject.tags.Length;
-                ++i)
-            {
-                newMod.tags[i]      = ModTag.GenerateFromAPIObject(apiObject.tags[i]);
-                newMod.tagNames[i]  = apiObject.tags[i].name;
-            }
-
-            return newMod;
-        }
-
-        public static ModInfo[] GenerateFromAPIObjectArray(API.ModObject[] apiObjectArray)
-        {
-            ModInfo[] objectArray = new ModInfo[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = ModInfo.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
         }
 
         // - Fields -
@@ -87,6 +45,43 @@ namespace ModIO
         public ModTag[] tags                { get; private set; }
         public string[] tagNames            { get; private set; }
 
+
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.ModObject apiObject)
+        {
+            this._data = apiObject;
+
+            this.submittedBy = new User();
+            this.submittedBy.WrapAPIObject(apiObject.submitted_by);
+            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+            this.dateUpdated = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_updated);
+            this.dateLive = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_live);
+            this.logo = new LogoURLInfo();
+            this.logo.WrapAPIObject(apiObject.logo);
+            this.modfile = new Modfile();
+            this.modfile.WrapAPIObject(apiObject.modfile);
+            this.media = new ModMediaInfo();
+            this.media.WrapAPIObject(apiObject.media);
+            this.ratingSummary = new RatingSummary();
+            this.ratingSummary.WrapAPIObject(apiObject.rating_summary);
+            
+            this.tags = new ModTag[apiObject.tags.Length];
+            this.tagNames = new string[apiObject.tags.Length];
+            for(int i = 0;
+                i < apiObject.tags.Length;
+                ++i)
+            {
+                this.tags[i]      = new ModTag();
+                this.tags[i].WrapAPIObject(apiObject.tags[i]);
+                this.tagNames[i]  = apiObject.tags[i].name;
+            }
+        }
+
+        public API.ModObject GetAPIObject()
+        {
+            return this._data;
+        }
+        
         // - Equality Overrides -
         public override int GetHashCode()
         {

@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 namespace ModIO
 {
     public delegate void ErrorCallback(ErrorInfo errorInfo);
-    public delegate void ObjectCallback<T>(T requestedObject);
+    public delegate void ObjectCallback<T>(T requestedObject); 
     public delegate void DownloadCallback(byte[] data);
 
     public class APIClient : MonoBehaviour
@@ -21,6 +21,34 @@ namespace ModIO
             retVal.httpStatusCode = -1;
             retVal.message = "This APIClient function has not yet been implemented";
             retVal.url = url;
+            return retVal;
+        }
+
+        private static void OnSuccessWrapper<T, T_APIObj>(ObjectCallback<T> onSuccess, 
+                                                          T_APIObj apiResult) 
+                                                          where T_APIObj : struct 
+                                                          where T : IAPIObjectWrapper<T_APIObj>, new()
+        {
+            T retVal = new T();
+            retVal.WrapAPIObject(apiResult);
+
+            onSuccess(retVal);
+        }
+
+        private static T[] WrapArray<T, T_APIObj>(T_APIObj[] apiObjectArray) 
+                                                  where T_APIObj : struct 
+                                                  where T : IAPIObjectWrapper<T_APIObj>, new()
+        {
+            T[] retVal = new T[apiObjectArray.Length];
+            for(int i = 0;
+                i < apiObjectArray.Length;
+                ++i)
+            {
+                T newObject = new T();
+                newObject.WrapAPIObject(apiObjectArray[i]);
+
+                retVal[i] = newObject;
+            }
             return retVal;
         }
 
@@ -74,11 +102,11 @@ namespace ModIO
         // ---------[ CONSTANTS ]---------
         public const string VERSION = "v1";
 
-#if USE_TEST_API
+        #if USE_TEST_API
         public const string URL = "https://api.test.mod.io/" + VERSION + "/";
-#else
+        #else
         public const string URL = "https://api.mod.io/" + VERSION + "/";
-#endif
+        #endif
 
         public static readonly string[] UNITY_REQUEST_HEADER_KEYS = new string[]
         {
@@ -421,7 +449,7 @@ namespace ModIO
             request.fieldValues.Add("email", emailAddress);
 
             StartCoroutine(ExecutePostRequest<API.MessageObject>(request, 
-                                                                 data => onSuccess(APIMessage.GenerateFromAPIObject(data)), 
+                                                                 result => OnSuccessWrapper(onSuccess, result),
                                                                  onError));
         }
         public void RequestOAuthToken(string securityCode,
@@ -445,11 +473,16 @@ namespace ModIO
         {
             string endpoint = "games";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<API.GameObject>>(endpoint, 
-                                                                         apiKey, 
-                                                                         filter, 
-                                                                         results => onSuccess(GameInfo.GenerateFromAPIObjectArray(results.data)), 
-                                                                         onError));
+            ObjectCallback<API.ObjectArray<API.GameObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<GameInfo, API.GameObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
 
         // Get GameInfo
@@ -457,12 +490,13 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID;
             
-            StartCoroutine(ExecuteQuery<GameInfo>(endpoint, 
-                                                  apiKey, 
-                                                  Filter.None, 
-                                                  onSuccess, 
-                                                  onError));
+            StartCoroutine(ExecuteQuery<API.GameObject>(endpoint,
+                                                        apiKey,
+                                                        Filter.None,
+                                                        result => OnSuccessWrapper(onSuccess, result),
+                                                        onError));
         }
+
         // Edit GameInfo
         public void EditGame(ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
         {
@@ -477,11 +511,16 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<ModInfo>>(endpoint, 
-                                                                  apiKey, 
-                                                                  filter, 
-                                                                  results => onSuccess(results.data), 
-                                                                  onError));
+            ObjectCallback<API.ObjectArray<API.ModObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<ModInfo, API.ModObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Get Mod
         public void GetMod(int modID,
@@ -489,28 +528,33 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID;
             
-            StartCoroutine(ExecuteQuery<ModInfo>(endpoint, 
-                                                 apiKey, 
-                                                 Filter.None, 
-                                                 onSuccess, 
-                                                 onError));
+            StartCoroutine(ExecuteQuery<API.ModObject>(endpoint, 
+                                                       apiKey, 
+                                                       Filter.None, 
+                                                       result => OnSuccessWrapper(onSuccess, result), 
+                                                       onError));
         }
         // Add Mod
-        public void AddMod(ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        public void AddMod(string oAuthToken,
+                           ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameID + "/mods";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameID + "/mods";
+            request.oAuthToken = oAuthToken;
+            // request.fieldValues[]
+
+            onError(GenerateNotImplementedError(request.endpoint + ":POST"));
         }
         // Edit Mod
         public void EditMod(int modID,
-                            ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+                            ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameID + "/mods/" + modID;
             onError(GenerateNotImplementedError(endpoint + ":POST"));
         }
         // Delete Mod
         public void DeleteMod(int modID,
-                              ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+                              ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameID + "/mods/" + modID;
             onError(GenerateNotImplementedError(endpoint + ":DELETE"));
@@ -523,11 +567,16 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/files";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<Modfile>>(endpoint,
-                                                                 apiKey,
-                                                                 filter,
-                                                                 results => onSuccess(results.data),
-                                                                 onError));
+            ObjectCallback<API.ObjectArray<API.ModfileObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<Modfile, API.ModfileObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Get Modfile
         public void GetModfile(int modID, int modfileID,
@@ -535,11 +584,11 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/files/" + modfileID;
 
-            StartCoroutine(ExecuteQuery<Modfile>(endpoint,
-                                                 apiKey,
-                                                 Filter.None,
-                                                 onSuccess,
-                                                 onError));
+            StartCoroutine(ExecuteQuery<API.ModfileObject>(endpoint, 
+                                                           apiKey, 
+                                                           Filter.None, 
+                                                           result => OnSuccessWrapper(onSuccess, result), 
+                                                           onError));
         }
         // Add Modfile
         public void AddModfile(int modID,
@@ -588,7 +637,7 @@ namespace ModIO
             request.oAuthToken = oAuthToken;
 
             StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
-                                                                 data => onSuccess(APIMessage.GenerateFromAPIObject(data)),
+                                                                 result => OnSuccessWrapper(onSuccess, result),
                                                                  onError));
         }
         public void UnsubscribeFromMod(string oAuthToken,
@@ -600,7 +649,7 @@ namespace ModIO
             request.oAuthToken = oAuthToken;
 
             StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
-                                                                   data => onSuccess(APIMessage.GenerateFromAPIObject(data)),
+                                                                   result => OnSuccessWrapper(onSuccess, result),
                                                                    onError));
         }
 
@@ -611,22 +660,33 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/events";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<ModEvent>>(endpoint, 
-                                                                  apiKey, 
-                                                                  filter, 
-                                                                  results => onSuccess(results.data), 
-                                                                  onError));
+            ObjectCallback<API.ObjectArray<API.ModEventObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<ModEvent, API.ModEventObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Get All Mod Events
-        public void GetAllModEvents(GetAllModEventsFilter filter, ObjectCallback<ModEvent[]> onSuccess, ErrorCallback onError)
+        public void GetAllModEvents(GetAllModEventsFilter filter,
+                                    ObjectCallback<ModEvent[]> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameID + "/mods/events";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<ModEvent>>(endpoint, 
-                                                                  apiKey, 
-                                                                  filter, 
-                                                                  results => onSuccess(results.data), 
-                                                                  onError));
+            ObjectCallback<API.ObjectArray<API.ModEventObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<ModEvent, API.ModEventObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
 
         // ---------[ TAG ENDPOINTS ]---------
@@ -636,11 +696,16 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/tags";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<ModTag>>(endpoint,
-                                                                apiKey,
-                                                                filter,
-                                                                results => onSuccess(results.data),
-                                                                onError));
+            ObjectCallback<API.ObjectArray<API.ModTagObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<ModTag, API.ModTagObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Add Mod Tag
         public void AddModTag(int modID,
@@ -675,11 +740,16 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/metadatakvp";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<MetadataKVP>>(endpoint,
-                                                                     apiKey,
-                                                                     Filter.None,
-                                                                     results => onSuccess(results.data),
-                                                                     onError));
+            ObjectCallback<API.ObjectArray<API.MetadataKVPObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<MetadataKVP, API.MetadataKVPObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        Filter.None,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Add Mod KVP Metadata
         public void AddModKVPMetadata(int modID,
@@ -703,11 +773,16 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/dependencies";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<ModDependency>>(endpoint,
-                                                                       apiKey,
-                                                                       filter,
-                                                                       results => onSuccess(results.data),
-                                                                       onError));
+            ObjectCallback<API.ObjectArray<API.ModDependencyObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<ModDependency, API.ModDependencyObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Add Mod Dependency
         public void AddModDependency(int modID,
@@ -732,11 +807,16 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/team";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<TeamMember>>(endpoint,
-                                                                    apiKey,
-                                                                    filter,
-                                                                    results => onSuccess(results.data),
-                                                                    onError));
+            ObjectCallback<API.ObjectArray<API.TeamMemberObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<TeamMember, API.TeamMemberObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Add GameInfo Team Member
         public void AddGameTeamMember(ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
@@ -788,11 +868,16 @@ namespace ModIO
         {
             string endpoint = "games/" + gameID + "/mods/" + modID + "/comments";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<API.CommentObject>>(endpoint, 
-                                                                            apiKey, 
-                                                                            filter, 
-                                                                            results => onSuccess(UserComment.GenerateFromAPIObjectArray(results.data)), 
-                                                                            onError));
+            ObjectCallback<API.ObjectArray<API.CommentObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<UserComment, API.CommentObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Get Mod Comment
         public void GetModComment(int modID, int commentID,
@@ -803,7 +888,7 @@ namespace ModIO
             StartCoroutine(ExecuteQuery<API.CommentObject>(endpoint, 
                                                            apiKey, 
                                                            Filter.None, 
-                                                           results => onSuccess(UserComment.GenerateFromAPIObject(results)), 
+                                                           result => OnSuccessWrapper(onSuccess, result),
                                                            onError));
         }
         // Delete Mod Comment
@@ -834,9 +919,9 @@ namespace ModIO
             request.fieldValues.Add("resource_type", resourceType.ToString().ToLower());
             request.fieldValues.Add("resource_id", resourceID.ToString());
 
-            StartCoroutine(ExecutePostRequest<User>(request,
-                                                    onSuccess,
-                                                    onError));
+            StartCoroutine(ExecutePostRequest<API.UserObject>(request, 
+                                                              result => OnSuccessWrapper(onSuccess, result), 
+                                                              onError));
         }
         // Get All Users
         public void GetAllUsers(GetAllUsersFilter filter,
@@ -844,11 +929,16 @@ namespace ModIO
         {
             string endpoint = "users";
 
-            StartCoroutine(ExecuteQuery<API.ObjectArray<User>>(endpoint,
-                                                              apiKey,
-                                                              filter,
-                                                              results => onSuccess(results.data),
-                                                              onError));
+            ObjectCallback<API.ObjectArray<API.UserObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<User, API.UserObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint, 
+                                        apiKey, 
+                                        filter, 
+                                        onSuccessArrayWrapper,
+                                        onError));
         }
         // Get User
         public void GetUser(int userID,
@@ -856,11 +946,11 @@ namespace ModIO
         {
             string endpoint = "users/" + userID;
 
-            StartCoroutine(ExecuteQuery<User>(endpoint,
-                                              apiKey,
-                                              Filter.None,
-                                              onSuccess,
-                                              onError));
+            StartCoroutine(ExecuteQuery<API.UserObject>(endpoint, 
+                                                        apiKey, 
+                                                        Filter.None, 
+                                                        result => OnSuccessWrapper(onSuccess, result), 
+                                                        onError));
         }
 
 
@@ -882,9 +972,9 @@ namespace ModIO
             request.endpoint = "me";
             request.oAuthToken = oAuthToken;
 
-            StartCoroutine(ExecuteGetRequest<User>(request,
-                                                   onSuccess,
-                                                   onError));
+            StartCoroutine(ExecuteGetRequest<API.UserObject>(request, 
+                                                             result => OnSuccessWrapper(onSuccess, result), 
+                                                             onError)); 
         }
         // Get User Subscriptions
         public void GetUserSubscriptions(string oAuthToken,
@@ -896,9 +986,14 @@ namespace ModIO
             request.oAuthToken = oAuthToken;
             request.filter = filter;
 
-            StartCoroutine(ExecuteGetRequest<API.ObjectArray<API.ModObject>>(request,
-                                                                             results => onSuccess(ModInfo.GenerateFromAPIObjectArray(results.data)),
-                                                                             onError)); 
+            ObjectCallback<API.ObjectArray<API.ModObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<ModInfo, API.ModObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteGetRequest(request, 
+                                             onSuccessArrayWrapper,
+                                             onError));
         }
         // Get User Games
         public void GetUserGames(string oAuthToken,
@@ -908,9 +1003,14 @@ namespace ModIO
             request.endpoint = "me/games";
             request.oAuthToken = oAuthToken;
 
-            StartCoroutine(ExecuteGetRequest<API.ObjectArray<API.GameObject>>(request, 
-                                                                              results => onSuccess(GameInfo.GenerateFromAPIObjectArray(results.data)),
-                                                                              onError));
+            ObjectCallback<API.ObjectArray<API.GameObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<GameInfo, API.GameObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteGetRequest(request, 
+                                             onSuccessArrayWrapper, 
+                                             onError));
         }
         // Get User Mods
         public void GetUserMods(string oAuthToken,
@@ -920,9 +1020,14 @@ namespace ModIO
             request.endpoint = "me/mods";
             request.oAuthToken = oAuthToken;
 
-            StartCoroutine(ExecuteGetRequest<API.ObjectArray<API.ModObject>>(request, 
-                                                                             results => onSuccess(ModInfo.GenerateFromAPIObjectArray(results.data)),
-                                                                             onError));
+            ObjectCallback<API.ObjectArray<API.ModObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<ModInfo, API.ModObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteGetRequest(request,
+                                             onSuccessArrayWrapper,
+                                             onError));
         }
         // Get User Files
         public void GetUserModfiles(string oAuthToken,
@@ -932,9 +1037,14 @@ namespace ModIO
             request.endpoint = "me/files";
             request.oAuthToken = oAuthToken;
 
-            StartCoroutine(ExecuteGetRequest<API.ObjectArray<API.ModfileObject>>(request, 
-                                                                                 results => onSuccess(Modfile.GenerateFromAPIObjectArray(results.data)), 
-                                                                                 onError));
+            ObjectCallback<API.ObjectArray<API.ModfileObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<Modfile, API.ModfileObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteGetRequest(request, 
+                                             onSuccessArrayWrapper,
+                                             onError));
         }
     }
 }

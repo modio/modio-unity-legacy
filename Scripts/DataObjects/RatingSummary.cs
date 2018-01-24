@@ -3,28 +3,17 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class RatingSummary : IEquatable<RatingSummary>
+    public class RatingSummary : IEquatable<RatingSummary>, IAPIObjectWrapper<API.RatingSummaryObject>
     {
-        // - Constructors - 
-        public static RatingSummary GenerateFromAPIObject(API.RatingSummaryObject apiObject)
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.RatingSummaryObject apiObject)
         {
-            RatingSummary newRatingSummary = new RatingSummary();
-            newRatingSummary._data = apiObject;
-            return newRatingSummary;
+            this._data = apiObject;
         }
 
-        public static RatingSummary[] GenerateFromAPIObjectArray(API.RatingSummaryObject[] apiObjectArray)
+        public API.RatingSummaryObject GetAPIObject()
         {
-            RatingSummary[] objectArray = new RatingSummary[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = RatingSummary.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
+            return this._data;
         }
 
         // - Fields -

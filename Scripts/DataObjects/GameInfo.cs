@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class GameInfo : IEquatable<GameInfo>
+    public class GameInfo : IEquatable<GameInfo>, IAPIObjectWrapper<API.GameObject>
     {
         // - Enums -
         public enum Status
@@ -59,45 +59,6 @@ namespace ModIO
             AllowDirectDownloads = 2, // This game allows mods to be downloaded directly without API validation
         }
 
-        // - Constructors - 
-        public static GameInfo GenerateFromAPIObject(API.GameObject apiObject)
-        {
-            GameInfo newGame = new GameInfo();
-            newGame._data = apiObject;
-
-            newGame.submittedBy = User.GenerateFromAPIObject(apiObject.submitted_by);
-            newGame.dateAdded   = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-            newGame.dateUpdated = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_updated);
-            newGame.dateLive    = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_live);
-            newGame.icon        = IconInfo.GenerateFromAPIObject(apiObject.icon);
-            newGame.logo        = LogoURLInfo.GenerateFromAPIObject(apiObject.logo);
-            newGame.headerImage = HeaderImageInfo.GenerateFromAPIObject(apiObject.header);
-
-            newGame.taggingOptions = new GameTagOption[apiObject.tag_options.Length];
-            for(int i = 0;
-                i < apiObject.tag_options.Length;
-                ++i)
-            {
-                newGame.taggingOptions[i] = GameTagOption.GenerateFromAPIObject(apiObject.tag_options[i]);
-            }
-
-            return newGame;
-        }
-
-        public static GameInfo[] GenerateFromAPIObjectArray(API.GameObject[] apiObjectArray)
-        {
-            GameInfo[] objectArray = new GameInfo[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = GameInfo.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
-        }
-
         // - Fields -
         [UnityEngine.SerializeField]
         private API.GameObject _data;
@@ -115,9 +76,9 @@ namespace ModIO
         public RevenueOptions revenueOptions            { get { return (RevenueOptions)_data.revenue_options; } }
         public APIAccessOptions apiAccessOptions        { get { return (APIAccessOptions)_data.api_access_options; } }
         public string ugcName                           { get { return _data.ugc_name; } }
-        public IconInfo icon                            { get; private set; }
-        public LogoURLInfo logo                            { get; private set; }
-        public HeaderImageInfo headerImage              { get; private set; }
+        public IconURLInfo icon                         { get; private set; }
+        public LogoURLInfo logo                         { get; private set; }
+        public HeaderImageURLInfo headerImage           { get; private set; }
         public string homepage                          { get { return _data.homepage; } }
         public string name                              { get { return _data.name; } }
         public string nameId                            { get { return _data.name_id; } }
@@ -125,6 +86,38 @@ namespace ModIO
         public string instructions                      { get { return _data.instructions; } }
         public string profileURL                        { get { return _data.profile_url; } }
         public GameTagOption[] taggingOptions           { get; private set; }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.GameObject apiObject)
+        {
+            this._data = apiObject;
+
+            this.submittedBy = new User();
+            this.submittedBy.WrapAPIObject(apiObject.submitted_by);
+            this.dateAdded   = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+            this.dateUpdated = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_updated);
+            this.dateLive    = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_live);
+            this.icon        = new IconURLInfo();
+            this.icon.WrapAPIObject(apiObject.icon);
+            this.logo        = new LogoURLInfo();
+            this.logo.WrapAPIObject(apiObject.logo);
+            this.headerImage = new HeaderImageURLInfo();
+            this.headerImage.WrapAPIObject(apiObject.header);
+
+            this.taggingOptions = new GameTagOption[apiObject.tag_options.Length];
+            for(int i = 0;
+                i < apiObject.tag_options.Length;
+                ++i)
+            {
+                this.taggingOptions[i] = new GameTagOption();
+                this.taggingOptions[i].WrapAPIObject(apiObject.tag_options[i]);
+            }
+        }
+
+        public API.GameObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

@@ -3,36 +3,25 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class HeaderImageInfo : IEquatable<HeaderImageInfo>
+    public class HeaderImageURLInfo : IEquatable<HeaderImageURLInfo>, IAPIObjectWrapper<API.HeaderImageObject>
     {
-        // - Constructors - 
-        public static HeaderImageInfo GenerateFromAPIObject(API.HeaderImageObject apiObject)
-        {
-            HeaderImageInfo newHeaderImage = new HeaderImageInfo();
-            newHeaderImage._data = apiObject;
-            return newHeaderImage;
-        }
-
-        public static HeaderImageInfo[] GenerateFromAPIObjectArray(API.HeaderImageObject[] apiObjectArray)
-        {
-            HeaderImageInfo[] objectArray = new HeaderImageInfo[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = HeaderImageInfo.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
-        }
-
         // - Fields -
         [UnityEngine.SerializeField]
         private API.HeaderImageObject _data;
 
-        public string filename      { get { return _data.filename; } }
-        public string original_URL  { get { return _data.original; } }
+        public string filename  { get { return _data.filename; } }
+        public string original  { get { return _data.original; } }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.HeaderImageObject apiObject)
+        {
+            this._data = apiObject;
+        }
+
+        public API.HeaderImageObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()
@@ -42,10 +31,10 @@ namespace ModIO
 
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as HeaderImageInfo);
+            return this.Equals(obj as HeaderImageURLInfo);
         }
 
-        public bool Equals(HeaderImageInfo other)
+        public bool Equals(HeaderImageURLInfo other)
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));

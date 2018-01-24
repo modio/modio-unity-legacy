@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModEvent : IEquatable<ModEvent>
+    public class ModEvent : IEquatable<ModEvent>, IAPIObjectWrapper<API.ModEventObject>
     {
         // - Enums -
         public enum EventType
@@ -12,56 +12,6 @@ namespace ModIO
             ModAvailable,
             ModUnavailable,
             ModEdited,
-        }
-
-        // - Constructors - 
-        public static ModEvent GenerateFromAPIObject(API.ModEventObject apiObject)
-        {
-            ModEvent newModEvent = new ModEvent();
-            newModEvent._data = apiObject;
-
-            newModEvent.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-
-            // - Parse EventType -
-            switch(apiObject.event_type.ToUpper())
-            {
-                case "MODFILE_CHANGED":
-                {
-                    newModEvent.eventType = EventType.ModfileChanged;
-                }
-                break;
-                case "MOD_AVAILABLE":
-                {
-                    newModEvent.eventType = EventType.ModAvailable;
-                }
-                break;
-                case "MOD_UNAVAILABLE":
-                {
-                    newModEvent.eventType = EventType.ModUnavailable;
-                }
-                break;
-                case "MOD_EDITED":
-                {
-                    newModEvent.eventType = EventType.ModEdited;
-                }
-                break;
-            }
-
-            return newModEvent;
-        }
-
-        public static ModEvent[] GenerateFromAPIObjectArray(API.ModEventObject[] apiObjectArray)
-        {
-            ModEvent[] objectArray = new ModEvent[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = ModEvent.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
         }
 
         // - Fields -
@@ -73,6 +23,44 @@ namespace ModIO
         public int userId           { get { return _data.user_id; } }
         public TimeStamp dateAdded  { get; private set; }
         public EventType eventType  { get; private set; }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.ModEventObject apiObject)
+        {
+            this._data = apiObject;
+
+            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+
+            // - Parse EventType -
+            switch(apiObject.event_type.ToUpper())
+            {
+                case "MODFILE_CHANGED":
+                {
+                    this.eventType = EventType.ModfileChanged;
+                }
+                break;
+                case "MOD_AVAILABLE":
+                {
+                    this.eventType = EventType.ModAvailable;
+                }
+                break;
+                case "MOD_UNAVAILABLE":
+                {
+                    this.eventType = EventType.ModUnavailable;
+                }
+                break;
+                case "MOD_EDITED":
+                {
+                    this.eventType = EventType.ModEdited;
+                }
+                break;
+            }
+        }
+
+        public API.ModEventObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Event Type Parsing -
         public static string GetNameForType(EventType eventType)

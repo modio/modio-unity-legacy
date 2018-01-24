@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class TeamMember : IEquatable<TeamMember>
+    public class TeamMember : IEquatable<TeamMember>, IAPIObjectWrapper<API.TeamMemberObject>
     {
         // - Enums -
         public enum PermissionLevel
@@ -15,30 +15,19 @@ namespace ModIO
             Leader = 8,
         }
 
-        // - Constructors - 
-        public static TeamMember GenerateFromAPIObject(API.TeamMemberObject apiObject)
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.TeamMemberObject apiObject)
         {
-            TeamMember newTeamMember = new TeamMember();
-            newTeamMember._data = apiObject;
+            this._data = apiObject;
 
-            newTeamMember.user      = User.GenerateFromAPIObject(apiObject.user);
-            newTeamMember.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-
-            return newTeamMember;
+            this.user = new User();
+            this.user.WrapAPIObject(apiObject.user);
+            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
         }
 
-        public static TeamMember[] GenerateFromAPIObjectArray(API.TeamMemberObject[] apiObjectArray)
+        public API.TeamMemberObject GetAPIObject()
         {
-            TeamMember[] objectArray = new TeamMember[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = TeamMember.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
+            return this._data;
         }
 
         // - Fields -

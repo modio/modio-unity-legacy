@@ -3,31 +3,19 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModTag : IEquatable<ModTag>
+    public class ModTag : IEquatable<ModTag>, IAPIObjectWrapper<API.ModTagObject>
     {
-        // - Constructors - 
-        public static ModTag GenerateFromAPIObject(API.ModTagObject apiObject)
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.ModTagObject apiObject)
         {
-            ModTag newModTag = new ModTag();
-            newModTag._data = apiObject;
+            this._data = apiObject;
 
-            newModTag.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-
-            return newModTag;
+            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
         }
 
-        public static ModTag[] GenerateFromAPIObjectArray(API.ModTagObject[] apiObjectArray)
+        public API.ModTagObject GetAPIObject()
         {
-            ModTag[] objectArray = new ModTag[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = ModTag.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
+            return this._data;
         }
 
         // - Fields -

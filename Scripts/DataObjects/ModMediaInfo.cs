@@ -3,38 +3,26 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModMediaInfo : IEquatable<ModMediaInfo>
+    public class ModMediaInfo : IEquatable<ModMediaInfo>, IAPIObjectWrapper<API.ModMediaObject>
     {
-        // - Constructors - 
-        public static ModMediaInfo GenerateFromAPIObject(API.ModMediaObject apiObject)
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.ModMediaObject apiObject)
         {
-            ModMediaInfo newModMedia = new ModMediaInfo();
-            newModMedia._data = apiObject;
+            this._data = apiObject;
 
             // - Load Images -
-            newModMedia.images = new ImageInfo[apiObject.images.Length];
+            this.images = new ImageInfo[apiObject.images.Length];
             for(int i = 0;
                 i < apiObject.images.Length;
                 ++i)
             {
-                newModMedia.images[i] = ImageInfo.GenerateFromAPIObject(apiObject.images[i]);
+                this.images[i] = new ImageInfo();
+                this.images[i].WrapAPIObject(apiObject.images[i]);
             }
-
-            return newModMedia;
         }
-
-        public static ModMediaInfo[] GenerateFromAPIObjectArray(API.ModMediaObject[] apiObjectArray)
+        public API.ModMediaObject GetAPIObject()
         {
-            ModMediaInfo[] objectArray = new ModMediaInfo[apiObjectArray.Length];
-
-            for(int i = 0;
-                i < apiObjectArray.Length;
-                ++i)
-            {
-                objectArray[i] = ModMediaInfo.GenerateFromAPIObject(apiObjectArray[i]);
-            }
-
-            return objectArray;
+            return this._data;
         }
 
         // - Fields -
