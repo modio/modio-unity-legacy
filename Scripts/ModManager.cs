@@ -181,131 +181,127 @@ namespace ModIO
 
         private static void ProcessModEvents(ModEvent[] eventArray)
         {
-            // // - ModInfo Processing Options -
-            // Action<ModEvent> processModLive = (modEvent) =>
-            // {
-            //     client.GetMod(modEvent.modId,
-            //                   (mod) =>
-            //                   {
-            //                     CacheMod(mod);
-            //                     manifest.unresolvedEvents.Remove(modEvent);
-            //                   },
-            //                   APIClient.LogError);
-            // };
+            // - ModInfo Processing Options -
+            Action<ModEvent> processModAvailable = (modEvent) =>
+            {
+                client.GetMod(modEvent.modId,
+                              (mod) =>
+                              {
+                                CacheMod(mod);
+                                manifest.unresolvedEvents.Remove(modEvent);
 
-            // Action<ModEvent> processModVisibilityChange = (modEvent) =>
-            // {
-            //     string modVisibilityAfterChange = modEvent.changes[0].after;
-            //     if(modVisibilityAfterChange.ToUpper().Equals("TRUE"))
-            //     {
-            //         client.GetMod(modEvent.modId,
-            //                       (mod) =>
-            //                       {
-            //                         CacheMod(mod);
-            //                         manifest.unresolvedEvents.Remove(modEvent);
-            //                       },
-            //                       APIClient.LogError);
-            //     }
-            //     else
-            //     {
-            //         // TODO(@jackson): Facilitate marking Mods as installed 
-            //         bool isModInstalled = (userData != null
-            //                                && userData.subscribedModIDs.Contains(modEvent.modId));
+                                if(OnModAdded != null)
+                                {
+                                    OnModAdded(mod);
+                                }
+                              },
+                              APIClient.LogError);
+            };
+            Action<ModEvent> processModUnavailable = (modEvent) =>
+            {
+                // TODO(@jackson): Facilitate marking Mods as installed 
+                bool isModInstalled = (userData != null
+                                       && userData.subscribedModIDs.Contains(modEvent.modId));
 
-            //         if(!isModInstalled)
-            //         {
-            //             UncacheMod(modEvent.modId);
-            //         }
-            //         manifest.unresolvedEvents.Remove(modEvent);
-            //     }
-            // };
+                if(!isModInstalled
+                   && modCache.ContainsKey(modEvent.modId))
+                {
+                    UncacheMod(modEvent.modId);
 
-            // Action<ModEvent> processModfileChange = (modEvent) =>
-            // {
-            //     ModInfo mod = GetMod(modEvent.modId);
+                    if(OnModRemoved != null)
+                    {
+                        OnModRemoved(modEvent.modId);
+                    }
+                }
+                manifest.unresolvedEvents.Remove(modEvent);
+            };
 
-            //     if(mod == null)
-            //     {
-            //         Debug.Log("Received Modfile change for uncached mod. Ignoring.");
-            //         manifest.unresolvedEvents.Remove(modEvent);
-            //     }
-            //     else
-            //     {
-            //         int modfileID = 0;
+            Action<ModEvent> processModEdited = (modEvent) =>
+            {
+                client.GetMod(modEvent.modId,
+                              (mod) =>
+                              {
+                                CacheMod(mod);
+                                manifest.unresolvedEvents.Remove(modEvent);
 
-            //         if(!Int32.TryParse(modEvent.changes[0].after, out modfileID))
-            //         {
-            //             Debug.Log("Unable to parse Modfile ID from ModInfo Event. Updating ModInfo directly");
-            //             manifest.unresolvedEvents.Remove(modEvent);
+                                if(OnModAdded != null)
+                                {
+                                    OnModAdded(mod);
+                                }
+                              },
+                              APIClient.LogError);
+            };
 
-            //             client.GetMod(mod.id,
-            //                           (updatedMod) =>
-            //                           {
-            //                             mod = updatedMod;
 
-            //                             modCache[mod.id] = mod;
-            //                             WriteModToDisk(mod);
+            Action<ModEvent> processModfileChange = (modEvent) =>
+            {
+                ModInfo mod = GetMod(modEvent.modId);
 
-            //                             if(OnModfileChanged != null)
-            //                             {
-            //                                 OnModfileChanged(mod.id, mod.modfile);
-            //                             }
-            //                           },
-            //                           APIClient.LogError);
+                if(mod == null)
+                {
+                    Debug.Log("Received Modfile change for uncached mod. Ignoring.");
+                    manifest.unresolvedEvents.Remove(modEvent);
+                }
+                else
+                {
+                    client.GetMod(mod.id,
+                                  (updatedMod) =>
+                                  {
+                                    CacheMod(updatedMod);
 
-            //             return;
-            //         }
+                                    if(OnModfileChanged != null)
+                                    {
+                                        OnModfileChanged(updatedMod.id, updatedMod.modfile);
+                                    }
+                                  },
+                                  APIClient.LogError);
 
-            //         client.GetModfile(mod.id, modfileID,
-            //                           (modfile) =>
-            //                           {
-            //                             mod.modfile = modfile;
-                                        
-            //                             if(OnModfileChanged != null)
-            //                             {
-            //                                 OnModfileChanged(mod.id, modfile);
-            //                             }
-            //                           },
-            //                           APIClient.LogError);
-            //     }
-            // };
+                    manifest.unresolvedEvents.Remove(modEvent);
+                }
+            };
 
-            // // - Handle ModInfo Event -
-            // foreach(ModEvent modEvent in eventArray)
-            // {
-            //     string eventSummary = "TimeStamp (Local)=" + modEvent.GetDateAdded().AsLocalDateTime();
-            //     eventSummary += "\nMod=" + modEvent.modId;
-            //     eventSummary += "\nEventType=" + modEvent.GetEventType().ToString();
+
+            // - Handle ModInfo Event -
+            foreach(ModEvent modEvent in eventArray)
+            {
+                string eventSummary = "TimeStamp (Local)=" + modEvent.dateAdded.AsLocalDateTime();
+                eventSummary += "\nMod=" + modEvent.modId;
+                eventSummary += "\nEventType=" + modEvent.eventType.ToString();
                 
-            //     Debug.Log("[PROCESSING MOD EVENT]\n" + eventSummary);
+                Debug.Log("[PROCESSING MOD EVENT]\n" + eventSummary);
 
 
-            //     manifest.unresolvedEvents.Add(modEvent);
+                manifest.unresolvedEvents.Add(modEvent);
 
-            //     switch(modEvent.GetEventType())
-            //     {
-            //         case ModEvent.EventType.ModVisibilityChange:
-            //         {
-            //             processModVisibilityChange(modEvent);
-            //         }
-            //         break;
-            //         case ModEvent.EventType.ModLive:
-            //         {
-            //             processModLive(modEvent);
-            //         }
-            //         break;
-            //         case ModEvent.EventType.ModfileChange:
-            //         {
-            //             processModfileChange(modEvent);
-            //         }
-            //         break;
-            //         default:
-            //         {
-            //             Debug.LogError("Unhandled Event Type: " + modEvent.GetEventType().ToString());
-            //         }
-            //         break;
-            //     }
-            // }
+                switch(modEvent.eventType)
+                {
+                    case ModEvent.EventType.ModfileChanged:
+                    {
+                        processModfileChange(modEvent);
+                    }
+                    break;
+                    case ModEvent.EventType.ModAvailable:
+                    {
+                        processModAvailable(modEvent);
+                    }
+                    break;
+                    case ModEvent.EventType.ModUnavailable:
+                    {
+                        processModUnavailable(modEvent);
+                    }
+                    break;
+                    case ModEvent.EventType.ModEdited:
+                    {
+                        processModEdited(modEvent);
+                    }
+                    break;
+                    default:
+                    {
+                        Debug.LogError("Unhandled Event Type: " + modEvent.eventType.ToString());
+                    }
+                    break;
+                }
+            }
         }
 
         private static void UpdateSubscriptions(ModInfo[] subscribedMods)
@@ -479,27 +475,8 @@ namespace ModIO
 
         private static void CacheMod(ModInfo mod)
         {
-            bool isUpdate = modCache.ContainsKey(mod.id);
-
             modCache[mod.id] = mod;
             WriteModToDisk(mod);
-
-            // Handle events
-            if(isUpdate)
-            {
-                if(OnModUpdated != null)
-                {
-                    OnModUpdated(mod.id);
-                }
-            }
-            else
-            {
-
-                if(OnModAdded != null)
-                {
-                    OnModAdded(mod);
-                }
-            }
         }
         private static void CacheMods(ModInfo[] modArray)
         {
@@ -512,12 +489,6 @@ namespace ModIO
         {
             string modDir = GetModDirectory(modId);
             Directory.Delete(modDir, true);
-
-            if(modCache.Remove(modId)
-               && OnModRemoved != null)
-            {
-                OnModRemoved(modId);
-            }
         }
 
         public static void GetMods(GetAllModsFilter filter, ObjectCallback<ModInfo[]> callback)

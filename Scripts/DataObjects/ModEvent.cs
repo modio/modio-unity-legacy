@@ -8,10 +8,6 @@ namespace ModIO
         // - Enums -
         public enum EventType
         {
-            ModVisibilityChange,
-            ModLive,
-
-            // 'MODFILE_CHANGED', 'MOD_AVAILABLE', 'MOD_UNAVAILABLE', 'MOD_EDITED'.
             ModfileChanged,
             ModAvailable,
             ModUnavailable,
@@ -29,19 +25,24 @@ namespace ModIO
             // - Parse EventType -
             switch(apiObject.event_type.ToUpper())
             {
-                case "MOD_VISIBILITY_CHANGE":
-                {
-                    newModEvent.eventType = EventType.ModVisibilityChange;
-                }
-                break;
-                case "MOD_LIVE":
-                {
-                    newModEvent.eventType = EventType.ModLive;
-                }
-                break;
-                case "MODFILE_CHANGE":
+                case "MODFILE_CHANGED":
                 {
                     newModEvent.eventType = EventType.ModfileChanged;
+                }
+                break;
+                case "MOD_AVAILABLE":
+                {
+                    newModEvent.eventType = EventType.ModAvailable;
+                }
+                break;
+                case "MOD_UNAVAILABLE":
+                {
+                    newModEvent.eventType = EventType.ModUnavailable;
+                }
+                break;
+                case "MOD_EDITED":
+                {
+                    newModEvent.eventType = EventType.ModEdited;
                 }
                 break;
             }
@@ -78,17 +79,21 @@ namespace ModIO
         {
             switch(eventType)
             {
-                case EventType.ModVisibilityChange:
-                {
-                    return "MOD_VISIBILITY_CHANGE";
-                }
-                case EventType.ModLive:
-                {
-                    return "MOD_LIVE";
-                }
                 case EventType.ModfileChanged:
                 {
-                    return "MODFILE_CHANGE";
+                    return "MODFILE_CHANGED";
+                }
+                case EventType.ModAvailable:
+                {
+                    return "MOD_AVAILABLE";
+                }
+                case EventType.ModUnavailable:
+                {
+                    return "MOD_UNAVAILABLE";
+                }
+                case EventType.ModEdited:
+                {
+                    return "MOD_EDITED";
                 }
             }
             return "";
