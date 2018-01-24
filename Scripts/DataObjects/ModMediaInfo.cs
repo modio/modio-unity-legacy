@@ -3,8 +3,16 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModMediaInfo : IEquatable<ModMediaInfo>, IAPIObjectWrapper<API.ModMediaObject>
+    public class ModMediaInfo : IEquatable<ModMediaInfo>, IAPIObjectWrapper<API.ModMediaObject>, UnityEngine.ISerializationCallbackReceiver
     {
+        // - Fields -
+        [UnityEngine.SerializeField]
+        private API.ModMediaObject _data;
+
+        public string[] youtubeURLs     { get { return _data.youtube; } }
+        public string[] sketchfabURLS   { get { return _data.sketchfab; } }
+        public ImageInfo[] images       { get; private set; }
+        
         // - IAPIObjectWrapper Interface -
         public void WrapAPIObject(API.ModMediaObject apiObject)
         {
@@ -26,13 +34,12 @@ namespace ModIO
             return this._data;
         }
 
-        // - Fields -
-        [UnityEngine.SerializeField]
-        private API.ModMediaObject _data;
-
-        public string[] youtubeURLs     { get { return _data.youtube; } }
-        public string[] sketchfabURLS   { get { return _data.sketchfab; } }
-        public ImageInfo[] images       { get; private set; }
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

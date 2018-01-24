@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class UserComment : IEquatable<UserComment>, IAPIObjectWrapper<API.CommentObject>
+    public class UserComment : IEquatable<UserComment>, IAPIObjectWrapper<API.CommentObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Inner Classes -
         [Serializable]
@@ -16,7 +16,21 @@ namespace ModIO
             public int subReplyThread = -1;
         }
 
-        // - Interface - 
+        // - Fields -
+        [UnityEngine.SerializeField]
+        private API.CommentObject _data;
+
+        public int id                   { get { return _data.id; } }
+        public int modId                { get { return _data.mod_id; }}
+        public User submittedBy         { get; private set; }
+        public TimeStamp dateAdded      { get; private set; }
+        public int parentCommentId      { get { return _data.reply_id; } }
+        public CommentPosition position { get; private set; }
+        public int karma                { get { return _data.karma; } }
+        public int karmaGuest           { get { return _data.karma_guest; } }
+        public string content           { get { return _data.content; } }
+
+        // - IAPIObjectWrapper - 
         public void WrapAPIObject(API.CommentObject apiObject)
         {
             this._data = apiObject;
@@ -57,19 +71,12 @@ namespace ModIO
             return this._data;
         }
 
-        // - Fields -
-        [UnityEngine.SerializeField]
-        private API.CommentObject _data;
-
-        public int id                   { get { return _data.id; } }
-        public int modId                { get { return _data.mod_id; }}
-        public User submittedBy         { get; private set; }
-        public TimeStamp dateAdded      { get; private set; }
-        public int parentCommentId      { get { return _data.reply_id; } }
-        public CommentPosition position { get; private set; }
-        public int karma                { get { return _data.karma; } }
-        public int karmaGuest           { get { return _data.karma_guest; } }
-        public string content           { get { return _data.content; } }
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

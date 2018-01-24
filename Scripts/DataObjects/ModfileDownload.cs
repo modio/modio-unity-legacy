@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModfileDownload : IEquatable<ModfileDownload>, IAPIObjectWrapper<API.ModfileDownloadObject>
+    public class ModfileDownload : IEquatable<ModfileDownload>, IAPIObjectWrapper<API.ModfileDownloadObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Fields -
         [UnityEngine.SerializeField]
@@ -23,6 +23,13 @@ namespace ModIO
         public API.ModfileDownloadObject GetAPIObject()
         {
             return this._data;
+        }
+
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
         }
 
         // - Equality Overrides -

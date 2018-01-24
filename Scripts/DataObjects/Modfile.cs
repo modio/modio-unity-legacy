@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class Modfile : IEquatable<Modfile>, IAPIObjectWrapper<API.ModfileObject>
+    public class Modfile : IEquatable<Modfile>, IAPIObjectWrapper<API.ModfileObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum VirusScanStatus
@@ -56,6 +56,13 @@ namespace ModIO
         public API.ModfileObject GetAPIObject()
         {
             return this._data;
+        }
+
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
         }
 
         // - Equality Overrides -

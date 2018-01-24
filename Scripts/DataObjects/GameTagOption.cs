@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class GameTagOption : IEquatable<GameTagOption>, IAPIObjectWrapper<API.GameTagOptionObject>
+    public class GameTagOption : IEquatable<GameTagOption>, IAPIObjectWrapper<API.GameTagOptionObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enum -
         public enum TagType
@@ -52,6 +52,13 @@ namespace ModIO
         public API.GameTagOptionObject GetAPIObject()
         {
             return this._data;
+        }
+
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
         }
 
         // - Equality Overrides -

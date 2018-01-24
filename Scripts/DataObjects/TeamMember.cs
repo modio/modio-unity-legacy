@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class TeamMember : IEquatable<TeamMember>, IAPIObjectWrapper<API.TeamMemberObject>
+    public class TeamMember : IEquatable<TeamMember>, IAPIObjectWrapper<API.TeamMemberObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum PermissionLevel
@@ -39,6 +39,13 @@ namespace ModIO
         public PermissionLevel permissionLevel  { get { return (PermissionLevel)_data.level; } }
         public TimeStamp dateAdded              { get; private set; }
         public string position                  { get { return _data.position; } }
+
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

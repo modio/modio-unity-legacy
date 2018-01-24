@@ -5,17 +5,6 @@ namespace ModIO
     [Serializable]
     public class RatingSummary : IEquatable<RatingSummary>, IAPIObjectWrapper<API.RatingSummaryObject>
     {
-        // - IAPIObjectWrapper Interface -
-        public void WrapAPIObject(API.RatingSummaryObject apiObject)
-        {
-            this._data = apiObject;
-        }
-
-        public API.RatingSummaryObject GetAPIObject()
-        {
-            return this._data;
-        }
-
         // - Fields -
         [UnityEngine.SerializeField]
         private API.RatingSummaryObject _data;
@@ -26,6 +15,17 @@ namespace ModIO
         public int percentagePositive   { get { return _data.percentage_positive; } }
         public float weightedAggregate  { get { return _data.weighted_aggregate; } }
         public string displayText       { get { return _data.display_text; } }
+        
+        // - IAPIObjectWrapper Interface -
+        public void WrapAPIObject(API.RatingSummaryObject apiObject)
+        {
+            this._data = apiObject;
+        }
+
+        public API.RatingSummaryObject GetAPIObject()
+        {
+            return this._data;
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

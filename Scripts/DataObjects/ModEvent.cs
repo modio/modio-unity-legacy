@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModEvent : IEquatable<ModEvent>, IAPIObjectWrapper<API.ModEventObject>
+    public class ModEvent : IEquatable<ModEvent>, IAPIObjectWrapper<API.ModEventObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum EventType
@@ -23,6 +23,31 @@ namespace ModIO
         public int userId           { get { return _data.user_id; } }
         public TimeStamp dateAdded  { get; private set; }
         public EventType eventType  { get; private set; }
+
+        // - Event Type Parsing -
+        public static string GetNameForType(EventType eventType)
+        {
+            switch(eventType)
+            {
+                case EventType.ModfileChanged:
+                {
+                    return "MODFILE_CHANGED";
+                }
+                case EventType.ModAvailable:
+                {
+                    return "MOD_AVAILABLE";
+                }
+                case EventType.ModUnavailable:
+                {
+                    return "MOD_UNAVAILABLE";
+                }
+                case EventType.ModEdited:
+                {
+                    return "MOD_EDITED";
+                }
+            }
+            return "";
+        }
         
         // - IAPIObjectWrapper Interface -
         public void WrapAPIObject(API.ModEventObject apiObject)
@@ -62,29 +87,11 @@ namespace ModIO
             return this._data;
         }
 
-        // - Event Type Parsing -
-        public static string GetNameForType(EventType eventType)
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
         {
-            switch(eventType)
-            {
-                case EventType.ModfileChanged:
-                {
-                    return "MODFILE_CHANGED";
-                }
-                case EventType.ModAvailable:
-                {
-                    return "MOD_AVAILABLE";
-                }
-                case EventType.ModUnavailable:
-                {
-                    return "MOD_UNAVAILABLE";
-                }
-                case EventType.ModEdited:
-                {
-                    return "MOD_EDITED";
-                }
-            }
-            return "";
+            this.WrapAPIObject(this._data);
         }
 
         // - Equality Overrides -

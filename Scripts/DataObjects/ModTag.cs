@@ -3,8 +3,15 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModTag : IEquatable<ModTag>, IAPIObjectWrapper<API.ModTagObject>
+    public class ModTag : IEquatable<ModTag>, IAPIObjectWrapper<API.ModTagObject>, UnityEngine.ISerializationCallbackReceiver
     {
+        // - Fields -
+        [UnityEngine.SerializeField]
+        private API.ModTagObject _data;
+
+        public string name          { get { return _data.name; } }
+        public TimeStamp dateAdded  { get; private set; }
+        
         // - IAPIObjectWrapper Interface -
         public void WrapAPIObject(API.ModTagObject apiObject)
         {
@@ -18,12 +25,12 @@ namespace ModIO
             return this._data;
         }
 
-        // - Fields -
-        [UnityEngine.SerializeField]
-        private API.ModTagObject _data;
-
-        public string name          { get { return _data.name; } }
-        public TimeStamp dateAdded  { get; private set; }
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()

@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class GameInfo : IEquatable<GameInfo>, IAPIObjectWrapper<API.GameObject>
+    public class GameInfo : IEquatable<GameInfo>, IAPIObjectWrapper<API.GameObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum Status
@@ -118,6 +118,13 @@ namespace ModIO
         public API.GameObject GetAPIObject()
         {
             return this._data;
+        }
+
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
         }
 
         // - Equality Overrides -

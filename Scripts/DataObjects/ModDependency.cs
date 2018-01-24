@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModDependency : IEquatable<ModDependency>, IAPIObjectWrapper<API.ModDependencyObject>
+    public class ModDependency : IEquatable<ModDependency>, IAPIObjectWrapper<API.ModDependencyObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Fields -
         [UnityEngine.SerializeField]
@@ -23,6 +23,13 @@ namespace ModIO
         public API.ModDependencyObject GetAPIObject()
         {
             return this._data;
+        }
+        
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
         }
 
         // - Equality Overrides -

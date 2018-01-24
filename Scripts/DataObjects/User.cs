@@ -3,8 +3,21 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class User : IEquatable<User>, IAPIObjectWrapper<API.UserObject>
+    public class User : IEquatable<User>, IAPIObjectWrapper<API.UserObject>, UnityEngine.ISerializationCallbackReceiver
     {
+        // - Fields -
+        [UnityEngine.SerializeField]
+        private API.UserObject _data;
+
+        public int id               { get { return _data.id; } }
+        public string nameId        { get { return _data.name_id; } }
+        public string username      { get { return _data.username; } }
+        public TimeStamp dateOnline { get; private set; }
+        public AvatarURLInfo avatar { get; private set; }
+        public string timezone      { get { return _data.timezone; } }
+        public string language      { get { return _data.language; } }
+        public string profileURL    { get { return _data.profile_url; } }
+        
         // - IAPIObjectWrapper Interface -
         public void WrapAPIObject(API.UserObject apiObject)
         {
@@ -20,18 +33,12 @@ namespace ModIO
             return this._data;
         }
 
-        // - Fields -
-        [UnityEngine.SerializeField]
-        private API.UserObject _data;
-
-        public int id               { get { return _data.id; } }
-        public string nameId        { get { return _data.name_id; } }
-        public string username      { get { return _data.username; } }
-        public TimeStamp dateOnline { get; private set; }
-        public AvatarURLInfo avatar    { get; private set; }
-        public string timezone      { get { return _data.timezone; } }
-        public string language      { get { return _data.language; } }
-        public string profileURL    { get { return _data.profile_url; } }
+        // - ISerializationCallbackReceiver -
+        public void OnBeforeSerialize() {}
+        public void OnAfterDeserialize()
+        {
+            this.WrapAPIObject(this._data);
+        }
 
         // - Equality Overrides -
         public override int GetHashCode()
