@@ -58,6 +58,9 @@ namespace ModIO
                 return;
             }
 
+            Debug.Log("Initializing ModIO.ModManager"
+                      + "\nModIO Directory: " + MODIO_DIR);
+
             // --- Create Client ---
             GameObject go = new GameObject("ModIO API Client");
             client = go.AddComponent<APIClient>();
@@ -111,8 +114,6 @@ namespace ModIO
             }
 
             // --- Start Update Polling Loop ---
-            Debug.Log("ModManager Initialized."
-                      + "\nModIO Directory: " + MODIO_DIR);
         }
 
         // ---------[ AUTOMATED UPDATING ]---------

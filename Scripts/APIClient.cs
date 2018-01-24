@@ -1,4 +1,5 @@
-﻿#define LOG_ALL_QUERIES
+﻿#define USE_TEST_API
+#define LOG_ALL_QUERIES
 
 using System;
 using System.Collections;
@@ -72,7 +73,13 @@ namespace ModIO
 
         // ---------[ CONSTANTS ]---------
         public const string VERSION = "v1";
+
+#if USE_TEST_API
+        public const string URL = "https://api.test.mod.io/" + VERSION + "/";
+#else
         public const string URL = "https://api.mod.io/" + VERSION + "/";
+#endif
+
         public static readonly string[] UNITY_REQUEST_HEADER_KEYS = new string[]
         {
             // RESERVED
