@@ -498,7 +498,9 @@ namespace ModIO
         }
 
         // Edit GameInfo
-        public void EditGame(ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        public void EditGame(string oAuthToken,
+                             EditableGameInfo gameInfo,
+                             ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameID;
             onError(GenerateNotImplementedError(endpoint + ":PUT"));

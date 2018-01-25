@@ -6,18 +6,18 @@ namespace ModIO.API
     public struct GameObject : IEquatable<GameObject>
     {
         // - Fields -
-        public int id;  // Unique game id.
-        public int status;  // Status of the game (see status and visibility for details):
+        public int id; // Unique game id.
+        public int status; // Status of the game (see status and visibility for details):
         public UserObject submitted_by; // Contains user data.
-        public int date_added;  // Unix timestamp of date game was registered.
-        public int date_updated;    // Unix timestamp of date game was updated.
-        public int date_live;   // Unix timestamp of date game was set live.
+        public int date_added; // Unix timestamp of date game was registered.
+        public int date_updated; // Unix timestamp of date game was updated.
+        public int date_live; // Unix timestamp of date game was set live.
         public int presentation_option; // Presentation style used on the mod.io website:
-        public int submission_option;   // Submission process modders must follow:
+        public int submission_option; // Submission process modders must follow:
         public int curation_option; // Curation process used to approve mods:
-        public int community_options;   // Community features enabled on the mod.io website:
+        public int community_options; // Community features enabled on the mod.io website:
         public int revenue_options; // Revenue capabilities mods can enable:
-        public int api_access_options;  // Level of API access allowed by this game:
+        public int api_access_options; // Level of API access allowed by this game:
         public string ugc_name; // Word used to describe user-generated content (mods, items, addons etc).
         public IconObject icon; // Contains icon data.
         public LogoObject logo; // Contains logo data.
@@ -71,34 +71,43 @@ namespace ModIO.API
     }
 
     [Serializable]
-    public struct EditableGameObject
+    public struct EditedGameObject
     {
         // - Fields -
-        // Status of a game. We recommend you never change this once you have accepted your game to be available via the API (see status and visibility for details):
-        public int status;
-        // Name of your game. Cannot exceed 80 characters.
-        public string name;
-        // Subdomain for the game on mod.io. Highly recommended to not change this unless absolutely required. Cannot exceed 20 characters.
-        public string name_id;
-        // Explain your games mod support in 1 paragraph. Cannot exceed 250 characters.
-        public string summary;
-        // Instructions and links creators should follow to upload mods. Keep it short and explain details like are mods submitted in-game or via tools you have created.
-        public string instructions;
-        // Official homepage for your game. Must be a valid URL.
-        public string homepage;
-        // Word used to describe user-generated content (mods, items, addons etc).
-        public string ugc_name;
-        // Choose the presentation style you want on the mod.io website:
-        public int presentation_option;
-        // Choose the submission process you want modders to follow:
-        public int submission_option;
-        // Choose the curation process your team follows to approve mods:
-        public int curation_option;
-        // Choose the community features enabled on the mod.io website:
-        public int community_options;
-        // Choose the revenue capabilities mods can enable:
-        public int revenue_options;
-        // Choose the level of API access your game allows:
-        public int api_access_options;
+        public int status; // Status of a game. We recommend you never change this once you have accepted your game to be available via the API (see status and visibility for details):
+        public string name; // Name of your game. Cannot exceed 80 characters.
+        public string name_id; // Subdomain for the game on mod.io. Highly recommended to not change this unless absolutely required. Cannot exceed 20 characters.
+        public string summary; // Explain your games mod support in 1 paragraph. Cannot exceed 250 characters.
+        public string instructions; // Instructions and links creators should follow to upload mods. Keep it short and explain details like are mods submitted in-game or via tools you have created.
+        public string homepage; // Official homepage for your game. Must be a valid URL.
+        public string ugc_name; // Word used to describe user-generated content (mods, items, addons etc).
+        public int presentation_option; // Choose the presentation style you want on the mod.io website:
+        public int submission_option; // Choose the submission process you want modders to follow:
+        public int curation_option; // Choose the curation process your team follows to approve mods:
+        public int community_options; // Choose the community features enabled on the mod.io website:
+        public int revenue_options; // Choose the revenue capabilities mods can enable:
+        public int api_access_options; // Choose the level of API access your game allows:
+
+        // - Copy Function -
+        public static EditedGameObject FromGameObject(GameObject baseObject)
+        {
+            EditedGameObject newEGO = new EditedGameObject();
+
+            newEGO.status = baseObject.status;
+            newEGO.name = baseObject.name;
+            newEGO.name_id = baseObject.name_id;
+            newEGO.summary = baseObject.summary;
+            newEGO.instructions = baseObject.instructions;
+            newEGO.homepage = baseObject.homepage;
+            newEGO.ugc_name = baseObject.ugc_name;
+            newEGO.presentation_option = baseObject.presentation_option;
+            newEGO.submission_option = baseObject.submission_option;
+            newEGO.curation_option = baseObject.curation_option;
+            newEGO.community_options = baseObject.community_options;
+            newEGO.revenue_options = baseObject.revenue_options;
+            newEGO.api_access_options = baseObject.api_access_options;
+
+            return newEGO;
+        }
     }
 }
