@@ -1353,10 +1353,10 @@ namespace ModIO
         {
             // TODO(@jackson): REMOVE THIS DEPENDENCY!
             Debug.Assert(ModManager.APIClient != null
-                         && ModManager.APIClient.gameID > 0,
+                         && ModManager.APIClient.gameId > 0,
                          "This filter cannot be used until the ModManager has been initialized and the APIClient given a valid Game ID");
 
-            return base.GenerateQueryString() + "&game_id=" + ModManager.APIClient.gameID;
+            return base.GenerateQueryString() + "&game_id=" + ModManager.APIClient.gameId;
         }
 
         internal override FieldInformation GetFieldInformation(GetUserSubscriptionsFilter.Field fieldIdentifier)

@@ -52,7 +52,7 @@ namespace ModIO
         private static string USERDATA_URL { get { return MODIO_DIR + "user.data"; } }
 
         // --------- [ INITIALISATION ]---------
-        public static void Initialize(int gameID, string apiKey)
+        public static void Initialize(int gameId, string apiKey)
         {
             if(client != null)
             {
@@ -66,7 +66,7 @@ namespace ModIO
             // --- Create Client ---
             GameObject go = new GameObject("ModIO API Client");
             client = go.AddComponent<APIClient>();
-            client.SetAccessContext(gameID, apiKey);
+            client.SetAccessContext(gameId, apiKey);
 
             GameObject.DontDestroyOnLoad(go);
 
@@ -231,7 +231,7 @@ namespace ModIO
                 if(userData != null)
                 {
                     GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
-                    subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, client.gameID);
+                    subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, client.gameId);
 
                     APIClient.GetUserSubscriptions(userData.oAuthToken,
                                                    subscriptionFilter,
@@ -559,9 +559,9 @@ namespace ModIO
             callback(retVal);
         }
 
-        public static FileDownload StartBinaryDownload(int modId, int modfileID)
+        public static FileDownload StartBinaryDownload(int modId, int modfileId)
         {
-            string fileURL = GetModDirectory(modId) + "modfile_" + modfileID + ".zip";
+            string fileURL = GetModDirectory(modId) + "modfile_" + modfileId + ".zip";
             
             FileDownload download = new FileDownload();
             download.OnCompleted += (d) =>
@@ -586,7 +586,7 @@ namespace ModIO
                 DownloadManager.AddQueuedDownload(download);
             };
 
-            client.GetModfile(modId, modfileID,
+            client.GetModfile(modId, modfileId,
                               queueBinaryDownload,
                               download.MarkAsFailed);
 
@@ -848,6 +848,13 @@ namespace ModIO
         private static void DeleteUserDataFromDisk()
         {
             File.Delete(USERDATA_URL);
+        }
+
+        public static void EditMod(EditableModInfo modInfo, ObjectCallback<ModInfo> onSuccess,
+                                    ErrorCallback onError)
+        {
+            // TODO(@jackson): Force an update poll
+            APIClient.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
         }
     }
 }
