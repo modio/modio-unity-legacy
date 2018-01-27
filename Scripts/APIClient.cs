@@ -509,8 +509,15 @@ namespace ModIO
                              EditableGameInfo gameInfo,
                              ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameID;
-            onError(GenerateNotImplementedError(endpoint + ":PUT"));
+            PutRequest request = new PutRequest();
+
+            request.endpoint = "games/" + gameInfo.id;
+            request.oAuthToken = oAuthToken;
+            request.fieldValues = gameInfo.AsPutRequestValues();
+
+            StartCoroutine(ExecutePutRequest<API.GameObject>(request, 
+                                                             result => OnSuccessWrapper(onSuccess, result), 
+                                                             onError));
         }
 
         // ---------[ MOD ENDPOINTS ]---------
@@ -609,17 +616,25 @@ namespace ModIO
         }
         // Add Modfile
         public void AddModfile(int modId,
-                               ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+                               ObjectCallback<Modfile> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameID + "/mods/" + modId + "/files";
             onError(GenerateNotImplementedError(endpoint + ":POST"));
         }
-        // Edit Mod
-        public void EditModfile(int modId, int modfileID, 
-                                ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        // Edit Modfile
+        public void EditModfile(string oAuthToken,
+                                EditableModfile modfile,
+                                ObjectCallback<Modfile> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameID + "/mods/" + modId + "/files/" + modfileID;
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PutRequest request = new PutRequest();
+
+            request.endpoint = "games/" + gameID + "/mods/" + modfile.modId + "/files/" + modfile.id;
+            request.oAuthToken = oAuthToken;
+            request.fieldValues = modfile.AsPutRequestValues();
+
+            StartCoroutine(ExecutePutRequest<API.ModfileObject>(request, 
+                                                                result => OnSuccessWrapper(onSuccess, result), 
+                                                                onError));
         }
 
         // ---------[ MEDIA ENDPOINTS ]---------
