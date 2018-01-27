@@ -8,8 +8,8 @@ namespace ModIO.API
         // - Fields -
         public int id;  // Unique mod id.
         public int game_id; // Unique game id.
-        public int status;  // Status of the mod (see status and visibility for details):
-        public int visible; // Visibility of the mod (see status and visibility for details):
+        public int status;  // Status of the mod (see status and visibility for details)
+        public int visible; // Visibility of the mod (see status and visibility for details)
         public UserObject submitted_by; // Contains user data.
         public int date_added;  // Unix timestamp of date mod was registered.
         public int date_updated;    // Unix timestamp of date mod was updated.
@@ -62,5 +62,54 @@ namespace ModIO.API
                    && this.rating_summary.Equals(other.rating_summary)
                    && this.tags.GetHashCode().Equals(other.tags.GetHashCode()));
         }
+    }
+
+    [Serializable]
+    public struct EditedModObject
+    {
+        // - Fields -
+        public int status; // Status of a mod. The mod must have at least one uploaded modfile to be 'accepted' or 'archived' (best if this field is controlled by game admins, see status and visibility for details):
+        public int visible; // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
+        public string name; // Name of your mod. Cannot exceed 80 characters.
+        public string name_id; // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. Cannot exceed 80 characters.
+        public string summary; // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
+        public string description; // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
+        public string homepage; // Official homepage for your mod. Must be a valid URL.
+        public int stock; // Artificially limit the amount of times the mod can be subscribed too.
+        public int modfile; // Unique id of the Modfile Object to be labelled as the current release.
+
+        // - Copy Function -
+        public static EditedModObject FromModObject(ModObject baseObject)
+        {
+            EditedModObject newMO = new EditedModObject();
+
+            newMO.status = baseObject.status;
+            newMO.visible = baseObject.visible;
+            newMO.name = baseObject.name;
+            newMO.name_id = baseObject.name_id;
+            newMO.summary = baseObject.summary;
+            newMO.description = baseObject.description;
+            newMO.homepage = baseObject.homepage;
+            newMO.modfile = baseObject.modfile.id;
+            newMO.stock = 0;
+
+            return newMO;
+        }
+    }
+
+    [Serializable]
+    public struct CreatedModObject
+    {
+        // - Fields -
+        public int visible; // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
+        // public Image logo; // Image file which will represent your mods logo. Must be gif, jpg or png format and cannot exceed 8MB in filesize. Dimensions must be at least 640x360 and we recommended you supply a high resolution image with a 16 / 9 ratio. mod.io will use this image to make three thumbnails for the dimensions 320x180, 640x360 and 1280x720.
+        public string name; // Name of your mod.
+        public string name_id; // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. If no name_id is specified the name will be used. For example: 'Stellaris Shader Mod' will become 'stellaris-shader-mod'. Cannot exceed 80 characters.
+        public string summary; // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
+        public string description; // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
+        public string homepage; // Official homepage for your mod. Must be a valid URL.
+        public int stock; // Artificially limit the amount of times the mod can be subscribed too.
+        public string metadata_blob; // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
+        public string[] tags; // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
     }
 }

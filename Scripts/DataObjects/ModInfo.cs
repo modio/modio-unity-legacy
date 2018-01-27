@@ -21,17 +21,17 @@ namespace ModIO
 
         // - Fields -
         [UnityEngine.SerializeField]
-        private API.ModObject _data;
+        protected API.ModObject _data;
 
         public int id                       { get { return _data.id; } }
         public int gameId                   { get { return _data.game_id; } }
         public Status status                { get { return (Status)_data.status; } }
         public Visibility visibility        { get { return (Visibility)_data.visible; } }
-        public User submittedBy             { get; private set; }
-        public TimeStamp dateAdded          { get; private set; }
-        public TimeStamp dateUpdated        { get; private set; }
-        public TimeStamp dateLive           { get; private set; }
-        public LogoURLInfo logo                { get; private set; }
+        public User submittedBy             { get; protected set; }
+        public TimeStamp dateAdded          { get; protected set; }
+        public TimeStamp dateUpdated        { get; protected set; }
+        public TimeStamp dateLive           { get; protected set; }
+        public LogoURLInfo logo             { get; protected set; }
         public string homepage              { get { return _data.homepage; } }
         public string name                  { get { return _data.name; } }
         public string nameId                { get { return _data.name_id; } }
@@ -39,11 +39,11 @@ namespace ModIO
         public string description           { get { return _data.description; } }
         public string metadataBlob          { get { return _data.metadata_blob; } }
         public string profileURL            { get { return _data.profile_url; } }
-        public Modfile modfile              { get; private set; }
-        public ModMediaInfo media           { get; private set; }
-        public RatingSummary ratingSummary  { get; private set; }
-        public ModTag[] tags                { get; private set; }
-        public string[] tagNames            { get; private set; }
+        public Modfile modfile              { get; protected set; }
+        public ModMediaInfo media           { get; protected set; }
+        public RatingSummary ratingSummary  { get; protected set; }
+        public ModTag[] tags                { get; protected set; }
+        public string[] tagNames            { get; protected set; }
 
 
         // - IAPIObjectWrapper Interface -
@@ -105,6 +105,110 @@ namespace ModIO
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
+        }
+    }
+
+    [Serializable]
+    public class EditableModInfo : ModInfo
+    {
+        public static EditableModInfo FromModInfo(ModInfo modInfo)
+        {
+            EditableModInfo newEMI = new EditableModInfo();
+
+            newEMI.WrapAPIObject(modInfo.GetAPIObject());
+
+            newEMI.modfileId = modInfo.modfile.id;
+            newEMI._data.modfile = new API.ModfileObject();
+            newEMI._data.modfile.id = newEMI.modfileId;
+
+            return newEMI;
+        }
+
+        public API.EditedModObject ToEditedAPIObject()
+        {
+            API.EditedModObject retVal = API.EditedModObject.FromModObject(this._data);
+            retVal.modfile = modfileId;
+            retVal.stock = stock;
+
+            return retVal;
+        }
+
+        // --- Extra Fields ---
+        private int modfileId = 0;
+        private int stock = 0;
+
+        // --- SETTERS ---
+        // Status of a mod. The mod must have at least one uploaded modfile to be 'accepted' or 'archived' (best if this field is controlled by game admins, see status and visibility for details):
+        public void SetStatus(Status value)
+        {
+            UnityEngine.Debug.Assert(value != Status.Deleted,
+                                     "Status.Deleted cannot be set via SetStatus. Use the APIClient.DeleteMod instead");
+
+            _data.status = (int)value;
+        }
+        // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
+        public void SetVisibility(Visibility value)
+        {
+            _data.visible = (int)value;
+        }
+        // Name of your mod. Cannot exceed 80 characters.
+        public void SetName(string value)
+        {
+            if(value.Length > 80)
+            {
+                value = value.Substring(0, 80);
+                UnityEngine.Debug.LogWarning("ModInfo.name cannot exceed 80 characters. Truncating.");
+            }
+
+            _data.name = value;
+        }
+        // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. Cannot exceed 80 characters.
+        public void SetNameID(string value)
+        {
+            if(value.Length > 80)
+            {
+                value = value.Substring(0, 80);
+                UnityEngine.Debug.LogWarning("ModInfo.nameId cannot exceed 80 characters. Truncating.");
+            }
+
+            _data.name_id = value;
+        }
+        // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
+        public void SetSummary(string value)
+        {
+            if(value.Length > 250)
+            {
+                value = value.Substring(0, 250);
+                UnityEngine.Debug.LogWarning("ModInfo.summary cannot exceed 250 characters. Truncating.");
+            }
+
+            _data.summary = value;
+        }
+        // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
+        public void SetDescription(string value)
+        {
+            _data.description = value;
+        }
+        // Official homepage for your mod. Must be a valid URL.
+        public void SetHomepage(string value)
+        {
+            if(!Utility.IsURL(value))
+            {
+                UnityEngine.Debug.LogWarning(value + " is not a valid URL and will not be accepted by the API.");
+                value = "";
+            }
+
+            _data.homepage = value;
+        }
+        // Unique id of the Modfile Object to be labelled as the current release.
+        public void SetModfileID(int value)
+        {
+            modfileId = value;
+        }
+        // Artificially limit the amount of times the mod can be subscribed too.
+        public void SetStock(int value)
+        {
+            stock = value;
         }
     }
 }

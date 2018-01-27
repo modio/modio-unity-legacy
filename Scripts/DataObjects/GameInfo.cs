@@ -1,6 +1,4 @@
 using System;
-using System.Text.RegularExpressions;
-// using UnityEngine;
 
 namespace ModIO
 {
@@ -168,8 +166,8 @@ namespace ModIO
         // Status of a game. We recommend you never change this once you have accepted your game to be available via the API (see status and visibility for details):
         public void SetStatus(Status value)
         {
-            UnityEngine.Debug.Assert(value == Status.Accepted || value == Status.NotAccepted,
-                         "Status.Accepted and Status.NotAccepted are the only permittable values for SetStatus");
+            UnityEngine.Debug.Assert(value == Status.Accepted || value == Status.NotAccepted, 
+                                     "Status.Accepted and Status.NotAccepted are the only permittable values for SetStatus");
             
             _data.status = (int)value;
         }
@@ -214,11 +212,7 @@ namespace ModIO
         // Official homepage for your game. Must be a valid URL.
         public void SetHomepage(string value)
         {
-            // URL Regex adapted from https://regex.wtf/url-matching-regex-javascript/ 
-            string protocol = "^(http(s)?(://))?(www.)?";
-            string domain = "[a-zA-Z0-9-_.]+";
-            Regex urlRegex = new Regex(protocol + domain, RegexOptions.IgnoreCase);
-            if(!urlRegex.IsMatch(value))
+            if(!Utility.IsURL(value))
             {
                 UnityEngine.Debug.LogWarning(value + " is not a valid URL and will not be accepted by the API.");
                 value = "";
