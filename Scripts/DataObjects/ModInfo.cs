@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ModIO
 {
@@ -118,24 +119,28 @@ namespace ModIO
             newEMI.WrapAPIObject(modInfo.GetAPIObject());
 
             newEMI.modfileId = modInfo.modfile.id;
-            newEMI._data.modfile = new API.ModfileObject();
-            newEMI._data.modfile.id = newEMI.modfileId;
+
+            newEMI.modfile = null;
 
             return newEMI;
         }
 
-        public API.EditedModObject ToEditedAPIObject()
+        public Dictionary<string, string> AsPutRequestValues()
         {
-            API.EditedModObject retVal = API.EditedModObject.FromModObject(this._data);
-            retVal.modfile = modfileId;
-            retVal.stock = stock;
-
-            return retVal;
+            return putValues;
         }
 
         // --- Extra Fields ---
         private int modfileId = 0;
-        private int stock = 0;
+        
+        // - PUT Request Format -
+        private Dictionary<string, string> putValues = new Dictionary<string, string>();
+
+        // --- GETTERS ---
+        public int GetModfileId()
+        {
+            return modfileId;
+        }
 
         // --- SETTERS ---
         // Status of a mod. The mod must have at least one uploaded modfile to be 'accepted' or 'archived' (best if this field is controlled by game admins, see status and visibility for details):
@@ -145,11 +150,15 @@ namespace ModIO
                                      "Status.Deleted cannot be set via SetStatus. Use the APIClient.DeleteMod instead");
 
             _data.status = (int)value;
+
+            putValues["status"] = ((int)value).ToString();
         }
         // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
         public void SetVisibility(Visibility value)
         {
             _data.visible = (int)value;
+
+            putValues["visible"] = ((int)value).ToString();
         }
         // Name of your mod. Cannot exceed 80 characters.
         public void SetName(string value)
@@ -161,6 +170,8 @@ namespace ModIO
             }
 
             _data.name = value;
+
+            putValues["name"] = value;
         }
         // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. Cannot exceed 80 characters.
         public void SetNameID(string value)
@@ -172,6 +183,8 @@ namespace ModIO
             }
 
             _data.name_id = value;
+
+            putValues["name_id"] = value;
         }
         // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
         public void SetSummary(string value)
@@ -183,11 +196,15 @@ namespace ModIO
             }
 
             _data.summary = value;
+
+            putValues["summary"] = value;
         }
         // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
         public void SetDescription(string value)
         {
             _data.description = value;
+
+            putValues["description"] = value;
         }
         // Official homepage for your mod. Must be a valid URL.
         public void SetHomepage(string value)
@@ -199,16 +216,20 @@ namespace ModIO
             }
 
             _data.homepage = value;
+
+            putValues["homepage"] = value;
         }
         // Unique id of the Modfile Object to be labelled as the current release.
         public void SetModfileID(int value)
         {
             modfileId = value;
+
+            putValues["stock"] = ((int)value).ToString();
         }
         // Artificially limit the amount of times the mod can be subscribed too.
         public void SetStock(int value)
         {
-            stock = value;
+            putValues["modfile"] = ((int)value).ToString();
         }
     }
 }

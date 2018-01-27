@@ -292,9 +292,9 @@ namespace ModIO
                                 CacheMod(mod);
                                 manifest.unresolvedEvents.Remove(modEvent);
 
-                                if(OnModAdded != null)
+                                if(OnModUpdated != null)
                                 {
-                                    OnModAdded(mod);
+                                    OnModUpdated(mod.id);
                                 }
                               },
                               APIClient.LogError);
