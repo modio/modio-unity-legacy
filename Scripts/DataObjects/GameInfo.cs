@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ModIO
 {
@@ -157,9 +158,11 @@ namespace ModIO
             return newEGI;
         }
 
-        public API.EditedGameObject ToEditedAPIObject()
+        // - Put Request Values -
+        private Dictionary<string, string> putValues = new Dictionary<string, string>();
+        public Dictionary<string, string> AsPutRequestValues()
         {
-            return API.EditedGameObject.FromGameObject(this._data);
+            return putValues;
         }
 
         // --- SETTERS ---
@@ -170,6 +173,8 @@ namespace ModIO
                                      "Status.Accepted and Status.NotAccepted are the only permittable values for SetStatus");
             
             _data.status = (int)value;
+
+            putValues["status"] = ((int)value).ToString();
         }
         // Name of your game. Cannot exceed 80 characters.
         public void SetName(string value)
@@ -181,6 +186,8 @@ namespace ModIO
             }
 
             _data.name = value;
+
+            putValues["name"] = value;
         }
         // Subdomain for the game on mod.io. Highly recommended to not change this unless absolutely required. Cannot exceed 20 characters.
         public void SetNameId(string value)
@@ -192,6 +199,8 @@ namespace ModIO
             }
 
             _data.name_id = value;
+
+            putValues["name_id"] = value;
         }
         // Explain your games mod support in 1 paragraph. Cannot exceed 250 characters.
         public void SetSummary(string value)
@@ -203,11 +212,15 @@ namespace ModIO
             }
 
             _data.summary = value;   
+
+            putValues["summary"] = value;
         }
         // Instructions and links creators should follow to upload mods. Keep it short and explain details like are mods submitted in-game or via tools you have created.
         public void SetInstructions(string value)
         {
             _data.instructions = value;
+
+            putValues["instructions"] = value;
         }
         // Official homepage for your game. Must be a valid URL.
         public void SetHomepage(string value)
@@ -219,41 +232,57 @@ namespace ModIO
             }
 
             _data.homepage = value;
+
+            putValues["homepage"] = value;
         }
         // Word used to describe user-generated content (mods, items, addons etc).
         public void SetUGCName(string value)
         {
             _data.ugc_name = value; 
+
+            putValues["ugc_name"] = value;
         }
         // Choose the presentation style you want on the mod.io website
         public void SetPresentationOption(GameInfo.PresentationOption value)
         {
             _data.presentation_option = (int)value;
+
+            putValues["presentation_option"] = ((int)value).ToString();
         }
         // Choose the submission process you want modders to follow
         public void SetSubmissionOption(GameInfo.SubmissionOption value)
         {
             _data.submission_option = (int)value;
+
+            putValues["submission_option"] = ((int)value).ToString();
         }
         // Choose the curation process your team follows to approve mods
         public void SetCurationOption(GameInfo.CurationOption value)
         {
             _data.curation_option = (int)value;
+
+            putValues["curation_option"] = ((int)value).ToString();
         }
         // Choose the community features enabled on the mod.io website
         public void SetCommunityOptions(GameInfo.CommunityOptions value)
         {
             _data.community_options = (int)value;
+
+            putValues["community_options"] = ((int)value).ToString();
         }
         // Choose the revenue capabilities mods can enable
         public void SetRevenueOptions(GameInfo.RevenueOptions value)
         {
             _data.revenue_options = (int)value;
+
+            putValues["revenue_options"] = ((int)value).ToString();
         }
         // Choose the level of API access your game allows
         public void SetAPIAccessOptions(GameInfo.APIAccessOptions value)
         {
             _data.api_access_options = (int)value;
+
+            putValues["api_access_options"] = ((int)value).ToString();
         }
     }
 }

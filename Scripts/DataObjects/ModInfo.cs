@@ -125,6 +125,8 @@ namespace ModIO
             return newEMI;
         }
 
+        // - Put Request Values -
+        private Dictionary<string, string> putValues = new Dictionary<string, string>();
         public Dictionary<string, string> AsPutRequestValues()
         {
             return putValues;
@@ -132,9 +134,6 @@ namespace ModIO
 
         // --- Extra Fields ---
         private int modfileId = 0;
-        
-        // - PUT Request Format -
-        private Dictionary<string, string> putValues = new Dictionary<string, string>();
 
         // --- GETTERS ---
         public int GetModfileId()

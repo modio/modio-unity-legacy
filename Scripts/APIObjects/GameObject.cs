@@ -69,45 +69,4 @@ namespace ModIO.API
                    && this.tag_options.GetHashCode().Equals(other.tag_options.GetHashCode()));
         }
     }
-
-    [Serializable]
-    public struct EditedGameObject
-    {
-        // - Fields -
-        public int status; // Status of a game. We recommend you never change this once you have accepted your game to be available via the API (see status and visibility for details):
-        public string name; // Name of your game. Cannot exceed 80 characters.
-        public string name_id; // Subdomain for the game on mod.io. Highly recommended to not change this unless absolutely required. Cannot exceed 20 characters.
-        public string summary; // Explain your games mod support in 1 paragraph. Cannot exceed 250 characters.
-        public string instructions; // Instructions and links creators should follow to upload mods. Keep it short and explain details like are mods submitted in-game or via tools you have created.
-        public string homepage; // Official homepage for your game. Must be a valid URL.
-        public string ugc_name; // Word used to describe user-generated content (mods, items, addons etc).
-        public int presentation_option; // Choose the presentation style you want on the mod.io website:
-        public int submission_option; // Choose the submission process you want modders to follow:
-        public int curation_option; // Choose the curation process your team follows to approve mods:
-        public int community_options; // Choose the community features enabled on the mod.io website:
-        public int revenue_options; // Choose the revenue capabilities mods can enable:
-        public int api_access_options; // Choose the level of API access your game allows:
-
-        // - Copy Function -
-        public static EditedGameObject FromGameObject(GameObject baseObject)
-        {
-            EditedGameObject newEGO = new EditedGameObject();
-
-            newEGO.status = baseObject.status;
-            newEGO.name = baseObject.name;
-            newEGO.name_id = baseObject.name_id;
-            newEGO.summary = baseObject.summary;
-            newEGO.instructions = baseObject.instructions;
-            newEGO.homepage = baseObject.homepage;
-            newEGO.ugc_name = baseObject.ugc_name;
-            newEGO.presentation_option = baseObject.presentation_option;
-            newEGO.submission_option = baseObject.submission_option;
-            newEGO.curation_option = baseObject.curation_option;
-            newEGO.community_options = baseObject.community_options;
-            newEGO.revenue_options = baseObject.revenue_options;
-            newEGO.api_access_options = baseObject.api_access_options;
-
-            return newEGO;
-        }
-    }
 }
