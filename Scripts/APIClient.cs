@@ -65,7 +65,7 @@ namespace ModIO
             public string oAuthToken = "";
 
             // public byte[] data;
-            public string data = "";
+            public string jsonObject = "";
         }
         public class PostRequest
         {
@@ -235,7 +235,7 @@ namespace ModIO
         {
             string constructedURL = URL + request.endpoint;
             
-            UnityWebRequest webRequest = UnityWebRequest.Put(constructedURL, request.data);
+            UnityWebRequest webRequest = UnityWebRequest.Put(constructedURL, request.jsonObject);
             webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);
 
             #if LOG_ALL_QUERIES
@@ -265,7 +265,7 @@ namespace ModIO
                 Debug.Log("EXECUTING PUT REQUEST"
                           + "\nEndpoint: " + constructedURL
                           + "\nHeaders: " + requestHeaders
-                          + "\nData:\n" + request.data
+                          + "\nJSON Object:\n" + request.jsonObject
                           + "\n"
                           );
             }
@@ -548,11 +548,19 @@ namespace ModIO
             onError(GenerateNotImplementedError(request.endpoint + ":POST"));
         }
         // Edit Mod
-        public void EditMod(int modID,
+        public void EditMod(string oAuthToken,
+                            EditableModInfo modInfo,
                             ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameID + "/mods/" + modID;
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PutRequest request = new PutRequest();
+
+            request.endpoint = "games/" + gameID + "/mods/" + modInfo.id;
+            request.oAuthToken = oAuthToken;
+            request.jsonObject = JsonUtility.ToJson(modInfo.ToEditedAPIObject());
+
+            StartCoroutine(ExecutePutRequest<API.ModObject>(request, 
+                                                            result => OnSuccessWrapper(onSuccess, result), 
+                                                            onError));
         }
         // Delete Mod
         public void DeleteMod(int modID,
