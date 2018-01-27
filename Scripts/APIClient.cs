@@ -236,7 +236,9 @@ namespace ModIO
             string constructedURL = URL + request.endpoint;
             
             UnityWebRequest webRequest = UnityWebRequest.Put(constructedURL, request.jsonObject);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);            
+            webRequest.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            webRequest.SetRequestHeader("Accept", "application/json");
 
             #if LOG_ALL_QUERIES
             {
