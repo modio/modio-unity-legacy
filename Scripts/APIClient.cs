@@ -1,4 +1,4 @@
-﻿#define USE_TEST_API
+﻿#define USING_TEST_SERVER
 #define LOG_ALL_QUERIES
 
 using System;
@@ -101,7 +101,7 @@ namespace ModIO
         // ---------[ CONSTANTS ]---------
         public const string VERSION = "v1";
 
-        #if USE_TEST_API
+        #if USING_TEST_SERVER
         public const string URL = "https://api.test.mod.io/" + VERSION + "/";
         #else
         public const string URL = "https://api.mod.io/" + VERSION + "/";
@@ -555,7 +555,7 @@ namespace ModIO
         // Add Mod
         public void AddMod(string oAuthToken,
                            AddableModInfo modInfo,
-                           ObjectCallback<string> onSuccess, ErrorCallback onError)
+                           ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
         {
             PostRequest request = new PostRequest();
             request.endpoint = "games/" + gameId + "/mods";
@@ -563,9 +563,9 @@ namespace ModIO
             request.valueFields = modInfo.GetValueFields();
             request.dataFields = modInfo.GetDataFields();
 
-            StartCoroutine(ExecutePostRequest<API.MessageObject>(request, 
-                                                                 result => onSuccess(result.message), 
-                                                                 onError));
+            StartCoroutine(ExecutePostRequest<API.ModObject>(request, 
+                                                             result => OnSuccessWrapper(onSuccess, result),
+                                                             onError));
         }
         // Edit Mod
         public void EditMod(string oAuthToken,
@@ -621,11 +621,19 @@ namespace ModIO
                                                            onError));
         }
         // Add Modfile
-        public void AddModfile(int modId,
+        public void AddModfile(string oAuthToken,
+                               int modId, UnsubmittedModfile modfile,
                                ObjectCallback<Modfile> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/files";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/files";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = modfile.GetValueFields();
+            request.dataFields = modfile.GetDataFields();
+
+            StartCoroutine(ExecutePostRequest<API.ModfileObject>(request,
+                                                                 result => OnSuccessWrapper(onSuccess, result),
+                                                                 onError));
         }
         // Edit Modfile
         public void EditModfile(string oAuthToken,

@@ -124,4 +124,80 @@ namespace ModIO
             putValues["active"] = value.ToString();
         }
     }
+
+    [Serializable]
+    public class UnsubmittedModfile
+    {
+        // --- FIELDS ---
+        [UnityEngine.SerializeField]
+        private API.UnsubmittedModfileObject _data;
+        
+        // The binary file for the release. For compatibility you should ZIP the base folder of your mod, or if it is a collection of files which live in a pre-existing game folder, you should ZIP those files. Your file must meet the following conditions:
+        public string binaryFilepath = "";
+
+        // Version of the file release.
+        public string version
+        {
+            get { return _data.version; }
+            set { _data.version = value; }
+        }
+        // Changelog of this release.
+        public string changelog
+        {
+            get { return _data.changelog; }
+            set { _data.changelog = value; }
+        }
+        // Default value is true. Label this upload as the current release, this will change the modfile field on the parent mod to the id of this file after upload.
+        public bool active
+        {
+            get { return _data.active; }
+            set { _data.active = value; }
+        }
+        // MD5 of the submitted file. When supplied the MD5 will be compared against the uploaded files MD5. If they don't match a 422 Unprocessible Entity error will be returned.
+        public string filehash
+        {
+            get { return _data.filehash; }
+            set { _data.filehash = value; }
+        }
+        // Metadata stored by the game developer which may include properties such as what version of the game this file is compatible with. Metadata can also be stored as searchable key value pairs, and to the mod object.
+        public string metadataBlob
+        {
+            get { return _data.metadata_blob; }
+            set { _data.metadata_blob = value; }
+        }
+
+
+        // --- ACCESSORS ---
+        public Dictionary<string, string> GetValueFields()
+        {
+            Dictionary<string, string> retVal = new Dictionary<string, string>();
+
+            retVal["version"] = _data.version;
+            retVal["changelog"] = _data.changelog;
+            retVal["active"] = (_data.active ? "1" : "0");
+            retVal["filehash"] = _data.filehash;
+            retVal["metadata_blob"] = _data.metadata_blob;
+
+            return retVal;
+        }
+        
+        public Dictionary<string, BinaryData> GetDataFields()
+        {
+            Dictionary<string, BinaryData> retVal = new Dictionary<string, BinaryData>();
+            retVal["filedata"] = GetModfileBinaryData();
+            return retVal;
+        }
+
+        public BinaryData GetModfileBinaryData()
+        {
+            if(System.IO.File.Exists(binaryFilepath))
+            {
+                BinaryData newData = new BinaryData();
+                newData.contents = System.IO.File.ReadAllBytes(binaryFilepath);
+                newData.fileName = System.IO.Path.GetFileName(binaryFilepath);
+                return newData;
+            }
+            return null;
+        }
+    }
 }

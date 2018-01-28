@@ -1,4 +1,5 @@
-﻿// #define TEST_IGNORE_CACHE
+﻿#define USING_TEST_SERVER
+// #define TEST_IGNORE_CACHE
 
 using System;
 using System.IO;
@@ -44,12 +45,17 @@ namespace ModIO
         private static ManifestData manifest = null;
         private static UserData userData = null;
 
+        #if USING_TEST_SERVER
+        public static string MODIO_DIR { get { return Application.persistentDataPath + "/modio_testServer/"; } }
+        #else
         public static string MODIO_DIR { get { return Application.persistentDataPath + "/modio/"; } }
-        public static APIClient APIClient { get { return client; } }
-        public static User CurrentUser { get { return userData == null ? null : userData.user; } }
+        #endif
 
         private static string MANIFEST_URL { get { return MODIO_DIR + "manifest.data"; } }
         private static string USERDATA_URL { get { return MODIO_DIR + "user.data"; } }
+        
+        public static APIClient APIClient { get { return client; } }
+        public static User CurrentUser { get { return userData == null ? null : userData.user; } }
 
         // --------- [ INITIALISATION ]---------
         public static void Initialize(int gameId, string apiKey)
