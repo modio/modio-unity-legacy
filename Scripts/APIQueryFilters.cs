@@ -888,7 +888,7 @@ namespace ModIO
             //      To determine what tags are eligible, see the tags values within 'Tag Options' column on the parent Game Object.
             StoreStringArrayField(fieldInformationMap,
                                   Field.Tags, "tags", 
-                                  (mod) => mod.tagNames, 
+                                  (mod) => mod.GetTagNames(), 
                                   (a,b) => { Debug.LogError("The 'tags' attribute cannot be sorted on"); return a.id.CompareTo(b.id); });
         }
 

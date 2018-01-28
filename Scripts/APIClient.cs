@@ -203,10 +203,10 @@ namespace ModIO
                     if(headerValue != null)
                     {
                         if(headerKey == "Authorization"
-                           && headerValue.Length > 14) // Contains more than "Bearer "
+                           && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 20) + " [token truncated]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
                         }
                         else
                         {
@@ -251,10 +251,10 @@ namespace ModIO
                     if(headerValue != null)
                     {
                         if(headerKey == "Authorization"
-                           && headerValue.Length > 14) // Contains more than "Bearer "
+                           && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 20) + " [token truncated]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
                         }
                         else
                         {
@@ -307,10 +307,10 @@ namespace ModIO
                     if(headerValue != null)
                     {
                         if(headerKey == "Authorization"
-                           && headerValue.Length > 14) // Contains more than "Bearer "
+                           && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 14) + "...[TOKEN TRUNCATED FOR LOGGING]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
                         }
                         else
                         {
@@ -326,7 +326,9 @@ namespace ModIO
                 }
                 foreach(KeyValuePair<string, BinaryData> kvp in request.dataFields)
                 {
-                    formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
+                    formFields += "\n" + kvp.Key + "= [BINARY DATA]: "
+                                + kvp.Value.fileName + "("
+                                + (kvp.Value.contents.Length/1000f).ToString("0.00") + "KB)\n";
                 }
 
                 Debug.Log("EXECUTING POST REQUEST"
@@ -368,10 +370,10 @@ namespace ModIO
                     if(headerValue != null)
                     {
                         if(headerKey == "Authorization"
-                           && headerValue.Length > 14) // Contains more than "Bearer "
+                           && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 14) + "...[TOKEN TRUNCATED FOR LOGGING]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
                         }
                         else
                         {

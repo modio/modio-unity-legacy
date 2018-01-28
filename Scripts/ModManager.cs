@@ -120,7 +120,8 @@ namespace ModIO
                                             APIClient.IgnoreSuccess,
                                             (error) =>
                                             {
-                                                if(error.httpStatusCode == 401) // Failed authentication
+                                                if(error.httpStatusCode == 401
+                                                   || error.httpStatusCode == 403) // Failed authentication
                                                 {
                                                     LogUserOut();
                                                 };
@@ -807,6 +808,12 @@ namespace ModIO
             {
                 StartLogoDownload(mod, logoTemplate);
             }
+        }
+
+        public static string GetModLogoFilepath(ModInfo mod, LogoVersion logoVersion)
+        {
+            LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
+            return GetModDirectory(mod.id) + logoTemplate.localFilename;
         }
 
         // ---------[ MISC ]------------

@@ -23,6 +23,8 @@ namespace ModIO
         // - Fields -
         [UnityEngine.SerializeField]
         protected API.ModObject _data;
+        [UnityEngine.SerializeField]
+        protected string[] tagNames;
 
         public int id                       { get { return _data.id; } }
         public int gameId                   { get { return _data.game_id; } }
@@ -44,7 +46,6 @@ namespace ModIO
         public ModMediaInfo media           { get; protected set; }
         public RatingSummary ratingSummary  { get; protected set; }
         public ModTag[] tags                { get; protected set; }
-        public string[] tagNames            { get; protected set; }
 
 
         // - IAPIObjectWrapper Interface -
@@ -82,6 +83,11 @@ namespace ModIO
         public API.ModObject GetAPIObject()
         {
             return this._data;
+        }
+
+        public string[] GetTagNames()
+        {
+            return this.tagNames;
         }
 
         // - ISerializationCallbackReceiver -
