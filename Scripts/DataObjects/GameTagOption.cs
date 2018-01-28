@@ -34,7 +34,7 @@ namespace ModIO
                     this.tagType = TagType.SingleValue;
                 }
                 break;
-                case "MULTIVALUE":
+                case "DROPDOWN":
                 {
                     this.tagType = TagType.MultiValue;
                 }
