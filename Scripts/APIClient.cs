@@ -447,6 +447,7 @@ namespace ModIO
             this.apiKey = apiKey;
         }
 
+
         // ---------[ AUTHENTICATION ]---------
         public void RequestSecurityCode(string emailAddress,
                                         ObjectCallback<APIMessage> onSuccess,
@@ -474,6 +475,7 @@ namespace ModIO
                                                                      data => onSuccess(data.access_token),
                                                                      onError));
         }
+
 
         // ---------[ GAME ENDPOINTS ]---------
         // Get All Games
@@ -521,6 +523,7 @@ namespace ModIO
                                                              result => OnSuccessWrapper(onSuccess, result), 
                                                              onError));
         }
+
 
         // ---------[ MOD ENDPOINTS ]---------
         // Get All Mods
@@ -590,6 +593,7 @@ namespace ModIO
             onError(GenerateNotImplementedError(endpoint + ":DELETE"));
         }
 
+
         // ---------[ MODFILE ENDPOINTS ]---------
         // Get All Modfiles
         public void GetAllModfiles(int modId, GetAllModfilesFilter filter,
@@ -651,19 +655,29 @@ namespace ModIO
                                                                 onError));
         }
 
+
         // ---------[ MEDIA ENDPOINTS ]---------
         // Add GameInfo Media
-        public void AddGameMedia(ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        public void AddGameMedia(string oAuthToken,
+                                 ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameId + "/media";
             onError(GenerateNotImplementedError(endpoint + ":POST"));
         }
         // Add Mod Media
-        public void AddModMedia(int modId,
-                                ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        public void AddModMedia(string oAuthToken,
+                                int modId, UnsubmittedModMedia modMedia,
+                                ObjectCallback<string> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/media";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/media";
+            request.oAuthToken = oAuthToken;
+            // request.valueFields = modMedia.GetValueFields();
+            request.dataFields = modMedia.GetDataFields();
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request, 
+                                                                 result => onSuccess(result.message), 
+                                                                 onError));
         }
         // Delete Mod Media
         public void DeleteModMedia(int modId,
@@ -672,6 +686,7 @@ namespace ModIO
             string endpoint = "games/" + gameId + "/mods/" + modId + "/media";
             onError(GenerateNotImplementedError(endpoint + ":DELETE"));
         }
+
 
         // ---------[ SUBSCRIBE ENDPOINTS ]---------
         public void SubscribeToMod(string oAuthToken,
@@ -698,6 +713,7 @@ namespace ModIO
                                                                    result => OnSuccessWrapper(onSuccess, result),
                                                                    onError));
         }
+
 
         // ---------[ EVENT ENDPOINTS ]---------
         // Get Mod Events
@@ -735,6 +751,7 @@ namespace ModIO
                                         onError));
         }
 
+
         // ---------[ TAG ENDPOINTS ]---------
         // Get All Mod Tags
         public void GetAllModTags(int modId, GetAllModTagsFilter filter,
@@ -770,6 +787,7 @@ namespace ModIO
             onError(GenerateNotImplementedError(endpoint + ":DELETE"));
         }
 
+
         // ---------[ RATING ENDPOINTS ]---------
         // Add Mod Rating
         public void AddModRating(int modId, int ratingValue,
@@ -778,6 +796,7 @@ namespace ModIO
             string endpoint = "games/" + gameId + "/mods/" + modId + "/ratings";
             onError(GenerateNotImplementedError(endpoint + ":POST"));
         }
+
 
         // ---------[ METADATA ENDPOINTS ]---------
         // Get All Mod KVP Metadata
@@ -811,6 +830,7 @@ namespace ModIO
             string endpoint = "games/" + gameId + "/mods/" + modId + "/metadatakvp";
             onError(GenerateNotImplementedError(endpoint + ":DELETE"));
         }
+
 
         // ---------[ DEPENDENCIES ENDPOINTS ]---------
         // Get All Mod Dependencies
