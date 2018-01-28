@@ -109,7 +109,6 @@ namespace ModIO
         }
     }
 
-    [Serializable]
     public class EditableModInfo : ModInfo
     {
         public static EditableModInfo FromModInfo(ModInfo modInfo)
@@ -229,6 +228,109 @@ namespace ModIO
         public void SetStock(int value)
         {
             putValues["modfile"] = ((int)value).ToString();
+        }
+    }
+
+    [Serializable]
+    public class AddableModInfo
+    {
+        // - Fields -
+        [UnityEngine.SerializeField]
+        private API.CreatedModObject _data;
+
+        // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
+        public ModInfo.Visibility visibility
+        {
+            get { return (ModInfo.Visibility)_data.visible; }
+            set { _data.visible = (int)value; }
+        }
+        // Name of your mod.
+        public string name
+        {
+            get { return _data.name; }
+            set { _data.name = value; }
+        }
+        // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. If no name_id is specified the name will be used. For example: 'Stellaris Shader Mod' will become 'stellaris-shader-mod'. Cannot exceed 80 characters.
+        public string nameId
+        {
+            get { return _data.name_id; }
+            set { _data.name_id = value; }
+        }
+        // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
+        public string summary
+        {
+            get { return _data.summary; }
+            set { _data.summary = value; }
+        }
+        // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
+        public string description
+        {
+            get { return _data.description; }
+            set { _data.description = value; }
+        }
+        // Official homepage for your mod. Must be a valid URL.
+        public string homepage
+        {
+            get { return _data.homepage; }
+            set { _data.homepage = value; }
+        }
+        // Artificially limit the amount of times the mod can be subscribed too.
+        public int stock
+        {
+            get { return _data.stock; }
+            set { _data.stock = value; }
+        }
+        // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
+        public string metadata
+        {
+            get { return _data.metadata; }
+            set { _data.metadata = value; }
+        }
+        // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
+        public List<string> tagNames = new List<string>();
+        // Image file which will represent your mods logo. Must be gif, jpg or png format and cannot exceed 8MB in filesize. Dimensions must be at least 640x360 and we recommended you supply a high resolution image with a 16 / 9 ratio. mod.io will use this image to make three thumbnails for the dimensions 320x180, 640x360 and 1280x720.
+        public string logoFilepath = "";
+
+        // --- ACCESSORS ---
+        public Dictionary<string, string> GetValueFields()
+        {
+            Dictionary<string, string> retVal = new Dictionary<string, string>();
+            retVal["visible"] = _data.visible.ToString();
+            retVal["name"] = _data.name;
+            retVal["name_id"] = _data.name_id;
+            retVal["summary"] = _data.summary;
+            retVal["description"] = _data.description;
+            retVal["homepage"] = _data.homepage;
+            retVal["stock"] = _data.stock.ToString();
+            retVal["metadata"] = _data.metadata;
+
+            if(tagNames.Count > 0)
+            {
+                retVal["tags"] = tagNames[0];
+                for(int i = 1; i < tagNames.Count; ++i)
+                {
+                    retVal["tags"] += "," + tagNames[i];
+                }
+            }
+            return retVal;
+        }
+        public Dictionary<string, BinaryData> GetDataFields()
+        {
+            Dictionary<string, BinaryData> retVal = new Dictionary<string, BinaryData>();
+            retVal["logo"] = GetLogoBinaryData();
+            return retVal;
+        }
+
+        public BinaryData GetLogoBinaryData()
+        {
+            if(System.IO.File.Exists(logoFilepath))
+            {
+                BinaryData newData = new BinaryData();
+                newData.contents = System.IO.File.ReadAllBytes(logoFilepath);
+                newData.fileName = System.IO.Path.GetFileName(logoFilepath);
+                return newData;
+            }
+            return null;
         }
     }
 }

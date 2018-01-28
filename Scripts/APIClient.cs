@@ -13,6 +13,13 @@ namespace ModIO
     public delegate void ObjectCallback<T>(T requestedObject); 
     public delegate void DownloadCallback(byte[] data);
 
+    public class BinaryData
+    {
+        public byte[] contents = null;
+        public string fileName = null;
+        public string mimeType = null;
+    }
+
     public class APIClient : MonoBehaviour
     {
         private static ErrorInfo GenerateNotImplementedError(string url)
@@ -64,29 +71,22 @@ namespace ModIO
             public string endpoint = "";
             public string oAuthToken = "";
 
-            public Dictionary<string, string> fieldValues = new Dictionary<string, string>();
+            public Dictionary<string, string> valueFields = new Dictionary<string, string>();
         }
         public class PostRequest
         {
-            public class BinaryData
-            {
-                public byte[] contents = null;
-                public string fileName = null;
-                public string mimeType = null;
-            }
-
             public string endpoint = "";
             public string oAuthToken = "";
-            public Dictionary<string, string> fieldValues = new Dictionary<string, string>();
-            public Dictionary<string, BinaryData> fieldData = new Dictionary<string, BinaryData>();
+            public Dictionary<string, string> valueFields = new Dictionary<string, string>();
+            public Dictionary<string, BinaryData> dataFields = new Dictionary<string, BinaryData>();
 
             public void AddFieldsToForm(WWWForm form)
             {
-                foreach(KeyValuePair<string, string> kvp in fieldValues)
+                foreach(KeyValuePair<string, string> kvp in valueFields)
                 {
                     form.AddField(kvp.Key, kvp.Value);
                 }
-                foreach(KeyValuePair<string, PostRequest.BinaryData> kvp in fieldData)
+                foreach(KeyValuePair<string, BinaryData> kvp in dataFields)
                 {
                     form.AddBinaryData(kvp.Key, kvp.Value.contents, kvp.Value.fileName, kvp.Value.mimeType);
                 }
@@ -234,7 +234,7 @@ namespace ModIO
         {
             string constructedURL = URL + request.endpoint;
             
-            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, request.fieldValues);
+            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, request.valueFields);
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
             webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);            
             webRequest.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -264,7 +264,7 @@ namespace ModIO
                 }
 
                 string formFields = "";
-                foreach(KeyValuePair<string, string> kvp in request.fieldValues)
+                foreach(KeyValuePair<string, string> kvp in request.valueFields)
                 {
                     formFields += "\n" + kvp.Key + "=" + kvp.Value;
                 }
@@ -320,11 +320,11 @@ namespace ModIO
                 }
 
                 string formFields = "";
-                foreach(KeyValuePair<string, string> kvp in request.fieldValues)
+                foreach(KeyValuePair<string, string> kvp in request.valueFields)
                 {
                     formFields += "\n" + kvp.Key + "=" + kvp.Value;
                 }
-                foreach(KeyValuePair<string, PostRequest.BinaryData> kvp in request.fieldData)
+                foreach(KeyValuePair<string, BinaryData> kvp in request.dataFields)
                 {
                     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
                 }
@@ -381,11 +381,11 @@ namespace ModIO
                 }
 
                 // string formFields = "";
-                // foreach(KeyValuePair<string, string> kvp in request.fieldValues)
+                // foreach(KeyValuePair<string, string> kvp in request.valueFields)
                 // {
                 //     formFields += "\n" + kvp.Key + "=" + kvp.Value;
                 // }
-                // foreach(KeyValuePair<string, Request.BinaryData> kvp in request.fieldData)
+                // foreach(KeyValuePair<string, Request.BinaryData> kvp in request.dataFields)
                 // {
                 //     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
                 // }
@@ -452,8 +452,8 @@ namespace ModIO
         {
             PostRequest request = new PostRequest();
             request.endpoint = "oauth/emailrequest";
-            request.fieldValues.Add("api_key", apiKey);
-            request.fieldValues.Add("email", emailAddress);
+            request.valueFields.Add("api_key", apiKey);
+            request.valueFields.Add("email", emailAddress);
 
             StartCoroutine(ExecutePostRequest<API.MessageObject>(request, 
                                                                  result => OnSuccessWrapper(onSuccess, result),
@@ -465,8 +465,8 @@ namespace ModIO
         {
             PostRequest request = new PostRequest();
             request.endpoint = "oauth/emailexchange";
-            request.fieldValues.Add("api_key", apiKey);
-            request.fieldValues.Add("security_code", securityCode);
+            request.valueFields.Add("api_key", apiKey);
+            request.valueFields.Add("security_code", securityCode);
 
             StartCoroutine(ExecutePostRequest<API.AccessTokenObject>(request, 
                                                                      data => onSuccess(data.access_token),
@@ -513,7 +513,7 @@ namespace ModIO
 
             request.endpoint = "games/" + gameInfo.id;
             request.oAuthToken = oAuthToken;
-            request.fieldValues = gameInfo.AsPutRequestValues();
+            request.valueFields = gameInfo.AsPutRequestValues();
 
             StartCoroutine(ExecutePutRequest<API.GameObject>(request, 
                                                              result => OnSuccessWrapper(onSuccess, result), 
@@ -552,14 +552,18 @@ namespace ModIO
         }
         // Add Mod
         public void AddMod(string oAuthToken,
-                           ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
+                           AddableModInfo modInfo,
+                           ObjectCallback<string> onSuccess, ErrorCallback onError)
         {
             PostRequest request = new PostRequest();
             request.endpoint = "games/" + gameId + "/mods";
             request.oAuthToken = oAuthToken;
-            // request.fieldValues[]
+            request.valueFields = modInfo.GetValueFields();
+            request.dataFields = modInfo.GetDataFields();
 
-            onError(GenerateNotImplementedError(request.endpoint + ":POST"));
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request, 
+                                                                 result => onSuccess(result.message), 
+                                                                 onError));
         }
         // Edit Mod
         public void EditMod(string oAuthToken,
@@ -570,7 +574,7 @@ namespace ModIO
 
             request.endpoint = "games/" + gameId + "/mods/" + modInfo.id;
             request.oAuthToken = oAuthToken;
-            request.fieldValues = modInfo.AsPutRequestValues();
+            request.valueFields = modInfo.AsPutRequestValues();
 
             StartCoroutine(ExecutePutRequest<API.ModObject>(request, 
                                                             result => OnSuccessWrapper(onSuccess, result),
@@ -630,7 +634,7 @@ namespace ModIO
 
             request.endpoint = "games/" + gameId + "/mods/" + modfile.modId + "/files/" + modfile.id;
             request.oAuthToken = oAuthToken;
-            request.fieldValues = modfile.AsPutRequestValues();
+            request.valueFields = modfile.AsPutRequestValues();
 
             StartCoroutine(ExecutePutRequest<API.ModfileObject>(request, 
                                                                 result => OnSuccessWrapper(onSuccess, result), 
@@ -948,8 +952,8 @@ namespace ModIO
             PostRequest request = new PostRequest();
             request.endpoint = "general/owner";
             request.oAuthToken = oAuthToken;
-            request.fieldValues.Add("resource_type", resourceType.ToString().ToLower());
-            request.fieldValues.Add("resource_id", resourceID.ToString());
+            request.valueFields.Add("resource_type", resourceType.ToString().ToLower());
+            request.valueFields.Add("resource_id", resourceID.ToString());
 
             StartCoroutine(ExecutePostRequest<API.UserObject>(request, 
                                                               result => OnSuccessWrapper(onSuccess, result), 
