@@ -43,7 +43,7 @@ namespace ModIO
         public string metadataBlob          { get { return _data.metadata_blob; } }
         public string profileURL            { get { return _data.profile_url; } }
         public Modfile modfile              { get; protected set; }
-        public ModMediaInfo media           { get; protected set; }
+        public ModMediaURLInfo media        { get; protected set; }
         public RatingSummary ratingSummary  { get; protected set; }
         public ModTag[] tags                { get; protected set; }
 
@@ -62,7 +62,7 @@ namespace ModIO
             this.logo.WrapAPIObject(apiObject.logo);
             this.modfile = new Modfile();
             this.modfile.WrapAPIObject(apiObject.modfile);
-            this.media = new ModMediaInfo();
+            this.media = new ModMediaURLInfo();
             this.media.WrapAPIObject(apiObject.media);
             this.ratingSummary = new RatingSummary();
             this.ratingSummary.WrapAPIObject(apiObject.rating_summary);

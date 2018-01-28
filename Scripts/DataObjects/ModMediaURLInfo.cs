@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace ModIO
 {
     [Serializable]
-    public class ModMediaInfo : IEquatable<ModMediaInfo>, IAPIObjectWrapper<API.ModMediaObject>, UnityEngine.ISerializationCallbackReceiver
+    public class ModMediaURLInfo : IEquatable<ModMediaURLInfo>, IAPIObjectWrapper<API.ModMediaObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Fields -
         [UnityEngine.SerializeField]
@@ -12,7 +12,7 @@ namespace ModIO
 
         public string[] youtubeURLs     { get { return _data.youtube; } }
         public string[] sketchfabURLS   { get { return _data.sketchfab; } }
-        public ImageInfo[] images       { get; private set; }
+        public ImageURLInfo[] images    { get; private set; }
         
         // - IAPIObjectWrapper Interface -
         public void WrapAPIObject(API.ModMediaObject apiObject)
@@ -21,12 +21,12 @@ namespace ModIO
 
             // - Load Images -
             int imageCount = (apiObject.images == null ? 0 : apiObject.images.Length);
-            this.images = new ImageInfo[imageCount];
+            this.images = new ImageURLInfo[imageCount];
             for(int i = 0;
                 i < imageCount;
                 ++i)
             {
-                this.images[i] = new ImageInfo();
+                this.images[i] = new ImageURLInfo();
                 this.images[i].WrapAPIObject(apiObject.images[i]);
             }
         }
@@ -50,10 +50,10 @@ namespace ModIO
 
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as ModMediaInfo);
+            return this.Equals(obj as ModMediaURLInfo);
         }
 
-        public bool Equals(ModMediaInfo other)
+        public bool Equals(ModMediaURLInfo other)
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
