@@ -659,10 +659,17 @@ namespace ModIO
         // ---------[ MEDIA ENDPOINTS ]---------
         // Add GameInfo Media
         public void AddGameMedia(string oAuthToken,
-                                 ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+                                 UnsubmittedGameMedia gameMedia,
+                                 ObjectCallback<string> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/media";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/media";
+            request.oAuthToken = oAuthToken;
+            request.dataFields = gameMedia.GetDataFields();
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => onSuccess(result.message),
+                                                                 onError));
         }
         // Add Mod Media
         public void AddModMedia(string oAuthToken,
