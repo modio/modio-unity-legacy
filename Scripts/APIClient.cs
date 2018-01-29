@@ -712,7 +712,7 @@ namespace ModIO
             PostRequest request = new PostRequest();
             request.endpoint = "games/" + gameId + "/mods/" + modId + "/media";
             request.oAuthToken = oAuthToken;
-            // request.valueFields = modMedia.GetValueFields();
+            request.valueFields = modMedia.GetValueFields();
             request.dataFields = modMedia.GetDataFields();
 
             StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
@@ -1029,6 +1029,7 @@ namespace ModIO
                                                                  onError));
         }
         // Update Mod Team Member
+        // NOTE(@jackson): Untested
         public void UpdateModTeamMember(string oAuthToken,
                                         int modId, EditableTeamMember teamMember,
                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
@@ -1147,10 +1148,19 @@ namespace ModIO
 
         // ---------[ REPORT ENDPOINTS ]---------
         // Submit Report
-        public void SubmitReport(ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
+        // NOTE(@jackson): Untested
+        public void SubmitReport(string oAuthToken,
+                                 UnsubmittedReport report,
+                                 ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "report";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "report";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = report.GetValueFields();
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => OnSuccessWrapper(onSuccess, result),
+                                                                 onError));
         }
         
 
