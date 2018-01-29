@@ -788,6 +788,52 @@ namespace ModIO
 
 
         // ---------[ TAG ENDPOINTS ]---------
+        // Get All Game Tag Options
+        public void GetAllGameTagOptions(ObjectCallback<GameTagOption[]> onSuccess,
+                                         ErrorCallback onError)
+        {
+            string endpoint = "games/" + gameId + "/tags";
+
+            ObjectCallback<API.ObjectArray<API.GameTagOptionObject>> onSuccessArrayWrapper = results =>
+            {
+                onSuccess(WrapArray<GameTagOption, API.GameTagOptionObject>(results.data));
+            };
+
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        Filter.None,
+                                        onSuccessArrayWrapper,
+                                        onError));
+        }
+
+        // Add Game Tag Option
+        public void AddGameTagOption(string oAuthToken,
+                                     UnsubmittedGameTagOption tagOption,
+                                     ObjectCallback<string> onSuccess,
+                                     ErrorCallback onError)
+        {
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/tags";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = tagOption.GetValueFields();
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => onSuccess(result.message),
+                                                                 onError));
+        }
+
+        // Delete Game Tag Option
+        public void DeleteGameTagOption(string oAuthToken,
+                                        ObjectCallback<string> onSuccess,
+                                        ErrorCallback onError)
+        {
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/tags";
+            request.oAuthToken = oAuthToken;
+
+            onError(GenerateNotImplementedError(request.endpoint + ":DELETE"));
+        }
+
         // Get All Mod Tags
         public void GetAllModTags(int modId, GetAllModTagsFilter filter,
                                   ObjectCallback<ModTag[]> onSuccess, ErrorCallback onError)
