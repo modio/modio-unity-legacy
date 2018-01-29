@@ -863,11 +863,84 @@ namespace ModIO
             File.Delete(USERDATA_URL);
         }
 
-        public static void EditMod(EditableModInfo modInfo, ObjectCallback<ModInfo> onSuccess,
-                                    ErrorCallback onError)
+        // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
+        public static void EditMod(EditableModInfo modInfo,
+                                   ObjectCallback<ModInfo> onSuccess,
+                                   ErrorCallback onError)
         {
             // TODO(@jackson): Force an update poll
             APIClient.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
+        }
+
+        public static void AddMod(AddableModInfo modInfo,
+                                  ObjectCallback<ModInfo> onSuccess,
+                                  ErrorCallback onError)
+        {
+            APIClient.AddMod(userData.oAuthToken, modInfo, onSuccess, onError);
+        }
+
+        public static void AddModMedia(int modId, UnsubmittedModMedia modMedia,
+                                       ObjectCallback<string> onSuccess,
+                                       ErrorCallback onError)
+        {
+            APIClient.AddModMedia(userData.oAuthToken,
+                                  modId, modMedia,
+                                  onSuccess, onError);
+        }
+
+        public static void AddModfile(int modId,
+                                      UnsubmittedModfile modfile,
+                                      ObjectCallback<Modfile> onSuccess,
+                                      ErrorCallback onError)
+        {
+            APIClient.AddModfile(userData.oAuthToken, modId, modfile, onSuccess, onError);
+        }
+
+        public static void AddGameMedia(UnsubmittedGameMedia gameMedia,
+                                        ObjectCallback<string> onSuccess,
+                                        ErrorCallback onError)
+        {
+            APIClient.AddGameMedia(userData.oAuthToken, gameMedia, onSuccess, onError);
+        }
+
+        public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
+                                            ObjectCallback<string> onSuccess,
+                                            ErrorCallback onError)
+        {
+            APIClient.AddGameTagOption(userData.oAuthToken, tagOption, onSuccess, onError);
+        }
+
+        public static void AddModTags(int modId, string[] tagNames,
+                                      ObjectCallback<string> onSuccess,
+                                      ErrorCallback onError)
+        {
+            APIClient.AddModTags(userData.oAuthToken, modId, tagNames,
+                                 onSuccess, onError);
+        }
+
+        public static void AddPositiveRating(int modId,
+                                             ObjectCallback<APIMessage> onSuccess,
+                                             ErrorCallback onError)
+        {
+            APIClient.AddModRating(userData.oAuthToken, modId, 1, onSuccess, onError);
+        }
+
+        public static void AddModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
+                                             ObjectCallback<APIMessage> onSuccess,
+                                             ErrorCallback onError)
+        {
+            APIClient.AddModKVPMetadata(userData.oAuthToken,
+                                        modId, metadataKVPs,
+                                        onSuccess, onError);
+        }
+
+        public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
+                                            ObjectCallback<APIMessage> onSuccess,
+                                            ErrorCallback onError)
+        {
+            APIClient.AddModTeamMember(userData.oAuthToken,
+                                       modId, teamMember,
+                                       onSuccess, onError);
         }
     }
 }
