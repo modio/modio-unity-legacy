@@ -69,62 +69,52 @@ namespace ModIO
         // Zip archive of images to upload. Only valid gif, jpg and png images in the zip file will be processed. The filename must be images.zip all other zips will be ignored. Alternatively you can POST one or more images to this endpoint and they will be detected and added to the mods gallery.
         public string imagesFilepath;
         // Full Youtube link(s) you want to add - example 'https://www.youtube.com/watch?v=IGVZOLV9SPo'
-        public string[] youtube;
+        public List<string> youtubeURLs;
         // Full Sketchfab link(s) you want to add - example 'https://sketchfab.com/models/71f04e390ff54e5f8d9a51b4e1caab7e'
-        public string[] sketchfab;
+        public List<string> sketchfabURLs;
 
         // --- ACCESSORS ---
-        public Dictionary<string, string> GetValueFields()
+        public StringValueField[] GetValueFields()
         {
-            Dictionary<string, string> retVal = new Dictionary<string, string>();
+            List<StringValueField> retVal = new List<StringValueField>(youtubeURLs.Count + sketchfabURLs.Count);
 
-            retVal["youtube"] = youtube.ToString();
-            retVal["sketchfab"] = sketchfab.ToString();
+            foreach(string youtubeURL in youtubeURLs)
+            {
+                retVal.Add(StringValueField.Create("youtube[]", youtubeURL));
+            }
+            foreach(string sketchfabURL in sketchfabURLs)
+            {
+                retVal.Add(StringValueField.Create("sketchfab[]", sketchfabURL));
+            }
 
-            return retVal;
+            return retVal.ToArray();
         }
-        public Dictionary<string, BinaryData> GetDataFields()
+        
+        public BinaryDataField[] GetDataFields()
         {
-            Dictionary<string, BinaryData> retVal = new Dictionary<string, BinaryData>();
+            List<BinaryDataField> retVal = new List<BinaryDataField>(2);
             
-            BinaryData binaryData;
-
-            binaryData = GetLogoBinaryData();
-            if(binaryData != null)
-            {
-                retVal["logo"] = GetLogoBinaryData();
-            }
-            binaryData = GetImagesBinaryData();
-            if(binaryData != null)
-            {
-                retVal["images"] = GetImagesBinaryData();
-            }
-
-            return retVal;
-        }
-
-        public BinaryData GetLogoBinaryData()
-        {
             if(System.IO.File.Exists(logoFilepath))
             {
-                BinaryData newData = new BinaryData();
+                BinaryDataField newData = new BinaryDataField();
+                newData.key = "logo";
                 newData.contents = System.IO.File.ReadAllBytes(logoFilepath);
                 newData.fileName = System.IO.Path.GetFileName(logoFilepath);
-                return newData;
+                
+                retVal.Add(newData);
             }
-            return null;
-        }
 
-        public BinaryData GetImagesBinaryData()
-        {
             if(System.IO.File.Exists(imagesFilepath))
             {
-                BinaryData newData = new BinaryData();
+                BinaryDataField newData = new BinaryDataField();
+                newData.key = "images";
                 newData.contents = System.IO.File.ReadAllBytes(imagesFilepath);
                 newData.fileName = System.IO.Path.GetFileName(imagesFilepath);
-                return newData;
+                
+                retVal.Add(newData);
             }
-            return null;
+
+            return retVal.ToArray();
         }
     }
 }

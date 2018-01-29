@@ -98,9 +98,16 @@ namespace ModIO
 
         // - Put Request Values -
         private Dictionary<string, string> putValues = new Dictionary<string, string>();
-        public Dictionary<string, string> AsPutRequestValues()
+        public StringValueField[] GetValueFields()
         {
-            return putValues;
+            List<StringValueField> retVal = new List<StringValueField>();
+            
+            foreach(KeyValuePair<string, string> kvp in putValues)
+            {
+                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
+            }
+
+            return retVal.ToArray();
         }
 
         // --- SETTERS ---
@@ -168,36 +175,33 @@ namespace ModIO
 
 
         // --- ACCESSORS ---
-        public Dictionary<string, string> GetValueFields()
+        public StringValueField[] GetValueFields()
         {
-            Dictionary<string, string> retVal = new Dictionary<string, string>();
+            List<StringValueField> retVal = new List<StringValueField>(5);
 
-            retVal["version"] = _data.version;
-            retVal["changelog"] = _data.changelog;
-            retVal["active"] = (_data.active ? "1" : "0");
-            retVal["filehash"] = _data.filehash;
-            retVal["metadata_blob"] = _data.metadata_blob;
+            retVal.Add(StringValueField.Create("version", _data.version));
+            retVal.Add(StringValueField.Create("changelog", _data.changelog));
+            retVal.Add(StringValueField.Create("active", (_data.active ? "1" : "0")));
+            retVal.Add(StringValueField.Create("filehash", _data.filehash));
+            retVal.Add(StringValueField.Create("metadata_blob", _data.metadata_blob));
 
-            return retVal;
+            return retVal.ToArray();
         }
         
-        public Dictionary<string, BinaryData> GetDataFields()
+        public BinaryDataField[] GetDataFields()
         {
-            Dictionary<string, BinaryData> retVal = new Dictionary<string, BinaryData>();
-            retVal["filedata"] = GetModfileBinaryData();
-            return retVal;
-        }
+            List<BinaryDataField> retVal = new List<BinaryDataField>(1);
 
-        public BinaryData GetModfileBinaryData()
-        {
             if(System.IO.File.Exists(binaryFilepath))
             {
-                BinaryData newData = new BinaryData();
+                BinaryDataField newData = new BinaryDataField();
+                newData.key = "filedata";
                 newData.contents = System.IO.File.ReadAllBytes(binaryFilepath);
                 newData.fileName = System.IO.Path.GetFileName(binaryFilepath);
-                return newData;
+
+                retVal.Add(newData);
             }
-            return null;
+            return retVal.ToArray();
         }
     }
 }

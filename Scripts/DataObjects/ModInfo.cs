@@ -132,9 +132,16 @@ namespace ModIO
 
         // - Put Request Values -
         private Dictionary<string, string> putValues = new Dictionary<string, string>();
-        public Dictionary<string, string> AsPutRequestValues()
+        public StringValueField[] GetValueFields()
         {
-            return putValues;
+            List<StringValueField> retVal = new List<StringValueField>();
+            
+            foreach(KeyValuePair<string, string> kvp in putValues)
+            {
+                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
+            }
+
+            return retVal.ToArray();
         }
 
         // --- Extra Fields ---
@@ -298,45 +305,41 @@ namespace ModIO
         public string logoFilepath = "";
 
         // --- ACCESSORS ---
-        public Dictionary<string, string> GetValueFields()
+        public StringValueField[] GetValueFields()
         {
-            Dictionary<string, string> retVal = new Dictionary<string, string>();
-            retVal["visible"] = _data.visible.ToString();
-            retVal["name"] = _data.name;
-            retVal["name_id"] = _data.name_id;
-            retVal["summary"] = _data.summary;
-            retVal["description"] = _data.description;
-            retVal["homepage"] = _data.homepage;
-            retVal["stock"] = _data.stock.ToString();
-            retVal["metadata"] = _data.metadata;
+            List<StringValueField> retVal = new List<StringValueField>(8 + tagNames.Count);
 
-            if(tagNames.Count > 0)
+            retVal.Add(StringValueField.Create("visible", _data.visible));
+            retVal.Add(StringValueField.Create("name", _data.name));
+            retVal.Add(StringValueField.Create("name_id", _data.name_id));
+            retVal.Add(StringValueField.Create("summary", _data.summary));
+            retVal.Add(StringValueField.Create("description", _data.description));
+            retVal.Add(StringValueField.Create("homepage", _data.homepage));
+            retVal.Add(StringValueField.Create("stock", _data.stock));
+            retVal.Add(StringValueField.Create("metadata", _data.metadata));
+
+            foreach(string tagName in tagNames)
             {
-                retVal["tags"] = tagNames[0];
-                for(int i = 1; i < tagNames.Count; ++i)
-                {
-                    retVal["tags"] += "," + tagNames[i];
-                }
+                retVal.Add(StringValueField.Create("tags[]", tagName));
             }
-            return retVal;
-        }
-        public Dictionary<string, BinaryData> GetDataFields()
-        {
-            Dictionary<string, BinaryData> retVal = new Dictionary<string, BinaryData>();
-            retVal["logo"] = GetLogoBinaryData();
-            return retVal;
-        }
 
-        public BinaryData GetLogoBinaryData()
+            return retVal.ToArray();
+        }
+        public BinaryDataField[] GetDataFields()
         {
+            List<BinaryDataField> retVal = new List<BinaryDataField>(1);
+
             if(System.IO.File.Exists(logoFilepath))
             {
-                BinaryData newData = new BinaryData();
+                BinaryDataField newData = new BinaryDataField();
+                newData.key = "logo";
                 newData.contents = System.IO.File.ReadAllBytes(logoFilepath);
                 newData.fileName = System.IO.Path.GetFileName(logoFilepath);
-                return newData;
+                
+                retVal.Add(newData);
             }
-            return null;
+
+            return retVal.ToArray();
         }
     }
 }

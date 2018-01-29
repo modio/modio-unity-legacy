@@ -160,9 +160,16 @@ namespace ModIO
 
         // - Put Request Values -
         private Dictionary<string, string> putValues = new Dictionary<string, string>();
-        public Dictionary<string, string> AsPutRequestValues()
+        public StringValueField[] GetValueFields()
         {
-            return putValues;
+            List<StringValueField> retVal = new List<StringValueField>();
+            
+            foreach(KeyValuePair<string, string> kvp in putValues)
+            {
+                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
+            }
+
+            return retVal.ToArray();
         }
 
         // --- SETTERS ---
