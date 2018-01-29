@@ -220,14 +220,14 @@ namespace ModIO
 
                 // - Get ModInfo Events -
                 GetAllModEventsFilter eventFilter = new GetAllModEventsFilter();
-                eventFilter.ApplyIntRange(GetAllModEventsFilter.Field.DateAdded, 
-                                          fromTimeStamp.AsServerTimeStamp(), true, 
+                eventFilter.ApplyIntRange(GetAllModEventsFilter.Field.DateAdded,
+                                          fromTimeStamp.AsServerTimeStamp(), true,
                                           untilTimeStamp.AsServerTimeStamp(), false);
-                eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest, 
+                eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest,
                                            true);
 
-                client.GetAllModEvents(eventFilter, 
-                                       (eventArray) => 
+                client.GetAllModEvents(eventFilter,
+                                       (eventArray) =>
                                        {
                                         manifest.lastUpdateTimeStamp = untilTimeStamp;
                                         ProcessModEvents(eventArray);
@@ -274,7 +274,7 @@ namespace ModIO
             };
             Action<ModEvent> processModUnavailable = (modEvent) =>
             {
-                // TODO(@jackson): Facilitate marking Mods as installed 
+                // TODO(@jackson): Facilitate marking Mods as installed
                 bool isModInstalled = (userData != null
                                        && userData.subscribedModIDs.Contains(modEvent.modId));
 
@@ -442,15 +442,15 @@ namespace ModIO
                                      onError);
         }
 
-        public static void TryLogUserIn(string userOAuthToken, 
-                                        ObjectCallback<User> onSuccess, 
+        public static void TryLogUserIn(string userOAuthToken,
+                                        ObjectCallback<User> onSuccess,
                                         ErrorCallback onError)
         {
             Action fetchUserSubscriptions = () =>
             {
-                APIClient.GetUserSubscriptions(userOAuthToken, 
-                                               GetUserSubscriptionsFilter.None, 
-                                               UpdateSubscriptions, 
+                APIClient.GetUserSubscriptions(userOAuthToken,
+                                               GetUserSubscriptionsFilter.None,
+                                               UpdateSubscriptions,
                                                APIClient.LogError);
             };
 
@@ -605,7 +605,7 @@ namespace ModIO
             string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(mod.id), "modfile_*.zip");
             foreach(string binaryFilePath in binaryFilePaths)
             {
-                File.Delete(binaryFilePath);   
+                File.Delete(binaryFilePath);
             }
         }
 
@@ -759,7 +759,7 @@ namespace ModIO
             DownloadManager.AddConcurrentDownload(download);
         }
 
-        public static void CacheModLogos(ModInfo[] modLogosToCache, 
+        public static void CacheModLogos(ModInfo[] modLogosToCache,
                                          LogoVersion logoVersion)
         {
             LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);

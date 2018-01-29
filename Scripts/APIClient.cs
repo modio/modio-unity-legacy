@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 namespace ModIO
 {
     public delegate void ErrorCallback(ErrorInfo errorInfo);
-    public delegate void ObjectCallback<T>(T requestedObject); 
+    public delegate void ObjectCallback<T>(T requestedObject);
     public delegate void DownloadCallback(byte[] data);
 
     public class BinaryDataField
@@ -46,9 +46,9 @@ namespace ModIO
             return retVal;
         }
 
-        private static void OnSuccessWrapper<T, T_APIObj>(ObjectCallback<T> onSuccess, 
-                                                          T_APIObj apiResult) 
-                                                          where T_APIObj : struct 
+        private static void OnSuccessWrapper<T, T_APIObj>(ObjectCallback<T> onSuccess,
+                                                          T_APIObj apiResult)
+                                                          where T_APIObj : struct
                                                           where T : IAPIObjectWrapper<T_APIObj>, new()
         {
             T retVal = new T();
@@ -57,8 +57,8 @@ namespace ModIO
             onSuccess(retVal);
         }
 
-        private static T[] WrapArray<T, T_APIObj>(T_APIObj[] apiObjectArray) 
-                                                  where T_APIObj : struct 
+        private static T[] WrapArray<T, T_APIObj>(T_APIObj[] apiObjectArray)
+                                                  where T_APIObj : struct
                                                   where T : IAPIObjectWrapper<T_APIObj>, new()
         {
             T[] retVal = new T[apiObjectArray.Length];
@@ -230,7 +230,7 @@ namespace ModIO
                            && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
                         }
                         else
                         {
@@ -280,7 +280,7 @@ namespace ModIO
                            && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
                         }
                         else
                         {
@@ -336,7 +336,7 @@ namespace ModIO
                            && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
                         }
                         else
                         {
@@ -399,7 +399,7 @@ namespace ModIO
                            && headerValue.Length > 8) // Contains more than "Bearer "
                         {
                             requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";   
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
                         }
                         else
                         {
@@ -485,7 +485,7 @@ namespace ModIO
             request.valueFields[0] = StringValueField.Create("api_key", apiKey);
             request.valueFields[1] = StringValueField.Create("email", emailAddress);
 
-            StartCoroutine(ExecutePostRequest<API.MessageObject>(request, 
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
                                                                  result => OnSuccessWrapper(onSuccess, result),
                                                                  onError));
         }
@@ -499,7 +499,7 @@ namespace ModIO
             request.valueFields[0] = StringValueField.Create("api_key", apiKey);
             request.valueFields[1] = StringValueField.Create("security_code", securityCode);
 
-            StartCoroutine(ExecutePostRequest<API.AccessTokenObject>(request, 
+            StartCoroutine(ExecutePostRequest<API.AccessTokenObject>(request,
                                                                      data => onSuccess(data.access_token),
                                                                      onError));
         }
@@ -547,8 +547,8 @@ namespace ModIO
             request.oAuthToken = oAuthToken;
             request.valueFields = gameInfo.GetValueFields();
 
-            StartCoroutine(ExecutePutRequest<API.GameObject>(request, 
-                                                             result => OnSuccessWrapper(onSuccess, result), 
+            StartCoroutine(ExecutePutRequest<API.GameObject>(request,
+                                                             result => OnSuccessWrapper(onSuccess, result),
                                                              onError));
         }
 
@@ -577,10 +577,10 @@ namespace ModIO
         {
             string endpoint = "games/" + gameId + "/mods/" + modId;
             
-            StartCoroutine(ExecuteQuery<API.ModObject>(endpoint, 
-                                                       apiKey, 
-                                                       Filter.None, 
-                                                       result => OnSuccessWrapper(onSuccess, result), 
+            StartCoroutine(ExecuteQuery<API.ModObject>(endpoint,
+                                                       apiKey,
+                                                       Filter.None,
+                                                       result => OnSuccessWrapper(onSuccess, result),
                                                        onError));
         }
         // Add Mod
@@ -594,7 +594,7 @@ namespace ModIO
             request.valueFields = modInfo.GetValueFields();
             request.dataFields = modInfo.GetDataFields();
 
-            StartCoroutine(ExecutePostRequest<API.ModObject>(request, 
+            StartCoroutine(ExecutePostRequest<API.ModObject>(request,
                                                              result => OnSuccessWrapper(onSuccess, result),
                                                              onError));
         }
@@ -609,7 +609,7 @@ namespace ModIO
             request.oAuthToken = oAuthToken;
             request.valueFields = modInfo.GetValueFields();
 
-            StartCoroutine(ExecutePutRequest<API.ModObject>(request, 
+            StartCoroutine(ExecutePutRequest<API.ModObject>(request,
                                                             result => OnSuccessWrapper(onSuccess, result),
                                                             onError));
         }
@@ -646,10 +646,10 @@ namespace ModIO
         {
             string endpoint = "games/" + gameId + "/mods/" + modId + "/files/" + modfileId;
 
-            StartCoroutine(ExecuteQuery<API.ModfileObject>(endpoint, 
-                                                           apiKey, 
-                                                           Filter.None, 
-                                                           result => OnSuccessWrapper(onSuccess, result), 
+            StartCoroutine(ExecuteQuery<API.ModfileObject>(endpoint,
+                                                           apiKey,
+                                                           Filter.None,
+                                                           result => OnSuccessWrapper(onSuccess, result),
                                                            onError));
         }
         // Add Modfile
@@ -678,8 +678,8 @@ namespace ModIO
             request.oAuthToken = oAuthToken;
             request.valueFields = modfile.GetValueFields();
 
-            StartCoroutine(ExecutePutRequest<API.ModfileObject>(request, 
-                                                                result => OnSuccessWrapper(onSuccess, result), 
+            StartCoroutine(ExecutePutRequest<API.ModfileObject>(request,
+                                                                result => OnSuccessWrapper(onSuccess, result),
                                                                 onError));
         }
 
@@ -710,8 +710,8 @@ namespace ModIO
             // request.valueFields = modMedia.GetValueFields();
             request.dataFields = modMedia.GetDataFields();
 
-            StartCoroutine(ExecutePostRequest<API.MessageObject>(request, 
-                                                                 result => onSuccess(result.message), 
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => onSuccess(result.message),
                                                                  onError));
         }
         // Delete Mod Media
@@ -752,7 +752,7 @@ namespace ModIO
 
         // ---------[ EVENT ENDPOINTS ]---------
         // Get Mod Events
-        public void GetModEvents(int modId, GetModEventFilter filter, 
+        public void GetModEvents(int modId, GetModEventFilter filter,
                                  ObjectCallback<ModEvent[]> onSuccess, ErrorCallback onError)
         {
             string endpoint = "games/" + gameId + "/mods/" + modId + "/events";
@@ -852,12 +852,23 @@ namespace ModIO
                                         onError));
         }
         // Add Mod Tag
-        public void AddModTag(int modId,
-                                ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        public void AddModTags(string oAuthToken,
+                               int modId, string[] tagNames,
+                               ObjectCallback<string> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/tags";
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/tags";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[tagNames.Length];
 
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            for(int i = 0; i < tagNames.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("tags[]", tagNames[i]);
+            }
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => onSuccess(result.message),
+                                                                 onError));
         }
         // Delete Mod Tag
         public void DeleteModTag(int modId,
@@ -1032,9 +1043,9 @@ namespace ModIO
         {
             string endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentID;
 
-            StartCoroutine(ExecuteQuery<API.CommentObject>(endpoint, 
-                                                           apiKey, 
-                                                           Filter.None, 
+            StartCoroutine(ExecuteQuery<API.CommentObject>(endpoint,
+                                                           apiKey,
+                                                           Filter.None,
                                                            result => OnSuccessWrapper(onSuccess, result),
                                                            onError));
         }
@@ -1067,8 +1078,8 @@ namespace ModIO
             request.valueFields[0] = StringValueField.Create("resource_type", resourceType.ToString().ToLower());
             request.valueFields[1] = StringValueField.Create("resource_id", resourceID);
 
-            StartCoroutine(ExecutePostRequest<API.UserObject>(request, 
-                                                              result => OnSuccessWrapper(onSuccess, result), 
+            StartCoroutine(ExecutePostRequest<API.UserObject>(request,
+                                                              result => OnSuccessWrapper(onSuccess, result),
                                                               onError));
         }
         // Get All Users
@@ -1082,9 +1093,9 @@ namespace ModIO
                 onSuccess(WrapArray<User, API.UserObject>(results.data));
             };
 
-            StartCoroutine(ExecuteQuery(endpoint, 
-                                        apiKey, 
-                                        filter, 
+            StartCoroutine(ExecuteQuery(endpoint,
+                                        apiKey,
+                                        filter,
                                         onSuccessArrayWrapper,
                                         onError));
         }
@@ -1094,10 +1105,10 @@ namespace ModIO
         {
             string endpoint = "users/" + userID;
 
-            StartCoroutine(ExecuteQuery<API.UserObject>(endpoint, 
-                                                        apiKey, 
-                                                        Filter.None, 
-                                                        result => OnSuccessWrapper(onSuccess, result), 
+            StartCoroutine(ExecuteQuery<API.UserObject>(endpoint,
+                                                        apiKey,
+                                                        Filter.None,
+                                                        result => OnSuccessWrapper(onSuccess, result),
                                                         onError));
         }
 
@@ -1120,9 +1131,9 @@ namespace ModIO
             request.endpoint = "me";
             request.oAuthToken = oAuthToken;
 
-            StartCoroutine(ExecuteGetRequest<API.UserObject>(request, 
-                                                             result => OnSuccessWrapper(onSuccess, result), 
-                                                             onError)); 
+            StartCoroutine(ExecuteGetRequest<API.UserObject>(request,
+                                                             result => OnSuccessWrapper(onSuccess, result),
+                                                             onError));
         }
         // Get User Subscriptions
         public void GetUserSubscriptions(string oAuthToken,
@@ -1139,7 +1150,7 @@ namespace ModIO
                 onSuccess(WrapArray<ModInfo, API.ModObject>(results.data));
             };
 
-            StartCoroutine(ExecuteGetRequest(request, 
+            StartCoroutine(ExecuteGetRequest(request,
                                              onSuccessArrayWrapper,
                                              onError));
         }
@@ -1156,8 +1167,8 @@ namespace ModIO
                 onSuccess(WrapArray<GameInfo, API.GameObject>(results.data));
             };
 
-            StartCoroutine(ExecuteGetRequest(request, 
-                                             onSuccessArrayWrapper, 
+            StartCoroutine(ExecuteGetRequest(request,
+                                             onSuccessArrayWrapper,
                                              onError));
         }
         // Get User Mods
@@ -1190,7 +1201,7 @@ namespace ModIO
                 onSuccess(WrapArray<Modfile, API.ModfileObject>(results.data));
             };
 
-            StartCoroutine(ExecuteGetRequest(request, 
+            StartCoroutine(ExecuteGetRequest(request,
                                              onSuccessArrayWrapper,
                                              onError));
         }
