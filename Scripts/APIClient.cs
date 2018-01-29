@@ -1,6 +1,5 @@
 ﻿#define USING_TEST_SERVER
 #define LOG_ALL_QUERIES
-#define LOG_ERROR_BODY
 
 using System;
 using System.Collections;
@@ -449,9 +448,7 @@ namespace ModIO
                     APIClient.LogError(errorInfo);
                 }
 
-                #if LOG_ERROR_BODY
-                Debug.LogWarning("API Response Body:\n" + webRequest.downloadHandler.text);
-                #endif
+                // Debug.LogWarning("Full API Response Body:\n" + webRequest.downloadHandler.text);
                 #endif
 
                 return;
