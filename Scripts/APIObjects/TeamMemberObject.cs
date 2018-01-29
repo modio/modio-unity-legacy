@@ -33,4 +33,16 @@ namespace ModIO.API
                    && this.position.Equals(other.position));
         }
     }
+
+    [Serializable]
+    public struct CreatedTeamMember
+    {
+        // --- FIELDS ---
+        // [Required] Email of the mod.io user you want to add to your team.
+        public string email;
+        // [Required] Level of permission the user will get
+        public int level;
+        // Title of the users position. For example: 'Team Leader', 'Artist'.
+        public string position;
+    }
 }

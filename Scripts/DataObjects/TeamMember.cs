@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ModIO
 {
@@ -62,6 +63,45 @@ namespace ModIO
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
+        }
+    }
+
+    public class UnsubmittedTeamMember
+    {
+        // --- FIELDS ---
+        [UnityEngine.SerializeField]
+        private API.CreatedTeamMember _data;
+
+        // [Required] Email of the mod.io user you want to add to your team.
+        public string email
+        {
+            get { return _data.email; }
+            set { _data.email = value; }
+        }
+
+        // [Required] Level of permission the user will get
+        public TeamMember.PermissionLevel permissionLevel
+        {
+            get { return (TeamMember.PermissionLevel)_data.level; }
+            set { _data.level = (int)value; }
+        }
+        // Title of the users position. For example: 'Team Leader', 'Artist'.
+        public string position
+        {
+            get { return _data.position; }
+            set { _data.position = value; }
+        }
+
+        // --- ACCESSORS ---
+        public StringValueField[] GetValueFields()
+        {
+            List<StringValueField> retVal = new List<StringValueField>();
+
+            retVal.Add(StringValueField.Create("email", _data.email));
+            retVal.Add(StringValueField.Create("level", _data.level));
+            retVal.Add(StringValueField.Create("position", _data.position));
+
+            return retVal.ToArray();
         }
     }
 }

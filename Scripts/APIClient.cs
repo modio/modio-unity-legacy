@@ -1,5 +1,6 @@
 ﻿#define USING_TEST_SERVER
 #define LOG_ALL_QUERIES
+#define LOG_ERROR_BODY
 
 using System;
 using System.Collections;
@@ -440,14 +441,18 @@ namespace ModIO
             {
                 ErrorInfo errorInfo = ErrorInfo.GenerateFromWebRequest(webRequest);
 
+                onError(errorInfo);
+
                 #if LOG_ALL_QUERIES
                 if(onError != APIClient.LogError)
                 {
                     APIClient.LogError(errorInfo);
                 }
-                #endif
 
-                onError(errorInfo);
+                #if LOG_ERROR_BODY
+                Debug.LogWarning("API Response Body:\n" + webRequest.downloadHandler.text);
+                #endif
+                #endif
 
                 return;
             }
@@ -1009,25 +1014,19 @@ namespace ModIO
                                         onSuccessArrayWrapper,
                                         onError));
         }
-        // Add GameInfo Team Member
-        public void AddGameTeamMember(ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
-        {
-            string endpoint = "games/" + gameId + "/team";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
-        }
         // Add Mod Team Member
-        public void AddModTeamMember(int modId,
+        public void AddModTeamMember(string oAuthToken,
+                                     int modId, UnsubmittedTeamMember teamMember,
                                      ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/team";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
-        }
-        // Update GameInfo Team Member
-        public void UpdateGameTeamMember(int teamMemberID,
-                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
-        {
-            string endpoint = "games/" + gameId + "/team/" + teamMemberID;
-            onError(GenerateNotImplementedError(endpoint + ":PUT"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/team";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = teamMember.GetValueFields();
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => OnSuccessWrapper(onSuccess, result),
+                                                                 onError));
         }
         // Update Mod Team Member
         public void UpdateModTeamMember(int modId, int teamMemberID,
@@ -1035,13 +1034,6 @@ namespace ModIO
         {
             string endpoint = "games/" + gameId + "/mods/" + modId + "/team/" + teamMemberID;
             onError(GenerateNotImplementedError(endpoint + ":PUT"));
-        }
-        // Delete GameInfo Team Member
-        public void DeleteGameTeamMember(int teamMemberID,
-                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
-        {
-            string endpoint = "games/" + gameId + "/team/" + teamMemberID;
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
         }
         // Delete Mod Team Member
         public void DeleteModTeamMember(int modId, int teamMemberID,
