@@ -33,12 +33,12 @@ namespace ModIO
 
         // - Fields -
         [UnityEngine.SerializeField]
-        private API.TeamMemberObject _data;
+        protected API.TeamMemberObject _data;
 
         public int id                           { get { return _data.id; } }
-        public User user                        { get; private set; }
+        public User user                        { get; protected set; }
         public PermissionLevel permissionLevel  { get { return (PermissionLevel)_data.level; } }
-        public TimeStamp dateAdded              { get; private set; }
+        public TimeStamp dateAdded              { get; protected set; }
         public string position                  { get { return _data.position; } }
 
         // - ISerializationCallbackReceiver -
@@ -63,6 +63,37 @@ namespace ModIO
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
+        }
+    }
+
+    public class EditableTeamMember : TeamMember
+    {
+        public static EditableTeamMember FromTeamMember(TeamMember teamMember)
+        {
+            EditableTeamMember newETM = new EditableTeamMember();
+            newETM.WrapAPIObject(teamMember.GetAPIObject());
+            return newETM;
+        }
+
+        // --- ACCESSORS --
+        public StringValueField[] GetValueFields()
+        {
+            StringValueField[] retVal = new StringValueField[2];
+            retVal[0] = StringValueField.Create("level", _data.level);
+            retVal[1] = StringValueField.Create("position", _data.position);
+
+            return retVal;
+        }
+
+        // Level of permission the user should have:
+        public void SetPermissionLevel(TeamMember.PermissionLevel value)
+        {
+            _data.level = (int)value;
+        }
+        // Title of the users position. For example: 'Team Leader', 'Artist'.
+        public void SetPosition(string value)
+        {
+            _data.position = value;
         }
     }
 

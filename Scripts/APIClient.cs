@@ -1029,11 +1029,18 @@ namespace ModIO
                                                                  onError));
         }
         // Update Mod Team Member
-        public void UpdateModTeamMember(int modId, int teamMemberID,
+        public void UpdateModTeamMember(string oAuthToken,
+                                        int modId, EditableTeamMember teamMember,
                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/team/" + teamMemberID;
-            onError(GenerateNotImplementedError(endpoint + ":PUT"));
+            PutRequest request = new PutRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/team/" + teamMember.id;
+            request.oAuthToken = oAuthToken;
+            request.valueFields = teamMember.GetValueFields();
+
+            StartCoroutine(ExecutePutRequest<API.MessageObject>(request,
+                                                                result => OnSuccessWrapper(onSuccess, result),
+                                                                onError));
         }
         // Delete Mod Team Member
         public void DeleteModTeamMember(int modId, int teamMemberID,
