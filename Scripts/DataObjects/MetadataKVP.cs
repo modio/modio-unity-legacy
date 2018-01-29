@@ -40,4 +40,12 @@ namespace ModIO
                     || this._data.Equals(other._data));
         }
     }
+
+    [Serializable]
+    public class UnsubmittedMetadataKVP
+    {
+        // --- FIELDS ---
+        public string key;
+        public string value;
+    }
 }

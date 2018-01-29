@@ -122,5 +122,15 @@ namespace ModIO
         {
             return new Regex(@"\A" + new Regex(@"\.|\$|\^|\{|\[|\(|\||\)|\*|\+|\?|\\").Replace(toFind, ch => @"\" + ch).Replace('_', '.').Replace("%", ".*") + @"\z", RegexOptions.Singleline).IsMatch(toSearch);
         }
+
+        public static bool IsURL(string toCheck)
+        {
+            // URL Regex adapted from https://regex.wtf/url-matching-regex-javascript/ 
+            string protocol = "^(http(s)?(://))?(www.)?";
+            string domain = "[a-zA-Z0-9-_.]+";
+            Regex urlRegex = new Regex(protocol + domain, RegexOptions.IgnoreCase);
+
+            return urlRegex.IsMatch(toCheck);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ModIO
 {
@@ -21,17 +22,19 @@ namespace ModIO
 
         // - Fields -
         [UnityEngine.SerializeField]
-        private API.ModObject _data;
+        protected API.ModObject _data;
+        [UnityEngine.SerializeField]
+        protected string[] tagNames;
 
         public int id                       { get { return _data.id; } }
         public int gameId                   { get { return _data.game_id; } }
         public Status status                { get { return (Status)_data.status; } }
         public Visibility visibility        { get { return (Visibility)_data.visible; } }
-        public User submittedBy             { get; private set; }
-        public TimeStamp dateAdded          { get; private set; }
-        public TimeStamp dateUpdated        { get; private set; }
-        public TimeStamp dateLive           { get; private set; }
-        public LogoURLInfo logo                { get; private set; }
+        public User submittedBy             { get; protected set; }
+        public TimeStamp dateAdded          { get; protected set; }
+        public TimeStamp dateUpdated        { get; protected set; }
+        public TimeStamp dateLive           { get; protected set; }
+        public LogoURLInfo logo             { get; protected set; }
         public string homepage              { get { return _data.homepage; } }
         public string name                  { get { return _data.name; } }
         public string nameId                { get { return _data.name_id; } }
@@ -39,11 +42,10 @@ namespace ModIO
         public string description           { get { return _data.description; } }
         public string metadataBlob          { get { return _data.metadata_blob; } }
         public string profileURL            { get { return _data.profile_url; } }
-        public Modfile modfile              { get; private set; }
-        public ModMediaInfo media           { get; private set; }
-        public RatingSummary ratingSummary  { get; private set; }
-        public ModTag[] tags                { get; private set; }
-        public string[] tagNames            { get; private set; }
+        public Modfile modfile              { get; protected set; }
+        public ModMediaURLInfo media        { get; protected set; }
+        public RatingSummary ratingSummary  { get; protected set; }
+        public ModTag[] tags                { get; protected set; }
 
 
         // - IAPIObjectWrapper Interface -
@@ -60,7 +62,7 @@ namespace ModIO
             this.logo.WrapAPIObject(apiObject.logo);
             this.modfile = new Modfile();
             this.modfile.WrapAPIObject(apiObject.modfile);
-            this.media = new ModMediaInfo();
+            this.media = new ModMediaURLInfo();
             this.media.WrapAPIObject(apiObject.media);
             this.ratingSummary = new RatingSummary();
             this.ratingSummary.WrapAPIObject(apiObject.rating_summary);
@@ -81,6 +83,11 @@ namespace ModIO
         public API.ModObject GetAPIObject()
         {
             return this._data;
+        }
+
+        public string[] GetTagNames()
+        {
+            return this.tagNames;
         }
 
         // - ISerializationCallbackReceiver -
@@ -105,6 +112,234 @@ namespace ModIO
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
+        }
+    }
+
+    public class EditableModInfo : ModInfo
+    {
+        public static EditableModInfo FromModInfo(ModInfo modInfo)
+        {
+            EditableModInfo newEMI = new EditableModInfo();
+
+            newEMI.WrapAPIObject(modInfo.GetAPIObject());
+
+            newEMI.modfileId = modInfo.modfile.id;
+
+            newEMI.modfile = null;
+
+            return newEMI;
+        }
+
+        // - Put Request Values -
+        private Dictionary<string, string> putValues = new Dictionary<string, string>();
+        public StringValueField[] GetValueFields()
+        {
+            List<StringValueField> retVal = new List<StringValueField>();
+            
+            foreach(KeyValuePair<string, string> kvp in putValues)
+            {
+                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
+            }
+
+            return retVal.ToArray();
+        }
+
+        // --- Extra Fields ---
+        private int modfileId = 0;
+
+        // --- GETTERS ---
+        public int GetModfileId()
+        {
+            return modfileId;
+        }
+
+        // --- SETTERS ---
+        // Status of a mod. The mod must have at least one uploaded modfile to be 'accepted' or 'archived' (best if this field is controlled by game admins, see status and visibility for details):
+        public void SetStatus(Status value)
+        {
+            UnityEngine.Debug.Assert(value != Status.Deleted,
+                                     "Status.Deleted cannot be set via SetStatus. Use the APIClient.DeleteMod instead");
+
+            _data.status = (int)value;
+
+            putValues["status"] = ((int)value).ToString();
+        }
+        // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
+        public void SetVisibility(Visibility value)
+        {
+            _data.visible = (int)value;
+
+            putValues["visible"] = ((int)value).ToString();
+        }
+        // Name of your mod. Cannot exceed 80 characters.
+        public void SetName(string value)
+        {
+            if(value.Length > 80)
+            {
+                value = value.Substring(0, 80);
+                UnityEngine.Debug.LogWarning("ModInfo.name cannot exceed 80 characters. Truncating.");
+            }
+
+            _data.name = value;
+
+            putValues["name"] = value;
+        }
+        // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. Cannot exceed 80 characters.
+        public void SetNameID(string value)
+        {
+            if(value.Length > 80)
+            {
+                value = value.Substring(0, 80);
+                UnityEngine.Debug.LogWarning("ModInfo.nameId cannot exceed 80 characters. Truncating.");
+            }
+
+            _data.name_id = value;
+
+            putValues["name_id"] = value;
+        }
+        // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
+        public void SetSummary(string value)
+        {
+            if(value.Length > 250)
+            {
+                value = value.Substring(0, 250);
+                UnityEngine.Debug.LogWarning("ModInfo.summary cannot exceed 250 characters. Truncating.");
+            }
+
+            _data.summary = value;
+
+            putValues["summary"] = value;
+        }
+        // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
+        public void SetDescription(string value)
+        {
+            _data.description = value;
+
+            putValues["description"] = value;
+        }
+        // Official homepage for your mod. Must be a valid URL.
+        public void SetHomepage(string value)
+        {
+            if(!Utility.IsURL(value))
+            {
+                UnityEngine.Debug.LogWarning(value + " is not a valid URL and will not be accepted by the API.");
+                value = "";
+            }
+
+            _data.homepage = value;
+
+            putValues["homepage"] = value;
+        }
+        // Unique id of the Modfile Object to be labelled as the current release.
+        public void SetModfileID(int value)
+        {
+            modfileId = value;
+
+            putValues["stock"] = ((int)value).ToString();
+        }
+        // Artificially limit the amount of times the mod can be subscribed too.
+        public void SetStock(int value)
+        {
+            putValues["modfile"] = ((int)value).ToString();
+        }
+    }
+
+    [Serializable]
+    public class AddableModInfo
+    {
+        // - Fields -
+        [UnityEngine.SerializeField]
+        private API.CreatedModObject _data;
+
+        // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
+        public ModInfo.Visibility visibility
+        {
+            get { return (ModInfo.Visibility)_data.visible; }
+            set { _data.visible = (int)value; }
+        }
+        // Name of your mod.
+        public string name
+        {
+            get { return _data.name; }
+            set { _data.name = value; }
+        }
+        // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. If no name_id is specified the name will be used. For example: 'Stellaris Shader Mod' will become 'stellaris-shader-mod'. Cannot exceed 80 characters.
+        public string nameId
+        {
+            get { return _data.name_id; }
+            set { _data.name_id = value; }
+        }
+        // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
+        public string summary
+        {
+            get { return _data.summary; }
+            set { _data.summary = value; }
+        }
+        // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
+        public string description
+        {
+            get { return _data.description; }
+            set { _data.description = value; }
+        }
+        // Official homepage for your mod. Must be a valid URL.
+        public string homepage
+        {
+            get { return _data.homepage; }
+            set { _data.homepage = value; }
+        }
+        // Artificially limit the amount of times the mod can be subscribed too.
+        public int stock
+        {
+            get { return _data.stock; }
+            set { _data.stock = value; }
+        }
+        // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
+        public string metadata
+        {
+            get { return _data.metadata; }
+            set { _data.metadata = value; }
+        }
+        // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
+        public List<string> tagNames = new List<string>();
+        // Image file which will represent your mods logo. Must be gif, jpg or png format and cannot exceed 8MB in filesize. Dimensions must be at least 640x360 and we recommended you supply a high resolution image with a 16 / 9 ratio. mod.io will use this image to make three thumbnails for the dimensions 320x180, 640x360 and 1280x720.
+        public string logoFilepath = "";
+
+        // --- ACCESSORS ---
+        public StringValueField[] GetValueFields()
+        {
+            List<StringValueField> retVal = new List<StringValueField>(8 + tagNames.Count);
+
+            retVal.Add(StringValueField.Create("visible", _data.visible));
+            retVal.Add(StringValueField.Create("name", _data.name));
+            retVal.Add(StringValueField.Create("name_id", _data.name_id));
+            retVal.Add(StringValueField.Create("summary", _data.summary));
+            retVal.Add(StringValueField.Create("description", _data.description));
+            retVal.Add(StringValueField.Create("homepage", _data.homepage));
+            retVal.Add(StringValueField.Create("stock", _data.stock));
+            retVal.Add(StringValueField.Create("metadata", _data.metadata));
+
+            foreach(string tagName in tagNames)
+            {
+                retVal.Add(StringValueField.Create("tags[]", tagName));
+            }
+
+            return retVal.ToArray();
+        }
+        public BinaryDataField[] GetDataFields()
+        {
+            List<BinaryDataField> retVal = new List<BinaryDataField>(1);
+
+            if(System.IO.File.Exists(logoFilepath))
+            {
+                BinaryDataField newData = new BinaryDataField();
+                newData.key = "logo";
+                newData.contents = System.IO.File.ReadAllBytes(logoFilepath);
+                newData.fileName = System.IO.Path.GetFileName(logoFilepath);
+                
+                retVal.Add(newData);
+            }
+
+            return retVal.ToArray();
         }
     }
 }

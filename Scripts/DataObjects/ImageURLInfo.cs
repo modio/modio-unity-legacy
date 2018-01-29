@@ -3,15 +3,15 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ImageInfo : IEquatable<ImageInfo>, IAPIObjectWrapper<API.ImageObject>
+    public class ImageURLInfo : IEquatable<ImageURLInfo>, IAPIObjectWrapper<API.ImageObject>
     {
         // - Fields -
         [UnityEngine.SerializeField]
         private API.ImageObject _data;
 
-        public string filename          { get { return _data.filename; } }
-        public string original_URL      { get { return _data.original; } }
-        public string thumb320x180_URL  { get { return _data.thumb_320x180; } }
+        public string filename      { get { return _data.filename; } }
+        public string original      { get { return _data.original; } }
+        public string thumb320x180  { get { return _data.thumb_320x180; } }
         
         // - IAPIObjectWrapper Interface -
         public void WrapAPIObject(API.ImageObject apiObject)
@@ -32,10 +32,10 @@ namespace ModIO
 
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as ImageInfo);
+            return this.Equals(obj as ImageURLInfo);
         }
 
-        public bool Equals(ImageInfo other)
+        public bool Equals(ImageURLInfo other)
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
