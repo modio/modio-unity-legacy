@@ -882,11 +882,19 @@ namespace ModIO
 
         // ---------[ RATING ENDPOINTS ]---------
         // Add Mod Rating
-        public void AddModRating(int modId, int ratingValue,
+        public void AddModRating(string oAuthToken,
+                                 int modId, int ratingValue,
                                  ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/ratings";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.oAuthToken = oAuthToken;
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/ratings";
+            request.valueFields = new StringValueField[1];
+            request.valueFields[0] = StringValueField.Create("rating", ratingValue);
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => OnSuccessWrapper(onSuccess, result),
+                                                                 onError));
         }
 
 
@@ -909,11 +917,24 @@ namespace ModIO
                                         onError));
         }
         // Add Mod KVP Metadata
-        public void AddModKVPMetadata(int modId,
-                                      ObjectCallback<MetadataKVP> onSuccess, ErrorCallback onError)
+        public void AddModKVPMetadata(string oAuthToken,
+                                      int modId, UnsubmittedMetadataKVP[] metadataKVPs,
+                                      ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/metadatakvp";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/metadatakvp";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[metadataKVPs.Length];
+
+            for(int i = 0; i < metadataKVPs.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("metadata[]",
+                                                                 metadataKVPs[i].key + ":" + metadataKVPs[i].value);
+            }
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => OnSuccessWrapper(onSuccess, result),
+                                                                 onError));
         }
         // Delete Mod KVP Metadata
         public void DeleteModKVPMetadata(int modId,
@@ -942,12 +963,24 @@ namespace ModIO
                                         onSuccessArrayWrapper,
                                         onError));
         }
-        // Add Mod Dependency
-        public void AddModDependency(int modId,
-                                     ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
+        // Add Mod Dependencies
+        public void AddModDependencies(string oAuthToken,
+                                       int modId, int[] requiredModIds,
+                                       ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/dependencies";
-            onError(GenerateNotImplementedError(endpoint + ":POST"));
+            PostRequest request = new PostRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/dependencies";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[requiredModIds.Length];
+
+            for(int i = 0; i < requiredModIds.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("dependencies[]", requiredModIds[i]);
+            }
+
+            StartCoroutine(ExecutePostRequest<API.MessageObject>(request,
+                                                                 result => OnSuccessWrapper(onSuccess, result),
+                                                                 onError));
         }
         // Delete Mod Dependencies
         public void DeleteModDependencies(int modId,
