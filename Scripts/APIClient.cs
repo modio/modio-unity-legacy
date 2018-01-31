@@ -447,8 +447,6 @@ namespace ModIO
                 {
                     APIClient.LogError(errorInfo);
                 }
-
-                // Debug.LogWarning("Full API Response Body:\n" + webRequest.downloadHandler.text);
                 #endif
 
                 return;
@@ -461,8 +459,16 @@ namespace ModIO
                       + "\n");
             #endif
 
-            T response = JsonUtility.FromJson<T>(webRequest.downloadHandler.text);
-            onSuccess(response);
+            // TODO(@jackson): Handle as a T == null?
+            if(webRequest.responseCode == 204)
+            {
+                onSuccess(default(T));
+            }
+            else
+            {
+                T response = JsonUtility.FromJson<T>(webRequest.downloadHandler.text);
+                onSuccess(response);
+            }
         }
 
         // ---------[ ACCESS CONTEXT ]---------
@@ -616,11 +622,17 @@ namespace ModIO
                                                             onError));
         }
         // Delete Mod
-        public void DeleteMod(int modId,
-                              ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
+        public void DeleteMod(string oAuthToken,
+                              int modId,
+                              Action onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId;
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId;
+            request.oAuthToken = oAuthToken;
+
+            StartCoroutine(ExecuteDeleteRequest<byte>(request,
+                                                      b => onSuccess(),
+                                                      onError));
         }
 
 
