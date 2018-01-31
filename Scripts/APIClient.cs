@@ -632,15 +632,15 @@ namespace ModIO
         // Delete Mod
         public void DeleteMod(string oAuthToken,
                               int modId,
-                              Action onSuccess, ErrorCallback onError)
+                              ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
             DeleteRequest request = new DeleteRequest();
             request.endpoint = "games/" + gameId + "/mods/" + modId;
             request.oAuthToken = oAuthToken;
 
-            StartCoroutine(ExecuteDeleteRequest<byte>(request,
-                                                      b => onSuccess(),
-                                                      onError));
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
@@ -739,16 +739,16 @@ namespace ModIO
         // Delete Mod Media
         public void DeleteModMedia(string oAuthToken,
                                    int modId, ModMediaToDelete modMediaToDelete,
-                                   Action onSuccess, ErrorCallback onError)
+                                   ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
             DeleteRequest request = new DeleteRequest();
             request.endpoint = "games/" + gameId + "/mods/" + modId + "/media";
             request.oAuthToken = oAuthToken;
             request.valueFields = modMediaToDelete.GetValueFields();
 
-            StartCoroutine(ExecuteDeleteRequest<byte>(request,
-                                                      b => onSuccess(),
-                                                      onError));
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   result => OnSuccessWrapper(onSuccess, result),
+                                                                   onError));
         }
 
 
@@ -880,7 +880,7 @@ namespace ModIO
                                         onSuccessArrayWrapper,
                                         onError));
         }
-        // Add Mod Tag
+        // Add Mod Tags
         public void AddModTags(string oAuthToken,
                                int modId, string[] tagNames,
                                ObjectCallback<string> onSuccess, ErrorCallback onError)
@@ -899,13 +899,23 @@ namespace ModIO
                                                                  result => onSuccess(result.message),
                                                                  onError));
         }
-        // Delete Mod Tag
-        public void DeleteModTag(int modId,
-                                 ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        // Delete Mod Tags
+        public void DeleteModTags(string oAuthToken,
+                                  int modId, string[] tagsToDelete,
+                                  ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/tags";
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/tags";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[tagsToDelete.Length];
+            for(int i = 0; i < tagsToDelete.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("tags[]", tagsToDelete[i]);
+            }
 
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
