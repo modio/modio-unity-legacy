@@ -470,7 +470,17 @@ namespace ModIO
             // TODO(@jackson): Handle as a T == null?
             if(webRequest.responseCode == 204)
             {
-                onSuccess(default(T));
+                if(typeof(T) == typeof(API.MessageObject))
+                {
+                    API.MessageObject response = new API.MessageObject();
+                    response.code = 204;
+                    response.message = "Succeeded";
+                    onSuccess((T)(object)response);
+                }
+                else
+                {
+                    onSuccess(default(T));
+                }
             }
             else
             {
@@ -1022,11 +1032,22 @@ namespace ModIO
                                                                  onError));
         }
         // Delete Mod Dependencies
-        public void DeleteModDependencies(int modId,
+        public void DeleteModDependencies(string oAuthToken,
+                                          int modId, int[] modIdsToRemove,
                                           ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/dependencies";
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/dependencies";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[modIdsToRemove.Length];
+            for(int i = 0; i < modIdsToRemove.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("dependencies[]", modIdsToRemove[i]);
+            }
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
