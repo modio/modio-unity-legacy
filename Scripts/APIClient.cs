@@ -986,11 +986,23 @@ namespace ModIO
                                                                  onError));
         }
         // Delete Mod KVP Metadata
-        public void DeleteModKVPMetadata(int modId,
-                                         ObjectCallback<MetadataKVP> onSuccess, ErrorCallback onError)
+        public void DeleteModKVPMetadata(string oAuthToken,
+                                         int modId, UnsubmittedMetadataKVP[] metadataKVPsToRemove,
+                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/metadatakvp";
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/metadatakvp";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[metadataKVPsToRemove.Length];
+            for(int i = 0; i < metadataKVPsToRemove.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("metadata[]",
+                                                                 metadataKVPsToRemove[i].key + ":" + metadataKVPsToRemove[i].value);
+            }
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
@@ -1099,16 +1111,23 @@ namespace ModIO
                                                                 onError));
         }
         // Delete Mod Team Member
-        public void DeleteModTeamMember(int modId, int teamMemberID,
+        public void DeleteModTeamMember(string oAuthToken,
+                                        int modId, int teamMemberId,
                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/team/" + teamMemberID;
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/team/" + teamMemberId;
+            request.oAuthToken = oAuthToken;
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
         // ---------[ COMMENT ENDPOINTS ]---------
         // Get All Mod Comments
+        // NOTE(@jackson): Untested
         public void GetAllModComments(int modId, GetAllModCommentsFilter filter,
                                       ObjectCallback<UserComment[]> onSuccess, ErrorCallback onError)
         {
@@ -1126,10 +1145,11 @@ namespace ModIO
                                         onError));
         }
         // Get Mod Comment
-        public void GetModComment(int modId, int commentID,
+        // NOTE(@jackson): Untested
+        public void GetModComment(int modId, int commentId,
                                   ObjectCallback<UserComment> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentID;
+            string endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentId;
 
             StartCoroutine(ExecuteQuery<API.CommentObject>(endpoint,
                                                            apiKey,
@@ -1138,11 +1158,18 @@ namespace ModIO
                                                            onError));
         }
         // Delete Mod Comment
-        public void DeleteModComment(int modId, int commentID,
+        // NOTE(@jackson): Untested
+        public void DeleteModComment(string oAuthToken,
+                                     int modId, int commentId,
                                      ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentID;
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentId;
+            request.oAuthToken = oAuthToken;
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
