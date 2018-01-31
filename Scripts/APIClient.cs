@@ -85,7 +85,6 @@ namespace ModIO
         {
             public string endpoint = "";
             public string oAuthToken = "";
-
             public StringValueField[] valueFields = new StringValueField[0];
 
             public void AddFieldsToForm(WWWForm form)
@@ -120,6 +119,15 @@ namespace ModIO
         {
             public string endpoint = "";
             public string oAuthToken = "";
+            public StringValueField[] valueFields = new StringValueField[0];
+
+            public void AddFieldsToForm(WWWForm form)
+            {
+                foreach(StringValueField valueField in valueFields)
+                {
+                    form.AddField(valueField.key, valueField.value);
+                }
+            }
         }
 
         // ---------[ CONSTANTS ]---------
@@ -375,12 +383,12 @@ namespace ModIO
                                                           ObjectCallback<T> onSuccess,
                                                           ErrorCallback onError)
         {
-            string constructedURL = URL + request.endpoint;// + "?" + request.filter.GenerateQueryString();
+            string constructedURL = URL + request.endpoint;
 
-            // WWWForm form = new WWWForm();
-            // request.AddFieldsToForm(form);
+            WWWForm form = new WWWForm();
+            request.AddFieldsToForm(form);
 
-            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, "");
+            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
             webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);
 
@@ -408,11 +416,11 @@ namespace ModIO
                     }
                 }
 
-                // string formFields = "";
-                // foreach(StringValueField kvp in request.valueFields)
-                // {
-                //     formFields += "\n" + kvp.Key + "=" + kvp.Value;
-                // }
+                string formFields = "";
+                foreach(StringValueField kvp in request.valueFields)
+                {
+                    formFields += "\n" + kvp.key + "=" + kvp.value;
+                }
                 // foreach(KeyValuePair<string, Request.BinaryData> kvp in request.dataFields)
                 // {
                 //     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
@@ -421,7 +429,7 @@ namespace ModIO
                 Debug.Log("EXECUTING DELETE REQUEST"
                           + "\nEndpoint: " + constructedURL
                           + "\nHeaders: " + requestHeaders
-                          // + "\nFields: " + formFields
+                          + "\nFields: " + formFields
                           + "\n"
                           );
             }
@@ -729,11 +737,18 @@ namespace ModIO
                                                                  onError));
         }
         // Delete Mod Media
-        public void DeleteModMedia(int modId,
-                                   ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        public void DeleteModMedia(string oAuthToken,
+                                   int modId, ModMediaToDelete modMediaToDelete,
+                                   Action onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/media";
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/media";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = modMediaToDelete.GetValueFields();
+
+            StartCoroutine(ExecuteDeleteRequest<byte>(request,
+                                                      b => onSuccess(),
+                                                      onError));
         }
 
 
