@@ -65,18 +65,18 @@ namespace ModIO
     {
         // --- FIELDS ---
         // Image file which will represent your mods logo. Must be gif, jpg or png format and cannot exceed 8MB in filesize. Dimensions must be at least 640x360 and we recommended you supply a high resolution image with a 16 / 9 ratio. mod.io will use this logo to create three thumbnails with the dimensions of 320x180, 640x360 and 1280x720.
-        public string logoFilepath;
+        public string logoFilepath = "";
         // Zip archive of images to upload. Only valid gif, jpg and png images in the zip file will be processed. The filename must be images.zip all other zips will be ignored. Alternatively you can POST one or more images to this endpoint and they will be detected and added to the mods gallery.
-        public string imagesFilepath;
+        public string imagesFilepath = "";
         // Full Youtube link(s) you want to add - example 'https://www.youtube.com/watch?v=IGVZOLV9SPo'
-        public List<string> youtubeURLs;
+        public string[] youtubeURLs = new string[0];
         // Full Sketchfab link(s) you want to add - example 'https://sketchfab.com/models/71f04e390ff54e5f8d9a51b4e1caab7e'
-        public List<string> sketchfabURLs;
+        public string[] sketchfabURLs = new string[0];
 
         // --- ACCESSORS ---
         public StringValueField[] GetValueFields()
         {
-            List<StringValueField> retVal = new List<StringValueField>(youtubeURLs.Count + sketchfabURLs.Count);
+            List<StringValueField> retVal = new List<StringValueField>(youtubeURLs.Length + sketchfabURLs.Length);
 
             foreach(string youtubeURL in youtubeURLs)
             {
@@ -112,6 +112,33 @@ namespace ModIO
                 newData.fileName = System.IO.Path.GetFileName(imagesFilepath);
                 
                 retVal.Add(newData);
+            }
+
+            return retVal.ToArray();
+        }
+    }
+
+    public class ModMediaToDelete
+    {
+        public string[] imageFilenames = new string[0];
+        public string[] youtubeURLs = new string[0];
+        public string[] sketchfabURLs = new string[0];
+
+        public StringValueField[] GetValueFields()
+        {
+            List<StringValueField> retVal = new List<StringValueField>(imageFilenames.Length + youtubeURLs.Length + sketchfabURLs.Length);
+
+            foreach(string filename in imageFilenames)
+            {
+                retVal.Add(StringValueField.Create("images[]", filename));
+            }
+            foreach(string url in youtubeURLs)
+            {
+                retVal.Add(StringValueField.Create("youtube[]", url));
+            }
+            foreach(string url in sketchfabURLs)
+            {
+                retVal.Add(StringValueField.Create("sketchfab[]", url));
             }
 
             return retVal.ToArray();

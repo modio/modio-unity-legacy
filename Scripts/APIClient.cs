@@ -85,7 +85,6 @@ namespace ModIO
         {
             public string endpoint = "";
             public string oAuthToken = "";
-
             public StringValueField[] valueFields = new StringValueField[0];
 
             public void AddFieldsToForm(WWWForm form)
@@ -120,6 +119,15 @@ namespace ModIO
         {
             public string endpoint = "";
             public string oAuthToken = "";
+            public StringValueField[] valueFields = new StringValueField[0];
+
+            public void AddFieldsToForm(WWWForm form)
+            {
+                foreach(StringValueField valueField in valueFields)
+                {
+                    form.AddField(valueField.key, valueField.value);
+                }
+            }
         }
 
         // ---------[ CONSTANTS ]---------
@@ -375,12 +383,12 @@ namespace ModIO
                                                           ObjectCallback<T> onSuccess,
                                                           ErrorCallback onError)
         {
-            string constructedURL = URL + request.endpoint;// + "?" + request.filter.GenerateQueryString();
+            string constructedURL = URL + request.endpoint;
 
-            // WWWForm form = new WWWForm();
-            // request.AddFieldsToForm(form);
+            WWWForm form = new WWWForm();
+            request.AddFieldsToForm(form);
 
-            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, "");
+            UnityWebRequest webRequest = UnityWebRequest.Post(constructedURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
             webRequest.SetRequestHeader("Authorization", "Bearer " + request.oAuthToken);
 
@@ -408,11 +416,11 @@ namespace ModIO
                     }
                 }
 
-                // string formFields = "";
-                // foreach(StringValueField kvp in request.valueFields)
-                // {
-                //     formFields += "\n" + kvp.Key + "=" + kvp.Value;
-                // }
+                string formFields = "";
+                foreach(StringValueField kvp in request.valueFields)
+                {
+                    formFields += "\n" + kvp.key + "=" + kvp.value;
+                }
                 // foreach(KeyValuePair<string, Request.BinaryData> kvp in request.dataFields)
                 // {
                 //     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
@@ -421,7 +429,7 @@ namespace ModIO
                 Debug.Log("EXECUTING DELETE REQUEST"
                           + "\nEndpoint: " + constructedURL
                           + "\nHeaders: " + requestHeaders
-                          // + "\nFields: " + formFields
+                          + "\nFields: " + formFields
                           + "\n"
                           );
             }
@@ -447,8 +455,6 @@ namespace ModIO
                 {
                     APIClient.LogError(errorInfo);
                 }
-
-                // Debug.LogWarning("Full API Response Body:\n" + webRequest.downloadHandler.text);
                 #endif
 
                 return;
@@ -461,8 +467,26 @@ namespace ModIO
                       + "\n");
             #endif
 
-            T response = JsonUtility.FromJson<T>(webRequest.downloadHandler.text);
-            onSuccess(response);
+            // TODO(@jackson): Handle as a T == null?
+            if(webRequest.responseCode == 204)
+            {
+                if(typeof(T) == typeof(API.MessageObject))
+                {
+                    API.MessageObject response = new API.MessageObject();
+                    response.code = 204;
+                    response.message = "Succeeded";
+                    onSuccess((T)(object)response);
+                }
+                else
+                {
+                    onSuccess(default(T));
+                }
+            }
+            else
+            {
+                T response = JsonUtility.FromJson<T>(webRequest.downloadHandler.text);
+                onSuccess(response);
+            }
         }
 
         // ---------[ ACCESS CONTEXT ]---------
@@ -616,11 +640,17 @@ namespace ModIO
                                                             onError));
         }
         // Delete Mod
-        public void DeleteMod(int modId,
-                              ObjectCallback<ModInfo> onSuccess, ErrorCallback onError)
+        public void DeleteMod(string oAuthToken,
+                              int modId,
+                              ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId;
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId;
+            request.oAuthToken = oAuthToken;
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
@@ -717,11 +747,18 @@ namespace ModIO
                                                                  onError));
         }
         // Delete Mod Media
-        public void DeleteModMedia(int modId,
-                                   ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        public void DeleteModMedia(string oAuthToken,
+                                   int modId, ModMediaToDelete modMediaToDelete,
+                                   ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/media";
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/media";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = modMediaToDelete.GetValueFields();
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   result => OnSuccessWrapper(onSuccess, result),
+                                                                   onError));
         }
 
 
@@ -826,14 +863,18 @@ namespace ModIO
 
         // Delete Game Tag Option
         public void DeleteGameTagOption(string oAuthToken,
-                                        ObjectCallback<string> onSuccess,
+                                        GameTagOptionToDelete gameTagOptionToDelete,
+                                        ObjectCallback<APIMessage> onSuccess,
                                         ErrorCallback onError)
         {
             DeleteRequest request = new DeleteRequest();
             request.endpoint = "games/" + gameId + "/tags";
             request.oAuthToken = oAuthToken;
+            request.valueFields = gameTagOptionToDelete.GetValueFields();
 
-            onError(GenerateNotImplementedError(request.endpoint + ":DELETE"));
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
         // Get All Mod Tags
@@ -853,7 +894,7 @@ namespace ModIO
                                         onSuccessArrayWrapper,
                                         onError));
         }
-        // Add Mod Tag
+        // Add Mod Tags
         public void AddModTags(string oAuthToken,
                                int modId, string[] tagNames,
                                ObjectCallback<string> onSuccess, ErrorCallback onError)
@@ -872,13 +913,23 @@ namespace ModIO
                                                                  result => onSuccess(result.message),
                                                                  onError));
         }
-        // Delete Mod Tag
-        public void DeleteModTag(int modId,
-                                 ObjectCallback<GameInfo> onSuccess, ErrorCallback onError)
+        // Delete Mod Tags
+        public void DeleteModTags(string oAuthToken,
+                                  int modId, string[] tagsToDelete,
+                                  ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/tags";
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/tags";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[tagsToDelete.Length];
+            for(int i = 0; i < tagsToDelete.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("tags[]", tagsToDelete[i]);
+            }
 
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
@@ -939,11 +990,23 @@ namespace ModIO
                                                                  onError));
         }
         // Delete Mod KVP Metadata
-        public void DeleteModKVPMetadata(int modId,
-                                         ObjectCallback<MetadataKVP> onSuccess, ErrorCallback onError)
+        public void DeleteModKVPMetadata(string oAuthToken,
+                                         int modId, UnsubmittedMetadataKVP[] metadataKVPsToRemove,
+                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/metadatakvp";
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/metadatakvp";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[metadataKVPsToRemove.Length];
+            for(int i = 0; i < metadataKVPsToRemove.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("metadata[]",
+                                                                 metadataKVPsToRemove[i].key + ":" + metadataKVPsToRemove[i].value);
+            }
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
@@ -985,11 +1048,22 @@ namespace ModIO
                                                                  onError));
         }
         // Delete Mod Dependencies
-        public void DeleteModDependencies(int modId,
+        public void DeleteModDependencies(string oAuthToken,
+                                          int modId, int[] modIdsToRemove,
                                           ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/dependencies";
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/dependencies";
+            request.oAuthToken = oAuthToken;
+            request.valueFields = new StringValueField[modIdsToRemove.Length];
+            for(int i = 0; i < modIdsToRemove.Length; ++i)
+            {
+                request.valueFields[i] = StringValueField.Create("dependencies[]", modIdsToRemove[i]);
+            }
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
@@ -1041,16 +1115,23 @@ namespace ModIO
                                                                 onError));
         }
         // Delete Mod Team Member
-        public void DeleteModTeamMember(int modId, int teamMemberID,
+        public void DeleteModTeamMember(string oAuthToken,
+                                        int modId, int teamMemberId,
                                         ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/team/" + teamMemberID;
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/team/" + teamMemberId;
+            request.oAuthToken = oAuthToken;
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 
         // ---------[ COMMENT ENDPOINTS ]---------
         // Get All Mod Comments
+        // NOTE(@jackson): Untested
         public void GetAllModComments(int modId, GetAllModCommentsFilter filter,
                                       ObjectCallback<UserComment[]> onSuccess, ErrorCallback onError)
         {
@@ -1068,10 +1149,11 @@ namespace ModIO
                                         onError));
         }
         // Get Mod Comment
-        public void GetModComment(int modId, int commentID,
+        // NOTE(@jackson): Untested
+        public void GetModComment(int modId, int commentId,
                                   ObjectCallback<UserComment> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentID;
+            string endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentId;
 
             StartCoroutine(ExecuteQuery<API.CommentObject>(endpoint,
                                                            apiKey,
@@ -1080,11 +1162,18 @@ namespace ModIO
                                                            onError));
         }
         // Delete Mod Comment
-        public void DeleteModComment(int modId, int commentID,
+        // NOTE(@jackson): Untested
+        public void DeleteModComment(string oAuthToken,
+                                     int modId, int commentId,
                                      ObjectCallback<APIMessage> onSuccess, ErrorCallback onError)
         {
-            string endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentID;
-            onError(GenerateNotImplementedError(endpoint + ":DELETE"));
+            DeleteRequest request = new DeleteRequest();
+            request.endpoint = "games/" + gameId + "/mods/" + modId + "/comments/" + commentId;
+            request.oAuthToken = oAuthToken;
+
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
 

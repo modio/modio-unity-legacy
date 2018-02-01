@@ -869,21 +869,21 @@ namespace ModIO
                                    ErrorCallback onError)
         {
             // TODO(@jackson): Force an update poll
-            APIClient.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
+            client.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
         }
 
         public static void AddMod(AddableModInfo modInfo,
                                   ObjectCallback<ModInfo> onSuccess,
                                   ErrorCallback onError)
         {
-            APIClient.AddMod(userData.oAuthToken, modInfo, onSuccess, onError);
+            client.AddMod(userData.oAuthToken, modInfo, onSuccess, onError);
         }
 
         public static void AddModMedia(int modId, UnsubmittedModMedia modMedia,
                                        ObjectCallback<string> onSuccess,
                                        ErrorCallback onError)
         {
-            APIClient.AddModMedia(userData.oAuthToken,
+            client.AddModMedia(userData.oAuthToken,
                                   modId, modMedia,
                                   onSuccess, onError);
         }
@@ -893,53 +893,133 @@ namespace ModIO
                                       ObjectCallback<Modfile> onSuccess,
                                       ErrorCallback onError)
         {
-            APIClient.AddModfile(userData.oAuthToken, modId, modfile, onSuccess, onError);
+            client.AddModfile(userData.oAuthToken, modId, modfile, onSuccess, onError);
         }
 
         public static void AddGameMedia(UnsubmittedGameMedia gameMedia,
                                         ObjectCallback<string> onSuccess,
                                         ErrorCallback onError)
         {
-            APIClient.AddGameMedia(userData.oAuthToken, gameMedia, onSuccess, onError);
+            client.AddGameMedia(userData.oAuthToken, gameMedia, onSuccess, onError);
         }
 
         public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
                                             ObjectCallback<string> onSuccess,
                                             ErrorCallback onError)
         {
-            APIClient.AddGameTagOption(userData.oAuthToken, tagOption, onSuccess, onError);
+            client.AddGameTagOption(userData.oAuthToken, tagOption, onSuccess, onError);
         }
 
         public static void AddModTags(int modId, string[] tagNames,
                                       ObjectCallback<string> onSuccess,
                                       ErrorCallback onError)
         {
-            APIClient.AddModTags(userData.oAuthToken, modId, tagNames,
-                                 onSuccess, onError);
+            client.AddModTags(userData.oAuthToken, modId, tagNames,
+                              onSuccess, onError);
         }
 
         public static void AddPositiveRating(int modId,
                                              ObjectCallback<APIMessage> onSuccess,
                                              ErrorCallback onError)
         {
-            APIClient.AddModRating(userData.oAuthToken, modId, 1, onSuccess, onError);
+            client.AddModRating(userData.oAuthToken, modId, 1, onSuccess, onError);
         }
 
         public static void AddModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
                                              ObjectCallback<APIMessage> onSuccess,
                                              ErrorCallback onError)
         {
-            APIClient.AddModKVPMetadata(userData.oAuthToken,
-                                        modId, metadataKVPs,
-                                        onSuccess, onError);
+            client.AddModKVPMetadata(userData.oAuthToken,
+                                     modId, metadataKVPs,
+                                     onSuccess, onError);
         }
 
         public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
                                             ObjectCallback<APIMessage> onSuccess,
                                             ErrorCallback onError)
         {
-            APIClient.AddModTeamMember(userData.oAuthToken,
-                                       modId, teamMember,
+            client.AddModTeamMember(userData.oAuthToken,
+                                    modId, teamMember,
+                                    onSuccess, onError);
+        }
+
+        public static void DeleteMod(int modId,
+                                     ObjectCallback<APIMessage> onSuccess,
+                                     ErrorCallback onError)
+        {
+            client.DeleteMod(userData.oAuthToken, modId,
+                             onSuccess, onError);
+        }
+
+        public static void DeleteModMedia(int modId, ModMediaToDelete modMediaToDelete,
+                                          ObjectCallback<APIMessage> onSuccess,
+                                          ErrorCallback onError)
+        {
+            client.DeleteModMedia(userData.oAuthToken, modId, modMediaToDelete,
+                                  onSuccess, onError);
+        }
+
+        public static void DeleteModTags(int modId, string[] tagsToDelete,
+                                         ObjectCallback<APIMessage> onSuccess,
+                                         ErrorCallback onError)
+        {
+            client.DeleteModTags(userData.oAuthToken, modId, tagsToDelete,
+                                 onSuccess, onError);
+        }
+
+        public static void DeleteModDependencies(int modId, int[] modIdsToRemove,
+                                                 ObjectCallback<APIMessage> onSuccess,
+                                                 ErrorCallback onError)
+        {
+            client.DeleteModDependencies(userData.oAuthToken, modId, modIdsToRemove,
+                                         onSuccess, onError);
+        }
+
+        public static void AddModDependencies(int modId, int[] modIdsToRemove,
+                                              ObjectCallback<APIMessage> onSuccess,
+                                              ErrorCallback onError)
+        {
+            client.AddModDependencies(userData.oAuthToken, modId, modIdsToRemove,
+                                      onSuccess, onError);
+        }
+
+        public static void DeleteModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
+                                                ObjectCallback<APIMessage> onSuccess,
+                                                ErrorCallback onError)
+        {
+            client.DeleteModKVPMetadata(userData.oAuthToken, modId, metadataKVPs,
+                                        onSuccess, onError);
+        }
+
+        public static void DeleteModTeamMember(int modId, int teamMemberId,
+                                               ObjectCallback<APIMessage> onSuccess,
+                                               ErrorCallback onError)
+        {
+            client.DeleteModTeamMember(userData.oAuthToken, modId, teamMemberId,
+                                       onSuccess, onError);
+        }
+
+        public static void DeleteModComment(int modId, int commentId,
+                                            ObjectCallback<APIMessage> onSuccess,
+                                            ErrorCallback onError)
+        {
+            client.DeleteModComment(userData.oAuthToken, modId, commentId,
+                                    onSuccess, onError);
+        }
+
+        public static void GetAllModTeamMembers(int modId,
+                                                ObjectCallback<TeamMember[]> onSuccess,
+                                                ErrorCallback onError)
+        {
+            client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
+                                        onSuccess, onError);
+        }
+
+        public static void DeleteGameTagOption(GameTagOptionToDelete gameTagOption,
+                                               ObjectCallback<APIMessage> onSuccess,
+                                               ErrorCallback onError)
+        {
+            client.DeleteGameTagOption(userData.oAuthToken, gameTagOption,
                                        onSuccess, onError);
         }
     }
