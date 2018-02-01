@@ -123,7 +123,7 @@ namespace ModIO
                 userData = JsonUtility.FromJson<UserData>(File.ReadAllText(USERDATA_URL));
 
                 client.GetAuthenticatedUser(userData.oAuthToken,
-                                            APIClient.IgnoreSuccess,
+                                            APIClient.IgnoreResponse,
                                             (error) =>
                                             {
                                                 if(error.httpStatusCode == 401
@@ -429,7 +429,7 @@ namespace ModIO
                                                ErrorCallback onError)
         {
             client.RequestSecurityCode(emailAddress,
-                                       APIClient.IgnoreSuccess,
+                                       APIClient.IgnoreResponse,
                                        onError);
         }
 
@@ -823,22 +823,10 @@ namespace ModIO
         }
 
         // ---------[ MISC ]------------
-        public static void RequestTagCategoryMap(ObjectCallback<Dictionary<string, string[]>> onSuccess,
+        public static void RequestTagCategoryMap(ObjectCallback<GameTagOption[]> onSuccess,
                                                  ErrorCallback onError)
         {
-            client.GetGame((GameInfo game) =>
-                           {
-                            Dictionary<string, string[]> retVal
-                                = new Dictionary<string, string[]>();
-
-                            foreach(GameTagOption tagOption in game.taggingOptions)
-                            {
-                                retVal.Add(tagOption.name, tagOption.tags);
-                            }
-
-                            onSuccess(retVal);
-                           },
-                           onError);
+            client.GetAllGameTagOptions(onSuccess, onError);
         }
 
         private static void WriteManifestToDisk()
@@ -880,7 +868,7 @@ namespace ModIO
         }
 
         public static void AddModMedia(int modId, UnsubmittedModMedia modMedia,
-                                       ObjectCallback<string> onSuccess,
+                                       ObjectCallback<APIMessage> onSuccess,
                                        ErrorCallback onError)
         {
             client.AddModMedia(userData.oAuthToken,
@@ -897,21 +885,21 @@ namespace ModIO
         }
 
         public static void AddGameMedia(UnsubmittedGameMedia gameMedia,
-                                        ObjectCallback<string> onSuccess,
+                                        ObjectCallback<APIMessage> onSuccess,
                                         ErrorCallback onError)
         {
             client.AddGameMedia(userData.oAuthToken, gameMedia, onSuccess, onError);
         }
 
         public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
-                                            ObjectCallback<string> onSuccess,
+                                            ObjectCallback<APIMessage> onSuccess,
                                             ErrorCallback onError)
         {
             client.AddGameTagOption(userData.oAuthToken, tagOption, onSuccess, onError);
         }
 
         public static void AddModTags(int modId, string[] tagNames,
-                                      ObjectCallback<string> onSuccess,
+                                      ObjectCallback<APIMessage> onSuccess,
                                       ErrorCallback onError)
         {
             client.AddModTags(userData.oAuthToken, modId, tagNames,

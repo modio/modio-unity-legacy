@@ -160,13 +160,13 @@ namespace ModIO
 
         // - Put Request Values -
         private Dictionary<string, string> putValues = new Dictionary<string, string>();
-        public StringValueField[] GetValueFields()
+        public API.StringValueField[] GetValueFields()
         {
-            List<StringValueField> retVal = new List<StringValueField>();
+            List<API.StringValueField> retVal = new List<API.StringValueField>();
             
             foreach(KeyValuePair<string, string> kvp in putValues)
             {
-                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
+                retVal.Add(API.StringValueField.Create(kvp.Key, kvp.Value));
             }
 
             return retVal.ToArray();
@@ -176,7 +176,7 @@ namespace ModIO
         // Status of a game. We recommend you never change this once you have accepted your game to be available via the API (see status and visibility for details):
         public void SetStatus(Status value)
         {
-            UnityEngine.Debug.Assert(value == Status.Accepted || value == Status.NotAccepted, 
+            UnityEngine.Debug.Assert(value == Status.Accepted || value == Status.NotAccepted,
                                      "Status.Accepted and Status.NotAccepted are the only permittable values for SetStatus");
             
             _data.status = (int)value;
@@ -218,7 +218,7 @@ namespace ModIO
                 UnityEngine.Debug.LogWarning("GameInfo.summary cannot exceed 250 characters. Truncating.");
             }
 
-            _data.summary = value;   
+            _data.summary = value;
 
             putValues["summary"] = value;
         }
@@ -245,7 +245,7 @@ namespace ModIO
         // Word used to describe user-generated content (mods, items, addons etc).
         public void SetUGCName(string value)
         {
-            _data.ugc_name = value; 
+            _data.ugc_name = value;
 
             putValues["ugc_name"] = value;
         }

@@ -1,4 +1,5 @@
 using System;
+using ModIO.API;
 
 namespace ModIO
 {

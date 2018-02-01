@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using ModIO.API;
 
 namespace ModIO
 {
     [Serializable]
-    public class ModInfo : IEquatable<ModInfo>, IAPIObjectWrapper<API.ModObject>, UnityEngine.ISerializationCallbackReceiver
+    public class ModInfo : IEquatable<ModInfo>, IAPIObjectWrapper<ModObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum Status
@@ -22,7 +23,7 @@ namespace ModIO
 
         // - Fields -
         [UnityEngine.SerializeField]
-        protected API.ModObject _data;
+        protected ModObject _data;
         [UnityEngine.SerializeField]
         protected string[] tagNames;
 
@@ -49,7 +50,7 @@ namespace ModIO
 
 
         // - IAPIObjectWrapper Interface -
-        public void WrapAPIObject(API.ModObject apiObject)
+        public void WrapAPIObject(ModObject apiObject)
         {
             this._data = apiObject;
 
@@ -80,7 +81,7 @@ namespace ModIO
             }
         }
 
-        public API.ModObject GetAPIObject()
+        public ModObject GetAPIObject()
         {
             return this._data;
         }
@@ -222,7 +223,7 @@ namespace ModIO
         {
             if(!Utility.IsURL(value))
             {
-                UnityEngine.Debug.LogWarning(value + " is not a valid URL and will not be accepted by the API.");
+                UnityEngine.Debug.LogWarning(value + " is not a valid URL and will not be accepted by the ");
                 value = "";
             }
 
@@ -249,7 +250,7 @@ namespace ModIO
     {
         // - Fields -
         [UnityEngine.SerializeField]
-        private API.CreatedModObject _data;
+        private CreatedModObject _data;
 
         // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
         public ModInfo.Visibility visibility

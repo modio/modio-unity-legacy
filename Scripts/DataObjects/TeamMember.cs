@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using ModIO.API;
 
 namespace ModIO
 {
     [Serializable]
-    public class TeamMember : IEquatable<TeamMember>, IAPIObjectWrapper<API.TeamMemberObject>, UnityEngine.ISerializationCallbackReceiver
+    public class TeamMember : IEquatable<TeamMember>, IAPIObjectWrapper<TeamMemberObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum PermissionLevel
@@ -17,7 +18,7 @@ namespace ModIO
         }
 
         // - IAPIObjectWrapper Interface -
-        public void WrapAPIObject(API.TeamMemberObject apiObject)
+        public void WrapAPIObject(TeamMemberObject apiObject)
         {
             this._data = apiObject;
 
@@ -26,14 +27,14 @@ namespace ModIO
             this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
         }
 
-        public API.TeamMemberObject GetAPIObject()
+        public TeamMemberObject GetAPIObject()
         {
             return this._data;
         }
 
         // - Fields -
         [UnityEngine.SerializeField]
-        protected API.TeamMemberObject _data;
+        protected TeamMemberObject _data;
 
         public int id                           { get { return _data.id; } }
         public User user                        { get; protected set; }
@@ -101,7 +102,7 @@ namespace ModIO
     {
         // --- FIELDS ---
         [UnityEngine.SerializeField]
-        private API.CreatedTeamMember _data;
+        private CreatedTeamMember _data;
 
         // [Required] Email of the mod.io user you want to add to your team.
         public string email

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using ModIO.API;
 
 namespace ModIO
 {
     [Serializable]
-    public class Modfile : IEquatable<Modfile>, IAPIObjectWrapper<API.ModfileObject>, UnityEngine.ISerializationCallbackReceiver
+    public class Modfile : IEquatable<Modfile>, IAPIObjectWrapper<ModfileObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum VirusScanStatus
@@ -24,7 +25,7 @@ namespace ModIO
 
         // - Fields -
         [UnityEngine.SerializeField]
-        protected API.ModfileObject _data;
+        protected ModfileObject _data;
 
         public int id                           { get { return _data.id; } }
         public int modId                        { get { return _data.mod_id; } }
@@ -42,7 +43,7 @@ namespace ModIO
         public ModfileDownload download         { get; protected set; }
         
         // - IAPIObjectWrapper Interface -
-        public void WrapAPIObject(API.ModfileObject apiObject)
+        public void WrapAPIObject(ModfileObject apiObject)
         {
             this._data = apiObject;
 
@@ -54,7 +55,7 @@ namespace ModIO
             this.download.WrapAPIObject(apiObject.download);
         }
 
-        public API.ModfileObject GetAPIObject()
+        public ModfileObject GetAPIObject()
         {
             return this._data;
         }
@@ -137,7 +138,7 @@ namespace ModIO
     {
         // --- FIELDS ---
         [UnityEngine.SerializeField]
-        private API.UnsubmittedModfileObject _data;
+        private UnsubmittedModfileObject _data;
         
         // The binary file for the release. For compatibility you should ZIP the base folder of your mod, or if it is a collection of files which live in a pre-existing game folder, you should ZIP those files. Your file must meet the following conditions:
         public string binaryFilepath = "";

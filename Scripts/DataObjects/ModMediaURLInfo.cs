@@ -1,21 +1,22 @@
 using System;
 using System.Collections.Generic;
+using ModIO.API;
 
 namespace ModIO
 {
     [Serializable]
-    public class ModMediaURLInfo : IEquatable<ModMediaURLInfo>, IAPIObjectWrapper<API.ModMediaObject>, UnityEngine.ISerializationCallbackReceiver
+    public class ModMediaURLInfo : IEquatable<ModMediaURLInfo>, IAPIObjectWrapper<ModMediaObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Fields -
         [UnityEngine.SerializeField]
-        private API.ModMediaObject _data;
+        private ModMediaObject _data;
 
         public string[] youtubeURLs     { get { return _data.youtube; } }
         public string[] sketchfabURLS   { get { return _data.sketchfab; } }
         public ImageURLInfo[] images    { get; private set; }
         
         // - IAPIObjectWrapper Interface -
-        public void WrapAPIObject(API.ModMediaObject apiObject)
+        public void WrapAPIObject(ModMediaObject apiObject)
         {
             this._data = apiObject;
 
@@ -30,7 +31,7 @@ namespace ModIO
                 this.images[i].WrapAPIObject(apiObject.images[i]);
             }
         }
-        public API.ModMediaObject GetAPIObject()
+        public ModMediaObject GetAPIObject()
         {
             return this._data;
         }
