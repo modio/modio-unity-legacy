@@ -863,14 +863,18 @@ namespace ModIO
 
         // Delete Game Tag Option
         public void DeleteGameTagOption(string oAuthToken,
-                                        ObjectCallback<string> onSuccess,
+                                        GameTagOptionToDelete gameTagOptionToDelete,
+                                        ObjectCallback<APIMessage> onSuccess,
                                         ErrorCallback onError)
         {
             DeleteRequest request = new DeleteRequest();
             request.endpoint = "games/" + gameId + "/tags";
             request.oAuthToken = oAuthToken;
+            request.valueFields = gameTagOptionToDelete.GetValueFields();
 
-            onError(GenerateNotImplementedError(request.endpoint + ":DELETE"));
+            StartCoroutine(ExecuteDeleteRequest<API.MessageObject>(request,
+                                                                   m => OnSuccessWrapper(onSuccess, m),
+                                                                   onError));
         }
 
         // Get All Mod Tags

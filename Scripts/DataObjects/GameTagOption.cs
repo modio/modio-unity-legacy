@@ -117,7 +117,7 @@ namespace ModIO
         // [Required] Determines whether you allow users to only select one tag (dropdown) or multiple tags (checkbox):
         public GameTagOption.TagType tagType
         {
-            get 
+            get
             {
                 GameTagOption.TagType retVal;
                 GameTagOption.TryParseStringAsTagType(_data.type, out retVal);
@@ -153,6 +153,27 @@ namespace ModIO
             }
 
             return retVal.ToArray();
+        }
+    }
+
+    public class GameTagOptionToDelete
+    {
+        // --- FIELDS ---
+        public string tagGroup = ""; // [Required] Name of the tag group that you want to delete tags from.
+        public string[] tags = new string[0]; // [Required] Array of strings representing the tag options to delete. An empty array will delete the entire group.
+
+        public StringValueField[] GetValueFields()
+        {
+            List<StringValueField> retVal = new List<StringValueField>(1 + tags.Length);
+
+            retVal.Add(StringValueField.Create("name", tagGroup));
+            foreach(string tag in tags)
+            {
+                retVal.Add(StringValueField.Create("tags[]", tag));
+            }
+
+            return retVal.ToArray();
+
         }
     }
 }
