@@ -118,13 +118,13 @@ namespace ModIO
         }
 
         // ------[ SORTING APPLICATION ]------
-        public virtual void ApplySortAscending(E fieldIdentifier) 
+        public virtual void ApplySortAscending(E fieldIdentifier)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
             sortString = info.apiFilterName;
             sortDelegate = (a,b) => info.sortAscendingDelegate(a,b);
         }
-        public virtual void ApplySortDescending(E fieldIdentifier) 
+        public virtual void ApplySortDescending(E fieldIdentifier)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
             sortString = "-" + info.apiFilterName;
@@ -132,7 +132,7 @@ namespace ModIO
         }
 
         // ------[ FILTER APPLICATION ]------
-        public void ClearOnField(E fieldIdentifier) 
+        public void ClearOnField(E fieldIdentifier)
         {
             filterStringMap.Remove(fieldIdentifier);
             filterDelegateMap.Remove(fieldIdentifier);
@@ -155,21 +155,21 @@ namespace ModIO
         }
 
         // ---[ INTEGER FILTERS ]---
-        public void ApplyIntEquality(E fieldIdentifier, int value) 
+        public void ApplyIntEquality(E fieldIdentifier, int value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
 
             filterStringMap[fieldIdentifier] = info.apiFilterName + "=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsInt(o) == value; };
         }
-        public void ApplyIntInequality(E fieldIdentifier, int value) 
+        public void ApplyIntInequality(E fieldIdentifier, int value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
 
             filterStringMap[fieldIdentifier] = info.apiFilterName + "-not=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsInt(o) != value; };
         }
-        public void ApplyIntInArray(E fieldIdentifier, 
+        public void ApplyIntInArray(E fieldIdentifier,
                                     int[] values)
         {
             Debug.Assert(values.Length > 0);
@@ -187,7 +187,7 @@ namespace ModIO
 
             filterDelegateMap[fieldIdentifier] = (o) => { return values.Contains(info.getFieldAsInt(o)); };
         }
-        public void ApplyIntNotInArray(E fieldIdentifier, 
+        public void ApplyIntNotInArray(E fieldIdentifier,
                                        int[] values)
         {
             Debug.Assert(values.Length > 0);
@@ -205,7 +205,7 @@ namespace ModIO
 
             filterDelegateMap[fieldIdentifier] = (o) => { return !values.Contains(info.getFieldAsInt(o)); };
         }
-        public void ApplyIntMinimum(E fieldIdentifier, 
+        public void ApplyIntMinimum(E fieldIdentifier,
                                     int value, bool isValueInclusive)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -221,7 +221,7 @@ namespace ModIO
                 filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsInt(o) > value; };
             }
         }
-        public void ApplyIntMaximum(E fieldIdentifier, 
+        public void ApplyIntMaximum(E fieldIdentifier,
                                     int value, bool isValueInclusive)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -237,8 +237,8 @@ namespace ModIO
                 filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsInt(o) < value; };
             }
         }
-        public void ApplyIntRange(E fieldIdentifier, 
-                                  int minimum, bool isMinimumInclusive, 
+        public void ApplyIntRange(E fieldIdentifier,
+                                  int minimum, bool isMinimumInclusive,
                                   int maximum, bool isMaximumInclusive)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -282,21 +282,21 @@ namespace ModIO
         }
 
         // ---[ FLOAT FILTERS ]---
-        public void ApplyFloatEquality(E fieldIdentifier, float value) 
+        public void ApplyFloatEquality(E fieldIdentifier, float value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
 
             filterStringMap[fieldIdentifier] = info.apiFilterName + "=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsFloat(o) == value; };
         }
-        public void ApplyFloatInequality(E fieldIdentifier, float value) 
+        public void ApplyFloatInequality(E fieldIdentifier, float value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
 
             filterStringMap[fieldIdentifier] = info.apiFilterName + "-not=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsFloat(o) != value; };
         }
-        public void ApplyFloatInArray(E fieldIdentifier, 
+        public void ApplyFloatInArray(E fieldIdentifier,
                                       float[] values)
         {
             Debug.Assert(values.Length > 0);
@@ -314,7 +314,7 @@ namespace ModIO
 
             filterDelegateMap[fieldIdentifier] = (o) => { return values.Contains(info.getFieldAsFloat(o)); };
         }
-        public void ApplyFloatNotInArray(E fieldIdentifier, 
+        public void ApplyFloatNotInArray(E fieldIdentifier,
                                          float[] values)
         {
             Debug.Assert(values.Length > 0);
@@ -332,7 +332,7 @@ namespace ModIO
 
             filterDelegateMap[fieldIdentifier] = (o) => { return !values.Contains(info.getFieldAsFloat(o)); };
         }
-        public void ApplyFloatMinimum(E fieldIdentifier, 
+        public void ApplyFloatMinimum(E fieldIdentifier,
                                       float value, bool isValueInclusive)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -348,7 +348,7 @@ namespace ModIO
                 filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsFloat(o) > value; };
             }
         }
-        public void ApplyFloatMaximum(E fieldIdentifier, 
+        public void ApplyFloatMaximum(E fieldIdentifier,
                                       float value, bool isValueInclusive)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -364,8 +364,8 @@ namespace ModIO
                 filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsFloat(o) < value; };
             }
         }
-        public void ApplyFloatRange(E fieldIdentifier, 
-                                    float minimum, bool isMinimumInclusive, 
+        public void ApplyFloatRange(E fieldIdentifier,
+                                    float minimum, bool isMinimumInclusive,
                                     float maximum, bool isMaximumInclusive)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -402,7 +402,7 @@ namespace ModIO
         }
 
         // ---[ STRING FILTERS ]---
-        public void ApplyStringEquality(E fieldIdentifier, 
+        public void ApplyStringEquality(E fieldIdentifier,
                                         string value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -410,7 +410,7 @@ namespace ModIO
             filterStringMap[fieldIdentifier] = info.apiFilterName + "=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsString(o) == value; };
         }
-        public void ApplyStringInequality(E fieldIdentifier, 
+        public void ApplyStringInequality(E fieldIdentifier,
                                           string value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -418,7 +418,7 @@ namespace ModIO
             filterStringMap[fieldIdentifier] = info.apiFilterName + "-not=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsString(o) != value; };
         }
-        public void ApplyStringInArray(E fieldIdentifier, 
+        public void ApplyStringInArray(E fieldIdentifier,
                                        string[] values)
         {
             Debug.Assert(values.Length > 0);
@@ -436,7 +436,7 @@ namespace ModIO
 
             filterDelegateMap[fieldIdentifier] = (o) => { return values.Contains(info.getFieldAsString(o)); };
         }
-        public void ApplyStringNotInArray(E fieldIdentifier, 
+        public void ApplyStringNotInArray(E fieldIdentifier,
                                           string[] values)
         {
             Debug.Assert(values.Length > 0);
@@ -454,7 +454,7 @@ namespace ModIO
             filterDelegateMap[fieldIdentifier] = (o) => { return !values.Contains(info.getFieldAsString(o)); };
         }
 
-        public void ApplyStringLike(E fieldIdentifier, 
+        public void ApplyStringLike(E fieldIdentifier,
                                     string value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -462,7 +462,7 @@ namespace ModIO
             filterStringMap[fieldIdentifier] = info.apiFilterName + "-lk=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsString(o).Like(value.Replace('*', '%')); };
         }
-        public void ApplyStringNotLike(E fieldIdentifier, 
+        public void ApplyStringNotLike(E fieldIdentifier,
                                        string value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -472,7 +472,7 @@ namespace ModIO
         }
 
         // ---[ Array FILTERS ]---
-        public void ApplyStringArrayContains(E fieldIdentifier, 
+        public void ApplyStringArrayContains(E fieldIdentifier,
                                              string value)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -480,7 +480,7 @@ namespace ModIO
             filterStringMap[fieldIdentifier] = info.apiFilterName + "=" + value;
             filterDelegateMap[fieldIdentifier] = (o) => { return info.getFieldAsStringArray(o).Contains(value); };
         }
-        public void ApplyStringArrayContainsAll(E fieldIdentifier, 
+        public void ApplyStringArrayContainsAll(E fieldIdentifier,
                                                 string[] values)
         {
             FieldInformation info = GetFieldInformation(fieldIdentifier);
@@ -504,13 +504,13 @@ namespace ModIO
                 }
                 return unmatchedValues.Count == 0;
             };
-        }        
+        }
 
 
         // ---[ HELPER FUNCTIONS FOR FIELD INFORMATION MAP GENERATION ]---
-        internal static void StoreBooleanField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap, 
-                                               E fieldIdentifier, string apiFilterName, 
-                                               Filter<T,E>.GetFieldDelegate<bool> getFieldAsBool, 
+        internal static void StoreBooleanField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap,
+                                               E fieldIdentifier, string apiFilterName,
+                                               Filter<T,E>.GetFieldDelegate<bool> getFieldAsBool,
                                                Filter<T,E>.SortDelegate sortFieldAscending)
         {
             Filter<T,E>.FieldInformation info = new Filter<T,E>.FieldInformation(apiFilterName);
@@ -519,9 +519,9 @@ namespace ModIO
             fieldInformationMap[fieldIdentifier] = info;
         }
 
-        internal static void StoreIntField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap, 
-                                           E fieldIdentifier, string apiFilterName, 
-                                           Filter<T,E>.GetFieldDelegate<int> getFieldAsInt, 
+        internal static void StoreIntField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap,
+                                           E fieldIdentifier, string apiFilterName,
+                                           Filter<T,E>.GetFieldDelegate<int> getFieldAsInt,
                                            Filter<T,E>.SortDelegate sortFieldAscending)
         {
             Filter<T,E>.FieldInformation info = new Filter<T,E>.FieldInformation(apiFilterName);
@@ -530,9 +530,9 @@ namespace ModIO
             fieldInformationMap[fieldIdentifier] = info;
         }
         
-        internal static void StoreFloatField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap, 
-                                             E fieldIdentifier, string apiFilterName, 
-                                             Filter<T,E>.GetFieldDelegate<float> getFieldAsFloat, 
+        internal static void StoreFloatField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap,
+                                             E fieldIdentifier, string apiFilterName,
+                                             Filter<T,E>.GetFieldDelegate<float> getFieldAsFloat,
                                              Filter<T,E>.SortDelegate sortFieldAscending)
         {
             Filter<T,E>.FieldInformation info = new Filter<T,E>.FieldInformation(apiFilterName);
@@ -541,9 +541,9 @@ namespace ModIO
             fieldInformationMap[fieldIdentifier] = info;
         }
         
-        internal static void StoreStringField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap, 
-                                              E fieldIdentifier, string apiFilterName, 
-                                              Filter<T,E>.GetFieldDelegate<string> getFieldAsString, 
+        internal static void StoreStringField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap,
+                                              E fieldIdentifier, string apiFilterName,
+                                              Filter<T,E>.GetFieldDelegate<string> getFieldAsString,
                                               Filter<T,E>.SortDelegate sortFieldAscending)
         {
             Filter<T,E>.FieldInformation info = new Filter<T,E>.FieldInformation(apiFilterName);
@@ -552,9 +552,9 @@ namespace ModIO
             fieldInformationMap[fieldIdentifier] = info;
         }
         
-        internal static void StoreStringArrayField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap, 
-                                                   E fieldIdentifier, string apiFilterName, 
-                                                   Filter<T,E>.GetFieldDelegate<string[]> getFieldAsStringArray, 
+        internal static void StoreStringArrayField(Dictionary<E, Filter<T,E>.FieldInformation> fieldInformationMap,
+                                                   E fieldIdentifier, string apiFilterName,
+                                                   Filter<T,E>.GetFieldDelegate<string[]> getFieldAsStringArray,
                                                    Filter<T,E>.SortDelegate sortFieldAscending)
         {
             Filter<T,E>.FieldInformation info = new Filter<T,E>.FieldInformation(apiFilterName);
@@ -573,37 +573,37 @@ namespace ModIO
         public enum Field
         {
             // integer Unique id of the game.
-            Id, 
+            Id,
             // integer Status of the game (only admins can filter by this field, see status and visibility for details):
-            Status, 
+            Status,
             // integer Unique id of the user who has ownership of the game.
-            SubmittedBy, 
+            SubmittedBy,
             // integer Unix timestamp of date game was registered.
-            DateAdded, 
+            DateAdded,
             // integer Unix timestamp of date game was updated.
-            DateUpdated, 
+            DateUpdated,
             // integer Unix timestamp of date game was set live.
-            DateLive, 
+            DateLive,
             // string  Name of the game.
-            Name, 
+            Name,
             // string  Subdomain for the game on mod.io.
-            NameId, 
+            NameId,
             // string  Summary of the game.
-            Summary, 
+            Summary,
             // string  Official homepage of the game.
-            Homepage, 
+            Homepage,
             // string  Word used to describe user-generated content (mods, items, addons etc).
-            UGCName, 
+            UGCName,
             // integer Presentation style used on the mod.io website:
-            PresentationOption, 
+            PresentationOption,
             // integer Submission process modders must follow
-            SubmissionOption, 
+            SubmissionOption,
             // integer Curation process used to approve mods
             CurationOption,
             // integer Community features enabled on the mod.io website:
-            CommunityOptions, 
+            CommunityOptions,
             // integer Revenue capabilities mods can enable
-            RevenueOptions, 
+            RevenueOptions,
             // integer Level of API access allowed by this game
             APIAccessOptions,
         }
@@ -619,7 +619,7 @@ namespace ModIO
                           (game) => game.id,
                           (a,b) => a.id.CompareTo(b.id));
             StoreIntField(fieldInformationMap,
-                          Field.Status, "status", 
+                          Field.Status, "status",
                           (game) => (int)game.status,
                           (a,b) => a.status.CompareTo(b.status));
             StoreIntField(fieldInformationMap,
@@ -696,8 +696,8 @@ namespace ModIO
         }
 
         internal override FieldInformation GetFieldInformation(GetAllGamesFilter.Field fieldIdentifier)
-        { 
-            return GetAllGamesFilter.fieldInformationMap[fieldIdentifier]; 
+        {
+            return GetAllGamesFilter.fieldInformationMap[fieldIdentifier];
         }
 
         // ---[ SPECIALIZED FILTERS ]---
@@ -777,109 +777,109 @@ namespace ModIO
             fieldInformationMap = new Dictionary<Field, FieldInformation>(Enum.GetNames(typeof(Field)).Length);
 
             // integer(int32)  Unique id of the mod.
-            StoreIntField(fieldInformationMap, 
-                          Field.Id, "id", 
-                          (mod) => mod.id, 
+            StoreIntField(fieldInformationMap,
+                          Field.Id, "id",
+                          (mod) => mod.id,
                           (a,b) => a.id.CompareTo(b.id));
             // integer(int32)  Unique id of the parent game.
-            StoreIntField(fieldInformationMap, 
-                          Field.GameId, "game_id", 
-                          (mod) => mod.gameId, 
+            StoreIntField(fieldInformationMap,
+                          Field.GameId, "game_id",
+                          (mod) => mod.gameId,
                           (a,b) => a.gameId.CompareTo(b.gameId));
             // integer  Status of the mod (only game admins can filter by this field, see status and visibility for details)
-            StoreIntField(fieldInformationMap, 
-                          Field.Status, "status", 
+            StoreIntField(fieldInformationMap,
+                          Field.Status, "status",
                           (mod) => (int)mod.status,
                           (a,b) => a.status.CompareTo(b.status));
             // visible  integer Visibility of the mod (only game admins can filter by this field, see status and visibility for details)
-            StoreIntField(fieldInformationMap, 
-                          Field.Visible, "visible", 
+            StoreIntField(fieldInformationMap,
+                          Field.Visible, "visible",
                           (mod) => (int)mod.visibility,
                           (a,b) => a.visibility.CompareTo(b.visibility));
 
             // integer(int32)  Unique id of the user who has ownership of the game.
-            StoreIntField(fieldInformationMap, 
-                          Field.SubmittedBy, "submitted_by", 
-                          (mod) => mod.submittedBy.id, 
+            StoreIntField(fieldInformationMap,
+                          Field.SubmittedBy, "submitted_by",
+                          (mod) => mod.submittedBy.id,
                           (a,b) => a.submittedBy.id.CompareTo(b.submittedBy.id));
             // integer(int32)  Unix timestamp of date registered.
-            StoreIntField(fieldInformationMap, 
-                          Field.DateAdded, "date_added", 
+            StoreIntField(fieldInformationMap,
+                          Field.DateAdded, "date_added",
                           (mod) => mod.dateAdded.AsServerTimeStamp(),
                           (a,b) => a.dateAdded.CompareTo(b.dateAdded));
             // integer(int32)  Unix timestamp of date updated.
-            StoreIntField(fieldInformationMap, 
-                          Field.DateUpdated, "date_updated", 
+            StoreIntField(fieldInformationMap,
+                          Field.DateUpdated, "date_updated",
                           (mod) => mod.dateUpdated.AsServerTimeStamp(),
                           (a,b) => a.dateUpdated.CompareTo(b.dateUpdated));
             // integer(int32)  Unix timestamp of date mod was set live.
-            StoreIntField(fieldInformationMap, 
-                          Field.DateLive, "date_live", 
+            StoreIntField(fieldInformationMap,
+                          Field.DateLive, "date_live",
                           (mod) => mod.dateLive.AsServerTimeStamp(),
                           (a,b) => a.dateLive.CompareTo(b.dateLive));
 
             // string  The filename of the logo.
             StoreStringField(fieldInformationMap,
-                             Field.Logo, "logo", 
-                             (mod) => mod.logo.filename, 
+                             Field.Logo, "logo",
+                             (mod) => mod.logo.filename,
                              (a,b) => a.logo.filename.CompareTo(b.logo.filename));
             // string  Official homepage of the mod.
             StoreStringField(fieldInformationMap,
-                             Field.Homepage, "homepage", 
-                             (mod) => mod.homepage, 
+                             Field.Homepage, "homepage",
+                             (mod) => mod.homepage,
                              (a,b) => a.homepage.CompareTo(b.homepage));
             // string  Name of the mod.
             StoreStringField(fieldInformationMap,
-                             Field.Name, "name", 
-                             (mod) => mod.name, 
+                             Field.Name, "name",
+                             (mod) => mod.name,
                              (a,b) => a.name.CompareTo(b.name));
             // string  The unique SEO friendly URL for your game.
             StoreStringField(fieldInformationMap,
-                             Field.NameId, "name_id", 
-                             (mod) => mod.nameId, 
+                             Field.NameId, "name_id",
+                             (mod) => mod.nameId,
                              (a,b) => a.nameId.CompareTo(b.nameId));
             // string  Summary of the mod.
             StoreStringField(fieldInformationMap,
-                             Field.Summary, "summary", 
-                             (mod) => mod.summary, 
+                             Field.Summary, "summary",
+                             (mod) => mod.summary,
                              (a,b) => a.summary.CompareTo(b.summary));
             // string  An extension of the summary. HTML Supported.
             StoreStringField(fieldInformationMap,
-                             Field.Description, "description", 
-                             (mod) => mod.description, 
+                             Field.Description, "description",
+                             (mod) => mod.description,
                              (a,b) => a.description.CompareTo(b.description));
             // string  Comma-separated list of metadata words.
             StoreStringField(fieldInformationMap,
-                             Field.MetadataBlob, "metadata_blob", 
-                             (mod) => mod.metadataBlob, 
+                             Field.MetadataBlob, "metadata_blob",
+                             (mod) => mod.metadataBlob,
                              (a,b) => a.metadataBlob.CompareTo(b.metadataBlob));
             // integer(int32)  Unique id of the Modfile Object marked as current release.
-            StoreIntField(fieldInformationMap, 
-                          Field.Modfile, "modfile", 
-                          (mod) => mod.modfile.id, 
+            StoreIntField(fieldInformationMap,
+                          Field.Modfile, "modfile",
+                          (mod) => mod.modfile.id,
                           (a,b) => a.modfile.id.CompareTo(b.modfile.id));
             // string  Sort results by weighted rating using _sort filter, value should be ratings for descending or -ratings for ascending results.
             StoreFloatField(fieldInformationMap,
-                            Field.Ratings, "ratings", 
-                            (mod) => mod.ratingSummary.weightedAggregate, 
+                            Field.Ratings, "ratings",
+                            (mod) => mod.ratingSummary.weightedAggregate,
                             (a,b) => a.ratingSummary.weightedAggregate.CompareTo(b.ratingSummary.weightedAggregate));
 
             
             // --- Currently unable to be filtered/sorted locally ---
             // string  Sort results by most subscribers using _sort filter, value should be subscribers for descending or -subscribers for ascending results.
             StoreStringField(fieldInformationMap,
-                             Field.Subscribers, "subscribers", 
-                             (mod) => { Debug.LogError("Filtering on subscribers locally is currently not implemented"); return ""; }, 
+                             Field.Subscribers, "subscribers",
+                             (mod) => { Debug.LogError("Filtering on subscribers locally is currently not implemented"); return ""; },
                              (a,b) => { Debug.LogWarning("Sorting on subscribers locally is currently not implemented"); return a.id.CompareTo(b.id); });
             // string  Sort results by most downloads using _sort filter parameter, value should be downloads for descending or -downloads for ascending results.
             StoreStringField(fieldInformationMap,
-                             Field.Downloads, "downloads", 
-                             (mod) => { Debug.LogError("Filtering on downloads locally is currently not implemented"); return ""; }, 
+                             Field.Downloads, "downloads",
+                             (mod) => { Debug.LogError("Filtering on downloads locally is currently not implemented"); return ""; },
                              (a,b) => { Debug.LogWarning("Sorting on downloads locally is currently not implemented"); return a.id.CompareTo(b.id); });
             // string  Sort results by popularity using _sort filter, value should be popular for descending or -popular for ascending results.
             StoreStringField(fieldInformationMap,
-                             Field.Popularity, "popular",  
-                             (mod) => { Debug.LogError("Filtering on popularity locally is currently not implemented"); return ""; }, 
+                             Field.Popularity, "popular",
+                             (mod) => { Debug.LogError("Filtering on popularity locally is currently not implemented"); return ""; },
                              (a,b) => { Debug.LogWarning("Sorting on popularity locally is currently not implemented"); return a.id.CompareTo(b.id); });
 
 
@@ -887,8 +887,8 @@ namespace ModIO
             //      Only tags that are supported by the parent game can be applied.
             //      To determine what tags are eligible, see the tags values within 'Tag Options' column on the parent Game Object.
             StoreStringArrayField(fieldInformationMap,
-                                  Field.Tags, "tags", 
-                                  (mod) => mod.GetTagNames(), 
+                                  Field.Tags, "tags",
+                                  (mod) => mod.GetTagNames(),
                                   (a,b) => { Debug.LogError("The 'tags' attribute cannot be sorted on"); return a.id.CompareTo(b.id); });
         }
 
@@ -981,7 +981,7 @@ namespace ModIO
             // Type of change that occurred: MOD_UPDATE, MODFILE_UPDATE, MOD_VISIBILITY_CHANGE, MOD_LIVE
             EventType,
             // Returns only the latest unique events, which is useful for checking if the primary modfile has changed.
-            // Default value is true. 
+            // Default value is true.
             Latest,
             // Returns only events connected to mods the authenticated user is subscribed to, which is useful for keeping the users mods up-to-date.
             // Default value is false.
@@ -994,15 +994,15 @@ namespace ModIO
         {
             fieldInformationMap = new Dictionary<Field, FieldInformation>(Enum.GetNames(typeof(Field)).Length);
 
-            StoreIntField(fieldInformationMap, 
+            StoreIntField(fieldInformationMap,
                           Field.Id, "id",
                           (e) => e.id,
                           (a,b) => a.id.CompareTo(b.id));
-            StoreIntField(fieldInformationMap, 
+            StoreIntField(fieldInformationMap,
                           Field.ModId, "mod_id",
                           (e) => e.modId,
                           (a,b) => a.modId.CompareTo(b.modId));
-            StoreIntField(fieldInformationMap, 
+            StoreIntField(fieldInformationMap,
                           Field.UserId, "user_id",
                           (e) => e.userId,
                           (a,b) => a.userId.CompareTo(b.userId));
@@ -1018,11 +1018,11 @@ namespace ModIO
 
             StoreBooleanField(fieldInformationMap,
                               Field.Latest, "latest",
-                              (e) => { Debug.LogError("Filtering on latest locally is currently not implemented"); return false; }, 
+                              (e) => { Debug.LogError("Filtering on latest locally is currently not implemented"); return false; },
                               (a,b) => { Debug.LogWarning("Sorting on latest locally is currently not implemented"); return a.id.CompareTo(b.id); });
             StoreBooleanField(fieldInformationMap,
                               Field.Subscribed, "subscribed",
-                              (e) => { Debug.LogError("Filtering on subscribed locally is currently not implemented"); return false; }, 
+                              (e) => { Debug.LogError("Filtering on subscribed locally is currently not implemented"); return false; },
                               (a,b) => { Debug.LogWarning("Sorting on subscribed locally is currently not implemented"); return a.id.CompareTo(b.id); });
         }
 
@@ -1039,8 +1039,8 @@ namespace ModIO
         }
 
         internal override FieldInformation GetFieldInformation(GetAllModEventsFilter.Field fieldIdentifier)
-        { 
-            return GetAllModEventsFilter.fieldInformationMap[fieldIdentifier]; 
+        {
+            return GetAllModEventsFilter.fieldInformationMap[fieldIdentifier];
         }
 
         // ---[ SPECIALIZED FILTERS ]---
@@ -1224,39 +1224,39 @@ namespace ModIO
         public enum Field
         {
             // integer Unique id of the mod.
-            Id, 
+            Id,
             // integer Unique id of the parent game.
-            GameId, 
+            GameId,
             // integer Unique id of the user who has ownership of the mod.
-            SubmittedBy, 
+            SubmittedBy,
             // integer Unix timestamp of date mod was registered.
-            DateAdded, 
+            DateAdded,
             // integer Unix timestamp of date mod was updated.
-            DateUpdated, 
+            DateUpdated,
             // integer Unix timestamp of date mod was set live.
-            DateLive, 
+            DateLive,
             // string  Name of the mod.
-            Name, 
+            Name,
             // string  Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here
-            NameId, 
+            NameId,
             // string  Summary of the mod.
-            Summary, 
+            Summary,
             // string  Detailed description of the mod which allows HTML.
-            Description, 
+            Description,
             // string  Official homepage of the mod.
-            Homepage, 
+            Homepage,
             // string  Metadata stored by the game developer.
-            MetadataBlob, 
+            MetadataBlob,
             // string  Comma-separated values representing the tags you want to filter the results by. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
-            Tags, 
+            Tags,
             // string  Sort results by most downloads using _sort filter parameter, value should be downloads for descending or -downloads for ascending results.
-            Downloads, 
+            Downloads,
             // string  Sort results by popularity using _sort filter, value should be popular for descending or -popular for ascending results.
-            Popular, 
+            Popular,
             // string  Sort results by weighted rating using _sort filter, value should be rating for descending or -rating for ascending results.
-            Rating, 
+            Rating,
             // string  Sort results by most subscribers using _sort filter, value should be subscribers for descending or -subscribers for ascending results.
-            Subscribers, 
+            Subscribers,
         }
 
         private static Dictionary<Field, FieldInformation> fieldInformationMap;
@@ -1349,18 +1349,18 @@ namespace ModIO
             sortDelegate = (a,b) => { return a.id.CompareTo(b.id); };
         }
 
-        public override string GenerateQueryString()
-        {
-            // TODO(@jackson): REMOVE THIS DEPENDENCY!
-            Debug.Assert(ModManager.APIClient != null
-                         && ModManager.APIClient.gameId > 0,
-                         "This filter cannot be used until the ModManager has been initialized and the APIClient given a valid Game ID");
+        // public override string GenerateQueryString()
+        // {
+        //     // TODO(@jackson): REMOVE THIS DEPENDENCY!
+        //     // Debug.Assert(ModManager.APIClient != null
+        //     //              && ModManager.APIClient.gameId > 0,
+        //     //              "This filter cannot be used until the ModManager has been initialized and the APIClient given a valid Game ID");
 
-            return base.GenerateQueryString() + "&game_id=" + ModManager.APIClient.gameId;
-        }
+        //     return base.GenerateQueryString() + "&game_id=" + ModManager.APIClient.gameId;
+        // }
 
         internal override FieldInformation GetFieldInformation(GetUserSubscriptionsFilter.Field fieldIdentifier)
-        { 
+        {
             return GetUserSubscriptionsFilter.fieldInformationMap[fieldIdentifier];
         }
         
