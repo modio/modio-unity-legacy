@@ -240,15 +240,22 @@ namespace ModIO.API
                 }
 
                 string formFields = "";
-                foreach(StringValueField valueField in valueFields)
+                if(valueFields != null)
                 {
-                    formFields += "\n" + valueField.key + "=" + valueField.value;
+                    foreach(StringValueField valueField in valueFields)
+                    {
+                        formFields += "\n" + valueField.key + "=" + valueField.value;
+                    }
+                    
                 }
-                foreach(BinaryDataField dataField in dataFields)
+                if(dataFields != null)
                 {
-                    formFields += "\n" + dataField.key + "= [BINARY DATA]: "
-                                + dataField.fileName + "("
-                                + (dataField.contents.Length/1000f).ToString("0.00") + "KB)\n";
+                    foreach(BinaryDataField dataField in dataFields)
+                    {
+                        formFields += "\n" + dataField.key + "= [BINARY DATA]: "
+                                    + dataField.fileName + "("
+                                    + (dataField.contents.Length/1000f).ToString("0.00") + "KB)\n";
+                    }
                 }
 
                 Debug.Log("GENERATING POST REQUEST"

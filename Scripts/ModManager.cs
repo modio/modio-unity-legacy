@@ -72,6 +72,8 @@ namespace ModIO
             // --- Create Client ---
             GameObject go = new GameObject("ModIO API Client");
             client = go.AddComponent<APIClient>();
+            client.InitializeWithCoroutineRequestHandler(client);
+            // client.InitializeWithOnUpdateRequestHandler(out client.onUpdate);
             client.SetAccessContext(gameId, apiKey);
 
             GameObject.DontDestroyOnLoad(go);
@@ -83,57 +85,56 @@ namespace ModIO
             }
 
             #if TEST_IGNORE_CACHE
-            
-            // --- INITIALIZE FIRST RUN ---
-            manifest = new ManifestData();
-            manifest.lastUpdateTimeStamp = new TimeStamp();
-            manifest.unresolvedEvents = new List<ModEvent>();
-
-            WriteManifestToDisk();
-
-            #else
-
-            if(!File.Exists(MANIFEST_URL))
             {
-                // --- INITIALIZE FIRST RUN ---
                 manifest = new ManifestData();
                 manifest.lastUpdateTimeStamp = new TimeStamp();
                 manifest.unresolvedEvents = new List<ModEvent>();
 
                 WriteManifestToDisk();
             }
-            else
+            #else
             {
-                manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(MANIFEST_URL));
-            }
+                if(!File.Exists(MANIFEST_URL))
+                {
+                    // --- INITIALIZE FIRST RUN ---
+                    manifest = new ManifestData();
+                    manifest.lastUpdateTimeStamp = new TimeStamp();
+                    manifest.unresolvedEvents = new List<ModEvent>();
+
+                    WriteManifestToDisk();
+                }
+                else
+                {
+                    manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(MANIFEST_URL));
+                }
 
 
-            // iterate through folders, load ModInfo
-            string[] modDirectories = Directory.GetDirectories(MODIO_DIR);
-            foreach(string modDir in modDirectories)
-            {
-                // Load ModInfo from Disk
-                ModInfo mod = JsonUtility.FromJson<ModInfo>(File.ReadAllText(modDir + "/mod.data"));
-                modCache.Add(mod.id, mod);
-            }
+                // iterate through folders, load ModInfo
+                string[] modDirectories = Directory.GetDirectories(MODIO_DIR);
+                foreach(string modDir in modDirectories)
+                {
+                    // Load ModInfo from Disk
+                    ModInfo mod = JsonUtility.FromJson<ModInfo>(File.ReadAllText(modDir + "/mod.data"));
+                    modCache.Add(mod.id, mod);
+                }
 
-            // Attempt to load user
-            if(File.Exists(USERDATA_URL))
-            {
-                userData = JsonUtility.FromJson<UserData>(File.ReadAllText(USERDATA_URL));
+                // Attempt to load user
+                if(File.Exists(USERDATA_URL))
+                {
+                    userData = JsonUtility.FromJson<UserData>(File.ReadAllText(USERDATA_URL));
 
-                client.GetAuthenticatedUser(userData.oAuthToken,
-                                            APIClient.IgnoreResponse,
-                                            (error) =>
-                                            {
-                                                if(error.httpStatusCode == 401
-                                                   || error.httpStatusCode == 403) // Failed authentication
+                    client.GetAuthenticatedUser(userData.oAuthToken,
+                                                APIClient.IgnoreResponse,
+                                                (error) =>
                                                 {
-                                                    LogUserOut();
-                                                };
-                                            });
+                                                    if(error.httpStatusCode == 401
+                                                       || error.httpStatusCode == 403) // Failed authentication
+                                                    {
+                                                        LogUserOut();
+                                                    };
+                                                });
+                }
             }
-
             #endif
 
             FetchAndCacheAllMods();
@@ -141,7 +142,7 @@ namespace ModIO
 
         private static void FetchAndCacheAllMods()
         {
-            ObjectCallback<ModInfo[]> AddModsToCache = (mods) =>
+            Action<ModInfo[]> AddModsToCache = (mods) =>
             {
                 // TODO(@jackson): Implement mod is unavailable
                 // TODO(@jackson): Check for modfile change
@@ -426,7 +427,7 @@ namespace ModIO
         public static event ModIDEventHandler OnModSubscriptionRemoved;
 
         public static void RequestSecurityCode(string emailAddress,
-                                               ErrorCallback onError)
+                                               Action<ErrorInfo> onError)
         {
             client.RequestSecurityCode(emailAddress,
                                        APIClient.IgnoreResponse,
@@ -434,8 +435,8 @@ namespace ModIO
         }
 
         public static void RequestOAuthToken(string securityCode,
-                                             ObjectCallback<string> onSuccess,
-                                             ErrorCallback onError)
+                                             Action<string> onSuccess,
+                                             Action<ErrorInfo> onError)
         {
             client.RequestOAuthToken(securityCode,
                                      onSuccess,
@@ -443,8 +444,8 @@ namespace ModIO
         }
 
         public static void TryLogUserIn(string userOAuthToken,
-                                        ObjectCallback<User> onSuccess,
-                                        ErrorCallback onError)
+                                        Action<User> onSuccess,
+                                        Action<ErrorInfo> onError)
         {
             Action fetchUserSubscriptions = () =>
             {
@@ -485,8 +486,8 @@ namespace ModIO
         }
 
         public static void SubscribeToMod(int modId,
-                                          ObjectCallback<ModInfo> onSuccess,
-                                          ErrorCallback onError)
+                                          Action<ModInfo> onSuccess,
+                                          Action<ErrorInfo> onError)
         {
             client.SubscribeToMod(userData.oAuthToken,
                                   modId,
@@ -499,8 +500,8 @@ namespace ModIO
         }
 
         public static void UnsubscribeFromMod(int modId,
-                                              ObjectCallback<ModInfo> onSuccess,
-                                              ErrorCallback onError)
+                                              Action<ModInfo> onSuccess,
+                                              Action<ErrorInfo> onError)
         {
             client.UnsubscribeFromMod(userData.oAuthToken,
                                       modId,
@@ -560,7 +561,7 @@ namespace ModIO
             Directory.Delete(modDir, true);
         }
 
-        public static void GetMods(GetAllModsFilter filter, ObjectCallback<ModInfo[]> callback)
+        public static void GetMods(GetAllModsFilter filter, Action<ModInfo[]> callback)
         {
             ModInfo[] retVal = filter.FilterCollection(modCache.Values);
             callback(retVal);
@@ -584,7 +585,7 @@ namespace ModIO
                 }
             };
 
-            ObjectCallback<Modfile> queueBinaryDownload = (modfile) =>
+            Action<Modfile> queueBinaryDownload = (modfile) =>
             {
                 download.sourceURL = modfile.download.binaryURL;
                 download.fileURL = fileURL;
@@ -823,8 +824,8 @@ namespace ModIO
         }
 
         // ---------[ MISC ]------------
-        public static void RequestTagCategoryMap(ObjectCallback<GameTagOption[]> onSuccess,
-                                                 ErrorCallback onError)
+        public static void RequestTagCategoryMap(Action<GameTagOption[]> onSuccess,
+                                                 Action<ErrorInfo> onError)
         {
             client.GetAllGameTagOptions(onSuccess, onError);
         }
@@ -853,23 +854,23 @@ namespace ModIO
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
         public static void EditMod(EditableModInfo modInfo,
-                                   ObjectCallback<ModInfo> onSuccess,
-                                   ErrorCallback onError)
+                                   Action<ModInfo> onSuccess,
+                                   Action<ErrorInfo> onError)
         {
             // TODO(@jackson): Force an update poll
             client.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
         }
 
         public static void AddMod(AddableModInfo modInfo,
-                                  ObjectCallback<ModInfo> onSuccess,
-                                  ErrorCallback onError)
+                                  Action<ModInfo> onSuccess,
+                                  Action<ErrorInfo> onError)
         {
             client.AddMod(userData.oAuthToken, modInfo, onSuccess, onError);
         }
 
         public static void AddModMedia(int modId, UnsubmittedModMedia modMedia,
-                                       ObjectCallback<APIMessage> onSuccess,
-                                       ErrorCallback onError)
+                                       Action<APIMessage> onSuccess,
+                                       Action<ErrorInfo> onError)
         {
             client.AddModMedia(userData.oAuthToken,
                                   modId, modMedia,
@@ -878,44 +879,44 @@ namespace ModIO
 
         public static void AddModfile(int modId,
                                       UnsubmittedModfile modfile,
-                                      ObjectCallback<Modfile> onSuccess,
-                                      ErrorCallback onError)
+                                      Action<Modfile> onSuccess,
+                                      Action<ErrorInfo> onError)
         {
             client.AddModfile(userData.oAuthToken, modId, modfile, onSuccess, onError);
         }
 
         public static void AddGameMedia(UnsubmittedGameMedia gameMedia,
-                                        ObjectCallback<APIMessage> onSuccess,
-                                        ErrorCallback onError)
+                                        Action<APIMessage> onSuccess,
+                                        Action<ErrorInfo> onError)
         {
             client.AddGameMedia(userData.oAuthToken, gameMedia, onSuccess, onError);
         }
 
         public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
-                                            ObjectCallback<APIMessage> onSuccess,
-                                            ErrorCallback onError)
+                                            Action<APIMessage> onSuccess,
+                                            Action<ErrorInfo> onError)
         {
             client.AddGameTagOption(userData.oAuthToken, tagOption, onSuccess, onError);
         }
 
         public static void AddModTags(int modId, string[] tagNames,
-                                      ObjectCallback<APIMessage> onSuccess,
-                                      ErrorCallback onError)
+                                      Action<APIMessage> onSuccess,
+                                      Action<ErrorInfo> onError)
         {
             client.AddModTags(userData.oAuthToken, modId, tagNames,
                               onSuccess, onError);
         }
 
         public static void AddPositiveRating(int modId,
-                                             ObjectCallback<APIMessage> onSuccess,
-                                             ErrorCallback onError)
+                                             Action<APIMessage> onSuccess,
+                                             Action<ErrorInfo> onError)
         {
             client.AddModRating(userData.oAuthToken, modId, 1, onSuccess, onError);
         }
 
         public static void AddModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
-                                             ObjectCallback<APIMessage> onSuccess,
-                                             ErrorCallback onError)
+                                             Action<APIMessage> onSuccess,
+                                             Action<ErrorInfo> onError)
         {
             client.AddModKVPMetadata(userData.oAuthToken,
                                      modId, metadataKVPs,
@@ -923,8 +924,8 @@ namespace ModIO
         }
 
         public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
-                                            ObjectCallback<APIMessage> onSuccess,
-                                            ErrorCallback onError)
+                                            Action<APIMessage> onSuccess,
+                                            Action<ErrorInfo> onError)
         {
             client.AddModTeamMember(userData.oAuthToken,
                                     modId, teamMember,
@@ -932,80 +933,80 @@ namespace ModIO
         }
 
         public static void DeleteMod(int modId,
-                                     ObjectCallback<APIMessage> onSuccess,
-                                     ErrorCallback onError)
+                                     Action<APIMessage> onSuccess,
+                                     Action<ErrorInfo> onError)
         {
             client.DeleteMod(userData.oAuthToken, modId,
                              onSuccess, onError);
         }
 
         public static void DeleteModMedia(int modId, ModMediaToDelete modMediaToDelete,
-                                          ObjectCallback<APIMessage> onSuccess,
-                                          ErrorCallback onError)
+                                          Action<APIMessage> onSuccess,
+                                          Action<ErrorInfo> onError)
         {
             client.DeleteModMedia(userData.oAuthToken, modId, modMediaToDelete,
                                   onSuccess, onError);
         }
 
         public static void DeleteModTags(int modId, string[] tagsToDelete,
-                                         ObjectCallback<APIMessage> onSuccess,
-                                         ErrorCallback onError)
+                                         Action<APIMessage> onSuccess,
+                                         Action<ErrorInfo> onError)
         {
             client.DeleteModTags(userData.oAuthToken, modId, tagsToDelete,
                                  onSuccess, onError);
         }
 
         public static void DeleteModDependencies(int modId, int[] modIdsToRemove,
-                                                 ObjectCallback<APIMessage> onSuccess,
-                                                 ErrorCallback onError)
+                                                 Action<APIMessage> onSuccess,
+                                                 Action<ErrorInfo> onError)
         {
             client.DeleteModDependencies(userData.oAuthToken, modId, modIdsToRemove,
                                          onSuccess, onError);
         }
 
         public static void AddModDependencies(int modId, int[] modIdsToRemove,
-                                              ObjectCallback<APIMessage> onSuccess,
-                                              ErrorCallback onError)
+                                              Action<APIMessage> onSuccess,
+                                              Action<ErrorInfo> onError)
         {
             client.AddModDependencies(userData.oAuthToken, modId, modIdsToRemove,
                                       onSuccess, onError);
         }
 
         public static void DeleteModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
-                                                ObjectCallback<APIMessage> onSuccess,
-                                                ErrorCallback onError)
+                                                Action<APIMessage> onSuccess,
+                                                Action<ErrorInfo> onError)
         {
             client.DeleteModKVPMetadata(userData.oAuthToken, modId, metadataKVPs,
                                         onSuccess, onError);
         }
 
         public static void DeleteModTeamMember(int modId, int teamMemberId,
-                                               ObjectCallback<APIMessage> onSuccess,
-                                               ErrorCallback onError)
+                                               Action<APIMessage> onSuccess,
+                                               Action<ErrorInfo> onError)
         {
             client.DeleteModTeamMember(userData.oAuthToken, modId, teamMemberId,
                                        onSuccess, onError);
         }
 
         public static void DeleteModComment(int modId, int commentId,
-                                            ObjectCallback<APIMessage> onSuccess,
-                                            ErrorCallback onError)
+                                            Action<APIMessage> onSuccess,
+                                            Action<ErrorInfo> onError)
         {
             client.DeleteModComment(userData.oAuthToken, modId, commentId,
                                     onSuccess, onError);
         }
 
         public static void GetAllModTeamMembers(int modId,
-                                                ObjectCallback<TeamMember[]> onSuccess,
-                                                ErrorCallback onError)
+                                                Action<TeamMember[]> onSuccess,
+                                                Action<ErrorInfo> onError)
         {
             client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
                                         onSuccess, onError);
         }
 
         public static void DeleteGameTagOption(GameTagOptionToDelete gameTagOption,
-                                               ObjectCallback<APIMessage> onSuccess,
-                                               ErrorCallback onError)
+                                               Action<APIMessage> onSuccess,
+                                               Action<ErrorInfo> onError)
         {
             client.DeleteGameTagOption(userData.oAuthToken, gameTagOption,
                                        onSuccess, onError);
