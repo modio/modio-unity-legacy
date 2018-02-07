@@ -10,8 +10,6 @@ using UnityEngine.Networking;
 // TODO(@jackson): Assert apiKey, and oAuthToken length to avoid user error
 namespace ModIO
 {
-    public delegate void DownloadCallback(byte[] data);
-
     public class APIClient
     {
         // ---------[ CONSTANTS ]---------
@@ -37,21 +35,6 @@ namespace ModIO
         }
 
         // ---------[ INITIALIZATION ]---------
-        public void InitializeWithCoroutineRequestHandler(MonoBehaviour coroutineBase)
-        {
-            RequestHandler_Coroutine handler = new RequestHandler_Coroutine();
-            handler.coroutineBehaviour = coroutineBase;
-            requestHandler = handler;
-        }
-
-        public void InitializeWithOnUpdateRequestHandler(out Action updateRequestsFunctionHandle)
-        {
-            RequestHandler_OnUpdate handler = new RequestHandler_OnUpdate();
-            updateRequestsFunctionHandle = handler.OnUpdate;
-            requestHandler = handler;
-        }
-
-        // ---------[ REQUEST HANDLER ]---------
         internal interface IRequestHandler
         {
             void BeginRequest<T_APIObj>(UnityWebRequest webRequest,
@@ -60,6 +43,20 @@ namespace ModIO
         }
         private IRequestHandler requestHandler;
 
+
+        public void InitializeWithCoroutineRequestHandler(MonoBehaviour coroutineHost)
+        {
+            RequestHandler_Coroutine handler = new RequestHandler_Coroutine();
+            handler.coroutineBehaviour = coroutineHost;
+            requestHandler = handler;
+        }
+
+        public void InitializeWithUpdateRequestHandler(out Action updateRequestsFunctionHandle)
+        {
+            RequestHandler_OnUpdate handler = new RequestHandler_OnUpdate();
+            updateRequestsFunctionHandle = handler.OnUpdate;
+            requestHandler = handler;
+        }
 
         // ---------[ OBJECT WRAPPING ]---------
         private void OnSuccessWrapper<T_APIObj, T>(T_APIObj apiObject,
