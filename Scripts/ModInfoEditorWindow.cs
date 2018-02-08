@@ -11,8 +11,6 @@ namespace ModIO
         private const int GAME_ID = 0;
         private const string API_KEY = "";
 
-        private bool areModsLoaded = false;
-
         private EditableModInfo modInfo = new EditableModInfo();
         private List<ModTag> modTags = new List<ModTag>();
 
@@ -30,36 +28,30 @@ namespace ModIO
 
         public void OnGUI()
         {
-            if(areModsLoaded)
+            ModManager.InitializeInEditor(GAME_ID, API_KEY);
+
+            int modOptionIndex = 0;
+            ModInfo[] modList = ModManager.GetMods(GetAllModsFilter.None);
+            string[] modOptions = new string[modList.Length + 1];
+
+            modOptions[0] = "[NEW MOD]";
+
+            for(int i = 0; i < modList.Length; ++i)
             {
-                int modOptionIndex = 0;
-                ModInfo[] modList = ModManager.GetMods(GetAllModsFilter.None);
-                string[] modOptions = new string[modList.Length + 1];
+                ModInfo mod = modList[i];
+                modOptions[i+1] = mod.name;
 
-                modOptions[0] = "[NEW MOD]";
-
-                for(int i = 0; i < modList.Length; ++i)
+                if(modInfo.id == mod.id)
                 {
-                    ModInfo mod = modList[i];
-                    modOptions[i+1] = mod.name;
-
-                    if(modInfo.id == mod.id)
-                    {
-                        modOptionIndex = i + 1;
-                    }
-                }
-
-                modOptionIndex = EditorGUILayout.Popup("Select Mod", modOptionIndex, modOptions, null);
-
-                if(modOptionIndex > 0)
-                {
-                    modInfo = EditableModInfo.FromModInfo(modList[modOptionIndex - 1]);
+                    modOptionIndex = i + 1;
                 }
             }
-            else if(GUILayout.Button("Download All Mods"))
+
+            modOptionIndex = EditorGUILayout.Popup("Select Mod", modOptionIndex, modOptions, null);
+
+            if(modOptionIndex > 0)
             {
-                ModManager.Initialize(GAME_ID, API_KEY);
-                areModsLoaded = true;
+                modInfo = EditableModInfo.FromModInfo(modList[modOptionIndex - 1]);
             }
 
             EditorGUILayout.TextField("Mod Name", modInfo.name, null);

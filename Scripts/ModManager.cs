@@ -8,6 +8,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace ModIO
 {
     public delegate void ModEventHandler(ModInfo mod);
@@ -52,11 +56,10 @@ namespace ModIO
         }
 
         // ---------[ VARIABLES ]---------
-        private int gameId;
-        private string apiKey;
-        private APIClient _client;
+        private static int gameId = 0;
+        private static string apiKey = "";
+        private static APIClient client = null;
 
-        private static APIClient client { get { return instance._client; } }
         private static ManifestData manifest = null;
         private static UserData userData = null;
 
@@ -72,32 +75,70 @@ namespace ModIO
         public static APIClient APIClient { get { return client; } }
         public static User CurrentUser { get { return userData == null ? null : userData.user; } }
 
-        // --------- [ INITIALISATION ]---------
-        public static void Initialize(int gameId, string apiKey)
+        // --------- [ INITIALIZATION ]---------
+        #if UNITY_EDITOR
+        public static void InitializeInEditor(int gameId, string apiKey)
+        {
+            if(client != null)
+            {
+                if(gameId != ModManager.gameId
+                   || apiKey != ModManager.apiKey)
+                {
+                    Debug.LogWarning("The ModIO.ModManager class is designed to work with a single Game. This class will require your customization to handle multiple games.");
+                }
+                return;
+            }
+
+            Debug.Log("Initializing ModIO.ModManager in Editor Mode"
+                      + "\nModIO Directory: " + MODIO_DIR);
+
+            // --- Set Vars ---
+            ModManager.gameId = gameId;
+            ModManager.apiKey = apiKey;
+
+            // --- Initialize Client ---
+            Action updateFunction;
+            client = new APIClient();
+            client.InitializeWithOnUpdateRequestHandler(out updateFunction);
+            EditorApplication.update += () => { updateFunction(); };
+
+
+            LoadCacheFromDisk();
+            FetchAndCacheAllMods();
+        }
+        #endif
+
+        public static void InitializeInApp(int gameId, string apiKey)
         {
             if(instance != null)
             {
-                Debug.LogWarning("Cannot re-initialize ModManager");
+                Debug.Log("ModManager is already initialized. Ignoring repeat attempt.");
                 return;
             }
 
             Debug.Log("Initializing ModIO.ModManager"
                       + "\nModIO Directory: " + MODIO_DIR);
 
+            // --- Set Vars ---
+            ModManager.gameId = gameId;
+            ModManager.apiKey = apiKey;
+
             // --- Create Instance ---
             GameObject go = new GameObject("ModIO.ModManager");
             instance = go.AddComponent<ModManager>();
-            instance.gameId = gameId;
-            instance.apiKey = apiKey;
-
             GameObject.DontDestroyOnLoad(go);
-            
-            // --- Create Client ---
-            instance._client = new APIClient();
-            instance._client.InitializeWithCoroutineRequestHandler(instance);
-            // instance._client.InitializeWithOnUpdateRequestHandler(out instance.requestHandlerUpdateHandle);
 
-            // --- Load To Cache From Disk ---
+            // --- Initialize Client ---
+            client = new APIClient();
+            client.InitializeWithCoroutineRequestHandler(instance);
+
+
+            LoadCacheFromDisk();
+            FetchAndCacheAllMods();
+        }
+
+        private static void LoadCacheFromDisk()
+        {
             if (!Directory.Exists(MODIO_DIR))
             {
                 Directory.CreateDirectory(MODIO_DIR);
@@ -155,8 +196,6 @@ namespace ModIO
                 }
             }
             #endif
-
-            FetchAndCacheAllMods();
         }
 
         private static void FetchAndCacheAllMods()
@@ -205,8 +244,8 @@ namespace ModIO
                 }
             };
 
-            client.GetAllMods(instance.apiKey,
-                              instance.gameId,
+            client.GetAllMods(ModManager.apiKey,
+                              ModManager.gameId,
                               GetAllModsFilter.None,
                               AddModsToCache,
                               APIClient.LogError);
@@ -248,8 +287,8 @@ namespace ModIO
                 eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest,
                                            true);
 
-                client.GetAllModEvents(instance.apiKey,
-                                       instance.gameId,
+                client.GetAllModEvents(ModManager.apiKey,
+                                       ModManager.gameId,
                                        eventFilter,
                                        (eventArray) =>
                                        {
@@ -262,7 +301,7 @@ namespace ModIO
                 if(userData != null)
                 {
                     GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
-                    subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, instance.gameId);
+                    subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, ModManager.gameId);
 
                     APIClient.GetUserSubscriptions(userData.oAuthToken,
                                                    subscriptionFilter,
@@ -283,8 +322,8 @@ namespace ModIO
             // - ModInfo Processing Options -
             Action<ModEvent> processModAvailable = (modEvent) =>
             {
-                client.GetMod(instance.apiKey,
-                              instance.gameId,
+                client.GetMod(ModManager.apiKey,
+                              ModManager.gameId,
                               modEvent.modId,
                               (mod) =>
                               {
@@ -319,8 +358,8 @@ namespace ModIO
 
             Action<ModEvent> processModEdited = (modEvent) =>
             {
-                client.GetMod(instance.apiKey,
-                              instance.gameId,
+                client.GetMod(ModManager.apiKey,
+                              ModManager.gameId,
                               modEvent.modId,
                               (mod) =>
                               {
@@ -347,8 +386,8 @@ namespace ModIO
                 }
                 else
                 {
-                    client.GetMod(instance.apiKey,
-                                  instance.gameId,
+                    client.GetMod(ModManager.apiKey,
+                                  ModManager.gameId,
                                   mod.id,
                                   (updatedMod) =>
                                   {
@@ -458,7 +497,7 @@ namespace ModIO
         public static void RequestSecurityCode(string emailAddress,
                                                Action<ErrorInfo> onError)
         {
-            client.RequestSecurityCode(instance.apiKey,
+            client.RequestSecurityCode(ModManager.apiKey,
                                        emailAddress,
                                        APIClient.IgnoreResponse,
                                        onError);
@@ -468,7 +507,7 @@ namespace ModIO
                                              Action<string> onSuccess,
                                              Action<ErrorInfo> onError)
         {
-            client.RequestOAuthToken(instance.apiKey,
+            client.RequestOAuthToken(ModManager.apiKey,
                                      securityCode,
                                      onSuccess,
                                      onError);
@@ -521,7 +560,7 @@ namespace ModIO
                                           Action<ErrorInfo> onError)
         {
             client.SubscribeToMod(userData.oAuthToken,
-                                  instance.gameId,
+                                  ModManager.gameId,
                                   modId,
                                   (message) =>
                                   {
@@ -536,7 +575,7 @@ namespace ModIO
                                               Action<ErrorInfo> onError)
         {
             client.UnsubscribeFromMod(userData.oAuthToken,
-                                      instance.gameId,
+                                      ModManager.gameId,
                                       modId,
                                       (message) =>
                                       {
@@ -566,7 +605,7 @@ namespace ModIO
 
         public static string GetModDirectory(int modId)
         {
-            return MODIO_DIR + modId + "/";
+            return MODIO_DIR + modId + "/mods/";
         }
 
         public static ModInfo GetMod(int modId)
@@ -594,10 +633,10 @@ namespace ModIO
             Directory.Delete(modDir, true);
         }
 
-        public static void GetMods(GetAllModsFilter filter, Action<ModInfo[]> callback)
+        public static ModInfo[] GetMods(GetAllModsFilter filter)
         {
             ModInfo[] retVal = filter.FilterCollection(modCache.Values);
-            callback(retVal);
+            return retVal;
         }
 
         public static FileDownload StartBinaryDownload(int modId, int modfileId)
@@ -627,7 +666,7 @@ namespace ModIO
                 DownloadManager.AddQueuedDownload(download);
             };
 
-            client.GetModfile(instance.apiKey, instance.gameId,
+            client.GetModfile(ModManager.apiKey, ModManager.gameId,
                               modId, modfileId,
                               queueBinaryDownload,
                               download.MarkAsFailed);
@@ -861,7 +900,7 @@ namespace ModIO
         public static void RequestTagCategoryMap(Action<GameTagOption[]> onSuccess,
                                                  Action<ErrorInfo> onError)
         {
-            client.GetAllGameTagOptions(instance.apiKey, instance.gameId,
+            client.GetAllGameTagOptions(ModManager.apiKey, ModManager.gameId,
                                         onSuccess, onError);
         }
 
@@ -900,7 +939,7 @@ namespace ModIO
                                   Action<ModInfo> onSuccess,
                                   Action<ErrorInfo> onError)
         {
-            client.AddMod(userData.oAuthToken, instance.gameId,
+            client.AddMod(userData.oAuthToken, ModManager.gameId,
                           modInfo,
                           onSuccess, onError);
         }
@@ -909,7 +948,7 @@ namespace ModIO
                                        Action<APIMessage> onSuccess,
                                        Action<ErrorInfo> onError)
         {
-            client.AddModMedia(userData.oAuthToken, instance.gameId,
+            client.AddModMedia(userData.oAuthToken, ModManager.gameId,
                                modId, modMedia,
                                onSuccess, onError);
         }
@@ -919,7 +958,7 @@ namespace ModIO
                                       Action<Modfile> onSuccess,
                                       Action<ErrorInfo> onError)
         {
-            client.AddModfile(userData.oAuthToken, instance.gameId,
+            client.AddModfile(userData.oAuthToken, ModManager.gameId,
                               modId, modfile,
                               onSuccess, onError);
         }
@@ -928,7 +967,7 @@ namespace ModIO
                                         Action<APIMessage> onSuccess,
                                         Action<ErrorInfo> onError)
         {
-            client.AddGameMedia(userData.oAuthToken, instance.gameId,
+            client.AddGameMedia(userData.oAuthToken, ModManager.gameId,
                                 gameMedia, onSuccess, onError);
         }
 
@@ -936,7 +975,7 @@ namespace ModIO
                                             Action<APIMessage> onSuccess,
                                             Action<ErrorInfo> onError)
         {
-            client.AddGameTagOption(userData.oAuthToken, instance.gameId,
+            client.AddGameTagOption(userData.oAuthToken, ModManager.gameId,
                                     tagOption, onSuccess, onError);
         }
 
@@ -944,7 +983,7 @@ namespace ModIO
                                       Action<APIMessage> onSuccess,
                                       Action<ErrorInfo> onError)
         {
-            client.AddModTags(userData.oAuthToken, instance.gameId,
+            client.AddModTags(userData.oAuthToken, ModManager.gameId,
                               modId, tagNames,
                               onSuccess, onError);
         }
@@ -953,7 +992,7 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<ErrorInfo> onError)
         {
-            client.AddModRating(userData.oAuthToken, instance.gameId,
+            client.AddModRating(userData.oAuthToken, ModManager.gameId,
                                 modId, 1, onSuccess, onError);
         }
 
@@ -961,7 +1000,7 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<ErrorInfo> onError)
         {
-            client.AddModKVPMetadata(userData.oAuthToken, instance.gameId,
+            client.AddModKVPMetadata(userData.oAuthToken, ModManager.gameId,
                                      modId, metadataKVPs,
                                      onSuccess, onError);
         }
@@ -971,7 +1010,7 @@ namespace ModIO
                                             Action<ErrorInfo> onError)
         {
             client.AddModTeamMember(userData.oAuthToken,
-                                    instance.gameId,
+                                    ModManager.gameId,
                                     modId, teamMember,
                                     onSuccess, onError);
         }
@@ -980,7 +1019,7 @@ namespace ModIO
                                      Action<APIMessage> onSuccess,
                                      Action<ErrorInfo> onError)
         {
-            client.DeleteMod(userData.oAuthToken, instance.gameId,
+            client.DeleteMod(userData.oAuthToken, ModManager.gameId,
                              modId,
                              onSuccess, onError);
         }
@@ -989,7 +1028,7 @@ namespace ModIO
                                           Action<APIMessage> onSuccess,
                                           Action<ErrorInfo> onError)
         {
-            client.DeleteModMedia(userData.oAuthToken, instance.gameId,
+            client.DeleteModMedia(userData.oAuthToken, ModManager.gameId,
                                   modId, modMediaToDelete,
                                   onSuccess, onError);
         }
@@ -999,7 +1038,7 @@ namespace ModIO
                                          Action<ErrorInfo> onError)
         {
             client.DeleteModTags(userData.oAuthToken,
-                                 instance.gameId,
+                                 ModManager.gameId,
                                  modId, tagsToDelete,
                                  onSuccess, onError);
         }
@@ -1009,7 +1048,7 @@ namespace ModIO
                                                  Action<ErrorInfo> onError)
         {
             client.DeleteModDependencies(userData.oAuthToken,
-                                         instance.gameId,
+                                         ModManager.gameId,
                                          modId, modIdsToRemove,
                                          onSuccess, onError);
         }
@@ -1019,7 +1058,7 @@ namespace ModIO
                                               Action<ErrorInfo> onError)
         {
             client.AddModDependencies(userData.oAuthToken,
-                                      instance.gameId,
+                                      ModManager.gameId,
                                       modId, modIdsToRemove,
                                       onSuccess, onError);
         }
@@ -1029,7 +1068,7 @@ namespace ModIO
                                                 Action<ErrorInfo> onError)
         {
             client.DeleteModKVPMetadata(userData.oAuthToken,
-                                        instance.gameId,
+                                        ModManager.gameId,
                                         modId, metadataKVPs,
                                         onSuccess, onError);
         }
@@ -1039,7 +1078,7 @@ namespace ModIO
                                                Action<ErrorInfo> onError)
         {
             client.DeleteModTeamMember(userData.oAuthToken,
-                                       instance.gameId,
+                                       ModManager.gameId,
                                        modId, teamMemberId,
                                        onSuccess, onError);
         }
@@ -1049,7 +1088,7 @@ namespace ModIO
                                             Action<ErrorInfo> onError)
         {
             client.DeleteModComment(userData.oAuthToken,
-                                    instance.gameId,
+                                    ModManager.gameId,
                                     modId, commentId,
                                     onSuccess, onError);
         }
@@ -1058,7 +1097,7 @@ namespace ModIO
                                                 Action<TeamMember[]> onSuccess,
                                                 Action<ErrorInfo> onError)
         {
-            client.GetAllModTeamMembers(instance.apiKey, instance.gameId,
+            client.GetAllModTeamMembers(ModManager.apiKey, ModManager.gameId,
                                         modId, GetAllModTeamMembersFilter.None,
                                         onSuccess, onError);
         }
@@ -1067,7 +1106,7 @@ namespace ModIO
                                                Action<APIMessage> onSuccess,
                                                Action<ErrorInfo> onError)
         {
-            client.DeleteGameTagOption(userData.oAuthToken, instance.gameId,
+            client.DeleteGameTagOption(userData.oAuthToken, ModManager.gameId,
                                        gameTagOption,
                                        onSuccess, onError);
         }
