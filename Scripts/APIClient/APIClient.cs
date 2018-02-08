@@ -51,7 +51,7 @@ namespace ModIO
             requestHandler = handler;
         }
 
-        public void InitializeWithUpdateRequestHandler(out Action updateRequestsFunctionHandle)
+        public void InitializeWithOnUpdateRequestHandler(out Action updateRequestsFunctionHandle)
         {
             RequestHandler_OnUpdate handler = new RequestHandler_OnUpdate();
             updateRequestsFunctionHandle = handler.OnUpdate;
