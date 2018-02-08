@@ -28,7 +28,7 @@ namespace ModIO
 
         public void OnGUI()
         {
-            ModManager.InitializeInEditor(GAME_ID, API_KEY);
+            ModManager.Initialize(GAME_ID, API_KEY);
 
             int modOptionIndex = 0;
             ModInfo[] modList = ModManager.GetMods(GetAllModsFilter.None);

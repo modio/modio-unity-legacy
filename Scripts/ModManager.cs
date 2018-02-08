@@ -8,10 +8,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace ModIO
 {
     public delegate void ModEventHandler(ModInfo mod);
@@ -76,41 +72,9 @@ namespace ModIO
         public static User CurrentUser { get { return userData == null ? null : userData.user; } }
 
         // --------- [ INITIALIZATION ]---------
-        #if UNITY_EDITOR
-        public static void InitializeInEditor(int gameId, string apiKey)
+        public static void Initialize(int gameId, string apiKey)
         {
             if(client != null)
-            {
-                if(gameId != ModManager.gameId
-                   || apiKey != ModManager.apiKey)
-                {
-                    Debug.LogWarning("The ModIO.ModManager class is designed to work with a single Game. This class will require your customization to handle multiple games.");
-                }
-                return;
-            }
-
-            Debug.Log("Initializing ModIO.ModManager in Editor Mode"
-                      + "\nModIO Directory: " + MODIO_DIR);
-
-            // --- Set Vars ---
-            ModManager.gameId = gameId;
-            ModManager.apiKey = apiKey;
-
-            // --- Initialize Client ---
-            Action updateFunction;
-            client = new APIClient();
-            client.InitializeWithOnUpdateRequestHandler(out updateFunction);
-            EditorApplication.update += () => { updateFunction(); };
-
-
-            LoadCacheFromDisk();
-            FetchAndCacheAllMods();
-        }
-        #endif
-
-        public static void InitializeInApp(int gameId, string apiKey)
-        {
-            if(instance != null)
             {
                 Debug.Log("ModManager is already initialized. Ignoring repeat attempt.");
                 return;
@@ -120,18 +84,9 @@ namespace ModIO
                       + "\nModIO Directory: " + MODIO_DIR);
 
             // --- Set Vars ---
+            client = new APIClient();
             ModManager.gameId = gameId;
             ModManager.apiKey = apiKey;
-
-            // --- Create Instance ---
-            GameObject go = new GameObject("ModIO.ModManager");
-            instance = go.AddComponent<ModManager>();
-            GameObject.DontDestroyOnLoad(go);
-
-            // --- Initialize Client ---
-            client = new APIClient();
-            client.InitializeWithCoroutineRequestHandler(instance);
-
 
             LoadCacheFromDisk();
             FetchAndCacheAllMods();
