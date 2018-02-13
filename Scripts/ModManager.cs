@@ -74,11 +74,7 @@ namespace ModIO
         // --------- [ INITIALIZATION ]---------
         public static void Initialize(int gameId, string apiKey)
         {
-            if(client != null)
-            {
-                Debug.Log("ModManager is already initialized. Ignoring repeat attempt.");
-                return;
-            }
+            if(client != null) { return; }
 
             Debug.Log("Initializing ModIO.ModManager"
                       + "\nModIO Directory: " + MODIO_DIR);

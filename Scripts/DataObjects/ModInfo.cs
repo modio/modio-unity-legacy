@@ -116,6 +116,7 @@ namespace ModIO
         }
     }
 
+    [Serializable]
     public class EditableModInfo : ModInfo
     {
         public static EditableModInfo FromModInfo(ModInfo modInfo)
