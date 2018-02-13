@@ -10,6 +10,32 @@ namespace ModIO.API
         public string[] sketchfab; // Array of SketchFab links.
         public ImageObject[] images; // Array of image objects (a gallery).
 
+        // - Clone -
+        public ModMediaObject Clone()
+        {
+            ModMediaObject clone = new ModMediaObject();
+            
+            clone.youtube = new string[this.youtube.Length];
+            for(int i = 0; i < this.youtube.Length; ++i)
+            {
+                clone.youtube[i] = this.youtube[i];
+            }
+            
+            clone.sketchfab = new string[this.sketchfab.Length];
+            for(int i = 0; i < this.sketchfab.Length; ++i)
+            {
+                clone.sketchfab[i] = this.sketchfab[i];
+            }
+            
+            clone.images = new ImageObject[this.images.Length];
+            for(int i = 0; i < this.images.Length; ++i)
+            {
+                clone.images[i] = this.images[i];
+            }
+
+            return clone;
+        }
+
         // - Equality Operators -
         public override int GetHashCode()
         {

@@ -27,6 +27,44 @@ namespace ModIO.API
         public RatingSummaryObject rating_summary; // Contains ratings summary.
         public ModTagObject[] tags; // Contains mod tag data.
 
+        public int stock; // Artificially limit the amount of times the mod can be subscribed too.
+
+        // - Clone -
+        public ModObject Clone()
+        {
+            ModObject clone = new ModObject();
+
+            clone.id = this.id;
+            clone.game_id = this.game_id;
+            clone.status = this.status;
+            clone.visible = this.visible;
+            clone.submitted_by = this.submitted_by;
+            clone.date_added = this.date_added;
+            clone.date_updated = this.date_updated;
+            clone.date_live = this.date_live;
+            clone.logo = this.logo;
+            clone.homepage = this.homepage;
+            clone.name = this.name;
+            clone.name_id = this.name_id;
+            clone.summary = this.summary;
+            clone.description = this.description;
+            clone.metadata_blob = this.metadata_blob;
+            clone.profile_url = this.profile_url;
+            clone.modfile = this.modfile;
+            clone.rating_summary = this.rating_summary;
+            clone.stock = this.stock;
+            
+            clone.media = this.media.Clone();
+            
+            clone.tags = new ModTagObject[this.tags.Length];
+            for(int i = 0; i < this.tags.Length; ++ i)
+            {
+                clone.tags[i] = this.tags[i]; // Contains mod tag data.
+            }
+
+            return clone;
+        }
+
         // - Equality Operators -
         public override int GetHashCode()
         {
@@ -62,19 +100,5 @@ namespace ModIO.API
                    && this.rating_summary.Equals(other.rating_summary)
                    && this.tags.GetHashCode().Equals(other.tags.GetHashCode()));
         }
-    }
-
-    [Serializable]
-    public struct CreatedModObject
-    {
-        public int visible; // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
-        public string name; // true    Name of your mod.
-        public string name_id; // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. If no name_id is specified the name will be used. For example: 'Stellaris Shader Mod' will become 'stellaris-shader-mod'. Cannot exceed 80 characters.
-        public string summary; // true    Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
-        public string description; // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
-        public string homepage; // Official homepage for your mod. Must be a valid URL.
-        public int stock; // Artificially limit the amount of times the mod can be subscribed too.
-        public string metadata; // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
-        public string[] tags; // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
     }
 }
