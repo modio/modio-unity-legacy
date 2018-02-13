@@ -24,8 +24,6 @@ namespace ModIO
         // - Fields -
         [UnityEngine.SerializeField]
         protected ModObject _data;
-        [UnityEngine.SerializeField]
-        protected string[] tagNames;
 
         public int id                       { get { return _data.id; } }
         public int gameId                   { get { return _data.game_id; } }
@@ -50,7 +48,7 @@ namespace ModIO
 
 
         // - IAPIObjectWrapper Interface -
-        public void WrapAPIObject(ModObject apiObject)
+        public virtual void WrapAPIObject(ModObject apiObject)
         {
             this._data = apiObject;
 
@@ -70,14 +68,12 @@ namespace ModIO
             
             int tagCount = (apiObject.tags == null ? 0 : apiObject.tags.Length);
             this.tags = new ModTag[tagCount];
-            this.tagNames = new string[tagCount];
             for(int i = 0;
                 i < tagCount;
                 ++i)
             {
-                this.tags[i]      = new ModTag();
+                this.tags[i] = new ModTag();
                 this.tags[i].WrapAPIObject(apiObject.tags[i]);
-                this.tagNames[i]  = apiObject.tags[i].name;
             }
         }
 
@@ -88,7 +84,18 @@ namespace ModIO
 
         public string[] GetTagNames()
         {
-            return this.tagNames;
+            int tagCount = (tags == null ? 0 : tags.Length);
+            
+            string[] tagNames = new string[tagCount];
+
+            for(int i = 0;
+                i < tagCount;
+                ++i)
+            {
+                tagNames[i] = tags[i].name;
+            }
+
+            return tagNames;
         }
 
         // - ISerializationCallbackReceiver -
@@ -125,34 +132,26 @@ namespace ModIO
 
             newEMI.WrapAPIObject(modInfo.GetAPIObject());
 
-            newEMI.modfileId = modInfo.modfile.id;
-
-            newEMI.modfile = null;
-
             return newEMI;
         }
 
-        // - Put Request Values -
-        private Dictionary<string, string> putValues = new Dictionary<string, string>();
-        public StringValueField[] GetValueFields()
+        // - IAPIObjectWrapper Interface -
+        public override void WrapAPIObject(ModObject apiObject)
         {
-            List<StringValueField> retVal = new List<StringValueField>();
-            
-            foreach(KeyValuePair<string, string> kvp in putValues)
-            {
-                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
-            }
+            base.WrapAPIObject(apiObject);
 
-            return retVal.ToArray();
+            this._initialData = this._data.Clone();
         }
 
-        // --- Extra Fields ---
-        private int modfileId = 0;
+        // --- Additional Fields ---
+        private ModObject _initialData;
+        private string logoFilepath = "";
+        private bool isLogoChanged = false;
 
         // --- GETTERS ---
         public int GetModfileId()
         {
-            return modfileId;
+            return _data.modfile.id;
         }
 
         // --- SETTERS ---
@@ -235,81 +234,63 @@ namespace ModIO
         // Unique id of the Modfile Object to be labelled as the current release.
         public void SetModfileID(int value)
         {
-            modfileId = value;
+            // TODO(@jackson): This can be improved
+            _data.modfile = new ModfileObject();
+            _data.modfile.id = value;
 
-            putValues["stock"] = ((int)value).ToString();
+            putValues["modfile"] = ((int)value).ToString();
         }
         // Artificially limit the amount of times the mod can be subscribed too.
         public void SetStock(int value)
         {
-            putValues["modfile"] = ((int)value).ToString();
-        }
-    }
+            _data.stock = value;
 
-    [Serializable]
-    public class AddableModInfo
-    {
-        // - Fields -
-        [UnityEngine.SerializeField]
-        private CreatedModObject _data;
-
-        // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
-        public ModInfo.Visibility visibility
-        {
-            get { return (ModInfo.Visibility)_data.visible; }
-            set { _data.visible = (int)value; }
-        }
-        // Name of your mod.
-        public string name
-        {
-            get { return _data.name; }
-            set { _data.name = value; }
-        }
-        // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. If no name_id is specified the name will be used. For example: 'Stellaris Shader Mod' will become 'stellaris-shader-mod'. Cannot exceed 80 characters.
-        public string nameId
-        {
-            get { return _data.name_id; }
-            set { _data.name_id = value; }
-        }
-        // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
-        public string summary
-        {
-            get { return _data.summary; }
-            set { _data.summary = value; }
-        }
-        // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
-        public string description
-        {
-            get { return _data.description; }
-            set { _data.description = value; }
-        }
-        // Official homepage for your mod. Must be a valid URL.
-        public string homepage
-        {
-            get { return _data.homepage; }
-            set { _data.homepage = value; }
-        }
-        // Artificially limit the amount of times the mod can be subscribed too.
-        public int stock
-        {
-            get { return _data.stock; }
-            set { _data.stock = value; }
+            putValues["stock"] = ((int)value).ToString();
         }
         // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
-        public string metadata
+        public void SetMetadataBlob(string value)
         {
-            get { return _data.metadata; }
-            set { _data.metadata = value; }
+            _data.metadata_blob = value;
+
+            putValues["metadata_blob"] = value;
         }
         // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
-        public List<string> tagNames = new List<string>();
-        // Image file which will represent your mods logo. Must be gif, jpg or png format and cannot exceed 8MB in filesize. Dimensions must be at least 640x360 and we recommended you supply a high resolution image with a 16 / 9 ratio. mod.io will use this image to make three thumbnails for the dimensions 320x180, 640x360 and 1280x720.
-        public string logoFilepath = "";
-
-        // --- ACCESSORS ---
-        public StringValueField[] GetValueFields()
+        public void SetTagNames(string[] valueArray)
         {
-            List<StringValueField> retVal = new List<StringValueField>(8 + tagNames.Count);
+            ModTagObject[] modTagArray = new ModTagObject[valueArray.Length];
+
+            for(int i = 0; i < valueArray.Length; ++i)
+            {
+                ModTagObject tag = new ModTagObject();
+                tag.name = valueArray[i];
+                tag.date_added = TimeStamp.Now().AsServerTimeStamp();
+                modTagArray[i] = tag;
+            }
+
+            _data.tags = modTagArray;
+        }
+
+        // TODO(@jackson): Add SetLogo()
+
+        // - Submission Helpers -
+        private Dictionary<string, string> putValues = new Dictionary<string, string>();
+        public StringValueField[] GetEditValueFields()
+        {
+            // TODO(@jackson): Replace with compare data/initialData
+
+            List<StringValueField> retVal = new List<StringValueField>();
+            
+            foreach(KeyValuePair<string, string> kvp in putValues)
+            {
+                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
+            }
+
+            return retVal.ToArray();
+        }
+
+        public StringValueField[] GetAddValueFields()
+        {
+            List<StringValueField> retVal = new List<StringValueField>(8 + tags.Length);
 
             retVal.Add(StringValueField.Create("visible", _data.visible));
             retVal.Add(StringValueField.Create("name", _data.name));
@@ -318,8 +299,9 @@ namespace ModIO
             retVal.Add(StringValueField.Create("description", _data.description));
             retVal.Add(StringValueField.Create("homepage", _data.homepage));
             retVal.Add(StringValueField.Create("stock", _data.stock));
-            retVal.Add(StringValueField.Create("metadata", _data.metadata));
+            retVal.Add(StringValueField.Create("metadata", _data.metadata_blob));
 
+            string[] tagNames = this.GetTagNames();
             foreach(string tagName in tagNames)
             {
                 retVal.Add(StringValueField.Create("tags[]", tagName));
@@ -327,7 +309,9 @@ namespace ModIO
 
             return retVal.ToArray();
         }
-        public BinaryDataField[] GetDataFields()
+
+
+        public BinaryDataField[] GetAddDataFields()
         {
             List<BinaryDataField> retVal = new List<BinaryDataField>(1);
 

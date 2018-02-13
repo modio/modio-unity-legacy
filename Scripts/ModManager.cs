@@ -886,7 +886,7 @@ namespace ModIO
             client.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
         }
 
-        public static void AddMod(AddableModInfo modInfo,
+        public static void AddMod(EditableModInfo modInfo,
                                   Action<ModInfo> onSuccess,
                                   Action<ErrorInfo> onError)
         {

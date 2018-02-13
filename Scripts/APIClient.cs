@@ -594,12 +594,12 @@ namespace ModIO
         }
         // Add Mod
         public void AddMod(string oAuthToken, int gameId,
-                           AddableModInfo modInfo,
+                           EditableModInfo modInfo,
                            Action<ModInfo> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + gameId + "/mods";
-            StringValueField[] valueFields = modInfo.GetValueFields();
-            BinaryDataField[] dataFields = modInfo.GetDataFields();
+            StringValueField[] valueFields = modInfo.GetAddValueFields();
+            BinaryDataField[] dataFields = modInfo.GetAddDataFields();
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.ModObject>(endpointURL,
                                                                             oAuthToken,
@@ -619,7 +619,7 @@ namespace ModIO
                             Action<ModInfo> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + modInfo.gameId + "/mods/" + modInfo.id;
-            StringValueField[] valueFields = modInfo.GetValueFields();
+            StringValueField[] valueFields = modInfo.GetEditValueFields();
 
             UnityWebRequest webRequest = APIClient.GeneratePutRequest<API.MessageObject>(endpointURL,
                                                                                                oAuthToken,
