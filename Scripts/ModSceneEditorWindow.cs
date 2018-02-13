@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace ModIO
 {
-    public class ModInfoEditorWindow : EditorWindow
+    public class ModSceneEditorWindow : EditorWindow
     {
         private const int GAME_ID = 0;
         private const string API_KEY = "";
@@ -16,48 +16,20 @@ namespace ModIO
         private Scene currentScene;
         private EditorSceneData sceneData = null;
 
-        private EditableModInfo modInfo = null;
-        private List<ModTag> modTags = null;
-
-        [MenuItem("ModIO/Mod Inspector")]
+        [MenuItem("ModIO/Mod Scene Info Editor")]
         public static void ShowWindow()
         {
-            GetWindow<ModInfoEditorWindow>("Mod Inspector");
-        }
-
-        public void LoadModInfo(ModInfo mod)
-        {
-            modInfo = EditableModInfo.FromModInfo(mod);
-            // TODO(@jackson): Load ModTags
+            GetWindow<ModSceneEditorWindow>("Mod Inspector");
         }
 
         private void OnEnable()
         {
             ModManager.Initialize(GAME_ID, API_KEY);
-
-            // EditorSceneManager.newSceneCreated; // This event is called after a new Scene has been created.
-            // EditorSceneManager.sceneClosed; // This event is called after a Scene has been closed in the editor.
-            // EditorSceneManager.sceneClosing; // This event is called before closing an open Scene after you have requested that the Scene is closed.
-            // EditorSceneManager.sceneOpened; // This event is called after a Scene has been opened in the editor.
-            // EditorSceneManager.sceneOpening; // This event is called before opening an existing Scene.
-            // EditorSceneManager.sceneSaved += SaveModInfoToSceneAsset;
-            // EditorSceneManager.sceneSaving; // This event is called before a Scene is saved disk after you have requested the Scene to be saved.
-        }
-
-        private void OnDisable()
-        {
-            // EditorSceneManager.sceneSaved -= SaveModInfoToSceneAsset;
-        }
-
-        private void AttemptLoadModInfo()
-        {
-            // Find ModIOSceneData
-            // AssetDatabase.LoadAssetAtPath();
-            // Create/Load ModInfo
         }
 
         private void OnGUI()
         {
+            // TODO(@jackson): Make scrollable
             if(currentScene != SceneManager.GetActiveScene())
             {
                 Debug.Log("Scene change detected. Loading Mod Data");
@@ -105,7 +77,9 @@ namespace ModIO
                 }
             }
 
-            EditorGUILayout.TextField("Mod Name", sceneData.modInfo.name, null);
+            SerializedObject serializedSceneData = new SerializedObject(sceneData);
+            ModInfoEditor.DisplayAsProperty(serializedSceneData.FindProperty("modInfo"));
+            serializedSceneData.ApplyModifiedProperties();
         }
     }
 }
