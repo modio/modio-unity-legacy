@@ -16,6 +16,8 @@ namespace ModIO
         private Scene currentScene;
         private EditorSceneData sceneData = null;
 
+        private ModInfoEditor infoEditor;
+
         [MenuItem("ModIO/Mod Scene Info Editor")]
         public static void ShowWindow()
         {
@@ -25,6 +27,7 @@ namespace ModIO
         private void OnEnable()
         {
             ModManager.Initialize(GAME_ID, API_KEY);
+            infoEditor = new ModInfoEditor();
         }
 
         private void OnGUI()
@@ -78,7 +81,7 @@ namespace ModIO
             }
 
             SerializedObject serializedSceneData = new SerializedObject(sceneData);
-            ModInfoEditor.DisplayAsProperty(serializedSceneData.FindProperty("modInfo"));
+            infoEditor.DisplayAsProperty(serializedSceneData.FindProperty("modInfo"));
             serializedSceneData.ApplyModifiedProperties();
         }
     }
