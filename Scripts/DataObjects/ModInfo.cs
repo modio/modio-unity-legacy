@@ -147,12 +147,7 @@ namespace ModIO
         private ModObject _initialData;
         private string logoFilepath = "";
         private bool isLogoChanged = false;
-
-        // --- GETTERS ---
-        public int GetModfileId()
-        {
-            return _data.modfile.id;
-        }
+        // TODO(@jackson): Add Support for Mod Media
 
         // --- SETTERS ---
         // Status of a mod. The mod must have at least one uploaded modfile to be 'accepted' or 'archived' (best if this field is controlled by game admins, see status and visibility for details):
@@ -162,15 +157,11 @@ namespace ModIO
                                      "Status.Deleted cannot be set via SetStatus. Use the APIClient.DeleteMod instead");
 
             _data.status = (int)value;
-
-            putValues["status"] = ((int)value).ToString();
         }
         // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
         public void SetVisibility(Visibility value)
         {
             _data.visible = (int)value;
-
-            putValues["visible"] = ((int)value).ToString();
         }
         // Name of your mod. Cannot exceed 80 characters.
         public void SetName(string value)
@@ -182,8 +173,6 @@ namespace ModIO
             }
 
             _data.name = value;
-
-            putValues["name"] = value;
         }
         // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. Cannot exceed 80 characters.
         public void SetNameID(string value)
@@ -195,8 +184,6 @@ namespace ModIO
             }
 
             _data.name_id = value;
-
-            putValues["name_id"] = value;
         }
         // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
         public void SetSummary(string value)
@@ -208,15 +195,11 @@ namespace ModIO
             }
 
             _data.summary = value;
-
-            putValues["summary"] = value;
         }
         // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
         public void SetDescription(string value)
         {
             _data.description = value;
-
-            putValues["description"] = value;
         }
         // Official homepage for your mod. Must be a valid URL.
         public void SetHomepage(string value)
@@ -228,31 +211,21 @@ namespace ModIO
             }
 
             _data.homepage = value;
-
-            putValues["homepage"] = value;
         }
         // Unique id of the Modfile Object to be labelled as the current release.
-        public void SetModfileID(int value)
+        public void SetModfile(Modfile value)
         {
-            // TODO(@jackson): This can be improved
-            _data.modfile = new ModfileObject();
-            _data.modfile.id = value;
-
-            putValues["modfile"] = ((int)value).ToString();
+            _data.modfile = value.GetAPIObject();
         }
         // Artificially limit the amount of times the mod can be subscribed too.
         public void SetStock(int value)
         {
             _data.stock = value;
-
-            putValues["stock"] = ((int)value).ToString();
         }
         // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
         public void SetMetadataBlob(string value)
         {
             _data.metadata_blob = value;
-
-            putValues["metadata_blob"] = value;
         }
         // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
         public void SetTagNames(string[] valueArray)
@@ -272,17 +245,46 @@ namespace ModIO
 
         // TODO(@jackson): Add SetLogo()
 
-        // - Submission Helpers -
-        private Dictionary<string, string> putValues = new Dictionary<string, string>();
+        // --- SUBMISSION HELPERS ---
         public StringValueField[] GetEditValueFields()
         {
-            // TODO(@jackson): Replace with compare data/initialData
-
             List<StringValueField> retVal = new List<StringValueField>();
-            
-            foreach(KeyValuePair<string, string> kvp in putValues)
+
+            if(_initialData.status != _data.status)
             {
-                retVal.Add(StringValueField.Create(kvp.Key, kvp.Value));
+                retVal.Add(StringValueField.Create("status", _data.status.ToString()));
+            }
+            if(_initialData.visible != _data.visible)
+            {
+                retVal.Add(StringValueField.Create("visible", _data.visible.ToString()));
+            }
+            if(_initialData.name != _data.name)
+            {
+                retVal.Add(StringValueField.Create("name", _data.name));
+            }
+            if(_initialData.name_id != _data.name_id)
+            {
+                retVal.Add(StringValueField.Create("name_id", _data.name_id));
+            }
+            if(_initialData.summary != _data.summary)
+            {
+                retVal.Add(StringValueField.Create("summary", _data.summary));
+            }
+            if(_initialData.description != _data.description)
+            {
+                retVal.Add(StringValueField.Create("description", _data.description));
+            }
+            if(_initialData.homepage != _data.homepage)
+            {
+                retVal.Add(StringValueField.Create("homepage", _data.homepage));
+            }
+            if(_initialData.stock != _data.stock)
+            {
+                retVal.Add(StringValueField.Create("stock", _data.stock.ToString()));
+            }
+            if(_initialData.metadata_blob != _data.metadata_blob)
+            {
+                retVal.Add(StringValueField.Create("metadata_blob", _data.metadata_blob));
             }
 
             return retVal.ToArray();
@@ -299,7 +301,7 @@ namespace ModIO
             retVal.Add(StringValueField.Create("description", _data.description));
             retVal.Add(StringValueField.Create("homepage", _data.homepage));
             retVal.Add(StringValueField.Create("stock", _data.stock));
-            retVal.Add(StringValueField.Create("metadata", _data.metadata_blob));
+            retVal.Add(StringValueField.Create("metadata_blob", _data.metadata_blob));
 
             string[] tagNames = this.GetTagNames();
             foreach(string tagName in tagNames)
@@ -309,7 +311,6 @@ namespace ModIO
 
             return retVal.ToArray();
         }
-
 
         public BinaryDataField[] GetAddDataFields()
         {
