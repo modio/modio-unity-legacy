@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +13,10 @@ namespace ModIO
         private bool isMetadataBlobExpanded = false;
         private bool isLogoExpanded = false;
         private bool isDescriptionExpanded = false;
+
+        private Texture2D logoTexture = null;
+        private string logoFilepath = "";
+        private DateTime logoLastWrite = new DateTime();
 
         public override void OnInspectorGUI()
         {
@@ -34,6 +40,8 @@ namespace ModIO
 
         private void DisplayInner(SerializedProperty modObjectProp)
         {
+            // TODO(@jackson): Load cached Logo
+
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("name"),
                                           new GUIContent("Name"));
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("name_id"),
@@ -62,12 +70,20 @@ namespace ModIO
             EditorGUILayout.EndHorizontal();
 
             // --- EXPANDABLE SECTION ---
-            isLogoExpanded = EditorGUILayout.Foldout(isLogoExpanded, "Mod Logo");
-            if(isLogoExpanded)
+            bool doBrowseLogo = false;
+            EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("logo"),
-                                              new GUIContent(""));
+                EditorGUILayout.PrefixLabel("Logo");
+                EditorGUILayout.BeginHorizontal();
+                {
+                    string browseButtonText = (logoFilepath != "" ? Path.GetFileName(logoFilepath) : "Browse...");
+                    doBrowseLogo = GUILayout.Button(browseButtonText);
+                }
+                EditorGUILayout.EndHorizontal();
             }
+            EditorGUILayout.EndHorizontal();
+
+            // TODO(@jackson): Add placeholder for no logo
 
             isSummaryExpanded = EditorGUILayout.Foldout(isSummaryExpanded, "Summary");
             if(isSummaryExpanded)
@@ -95,7 +111,7 @@ namespace ModIO
 
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("tags"),
                                           new GUIContent("Tags"));
-            
+
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("media"),
                                           new GUIContent("Media"));
 
@@ -141,7 +157,26 @@ namespace ModIO
             }
             EditorGUI.EndDisabledGroup();
             
+            // Finalization
+            if(doBrowseLogo)
+            {
+                // TODO(@jackson): Add other file-types
+                string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
+                if (path.Length != 0)
+                {
+                    logoFilepath = path;
+                    logoLastWrite = new DateTime();
+                }
+            }
 
+            if(File.Exists(logoFilepath)
+               && File.GetLastWriteTime(logoFilepath) > logoLastWrite)
+            {
+                logoLastWrite = File.GetLastWriteTime(logoFilepath);
+
+                logoTexture = new Texture2D(0, 0);
+                logoTexture.LoadImage(File.ReadAllBytes(logoFilepath));
+            }
         }
     }
 }

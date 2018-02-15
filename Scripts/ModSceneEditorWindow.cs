@@ -40,16 +40,16 @@ namespace ModIO
                 currentScene = SceneManager.GetActiveScene();
 
                 sceneData = Object.FindObjectOfType<EditorSceneData>();
-
-                if(sceneData == null)
-                {
-                    GameObject sd_go = new GameObject("ModIO Scene Data");
-                    sd_go.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
-
-                    sceneData = sd_go.AddComponent<EditorSceneData>();
-                }
             }
-            
+
+            if(sceneData == null)
+            {
+                GameObject sd_go = new GameObject("ModIO Scene Data");
+                sd_go.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
+
+                sceneData = sd_go.AddComponent<EditorSceneData>();
+            }
+
             int modOptionIndex = 0;
             ModInfo[] modList = ModManager.GetMods(GetAllModsFilter.None);
             string[] modOptions = new string[modList.Length + 1];
