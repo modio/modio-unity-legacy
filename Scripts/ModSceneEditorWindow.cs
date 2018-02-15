@@ -18,6 +18,8 @@ namespace ModIO
 
         private ModInfoEditor infoEditor;
 
+        private Vector2 scrollPos;
+
         [MenuItem("ModIO/Mod Scene Info Editor")]
         public static void ShowWindow()
         {
@@ -32,6 +34,7 @@ namespace ModIO
 
         private void OnGUI()
         {
+            // TODO(@jackson): Add Header
             // TODO(@jackson): Make scrollable
             if(currentScene != SceneManager.GetActiveScene())
             {
@@ -80,9 +83,13 @@ namespace ModIO
                 }
             }
 
-            SerializedObject serializedSceneData = new SerializedObject(sceneData);
-            infoEditor.DisplayAsProperty(serializedSceneData.FindProperty("modInfo"));
-            serializedSceneData.ApplyModifiedProperties();
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+            {
+                SerializedObject serializedSceneData = new SerializedObject(sceneData);
+                infoEditor.DisplayAsProperty(serializedSceneData.FindProperty("modInfo"));
+                serializedSceneData.ApplyModifiedProperties();
+            }
+            EditorGUILayout.EndScrollView();
         }
     }
 }

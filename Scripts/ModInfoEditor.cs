@@ -18,8 +18,6 @@ namespace ModIO
         private string logoFilepath = "";
         private DateTime logoLastWrite = new DateTime();
 
-        private Vector2 scrollPos;
-
         public override void OnInspectorGUI()
         {
             DisplayAsObject(serializedObject);
@@ -65,7 +63,7 @@ namespace ModIO
                     EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("stock"),
                                                   new GUIContent(""));
 
-                    EditorGUILayout.LabelField("[ 0 = Unlimited ]");
+                    EditorGUILayout.LabelField("0 = Unlimited", GUILayout.Width(80));
                 }
                 EditorGUILayout.EndHorizontal();
             }
@@ -80,12 +78,13 @@ namespace ModIO
                 {
                     EditorGUILayout.BeginHorizontal();
                     {
+                        // TODO(@jackson): Convert to object field for persistence?
+                        //  Maybe not necessary if saved to emi... TODO?!
                         string displayFileName = (logoFilepath == "" ?
                                                   "Browse..." :
                                                   Path.GetFileName(logoFilepath));
 
                         doBrowseLogo = GUILayout.Button(displayFileName, GUI.skin.textField);
-
                     }
                     EditorGUILayout.EndHorizontal();
 
@@ -100,16 +99,6 @@ namespace ModIO
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndHorizontal();
-
-
-
-
-            // isSummaryExpanded = EditorGUILayout.Foldout(isSummaryExpanded, "Summary");
-            // if(isSummaryExpanded)
-            // {
-            //     EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("summary"),
-            //                                   new GUIContent(""), GUILayout.Height(120));
-            // }
 
             SerializedProperty summaryProp = modObjectProp.FindPropertyRelative("summary");
             EditorGUILayout.PrefixLabel("Summary");
@@ -174,7 +163,7 @@ namespace ModIO
             }
             EditorGUI.EndDisabledGroup();
             
-            // Finalization
+            // ---[ FINALIZATION ]---
             if(doBrowseLogo)
             {
                 // TODO(@jackson): Add other file-types
