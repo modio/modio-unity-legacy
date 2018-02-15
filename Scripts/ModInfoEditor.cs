@@ -18,6 +18,8 @@ namespace ModIO
         private string logoFilepath = "";
         private DateTime logoLastWrite = new DateTime();
 
+        private Vector2 scrollPos;
+
         public override void OnInspectorGUI()
         {
             DisplayAsObject(serializedObject);
@@ -74,37 +76,52 @@ namespace ModIO
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.PrefixLabel("Logo");
-                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.BeginVertical();
                 {
-                    string browseButtonText = (logoFilepath != "" ? Path.GetFileName(logoFilepath) : "Browse...");
-                    doBrowseLogo = GUILayout.Button(browseButtonText);
+                    EditorGUILayout.BeginHorizontal();
+                    {
+                        string displayFileName = (logoFilepath == "" ?
+                                                  "Browse..." :
+                                                  Path.GetFileName(logoFilepath));
+
+                        doBrowseLogo = GUILayout.Button(displayFileName, GUI.skin.textField);
+
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    // TODO(@jackson): Add placeholder for no logo
+                    if(logoTexture != null)
+                    {
+                        Rect logoRect = EditorGUILayout.GetControlRect(false, 120.0f, null);
+                        EditorGUI.DrawPreviewTexture(logoRect, logoTexture, null, ScaleMode.ScaleAndCrop);
+                    }
+                    EditorGUI.EndDisabledGroup();
                 }
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndHorizontal();
 
-            // TODO(@jackson): Add placeholder for no logo
 
-            isSummaryExpanded = EditorGUILayout.Foldout(isSummaryExpanded, "Summary");
-            if(isSummaryExpanded)
-            {
-                EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("summary"),
-                                              new GUIContent(""), GUILayout.Height(120));
-            }
 
-            isDescriptionExpanded = EditorGUILayout.Foldout(isDescriptionExpanded, "Description");
-            if(isDescriptionExpanded)
-            {
-                EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("description"),
-                                              new GUIContent(""), GUILayout.Height(120));
-            }
 
-            isMetadataBlobExpanded = EditorGUILayout.Foldout(isMetadataBlobExpanded, "Metadata Blob");
-            if(isMetadataBlobExpanded)
-            {
-                EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("metadata_blob"),
-                                              new GUIContent(""), GUILayout.Height(120));
-            }
+            // isSummaryExpanded = EditorGUILayout.Foldout(isSummaryExpanded, "Summary");
+            // if(isSummaryExpanded)
+            // {
+            //     EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("summary"),
+            //                                   new GUIContent(""), GUILayout.Height(120));
+            // }
+
+            SerializedProperty summaryProp = modObjectProp.FindPropertyRelative("summary");
+            EditorGUILayout.PrefixLabel("Summary");
+            summaryProp.stringValue = EditorGUILayout.TextArea(summaryProp.stringValue);
+
+            SerializedProperty descriptionProp = modObjectProp.FindPropertyRelative("description");
+            EditorGUILayout.PrefixLabel("Description");
+            descriptionProp.stringValue = EditorGUILayout.TextArea(descriptionProp.stringValue);
+
+            SerializedProperty metadataProp = modObjectProp.FindPropertyRelative("metadata_blob");
+            EditorGUILayout.PrefixLabel("Metadata");
+            metadataProp.stringValue = EditorGUILayout.TextArea(metadataProp.stringValue);
 
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
                                           new GUIContent("Modfile"));
@@ -169,6 +186,7 @@ namespace ModIO
                 }
             }
 
+            // TODO(@jackson): Handle file missing
             if(File.Exists(logoFilepath)
                && File.GetLastWriteTime(logoFilepath) > logoLastWrite)
             {
