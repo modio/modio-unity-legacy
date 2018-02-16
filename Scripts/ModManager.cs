@@ -1,5 +1,5 @@
 ﻿#define USING_TEST_SERVER
-// #define TEST_IGNORE_CACHE
+// #define TEST_IGNORE_DISK_CACHE
 
 using System;
 using System.IO;
@@ -13,7 +13,7 @@ namespace ModIO
     public delegate void ModEventHandler(ModInfo mod);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
-    public delegate void ModLogoEventHandler(int modId, Sprite modLogo, LogoVersion logoVersion);
+    public delegate void ModLogoEventHandler(int modId, Texture2D modLogo, LogoVersion logoVersion);
 
     public enum ModBinaryStatus
     {
@@ -84,8 +84,11 @@ namespace ModIO
             ModManager.gameId = gameId;
             ModManager.apiKey = apiKey;
 
+            // TODO(@jackson): Listen to logo update for caching
+
             LoadCacheFromDisk();
             FetchAndCacheAllMods();
+
         }
 
         private static void LoadCacheFromDisk()
@@ -95,7 +98,7 @@ namespace ModIO
                 Directory.CreateDirectory(MODIO_DIR);
             }
 
-            #if TEST_IGNORE_CACHE
+            #if TEST_IGNORE_DISK_CACHE
             {
                 manifest = new ManifestData();
                 manifest.lastUpdateTimeStamp = new TimeStamp();
@@ -672,86 +675,78 @@ namespace ModIO
         }
 
         // ---------[ LOGO MANAGEMENT ]---------
-        private class LogoTemplate
+        private static Dictionary<LogoVersion, string> logoFilenameMap = new Dictionary<LogoVersion, string>()
         {
-            static LogoTemplate()
-            {
-                versionArray = new LogoTemplate[Enum.GetValues(typeof(LogoVersion)).Length];
-
-                versionArray[(int)LogoVersion.Original] = new LogoTemplate();
-                versionArray[(int)LogoVersion.Original].version = LogoVersion.Original;
-                versionArray[(int)LogoVersion.Original].localFilename = "logo_original.png";
-                versionArray[(int)LogoVersion.Original].getServerURL = (ModInfo m) => { return m.logo.original; };
-
-                versionArray[(int)LogoVersion.Thumb_320x180] = new LogoTemplate();
-                versionArray[(int)LogoVersion.Thumb_320x180].version = LogoVersion.Thumb_320x180;
-                versionArray[(int)LogoVersion.Thumb_320x180].localFilename = "logo_320x180.png";
-                versionArray[(int)LogoVersion.Thumb_320x180].getServerURL = (ModInfo m) => { return m.logo.thumb320x180; };
-
-                versionArray[(int)LogoVersion.Thumb_640x360] = new LogoTemplate();
-                versionArray[(int)LogoVersion.Thumb_640x360].version = LogoVersion.Thumb_640x360;
-                versionArray[(int)LogoVersion.Thumb_640x360].localFilename = "logo_640x360.png";
-                versionArray[(int)LogoVersion.Thumb_640x360].getServerURL = (ModInfo m) => { return m.logo.thumb640x360; };
-
-                versionArray[(int)LogoVersion.Thumb_1280x720] = new LogoTemplate();
-                versionArray[(int)LogoVersion.Thumb_1280x720].version = LogoVersion.Thumb_1280x720;
-                versionArray[(int)LogoVersion.Thumb_1280x720].localFilename = "logo_1280x720.png";
-                versionArray[(int)LogoVersion.Thumb_1280x720].getServerURL = (ModInfo m) => { return m.logo.thumb1280x720; };
-            }
-
-            private static LogoTemplate[] versionArray;
-            public static LogoTemplate ForLogoVersion(LogoVersion version)
-            {
-                return versionArray[(int)version];
-            }
-
-            // - Fields -
-            public LogoVersion version = LogoVersion.Original;
-            public string localFilename = "";
-            public Func<ModInfo, string> getServerURL = null;
-        }
+            { LogoVersion.Original,         "logo_original.png" },
+            { LogoVersion.Thumb_320x180,    "logo_320x180.png" },
+            { LogoVersion.Thumb_640x360,    "logo_640x360.png" },
+            { LogoVersion.Thumb_1280x720,   "logo_1280x720.png" },
+        };
+        private static Dictionary<LogoVersion, Func<LogoURLInfo, string>> logoServerURLGetterMap = new Dictionary<LogoVersion, Func<LogoURLInfo, string>>()
+        {
+            { LogoVersion.Original,         (LogoURLInfo logoInfo) => { return logoInfo.original; } },
+            { LogoVersion.Thumb_320x180,    (LogoURLInfo logoInfo) => { return logoInfo.thumb320x180; } },
+            { LogoVersion.Thumb_640x360,    (LogoURLInfo logoInfo) => { return logoInfo.thumb640x360; } },
+            { LogoVersion.Thumb_1280x720,   (LogoURLInfo logoInfo) => { return logoInfo.thumb1280x720; } },
+        };
 
         public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
-        public static Dictionary<int, Sprite> modLogoCache = new Dictionary<int, Sprite>();
-        public static Sprite modLogoDownloadingPlaceholder;
+        public static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
 
-        public static Sprite GetModLogo(ModInfo mod, LogoVersion logoVersion)
+        public static Texture2D GetCachedModLogo(int modId, LogoVersion logoVersion)
         {
-            Sprite retVal;
+            Texture2D logoTexture = null;
 
             // NOTE(@jackson): Potentially return an off-res version?
-            if(cachedLogoVersion == logoVersion
-               && modLogoCache.TryGetValue(mod.id, out retVal))
+            if(cachedLogoVersion == logoVersion)
             {
-                return retVal;
+               modLogoCache.TryGetValue(modId, out logoTexture);
+            }
+            #if !TEST_IGNORE_DISK_CACHE
+            if(logoTexture == null)
+            {
+                string localURL = GetModDirectory(modId) + logoFilenameMap[logoVersion];
+                if(File.Exists(localURL))
+                {
+                    logoTexture = new Texture2D(0, 0);
+                    logoTexture.LoadImage(File.ReadAllBytes(localURL));
+                }
+            }
+            #endif
+
+            return logoTexture;
+        }
+
+        public static void DownloadModLogo(int modId, LogoVersion logoVersion)
+        {
+            ModInfo modInfo = GetMod(modId);
+            if(modInfo != null)
+            {
+                StartLogoDownload(modInfo, logoVersion);
             }
             else
             {
-                LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
-
-                #if !TEST_IGNORE_CACHE
-                string localURL = GetModDirectory(mod.id) + logoTemplate.localFilename;
-                if(File.Exists(localURL))
+                Action<ModInfo> cacheModAndDownloadLogo = (mod) =>
                 {
-                    Texture2D logoTexture = new Texture2D(0, 0);
-                    logoTexture.LoadImage(File.ReadAllBytes(localURL));
+                    CacheMod(mod);
+                    StartLogoDownload(mod, logoVersion);
 
-                    return Sprite.Create(logoTexture,
-                                         new Rect(0, 0, logoTexture.width, logoTexture.height),
-                                         Vector2.zero);
-                }
-                else
-                #endif
-                {
-                    StartLogoDownload(mod, logoTemplate);
-                    return modLogoDownloadingPlaceholder;
-                }
+                    if(OnModAdded != null)
+                    {
+                        OnModAdded(mod);
+                    }
+                };
+
+                client.GetMod(ModManager.apiKey, ModManager.gameId,
+                              modId,
+                              cacheModAndDownloadLogo,
+                              APIClient.IgnoreResponse);
             }
         }
 
-        private static void StartLogoDownload(ModInfo mod, LogoTemplate logoTemplate)
+        private static void StartLogoDownload(ModInfo mod, LogoVersion logoVersion)
         {
-            string logoURL = logoTemplate.getServerURL(mod);
+            string logoURL = logoServerURLGetterMap[logoVersion](mod.logo);
 
             TextureDownload download = new TextureDownload();
             download.sourceURL = logoURL;
@@ -761,39 +756,36 @@ namespace ModIO
                 Texture2D logoTexture = textureDownload.texture;
 
                 // - Cache -
-                if(cachedLogoVersion == logoTemplate.version)
+                if(cachedLogoVersion == logoVersion)
                 {
-                    modLogoCache[mod.id]
-                        = Sprite.Create(logoTexture,
-                                        new Rect(0, 0, logoTexture.width, logoTexture.height),
-                                        Vector2.zero);
+                    modLogoCache[mod.id] = logoTexture;
                 }
 
                 // - Save to disk -
-                string localURL = GetModDirectory(mod.id) + logoTemplate.localFilename;
+                string localURL = GetModDirectory(mod.id) + logoFilenameMap[logoVersion];
                 byte[] bytes = logoTexture.EncodeToPNG();
                 File.WriteAllBytes(localURL, bytes);
 
                 // - Notify -
                 if(OnModLogoUpdated != null)
                 {
-                    OnModLogoUpdated(mod.id, modLogoCache[mod.id], logoTemplate.version);
+                    OnModLogoUpdated(mod.id, logoTexture, logoVersion);
                 }
             };
 
             DownloadManager.AddConcurrentDownload(download);
         }
 
-        public static void CacheModLogos(ModInfo[] modLogosToCache,
-                                         LogoVersion logoVersion)
+        public static void DownloadModLogos(ModInfo[] modLogosToCache,
+                                            LogoVersion logoVersion)
         {
-            LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
             List<ModInfo> missingLogoList = new List<ModInfo>(modLogosToCache.Length);
+            string logoFilename = logoFilenameMap[logoVersion];
             
             // Reset Cache if logoVersion is incorrect
             if(logoVersion != cachedLogoVersion)
             {
-                modLogoCache = new Dictionary<int, Sprite>(modLogosToCache.Length);
+                modLogoCache = new Dictionary<int, Texture2D>(modLogosToCache.Length);
             }
 
             // Check which logos are missing
@@ -804,47 +796,32 @@ namespace ModIO
                     continue;
                 }
 
-                #if !TEST_IGNORE_CACHE
-                string logoFilepath = GetModDirectory(mod.id) + logoTemplate.localFilename;
+                #if !TEST_IGNORE_DISK_CACHE
+                string logoFilepath = GetModDirectory(mod.id) + logoFilename;
                 if(File.Exists(logoFilepath))
                 {
                     Texture2D logoTexture = new Texture2D(0,0);
                     logoTexture.LoadImage(File.ReadAllBytes(logoFilepath));
 
-                    modLogoCache[mod.id]
-                        = Sprite.Create(logoTexture,
-                                        new Rect(0, 0, logoTexture.width, logoTexture.height),
-                                        Vector2.zero);
+                    modLogoCache[mod.id] = logoTexture;
 
                     if(OnModLogoUpdated != null)
                     {
-                        OnModLogoUpdated(mod.id, modLogoCache[mod.id], logoTemplate.version);
+                        OnModLogoUpdated(mod.id, logoTexture, logoVersion);
                     }
                 }
                 else
                 #endif
                 {
-                    modLogoCache.Add(mod.id, modLogoDownloadingPlaceholder);
                     missingLogoList.Add(mod);
-                    
-                    if(OnModLogoUpdated != null)
-                    {
-                        OnModLogoUpdated(mod.id, modLogoDownloadingPlaceholder, logoTemplate.version);
-                    }
                 }
             }
 
             // Download
             foreach(ModInfo mod in missingLogoList)
             {
-                StartLogoDownload(mod, logoTemplate);
+                StartLogoDownload(mod, logoVersion);
             }
-        }
-
-        public static string GetModLogoFilepath(ModInfo mod, LogoVersion logoVersion)
-        {
-            LogoTemplate logoTemplate = LogoTemplate.ForLogoVersion(logoVersion);
-            return GetModDirectory(mod.id) + logoTemplate.localFilename;
         }
 
         // ---------[ MISC ]------------
