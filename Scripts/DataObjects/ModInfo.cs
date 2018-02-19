@@ -141,12 +141,15 @@ namespace ModIO
             base.WrapAPIObject(apiObject);
 
             this._initialData = this._data.Clone();
+            this.logoFilepath = "";
         }
 
         // --- Additional Fields ---
-        private ModObject _initialData;
-        private string logoFilepath = "";
-        private bool isLogoChanged = false;
+        [UnityEngine.SerializeField] private ModObject _initialData;
+        [UnityEngine.SerializeField] private string logoFilepath;
+
+        public string unsubmittedLogoFilepath { get { return logoFilepath; } }
+
         // TODO(@jackson): Add Support for Mod Media
 
         // --- SETTERS ---
@@ -243,7 +246,10 @@ namespace ModIO
             _data.tags = modTagArray;
         }
 
-        // TODO(@jackson): Add SetLogo()
+        public void SetLogoFilepath(string value)
+        {
+            logoFilepath = value;
+        }
 
         // --- SUBMISSION HELPERS ---
         public StringValueField[] GetEditValueFields()

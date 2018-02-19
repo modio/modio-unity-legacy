@@ -125,7 +125,7 @@ namespace ModIO
 
         public static bool IsURL(string toCheck)
         {
-            // URL Regex adapted from https://regex.wtf/url-matching-regex-javascript/ 
+            // URL Regex adapted from https://regex.wtf/url-matching-regex-javascript/
             string protocol = "^(http(s)?(://))?(www.)?";
             string domain = "[a-zA-Z0-9-_.]+";
             Regex urlRegex = new Regex(protocol + domain, RegexOptions.IgnoreCase);

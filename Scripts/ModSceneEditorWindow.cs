@@ -29,7 +29,7 @@ namespace ModIO
         private void OnEnable()
         {
             ModManager.Initialize(GAME_ID, API_KEY);
-            infoEditor = new ModInfoEditor();
+            infoEditor = ScriptableObject.CreateInstance<ModInfoEditor>();
         }
 
         private void OnGUI()

@@ -124,7 +124,12 @@ namespace ModIO
 
 
                 // iterate through folders, load ModInfo
-                string[] modDirectories = Directory.GetDirectories(MODIO_DIR);
+                if(!Directory.Exists(MODIO_DIR + "mods/"))
+                {
+                    Directory.CreateDirectory(MODIO_DIR + "mods/");
+                }
+
+                string[] modDirectories = Directory.GetDirectories(MODIO_DIR + "mods/");
                 foreach(string modDir in modDirectories)
                 {
                     // Load ModInfo from Disk
@@ -559,7 +564,7 @@ namespace ModIO
 
         public static string GetModDirectory(int modId)
         {
-            return MODIO_DIR + modId + "/mods/";
+            return MODIO_DIR + "mods/" + modId + "/";
         }
 
         public static ModInfo GetMod(int modId)
@@ -693,7 +698,7 @@ namespace ModIO
         public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
         public static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
 
-        public static Texture2D GetCachedModLogo(int modId, LogoVersion logoVersion)
+        public static Texture2D LoadCachedModLogo(int modId, LogoVersion logoVersion)
         {
             Texture2D logoTexture = null;
 
@@ -855,21 +860,21 @@ namespace ModIO
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
-        public static void EditMod(EditableModInfo modInfo,
-                                   Action<ModInfo> onSuccess,
-                                   Action<ErrorInfo> onError)
+        public static void SubmitMod(EditableModInfo modInfo,
+                                     Action<ModInfo> onSuccess,
+                                     Action<ErrorInfo> onError)
         {
-            // TODO(@jackson): Force an update poll
-            client.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
-        }
-
-        public static void AddMod(EditableModInfo modInfo,
-                                  Action<ModInfo> onSuccess,
-                                  Action<ErrorInfo> onError)
-        {
-            client.AddMod(userData.oAuthToken, ModManager.gameId,
-                          modInfo,
-                          onSuccess, onError);
+            if(false)
+            // if(modInfo.id > 0)
+            {
+                client.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
+            }
+            else
+            {
+                client.AddMod(userData.oAuthToken, ModManager.gameId,
+                              modInfo,
+                              onSuccess, onError);
+            }
         }
 
         public static void AddModMedia(int modId, UnsubmittedModMedia modMedia,
