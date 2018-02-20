@@ -32,5 +32,8 @@ namespace ModIO
 
         // Default loading textures
         public Texture2D LoadingLogo320x180;
+
+        // Default editor textures
+        public Texture2D EditorTexture_UndoButton;
     }
 }

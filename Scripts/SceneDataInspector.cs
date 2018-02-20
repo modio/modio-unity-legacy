@@ -35,68 +35,151 @@ namespace ModIO
         {
             string logoSourceDisplay = (logoSource == "" ? "Browse..." : logoSource);
             SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
+            bool isUndoRequested = false;
+            Rect buttonRect;
 
+
+            // - Name -
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("name"),
                                           new GUIContent("Name"));
+            if(Event.current.type == EventType.Repaint)
+            {
+                buttonRect = GUILayoutUtility.GetLastRect();
+                buttonRect.width = buttonRect.height;
+                buttonRect.x = EditorGUIUtility.labelWidth - buttonRect.width;
+
+                AffixUndoButton(buttonRect, out isUndoRequested);
+
+                if(isUndoRequested)
+                {
+                    ResetStringField(modInfoProp, "name");
+                }
+            }
+
+
+            // - Name ID -
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("name_id"),
                                           new GUIContent("Name-ID"));
+            if(Event.current.type == EventType.Repaint)
+            {
+                buttonRect = GUILayoutUtility.GetLastRect();
+                buttonRect.width = buttonRect.height;
+                buttonRect.x = EditorGUIUtility.labelWidth - buttonRect.width;
+
+                AffixUndoButton(buttonRect, out isUndoRequested);
+
+                if(isUndoRequested)
+                {
+                    ResetStringField(modInfoProp, "name_id");
+                }
+            }
 
 
+            // - Visibility -
             ModInfo.Visibility modVisibility = (ModInfo.Visibility)modObjectProp.FindPropertyRelative("visible").intValue;
             modVisibility = (ModInfo.Visibility)EditorGUILayout.EnumPopup("Visibility", modVisibility);
             modObjectProp.FindPropertyRelative("visible").intValue = (int)modVisibility;
 
+            if(Event.current.type == EventType.Repaint)
+            {
+                buttonRect = GUILayoutUtility.GetLastRect();
+                buttonRect.width = buttonRect.height;
+                buttonRect.x = EditorGUIUtility.labelWidth - buttonRect.width;
+
+                AffixUndoButton(buttonRect, out isUndoRequested);
+
+                if(isUndoRequested)
+                {
+                    ResetIntField(modInfoProp, "visibility");
+                }
+            }
+
+            // - Homepage -
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("homepage"),
                                           new GUIContent("Homepage"));
+            if(Event.current.type == EventType.Repaint)
+            {
+                buttonRect = GUILayoutUtility.GetLastRect();
+                buttonRect.width = buttonRect.height;
+                buttonRect.x = EditorGUIUtility.labelWidth - buttonRect.width;
 
+                AffixUndoButton(buttonRect, out isUndoRequested);
+
+                if(isUndoRequested)
+                {
+                    ResetStringField(modInfoProp, "homepage");
+                }
+            }
+
+            // - Stock -
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.PrefixLabel("Stock");
-                EditorGUILayout.BeginHorizontal();
-                {
-                    EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("stock"),
-                                                  new GUIContent(""));
 
-                    EditorGUILayout.LabelField("0 = Unlimited", GUILayout.Width(80));
+                if(Event.current.type == EventType.Repaint)
+                {
+                    buttonRect = GUILayoutUtility.GetLastRect();
+                    buttonRect.width = buttonRect.height;
+                    buttonRect.x = EditorGUIUtility.labelWidth - buttonRect.width;
+
+                    AffixUndoButton(buttonRect, out isUndoRequested);
+
+                    if(isUndoRequested)
+                    {
+                        ResetIntField(modInfoProp, "stock");
+                    }
                 }
-                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("stock"),
+                                              new GUIContent(""), GUILayout.Width(40));
+
+                // TODO(@jackson): Change to checkbox
+                EditorGUILayout.LabelField("0 = Unlimited", GUILayout.Width(80));
             }
             EditorGUILayout.EndHorizontal();
 
-            // --- EXPANDABLE SECTION ---
+            // - Logo -
             bool doBrowseLogo = false;
+
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.PrefixLabel("Logo");
-                EditorGUILayout.BeginVertical();
+ 
+                if(Event.current.type == EventType.Repaint)
                 {
-                    // TODO(@jackson): Add placeholder for no logo
+                    buttonRect = GUILayoutUtility.GetLastRect();
+                    buttonRect.width = buttonRect.height;
+                    buttonRect.x = EditorGUIUtility.labelWidth - buttonRect.width;
 
-                    if(logoTexture != null)
+                    AffixUndoButton(buttonRect, out isUndoRequested);
+
+                    if(isUndoRequested)
                     {
-                        Rect logoRect = EditorGUILayout.GetControlRect(false, 110.0f, null);
-                        EditorGUI.LabelField(new Rect(logoRect.x, logoRect.y, logoRect.width, logoRect.height - 90.0f),
-                                             logoSourceDisplay);
-                        EditorGUI.DrawPreviewTexture(new Rect(logoRect.x, logoRect.y + 20.0f, logoRect.width, logoRect.height - 20.0f),
-                                                     logoTexture, null, ScaleMode.ScaleAndCrop);
-                        doBrowseLogo = GUI.Button(logoRect, "", GUI.skin.label);
+                        modInfoProp.FindPropertyRelative("logoFilepath").stringValue = "";
                     }
-
-                    // doBrowseLogo = GUILayout.Button(logoSourceDisplay, GUI.skin.textField);
-                    // EditorGUILayout.BeginHorizontal();
-                    // {
-                    // }
-                    // EditorGUILayout.EndHorizontal();
-
-                    EditorGUI.EndDisabledGroup();
                 }
-                EditorGUILayout.EndHorizontal();
+
+                if(Event.current.type == EventType.Layout)
+                {
+                    EditorGUILayout.LabelField(logoSourceDisplay);
+                }
+                else
+                {
+                    doBrowseLogo = GUILayout.Button(logoSourceDisplay, GUI.skin.textField);
+                }
             }
             EditorGUILayout.EndHorizontal();
 
             // SerializedProperty summaryProp = modObjectProp.FindPropertyRelative("summary");
             // EditorGUILayout.PrefixLabel("Summary");
             // summaryProp.stringValue = EditorGUILayout.TextArea(summaryProp.stringValue);
+            if(logoTexture != null)
+            {
+                Rect logoRect = EditorGUILayout.GetControlRect(false, 90.0f, null);
+                EditorGUI.DrawPreviewTexture(new Rect(logoRect.x, logoRect.y, logoRect.width, logoRect.height),
+                                             logoTexture, null, ScaleMode.ScaleAndCrop);
+                doBrowseLogo |= GUI.Button(logoRect, "", GUI.skin.label);
+            }
 
             // SerializedProperty descriptionProp = modObjectProp.FindPropertyRelative("description");
             // EditorGUILayout.PrefixLabel("Description");
@@ -177,6 +260,23 @@ namespace ModIO
             //     logoTexture = new Texture2D(0, 0);
             //     logoTexture.LoadImage(File.ReadAllBytes(logoFilepath));
             // }
+        }
+
+        private static void AffixUndoButton(Rect buttonRect, out bool isUndoRequested)
+        {
+            isUndoRequested = GUI.Button(buttonRect, UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label);
+        }
+
+        private static void ResetStringField(SerializedProperty modInfoProp, string fieldName)
+        {
+            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).stringValue
+            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).stringValue;
+        }
+
+        private static void ResetIntField(SerializedProperty modInfoProp, string fieldName)
+        {
+            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).intValue
+            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).intValue;
         }
     }
 }
