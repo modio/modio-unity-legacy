@@ -30,6 +30,7 @@ namespace ModIO
         // 0x171727FF (Dark Blue-Gray)
         public Color DarkestColor   = new Color(0x17/255.0f, 0x17/255.0f, 0x27/255.0f, 1.0f);
 
-        public Texture LoadingLogo320x180;
+        // Default loading textures
+        public Texture2D LoadingLogo320x180;
     }
 }

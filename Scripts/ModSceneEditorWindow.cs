@@ -16,8 +16,6 @@ namespace ModIO
         private Scene currentScene;
         private EditorSceneData sceneData = null;
 
-        private ModInfoEditor infoEditor;
-
         private Vector2 scrollPos;
 
         [MenuItem("ModIO/Mod Scene Info Editor")]
@@ -29,7 +27,6 @@ namespace ModIO
         private void OnEnable()
         {
             ModManager.Initialize(GAME_ID, API_KEY);
-            infoEditor = ScriptableObject.CreateInstance<ModInfoEditor>();
         }
 
         private void OnGUI()
@@ -86,7 +83,7 @@ namespace ModIO
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
             {
                 SerializedObject serializedSceneData = new SerializedObject(sceneData);
-                infoEditor.DisplayAsProperty(serializedSceneData.FindProperty("modInfo"));
+                SceneDataInspector.DisplayAsObject(serializedSceneData);
                 serializedSceneData.ApplyModifiedProperties();
             }
             EditorGUILayout.EndScrollView();

@@ -46,42 +46,7 @@ namespace ModIO
         public RatingSummary ratingSummary  { get; protected set; }
         public ModTag[] tags                { get; protected set; }
 
-
-        // - IAPIObjectWrapper Interface -
-        public virtual void WrapAPIObject(ModObject apiObject)
-        {
-            this._data = apiObject;
-
-            this.submittedBy = new User();
-            this.submittedBy.WrapAPIObject(apiObject.submitted_by);
-            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-            this.dateUpdated = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_updated);
-            this.dateLive = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_live);
-            this.logo = new LogoURLInfo();
-            this.logo.WrapAPIObject(apiObject.logo);
-            this.modfile = new Modfile();
-            this.modfile.WrapAPIObject(apiObject.modfile);
-            this.media = new ModMediaURLInfo();
-            this.media.WrapAPIObject(apiObject.media);
-            this.ratingSummary = new RatingSummary();
-            this.ratingSummary.WrapAPIObject(apiObject.rating_summary);
-            
-            int tagCount = (apiObject.tags == null ? 0 : apiObject.tags.Length);
-            this.tags = new ModTag[tagCount];
-            for(int i = 0;
-                i < tagCount;
-                ++i)
-            {
-                this.tags[i] = new ModTag();
-                this.tags[i].WrapAPIObject(apiObject.tags[i]);
-            }
-        }
-
-        public ModObject GetAPIObject()
-        {
-            return this._data;
-        }
-
+        // - Accessors -
         public string[] GetTagNames()
         {
             int tagCount = (tags == null ? 0 : tags.Length);
@@ -98,11 +63,52 @@ namespace ModIO
             return tagNames;
         }
 
+        // - Initializer -
+        protected void InitializeFields()
+        {
+            this.submittedBy = new User();
+            this.submittedBy.WrapAPIObject(_data.submitted_by);
+            this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(_data.date_added);
+            this.dateUpdated = TimeStamp.GenerateFromServerTimeStamp(_data.date_updated);
+            this.dateLive = TimeStamp.GenerateFromServerTimeStamp(_data.date_live);
+            this.logo = new LogoURLInfo();
+            this.logo.WrapAPIObject(_data.logo);
+            this.modfile = new Modfile();
+            this.modfile.WrapAPIObject(_data.modfile);
+            this.media = new ModMediaURLInfo();
+            this.media.WrapAPIObject(_data.media);
+            this.ratingSummary = new RatingSummary();
+            this.ratingSummary.WrapAPIObject(_data.rating_summary);
+            
+            int tagCount = (_data.tags == null ? 0 : _data.tags.Length);
+            this.tags = new ModTag[tagCount];
+            for(int i = 0;
+                i < tagCount;
+                ++i)
+            {
+                this.tags[i] = new ModTag();
+                this.tags[i].WrapAPIObject(_data.tags[i]);
+            }
+        }
+
+        // - IAPIObjectWrapper Interface -
+        public virtual void WrapAPIObject(ModObject apiObject)
+        {
+            this._data = apiObject;
+            this.InitializeFields();
+        }
+
+
+        public ModObject GetAPIObject()
+        {
+            return this._data;
+        }
+
         // - ISerializationCallbackReceiver -
         public void OnBeforeSerialize() {}
         public void OnAfterDeserialize()
         {
-            this.WrapAPIObject(this._data);
+            this.InitializeFields();
         }
         
         // - Equality Overrides -
@@ -135,12 +141,10 @@ namespace ModIO
             return newEMI;
         }
 
-        // - IAPIObjectWrapper Interface -
         public override void WrapAPIObject(ModObject apiObject)
         {
             base.WrapAPIObject(apiObject);
-
-            this._initialData = this._data.Clone();
+            this._initialData = apiObject.Clone();
             this.logoFilepath = "";
         }
 

@@ -6,41 +6,35 @@ using UnityEngine;
 
 namespace ModIO
 {
-    [CustomEditor(typeof(EditableModInfo))]
-    public class ModInfoEditor : Editor
+    [CustomEditor(typeof(EditorSceneData))]
+    public class SceneDataInspector : Editor
     {
-        private bool isSummaryExpanded = false;
-        private bool isMetadataBlobExpanded = false;
-        private bool isLogoExpanded = false;
-        private bool isDescriptionExpanded = false;
-
-        private Texture2D logoTexture = null;
-        private string logoFilepath = "";
-        private DateTime logoLastWrite = new DateTime();
-
         public override void OnInspectorGUI()
         {
-            DisplayAsObject(serializedObject);
+            serializedObject.Update();
+
+            SceneDataInspector.DisplayAsObject(serializedObject);
+
+            serializedObject.ApplyModifiedProperties();
         }
 
-        public void DisplayAsObject(SerializedObject serializedModInfo)
+        public static void DisplayAsObject(SerializedObject serializedSceneData)
         {
-            serializedModInfo.Update();
-            
-            SerializedProperty modObjectProp = serializedModInfo.FindProperty("_data");
-            DisplayInner(modObjectProp);
+            EditorSceneData sceneData = serializedSceneData.targetObject as EditorSceneData;
+            Debug.Assert(sceneData != null);
 
-            serializedModInfo.ApplyModifiedProperties();
+            SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
+
+            Texture2D logoTexture = sceneData.GetModLogoTexture();
+            string logoSource = sceneData.GetModLogoSource();
+
+            DisplayInner(modInfoProp, logoTexture, logoSource);
         }
 
-        public void DisplayAsProperty(SerializedProperty serializedModInfo)
+        private static void DisplayInner(SerializedProperty modInfoProp, Texture2D logoTexture, string logoSource)
         {
-            DisplayInner(serializedModInfo.FindPropertyRelative("_data"));
-        }
-
-        private void DisplayInner(SerializedProperty modObjectProp)
-        {
-            // TODO(@jackson): Load cached Logo
+            string logoSourceDisplay = (logoSource == "" ? "Browse..." : logoSource);
+            SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
 
             EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("name"),
                                           new GUIContent("Name"));
@@ -76,50 +70,50 @@ namespace ModIO
                 EditorGUILayout.PrefixLabel("Logo");
                 EditorGUILayout.BeginVertical();
                 {
-                    EditorGUILayout.BeginHorizontal();
-                    {
-                        // TODO(@jackson): Convert to object field for persistence?
-                        //  Maybe not necessary if saved to emi... TODO?!
-                        string displayFileName = (logoFilepath == "" ?
-                                                  "Browse..." :
-                                                  Path.GetFileName(logoFilepath));
-
-                        doBrowseLogo = GUILayout.Button(displayFileName, GUI.skin.textField);
-                    }
-                    EditorGUILayout.EndHorizontal();
-
                     // TODO(@jackson): Add placeholder for no logo
+
                     if(logoTexture != null)
                     {
-                        Rect logoRect = EditorGUILayout.GetControlRect(false, 120.0f, null);
-                        EditorGUI.DrawPreviewTexture(logoRect, logoTexture, null, ScaleMode.ScaleAndCrop);
+                        Rect logoRect = EditorGUILayout.GetControlRect(false, 110.0f, null);
+                        EditorGUI.LabelField(new Rect(logoRect.x, logoRect.y, logoRect.width, logoRect.height - 90.0f),
+                                             logoSourceDisplay);
+                        EditorGUI.DrawPreviewTexture(new Rect(logoRect.x, logoRect.y + 20.0f, logoRect.width, logoRect.height - 20.0f),
+                                                     logoTexture, null, ScaleMode.ScaleAndCrop);
+                        doBrowseLogo = GUI.Button(logoRect, "", GUI.skin.label);
                     }
+
+                    // doBrowseLogo = GUILayout.Button(logoSourceDisplay, GUI.skin.textField);
+                    // EditorGUILayout.BeginHorizontal();
+                    // {
+                    // }
+                    // EditorGUILayout.EndHorizontal();
+
                     EditorGUI.EndDisabledGroup();
                 }
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndHorizontal();
 
-            SerializedProperty summaryProp = modObjectProp.FindPropertyRelative("summary");
-            EditorGUILayout.PrefixLabel("Summary");
-            summaryProp.stringValue = EditorGUILayout.TextArea(summaryProp.stringValue);
+            // SerializedProperty summaryProp = modObjectProp.FindPropertyRelative("summary");
+            // EditorGUILayout.PrefixLabel("Summary");
+            // summaryProp.stringValue = EditorGUILayout.TextArea(summaryProp.stringValue);
 
-            SerializedProperty descriptionProp = modObjectProp.FindPropertyRelative("description");
-            EditorGUILayout.PrefixLabel("Description");
-            descriptionProp.stringValue = EditorGUILayout.TextArea(descriptionProp.stringValue);
+            // SerializedProperty descriptionProp = modObjectProp.FindPropertyRelative("description");
+            // EditorGUILayout.PrefixLabel("Description");
+            // descriptionProp.stringValue = EditorGUILayout.TextArea(descriptionProp.stringValue);
 
-            SerializedProperty metadataProp = modObjectProp.FindPropertyRelative("metadata_blob");
-            EditorGUILayout.PrefixLabel("Metadata");
-            metadataProp.stringValue = EditorGUILayout.TextArea(metadataProp.stringValue);
+            // SerializedProperty metadataProp = modObjectProp.FindPropertyRelative("metadata_blob");
+            // EditorGUILayout.PrefixLabel("Metadata");
+            // metadataProp.stringValue = EditorGUILayout.TextArea(metadataProp.stringValue);
 
-            EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
-                                          new GUIContent("Modfile"));
+            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
+            //                               new GUIContent("Modfile"));
 
-            EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("tags"),
-                                          new GUIContent("Tags"));
+            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("tags"),
+            //                               new GUIContent("Tags"));
 
-            EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("media"),
-                                          new GUIContent("Media"));
+            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("media"),
+            //                               new GUIContent("Media"));
 
             // TODO(@jackson): Do section header or foldout
             EditorGUI.BeginDisabledGroup(true);
@@ -170,20 +164,19 @@ namespace ModIO
                 string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
                 if (path.Length != 0)
                 {
-                    logoFilepath = path;
-                    logoLastWrite = new DateTime();
+                    modInfoProp.FindPropertyRelative("logoFilepath").stringValue = path;
                 }
             }
 
-            // TODO(@jackson): Handle file missing
-            if(File.Exists(logoFilepath)
-               && File.GetLastWriteTime(logoFilepath) > logoLastWrite)
-            {
-                logoLastWrite = File.GetLastWriteTime(logoFilepath);
+            // // TODO(@jackson): Handle file missing
+            // if(File.Exists(logoFilepath)
+            //    && File.GetLastWriteTime(logoFilepath) > logoLastWrite)
+            // {
+            //     logoLastWrite = File.GetLastWriteTime(logoFilepath);
 
-                logoTexture = new Texture2D(0, 0);
-                logoTexture.LoadImage(File.ReadAllBytes(logoFilepath));
-            }
+            //     logoTexture = new Texture2D(0, 0);
+            //     logoTexture.LoadImage(File.ReadAllBytes(logoFilepath));
+            // }
         }
     }
 }
