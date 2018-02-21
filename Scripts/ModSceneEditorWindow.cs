@@ -29,10 +29,90 @@ namespace ModIO
             ModManager.Initialize(GAME_ID, API_KEY);
         }
 
+        // ---------[ HEADER DISPLAYS ]---------
+        private bool inputEmail = true;
+        private string emailAddressInput = "";
+        private string securityCodeInput = "";
+        private bool isRequestSending = false;
+
+        private void DisplayModIOLoginHeader()
+        {
+            // TODO(@jackson): Improve with deselection/reselection of text on submit
+            EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
+
+            using (new EditorGUI.DisabledScope(isRequestSending))
+            {
+                EditorGUILayout.BeginHorizontal();
+                {
+                    using (new EditorGUI.DisabledScope(inputEmail))
+                    {
+                        if(GUILayout.Button("Email"))//, GUI.skin.label))
+                        {
+                            inputEmail = true;
+                        }
+                    }
+                    using (new EditorGUI.DisabledScope(!inputEmail))
+                    {
+                        if(GUILayout.Button("Security Code"))//, GUI.skin.label))
+                        {
+                            inputEmail = false;
+                        }
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+
+
+                if(inputEmail)
+                {
+                    emailAddressInput = EditorGUILayout.TextField("Email Address", emailAddressInput);
+                }
+                else
+                {
+                    securityCodeInput = EditorGUILayout.TextField("Security Code", securityCodeInput);
+                }
+
+                EditorGUILayout.BeginHorizontal();
+                {
+                    if(GUILayout.Button("Submit"))
+                    {
+                        isRequestSending = true;
+
+                        if(inputEmail)
+                        {
+                            securityCodeInput = "";
+
+                            ModManager.RequestSecurityCode(emailAddressInput,
+                                                           (m) => { isRequestSending = false; inputEmail = false; },
+                                                           (e) => { isRequestSending = false; });
+                        }
+                        else
+                        {
+                            ModManager.RequestOAuthToken(securityCodeInput,
+                                                         (token) => ModManager.TryLogUserIn(token, u => isRequestSending = false, e => isRequestSending = false),
+                                                         (e) => { isRequestSending = false; inputEmail = true; });
+                        }
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
+        private void DisplayModIOAccountHeader()
+        {
+            EditorGUILayout.LabelField("MOD.IO HEADER");
+            EditorGUILayout.LabelField("Welcome " + ModManager.GetActiveUser().username);
+            if(GUILayout.Button("Log Out"))
+            {
+                ModManager.LogUserOut();
+            }
+        }
+
+        // ---------[ GUI DISPLAY ]---------
         private void OnGUI()
         {
-            // TODO(@jackson): Add Header
-            // TODO(@jackson): Make scrollable
+            bool isModEditingEnabled = true;
+
+            // - Update Data -
             if(currentScene != SceneManager.GetActiveScene())
             {
                 Debug.Log("Scene change detected. Loading Mod Data");
@@ -48,6 +128,18 @@ namespace ModIO
                 sd_go.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
 
                 sceneData = sd_go.AddComponent<EditorSceneData>();
+            }
+
+            // ---[ HEADER ]---
+            User activeUser = ModManager.GetActiveUser();
+            if(activeUser == null)
+            {
+                isModEditingEnabled = false;
+                DisplayModIOLoginHeader();
+            }
+            else
+            {
+                DisplayModIOAccountHeader();
             }
 
             int modOptionIndex = 0;
@@ -80,6 +172,7 @@ namespace ModIO
                 }
             }
 
+            // ---[ MOD INFO ]---
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
             {
                 SerializedObject serializedSceneData = new SerializedObject(sceneData);

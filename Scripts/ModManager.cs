@@ -454,11 +454,12 @@ namespace ModIO
         public static event ModIDEventHandler OnModSubscriptionRemoved;
 
         public static void RequestSecurityCode(string emailAddress,
+                                               Action<APIMessage> onSuccess,
                                                Action<ErrorInfo> onError)
         {
             client.RequestSecurityCode(ModManager.apiKey,
                                        emailAddress,
-                                       APIClient.IgnoreResponse,
+                                       onSuccess,
                                        onError);
         }
 
