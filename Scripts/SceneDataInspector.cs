@@ -295,16 +295,6 @@ namespace ModIO
                     modInfoProp.FindPropertyRelative("logoFilepath").stringValue = path;
                 }
             }
-
-            // // TODO(@jackson): Handle file missing
-            // if(File.Exists(logoFilepath)
-            //    && File.GetLastWriteTime(logoFilepath) > logoLastWrite)
-            // {
-            //     logoLastWrite = File.GetLastWriteTime(logoFilepath);
-
-            //     logoTexture = new Texture2D(0, 0);
-            //     logoTexture.LoadImage(File.ReadAllBytes(logoFilepath));
-            // }
         }
 
         private static void AffixUndoButton(Rect buttonRect, out bool isUndoRequested)

@@ -75,11 +75,13 @@ namespace ModIO
 
         private void Update()
         {
-            string modLogoFilepath = (modInfo.id > 0 && modInfo.unsubmittedLogoFilepath == "" ? modInfo.logo.thumb320x180 : modInfo.unsubmittedLogoFilepath);
+            string newLogoLocal = modInfo.unsubmittedLogoFilepath;
+            string newLogoServer = modInfo.logo.thumb320x180;
+            string newLogoSource = (modInfo.id > 0 && newLogoLocal == "" ? newLogoServer : newLogoLocal);
 
             // TODO(@jackson): Handle file missing
             // - If file has changed or unsubmitted file is updated -
-            if((modLogoFilepath != modInfo.logo.thumb320x180 && modLogoFilepath != modInfo.unsubmittedLogoFilepath)
+            if((modLogoSource != newLogoSource)
                || (File.Exists(modInfo.unsubmittedLogoFilepath) && File.GetLastWriteTime(modInfo.unsubmittedLogoFilepath) > modLogoLastWrite))
             {
                 ReacquireModLogo();
