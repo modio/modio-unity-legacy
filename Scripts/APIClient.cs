@@ -26,6 +26,8 @@ namespace ModIO
 
         public static StringValueField Create(string k, object v)
         {
+            Debug.Assert(!String.IsNullOrEmpty(k) && v != null);
+
             StringValueField retVal = new StringValueField();
             retVal.key = k;
             retVal.value = v.ToString();

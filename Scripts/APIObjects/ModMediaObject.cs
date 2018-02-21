@@ -14,23 +14,32 @@ namespace ModIO.API
         public ModMediaObject Clone()
         {
             ModMediaObject clone = new ModMediaObject();
-            
-            clone.youtube = new string[this.youtube.Length];
-            for(int i = 0; i < this.youtube.Length; ++i)
+
+            if(this.youtube != null)
             {
-                clone.youtube[i] = this.youtube[i];
+                clone.youtube = new string[this.youtube.Length];
+                for(int i = 0; i < this.youtube.Length; ++i)
+                {
+                    clone.youtube[i] = this.youtube[i];
+                }
+            }
+    
+            if(this.sketchfab != null)
+            {
+                clone.sketchfab = new string[this.sketchfab.Length];
+                for(int i = 0; i < this.sketchfab.Length; ++i)
+                {
+                    clone.sketchfab[i] = this.sketchfab[i];
+                }
             }
             
-            clone.sketchfab = new string[this.sketchfab.Length];
-            for(int i = 0; i < this.sketchfab.Length; ++i)
+            if(this.images != null)
             {
-                clone.sketchfab[i] = this.sketchfab[i];
-            }
-            
-            clone.images = new ImageObject[this.images.Length];
-            for(int i = 0; i < this.images.Length; ++i)
-            {
-                clone.images[i] = this.images[i];
+                clone.images = new ImageObject[this.images.Length];
+                for(int i = 0; i < this.images.Length; ++i)
+                {
+                    clone.images[i] = this.images[i];
+                }
             }
 
             return clone;

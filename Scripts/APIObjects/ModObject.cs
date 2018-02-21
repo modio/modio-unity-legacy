@@ -56,10 +56,13 @@ namespace ModIO.API
             
             clone.media = this.media.Clone();
             
-            clone.tags = new ModTagObject[this.tags.Length];
-            for(int i = 0; i < this.tags.Length; ++ i)
+            if(this.tags != null)
             {
-                clone.tags[i] = this.tags[i]; // Contains mod tag data.
+                clone.tags = new ModTagObject[this.tags.Length];
+                for(int i = 0; i < this.tags.Length; ++ i)
+                {
+                    clone.tags[i] = this.tags[i]; // Contains mod tag data.
+                }
             }
 
             return clone;
