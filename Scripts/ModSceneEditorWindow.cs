@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace ModIO
 {
+    // TODO(@jackson): Force repaint on Callbacks
     public class ModSceneEditorWindow : EditorWindow
     {
         private const int GAME_ID = 0;
@@ -100,18 +101,22 @@ namespace ModIO
         private void DisplayModIOAccountHeader()
         {
             EditorGUILayout.LabelField("MOD.IO HEADER");
-            EditorGUILayout.LabelField("Welcome " + ModManager.GetActiveUser().username);
-            if(GUILayout.Button("Log Out"))
+
+            EditorGUILayout.BeginHorizontal();
             {
-                ModManager.LogUserOut();
+                EditorGUILayout.LabelField("Welcome " + ModManager.GetActiveUser().username);
+                if(GUILayout.Button("Log Out"))
+                {
+                    ModManager.LogUserOut();
+                }
             }
+            EditorGUILayout.EndHorizontal();
         }
 
         // ---------[ GUI DISPLAY ]---------
+        private bool isModUploading = false;
         private void OnGUI()
         {
-            bool isModEditingEnabled = true;
-
             // - Update Data -
             if(currentScene != SceneManager.GetActiveScene())
             {
@@ -134,52 +139,67 @@ namespace ModIO
             User activeUser = ModManager.GetActiveUser();
             if(activeUser == null)
             {
-                isModEditingEnabled = false;
                 DisplayModIOLoginHeader();
             }
             else
             {
                 DisplayModIOAccountHeader();
-            }
 
-            int modOptionIndex = 0;
-            ModInfo[] modList = ModManager.GetMods(GetAllModsFilter.None);
-            string[] modOptions = new string[modList.Length + 1];
+                EditorGUILayout.Space();
 
-            modOptions[0] = "[NEW MOD]";
+                // - Select Mod -
+                int modOptionIndex = 0;
+                ModInfo[] modList = ModManager.GetMods(GetAllModsFilter.None);
+                string[] modOptions = new string[modList.Length + 1];
 
-            for(int i = 0; i < modList.Length; ++i)
-            {
-                ModInfo mod = modList[i];
-                modOptions[i+1] = mod.name;
+                modOptions[0] = "[NEW MOD]";
 
-                if(sceneData.modInfo.id == mod.id)
+                for(int i = 0; i < modList.Length; ++i)
                 {
-                    modOptionIndex = i + 1;
+                    ModInfo mod = modList[i];
+                    modOptions[i+1] = mod.name;
+
+                    if(sceneData.modInfo.id == mod.id)
+                    {
+                        modOptionIndex = i + 1;
+                    }
                 }
-            }
 
-            modOptionIndex = EditorGUILayout.Popup("Select Mod", modOptionIndex, modOptions, null);
+                modOptionIndex = EditorGUILayout.Popup("Select Mod", modOptionIndex, modOptions, null);
 
-            if(modOptionIndex > 0)
-            {
-                ModInfo selectedMod = modList[modOptionIndex - 1];
-
-                if(selectedMod.id != sceneData.modInfo.id)
+                if(modOptionIndex > 0)
                 {
-                    Undo.RecordObject(sceneData, "Select Scene ModInfo");
-                    sceneData.modInfo = EditableModInfo.FromModInfo(selectedMod);
+                    ModInfo selectedMod = modList[modOptionIndex - 1];
+
+                    if(selectedMod.id != sceneData.modInfo.id)
+                    {
+                        Undo.RecordObject(sceneData, "Select Scene ModInfo");
+                        sceneData.modInfo = EditableModInfo.FromModInfo(selectedMod);
+                    }
+                }
+
+                // - SUBMIT -
+                if(GUILayout.Button("SUBMIT TO MOD.IO"))
+                {
+                    isModUploading = true;
+                    ModManager.SubmitMod(sceneData.modInfo,
+                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
+                                         (e) => { isModUploading = false; });
                 }
             }
 
             // ---[ MOD INFO ]---
-            scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+            using (new EditorGUI.DisabledScope(activeUser == null || isModUploading))
             {
-                SerializedObject serializedSceneData = new SerializedObject(sceneData);
-                SceneDataInspector.DisplayAsObject(serializedSceneData);
-                serializedSceneData.ApplyModifiedProperties();
+                scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+                {
+                    SerializedObject serializedSceneData = new SerializedObject(sceneData);
+                    SceneDataInspector.DisplayAsObject(serializedSceneData);
+                    serializedSceneData.ApplyModifiedProperties();
+                }
+                EditorGUILayout.EndScrollView();
             }
-            EditorGUILayout.EndScrollView();
+
         }
     }
 }

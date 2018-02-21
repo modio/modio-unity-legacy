@@ -865,8 +865,7 @@ namespace ModIO
                                      Action<ModInfo> onSuccess,
                                      Action<ErrorInfo> onError)
         {
-            if(false)
-            // if(modInfo.id > 0)
+            if(modInfo.id > 0)
             {
                 client.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
             }
