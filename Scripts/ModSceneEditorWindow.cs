@@ -12,15 +12,29 @@ namespace ModIO
     // TODO(@jackson): Force repaint on Callbacks
     // TODO(@jackson): Implement client-side error-checking in submission
     // TODO(@jackson): Check if undos are necessary
+    // TODO(@jackson): Check for scene change between callbacks
     public class ModSceneEditorWindow : EditorWindow
     {
         private const int GAME_ID = 0;
         private const string API_KEY = "";
 
+        // ------[ WINDOW FIELDS ]---------
         private Scene currentScene;
-        private EditorSceneData sceneData = null;
+        private EditorSceneData sceneData;
 
+        // --- Mod Info ---
         private Vector2 scrollPos;
+        private bool isModUploading;
+
+        // --- Registration Variables ---
+        private bool inputEmail;
+        private string emailAddressInput;
+        private string securityCodeInput;
+        private bool isRequestSending;
+
+        // --- Misc. ---
+        private int modInitializationOptionIndex;
+
 
         [MenuItem("ModIO/Mod Scene Info Editor")]
         public static void ShowWindow()
@@ -31,13 +45,23 @@ namespace ModIO
         private void OnEnable()
         {
             ModManager.Initialize(GAME_ID, API_KEY);
+
+            // - Reset registration vars -
+            inputEmail = true;
+            emailAddressInput = "";
+            securityCodeInput = "";
+            isRequestSending = false;
         }
 
-        // ---------[ HEADER DISPLAYS ]---------
-        private bool inputEmail = true;
-        private string emailAddressInput = "";
-        private string securityCodeInput = "";
-        private bool isRequestSending = false;
+        private void OnSceneChange()
+        {
+            currentScene = SceneManager.GetActiveScene();
+
+            sceneData = Object.FindObjectOfType<EditorSceneData>();
+            modInitializationOptionIndex = 0;
+            scrollPos = Vector2.zero;
+            isModUploading = false;
+        }
 
         private void DisplayModIOLoginPanel()
         {
@@ -116,8 +140,6 @@ namespace ModIO
             EditorGUILayout.EndHorizontal();
         }
 
-        // ---------[ UNITIALIZED SCENE ]---------
-        private int modInitializationOptionIndex = 0;
         private void DisplayUninitializedSceneOptions()
         {
             // - Select Mod -
@@ -165,28 +187,25 @@ namespace ModIO
 
         private void UploadMod()
         {
-            // TODO(@jackson): Assert scene being saved
-            isModUploading = true;
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("Mod Data needs to be saved before being uploaded"))
+            {
+                EditorSceneManager.SaveScene(currentScene);
 
-            ModManager.SubmitMod(sceneData.modInfo,
-                                 (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
-                                 (e) => { isModUploading = false; });
+                isModUploading = true;
+
+                ModManager.SubmitMod(sceneData.modInfo,
+                                     (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
+                                     (e) => { isModUploading = false; });
+            }
         }
 
         // ---------[ GUI DISPLAY ]---------
-        private bool isModUploading = false;
         private void OnGUI()
         {
             // - Update Data -
             if(currentScene != SceneManager.GetActiveScene())
             {
-                Debug.Log("Scene change detected. Loading Mod Data");
-
-                currentScene = SceneManager.GetActiveScene();
-
-                sceneData = Object.FindObjectOfType<EditorSceneData>();
-                scrollPos = Vector2.zero;
-                modInitializationOptionIndex = 0;
+                OnSceneChange();
             }
 
             // ---[ Display ]---

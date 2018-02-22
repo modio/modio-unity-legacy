@@ -35,6 +35,8 @@ namespace ModIO
 
         private static void DisplayInner(SerializedProperty modInfoProp, Texture2D logoTexture, string logoSource)
         {
+            bool isNewMod = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("id").intValue <= 0;
+
             string logoSourceDisplay = (logoSource == "" ? "Browse..." : logoSource);
             SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
             bool isUndoRequested = false;
@@ -43,11 +45,12 @@ namespace ModIO
 
             // - Name -
             EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("name"),
                                               new GUIContent("Name"));
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
@@ -58,11 +61,12 @@ namespace ModIO
 
             // - Name ID -
             EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("name_id"),
                                               new GUIContent("Name-ID"));
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
@@ -75,10 +79,11 @@ namespace ModIO
             ModInfo.Visibility modVisibility = (ModInfo.Visibility)modObjectProp.FindPropertyRelative("visible").intValue;
 
             EditorGUILayout.BeginHorizontal();
-            {
                 modVisibility = (ModInfo.Visibility)EditorGUILayout.EnumPopup("Visibility", modVisibility);
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
@@ -92,11 +97,12 @@ namespace ModIO
 
             // - Homepage -
             EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("homepage"),
                                               new GUIContent("Homepage"));
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
@@ -106,7 +112,6 @@ namespace ModIO
 
             // - Stock -
             EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.PrefixLabel("Stock");
 
                 EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("stock"),
@@ -115,8 +120,10 @@ namespace ModIO
                 // TODO(@jackson): Change to checkbox
                 EditorGUILayout.LabelField("0 = Unlimited", GUILayout.Width(80));
 
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
@@ -128,7 +135,6 @@ namespace ModIO
             bool doBrowseLogo = false;
 
             EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.PrefixLabel("Logo");
 
                 if(Event.current.type == EventType.Layout)
@@ -140,8 +146,10 @@ namespace ModIO
                     doBrowseLogo = GUILayout.Button(logoSourceDisplay, GUI.skin.textField);
                 }
 
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             if(logoTexture != null)
@@ -166,16 +174,17 @@ namespace ModIO
             // - Summary -
             SerializedProperty summaryProp = modObjectProp.FindPropertyRelative("summary");
             EditorGUILayout.BeginHorizontal();
-            {
-                EditorGUILayout.PrefixLabel("Summary");
-
                 int charCount = summaryProp.stringValue.Length;
 
+                EditorGUILayout.PrefixLabel("Summary");
+                GUILayout.FlexibleSpace();
                 EditorGUILayout.LabelField("[" + (SUMMARY_CHAR_LIMIT - charCount).ToString()
                                            + " characters remaining]");
 
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             controlRect = EditorGUILayout.GetControlRect(false, 130.0f, null);
@@ -193,13 +202,14 @@ namespace ModIO
             // - Description -
             SerializedProperty descriptionProp = modObjectProp.FindPropertyRelative("description");
             EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.PrefixLabel("Description");
-
+                GUILayout.FlexibleSpace();
                 EditorGUILayout.LabelField("[HTML Tags accepted]");
-                
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             controlRect = EditorGUILayout.GetControlRect(false, 127.0f, null);
@@ -213,13 +223,14 @@ namespace ModIO
             // - Metadata -
             SerializedProperty metadataProp = modObjectProp.FindPropertyRelative("metadata_blob");
             EditorGUILayout.BeginHorizontal();
-            {
                 EditorGUILayout.PrefixLabel("Metadata");
                 
                 GUILayout.FlexibleSpace();
 
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
-            }
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
             EditorGUILayout.EndHorizontal();
 
             controlRect = EditorGUILayout.GetControlRect(false, 120.0f, null);
@@ -241,7 +252,7 @@ namespace ModIO
             //                               new GUIContent("Media"));
 
             // TODO(@jackson): Do section header or foldout
-            EditorGUI.BeginDisabledGroup(true);
+            using (new EditorGUI.DisabledScope(true))
             {
                 int modId = modObjectProp.FindPropertyRelative("id").intValue;
                 if(modId <= 0)
@@ -283,7 +294,6 @@ namespace ModIO
                                                modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("description").stringValue);
                 }
             }
-            EditorGUI.EndDisabledGroup();
             
             // ---[ FINALIZATION ]---
             if(doBrowseLogo)
@@ -308,11 +318,9 @@ namespace ModIO
             EditorGUIUtility.labelWidth -= buttonSize;
             
             EditorGUILayout.BeginHorizontal();
-            {
                 isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton,
                                                    GUI.skin.label, GUILayout.Width(buttonSize));
                 EditorGUILayout.PrefixLabel(prefix);
-            }
             EditorGUILayout.EndHorizontal();
 
             EditorGUIUtility.labelWidth += buttonSize;

@@ -23,7 +23,7 @@ namespace ModIO
 
         // - Fields -
         [UnityEngine.SerializeField]
-        protected ModObject _data;
+        protected ModObject _data = new ModObject();
 
         public int id                       { get { return _data.id; } }
         public int gameId                   { get { return _data.game_id; } }
