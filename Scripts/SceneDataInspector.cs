@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.IO;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ namespace ModIO
     public class SceneDataInspector : Editor
     {
         private const int SUMMARY_CHAR_LIMIT = 250;
+
+        private static List<string> expandedTags = new List<string>();
 
         public override void OnInspectorGUI()
         {
@@ -30,10 +33,15 @@ namespace ModIO
             Texture2D logoTexture = sceneData.GetModLogoTexture();
             string logoSource = sceneData.GetModLogoSource();
 
-            DisplayInner(modInfoProp, logoTexture, logoSource);
+            List<string> selectedTags = new List<string>(sceneData.modInfo.GetTagNames());
+
+            DisplayInner(modInfoProp, logoTexture, logoSource, selectedTags);
         }
 
-        private static void DisplayInner(SerializedProperty modInfoProp, Texture2D logoTexture, string logoSource)
+        private static void DisplayInner(SerializedProperty modInfoProp,
+                                         Texture2D logoTexture,
+                                         string logoSource,
+                                         List<string> selectedTags)
         {
             bool isNewMod = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("id").intValue <= 0;
 
@@ -242,11 +250,105 @@ namespace ModIO
             }
 
 
-            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
-            //                               new GUIContent("Modfile"));
+            // - Tags -
+            EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel("Tags");
+                GUILayout.FlexibleSpace();
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
+            EditorGUILayout.EndHorizontal();
 
-            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("tags"),
-            //                               new GUIContent("Tags"));
+            ++EditorGUI.indentLevel;
+
+            int tagsRemovedCount = 0;
+
+            foreach(GameTagOption tagOption in ModManager.gameInfo.taggingOptions)
+            {
+                if(!tagOption.isHidden)
+                {
+                    bool wasExpanded = expandedTags.Contains(tagOption.name);
+                    
+                    if(EditorGUILayout.Foldout(wasExpanded, tagOption.name, true))
+                    {
+                        // Update expanded list
+                        if(!wasExpanded)
+                        {
+                            expandedTags.Add(tagOption.name);
+                        }
+
+
+                        ++EditorGUI.indentLevel;
+
+                        if(tagOption.tagType == GameTagOption.TagType.SingleValue)
+                        {
+                            string selectedTag = "";
+                            foreach(string tag in tagOption.tags)
+                            {
+                                if(selectedTags.Contains(tag))
+                                {
+                                    selectedTag = tag;
+                                }
+                            }
+
+                            foreach(string tag in tagOption.tags)
+                            {
+                                bool isSelected = (tag == selectedTag);
+                                isSelected = EditorGUILayout.Toggle(tag, isSelected, EditorStyles.radioButton);
+
+                                if(isSelected && tag != selectedTag)
+                                {
+                                    if(selectedTag != "")
+                                    {
+                                        RemoveTagFromMod(modInfoProp, selectedTags.IndexOf(selectedTag) - tagsRemovedCount);
+                                        ++tagsRemovedCount;
+                                    }
+
+                                    AddTagToMod(modInfoProp, tag);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach(string tag in tagOption.tags)
+                            {
+                                bool wasSelected = selectedTags.Contains(tag);
+                                bool isSelected = EditorGUILayout.Toggle(tag, wasSelected);
+
+                                if(wasSelected != isSelected)
+                                {
+                                    if(isSelected)
+                                    {
+                                        AddTagToMod(modInfoProp, tag);
+                                    }
+                                    else
+                                    {
+                                        RemoveTagFromMod(modInfoProp, selectedTags.IndexOf(tag) - tagsRemovedCount);
+                                        ++tagsRemovedCount;
+                                    }
+                                }
+                            }
+                        }
+                        
+
+                        --EditorGUI.indentLevel;
+                    }
+                    else if(wasExpanded)
+                    {
+                        expandedTags.Remove(tagOption.name);
+                    }
+                }
+            }
+
+            --EditorGUI.indentLevel;
+
+
+            if(isUndoRequested)
+            {
+                // TODO: Implement
+                Debug.LogWarning("Reset Tags not implemented");
+            }
 
             // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("media"),
             //                               new GUIContent("Media"));
@@ -292,6 +394,9 @@ namespace ModIO
 
                     EditorGUILayout.LabelField("Description",
                                                modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("description").stringValue);
+
+                    // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
+                    //                               new GUIContent("Modfile"));
                 }
             }
             
@@ -336,6 +441,23 @@ namespace ModIO
         {
             modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).intValue
             = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).intValue;
+        }
+
+        private static void AddTagToMod(SerializedProperty modInfoProp, string tag)
+        {
+            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
+            int newIndex = tagsArrayProp.arraySize;
+            ++tagsArrayProp.arraySize;
+
+            tagsArrayProp.GetArrayElementAtIndex(newIndex).FindPropertyRelative("name").stringValue = tag;
+            tagsArrayProp.GetArrayElementAtIndex(newIndex).FindPropertyRelative("date_added").intValue = TimeStamp.Now().AsServerTimeStamp();
+        }
+
+        private static void RemoveTagFromMod(SerializedProperty modInfoProp, int tagIndex)
+        {
+            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
+
+            tagsArrayProp.DeleteArrayElementAtIndex(tagIndex);
         }
     }
 }
