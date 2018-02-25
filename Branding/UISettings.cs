@@ -12,7 +12,14 @@ namespace ModIO
             {
                 if (!_instance)
                 {
-                    _instance = Resources.FindObjectsOfTypeAll<UISettings>()[0];
+                    if(Resources.FindObjectsOfTypeAll<UISettings>().Length > 0)
+                    {
+                        _instance = Resources.FindObjectsOfTypeAll<UISettings>()[0];
+                    }
+                    else
+                    {
+                        return ScriptableObject.CreateInstance<UISettings>();
+                    }
                 }
                 return _instance;
             }

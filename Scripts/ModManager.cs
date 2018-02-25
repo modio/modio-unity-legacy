@@ -49,6 +49,7 @@ namespace ModIO
         {
             public TimeStamp lastUpdateTimeStamp;
             public List<ModEvent> unresolvedEvents;
+            public GameInfo game;
         }
 
         // ---------[ VARIABLES ]---------
@@ -68,8 +69,9 @@ namespace ModIO
         private static string MANIFEST_URL { get { return MODIO_DIR + "manifest.data"; } }
         private static string USERDATA_URL { get { return MODIO_DIR + "user.data"; } }
         
-        public static APIClient APIClient { get { return client; } }
-        public static User CurrentUser { get { return userData == null ? null : userData.user; } }
+        // public static APIClient apiClient { get { return client; } }
+        public static User currentUser { get { return userData == null ? null : userData.user; } }
+        public static GameInfo gameInfo { get { return manifest.game; }}
 
         // --------- [ INITIALIZATION ]---------
         public static void Initialize(int gameId, string apiKey)
@@ -88,7 +90,7 @@ namespace ModIO
 
             LoadCacheFromDisk();
             FetchAndCacheAllMods();
-
+            FetchAndCacheGameInfo();
         }
 
         private static void LoadCacheFromDisk()
@@ -210,6 +212,18 @@ namespace ModIO
                               APIClient.LogError);
         }
 
+        private static void FetchAndCacheGameInfo()
+        {
+            Action<GameInfo> cacheGameInfo = (game) =>
+            {
+                manifest.game = game;
+                WriteManifestToDisk();
+            };
+
+            client.GetGame(ModManager.apiKey, ModManager.gameId,
+                           cacheGameInfo, APIClient.IgnoreResponse);
+        }
+
         // ---------[ AUTOMATED UPDATING ]---------
         private const float SECONDS_BETWEEN_POLLING = 15.0f;
         private static bool isUpdatePollingEnabled = false;
@@ -238,6 +252,9 @@ namespace ModIO
                 TimeStamp fromTimeStamp = manifest.lastUpdateTimeStamp;
                 TimeStamp untilTimeStamp = TimeStamp.Now();
 
+                // - Get Game Updates -
+                FetchAndCacheGameInfo();
+
                 // - Get ModInfo Events -
                 GetAllModEventsFilter eventFilter = new GetAllModEventsFilter();
                 eventFilter.ApplyIntRange(GetAllModEventsFilter.Field.DateAdded,
@@ -256,18 +273,18 @@ namespace ModIO
                                        },
                                        APIClient.LogError);
 
+                // TODO(@jackson): Replace with Event Polling
                 // - Get Subscription Updates -
                 if(userData != null)
                 {
                     GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
                     subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, ModManager.gameId);
 
-                    APIClient.GetUserSubscriptions(userData.oAuthToken,
+                    client.GetUserSubscriptions(userData.oAuthToken,
                                                    subscriptionFilter,
                                                    UpdateSubscriptions,
                                                    APIClient.LogError);
                 }
-
 
                 yield return new WaitForSeconds(SECONDS_BETWEEN_POLLING);
                 isUpdatePollingRunning = false;
@@ -479,7 +496,7 @@ namespace ModIO
         {
             Action fetchUserSubscriptions = () =>
             {
-                APIClient.GetUserSubscriptions(userOAuthToken,
+                client.GetUserSubscriptions(userOAuthToken,
                                                GetUserSubscriptionsFilter.None,
                                                UpdateSubscriptions,
                                                APIClient.LogError);
