@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b6d01171f539e54f862aca31fdc025e, type: 3}
-  m_Name: UISettings
+  m_Name: UISettings (mod.io)
   m_EditorClassIdentifier: 
   PrimaryColor: {r: 0.26666668, g: 0.7490196, b: 0.8352941, a: 1}
   WhiteColor: {r: 1, g: 1, b: 1, a: 1}

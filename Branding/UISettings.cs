@@ -12,13 +12,14 @@ namespace ModIO
             {
                 if (!_instance)
                 {
-                    if(Resources.FindObjectsOfTypeAll<UISettings>().Length > 0)
+                    if(Resources.LoadAll<UISettings>("").Length > 0)
                     {
                         _instance = Resources.FindObjectsOfTypeAll<UISettings>()[0];
                     }
                     else
                     {
-                        return ScriptableObject.CreateInstance<UISettings>();
+                        Debug.LogWarning("Unable to locate the mod.io UISettings. Creating run-time instance.");
+                        _instance = ScriptableObject.CreateInstance<UISettings>();
                     }
                 }
                 return _instance;
