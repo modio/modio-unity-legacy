@@ -12,7 +12,6 @@ namespace ModIO
     {
         private const int SUMMARY_CHAR_LIMIT = 250;
 
-        private static List<string> expandedTags = new List<string>();
 
         public override void OnInspectorGUI()
         {
@@ -48,7 +47,6 @@ namespace ModIO
             string logoSourceDisplay = (logoSource == "" ? "Browse..." : logoSource);
             SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
             bool isUndoRequested = false;
-            Rect buttonRect = new Rect();
             GUILayoutOption[] buttonLayout = new GUILayoutOption[]{ GUILayout.Width(EditorGUIUtility.singleLineHeight), GUILayout.Height(EditorGUIUtility.singleLineHeight) };
 
             // - Name -
@@ -250,7 +248,7 @@ namespace ModIO
             }
 
 
-            // - Tags -
+            // --- Tags ---
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Tags");
                 GUILayout.FlexibleSpace();
@@ -260,6 +258,110 @@ namespace ModIO
                 }
             EditorGUILayout.EndHorizontal();
 
+            DisplayTagOptions(modInfoProp, selectedTags);
+
+            if(isUndoRequested)
+            {
+                ResetTags(modInfoProp);
+            }
+
+            if(isUndoRequested)
+            {
+                SerializedProperty initTagsProp = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("tags");
+                SerializedProperty currentTagsProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
+
+                currentTagsProp.arraySize = initTagsProp.arraySize;
+
+                for(int i = 0; i < initTagsProp.arraySize; ++i)
+                {
+                    currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue
+                        = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
+                    currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue
+                        = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue;
+                }
+            }
+
+            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("media"),
+            //                               new GUIContent("Media"));
+
+            
+            // --- Read-only Data ---
+            using (new EditorGUI.DisabledScope(true))
+            {
+                int modId = modObjectProp.FindPropertyRelative("id").intValue;
+                if(modId <= 0)
+                {
+                    EditorGUILayout.LabelField("ModIO ID",
+                                               "Not yet uploaded");
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("ModIO ID",
+                                               modId.ToString());
+                    EditorGUILayout.LabelField("ModIO URL",
+                                               modObjectProp.FindPropertyRelative("profile_url").stringValue);
+                    
+                    EditorGUILayout.LabelField("Submitted By",
+                                               modObjectProp.FindPropertyRelative("submitted_by").FindPropertyRelative("username").stringValue);
+
+                    ModInfo.Status modStatus = (ModInfo.Status)modObjectProp.FindPropertyRelative("status").intValue;
+                    EditorGUILayout.LabelField("Status",
+                                               modStatus.ToString());
+
+                    string ratingSummaryDisplay
+                        = modObjectProp.FindPropertyRelative("rating_summary").FindPropertyRelative("weighted_aggregate").floatValue.ToString("0.00")
+                        + " aggregate score. (From "
+                        + modObjectProp.FindPropertyRelative("rating_summary").FindPropertyRelative("total_ratings").intValue.ToString()
+                        + " ratings)";
+
+                    EditorGUILayout.LabelField("Rating Summary",
+                                                ratingSummaryDisplay);
+
+                    EditorGUILayout.LabelField("Date Uploaded",
+                                               modObjectProp.FindPropertyRelative("date_added").intValue.ToString());
+                    EditorGUILayout.LabelField("Date Updated",
+                                               modObjectProp.FindPropertyRelative("date_updated").intValue.ToString());
+                    EditorGUILayout.LabelField("Date Live",
+                                               modObjectProp.FindPropertyRelative("date_live").intValue.ToString());
+
+                    EditorGUILayout.LabelField("Description",
+                                               modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("description").stringValue);
+
+                    // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
+                    //                               new GUIContent("Modfile"));
+                }
+            }
+            
+            // --- Finalization ---
+            if(doBrowseLogo)
+            {
+                // TODO(@jackson): Add other file-types
+                string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
+                if (path.Length != 0)
+                {
+                    modInfoProp.FindPropertyRelative("logoFilepath").stringValue = path;
+                }
+            }
+        }
+
+        // ---------[ RESET FUNCTIONS ]---------
+        private static void ResetStringField(SerializedProperty modInfoProp, string fieldName)
+        {
+            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).stringValue
+            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).stringValue;
+        }
+
+        private static void ResetIntField(SerializedProperty modInfoProp, string fieldName)
+        {
+            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).intValue
+            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).intValue;
+        }
+
+
+        // ---------[ TAG OPTIONS ]---------
+        private static List<string> expandedTagOptions = new List<string>();
+        private static void DisplayTagOptions(SerializedProperty modInfoProp, List<string> selectedTags)
+        {
             ++EditorGUI.indentLevel;
 
             int tagsRemovedCount = 0;
@@ -268,14 +370,14 @@ namespace ModIO
             {
                 if(!tagOption.isHidden)
                 {
-                    bool wasExpanded = expandedTags.Contains(tagOption.name);
+                    bool wasExpanded = expandedTagOptions.Contains(tagOption.name);
                     
                     if(EditorGUILayout.Foldout(wasExpanded, tagOption.name, true))
                     {
                         // Update expanded list
                         if(!wasExpanded)
                         {
-                            expandedTags.Add(tagOption.name);
+                            expandedTagOptions.Add(tagOption.name);
                         }
 
 
@@ -336,111 +438,12 @@ namespace ModIO
                     }
                     else if(wasExpanded)
                     {
-                        expandedTags.Remove(tagOption.name);
+                        expandedTagOptions.Remove(tagOption.name);
                     }
                 }
             }
 
             --EditorGUI.indentLevel;
-
-
-            if(isUndoRequested)
-            {
-                // TODO: Implement
-                Debug.LogWarning("Reset Tags not implemented");
-            }
-
-            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("media"),
-            //                               new GUIContent("Media"));
-
-            // TODO(@jackson): Do section header or foldout
-            using (new EditorGUI.DisabledScope(true))
-            {
-                int modId = modObjectProp.FindPropertyRelative("id").intValue;
-                if(modId <= 0)
-                {
-                    EditorGUILayout.LabelField("ModIO ID",
-                                               "Not yet uploaded");
-                }
-                else
-                {
-                    EditorGUILayout.LabelField("ModIO ID",
-                                               modId.ToString());
-                    EditorGUILayout.LabelField("ModIO URL",
-                                               modObjectProp.FindPropertyRelative("profile_url").stringValue);
-                    
-                    EditorGUILayout.LabelField("Submitted By",
-                                               modObjectProp.FindPropertyRelative("submitted_by").FindPropertyRelative("username").stringValue);
-
-                    ModInfo.Status modStatus = (ModInfo.Status)modObjectProp.FindPropertyRelative("status").intValue;
-                    EditorGUILayout.LabelField("Status",
-                                               modStatus.ToString());
-
-                    string ratingSummaryDisplay
-                        = modObjectProp.FindPropertyRelative("rating_summary").FindPropertyRelative("weighted_aggregate").floatValue.ToString("0.00")
-                        + " aggregate score. (From "
-                        + modObjectProp.FindPropertyRelative("rating_summary").FindPropertyRelative("total_ratings").intValue.ToString()
-                        + " ratings)";
-
-                    EditorGUILayout.LabelField("Rating Summary",
-                                                ratingSummaryDisplay);
-
-                    EditorGUILayout.LabelField("Date Uploaded",
-                                               modObjectProp.FindPropertyRelative("date_added").intValue.ToString());
-                    EditorGUILayout.LabelField("Date Updated",
-                                               modObjectProp.FindPropertyRelative("date_updated").intValue.ToString());
-                    EditorGUILayout.LabelField("Date Live",
-                                               modObjectProp.FindPropertyRelative("date_live").intValue.ToString());
-
-                    EditorGUILayout.LabelField("Description",
-                                               modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("description").stringValue);
-
-                    // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
-                    //                               new GUIContent("Modfile"));
-                }
-            }
-            
-            // ---[ FINALIZATION ]---
-            if(doBrowseLogo)
-            {
-                // TODO(@jackson): Add other file-types
-                string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
-                if (path.Length != 0)
-                {
-                    modInfoProp.FindPropertyRelative("logoFilepath").stringValue = path;
-                }
-            }
-        }
-
-        private static void AffixUndoButton(Rect buttonRect, out bool isUndoRequested)
-        {
-            isUndoRequested = GUI.Button(buttonRect, UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label);
-        }
-
-        private static void CreatePrefixWithUndoButton(string prefix, out bool isUndoRequested)
-        {
-            float buttonSize = EditorGUIUtility.singleLineHeight;
-            EditorGUIUtility.labelWidth -= buttonSize;
-            
-            EditorGUILayout.BeginHorizontal();
-                isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton,
-                                                   GUI.skin.label, GUILayout.Width(buttonSize));
-                EditorGUILayout.PrefixLabel(prefix);
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUIUtility.labelWidth += buttonSize;
-        }
-
-        private static void ResetStringField(SerializedProperty modInfoProp, string fieldName)
-        {
-            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).stringValue
-            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).stringValue;
-        }
-
-        private static void ResetIntField(SerializedProperty modInfoProp, string fieldName)
-        {
-            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).intValue
-            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).intValue;
         }
 
         private static void AddTagToMod(SerializedProperty modInfoProp, string tag)
@@ -458,6 +461,22 @@ namespace ModIO
             SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
 
             tagsArrayProp.DeleteArrayElementAtIndex(tagIndex);
+        }
+
+        private static void ResetTags(SerializedProperty modInfoProp)
+        {
+            SerializedProperty initTagsProp = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("tags");
+            SerializedProperty currentTagsProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
+
+            currentTagsProp.arraySize = initTagsProp.arraySize;
+
+            for(int i = 0; i < initTagsProp.arraySize; ++i)
+            {
+                currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue
+                    = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
+                currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue
+                    = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue;
+            }
         }
     }
 }
