@@ -2,6 +2,10 @@
 using System.Text.RegularExpressions;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace ModIO
 {
     [Serializable]
@@ -133,4 +137,30 @@ namespace ModIO
             return urlRegex.IsMatch(toCheck);
         }
     }
+
+    #if UNITY_EDITOR
+    public static class EditorGUILayoutExtensions
+    {
+        public static void ArrayPropertyField(SerializedProperty arrayProperty, string dispName, ref bool isExpanded)
+        {
+            isExpanded = EditorGUILayout.Foldout(isExpanded, dispName, true);
+
+            if(isExpanded)
+            {
+                EditorGUI.indentLevel += 3;
+         
+                EditorGUILayout.PropertyField(arrayProperty.FindPropertyRelative("Array.size"),
+                                              new GUIContent("Size"));
+
+                for (int i = 0; i < arrayProperty.arraySize; ++i)
+                {
+                    SerializedProperty prop = arrayProperty.FindPropertyRelative("Array.data[" + i + "]");
+                    EditorGUILayout.PropertyField(prop);
+                }
+
+                EditorGUI.indentLevel -= 3;
+            }
+        }
+    }
+    #endif
 }

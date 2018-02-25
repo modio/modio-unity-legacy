@@ -12,7 +12,6 @@ namespace ModIO
     {
         private const int SUMMARY_CHAR_LIMIT = 250;
 
-
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -42,7 +41,7 @@ namespace ModIO
                                          string logoSource,
                                          List<string> selectedTags)
         {
-            bool isNewMod = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("id").intValue <= 0;
+            bool isNewMod = modInfoProp.FindPropertyRelative("_data.id").intValue <= 0;
 
             string logoSourceDisplay = (logoSource == "" ? "Browse..." : logoSource);
             SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
@@ -265,24 +264,22 @@ namespace ModIO
                 ResetTags(modInfoProp);
             }
 
+            // --- Mod Media ---
+            EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel("Media");
+                GUILayout.FlexibleSpace();
+                using (new EditorGUI.DisabledScope(isNewMod))
+                {
+                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                }
+            EditorGUILayout.EndHorizontal();
+
+            DisplayModMedia(modInfoProp);
+
             if(isUndoRequested)
             {
-                SerializedProperty initTagsProp = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("tags");
-                SerializedProperty currentTagsProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
-
-                currentTagsProp.arraySize = initTagsProp.arraySize;
-
-                for(int i = 0; i < initTagsProp.arraySize; ++i)
-                {
-                    currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue
-                        = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
-                    currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue
-                        = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue;
-                }
+                ResetModMedia(modInfoProp);
             }
-
-            // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("media"),
-            //                               new GUIContent("Media"));
 
             
             // --- Read-only Data ---
@@ -302,16 +299,16 @@ namespace ModIO
                                                modObjectProp.FindPropertyRelative("profile_url").stringValue);
                     
                     EditorGUILayout.LabelField("Submitted By",
-                                               modObjectProp.FindPropertyRelative("submitted_by").FindPropertyRelative("username").stringValue);
+                                               modObjectProp.FindPropertyRelative("submitted_by.username").stringValue);
 
                     ModInfo.Status modStatus = (ModInfo.Status)modObjectProp.FindPropertyRelative("status").intValue;
                     EditorGUILayout.LabelField("Status",
                                                modStatus.ToString());
 
                     string ratingSummaryDisplay
-                        = modObjectProp.FindPropertyRelative("rating_summary").FindPropertyRelative("weighted_aggregate").floatValue.ToString("0.00")
+                        = modObjectProp.FindPropertyRelative("rating_summary.weighted_aggregate").floatValue.ToString("0.00")
                         + " aggregate score. (From "
-                        + modObjectProp.FindPropertyRelative("rating_summary").FindPropertyRelative("total_ratings").intValue.ToString()
+                        + modObjectProp.FindPropertyRelative("rating_summary.total_ratings").intValue.ToString()
                         + " ratings)";
 
                     EditorGUILayout.LabelField("Rating Summary",
@@ -323,9 +320,6 @@ namespace ModIO
                                                modObjectProp.FindPropertyRelative("date_updated").intValue.ToString());
                     EditorGUILayout.LabelField("Date Live",
                                                modObjectProp.FindPropertyRelative("date_live").intValue.ToString());
-
-                    EditorGUILayout.LabelField("Description",
-                                               modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("description").stringValue);
 
                     // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
                     //                               new GUIContent("Modfile"));
@@ -379,7 +373,6 @@ namespace ModIO
                         {
                             expandedTagOptions.Add(tagOption.name);
                         }
-
 
                         ++EditorGUI.indentLevel;
 
@@ -448,7 +441,7 @@ namespace ModIO
 
         private static void AddTagToMod(SerializedProperty modInfoProp, string tag)
         {
-            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
+            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data.tags");
             int newIndex = tagsArrayProp.arraySize;
             ++tagsArrayProp.arraySize;
 
@@ -458,15 +451,15 @@ namespace ModIO
 
         private static void RemoveTagFromMod(SerializedProperty modInfoProp, int tagIndex)
         {
-            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
+            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data.tags");
 
             tagsArrayProp.DeleteArrayElementAtIndex(tagIndex);
         }
 
         private static void ResetTags(SerializedProperty modInfoProp)
         {
-            SerializedProperty initTagsProp = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative("tags");
-            SerializedProperty currentTagsProp = modInfoProp.FindPropertyRelative("_data").FindPropertyRelative("tags");
+            SerializedProperty initTagsProp = modInfoProp.FindPropertyRelative("_initialData.tags");
+            SerializedProperty currentTagsProp = modInfoProp.FindPropertyRelative("_data.tags");
 
             currentTagsProp.arraySize = initTagsProp.arraySize;
 
@@ -476,6 +469,55 @@ namespace ModIO
                     = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
                 currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue
                     = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue;
+            }
+        }
+
+        // ---------[ MOD MEDIA ]---------
+        private static bool isYouTubeExpanded = false;
+        private static bool isSketchFabExpanded = false;
+        private static bool isImagesExpanded = false;
+
+        private static void DisplayModMedia(SerializedProperty modInfoProp)
+        {
+            ++EditorGUI.indentLevel;
+
+            EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.youtube"),
+                                                         "YouTube Links", ref isYouTubeExpanded);
+            EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.sketchfab"),
+                                                         "SketchFab Links", ref isSketchFabExpanded);
+            EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.images"),
+                                                         "Gallery Images", ref isImagesExpanded);
+
+            --EditorGUI.indentLevel;
+        }
+
+        private static void ResetModMedia(SerializedProperty modInfoProp)
+        {
+            SerializedProperty initialDataProp;
+            SerializedProperty currentDataProp;
+
+            // - YouTube -
+            initialDataProp = modInfoProp.FindPropertyRelative("_initialData.media.youtube");
+            currentDataProp = modInfoProp.FindPropertyRelative("_data.media.youtube");
+
+            currentDataProp.arraySize = initialDataProp.arraySize;
+
+            for(int i = 0; i < initialDataProp.arraySize; ++i)
+            {
+                currentDataProp.GetArrayElementAtIndex(i).stringValue
+                    = initialDataProp.GetArrayElementAtIndex(i).stringValue;
+            }
+
+            // - SketchFab -
+            initialDataProp = modInfoProp.FindPropertyRelative("_initialData.media.sketchfab");
+            currentDataProp = modInfoProp.FindPropertyRelative("_data.media.sketchfab");
+
+            currentDataProp.arraySize = initialDataProp.arraySize;
+
+            for(int i = 0; i < initialDataProp.arraySize; ++i)
+            {
+                currentDataProp.GetArrayElementAtIndex(i).stringValue
+                    = initialDataProp.GetArrayElementAtIndex(i).stringValue;
             }
         }
     }
