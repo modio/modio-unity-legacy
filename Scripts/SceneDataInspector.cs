@@ -170,6 +170,19 @@ namespace ModIO
                 modInfoProp.FindPropertyRelative("logoFilepath").stringValue = "";
             }
 
+            if(doBrowseLogo)
+            {
+                EditorApplication.delayCall += () =>
+                {
+                    // TODO(@jackson): Add other file-types
+                    string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
+                    if (path.Length != 0)
+                    {
+                        modInfoProp.FindPropertyRelative("logoFilepath").stringValue = path;
+                        modInfoProp.serializedObject.ApplyModifiedProperties();
+                    }
+                };
+            }
 
             // --- Paragraph Text Inspection Settings ---
             Rect controlRect;
@@ -280,7 +293,6 @@ namespace ModIO
             {
                 ResetModMedia(modInfoProp);
             }
-
             
             // --- Read-only Data ---
             using (new EditorGUI.DisabledScope(true))
@@ -323,17 +335,6 @@ namespace ModIO
 
                     // EditorGUILayout.PropertyField(modObjectProp.FindPropertyRelative("modfile"),
                     //                               new GUIContent("Modfile"));
-                }
-            }
-            
-            // --- Finalization ---
-            if(doBrowseLogo)
-            {
-                // TODO(@jackson): Add other file-types
-                string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
-                if (path.Length != 0)
-                {
-                    modInfoProp.FindPropertyRelative("logoFilepath").stringValue = path;
                 }
             }
         }
@@ -518,6 +519,22 @@ namespace ModIO
             {
                 currentDataProp.GetArrayElementAtIndex(i).stringValue
                     = initialDataProp.GetArrayElementAtIndex(i).stringValue;
+            }
+
+            // - Image Gallery -
+            initialDataProp = modInfoProp.FindPropertyRelative("_initialData.media.images");
+            currentDataProp = modInfoProp.FindPropertyRelative("_data.media.images");
+
+            currentDataProp.arraySize = initialDataProp.arraySize;
+
+            for(int i = 0; i < initialDataProp.arraySize; ++i)
+            {
+                currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("filename").stringValue
+                    = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("filename").stringValue;
+                currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("original").stringValue
+                    = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("original").stringValue;
+                currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue
+                    = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue;
             }
         }
     }
