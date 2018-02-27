@@ -187,9 +187,9 @@ namespace ModIO
             Undo.RegisterCreatedObjectUndo(sd_go, "Initialize scene");
         }
 
-        private void UploadMod()
+        private void UploadModInfo()
         {
-            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("Mod Data needs to be saved before being uploaded"))
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
             {
                 EditorSceneManager.SaveScene(currentScene);
 
@@ -201,10 +201,17 @@ namespace ModIO
             }
         }
 
+        private void UploadModBinary()
+        {
+            Debug.Log("Upload Binary");
+        }
+
         // ---------[ GUI DISPLAY ]---------
         private void OnGUI()
         {
             bool isPlaying = Application.isPlaying;
+            bool doUploadInfo = false;
+            bool doUploadBinary = false;
 
             // - Update Data -
             if(currentScene != SceneManager.GetActiveScene()
@@ -235,9 +242,16 @@ namespace ModIO
                     using (new EditorGUI.DisabledScope(isModUploading || Application.isPlaying))
                     {
                         // - Upload -
-                        if(GUILayout.Button("UPLOAD TO MOD.IO"))
+                        if(sceneData.modInfo.id <= 0)
                         {
-                            UploadMod();
+                            doUploadInfo = GUILayout.Button("Create Mod Profile");
+                        }
+                        else
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                                doUploadInfo = GUILayout.Button("Update Mod Profile");
+                                doUploadBinary = GUILayout.Button("Upload Build");
+                            EditorGUILayout.EndHorizontal();
                         }
 
                         // - Mod Info -
@@ -253,6 +267,16 @@ namespace ModIO
             }
 
             wasPlaying = isPlaying;
+
+            // - Final Actions -
+            if(doUploadInfo)
+            {
+                EditorApplication.delayCall += UploadModInfo;
+            }
+            if(doUploadBinary)
+            {
+                EditorApplication.delayCall += UploadModBinary;
+            }
         }
     }
 }
