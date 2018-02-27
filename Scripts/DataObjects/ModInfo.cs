@@ -255,6 +255,12 @@ namespace ModIO
             logoFilepath = value;
         }
 
+        // TODO(@jackson): Complete
+        public void SetModMedia()
+        {
+
+        }
+
         // --- SUBMISSION HELPERS ---
         public StringValueField[] GetEditValueFields()
         {
@@ -337,6 +343,49 @@ namespace ModIO
             }
 
             return retVal.ToArray();
+        }
+
+        public string[] GetAddedTags()
+        {
+            List<string> addedTags = new List<string>(this.GetTagNames());
+            foreach(ModTagObject tag in _initialData.tags)
+            {
+                addedTags.Remove(tag.name);
+            }
+            return addedTags.ToArray();
+        }
+
+        public UnsubmittedModMedia GetUnsubmittedModMedia()
+        {
+            // - Generate Lists -
+            List<string> imagePaths = new List<string>(_data.media.images.Length);
+            foreach(ImageObject imageObject in _data.media.images)
+            {
+                if(!Utility.IsURL(imageObject.original))
+                {
+                    imagePaths.Add(imageObject.original);
+                }
+            }
+
+            List<string> youtubeURLs = new List<string>(_data.media.youtube);
+            foreach(string oldYouTubeLink in _initialData.media.youtube)
+            {
+                youtubeURLs.Remove(oldYouTubeLink);
+            }
+
+            List<string> sketchfabURLs = new List<string>(_data.media.sketchfab);
+            foreach(string oldSketchfabLink in _initialData.media.sketchfab)
+            {
+                sketchfabURLs.Remove(oldSketchfabLink);
+            }
+
+            // - Compile Object -
+            UnsubmittedModMedia modMedia = new UnsubmittedModMedia();
+            modMedia.logoFilepath = unsubmittedLogoFilepath;
+            modMedia.imageFilepaths = imagePaths.ToArray();
+            modMedia.youtubeURLs = youtubeURLs.ToArray();
+            modMedia.sketchfabURLs = sketchfabURLs.ToArray();
+            return modMedia;
         }
     }
 }

@@ -879,28 +879,49 @@ namespace ModIO
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
         public static void SubmitMod(EditableModInfo modInfo,
-                                     Action<ModInfo> onSuccess,
-                                     Action<ErrorInfo> onError)
+                                     Action<ModInfo> modSubmissionSucceeded,
+                                     Action<ErrorInfo> modSubmissionFailed)
         {
+            UnsubmittedModMedia modMedia = modInfo.GetUnsubmittedModMedia();
+
+            // - Edit Mod -
             if(modInfo.id > 0)
             {
-                client.EditMod(userData.oAuthToken, modInfo, onSuccess, onError);
+                Action submitModEdits = () =>
+                {
+                    client.EditMod(userData.oAuthToken,
+                                   modInfo,
+                                   modSubmissionSucceeded, modSubmissionFailed);
+                };
+
+                Action submitAddedModTags = () =>
+                {
+                    client.AddModTags(userData.oAuthToken, modInfo.gameId,
+                                      modInfo.id, modInfo.GetAddedTags(),
+                                      submissionStep03, modSubmissionFailed);
+                };
+
+                // - Submit modifications -
+                client.AddModMedia(userData.oAuthToken, modInfo.gameId,
+                                   modInfo.id, modMedia,
+                                   submissionStep02, modSubmissionFailed);
             }
+            // - Add Mod -
             else
             {
+                Action<ModInfo> submissionStep02 = (mod) =>
+                {
+                    client.AddModMedia(userData.oAuthToken, mod.gameId,
+                                       mod.id, modMedia,
+                                       APIClient.IgnoreResponse, APIClient.IgnoreResponse);
+
+                    modSubmissionSucceeded(mod);
+                };
+
                 client.AddMod(userData.oAuthToken, ModManager.gameId,
                               modInfo,
-                              onSuccess, onError);
+                              submissionStep02, modSubmissionFailed);
             }
-        }
-
-        public static void AddModMedia(int modId, UnsubmittedModMedia modMedia,
-                                       Action<APIMessage> onSuccess,
-                                       Action<ErrorInfo> onError)
-        {
-            client.AddModMedia(userData.oAuthToken, ModManager.gameId,
-                               modId, modMedia,
-                               onSuccess, onError);
         }
 
         public static void AddModfile(int modId,
@@ -927,15 +948,6 @@ namespace ModIO
         {
             client.AddGameTagOption(userData.oAuthToken, ModManager.gameId,
                                     tagOption, onSuccess, onError);
-        }
-
-        public static void AddModTags(int modId, string[] tagNames,
-                                      Action<APIMessage> onSuccess,
-                                      Action<ErrorInfo> onError)
-        {
-            client.AddModTags(userData.oAuthToken, ModManager.gameId,
-                              modId, tagNames,
-                              onSuccess, onError);
         }
 
         public static void AddPositiveRating(int modId,
