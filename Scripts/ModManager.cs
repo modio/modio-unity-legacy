@@ -878,44 +878,97 @@ namespace ModIO
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
-        public static void SubmitMod(EditableModInfo modInfo,
-                                     Action<ModInfo> modSubmissionSucceeded,
-                                     Action<ErrorInfo> modSubmissionFailed)
+        public static void SubmitModInfo(EditableModInfo modInfo,
+                                         Action<ModInfo> modSubmissionSucceeded,
+                                         Action<ErrorInfo> modSubmissionFailed)
         {
             UnsubmittedModMedia modMedia = modInfo.GetUnsubmittedModMedia();
 
             // - Edit Mod -
             if(modInfo.id > 0)
             {
-                Action submitModEdits = () =>
+                List<Action> submissionActions = new List<Action>();
+                int nextActionIndex = 0;
+                Action<APIMessage> doNextSubmissionAction = (m) =>
                 {
-                    client.EditMod(userData.oAuthToken,
-                                   modInfo,
-                                   modSubmissionSucceeded, modSubmissionFailed);
+                    if(nextActionIndex < submissionActions.Count)
+                    {
+                        submissionActions[nextActionIndex++]();
+                    }
                 };
 
-                Action submitAddedModTags = () =>
+                if(modInfo.isMediaDirty())
                 {
-                    client.AddModTags(userData.oAuthToken, modInfo.gameId,
-                                      modInfo.id, modInfo.GetAddedTags(),
-                                      submissionStep03, modSubmissionFailed);
-                };
+                    submissionActions.Add(() =>
+                    {
+                        Debug.Log("Submitting Mod Media");
 
-                // - Submit modifications -
-                client.AddModMedia(userData.oAuthToken, modInfo.gameId,
-                                   modInfo.id, modMedia,
-                                   submissionStep02, modSubmissionFailed);
+                        client.AddModMedia(userData.oAuthToken, modInfo.gameId,
+                                           modInfo.id, modMedia,
+                                           doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
+
+                if(modInfo.isTagsDirty())
+                {
+                    submissionActions.Add(() =>
+                    {
+                        Debug.Log("Submitting Mod Tags");
+
+                        client.AddModTags(userData.oAuthToken, modInfo.gameId,
+                                          modInfo.id, modInfo.GetAddedTags(),
+                                          doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
+
+                if(modInfo.isInfoDirty())
+                {
+                    submissionActions.Add(() =>
+                    {
+                        Debug.Log("Submitting Mod Info");
+
+                        client.EditMod(userData.oAuthToken,
+                                       modInfo,
+                                       modSubmissionSucceeded, modSubmissionFailed);
+                    });
+                }
+                // - Get updated ModInfo if other submissions occurred -
+                else if(submissionActions.Count > 0)
+                {
+                    submissionActions.Add(() =>
+                    {
+                        client.GetMod(ModManager.apiKey, modInfo.gameId,
+                                      modInfo.id,
+                                      modSubmissionSucceeded, modSubmissionFailed);
+                    });
+                }
+                // - Just notify succeeded -
+                else
+                {
+                    submissionActions.Add(() =>
+                    {
+                        modSubmissionSucceeded(modInfo);
+                    });
+                }
+
+                // - Start submission chain -
+                doNextSubmissionAction(null);
             }
             // - Add Mod -
             else
             {
                 Action<ModInfo> submissionStep02 = (mod) =>
                 {
-                    client.AddModMedia(userData.oAuthToken, mod.gameId,
-                                       mod.id, modMedia,
-                                       APIClient.IgnoreResponse, APIClient.IgnoreResponse);
-
-                    modSubmissionSucceeded(mod);
+                    if(modInfo.isMediaDirty())
+                    {
+                        client.AddModMedia(userData.oAuthToken, mod.gameId,
+                                           mod.id, modMedia,
+                                           m => modSubmissionSucceeded(mod), APIClient.IgnoreResponse);
+                    }
+                    else
+                    {
+                        modSubmissionSucceeded(mod);
+                    }
                 };
 
                 client.AddMod(userData.oAuthToken, ModManager.gameId,

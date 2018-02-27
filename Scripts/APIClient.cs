@@ -943,10 +943,15 @@ namespace ModIO
             string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/tags";
             StringValueField[] valueFields = new StringValueField[tagNames.Length];
 
+            for(int i = 0; i < tagNames.Length; ++i)
+            {
+                valueFields[i] = StringValueField.Create("tags[]", tagNames[i]);
+            }
+
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                null);
+                                                                                          oAuthToken,
+                                                                                          valueFields,
+                                                                                          null);
             
             Action<API.MessageObject> onSuccess = (result) =>
             {

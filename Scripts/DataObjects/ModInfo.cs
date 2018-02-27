@@ -262,6 +262,37 @@ namespace ModIO
         }
 
         // --- SUBMISSION HELPERS ---
+        public bool isInfoDirty()
+        {
+            return (_data.status != _initialData.status
+                    || _data.visible != _initialData.visible
+                    || _data.name != _initialData.name
+                    || _data.name_id != _initialData.name_id
+                    || _data.summary != _initialData.summary
+                    || _data.description != _initialData.description
+                    || _data.homepage != _initialData.homepage
+                    || _data.stock != _initialData.stock
+                    || _data.metadata_blob != _initialData.metadata_blob);
+        }
+
+        public bool isMediaDirty()
+        {
+            return (!_data.media.Equals(_initialData.media));
+        }
+
+        public bool isTagsDirty()
+        {
+            bool isDirty = (_data.tags.Length != _initialData.tags.Length);
+            for(int i = 0;
+                !isDirty && i < _data.tags.Length;
+                ++i)
+            {
+                isDirty |= (_data.tags[i].name != _initialData.tags[i].name);
+            }
+
+            return isDirty;
+        }
+
         public StringValueField[] GetEditValueFields()
         {
             List<StringValueField> retVal = new List<StringValueField>();

@@ -61,9 +61,12 @@ namespace ModIO.API
 
         public bool Equals(ModMediaObject other)
         {
-            return(this.youtube.GetHashCode().Equals(other.youtube.GetHashCode())
-                   && this.sketchfab.GetHashCode().Equals(other.sketchfab.GetHashCode())
-                   && this.images.GetHashCode().Equals(other.images.GetHashCode()));
+            var stringArrayComp = new MultiSetComparer<string>();
+            var imgArrayComp = new MultiSetComparer<ImageObject>();
+
+            return(stringArrayComp.Equals(this.youtube, other.youtube)
+                   && stringArrayComp.Equals(this.sketchfab, other.sketchfab)
+                   && imgArrayComp.Equals(this.images, other.images));
         }
     }
 }
