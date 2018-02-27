@@ -21,8 +21,7 @@ namespace ModIO
         // ------[ WINDOW FIELDS ]---------
         private Scene currentScene;
         private EditorSceneData sceneData;
-
-        // --- Mod Info ---
+        private bool wasPlaying;
         private Vector2 scrollPos;
         private bool isModUploading;
 
@@ -32,9 +31,8 @@ namespace ModIO
         private string securityCodeInput;
         private bool isRequestSending;
 
-        // --- Misc. ---
+        // --- Scene Initialization ---
         private int modInitializationOptionIndex;
-
 
         [MenuItem("ModIO/Mod Scene Info Editor")]
         public static void ShowWindow()
@@ -45,6 +43,10 @@ namespace ModIO
         private void OnEnable()
         {
             ModManager.Initialize(GAME_ID, API_KEY);
+
+            currentScene = new Scene();
+            wasPlaying = Application.isPlaying;
+            sceneData = null;
 
             // - Reset registration vars -
             inputEmail = true;
@@ -193,17 +195,20 @@ namespace ModIO
 
                 isModUploading = true;
 
-                ModManager.SubmitMod(sceneData.modInfo,
-                                     (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
-                                     (e) => { isModUploading = false; });
+                ModManager.SubmitModInfo(sceneData.modInfo,
+                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
+                                         (e) => { isModUploading = false; });
             }
         }
 
         // ---------[ GUI DISPLAY ]---------
         private void OnGUI()
         {
+            bool isPlaying = Application.isPlaying;
+
             // - Update Data -
-            if(currentScene != SceneManager.GetActiveScene())
+            if(currentScene != SceneManager.GetActiveScene()
+               || (isPlaying != wasPlaying))
             {
                 OnSceneChange();
             }
@@ -227,7 +232,7 @@ namespace ModIO
                 }
                 else
                 {
-                    using (new EditorGUI.DisabledScope(isModUploading))
+                    using (new EditorGUI.DisabledScope(isModUploading || Application.isPlaying))
                     {
                         // - Upload -
                         if(GUILayout.Button("UPLOAD TO MOD.IO"))
@@ -246,6 +251,8 @@ namespace ModIO
                     }
                 }
             }
+
+            wasPlaying = isPlaying;
         }
     }
 }
