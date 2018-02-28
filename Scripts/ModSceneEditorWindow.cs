@@ -173,34 +173,6 @@ namespace ModIO
             }
         }
 
-        // TODO(@jackson): Show last modfile
-        private static void DisplayBuildProfile(SerializedProperty buildLocationProp,
-                                                SerializedProperty modfileProfileProp,
-                                                SerializedProperty setPrimaryProp)
-        {
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField("Build Info");
-
-            if(EditorGUILayoutExtensions.BrowseButton(buildLocationProp.stringValue, new GUIContent("Build Location")))
-            {
-                EditorApplication.delayCall += () =>
-                {
-                    // TODO(@jackson): Allow folders?
-                    string path = EditorUtility.OpenFilePanel("Set Build Location", "", "unity3d");
-                    if (path.Length != 0)
-                    {
-                        buildLocationProp.stringValue = path;
-                        buildLocationProp.serializedObject.ApplyModifiedProperties();
-                    }
-                };
-            }
-
-            EditorGUILayout.PropertyField(modfileProfileProp, GUIContent.none);
-
-            EditorGUILayout.PropertyField(setPrimaryProp, new GUIContent("Set Primary"));
-        }
-
         private void InitializeSceneForModding(ModInfo modInfo)
         {
             GameObject sd_go = new GameObject("ModIO Scene Data");
@@ -300,14 +272,6 @@ namespace ModIO
                         {
                             SerializedObject serializedSceneData = new SerializedObject(sceneData);
                             SceneDataInspector.DisplayAsObject(serializedSceneData);
-
-                            using(new EditorGUI.DisabledScope(sceneData.modInfo.id <= 0))
-                            {
-                                DisplayBuildProfile(serializedSceneData.FindProperty("buildLocation"),
-                                                    serializedSceneData.FindProperty("buildProfile"),
-                                                    serializedSceneData.FindProperty("setBuildAsPrimary"));
-                            }
-                            
                             serializedSceneData.ApplyModifiedProperties();
                         }
                         EditorGUILayout.EndScrollView();
