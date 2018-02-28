@@ -173,6 +173,34 @@ namespace ModIO
             }
         }
 
+        // TODO(@jackson): Show last modfile
+        private static void DisplayBuildProfile(SerializedProperty buildLocationProp,
+                                                SerializedProperty modfileProfileProp,
+                                                SerializedProperty setPrimaryProp)
+        {
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Build Info");
+
+            if(EditorGUILayoutExtensions.BrowseButton(buildLocationProp.stringValue, new GUIContent("Build Location")))
+            {
+                EditorApplication.delayCall += () =>
+                {
+                    // TODO(@jackson): Allow folders?
+                    string path = EditorUtility.OpenFilePanel("Set Build Location", "", "unity3d");
+                    if (path.Length != 0)
+                    {
+                        buildLocationProp.stringValue = path;
+                        buildLocationProp.serializedObject.ApplyModifiedProperties();
+                    }
+                };
+            }
+
+            EditorGUILayout.PropertyField(modfileProfileProp, GUIContent.none);
+
+            EditorGUILayout.PropertyField(setPrimaryProp, new GUIContent("Set Primary"));
+        }
+
         private void InitializeSceneForModding(ModInfo modInfo)
         {
             GameObject sd_go = new GameObject("ModIO Scene Data");
@@ -180,6 +208,10 @@ namespace ModIO
 
             sceneData = sd_go.AddComponent<EditorSceneData>();
             sceneData.modInfo = EditableModInfo.FromModInfo(modInfo);
+
+            sceneData.buildProfile = new ModfileProfile();
+            sceneData.buildProfile.modId = modInfo.id;
+            sceneData.buildProfile.modfileId = 0;
 
             Undo.RegisterCreatedObjectUndo(sd_go, "Initialize scene");
         }
@@ -200,7 +232,19 @@ namespace ModIO
 
         private void UploadModBinary()
         {
-            Debug.Log("Upload Binary");
+            isModUploading = true;
+
+            System.Action<Modfile> onUploadSucceeded = (mf) =>
+            {
+                Debug.Log("Upload succeeded!");
+                isModUploading = false;
+            };
+
+            ModManager.UploadModBinary_Unzipped(sceneData.buildLocation,
+                                                sceneData.buildProfile,
+                                                true,
+                                                onUploadSucceeded,
+                                                (e) => isModUploading = false);
         }
 
         // ---------[ GUI DISPLAY ]---------
@@ -256,6 +300,14 @@ namespace ModIO
                         {
                             SerializedObject serializedSceneData = new SerializedObject(sceneData);
                             SceneDataInspector.DisplayAsObject(serializedSceneData);
+
+                            using(new EditorGUI.DisabledScope(sceneData.modInfo.id <= 0))
+                            {
+                                DisplayBuildProfile(serializedSceneData.FindProperty("buildLocation"),
+                                                    serializedSceneData.FindProperty("buildProfile"),
+                                                    serializedSceneData.FindProperty("setBuildAsPrimary"));
+                            }
+                            
                             serializedSceneData.ApplyModifiedProperties();
                         }
                         EditorGUILayout.EndScrollView();
