@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-
-// TODO(@jackson): Assert apiKey, and oAuthToken length to avoid user error
 namespace ModIO
 {
     public class BinaryDataField
@@ -94,11 +92,13 @@ namespace ModIO
 
         // ---------[ REQUEST HANDLING ]---------
         public static UnityWebRequest GenerateQuery(string endpointURL,
-                                                    string apiKey,
                                                     Filter queryFilter)
         {
+            Debug.Assert(!String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY),
+                         "Please save your game's API Key into GlobalSettings.cs before using this plugin");
+
             string queryURL = (endpointURL
-                               + "?api_key=" + apiKey
+                               + "?api_key=" + GlobalSettings.GAME_APIKEY
                                + "&" + queryFilter.GenerateQueryString());
 
             #if LOG_ALL_REQUESTS
@@ -456,15 +456,17 @@ namespace ModIO
 
 
         // ---------[ AUTHENTICATION ]---------
-        public void RequestSecurityCode(string apiKey,
-                                        string emailAddress,
+        public void RequestSecurityCode(string emailAddress,
                                         Action<APIMessage> successCallback,
                                         Action<ErrorInfo> errorCallback)
         {
+            Debug.Assert(!String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY),
+                         "Please save your game's API Key into GlobalSettings.cs before using this plugin");
+
             string endpointURL = API_URL + "oauth/emailrequest";
             StringValueField[] valueFields = new StringValueField[]
             {
-                StringValueField.Create("api_key", apiKey),
+                StringValueField.Create("api_key", GlobalSettings.GAME_APIKEY),
                 StringValueField.Create("email", emailAddress),
             };
 
@@ -481,22 +483,24 @@ namespace ModIO
         }
 
         // NOTE(@jackson): Untested
-        public void RequestOAuthToken(string apiKey,
-                                      string securityCode,
+        public void RequestOAuthToken(string securityCode,
                                       Action<string> successCallback,
                                       Action<ErrorInfo> errorCallback)
         {
+            Debug.Assert(!String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY),
+                         "Please save your game's API Key into GlobalSettings.cs before using this plugin");
+
             string endpointURL = API_URL + "oauth/emailexchange";
             StringValueField[] valueFields = new StringValueField[]
             {
-                StringValueField.Create("api_key", apiKey),
+                StringValueField.Create("api_key", GlobalSettings.GAME_APIKEY),
                 StringValueField.Create("security_code", securityCode),
             };
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.AccessTokenObject>(endpointURL,
-                                                                                    "",
-                                                                                    valueFields,
-                                                                                    null);
+                                                                                              "",
+                                                                                              valueFields,
+                                                                                              null);
             Action<API.AccessTokenObject> onSuccess = (result) =>
             {
                 successCallback(result.access_token);
@@ -508,13 +512,12 @@ namespace ModIO
 
         // ---------[ GAME ENDPOINTS ]---------
         // Get All Games
-        public void GetAllGames(string apiKey,
-                                GetAllGamesFilter filter,
+        public void GetAllGames(GetAllGamesFilter filter,
                                 Action<GameInfo[]> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.GameObject>> onSuccess = (result) =>
             {
@@ -524,12 +527,11 @@ namespace ModIO
         }
 
         // Get GameInfo
-        public void GetGame(string apiKey, int gameId,
-                            Action<GameInfo> successCallback, Action<ErrorInfo> errorCallback)
+        public void GetGame(Action<GameInfo> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID;
             
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, Filter.None);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, Filter.None);
             
             
             Action<API.GameObject> onSuccess = (result) =>
@@ -563,13 +565,12 @@ namespace ModIO
 
         // ---------[ MOD ENDPOINTS ]---------
         // Get All Mods
-        public void GetAllMods(string apiKey, int gameId,
-                               GetAllModsFilter filter,
+        public void GetAllMods(GetAllModsFilter filter,
                                Action<ModInfo[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.ModObject>> onSuccess = (result) =>
             {
@@ -578,13 +579,12 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Get Mod
-        public void GetMod(string apiKey, int gameId,
-                           int modId,
+        public void GetMod(int modId,
                            Action<ModInfo> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
             
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, Filter.None);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, Filter.None);
             
             
             Action<API.ModObject> onSuccess = (result) =>
@@ -595,11 +595,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Mod
-        public void AddMod(string oAuthToken, int gameId,
+        public void AddMod(string oAuthToken,
                            EditableModInfo modInfo,
                            Action<ModInfo> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods";
             StringValueField[] valueFields = modInfo.GetAddValueFields();
             BinaryDataField[] dataFields = modInfo.GetAddDataFields();
 
@@ -635,11 +635,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Delete Mod
-        public void DeleteMod(string oAuthToken, int gameId,
+        public void DeleteMod(string oAuthToken,
                               int modId,
                               Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest<API.MessageObject>(endpointURL,
                                                                                                   oAuthToken,
@@ -656,13 +656,12 @@ namespace ModIO
 
         // ---------[ MODFILE ENDPOINTS ]---------
         // Get All Modfiles
-        public void GetAllModfiles(string apiKey, int gameId,
-                                   int modId, GetAllModfilesFilter filter,
+        public void GetAllModfiles(int modId, GetAllModfilesFilter filter,
                                    Action<Modfile[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/files";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.ModfileObject>> onSuccess = (result) =>
             {
@@ -671,13 +670,12 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Get Modfile
-        public void GetModfile(string apiKey, int gameId,
-                               int modId, int modfileId,
+        public void GetModfile(int modId, int modfileId,
                                Action<Modfile> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/files/" + modfileId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files/" + modfileId;
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, Filter.None);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, Filter.None);
 
             
             Action<API.ModfileObject> onSuccess = (result) =>
@@ -688,16 +686,18 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Modfile
-        public void AddModfile(string oAuthToken, int gameId,
+        public void AddModfile(string oAuthToken,
                                ModfileProfile profile,
                                string buildFilename, byte[] buildZipData,
                                bool setPrimary,
                                Action<Modfile> successCallback, Action<ErrorInfo> errorCallback)
         {
-            Debug.Assert(profile.modId > 0, "Cannot upload modfile with unassigned mod");
-            Debug.Assert(System.IO.Path.GetExtension(buildFilename) == "zip");
+            Debug.Assert(profile.modId > 0,
+                         "Cannot upload modfile with unassigned mod");
+            Debug.Assert(System.IO.Path.GetExtension(buildFilename) == ".zip",
+                         "Mod IO only accepts zipped archives as builds");
 
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + profile.modId + "/files";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + profile.modId + "/files";
             
             // - String Values -
             List<StringValueField> valueFields = new List<StringValueField>(5);
@@ -736,12 +736,12 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Edit Modfile
-        public void EditModfile(string oAuthToken, int gameId,
+        public void EditModfile(string oAuthToken,
                                 ModfileProfile profile,
                                 bool setPrimary,
                                 Action<Modfile> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + profile.modId + "/files/" + profile.modfileId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + profile.modId + "/files/" + profile.modfileId;
             
             // - String Values -
             List<StringValueField> valueFields = new List<StringValueField>(4);
@@ -774,11 +774,11 @@ namespace ModIO
 
         // ---------[ MEDIA ENDPOINTS ]---------
         // Add GameInfo Media
-        public void AddGameMedia(string oAuthToken, int gameId,
+        public void AddGameMedia(string oAuthToken,
                                  UnsubmittedGameMedia gameMedia,
                                  Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/media";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/media";
             BinaryDataField[] dataFields = gameMedia.GetDataFields();
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.MessageObject>(endpointURL,
@@ -794,11 +794,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Mod Media
-        public void AddModMedia(string oAuthToken, int gameId,
+        public void AddModMedia(string oAuthToken,
                                 int modId, UnsubmittedModMedia modMedia,
                                 Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/media";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
             StringValueField[] valueFields = modMedia.GetValueFields();
             BinaryDataField[] dataFields = modMedia.GetDataFields();
 
@@ -815,11 +815,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Delete Mod Media
-        public void DeleteModMedia(string oAuthToken, int gameId,
+        public void DeleteModMedia(string oAuthToken,
                                    int modId, ModMediaToDelete modMediaToDelete,
                                    Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/media";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
             StringValueField[] valueFields = modMediaToDelete.GetValueFields();
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest<API.MessageObject>(endpointURL,
@@ -836,11 +836,11 @@ namespace ModIO
 
 
         // ---------[ SUBSCRIBE ENDPOINTS ]---------
-        public void SubscribeToMod(string oAuthToken, int gameId,
+        public void SubscribeToMod(string oAuthToken,
                                    int modId,
                                    Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/subscribe";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/subscribe";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.MessageObject>(endpointURL,
                                                                                 oAuthToken,
@@ -854,11 +854,11 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
-        public void UnsubscribeFromMod(string oAuthToken, int gameId,
+        public void UnsubscribeFromMod(string oAuthToken,
                                        int modId,
                                        Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/subscribe";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/subscribe";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest<API.MessageObject>(endpointURL,
                                                                                                   oAuthToken,
@@ -875,13 +875,12 @@ namespace ModIO
 
         // ---------[ EVENT ENDPOINTS ]---------
         // Get Mod Events
-        public void GetModEvents(string apiKey, int gameId,
-                                 int modId, GetModEventFilter filter,
+        public void GetModEvents(int modId, GetModEventFilter filter,
                                  Action<ModEvent[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/events";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/events";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.ModEventObject>> onSuccess = (result) =>
             {
@@ -890,13 +889,12 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Get All Mod Events
-        public void GetAllModEvents(string apiKey, int gameId,
-                                    GetAllModEventsFilter filter,
+        public void GetAllModEvents(GetAllModEventsFilter filter,
                                     Action<ModEvent[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/events";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/events";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.ModEventObject>> onSuccess = (result) =>
             {
@@ -908,12 +906,11 @@ namespace ModIO
 
         // ---------[ TAG ENDPOINTS ]---------
         // Get All Game Tag Options
-        public void GetAllGameTagOptions(string apiKey, int gameId,
-                                         Action<GameTagOption[]> successCallback, Action<ErrorInfo> errorCallback)
+        public void GetAllGameTagOptions(Action<GameTagOption[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/tags";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, Filter.None);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, Filter.None);
 
             Action<API.ObjectArray<API.GameTagOptionObject>> onSuccess = (result) =>
             {
@@ -923,11 +920,11 @@ namespace ModIO
         }
 
         // Add Game Tag Option
-        public void AddGameTagOption(string oAuthToken, int gameId,
+        public void AddGameTagOption(string oAuthToken,
                                      UnsubmittedGameTagOption tagOption,
                                      Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/tags";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
             StringValueField[] valueFields = tagOption.GetValueFields();
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.MessageObject>(endpointURL,
@@ -944,11 +941,11 @@ namespace ModIO
         }
 
         // Delete Game Tag Option
-        public void DeleteGameTagOption(string oAuthToken, int gameId,
+        public void DeleteGameTagOption(string oAuthToken,
                                         GameTagOptionToDelete gameTagOptionToDelete,
                                         Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/tags";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
             StringValueField[] valueFields = gameTagOptionToDelete.GetValueFields();
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest<API.MessageObject>(endpointURL,
@@ -964,13 +961,12 @@ namespace ModIO
         }
 
         // Get All Mod Tags
-        public void GetAllModTags(string apiKey, int gameId,
-                                  int modId, GetAllModTagsFilter filter,
+        public void GetAllModTags(int modId, GetAllModTagsFilter filter,
                                   Action<ModTag[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/tags";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.ModTagObject>> onSuccess = (result) =>
             {
@@ -979,11 +975,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Mod Tags
-        public void AddModTags(string oAuthToken, int gameId,
+        public void AddModTags(string oAuthToken,
                                int modId, string[] tagNames,
                                Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/tags";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
             StringValueField[] valueFields = new StringValueField[tagNames.Length];
 
             for(int i = 0; i < tagNames.Length; ++i)
@@ -1004,11 +1000,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Delete Mod Tags
-        public void DeleteModTags(string oAuthToken, int gameId,
+        public void DeleteModTags(string oAuthToken,
                                   int modId, string[] tagsToDelete,
                                   Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/tags";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
             StringValueField[] valueFields = new StringValueField[tagsToDelete.Length];
             for(int i = 0; i < tagsToDelete.Length; ++i)
             {
@@ -1030,11 +1026,11 @@ namespace ModIO
 
         // ---------[ RATING ENDPOINTS ]---------
         // Add Mod Rating
-        public void AddModRating(string oAuthToken, int gameId,
+        public void AddModRating(string oAuthToken,
                                  int modId, int ratingValue,
                                  Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/ratings";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/ratings";
             StringValueField[] valueFields = new StringValueField[]
             {
                 StringValueField.Create("rating", ratingValue),
@@ -1056,13 +1052,12 @@ namespace ModIO
 
         // ---------[ METADATA ENDPOINTS ]---------
         // Get All Mod KVP Metadata
-        public void GetAllModKVPMetadata(string apiKey, int gameId,
-                                         int modId,
+        public void GetAllModKVPMetadata(int modId,
                                          Action<MetadataKVP[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/metadatakvp";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, Filter.None);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, Filter.None);
 
             Action<API.ObjectArray<API.MetadataKVPObject>> onSuccess = (result) =>
             {
@@ -1071,11 +1066,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Mod KVP Metadata
-        public void AddModKVPMetadata(string oAuthToken, int gameId,
+        public void AddModKVPMetadata(string oAuthToken,
                                       int modId, UnsubmittedMetadataKVP[] metadataKVPs,
                                       Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/metadatakvp";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
             StringValueField[] valueFields = new StringValueField[metadataKVPs.Length];
             for(int i = 0; i < metadataKVPs.Length; ++i)
             {
@@ -1096,11 +1091,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Delete Mod KVP Metadata
-        public void DeleteModKVPMetadata(string oAuthToken, int gameId,
+        public void DeleteModKVPMetadata(string oAuthToken,
                                          int modId, UnsubmittedMetadataKVP[] metadataKVPsToRemove,
                                          Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/metadatakvp";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
             StringValueField[] valueFields = new StringValueField[metadataKVPsToRemove.Length];
             for(int i = 0; i < metadataKVPsToRemove.Length; ++i)
             {
@@ -1123,13 +1118,12 @@ namespace ModIO
 
         // ---------[ DEPENDENCIES ENDPOINTS ]---------
         // Get All Mod Dependencies
-        public void GetAllModDependencies(string apiKey, int gameId,
-                                          int modId, GetAllModDependenciesFilter filter,
+        public void GetAllModDependencies(int modId, GetAllModDependenciesFilter filter,
                                           Action<ModDependency[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/dependencies";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.ModDependencyObject>> onSuccess = (result) =>
             {
@@ -1138,11 +1132,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Mod Dependencies
-        public void AddModDependencies(string oAuthToken, int gameId,
+        public void AddModDependencies(string oAuthToken,
                                        int modId, int[] requiredModIds,
                                        Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/dependencies";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
             StringValueField[] valueFields = new StringValueField[requiredModIds.Length];
             for(int i = 0; i < requiredModIds.Length; ++i)
             {
@@ -1162,11 +1156,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Delete Mod Dependencies
-        public void DeleteModDependencies(string oAuthToken, int gameId,
+        public void DeleteModDependencies(string oAuthToken,
                                           int modId, int[] modIdsToRemove,
                                           Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/dependencies";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
             StringValueField[] valueFields = new StringValueField[modIdsToRemove.Length];
             for(int i = 0; i < modIdsToRemove.Length; ++i)
             {
@@ -1188,13 +1182,12 @@ namespace ModIO
 
         // ---------[ TEAM ENDPOINTS ]---------
         // Get All Mod Team Members
-        public void GetAllModTeamMembers(string apiKey, int gameId,
-                                         int modId, GetAllModTeamMembersFilter filter,
+        public void GetAllModTeamMembers(int modId, GetAllModTeamMembersFilter filter,
                                          Action<TeamMember[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/team";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.TeamMemberObject>> onSuccess = (result) =>
             {
@@ -1203,11 +1196,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Mod Team Member
-        public void AddModTeamMember(string oAuthToken, int gameId,
+        public void AddModTeamMember(string oAuthToken,
                                      int modId, UnsubmittedTeamMember teamMember,
                                      Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/team";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
             StringValueField[] valueFields = teamMember.GetValueFields();
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.MessageObject>(endpointURL,
@@ -1224,11 +1217,11 @@ namespace ModIO
         }
         // Update Mod Team Member
         // NOTE(@jackson): Untested
-        public void UpdateModTeamMember(string oAuthToken, int gameId,
+        public void UpdateModTeamMember(string oAuthToken,
                                         int modId, EditableTeamMember teamMember,
                                         Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/team/" + teamMember.id;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team/" + teamMember.id;
             StringValueField[] valueFields = teamMember.GetValueFields();
 
             UnityWebRequest webRequest = APIClient.GeneratePutRequest<API.MessageObject>(endpointURL,
@@ -1243,11 +1236,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Delete Mod Team Member
-        public void DeleteModTeamMember(string oAuthToken, int gameId,
+        public void DeleteModTeamMember(string oAuthToken,
                                         int modId, int teamMemberId,
                                         Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/team/" + teamMemberId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team/" + teamMemberId;
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest<API.MessageObject>(endpointURL,
                                                                                                   oAuthToken,
@@ -1265,13 +1258,12 @@ namespace ModIO
         // ---------[ COMMENT ENDPOINTS ]---------
         // Get All Mod Comments
         // NOTE(@jackson): Untested
-        public void GetAllModComments(string apiKey, int gameId,
-                                      int modId, GetAllModCommentsFilter filter,
+        public void GetAllModComments(int modId, GetAllModCommentsFilter filter,
                                       Action<UserComment[]> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/comments";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.CommentObject>> onSuccess = (result) =>
             {
@@ -1281,13 +1273,12 @@ namespace ModIO
         }
         // Get Mod Comment
         // NOTE(@jackson): Untested
-        public void GetModComment(string apiKey, int gameId,
-                                  int modId, int commentId,
+        public void GetModComment(int modId, int commentId,
                                   Action<UserComment> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/comments/" + commentId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments/" + commentId;
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, Filter.None);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, Filter.None);
 
             
             Action<API.CommentObject> onSuccess = (result) =>
@@ -1299,11 +1290,11 @@ namespace ModIO
         }
         // Delete Mod Comment
         // NOTE(@jackson): Untested
-        public void DeleteModComment(string oAuthToken, int gameId,
+        public void DeleteModComment(string oAuthToken,
                                      int modId, int commentId,
                                      Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/comments/" + commentId;
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments/" + commentId;
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest<API.MessageObject>(endpointURL,
                                                                                                   oAuthToken,
@@ -1351,13 +1342,12 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Get All Users
-        public void GetAllUsers(string apiKey,
-                                GetAllUsersFilter filter,
+        public void GetAllUsers(GetAllUsersFilter filter,
                                 Action<User[]> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "users";
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, filter);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, filter);
 
             Action<API.ObjectArray<API.UserObject>> onSuccess = (result) =>
             {
@@ -1366,13 +1356,12 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Get User
-        public void GetUser(string apiKey,
-                            int userID,
+        public void GetUser(int userID,
                             Action<User> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "users/" + userID;
 
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, apiKey, Filter.None);
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, Filter.None);
 
             
             Action<API.UserObject> onSuccess = (result) =>

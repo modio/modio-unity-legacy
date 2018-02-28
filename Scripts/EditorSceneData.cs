@@ -10,7 +10,7 @@ namespace ModIO
     [ExecuteInEditMode]
     public class EditorSceneData : MonoBehaviour
     {
-        public EditableModInfo modInfo = null;
+        public EditableModInfo modInfo = new EditableModInfo();
 
         public string buildLocation = string.Empty;
         public ModfileProfile buildProfile = null;

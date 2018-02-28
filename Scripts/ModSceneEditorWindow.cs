@@ -15,9 +15,6 @@ namespace ModIO
     // TODO(@jackson): Check for scene change between callbacks
     public class ModSceneEditorWindow : EditorWindow
     {
-        private const int GAME_ID = 0;
-        private const string API_KEY = "";
-
         // ------[ WINDOW FIELDS ]---------
         private Scene currentScene;
         private EditorSceneData sceneData;
@@ -42,7 +39,7 @@ namespace ModIO
 
         private void OnEnable()
         {
-            ModManager.Initialize(GAME_ID, API_KEY);
+            ModManager.Initialize();
 
             currentScene = new Scene();
             wasPlaying = Application.isPlaying;
