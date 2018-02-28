@@ -274,6 +274,34 @@ namespace ModIO
                 EditorGUI.indentLevel -= 3;
             }
         }
+
+        public static bool BrowseButton(string buttonContent, GUIContent label)
+        {
+            bool doBrowse = false;
+
+            if(String.IsNullOrEmpty(buttonContent))
+            {
+                buttonContent = "Browse...";
+            }
+
+            EditorGUILayout.BeginHorizontal();
+                if(label != null && label != GUIContent.none)
+                {
+                    EditorGUILayout.PrefixLabel(label);
+                }
+
+                if(Event.current.type == EventType.Layout)
+                {
+                    EditorGUILayout.TextField(buttonContent);
+                }
+                else
+                {
+                    doBrowse = GUILayout.Button(buttonContent, GUI.skin.textField);
+                }
+            EditorGUILayout.EndHorizontal();
+
+            return doBrowse;
+        }
     }
     #endif
 }

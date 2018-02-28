@@ -33,17 +33,20 @@ namespace ModIO
 
             List<string> selectedTags = new List<string>(sceneData.modInfo.GetTagNames());
 
-            DisplayInner(modInfoProp, logoTexture, logoSource, selectedTags);
+            DisplayModInfo(modInfoProp, logoTexture, logoSource, selectedTags);
+
+            DisplayUploadBuild(serializedSceneData.FindProperty("buildLocation"),
+                               serializedSceneData.FindProperty("buildProfile"),
+                               serializedSceneData.FindProperty("setBuildAsPrimary"));
         }
 
-        private static void DisplayInner(SerializedProperty modInfoProp,
-                                         Texture2D logoTexture,
-                                         string logoSource,
-                                         List<string> selectedTags)
+        private static void DisplayModInfo(SerializedProperty modInfoProp,
+                                           Texture2D logoTexture,
+                                           string logoSource,
+                                           List<string> selectedTags)
         {
             bool isNewMod = modInfoProp.FindPropertyRelative("_data.id").intValue <= 0;
 
-            string logoSourceDisplay = (logoSource == "" ? "Browse..." : logoSource);
             SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
             bool isUndoRequested = false;
             GUILayoutOption[] buttonLayout = new GUILayoutOption[]{ GUILayout.Width(EditorGUIUtility.singleLineHeight), GUILayout.Height(EditorGUIUtility.singleLineHeight) };
@@ -140,16 +143,7 @@ namespace ModIO
             bool doBrowseLogo = false;
 
             EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Logo");
-
-                if(Event.current.type == EventType.Layout)
-                {
-                    EditorGUILayout.TextField(logoSourceDisplay);
-                }
-                else
-                {
-                    doBrowseLogo = GUILayout.Button(logoSourceDisplay, GUI.skin.textField);
-                }
+                doBrowseLogo = EditorGUILayoutExtensions.BrowseButton(logoSource, new GUIContent("Logo"));
 
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
@@ -337,6 +331,33 @@ namespace ModIO
                     //                               new GUIContent("Modfile"));
                 }
             }
+        }
+
+        private static void DisplayUploadBuild(SerializedProperty buildLocationProp,
+                                               SerializedProperty modfileProfileProp,
+                                               SerializedProperty setPrimaryProp)
+        {
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Build Info");
+
+            if(EditorGUILayoutExtensions.BrowseButton(buildLocationProp.stringValue, new GUIContent("Build Location")))
+            {
+                EditorApplication.delayCall += () =>
+                {
+                    // TODO(@jackson): Allow folders?
+                    string path = EditorUtility.OpenFilePanel("Set Build Location", "", "unity3d");
+                    if (path.Length != 0)
+                    {
+                        buildLocationProp.stringValue = path;
+                        buildLocationProp.serializedObject.ApplyModifiedProperties();
+                    }
+                };
+            }
+
+            EditorGUILayout.PropertyField(modfileProfileProp, GUIContent.none);
+
+            EditorGUILayout.PropertyField(setPrimaryProp, new GUIContent("Set Primary"));
         }
 
         // ---------[ RESET FUNCTIONS ]---------

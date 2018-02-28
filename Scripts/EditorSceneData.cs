@@ -7,14 +7,17 @@ using UnityEditor;
 
 namespace ModIO
 {
-    // TODO(@jackson): Handle ModUpdated (esp. Deleted)
     [ExecuteInEditMode]
     public class EditorSceneData : MonoBehaviour
     {
-        public EditableModInfo modInfo = new EditableModInfo();
+        public EditableModInfo modInfo = null;
+
+        public string buildLocation = string.Empty;
+        public ModfileProfile buildProfile = null;
+        public bool setBuildAsPrimary = true;
 
         private Texture2D modLogoTexture = null;
-        private string modLogoSource = "";
+        private string modLogoSource = string.Empty;
         private DateTime modLogoLastWrite = new DateTime();
 
         private void OnEnable()
@@ -62,7 +65,6 @@ namespace ModIO
             {
                 modLogoSource = modInfo.unsubmittedLogoFilepath;
 
-                // TODO(@jackson): Complete this
                 if(File.Exists(modLogoSource))
                 {
                     modLogoTexture = new Texture2D(0, 0);
