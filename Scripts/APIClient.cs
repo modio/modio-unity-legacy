@@ -689,18 +689,45 @@ namespace ModIO
         }
         // Add Modfile
         public void AddModfile(string oAuthToken, int gameId,
-                               int modId, UnsubmittedModfile modfile,
+                               ModfileProfile profile,
+                               string buildFilename, byte[] buildZipData,
+                               bool setPrimary,
                                Action<Modfile> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modId + "/files";
-            StringValueField[] valueFields = modfile.GetValueFields();
-            BinaryDataField[] dataFields = modfile.GetDataFields();
+            Debug.Assert(profile.modId > 0, "Cannot upload modfile with unassigned mod");
+            Debug.Assert(System.IO.Path.GetExtension(buildFilename) == "zip");
+
+            string endpointURL = API_URL + "games/" + gameId + "/mods/" + profile.modId + "/files";
+            
+            // - String Values -
+            List<StringValueField> valueFields = new List<StringValueField>(5);
+            if(!String.IsNullOrEmpty(profile.version))
+            {
+                valueFields.Add(StringValueField.Create("version", profile.version));
+            }
+            if(!String.IsNullOrEmpty(profile.changelog))
+            {
+                valueFields.Add(StringValueField.Create("changelog", profile.changelog));
+            }
+            if(!String.IsNullOrEmpty(profile.metadataBlob))
+            {
+                valueFields.Add(StringValueField.Create("metadata_blob", profile.metadataBlob));
+            }
+            valueFields.Add(StringValueField.Create("active", setPrimary.ToString().ToLower()));
+            valueFields.Add(StringValueField.Create("filehash", Utility.GetMD5ForData(buildZipData)));
+
+            // - Data Values -
+            BinaryDataField dataField = new BinaryDataField();
+            dataField.key = "filedata";
+            dataField.fileName = buildFilename;
+            dataField.contents = buildZipData;
+
+            BinaryDataField[] dataFields = new BinaryDataField[] { dataField };
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.ModfileObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                dataFields);
-            
+                                                                                          oAuthToken,
+                                                                                          valueFields.ToArray(),
+                                                                                          dataFields);
             Action<API.ModfileObject> onSuccess = (result) =>
             {
                 OnSuccessWrapper<API.ModfileObject, Modfile>(result, successCallback);
@@ -710,15 +737,31 @@ namespace ModIO
         }
         // Edit Modfile
         public void EditModfile(string oAuthToken, int gameId,
-                                EditableModfile modfile,
+                                ModfileProfile profile,
+                                bool setPrimary,
                                 Action<Modfile> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameId + "/mods/" + modfile.modId + "/files/" + modfile.id;
-            StringValueField[] valueFields = modfile.GetValueFields();
+            string endpointURL = API_URL + "games/" + gameId + "/mods/" + profile.modId + "/files/" + profile.modfileId;
+            
+            // - String Values -
+            List<StringValueField> valueFields = new List<StringValueField>(4);
+            if(!String.IsNullOrEmpty(profile.version))
+            {
+                valueFields.Add(StringValueField.Create("version", profile.version));
+            }
+            if(!String.IsNullOrEmpty(profile.changelog))
+            {
+                valueFields.Add(StringValueField.Create("changelog", profile.changelog));
+            }
+            if(!String.IsNullOrEmpty(profile.metadataBlob))
+            {
+                valueFields.Add(StringValueField.Create("metadata_blob", profile.metadataBlob));
+            }
+            valueFields.Add(StringValueField.Create("active", setPrimary.ToString().ToLower()));
 
             UnityWebRequest webRequest = APIClient.GeneratePutRequest<API.MessageObject>(endpointURL,
-                                                                                               oAuthToken,
-                                                                                               valueFields);
+                                                                                         oAuthToken,
+                                                                                         valueFields.ToArray());
             
             Action<API.ModfileObject> onSuccess = (result) =>
             {

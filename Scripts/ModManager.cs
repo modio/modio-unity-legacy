@@ -977,13 +977,32 @@ namespace ModIO
             }
         }
 
-        public static void AddModfile(int modId,
-                                      UnsubmittedModfile modfile,
-                                      Action<Modfile> onSuccess,
-                                      Action<ErrorInfo> onError)
+        public static void UploadModBinary_Unzipped(string modFileLocation,
+                                                    ModfileProfile profile,
+                                                    bool setPrimary,
+                                                    Action<Modfile> onSuccess,
+                                                    Action<ErrorInfo> onError)
         {
+            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(modFileLocation) + ".zip";
+
+            ZipUtil.Zip(binaryZipLocation, modFileLocation);
+
+            UploadModBinary_Zipped(binaryZipLocation, profile, setPrimary, onSuccess, onError);
+        }
+
+        public static void UploadModBinary_Zipped(string binaryZipLocation,
+                                                  ModfileProfile profile,
+                                                  bool setPrimary,
+                                                  Action<Modfile> onSuccess,
+                                                  Action<ErrorInfo> onError)
+        {
+            string buildFilename = Path.GetFileName(binaryZipLocation);
+            byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
+
             client.AddModfile(userData.oAuthToken, ModManager.gameId,
-                              modId, modfile,
+                              profile,
+                              buildFilename, buildZipData,
+                              setPrimary,
                               onSuccess, onError);
         }
 

@@ -138,6 +138,22 @@ namespace ModIO
 
             return urlRegex.IsMatch(toCheck);
         }
+
+        public static string GetMD5ForFile(string path)
+        {
+            Debug.Assert(System.IO.File.Exists(path));
+            return GetMD5ForData(System.IO.File.ReadAllBytes(path));
+        }
+
+        public static string GetMD5ForData(byte[] data)
+        {
+            string hashString = "";
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                hashString = BitConverter.ToString(md5.ComputeHash(data)).Replace("-", "").ToLowerInvariant();
+            }
+            return hashString;
+        }
     }
 
     // Author: @ohad-schneider of StackOverflow (https://stackoverflow.com/users/67824/ohad-schneider)
