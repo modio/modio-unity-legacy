@@ -280,8 +280,8 @@ namespace ModIO
 
         // TODO(@jackson): Show all modfiles
         public static void ModfileManagementPanel(SerializedProperty buildLocationProp,
-                                                   SerializedProperty modfileProfileProp,
-                                                   SerializedProperty setPrimaryProp)
+                                                  SerializedProperty modfileProfileProp,
+                                                  SerializedProperty setPrimaryProp)
         {
             EditorGUILayout.LabelField("Build Info");
 

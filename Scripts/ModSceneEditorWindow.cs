@@ -15,12 +15,22 @@ namespace ModIO
     // TODO(@jackson): Check for scene change between callbacks
     public class ModSceneEditorWindow : EditorWindow
     {
+        private enum ModPanelView
+        {
+            Profile,
+            Media,
+            ModfileManagement,
+            ServerData
+        }
+
         // ------[ WINDOW FIELDS ]---------
         private Scene currentScene;
         private EditorSceneData sceneData;
         private bool wasPlaying;
-        private Vector2 scrollPos;
         private bool isModUploading;
+        private ModPanelView currentView;
+
+        private Vector2 scrollPos;
 
         // --- Registration Variables ---
         private bool inputEmail;
@@ -30,6 +40,9 @@ namespace ModIO
 
         // --- Scene Initialization ---
         private int modInitializationOptionIndex;
+
+        // ---- View Vars ---
+        private bool isTagsExpanded = false;
 
         [MenuItem("ModIO/Mod Scene Info Editor")]
         public static void ShowWindow()
@@ -44,6 +57,7 @@ namespace ModIO
             currentScene = new Scene();
             wasPlaying = Application.isPlaying;
             sceneData = null;
+            currentView = ModPanelView.Profile;
 
             // - Reset registration vars -
             inputEmail = true;
@@ -55,6 +69,7 @@ namespace ModIO
         private void OnSceneChange()
         {
             currentScene = SceneManager.GetActiveScene();
+            currentView = ModPanelView.Profile;
 
             sceneData = Object.FindObjectOfType<EditorSceneData>();
             modInitializationOptionIndex = 0;
@@ -202,21 +217,30 @@ namespace ModIO
             }
         }
 
+        private void UploadModMedia()
+        {
+        }
+
         private void UploadModBinary()
         {
-            isModUploading = true;
-
-            System.Action<Modfile> onUploadSucceeded = (mf) =>
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
             {
-                Debug.Log("Upload succeeded!");
-                isModUploading = false;
-            };
+                EditorSceneManager.SaveScene(currentScene);
 
-            ModManager.UploadModBinary_Unzipped(sceneData.buildLocation,
-                                                sceneData.buildProfile,
-                                                true,
-                                                onUploadSucceeded,
-                                                (e) => isModUploading = false);
+                isModUploading = true;
+
+                System.Action<Modfile> onUploadSucceeded = (mf) =>
+                {
+                    Debug.Log("Upload succeeded!");
+                    isModUploading = false;
+                };
+
+                ModManager.UploadModBinary_Unzipped(sceneData.buildLocation,
+                                                    sceneData.buildProfile,
+                                                    true,
+                                                    onUploadSucceeded,
+                                                    (e) => isModUploading = false);
+            }
         }
 
         // ---------[ GUI DISPLAY ]---------
@@ -224,6 +248,7 @@ namespace ModIO
         {
             bool isPlaying = Application.isPlaying;
             bool doUploadInfo = false;
+            bool doUploadMedia = false;
             bool doUploadBinary = false;
 
             // - Update Data -
@@ -252,29 +277,74 @@ namespace ModIO
                 }
                 else
                 {
+                    ModPanelView oldView = currentView;
+
+                    EditorGUILayout.BeginHorizontal();
+                        if(GUILayout.Button("Profile"))
+                        {
+                            currentView = ModPanelView.Profile;
+                        }
+                        if(GUILayout.Button("Media"))
+                        {
+                            currentView = ModPanelView.Media;
+                        }
+                        if(GUILayout.Button("Files"))
+                        {
+                            currentView = ModPanelView.ModfileManagement;
+                        }
+                        if(GUILayout.Button("Server"))
+                        {
+                            currentView = ModPanelView.ServerData;
+                        }
+                    EditorGUILayout.EndHorizontal();
+
+                    if(oldView != currentView)
+                    {
+                        scrollPos = Vector2.zero;
+                    }
+
+
                     using (new EditorGUI.DisabledScope(isModUploading || Application.isPlaying))
                     {
-                        // - Upload -
-                        if(sceneData.modInfo.id <= 0)
-                        {
-                            doUploadInfo = GUILayout.Button("Create Mod Profile");
-                        }
-                        else
-                        {
-                            EditorGUILayout.BeginHorizontal();
-                                doUploadInfo = GUILayout.Button("Update Mod Profile");
-                                doUploadBinary = GUILayout.Button("Upload Build");
-                            EditorGUILayout.EndHorizontal();
-                        }
+                        SerializedObject serializedSceneData = new SerializedObject(sceneData);
 
-                        // - Mod Info -
                         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+
+                        // TODO(@jackson): Replace with a class instance?
+                        switch(currentView)
                         {
-                            SerializedObject serializedSceneData = new SerializedObject(sceneData);
-                            SceneDataInspector.DisplayAsObject(serializedSceneData);
-                            serializedSceneData.ApplyModifiedProperties();
+                            case ModPanelView.Profile:
+                                EditorModLayout.ModProfilePanel(serializedSceneData.FindProperty("modInfo"),
+                                                                sceneData.GetModLogoTexture(),
+                                                                sceneData.GetModLogoSource(),
+                                                                new List<string>(sceneData.modInfo.GetTagNames()),
+                                                                ref isTagsExpanded);
+
+                                doUploadInfo = GUILayout.Button("Save To Server");
+                            break;
+
+                            case ModPanelView.Media:
+                                EditorModLayout.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
+
+                                doUploadMedia = GUILayout.Button("Upload Missing Media");
+                            break;
+
+                            case ModPanelView.ModfileManagement:
+                                EditorModLayout.ModfileManagementPanel(serializedSceneData.FindProperty("buildLocation"),
+                                                                       serializedSceneData.FindProperty("buildProfile"),
+                                                                       serializedSceneData.FindProperty("setBuildAsPrimary"));
+
+                                doUploadBinary = GUILayout.Button("Upload Build");
+                            break;
+
+                            case ModPanelView.ServerData:
+                                EditorModLayout.ModServerDataPanel(serializedSceneData.FindProperty("modInfo"));
+                            break;
                         }
+                    
                         EditorGUILayout.EndScrollView();
+
+                        serializedSceneData.ApplyModifiedProperties();
                     }
                 }
             }
@@ -285,6 +355,10 @@ namespace ModIO
             if(doUploadInfo)
             {
                 EditorApplication.delayCall += UploadModInfo;
+            }
+            if(doUploadMedia)
+            {
+                EditorApplication.delayCall += UploadModMedia;
             }
             if(doUploadBinary)
             {
