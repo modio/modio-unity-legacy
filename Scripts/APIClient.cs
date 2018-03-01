@@ -9,6 +9,12 @@ using UnityEngine.Networking;
 
 namespace ModIO
 {
+    public class BinaryUpload
+    {
+        public string fileName = string.Empty;
+        public byte[] data = null;
+    }
+
     public class BinaryDataField
     {
         public string key = "";
@@ -794,18 +800,51 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccess, errorCallback);
         }
         // Add Mod Media
-        public void AddModMedia(string oAuthToken,
-                                int modId, UnsubmittedModMedia modMedia,
+        public void AddModMedia(string oAuthToken, int modId,
+                                BinaryUpload logo, BinaryUpload imageGalleryZip,
+                                string[] youtubeLinks, string[] sketchfabLinks,
                                 Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
-            StringValueField[] valueFields = modMedia.GetValueFields();
-            BinaryDataField[] dataFields = modMedia.GetDataFields();
+
+            // - String Values -
+            List<StringValueField> valueFields = new List<StringValueField>(youtubeLinks.Length + sketchfabLinks.Length);
+            foreach(string youtube in youtubeLinks)
+            {
+                valueFields.Add(StringValueField.Create("youtube[]", youtube));
+            }
+            foreach(string sketchfab in sketchfabLinks)
+            {
+                valueFields.Add(StringValueField.Create("sketchfab[]", sketchfab));
+            }
+
+            // - Data Values -
+            List<BinaryDataField> dataFields = new List<BinaryDataField>(2);
+            if(logo != null)
+            {
+                BinaryDataField logoField = new BinaryDataField()
+                {
+                    key = "logo",
+                    contents = logo.data,
+                    fileName = logo.fileName
+                };
+                dataFields.Add(logoField);
+            }
+            if(imageGalleryZip != null)
+            {
+                BinaryDataField logoField = new BinaryDataField()
+                {
+                    key = "images",
+                    contents = logo.data,
+                    fileName = "images.zip"
+                };
+                dataFields.Add(logoField);
+            }
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<API.MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                dataFields);
+                                                                                          oAuthToken,
+                                                                                          valueFields.ToArray(),
+                                                                                          dataFields.ToArray());
             
             Action<API.MessageObject> onSuccess = (result) =>
             {
@@ -816,15 +855,31 @@ namespace ModIO
         }
         // Delete Mod Media
         public void DeleteModMedia(string oAuthToken,
-                                   int modId, ModMediaToDelete modMediaToDelete,
+                                   ModMediaChanges modMediaToDelete,
                                    Action<APIMessage> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
-            StringValueField[] valueFields = modMediaToDelete.GetValueFields();
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modMediaToDelete.modId + "/media";
+            
+            // - String Values -
+            List<StringValueField> valueFields = new List<StringValueField>(modMediaToDelete.images.Length
+                                                                            + modMediaToDelete.youtube.Length
+                                                                            + modMediaToDelete.sketchfab.Length);
+            foreach(string image in modMediaToDelete.images)
+            {
+                valueFields.Add(StringValueField.Create("images[]", image));
+            }
+            foreach(string youtubeLink in modMediaToDelete.youtube)
+            {
+                valueFields.Add(StringValueField.Create("youtube[]", youtubeLink));
+            }
+            foreach(string sketchfabLink in modMediaToDelete.sketchfab)
+            {
+                valueFields.Add(StringValueField.Create("sketchfab[]", sketchfabLink));
+            }
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest<API.MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  valueFields);
+                                                                                            oAuthToken,
+                                                                                            valueFields.ToArray());
             
             Action<API.MessageObject> onSuccess = (result) =>
             {

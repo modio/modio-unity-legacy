@@ -267,15 +267,21 @@ namespace ModIO
                 GUILayout.FlexibleSpace();
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    ResetModMedia(modInfoProp);
+                    if(GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout))
+                    {
+                        ResetModMedia(modInfoProp);
+                    }
                 }
             EditorGUILayout.EndHorizontal();
 
-            DisplayModMedia(modInfoProp);
-
-            // Images
-            // Youtube
-            // Sketchfab
+            ++EditorGUI.indentLevel;
+                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.youtube"),
+                                                             "YouTube Links", ref isYouTubeExpanded);
+                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.sketchfab"),
+                                                             "SketchFab Links", ref isSketchFabExpanded);
+                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.images"),
+                                                             "Gallery Images", ref isImagesExpanded);
+            --EditorGUI.indentLevel;
         }
 
         // TODO(@jackson): Show all modfiles
@@ -479,20 +485,6 @@ namespace ModIO
         private static bool isYouTubeExpanded = false;
         private static bool isSketchFabExpanded = false;
         private static bool isImagesExpanded = false;
-
-        private static void DisplayModMedia(SerializedProperty modInfoProp)
-        {
-            ++EditorGUI.indentLevel;
-
-                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.youtube"),
-                                                             "YouTube Links", ref isYouTubeExpanded);
-                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.sketchfab"),
-                                                             "SketchFab Links", ref isSketchFabExpanded);
-                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.images"),
-                                                             "Gallery Images", ref isImagesExpanded);
-
-            --EditorGUI.indentLevel;
-        }
 
         private static void ResetModMedia(SerializedProperty modInfoProp)
         {

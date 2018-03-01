@@ -860,8 +860,6 @@ namespace ModIO
                                          Action<ModInfo> modSubmissionSucceeded,
                                          Action<ErrorInfo> modSubmissionFailed)
         {
-            UnsubmittedModMedia modMedia = modInfo.GetUnsubmittedModMedia();
-
             // - Edit Mod -
             if(modInfo.id > 0)
             {
@@ -874,18 +872,6 @@ namespace ModIO
                         submissionActions[nextActionIndex++]();
                     }
                 };
-
-                if(modInfo.isMediaDirty())
-                {
-                    submissionActions.Add(() =>
-                    {
-                        Debug.Log("Submitting Mod Media");
-
-                        client.AddModMedia(userData.oAuthToken,
-                                           modInfo.id, modMedia,
-                                           doNextSubmissionAction, modSubmissionFailed);
-                    });
-                }
 
                 if(modInfo.isTagsDirty())
                 {
@@ -934,24 +920,49 @@ namespace ModIO
             // - Add Mod -
             else
             {
-                Action<ModInfo> submissionStep02 = (mod) =>
-                {
-                    if(modInfo.isMediaDirty())
-                    {
-                        client.AddModMedia(userData.oAuthToken,
-                                           mod.id, modMedia,
-                                           m => modSubmissionSucceeded(mod), APIClient.IgnoreResponse);
-                    }
-                    else
-                    {
-                        modSubmissionSucceeded(mod);
-                    }
-                };
-
                 client.AddMod(userData.oAuthToken,
                               modInfo,
-                              submissionStep02, modSubmissionFailed);
+                              modSubmissionSucceeded, modSubmissionFailed);
             }
+        }
+
+        public static void AddModMedia(ModMediaChanges modMedia,
+                                       Action<APIMessage> onSuccess,
+                                       Action<ErrorInfo> onError)
+        {
+            Debug.Assert(modMedia.modId > 0,
+                         "Invalid mod id supplied with the mod media changes");
+
+            // - Image Gallery -
+            BinaryUpload imageGalleryUpload = null;
+            if(modMedia.images.Length > 0)
+            {
+                string binaryZipLocation = Application.temporaryCachePath + "/modio/images_upload.zip";
+                ZipUtil.Zip(binaryZipLocation, modMedia.images);
+
+                imageGalleryUpload = new BinaryUpload()
+                {
+                    fileName = "images.zip",
+                    data = File.ReadAllBytes(binaryZipLocation)
+                };
+            }
+
+            client.AddModMedia(userData.oAuthToken, modMedia.modId,
+                               null, imageGalleryUpload,
+                               modMedia.youtube, modMedia.sketchfab,
+                               onSuccess, onError);
+        }
+
+        public static void DeleteModMedia(ModMediaChanges modMedia,
+                                          Action<APIMessage> onSuccess,
+                                          Action<ErrorInfo> onError)
+        {
+            Debug.Assert(modMedia.modId > 0,
+                         "Invalid mod id supplied with the mod media changes");
+
+            client.DeleteModMedia(userData.oAuthToken,
+                                  modMedia,
+                                  onSuccess, onError);
         }
 
         public static void UploadModBinary_Unzipped(string modFileLocation,
@@ -1033,15 +1044,6 @@ namespace ModIO
             client.DeleteMod(userData.oAuthToken,
                              modId,
                              onSuccess, onError);
-        }
-
-        public static void DeleteModMedia(int modId, ModMediaToDelete modMediaToDelete,
-                                          Action<APIMessage> onSuccess,
-                                          Action<ErrorInfo> onError)
-        {
-            client.DeleteModMedia(userData.oAuthToken,
-                                  modId, modMediaToDelete,
-                                  onSuccess, onError);
         }
 
         public static void DeleteModTags(int modId, string[] tagsToDelete,
