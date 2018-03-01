@@ -937,13 +937,13 @@ namespace ModIO
             BinaryUpload imageGalleryUpload = null;
             if(modMedia.images.Length > 0)
             {
-                string binaryZipLocation = Application.temporaryCachePath + "/modio/images_upload.zip";
-                ZipUtil.Zip(binaryZipLocation, modMedia.images);
+                string galleryZipLocation = Application.temporaryCachePath + "/modio/imageUpload_" + DateTime.Now.ToFileTime() + ".zip";
+                ZipUtil.Zip(galleryZipLocation, modMedia.images);
 
                 imageGalleryUpload = new BinaryUpload()
                 {
                     fileName = "images.zip",
-                    data = File.ReadAllBytes(binaryZipLocation)
+                    data = File.ReadAllBytes(galleryZipLocation)
                 };
             }
 

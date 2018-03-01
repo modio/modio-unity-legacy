@@ -219,6 +219,24 @@ namespace ModIO
 
         private void UploadModMedia()
         {
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
+            {
+                EditorSceneManager.SaveScene(currentScene);
+
+                isModUploading = true;
+
+                System.Action<APIMessage> onUpdateSucceeded = (m) =>
+                {
+                    // TODO(@jackson): Update the object with the changes
+                    isModUploading = false;
+                };
+
+                ModManager.AddModMedia(sceneData.modInfo.GetAddedMedia(),
+                                       onUpdateSucceeded,
+                                       (e) => { isModUploading = false; });
+
+                // TODO(@jackson): Add ModManager.DeleteModMedia
+            }
         }
 
         private void UploadModBinary()

@@ -385,5 +385,41 @@ namespace ModIO
             }
             return addedTags.ToArray();
         }
+
+        public ModMediaChanges GetAddedMedia()
+        {
+            ModMediaChanges changes = new ModMediaChanges();
+            changes.modId = id;
+
+            // - YouTube -
+            List<string> addedYouTubeLinks = new List<string>(_data.media.youtube);
+            foreach(string youtubeLink in _initialData.media.youtube)
+            {
+                addedYouTubeLinks.Remove(youtubeLink);
+            }
+            changes.youtube = addedYouTubeLinks.ToArray();
+
+            // - Sketchfab -
+            List<string> addedSketchfabLinks = new List<string>(_data.media.sketchfab);
+            foreach(string sketchfabLink in _initialData.media.sketchfab)
+            {
+                addedSketchfabLinks.Remove(sketchfabLink);
+            }
+            changes.sketchfab = addedSketchfabLinks.ToArray();
+            
+            // - Image -
+            List<string> addedImages = new List<string>();
+            foreach(ImageObject imageObject in _data.media.images)
+            {
+                addedImages.Add(imageObject.original);
+            }
+            foreach(ImageObject imageObject in _initialData.media.images)
+            {
+                addedImages.Remove(imageObject.original);
+            }
+            changes.images = addedImages.ToArray();
+
+            return changes;
+        }
     }
 }

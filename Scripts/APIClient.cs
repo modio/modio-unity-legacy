@@ -835,7 +835,7 @@ namespace ModIO
                 BinaryDataField logoField = new BinaryDataField()
                 {
                     key = "images",
-                    contents = logo.data,
+                    contents = imageGalleryZip.data,
                     fileName = "images.zip"
                 };
                 dataFields.Add(logoField);
