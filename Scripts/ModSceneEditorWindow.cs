@@ -234,7 +234,9 @@ namespace ModIO
                     isAddCompleted = true;
                     if(isDeleteCompleted)
                     {
-                        UpdateModMedia();
+                        APIClient.GetMod(sceneData.modInfo.id,
+                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
+                                         (e) => { isModUploading = false; });
                     }
                 };
 
@@ -244,7 +246,9 @@ namespace ModIO
                     isDeleteCompleted = true;
                     if(isAddCompleted)
                     {
-                        UpdateModMedia();
+                        APIClient.GetMod(sceneData.modInfo.id,
+                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
+                                         (e) => { isModUploading = false; });
                     }
                 };
 
@@ -255,13 +259,6 @@ namespace ModIO
                                           (m) => { onDeleteCompleted(); },
                                           (e) => { onDeleteCompleted(); });
             }
-        }
-
-        private void UpdateModMedia()
-        {
-            isModUploading = false;
-
-            // TOOD(@jackson): Update Mod Media
         }
 
         private void UploadModBinary()
