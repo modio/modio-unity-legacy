@@ -5,7 +5,7 @@ namespace ModIO
     [Serializable]
     public class ErrorInfo : IEquatable<ErrorInfo>
     {
-        // - Constructors - 
+        // - Constructors -
         public static ErrorInfo GenerateFromWebRequest(UnityEngine.Networking.UnityWebRequest webRequest)
         {
             UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
@@ -53,9 +53,9 @@ namespace ModIO
             }
             
             return(Object.ReferenceEquals(this, other)
-                   || (this.url == other.url 
-                       && this.httpStatusCode == other.httpStatusCode 
+                   || (this.url == other.url
+                       && this.httpStatusCode == other.httpStatusCode
                        && this.message == other.message));
         }
-    }   
+    }
 }

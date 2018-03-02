@@ -855,7 +855,6 @@ namespace ModIO
             File.Delete(USERDATA_URL);
         }
 
-        // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
         public static void SubmitModInfo(EditableModInfo modInfo,
                                          Action<ModInfo> modSubmissionSucceeded,
                                          Action<ErrorInfo> modSubmissionFailed)
@@ -994,6 +993,7 @@ namespace ModIO
                               onSuccess, onError);
         }
 
+        // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
         public static void AddGameMedia(UnsubmittedGameMedia gameMedia,
                                         Action<APIMessage> onSuccess,
                                         Action<ErrorInfo> onError)

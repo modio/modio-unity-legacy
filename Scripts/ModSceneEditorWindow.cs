@@ -217,26 +217,51 @@ namespace ModIO
             }
         }
 
-        private void UploadModMedia()
+        private void SendModMediaChanges()
         {
             if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
             {
                 EditorSceneManager.SaveScene(currentScene);
 
+                bool isAddCompleted = false;
+                bool isDeleteCompleted = false;
+
                 isModUploading = true;
 
-                System.Action<APIMessage> onUpdateSucceeded = (m) =>
+                System.Action onAddCompleted = () =>
                 {
                     // TODO(@jackson): Update the object with the changes
-                    isModUploading = false;
+                    isAddCompleted = true;
+                    if(isDeleteCompleted)
+                    {
+                        UpdateModMedia();
+                    }
+                };
+
+                System.Action onDeleteCompleted = () =>
+                {
+                    // TODO(@jackson): Update the object with the changes
+                    isDeleteCompleted = true;
+                    if(isAddCompleted)
+                    {
+                        UpdateModMedia();
+                    }
                 };
 
                 ModManager.AddModMedia(sceneData.modInfo.GetAddedMedia(),
-                                       onUpdateSucceeded,
-                                       (e) => { isModUploading = false; });
-
-                // TODO(@jackson): Add ModManager.DeleteModMedia
+                                       (m) => { onAddCompleted(); },
+                                       (e) => { onAddCompleted(); });
+                ModManager.DeleteModMedia(sceneData.modInfo.GetRemovedMedia(),
+                                          (m) => { onDeleteCompleted(); },
+                                          (e) => { onDeleteCompleted(); });
             }
+        }
+
+        private void UpdateModMedia()
+        {
+            isModUploading = false;
+
+            // TOOD(@jackson): Update Mod Media
         }
 
         private void UploadModBinary()
@@ -344,7 +369,7 @@ namespace ModIO
                             case ModPanelView.Media:
                                 EditorModLayout.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
 
-                                doUploadMedia = GUILayout.Button("Upload Missing Media");
+                                doUploadMedia = GUILayout.Button("Update Mod Media");
                             break;
 
                             case ModPanelView.ModfileManagement:
@@ -376,7 +401,7 @@ namespace ModIO
             }
             if(doUploadMedia)
             {
-                EditorApplication.delayCall += UploadModMedia;
+                EditorApplication.delayCall += SendModMediaChanges;
             }
             if(doUploadBinary)
             {

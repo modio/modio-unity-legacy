@@ -421,5 +421,41 @@ namespace ModIO
 
             return changes;
         }
+
+        public ModMediaChanges GetRemovedMedia()
+        {
+            ModMediaChanges changes = new ModMediaChanges();
+            changes.modId = id;
+
+            // - YouTube -
+            List<string> removedYouTubeLinks = new List<string>(_initialData.media.youtube);
+            foreach(string youtubeLink in _data.media.youtube)
+            {
+                removedYouTubeLinks.Remove(youtubeLink);
+            }
+            changes.youtube = removedYouTubeLinks.ToArray();
+
+            // - Sketchfab -
+            List<string> removedSketchfabLinks = new List<string>(_initialData.media.sketchfab);
+            foreach(string sketchfabLink in _data.media.sketchfab)
+            {
+                removedSketchfabLinks.Remove(sketchfabLink);
+            }
+            changes.sketchfab = removedSketchfabLinks.ToArray();
+            
+            // - Image -
+            List<string> removedImages = new List<string>();
+            foreach(ImageObject imageObject in _data.media.images)
+            {
+                removedImages.Add(imageObject.filename);
+            }
+            foreach(ImageObject imageObject in _data.media.images)
+            {
+                removedImages.Remove(imageObject.filename);
+            }
+            changes.images = removedImages.ToArray();
+
+            return changes;
+        }
     }
 }
