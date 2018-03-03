@@ -56,7 +56,7 @@ namespace ModIO
 
                 if(modLogoTexture == null)
                 {
-                    modLogoTexture = UISettings.Instance.LoadingLogo320x180;
+                    modLogoTexture = UISettings.Instance.LoadingPlaceholder320x180;
 
                     ModManager.DownloadModLogo(modInfo.id, LogoVersion.Thumb_320x180);
                 }

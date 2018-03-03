@@ -38,8 +38,15 @@ namespace ModIO
         // 0x171727FF (Dark Blue-Gray)
         public Color DarkestColor   = new Color(0x17/255.0f, 0x17/255.0f, 0x27/255.0f, 1.0f);
 
+        public Texture2D AppIconLight;
+        public Texture2D AppIconDark;
+        public Texture2D AppIconColour;
+        public Texture2D AppLogoLight;
+        public Texture2D AppLogoDark;
+        public Texture2D AppLogoColour;
+
         // Default loading textures
-        public Texture2D LoadingLogo320x180;
+        public Texture2D LoadingPlaceholder320x180;
 
         // Default editor textures
         public Texture2D EditorTexture_UndoButton;
