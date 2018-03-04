@@ -6,24 +6,100 @@ namespace ModIO
 {
     public class ModIOAccountHeaderView : ISceneEditorView
     {
+        // ---------[ FIELDS ]---------
+        private bool isInputtingEmail;
+        private string emailAddressInput;
+        private string securityCodeInput;
+        private bool isRequestSending;
+
         // - ISceneEditorView Interface -
         public string GetViewHeader() { return "Account"; }
-        public void OnEnable() {}
+        public void OnEnable()
+        {
+            isRequestSending = false;
+            isInputtingEmail = false;
+            emailAddressInput = "";
+            securityCodeInput = "";
+        }
         public void OnDisable() {}
 
         public void OnGUI()
         {
-            EditorGUILayout.LabelField("MOD.IO HEADER");
-
-            EditorGUILayout.BeginHorizontal();
+            if(ModManager.currentUser == null)
             {
-                EditorGUILayout.LabelField("Welcome " + ModManager.GetActiveUser().username);
-                if(GUILayout.Button("Log Out"))
+                // TODO(@jackson): Improve with deselection/reselection of text on submit
+                EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
+
+                using (new EditorGUI.DisabledScope(isRequestSending))
                 {
-                    ModManager.LogUserOut();
+                    EditorGUILayout.BeginHorizontal();
+                    {
+                        using (new EditorGUI.DisabledScope(isInputtingEmail))
+                        {
+                            if(GUILayout.Button("Email"))
+                            {
+                                isInputtingEmail = true;
+                            }
+                        }
+                        using (new EditorGUI.DisabledScope(!isInputtingEmail))
+                        {
+                            if(GUILayout.Button("Security Code"))
+                            {
+                                isInputtingEmail = false;
+                            }
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+
+                    if(isInputtingEmail)
+                    {
+                        emailAddressInput = EditorGUILayout.TextField("Email Address", emailAddressInput);
+                    }
+                    else
+                    {
+                        securityCodeInput = EditorGUILayout.TextField("Security Code", securityCodeInput);
+                    }
+
+                    EditorGUILayout.BeginHorizontal();
+                    {
+                        if(GUILayout.Button("Submit"))
+                        {
+                            isRequestSending = true;
+
+                            if(isInputtingEmail)
+                            {
+                                securityCodeInput = "";
+
+                                ModManager.RequestSecurityCode(emailAddressInput,
+                                                               (m) => { isRequestSending = false; isInputtingEmail = false; },
+                                                               (e) => { isRequestSending = false; });
+                            }
+                            else
+                            {
+                                ModManager.RequestOAuthToken(securityCodeInput,
+                                                             (token) => ModManager.TryLogUserIn(token, u => isRequestSending = false, e => isRequestSending = false),
+                                                             (e) => { isRequestSending = false; isInputtingEmail = true; });
+                            }
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
                 }
             }
-            EditorGUILayout.EndHorizontal();
+            else
+            {
+                EditorGUILayout.LabelField("MOD.IO HEADER");
+
+                EditorGUILayout.BeginHorizontal();
+                {
+                    EditorGUILayout.LabelField("Welcome " + ModManager.GetActiveUser().username);
+                    if(GUILayout.Button("Log Out"))
+                    {
+                        ModManager.LogUserOut();
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+            }
         }
     }
 }

@@ -31,11 +31,6 @@ namespace ModIO
 
         private Vector2 scrollPos;
 
-        // --- Registration Variables ---
-        private bool inputEmail;
-        private string emailAddressInput;
-        private string securityCodeInput;
-        private bool isRequestSending;
 
         // --- Scene Initialization ---
         private int modInitializationOptionIndex;
@@ -51,12 +46,6 @@ namespace ModIO
             wasPlaying = Application.isPlaying;
             sceneData = null;
             currentView = ModPanelView.Profile;
-
-            // - Reset registration vars -
-            inputEmail = true;
-            emailAddressInput = "";
-            securityCodeInput = "";
-            isRequestSending = false;
         }
 
         protected virtual void OnSceneChange()
@@ -75,67 +64,6 @@ namespace ModIO
 
         protected abstract List<ISceneEditorView> GetTabbedViews();
 
-        private void DisplayModIOLoginPanel()
-        {
-            // TODO(@jackson): Improve with deselection/reselection of text on submit
-            EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
-
-            using (new EditorGUI.DisabledScope(isRequestSending))
-            {
-                EditorGUILayout.BeginHorizontal();
-                {
-                    using (new EditorGUI.DisabledScope(inputEmail))
-                    {
-                        if(GUILayout.Button("Email"))
-                        {
-                            inputEmail = true;
-                        }
-                    }
-                    using (new EditorGUI.DisabledScope(!inputEmail))
-                    {
-                        if(GUILayout.Button("Security Code"))
-                        {
-                            inputEmail = false;
-                        }
-                    }
-                }
-                EditorGUILayout.EndHorizontal();
-
-
-                if(inputEmail)
-                {
-                    emailAddressInput = EditorGUILayout.TextField("Email Address", emailAddressInput);
-                }
-                else
-                {
-                    securityCodeInput = EditorGUILayout.TextField("Security Code", securityCodeInput);
-                }
-
-                EditorGUILayout.BeginHorizontal();
-                {
-                    if(GUILayout.Button("Submit"))
-                    {
-                        isRequestSending = true;
-
-                        if(inputEmail)
-                        {
-                            securityCodeInput = "";
-
-                            ModManager.RequestSecurityCode(emailAddressInput,
-                                                           (m) => { isRequestSending = false; inputEmail = false; },
-                                                           (e) => { isRequestSending = false; });
-                        }
-                        else
-                        {
-                            ModManager.RequestOAuthToken(securityCodeInput,
-                                                         (token) => ModManager.TryLogUserIn(token, u => isRequestSending = false, e => isRequestSending = false),
-                                                         (e) => { isRequestSending = false; inputEmail = true; });
-                        }
-                    }
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-        }
 
         private void DisplayUninitializedSceneOptions()
         {
@@ -282,85 +210,77 @@ namespace ModIO
             }
 
             // ---[ Display ]---
-            User activeUser = ModManager.GetActiveUser();
-            if(activeUser == null)
+            GetHeaderView().OnGUI();
+
+            EditorGUILayout.Space();
+
+            // ---[ Main Panel ]---
+            if(sceneData == null)
             {
-                DisplayModIOLoginPanel();
+                DisplayUninitializedSceneOptions();
             }
             else
             {
-                GetHeaderView().OnGUI();
+                ModPanelView oldView = currentView;
 
-                EditorGUILayout.Space();
+                EditorGUILayout.BeginHorizontal();
+                    if(GUILayout.Button("Profile"))
+                    {
+                        currentView = ModPanelView.Profile;
+                    }
+                    if(GUILayout.Button("Files"))
+                    {
+                        currentView = ModPanelView.ModfileManagement;
+                    }
+                    if(GUILayout.Button("Media"))
+                    {
+                        currentView = ModPanelView.Media;
+                    }
+                EditorGUILayout.EndHorizontal();
 
-                // ---[ Main Panel ]---
-                if(sceneData == null)
+                if(oldView != currentView)
                 {
-                    DisplayUninitializedSceneOptions();
+                    scrollPos = Vector2.zero;
                 }
-                else
+
+
+                using (new EditorGUI.DisabledScope(isModUploading || Application.isPlaying))
                 {
-                    ModPanelView oldView = currentView;
+                    SerializedObject serializedSceneData = new SerializedObject(sceneData);
 
-                    EditorGUILayout.BeginHorizontal();
-                        if(GUILayout.Button("Profile"))
-                        {
-                            currentView = ModPanelView.Profile;
-                        }
-                        if(GUILayout.Button("Files"))
-                        {
-                            currentView = ModPanelView.ModfileManagement;
-                        }
-                        if(GUILayout.Button("Media"))
-                        {
-                            currentView = ModPanelView.Media;
-                        }
-                    EditorGUILayout.EndHorizontal();
+                    scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
-                    if(oldView != currentView)
+                    // TODO(@jackson): Replace with a class instance?
+                    switch(currentView)
                     {
-                        scrollPos = Vector2.zero;
+                        case ModPanelView.Profile:
+                            ModProfileView.ModProfilePanel(serializedSceneData.FindProperty("modInfo"),
+                                                            sceneData.GetModLogoTexture(),
+                                                            sceneData.GetModLogoSource(),
+                                                            new List<string>(sceneData.modInfo.GetTagNames()),
+                                                            ref isTagsExpanded);
+
+                            doUploadInfo = GUILayout.Button("Save To Server");
+                        break;
+
+                        case ModPanelView.Media:
+                            ModMediaView.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
+
+                            doUploadMedia = GUILayout.Button("Update Mod Media");
+                        break;
+
+                        case ModPanelView.ModfileManagement:
+                            ModfileManagementView.ModfileManagementPanel(serializedSceneData.FindProperty("buildLocation"),
+                                                                   serializedSceneData.FindProperty("buildProfile"),
+                                                                   serializedSceneData.FindProperty("setBuildAsPrimary"));
+
+                            doUploadBinary = GUILayout.Button("Publish Build to Mod.IO");
+                        break;
                     }
+                
+                    EditorGUILayout.EndScrollView();
 
-
-                    using (new EditorGUI.DisabledScope(isModUploading || Application.isPlaying))
-                    {
-                        SerializedObject serializedSceneData = new SerializedObject(sceneData);
-
-                        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-
-                        // TODO(@jackson): Replace with a class instance?
-                        switch(currentView)
-                        {
-                            case ModPanelView.Profile:
-                                ModProfileView.ModProfilePanel(serializedSceneData.FindProperty("modInfo"),
-                                                                sceneData.GetModLogoTexture(),
-                                                                sceneData.GetModLogoSource(),
-                                                                new List<string>(sceneData.modInfo.GetTagNames()),
-                                                                ref isTagsExpanded);
-
-                                doUploadInfo = GUILayout.Button("Save To Server");
-                            break;
-
-                            case ModPanelView.Media:
-                                ModMediaView.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
-
-                                doUploadMedia = GUILayout.Button("Update Mod Media");
-                            break;
-
-                            case ModPanelView.ModfileManagement:
-                                ModfileManagementView.ModfileManagementPanel(serializedSceneData.FindProperty("buildLocation"),
-                                                                       serializedSceneData.FindProperty("buildProfile"),
-                                                                       serializedSceneData.FindProperty("setBuildAsPrimary"));
-
-                                doUploadBinary = GUILayout.Button("Publish Build to Mod.IO");
-                            break;
-                        }
-                    
-                        EditorGUILayout.EndScrollView();
-
-                        serializedSceneData.ApplyModifiedProperties();
-                    }
+                    serializedSceneData.ApplyModifiedProperties();
                 }
             }
 
