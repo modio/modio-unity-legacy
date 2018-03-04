@@ -310,6 +310,20 @@ namespace ModIO
                                     GUI.skin.label,
                                     buttonLayout);
         }
+
+        public static string MultilineTextField(string content)
+        {
+            Rect controlRect = EditorGUILayout.GetControlRect(false, 130.0f, null);
+            bool wasWordWrapEnabled = GUI.skin.textField.wordWrap;
+            
+            GUI.skin.textField.wordWrap = true;
+
+            string retVal = EditorGUI.TextField(controlRect, content);
+
+            GUI.skin.textField.wordWrap = wasWordWrapEnabled;
+
+            return retVal;
+        }
     }
     #endif
 }

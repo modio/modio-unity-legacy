@@ -189,13 +189,6 @@ namespace ModIO
             }
             #endif
 
-
-            // --- Paragraph Text Inspection Settings ---
-            Rect controlRect;
-            bool wasWordWrapEnabled = GUI.skin.textField.wordWrap;
-            GUI.skin.textField.wordWrap = true;
-
-
             // ------[ SUMMARY ]------
             SerializedProperty summaryProp = modObjectProp.FindPropertyRelative("summary");
             EditorGUILayout.BeginHorizontal();
@@ -212,8 +205,8 @@ namespace ModIO
                 }
             EditorGUILayout.EndHorizontal();
 
-            controlRect = EditorGUILayout.GetControlRect(false, 130.0f, null);
-            summaryProp.stringValue = EditorGUI.TextField(controlRect, summaryProp.stringValue);
+            summaryProp.stringValue = EditorGUILayoutExtensions.MultilineTextField(summaryProp.stringValue);
+
             if(summaryProp.stringValue.Length > SUMMARY_CHAR_LIMIT)
             {
                 summaryProp.stringValue = summaryProp.stringValue.Substring(0, SUMMARY_CHAR_LIMIT);
@@ -237,8 +230,7 @@ namespace ModIO
                 }
             EditorGUILayout.EndHorizontal();
 
-            controlRect = EditorGUILayout.GetControlRect(false, 127.0f, null);
-            descriptionProp.stringValue = EditorGUI.TextField(controlRect, descriptionProp.stringValue);
+            descriptionProp.stringValue = EditorGUILayoutExtensions.MultilineTextField(descriptionProp.stringValue);
 
             if(isUndoRequested)
             {
@@ -260,8 +252,7 @@ namespace ModIO
                 }
             EditorGUILayout.EndHorizontal();
 
-            controlRect = EditorGUILayout.GetControlRect(false, 120.0f, null);
-            metadataProp.stringValue = EditorGUI.TextField(controlRect, metadataProp.stringValue);
+            metadataProp.stringValue = EditorGUILayoutExtensions.MultilineTextField(metadataProp.stringValue);
 
             if(isUndoRequested)
             {
