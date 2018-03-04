@@ -35,7 +35,6 @@ namespace ModIO
             SerializedObject serializedSceneData = new SerializedObject(sceneData);
             SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
 
-            // --- Mod Media ---
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Media");
                 GUILayout.FlexibleSpace();
@@ -58,6 +57,12 @@ namespace ModIO
             --EditorGUI.indentLevel;
 
             serializedSceneData.ApplyModifiedProperties();
+
+            // --- Uploading ---
+            if(GUILayout.Button("Update Mod Media"))
+            {
+                EditorApplication.delayCall += () => SendModMediaChanges(sceneData.modInfo);
+            }
         }
 
         private void ResetModMedia(SerializedProperty modInfoProp)
@@ -104,17 +109,10 @@ namespace ModIO
                 currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue
                     = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue;
             }
-
-            if(GUILayout.Button("Update Mod Media"))
-            {
-                SendModMediaChanges();
-            }
         }
 
-        private void SendModMediaChanges()
+        private void SendModMediaChanges(EditableModInfo modInfo)
         {
-            EditableModInfo modInfo = null;
-
             if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
             {
                 EditorSceneManager.SaveScene(SceneManager.GetActiveScene());

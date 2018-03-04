@@ -50,16 +50,12 @@ namespace ModIO
 
             if(GUILayout.Button("Publish Build to Mod.IO"))
             {
-                EditorApplication.delayCall += UploadModBinary;
+                EditorApplication.delayCall += () => UploadModBinary(sceneData.buildLocation, sceneData.buildProfile);
             }
         }
 
-
-        private void UploadModBinary()
+        private void UploadModBinary(string buildLocation, ModfileProfile profile)
         {
-            string buildLocation = "";
-            ModfileProfile profile = null;
-
             if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before publishing online"))
             {
                 EditorSceneManager.SaveScene(SceneManager.GetActiveScene());

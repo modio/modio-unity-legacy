@@ -122,9 +122,6 @@ namespace ModIO
         protected virtual void OnGUI()
         {
             bool isPlaying = Application.isPlaying;
-            bool doUploadInfo = false;
-            bool doUploadMedia = false;
-            bool doUploadBinary = false;
 
             // - Update Data -
             if(currentScene != SceneManager.GetActiveScene()

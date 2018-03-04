@@ -274,9 +274,8 @@ namespace ModIO
 
             if(GUILayout.Button("Save To Server"))
             {
-                EditorApplication.delayCall += UploadModInfo;
+                EditorApplication.delayCall += () => UploadModInfo(sceneData);
             }
-
         }
 
         // ---------[ RESET FUNCTIONS ]---------
@@ -309,6 +308,7 @@ namespace ModIO
                 }
             --EditorGUI.indentLevel;
         }
+
         private static void DisplayTagOption(SerializedProperty modInfoProp,
                                              GameTagOption tagOption,
                                              List<string> selectedTags,
@@ -405,18 +405,16 @@ namespace ModIO
         }
 
         // ---------[ UPLOADING ]---------
-        private void UploadModInfo()
+        private void UploadModInfo(EditorSceneData sceneData)
         {
-            EditableModInfo modInfo = null;
-
             if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
             {
                 EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
                 isUploading = true;
 
-                ModManager.SubmitModInfo(modInfo,
-                                         (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
+                ModManager.SubmitModInfo(sceneData.modInfo,
+                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
                                          (e) => { isUploading = false; });
             }
         }

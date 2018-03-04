@@ -12,6 +12,7 @@ namespace ModIO
             
             ErrorInfo retVal = new ErrorInfo();
             retVal.url = webRequest.url;
+            retVal.method = webRequest.method.ToUpper();
 
             if(webRequest.isNetworkError
                || webRequest.responseCode == 404)
@@ -31,6 +32,7 @@ namespace ModIO
 
         // - Fields -
         public string url;
+        public string method;
         public int httpStatusCode;
         public string message;
 

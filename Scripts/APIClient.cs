@@ -87,7 +87,7 @@ namespace ModIO
         public static void IgnoreResponse(object result) {}
         public static void LogError(ErrorInfo errorInfo)
         {
-            string errorMessage = "API ERROR";
+            string errorMessage = errorInfo.method + " REQUEST FAILED";
             errorMessage += "\nURL: " + errorInfo.url;
             errorMessage += "\nCode: " + errorInfo.httpStatusCode;
             errorMessage += "\nMessage: " + errorInfo.message;
@@ -381,10 +381,6 @@ namespace ModIO
                                                  System.Action<T> successCallback,
                                                  System.Action<ErrorInfo> errorCallback)
         {
-            Debug.Log("Full API Response"
-                      + "\nURL: " + webRequest.url
-                      + "\nBody:" + webRequest.downloadHandler.text);
-
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
                 ErrorInfo errorInfo = ErrorInfo.GenerateFromWebRequest(webRequest);
@@ -402,8 +398,8 @@ namespace ModIO
             }
 
             #if LOG_ALL_REQUESTS
-            Debug.Log("API REQUEST SUCEEDED"
-                      + "\nQuery: " + webRequest.url
+            Debug.Log(webRequest.method.ToUpper() + " REQUEST SUCEEDED"
+                      + "\nURL: " + webRequest.url
                       + "\nResponse: " + webRequest.downloadHandler.text
                       + "\n");
             #endif
