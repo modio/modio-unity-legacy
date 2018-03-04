@@ -68,7 +68,6 @@ namespace ModIO
 
         protected abstract ISceneEditorView[] GetTabbedViews();
 
-
         private void DisplayUninitializedSceneOptions()
         {
             // - Select Mod -

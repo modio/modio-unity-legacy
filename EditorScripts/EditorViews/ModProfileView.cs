@@ -405,7 +405,12 @@ namespace ModIO
                 isUploading = true;
 
                 ModManager.SubmitModInfo(sceneData.modInfo,
-                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
+                                         (mod) =>
+                                         {
+                                            // TODO(@jackson): Mark Dirty -> Save
+                                            sceneData.modInfo = EditableModInfo.FromModInfo(mod);
+                                            isUploading = false;
+                                         },
                                          (e) => { isUploading = false; });
             }
         }

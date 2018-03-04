@@ -965,7 +965,7 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<ErrorInfo> onError)
         {
-            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + ".zip";
+            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + DateTime.Now.ToFileTime() + ".zip";
 
             ZipUtil.Zip(binaryZipLocation, unzippedBinaryLocation);
 
