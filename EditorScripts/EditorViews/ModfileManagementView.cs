@@ -21,8 +21,9 @@ namespace ModIO
 
 
         // TODO(@jackson): Show all modfiles
-        public void OnGUI(SerializedObject serializedSceneData)
+        public void OnGUI(EditorSceneData sceneData)
         {
+            SerializedObject serializedSceneData = new SerializedObject(sceneData);
             SerializedProperty buildLocationProp = serializedSceneData.FindProperty("buildLocation");
             SerializedProperty modfileProfileProp = serializedSceneData.FindProperty("buildProfile");
             SerializedProperty setPrimaryProp = serializedSceneData.FindProperty("setBuildAsPrimary");
@@ -44,6 +45,8 @@ namespace ModIO
             EditorGUILayout.PropertyField(modfileProfileProp, GUIContent.none);
 
             EditorGUILayout.PropertyField(setPrimaryProp, new GUIContent("Set Primary"));
+
+            serializedSceneData.ApplyModifiedProperties();
 
             if(GUILayout.Button("Publish Build to Mod.IO"))
             {

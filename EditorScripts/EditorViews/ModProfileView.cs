@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+// #define ENABLE_MOD_STOCK
 
 using System.Collections.Generic;
 
@@ -26,18 +27,17 @@ namespace ModIO
         }
         public void OnDisable() {}
 
-        public void OnGUI(SerializedObject serializedSceneData)
+        public void OnGUI(EditorSceneData sceneData)
         {
-            serializedSceneData.Update();
-
-            SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
-            Texture2D logoTexture = ((EditorSceneData)serializedSceneData.targetObject).GetModLogoTexture();
-            string logoSource = ((EditorSceneData)serializedSceneData.targetObject).GetModLogoSource();
-            List<string> selectedTags = new List<string>(((EditorSceneData)serializedSceneData.targetObject).modInfo.GetTagNames());
-
-            bool isNewMod = modInfoProp.FindPropertyRelative("_data.id").intValue <= 0;
-            SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
+            Texture2D logoTexture = sceneData.GetModLogoTexture();
+            string logoSource = sceneData.GetModLogoSource();
+            List<string> selectedTags = new List<string>(sceneData.modInfo.GetTagNames());
+            bool isNewMod = sceneData.modInfo.id <= 0;
             bool isUndoRequested = false;
+
+            SerializedObject serializedSceneData = new SerializedObject(sceneData);
+            SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
+            SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
             
             // ------[ LOGO ]------
             bool doBrowseLogo = false;
@@ -167,7 +167,7 @@ namespace ModIO
             }
 
             // ------[ STOCK ]------
-            #if ENABLE_STOCK
+            #if ENABLE_MOD_STOCK
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Stock");
 
@@ -270,7 +270,7 @@ namespace ModIO
 
             // TODO(@jackson): MetadataKVP
 
-
+            serializedSceneData.ApplyModifiedProperties();
 
             if(GUILayout.Button("Save To Server"))
             {

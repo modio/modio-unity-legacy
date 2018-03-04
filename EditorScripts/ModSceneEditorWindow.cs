@@ -145,9 +145,6 @@ namespace ModIO
             }
             else
             {
-                SerializedObject serializedSceneData = new SerializedObject(sceneData);
-
-
                 int prevViewIndex = activeTabbedViewIndex;
                 ISceneEditorView[] tabbedViews = this.GetTabbedViews();
 
@@ -175,11 +172,9 @@ namespace ModIO
                 {
                     scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
-                    tabbedViews[activeTabbedViewIndex].OnGUI(serializedSceneData);
+                    tabbedViews[activeTabbedViewIndex].OnGUI(sceneData);
                 
                     EditorGUILayout.EndScrollView();
-
-                    serializedSceneData.ApplyModifiedProperties();
                 }
             }
 

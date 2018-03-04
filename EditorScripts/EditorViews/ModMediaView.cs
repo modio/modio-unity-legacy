@@ -28,13 +28,12 @@ namespace ModIO
         }
         public void OnDisable() {}
         
-        public void OnGUI(SerializedObject serializedSceneData)
+        public void OnGUI(EditorSceneData sceneData)
         {
-            serializedSceneData.Update();
+            bool isNewMod = sceneData.modInfo.id <= 0;
 
+            SerializedObject serializedSceneData = new SerializedObject(sceneData);
             SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
-
-            bool isNewMod = modInfoProp.FindPropertyRelative("_data.id").intValue <= 0;
 
             // --- Mod Media ---
             EditorGUILayout.BeginHorizontal();
@@ -57,6 +56,8 @@ namespace ModIO
                 EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.images"),
                                                              "Gallery Images", ref isImagesExpanded);
             --EditorGUI.indentLevel;
+
+            serializedSceneData.ApplyModifiedProperties();
         }
 
         private void ResetModMedia(SerializedProperty modInfoProp)

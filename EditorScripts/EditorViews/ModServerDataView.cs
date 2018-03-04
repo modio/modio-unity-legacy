@@ -13,8 +13,9 @@ namespace ModIO
         public string GetViewHeader() { return "Files"; }
         public void OnEnable() {}
         public void OnDisable() {}
-        public void OnGUI(SerializedObject serializedSceneData)
+        public void OnGUI(EditorSceneData sceneData)
         {
+            SerializedObject serializedSceneData = new SerializedObject(sceneData);
             SerializedProperty modObjectProp = serializedSceneData.FindProperty("modInfo._data");
 
             // --- Read-only Data ---

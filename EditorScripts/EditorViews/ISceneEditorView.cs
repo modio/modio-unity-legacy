@@ -9,7 +9,7 @@ namespace ModIO
 
         void OnEnable();
         void OnDisable();
-        void OnGUI(SerializedObject serializedSceneData);
+        void OnGUI(EditorSceneData sceneData);
     }
 }
 
