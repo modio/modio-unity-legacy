@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace ModIO
 {
-    public class ModIOAccountHeaderView : ISceneEditorView
+    public class ModIOAccountHeader : ISceneEditorHeader
     {
         // ---------[ FIELDS ]---------
         private bool isInputtingEmail;

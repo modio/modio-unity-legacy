@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using UnityEditor;
 
 namespace ModIO
 {
@@ -8,7 +9,7 @@ namespace ModIO
 
         void OnEnable();
         void OnDisable();
-        void OnGUI();
+        void OnGUI(SerializedObject serializedSceneData);
     }
 }
 

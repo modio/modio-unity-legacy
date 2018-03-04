@@ -13,14 +13,14 @@ namespace ModIO
         public string GetViewHeader() { return "Files"; }
         public void OnEnable() {}
         public void OnDisable() {}
-        public void OnGUI() {}
+
 
         // TODO(@jackson): Show all modfiles
-        public static void ModfileManagementPanel(SerializedProperty buildLocationProp,
-                                                  SerializedProperty modfileProfileProp,
-                                                  SerializedProperty setPrimaryProp)
+        public void OnGUI(SerializedObject serializedSceneData)
         {
-            EditorGUILayout.LabelField("Build Info");
+            SerializedProperty buildLocationProp = serializedSceneData.FindProperty("buildLocation");
+            SerializedProperty modfileProfileProp = serializedSceneData.FindProperty("buildProfile");
+            SerializedProperty setPrimaryProp = serializedSceneData.FindProperty("setBuildAsPrimary");
 
             if(EditorGUILayoutExtensions.BrowseButton(buildLocationProp.stringValue, new GUIContent("Build Location")))
             {

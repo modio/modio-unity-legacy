@@ -12,18 +12,26 @@ namespace ModIO
         private const int SUMMARY_CHAR_LIMIT = 250;
         private const int DESCRIPTION_CHAR_MIN = 100;
 
+        // ---------[ FIELDS ]---------
+        private bool isTagsExpanded = false;
+
         // - ISceneEditorView Interface -
         public string GetViewHeader() { return "Profile"; }
-        public void OnEnable() {}
-        public void OnDisable() {}
-        public void OnGUI() {}
-
-        public static void ModProfilePanel(SerializedProperty modInfoProp,
-                                           Texture2D logoTexture,
-                                           string logoSource,
-                                           List<string> selectedTags,
-                                           ref bool isTagsExpanded)
+        public void OnEnable()
         {
+            isTagsExpanded = false;
+        }
+        public void OnDisable() {}
+
+        public void OnGUI(SerializedObject serializedSceneData)
+        {
+            serializedSceneData.Update();
+
+            SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
+            Texture2D logoTexture = ((EditorSceneData)serializedSceneData.targetObject).GetModLogoTexture();
+            string logoSource = ((EditorSceneData)serializedSceneData.targetObject).GetModLogoSource();
+            List<string> selectedTags = new List<string>(((EditorSceneData)serializedSceneData.targetObject).modInfo.GetTagNames());
+
             bool isNewMod = modInfoProp.FindPropertyRelative("_data.id").intValue <= 0;
             SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
             bool isUndoRequested = false;

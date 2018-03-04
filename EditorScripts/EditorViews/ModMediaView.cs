@@ -9,18 +9,27 @@ namespace ModIO
 {
     public class ModMediaView : ISceneEditorView
     {
+        // ---------[ FIELDS ]---------
+        private bool isYouTubeExpanded = false;
+        private bool isSketchFabExpanded = false;
+        private bool isImagesExpanded = false;
+
         // - ISceneEditorView Interface -
         public string GetViewHeader() { return "Media"; }
-        public void OnEnable() {}
-        public void OnDisable() {}
-        public void OnGUI() {}
-
-        private static bool isYouTubeExpanded = false;
-        private static bool isSketchFabExpanded = false;
-        private static bool isImagesExpanded = false;
-
-        public static void ModMediaPanel(SerializedProperty modInfoProp)
+        public void OnEnable()
         {
+            isYouTubeExpanded = false;
+            isSketchFabExpanded = false;
+            isImagesExpanded = false;
+        }
+        public void OnDisable() {}
+        
+        public void OnGUI(SerializedObject serializedSceneData)
+        {
+            serializedSceneData.Update();
+
+            SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
+
             bool isNewMod = modInfoProp.FindPropertyRelative("_data.id").intValue <= 0;
 
             // --- Mod Media ---

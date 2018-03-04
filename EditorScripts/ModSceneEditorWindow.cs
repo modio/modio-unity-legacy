@@ -27,16 +27,13 @@ namespace ModIO
         private EditorSceneData sceneData;
         private bool wasPlaying;
         private bool isModUploading;
-        private ModPanelView currentView;
+        private int activeTabbedViewIndex;
 
         private Vector2 scrollPos;
 
 
         // --- Scene Initialization ---
         private int modInitializationOptionIndex;
-
-        // ---- View Vars ---
-        private bool isTagsExpanded = false;
 
         private void OnEnable()
         {
@@ -45,7 +42,14 @@ namespace ModIO
             currentScene = new Scene();
             wasPlaying = Application.isPlaying;
             sceneData = null;
-            currentView = ModPanelView.Profile;
+            activeTabbedViewIndex = 0;
+
+            GetEditorHeader().OnEnable();
+        }
+
+        private void OnDisable()
+        {
+            GetEditorHeader().OnDisable();
         }
 
         protected virtual void OnSceneChange()
@@ -54,15 +58,15 @@ namespace ModIO
             currentScene = SceneManager.GetActiveScene();
             sceneData = Object.FindObjectOfType<EditorSceneData>();
             
-            currentView = ModPanelView.Profile;
+            activeTabbedViewIndex = 0;
             modInitializationOptionIndex = 0;
             scrollPos = Vector2.zero;
             isModUploading = false;
         }
 
-        protected abstract ISceneEditorView GetHeaderView();
+        protected abstract ISceneEditorHeader GetEditorHeader();
 
-        protected abstract List<ISceneEditorView> GetTabbedViews();
+        protected abstract ISceneEditorView[] GetTabbedViews();
 
 
         private void DisplayUninitializedSceneOptions()
@@ -210,7 +214,7 @@ namespace ModIO
             }
 
             // ---[ Display ]---
-            GetHeaderView().OnGUI();
+            GetEditorHeader().OnGUI();
 
             EditorGUILayout.Space();
 
@@ -221,62 +225,58 @@ namespace ModIO
             }
             else
             {
-                ModPanelView oldView = currentView;
+                SerializedObject serializedSceneData = new SerializedObject(sceneData);
+
+
+                int prevViewIndex = activeTabbedViewIndex;
+                ISceneEditorView[] tabbedViews = this.GetTabbedViews();
 
                 EditorGUILayout.BeginHorizontal();
-                    if(GUILayout.Button("Profile"))
+                    for(int i = 0;
+                        i < tabbedViews.Length;
+                        ++i)
                     {
-                        currentView = ModPanelView.Profile;
-                    }
-                    if(GUILayout.Button("Files"))
-                    {
-                        currentView = ModPanelView.ModfileManagement;
-                    }
-                    if(GUILayout.Button("Media"))
-                    {
-                        currentView = ModPanelView.Media;
+                        if(GUILayout.Button(tabbedViews[i].GetViewHeader()))
+                        {
+                            activeTabbedViewIndex = i;
+                        }
                     }
                 EditorGUILayout.EndHorizontal();
 
-                if(oldView != currentView)
+                if(prevViewIndex != activeTabbedViewIndex)
                 {
                     scrollPos = Vector2.zero;
-                }
 
+                    tabbedViews[prevViewIndex].OnDisable();
+                    tabbedViews[activeTabbedViewIndex].OnEnable();
+                }
 
                 using (new EditorGUI.DisabledScope(isModUploading || Application.isPlaying))
                 {
-                    SerializedObject serializedSceneData = new SerializedObject(sceneData);
-
                     scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
-                    // TODO(@jackson): Replace with a class instance?
-                    switch(currentView)
-                    {
-                        case ModPanelView.Profile:
-                            ModProfileView.ModProfilePanel(serializedSceneData.FindProperty("modInfo"),
-                                                            sceneData.GetModLogoTexture(),
-                                                            sceneData.GetModLogoSource(),
-                                                            new List<string>(sceneData.modInfo.GetTagNames()),
-                                                            ref isTagsExpanded);
+                    tabbedViews[activeTabbedViewIndex].OnGUI(serializedSceneData);
 
-                            doUploadInfo = GUILayout.Button("Save To Server");
-                        break;
+                    // switch(currentView)
+                    // {
+                    //     case ModPanelView.Profile:
+                    //         ModProfileView.ModProfilePanel();
 
-                        case ModPanelView.Media:
-                            ModMediaView.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
+                    //         doUploadInfo = GUILayout.Button("Save To Server");
+                    //     break;
 
-                            doUploadMedia = GUILayout.Button("Update Mod Media");
-                        break;
+                    //     case ModPanelView.Media:
+                    //         ModMediaView.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
 
-                        case ModPanelView.ModfileManagement:
-                            ModfileManagementView.ModfileManagementPanel(serializedSceneData.FindProperty("buildLocation"),
-                                                                   serializedSceneData.FindProperty("buildProfile"),
-                                                                   serializedSceneData.FindProperty("setBuildAsPrimary"));
+                    //         doUploadMedia = GUILayout.Button("Update Mod Media");
+                    //     break;
 
-                            doUploadBinary = GUILayout.Button("Publish Build to Mod.IO");
-                        break;
-                    }
+                    //     case ModPanelView.ModfileManagement:
+                    //         ModfileManagementView.ModfileManagementPanel();
+
+                    //         doUploadBinary = GUILayout.Button("Publish Build to Mod.IO");
+                    //     break;
+                    // }
                 
                     EditorGUILayout.EndScrollView();
 
