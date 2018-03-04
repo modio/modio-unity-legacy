@@ -1,5 +1,4 @@
-﻿#define USING_TEST_SERVER
-#define LOG_ALL_REQUESTS
+﻿#define LOG_ALL_REQUESTS
 
 using System;
 using System.Collections;
@@ -44,8 +43,8 @@ namespace ModIO
         // ---------[ CONSTANTS ]---------
         public const string API_VERSION = "v1";
 
-        #if USING_TEST_SERVER
-        public const string API_URL = "https://api.test.mod.io/" + API_VERSION + "/";
+        #if DEBUG
+        public static readonly string API_URL = (GlobalSettings.USE_TEST_SERVER ? "https://api.test.mod.io/" : "https://api.mod.io/") + API_VERSION + "/";
         #else
         public const string API_URL = "https://api.mod.io/" + API_VERSION + "/";
         #endif

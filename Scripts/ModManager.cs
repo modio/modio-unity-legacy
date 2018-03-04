@@ -1,5 +1,4 @@
-﻿#define USING_TEST_SERVER
-// #define TEST_IGNORE_DISK_CACHE
+﻿// #define TEST_IGNORE_DISK_CACHE
 
 using System;
 using System.IO;
@@ -54,20 +53,15 @@ namespace ModIO
 
         // ---------[ VARIABLES ]---------
         private static ManifestData manifest = null;
-        private static UserData userData = null;
-
-        #if USING_TEST_SERVER
-        public static string MODIO_DIR { get { return Application.persistentDataPath + "/modio_testServer/"; } }
-        #else
-        public static string MODIO_DIR { get { return Application.persistentDataPath + "/modio/"; } }
-        #endif
-
-        private static string MANIFEST_URL { get { return MODIO_DIR + "manifest.data"; } }
-        private static string USERDATA_URL { get { return MODIO_DIR + "user.data"; } }
-        
-        // public static APIClient apiClient { get { return client; } }
-        public static User currentUser { get { return userData == null ? null : userData.user; } }
         public static GameInfo gameInfo { get { return manifest.game; }}
+
+        private static UserData userData = null;
+        public static User currentUser { get { return userData == null ? null : userData.user; } }
+
+        public static string cacheDirectory { get; private set; }
+        
+        private static string manifestPath { get { return cacheDirectory + "manifest.data"; } }
+        private static string userdataPath { get { return cacheDirectory + "user.data"; } }
 
         // --------- [ INITIALIZATION ]---------
         public static void Initialize()
@@ -77,8 +71,21 @@ namespace ModIO
                 return;
             }
 
+            #pragma warning disable CS0162
+            #if DEBUG
+            if(GlobalSettings.USE_TEST_SERVER)
+            {
+                cacheDirectory = Application.persistentDataPath + "/modio_testServer/";
+            }
+            else
+            #endif
+            {
+                cacheDirectory = Application.persistentDataPath + "/modio/";
+            }
+            #pragma warning restore CS0162
+
             Debug.Log("Initializing ModIO.ModManager"
-                      + "\nModIO Directory: " + MODIO_DIR);
+                      + "\nModIO Directory: " + cacheDirectory);
 
             // TODO(@jackson): Listen to logo update for caching
 
@@ -89,9 +96,9 @@ namespace ModIO
 
         private static void LoadCacheFromDisk()
         {
-            if (!Directory.Exists(MODIO_DIR))
+            if (!Directory.Exists(cacheDirectory))
             {
-                Directory.CreateDirectory(MODIO_DIR);
+                Directory.CreateDirectory(cacheDirectory);
             }
 
             #if TEST_IGNORE_DISK_CACHE
@@ -104,7 +111,7 @@ namespace ModIO
             }
             #else
             {
-                if(!File.Exists(MANIFEST_URL))
+                if(!File.Exists(manifestPath))
                 {
                     // --- INITIALIZE FIRST RUN ---
                     manifest = new ManifestData();
@@ -115,17 +122,17 @@ namespace ModIO
                 }
                 else
                 {
-                    manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(MANIFEST_URL));
+                    manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(manifestPath));
                 }
 
 
                 // iterate through folders, load ModInfo
-                if(!Directory.Exists(MODIO_DIR + "mods/"))
+                if(!Directory.Exists(cacheDirectory + "mods/"))
                 {
-                    Directory.CreateDirectory(MODIO_DIR + "mods/");
+                    Directory.CreateDirectory(cacheDirectory + "mods/");
                 }
 
-                string[] modDirectories = Directory.GetDirectories(MODIO_DIR + "mods/");
+                string[] modDirectories = Directory.GetDirectories(cacheDirectory + "mods/");
                 foreach(string modDir in modDirectories)
                 {
                     // Load ModInfo from Disk
@@ -134,9 +141,9 @@ namespace ModIO
                 }
 
                 // Attempt to load user
-                if(File.Exists(USERDATA_URL))
+                if(File.Exists(userdataPath))
                 {
-                    userData = JsonUtility.FromJson<UserData>(File.ReadAllText(USERDATA_URL));
+                    userData = JsonUtility.FromJson<UserData>(File.ReadAllText(userdataPath));
 
                     Action<ErrorInfo> onAuthenticationFail = (error) =>
                     {
@@ -558,7 +565,7 @@ namespace ModIO
 
         public static string GetModDirectory(int modId)
         {
-            return MODIO_DIR + "mods/" + modId + "/";
+            return cacheDirectory + "mods/" + modId + "/";
         }
 
         public static ModInfo GetMod(int modId)
@@ -830,12 +837,12 @@ namespace ModIO
 
         private static void WriteManifestToDisk()
         {
-            File.WriteAllText(MANIFEST_URL, JsonUtility.ToJson(manifest));
+            File.WriteAllText(manifestPath, JsonUtility.ToJson(manifest));
         }
 
         private static void WriteUserDataToDisk()
         {
-            File.WriteAllText(USERDATA_URL, JsonUtility.ToJson(userData));
+            File.WriteAllText(userdataPath, JsonUtility.ToJson(userData));
         }
 
         private static void WriteModToDisk(ModInfo mod)
@@ -847,7 +854,7 @@ namespace ModIO
 
         private static void DeleteUserDataFromDisk()
         {
-            File.Delete(USERDATA_URL);
+            File.Delete(userdataPath);
         }
 
         public static void SubmitModInfo(EditableModInfo modInfo,
