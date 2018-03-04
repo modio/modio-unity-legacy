@@ -354,13 +354,13 @@ namespace ModIO
                             break;
 
                             case ModPanelView.Media:
-                                EditorModLayout.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
+                                ModMediaView.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
 
                                 doUploadMedia = GUILayout.Button("Update Mod Media");
                             break;
 
                             case ModPanelView.ModfileManagement:
-                                EditorModLayout.ModfileManagementPanel(serializedSceneData.FindProperty("buildLocation"),
+                                ModfileManagementView.ModfileManagementPanel(serializedSceneData.FindProperty("buildLocation"),
                                                                        serializedSceneData.FindProperty("buildProfile"),
                                                                        serializedSceneData.FindProperty("setBuildAsPrimary"));
 
