@@ -1,19 +1,18 @@
-#if UNITY_EDITOR
-
-#define ENABLE_STOCK
+﻿#if UNITY_EDITOR
 
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEditor;
 
 namespace ModIO
 {
-    public static class EditorModLayout
+    public class ModProfileView : IEditorView
     {
         private const int SUMMARY_CHAR_LIMIT = 250;
         private const int DESCRIPTION_CHAR_MIN = 100;
-
-        private static GUILayoutOption[] buttonLayout = new GUILayoutOption[]{ GUILayout.Width(EditorGUIUtility.singleLineHeight), GUILayout.Height(EditorGUIUtility.singleLineHeight) };
+        
+        public string GetDisplayName() { return "Profile"; }
 
         public static void ModProfilePanel(SerializedProperty modInfoProp,
                                            Texture2D logoTexture,
@@ -42,7 +41,7 @@ namespace ModIO
                 doBrowseLogo = EditorGUILayoutExtensions.BrowseButton(logoSource, new GUIContent("Logo"));
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -71,7 +70,7 @@ namespace ModIO
                                               new GUIContent("Name"));
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -88,7 +87,7 @@ namespace ModIO
                                               GUIContent.none);
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -103,7 +102,7 @@ namespace ModIO
                                               new GUIContent("Homepage"));
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -118,7 +117,7 @@ namespace ModIO
                 GUILayout.FlexibleSpace();
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -139,7 +138,7 @@ namespace ModIO
                 modVisibility = (ModInfo.Visibility)EditorGUILayout.EnumPopup("Visibility", modVisibility);
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -165,7 +164,7 @@ namespace ModIO
 
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -194,7 +193,7 @@ namespace ModIO
 
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -219,7 +218,7 @@ namespace ModIO
 
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -242,7 +241,7 @@ namespace ModIO
 
                 using (new EditorGUI.DisabledScope(isNewMod))
                 {
-                    isUndoRequested = GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout);
+                    isUndoRequested = EditorGUILayoutExtensions.UndoButton();
                 }
             EditorGUILayout.EndHorizontal();
 
@@ -255,105 +254,6 @@ namespace ModIO
             }
 
             // TODO(@jackson): MetadataKVP
-        }
-
-        public static void ModMediaPanel(SerializedProperty modInfoProp)
-        {
-            bool isNewMod = modInfoProp.FindPropertyRelative("_data.id").intValue <= 0;
-
-            // --- Mod Media ---
-            EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Media");
-                GUILayout.FlexibleSpace();
-                using (new EditorGUI.DisabledScope(isNewMod))
-                {
-                    if(GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton, GUI.skin.label, buttonLayout))
-                    {
-                        ResetModMedia(modInfoProp);
-                    }
-                }
-            EditorGUILayout.EndHorizontal();
-
-            ++EditorGUI.indentLevel;
-                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.youtube"),
-                                                             "YouTube Links", ref isYouTubeExpanded);
-                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.sketchfab"),
-                                                             "SketchFab Links", ref isSketchFabExpanded);
-                EditorGUILayoutExtensions.ArrayPropertyField(modInfoProp.FindPropertyRelative("_data.media.images"),
-                                                             "Gallery Images", ref isImagesExpanded);
-            --EditorGUI.indentLevel;
-        }
-
-        // TODO(@jackson): Show all modfiles
-        public static void ModfileManagementPanel(SerializedProperty buildLocationProp,
-                                                  SerializedProperty modfileProfileProp,
-                                                  SerializedProperty setPrimaryProp)
-        {
-            EditorGUILayout.LabelField("Build Info");
-
-            if(EditorGUILayoutExtensions.BrowseButton(buildLocationProp.stringValue, new GUIContent("Build Location")))
-            {
-                EditorApplication.delayCall += () =>
-                {
-                    // TODO(@jackson): Allow folders?
-                    string path = EditorUtility.OpenFilePanel("Set Build Location", "", "unity3d");
-                    if (path.Length != 0)
-                    {
-                        buildLocationProp.stringValue = path;
-                        buildLocationProp.serializedObject.ApplyModifiedProperties();
-                    }
-                };
-            }
-
-            EditorGUILayout.PropertyField(modfileProfileProp, GUIContent.none);
-
-            EditorGUILayout.PropertyField(setPrimaryProp, new GUIContent("Set Primary"));
-        }
-
-        // TODO(@jackson): public static void ModTeamPanel()
-
-        public static void ModServerDataPanel(SerializedProperty modInfoProp)
-        {
-            SerializedProperty modObjectProp = modInfoProp.FindPropertyRelative("_data");
-
-            // --- Read-only Data ---
-            using (new EditorGUI.DisabledScope(true))
-            {
-                int modId = modObjectProp.FindPropertyRelative("id").intValue;
-                if(modId <= 0)
-                {
-                    EditorGUILayout.LabelField("ModIO ID",
-                                               "Not yet uploaded");
-                }
-                else
-                {
-                    EditorGUILayout.LabelField("ModIO ID",
-                                               modId.ToString());
-                    
-                    EditorGUILayout.LabelField("Submitted By",
-                                               modObjectProp.FindPropertyRelative("submitted_by.username").stringValue);
-
-                    ModInfo.Status modStatus = (ModInfo.Status)modObjectProp.FindPropertyRelative("status").intValue;
-                    EditorGUILayout.LabelField("Status",
-                                               modStatus.ToString());
-
-                    string ratingSummaryDisplay
-                        = modObjectProp.FindPropertyRelative("rating_summary.weighted_aggregate").floatValue.ToString("0.00")
-                        + " aggregate score. (From "
-                        + modObjectProp.FindPropertyRelative("rating_summary.total_ratings").intValue.ToString()
-                        + " ratings)";
-
-                    EditorGUILayout.LabelField("Rating Summary",
-                                                ratingSummaryDisplay);
-
-                    EditorGUILayout.LabelField("Date Uploaded",
-                                               modObjectProp.FindPropertyRelative("date_added").intValue.ToString());
-                    EditorGUILayout.LabelField("Date Updated",
-                                               modObjectProp.FindPropertyRelative("date_updated").intValue.ToString());
-                    EditorGUILayout.LabelField("Date Live",
-                                               modObjectProp.FindPropertyRelative("date_live").intValue.ToString());
-                }
-            }
         }
 
         // ---------[ RESET FUNCTIONS ]---------
@@ -478,57 +378,6 @@ namespace ModIO
                     = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
                 currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue
                     = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue;
-            }
-        }
-
-        // ---------[ MOD MEDIA ]---------
-        private static bool isYouTubeExpanded = false;
-        private static bool isSketchFabExpanded = false;
-        private static bool isImagesExpanded = false;
-
-        private static void ResetModMedia(SerializedProperty modInfoProp)
-        {
-            SerializedProperty initialDataProp;
-            SerializedProperty currentDataProp;
-
-            // - YouTube -
-            initialDataProp = modInfoProp.FindPropertyRelative("_initialData.media.youtube");
-            currentDataProp = modInfoProp.FindPropertyRelative("_data.media.youtube");
-
-            currentDataProp.arraySize = initialDataProp.arraySize;
-
-            for(int i = 0; i < initialDataProp.arraySize; ++i)
-            {
-                currentDataProp.GetArrayElementAtIndex(i).stringValue
-                    = initialDataProp.GetArrayElementAtIndex(i).stringValue;
-            }
-
-            // - SketchFab -
-            initialDataProp = modInfoProp.FindPropertyRelative("_initialData.media.sketchfab");
-            currentDataProp = modInfoProp.FindPropertyRelative("_data.media.sketchfab");
-
-            currentDataProp.arraySize = initialDataProp.arraySize;
-
-            for(int i = 0; i < initialDataProp.arraySize; ++i)
-            {
-                currentDataProp.GetArrayElementAtIndex(i).stringValue
-                    = initialDataProp.GetArrayElementAtIndex(i).stringValue;
-            }
-
-            // - Image Gallery -
-            initialDataProp = modInfoProp.FindPropertyRelative("_initialData.media.images");
-            currentDataProp = modInfoProp.FindPropertyRelative("_data.media.images");
-
-            currentDataProp.arraySize = initialDataProp.arraySize;
-
-            for(int i = 0; i < initialDataProp.arraySize; ++i)
-            {
-                currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("filename").stringValue
-                    = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("filename").stringValue;
-                currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("original").stringValue
-                    = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("original").stringValue;
-                currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue
-                    = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue;
             }
         }
     }

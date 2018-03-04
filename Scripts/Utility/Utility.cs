@@ -302,6 +302,14 @@ namespace ModIO
 
             return doBrowse;
         }
+
+        private static GUILayoutOption[] buttonLayout = new GUILayoutOption[]{ GUILayout.Width(EditorGUIUtility.singleLineHeight), GUILayout.Height(EditorGUIUtility.singleLineHeight) };
+        public static bool UndoButton()
+        {
+            return GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton,
+                                    GUI.skin.label,
+                                    buttonLayout);
+        }
     }
     #endif
 }

@@ -13,14 +13,13 @@ namespace ModIO
     // TODO(@jackson): Implement client-side error-checking in submission
     // TODO(@jackson): Check if undos are necessary
     // TODO(@jackson): Check for scene change between callbacks
-    public class ModSceneEditorWindow : EditorWindow
+    public abstract class ModSceneEditorWindow : EditorWindow
     {
         private enum ModPanelView
         {
             Profile,
             Media,
             ModfileManagement,
-            ServerData
         }
 
         // ------[ WINDOW FIELDS ]---------
@@ -44,12 +43,6 @@ namespace ModIO
         // ---- View Vars ---
         private bool isTagsExpanded = false;
 
-        [MenuItem("ModIO/Mod Scene Info Editor")]
-        public static void ShowWindow()
-        {
-            GetWindow<ModSceneEditorWindow>("Mod Inspector");
-        }
-
         private void OnEnable()
         {
             ModManager.Initialize();
@@ -66,12 +59,13 @@ namespace ModIO
             isRequestSending = false;
         }
 
-        private void OnSceneChange()
+        protected virtual void OnSceneChange()
         {
+            // - Initialize Scene Variables -
             currentScene = SceneManager.GetActiveScene();
-            currentView = ModPanelView.Profile;
-
             sceneData = Object.FindObjectOfType<EditorSceneData>();
+            
+            currentView = ModPanelView.Profile;
             modInitializationOptionIndex = 0;
             scrollPos = Vector2.zero;
             isModUploading = false;
@@ -263,7 +257,7 @@ namespace ModIO
 
         private void UploadModBinary()
         {
-            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before publishing online"))
             {
                 EditorSceneManager.SaveScene(currentScene);
 
@@ -284,7 +278,7 @@ namespace ModIO
         }
 
         // ---------[ GUI DISPLAY ]---------
-        private void OnGUI()
+        protected virtual void OnGUI()
         {
             bool isPlaying = Application.isPlaying;
             bool doUploadInfo = false;
@@ -324,17 +318,13 @@ namespace ModIO
                         {
                             currentView = ModPanelView.Profile;
                         }
-                        if(GUILayout.Button("Media"))
-                        {
-                            currentView = ModPanelView.Media;
-                        }
                         if(GUILayout.Button("Files"))
                         {
                             currentView = ModPanelView.ModfileManagement;
                         }
-                        if(GUILayout.Button("Server"))
+                        if(GUILayout.Button("Media"))
                         {
-                            currentView = ModPanelView.ServerData;
+                            currentView = ModPanelView.Media;
                         }
                     EditorGUILayout.EndHorizontal();
 
@@ -354,7 +344,7 @@ namespace ModIO
                         switch(currentView)
                         {
                             case ModPanelView.Profile:
-                                EditorModLayout.ModProfilePanel(serializedSceneData.FindProperty("modInfo"),
+                                ModProfileView.ModProfilePanel(serializedSceneData.FindProperty("modInfo"),
                                                                 sceneData.GetModLogoTexture(),
                                                                 sceneData.GetModLogoSource(),
                                                                 new List<string>(sceneData.modInfo.GetTagNames()),
@@ -374,11 +364,7 @@ namespace ModIO
                                                                        serializedSceneData.FindProperty("buildProfile"),
                                                                        serializedSceneData.FindProperty("setBuildAsPrimary"));
 
-                                doUploadBinary = GUILayout.Button("Upload Build");
-                            break;
-
-                            case ModPanelView.ServerData:
-                                EditorModLayout.ModServerDataPanel(serializedSceneData.FindProperty("modInfo"));
+                                doUploadBinary = GUILayout.Button("Publish Build to Mod.IO");
                             break;
                         }
                     
