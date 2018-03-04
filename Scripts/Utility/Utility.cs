@@ -252,6 +252,23 @@ namespace ModIO
     }
 
     #if UNITY_EDITOR
+    public static class EditorGUIExtensions
+    {
+        public static string MultilineTextField(Rect position, string content)
+        {
+            bool wasWordWrapEnabled = GUI.skin.textField.wordWrap;
+            
+            GUI.skin.textField.wordWrap = true;
+
+            string retVal = EditorGUI.TextField(position, content);
+
+            GUI.skin.textField.wordWrap = wasWordWrapEnabled;
+
+            return retVal;
+        }
+
+    }
+
     public static class EditorGUILayoutExtensions
     {
         public static void ArrayPropertyField(SerializedProperty arrayProperty, string dispName, ref bool isExpanded)
@@ -314,15 +331,7 @@ namespace ModIO
         public static string MultilineTextField(string content)
         {
             Rect controlRect = EditorGUILayout.GetControlRect(false, 130.0f, null);
-            bool wasWordWrapEnabled = GUI.skin.textField.wordWrap;
-            
-            GUI.skin.textField.wordWrap = true;
-
-            string retVal = EditorGUI.TextField(controlRect, content);
-
-            GUI.skin.textField.wordWrap = wasWordWrapEnabled;
-
-            return retVal;
+            return EditorGUIExtensions.MultilineTextField(controlRect, content);
         }
     }
     #endif

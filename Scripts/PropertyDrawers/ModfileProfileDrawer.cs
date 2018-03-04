@@ -11,6 +11,9 @@ namespace ModIO
     [CustomPropertyDrawer(typeof(ModfileProfile))]
     public class ModfileProfileDrawer : PropertyDrawer
     {
+        private const float CHANGELOG_HEIGHT = 130.0f;
+        private const float METADATABLOB_HEIGHT = 130.0f;
+
         // --- PROPERTY DRAWER OVERRIDES ---
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -35,19 +38,28 @@ namespace ModIO
             EditorGUI.PropertyField(controlRect, property.FindPropertyRelative("version"));
 
             // - Changelog -
-            // TODO(@jackson): Make multi-line text field
             controlRect = new Rect(position.x, yPos, position.width, EditorGUIUtility.singleLineHeight);
             yPos += EditorGUIUtility.singleLineHeight;
 
-            EditorGUI.PropertyField(controlRect, property.FindPropertyRelative("changelog"));
+            EditorGUI.LabelField(controlRect, "Changelog");
+
+            controlRect = new Rect(position.x, yPos, position.width, CHANGELOG_HEIGHT);
+            yPos += CHANGELOG_HEIGHT;
+
+            SerializedProperty changelogProp = property.FindPropertyRelative("changelog");
+            changelogProp.stringValue = EditorGUIExtensions.MultilineTextField(controlRect, changelogProp.stringValue);
 
             // - Metadata -
-            // TODO(@jackson): Make multi-line text field
             controlRect = new Rect(position.x, yPos, position.width, EditorGUIUtility.singleLineHeight);
             yPos += EditorGUIUtility.singleLineHeight;
+            
+            EditorGUI.LabelField(controlRect, "Metadata");
 
-            EditorGUI.PropertyField(controlRect, property.FindPropertyRelative("metadataBlob"));
+            controlRect = new Rect(position.x, yPos, position.width, METADATABLOB_HEIGHT);
+            yPos += METADATABLOB_HEIGHT;
 
+            SerializedProperty metadataProp = property.FindPropertyRelative("metadataBlob");
+            metadataProp.stringValue = EditorGUIExtensions.MultilineTextField(controlRect, metadataProp.stringValue);
 
             EditorGUI.EndProperty();
         }
@@ -60,7 +72,10 @@ namespace ModIO
                 labelHeight = EditorGUIUtility.singleLineHeight;
             }
 
-            return labelHeight + EditorGUIUtility.singleLineHeight * 3;
+            return (labelHeight
+                    + EditorGUIUtility.singleLineHeight * 3
+                    + CHANGELOG_HEIGHT
+                    + METADATABLOB_HEIGHT);
         }
     }
 }
