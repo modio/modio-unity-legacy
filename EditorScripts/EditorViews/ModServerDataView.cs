@@ -7,9 +7,13 @@ using UnityEditor;
 
 namespace ModIO
 {
-    public class ModServerDataView : IEditorView
+    public class ModServerDataView : ISceneEditorView
     {
-        public string GetDisplayName() { return "Files"; }
+        // - ISceneEditorView Interface -
+        public string GetViewHeader() { return "Files"; }
+        public void OnEnable() {}
+        public void OnDisable() {}
+        public void OnGUI() {}
 
         public static void ModServerDataPanel(SerializedProperty modInfoProp)
         {

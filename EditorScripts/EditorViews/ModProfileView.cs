@@ -7,12 +7,16 @@ using UnityEditor;
 
 namespace ModIO
 {
-    public class ModProfileView : IEditorView
+    public class ModProfileView : ISceneEditorView
     {
         private const int SUMMARY_CHAR_LIMIT = 250;
         private const int DESCRIPTION_CHAR_MIN = 100;
-        
-        public string GetDisplayName() { return "Profile"; }
+
+        // - ISceneEditorView Interface -
+        public string GetViewHeader() { return "Profile"; }
+        public void OnEnable() {}
+        public void OnDisable() {}
+        public void OnGUI() {}
 
         public static void ModProfilePanel(SerializedProperty modInfoProp,
                                            Texture2D logoTexture,

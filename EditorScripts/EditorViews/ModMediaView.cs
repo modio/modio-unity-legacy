@@ -7,9 +7,13 @@ using UnityEditor;
 
 namespace ModIO
 {
-    public class ModMediaView : IEditorView
+    public class ModMediaView : ISceneEditorView
     {
-        public string GetDisplayName() { return "Media"; }
+        // - ISceneEditorView Interface -
+        public string GetViewHeader() { return "Media"; }
+        public void OnEnable() {}
+        public void OnDisable() {}
+        public void OnGUI() {}
 
         private static bool isYouTubeExpanded = false;
         private static bool isSketchFabExpanded = false;

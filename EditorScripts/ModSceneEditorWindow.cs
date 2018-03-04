@@ -71,6 +71,10 @@ namespace ModIO
             isModUploading = false;
         }
 
+        protected abstract ISceneEditorView GetHeaderView();
+
+        protected abstract List<ISceneEditorView> GetTabbedViews();
+
         private void DisplayModIOLoginPanel()
         {
             // TODO(@jackson): Improve with deselection/reselection of text on submit
@@ -131,21 +135,6 @@ namespace ModIO
                 }
                 EditorGUILayout.EndHorizontal();
             }
-        }
-
-        private void DisplayModIOAccountHeader()
-        {
-            EditorGUILayout.LabelField("MOD.IO HEADER");
-
-            EditorGUILayout.BeginHorizontal();
-            {
-                EditorGUILayout.LabelField("Welcome " + ModManager.GetActiveUser().username);
-                if(GUILayout.Button("Log Out"))
-                {
-                    ModManager.LogUserOut();
-                }
-            }
-            EditorGUILayout.EndHorizontal();
         }
 
         private void DisplayUninitializedSceneOptions()
@@ -300,7 +289,7 @@ namespace ModIO
             }
             else
             {
-                DisplayModIOAccountHeader();
+                GetHeaderView().OnGUI();
 
                 EditorGUILayout.Space();
 
