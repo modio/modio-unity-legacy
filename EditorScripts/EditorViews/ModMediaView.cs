@@ -3,7 +3,9 @@
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 namespace ModIO
 {
@@ -13,6 +15,8 @@ namespace ModIO
         private bool isYouTubeExpanded = false;
         private bool isSketchFabExpanded = false;
         private bool isImagesExpanded = false;
+
+        private bool isUploading = false;
 
         // - ISceneEditorView Interface -
         public string GetViewHeader() { return "Media"; }
@@ -55,7 +59,7 @@ namespace ModIO
             --EditorGUI.indentLevel;
         }
 
-        private static void ResetModMedia(SerializedProperty modInfoProp)
+        private void ResetModMedia(SerializedProperty modInfoProp)
         {
             SerializedProperty initialDataProp;
             SerializedProperty currentDataProp;
@@ -98,6 +102,57 @@ namespace ModIO
                     = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("original").stringValue;
                 currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue
                     = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue;
+            }
+
+            if(GUILayout.Button("Update Mod Media"))
+            {
+                SendModMediaChanges();
+            }
+        }
+
+        private void SendModMediaChanges()
+        {
+            EditableModInfo modInfo = null;
+
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
+            {
+                EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+
+                bool isAddCompleted = false;
+                bool isDeleteCompleted = false;
+
+                isUploading = true;
+
+                System.Action onAddCompleted = () =>
+                {
+                    // TODO(@jackson): Update the object with the changes
+                    isAddCompleted = true;
+                    if(isDeleteCompleted)
+                    {
+                        APIClient.GetMod(modInfo.id,
+                                         (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
+                                         (e) => { isUploading = false; });
+                    }
+                };
+
+                System.Action onDeleteCompleted = () =>
+                {
+                    // TODO(@jackson): Update the object with the changes
+                    isDeleteCompleted = true;
+                    if(isAddCompleted)
+                    {
+                        APIClient.GetMod(modInfo.id,
+                                         (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
+                                         (e) => { isUploading = false; });
+                    }
+                };
+
+                ModManager.AddModMedia(modInfo.GetAddedMedia(),
+                                       (m) => { onAddCompleted(); },
+                                       (e) => { onAddCompleted(); });
+                ModManager.DeleteModMedia(modInfo.GetRemovedMedia(),
+                                          (m) => { onDeleteCompleted(); },
+                                          (e) => { onDeleteCompleted(); });
             }
         }
     }

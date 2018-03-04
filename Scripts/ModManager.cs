@@ -959,15 +959,15 @@ namespace ModIO
                                      onSuccess, onError);
         }
 
-        public static void UploadModBinary_Unzipped(string modFileLocation,
+        public static void UploadModBinary_Unzipped(string unzippedBinaryLocation,
                                                     ModfileProfile profile,
                                                     bool setPrimary,
                                                     Action<Modfile> onSuccess,
                                                     Action<ErrorInfo> onError)
         {
-            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(modFileLocation) + ".zip";
+            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + ".zip";
 
-            ZipUtil.Zip(binaryZipLocation, modFileLocation);
+            ZipUtil.Zip(binaryZipLocation, unzippedBinaryLocation);
 
             UploadModBinary_Zipped(binaryZipLocation, profile, setPrimary, onSuccess, onError);
         }

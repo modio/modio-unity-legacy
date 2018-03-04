@@ -3,7 +3,9 @@
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 namespace ModIO
 {
@@ -14,6 +16,7 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         private bool isTagsExpanded = false;
+        private bool isUploading = false;
 
         // - ISceneEditorView Interface -
         public string GetViewHeader() { return "Profile"; }
@@ -266,6 +269,14 @@ namespace ModIO
             }
 
             // TODO(@jackson): MetadataKVP
+
+
+
+            if(GUILayout.Button("Save To Server"))
+            {
+                EditorApplication.delayCall += UploadModInfo;
+            }
+
         }
 
         // ---------[ RESET FUNCTIONS ]---------
@@ -390,6 +401,23 @@ namespace ModIO
                     = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
                 currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue
                     = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue;
+            }
+        }
+
+        // ---------[ UPLOADING ]---------
+        private void UploadModInfo()
+        {
+            EditableModInfo modInfo = null;
+
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
+            {
+                EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+
+                isUploading = true;
+
+                ModManager.SubmitModInfo(modInfo,
+                                         (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
+                                         (e) => { isUploading = false; });
             }
         }
     }

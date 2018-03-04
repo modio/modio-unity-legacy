@@ -3,12 +3,17 @@
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 namespace ModIO
 {
     public class ModfileManagementView : ISceneEditorView
     {
+        // ---------[ FIELDS ]---------
+        private bool isModUploading = false;
+
         // - ISceneEditorView Interface -
         public string GetViewHeader() { return "Files"; }
         public void OnEnable() {}
@@ -39,6 +44,37 @@ namespace ModIO
             EditorGUILayout.PropertyField(modfileProfileProp, GUIContent.none);
 
             EditorGUILayout.PropertyField(setPrimaryProp, new GUIContent("Set Primary"));
+
+            if(GUILayout.Button("Publish Build to Mod.IO"))
+            {
+                EditorApplication.delayCall += UploadModBinary;
+            }
+        }
+
+
+        private void UploadModBinary()
+        {
+            string buildLocation = "";
+            ModfileProfile profile = null;
+
+            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before publishing online"))
+            {
+                EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+
+                isModUploading = true;
+
+                System.Action<Modfile> onUploadSucceeded = (mf) =>
+                {
+                    Debug.Log("Upload succeeded!");
+                    isModUploading = false;
+                };
+
+                ModManager.UploadModBinary_Unzipped(buildLocation,
+                                                    profile,
+                                                    true,
+                                                    onUploadSucceeded,
+                                                    (e) => isModUploading = false);
+            }
         }
     }
 }

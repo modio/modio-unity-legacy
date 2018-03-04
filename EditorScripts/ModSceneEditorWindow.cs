@@ -118,86 +118,6 @@ namespace ModIO
             Undo.RegisterCreatedObjectUndo(sd_go, "Initialize scene");
         }
 
-        private void UploadModInfo()
-        {
-            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
-            {
-                EditorSceneManager.SaveScene(currentScene);
-
-                isModUploading = true;
-
-                ModManager.SubmitModInfo(sceneData.modInfo,
-                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
-                                         (e) => { isModUploading = false; });
-            }
-        }
-
-        private void SendModMediaChanges()
-        {
-            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
-            {
-                EditorSceneManager.SaveScene(currentScene);
-
-                bool isAddCompleted = false;
-                bool isDeleteCompleted = false;
-
-                isModUploading = true;
-
-                System.Action onAddCompleted = () =>
-                {
-                    // TODO(@jackson): Update the object with the changes
-                    isAddCompleted = true;
-                    if(isDeleteCompleted)
-                    {
-                        APIClient.GetMod(sceneData.modInfo.id,
-                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
-                                         (e) => { isModUploading = false; });
-                    }
-                };
-
-                System.Action onDeleteCompleted = () =>
-                {
-                    // TODO(@jackson): Update the object with the changes
-                    isDeleteCompleted = true;
-                    if(isAddCompleted)
-                    {
-                        APIClient.GetMod(sceneData.modInfo.id,
-                                         (mod) => { sceneData.modInfo = EditableModInfo.FromModInfo(mod); isModUploading = false; },
-                                         (e) => { isModUploading = false; });
-                    }
-                };
-
-                ModManager.AddModMedia(sceneData.modInfo.GetAddedMedia(),
-                                       (m) => { onAddCompleted(); },
-                                       (e) => { onAddCompleted(); });
-                ModManager.DeleteModMedia(sceneData.modInfo.GetRemovedMedia(),
-                                          (m) => { onDeleteCompleted(); },
-                                          (e) => { onDeleteCompleted(); });
-            }
-        }
-
-        private void UploadModBinary()
-        {
-            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before publishing online"))
-            {
-                EditorSceneManager.SaveScene(currentScene);
-
-                isModUploading = true;
-
-                System.Action<Modfile> onUploadSucceeded = (mf) =>
-                {
-                    Debug.Log("Upload succeeded!");
-                    isModUploading = false;
-                };
-
-                ModManager.UploadModBinary_Unzipped(sceneData.buildLocation,
-                                                    sceneData.buildProfile,
-                                                    true,
-                                                    onUploadSucceeded,
-                                                    (e) => isModUploading = false);
-            }
-        }
-
         // ---------[ GUI DISPLAY ]---------
         protected virtual void OnGUI()
         {
@@ -256,27 +176,6 @@ namespace ModIO
                     scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
                     tabbedViews[activeTabbedViewIndex].OnGUI(serializedSceneData);
-
-                    // switch(currentView)
-                    // {
-                    //     case ModPanelView.Profile:
-                    //         ModProfileView.ModProfilePanel();
-
-                    //         doUploadInfo = GUILayout.Button("Save To Server");
-                    //     break;
-
-                    //     case ModPanelView.Media:
-                    //         ModMediaView.ModMediaPanel(serializedSceneData.FindProperty("modInfo"));
-
-                    //         doUploadMedia = GUILayout.Button("Update Mod Media");
-                    //     break;
-
-                    //     case ModPanelView.ModfileManagement:
-                    //         ModfileManagementView.ModfileManagementPanel();
-
-                    //         doUploadBinary = GUILayout.Button("Publish Build to Mod.IO");
-                    //     break;
-                    // }
                 
                     EditorGUILayout.EndScrollView();
 
@@ -285,20 +184,6 @@ namespace ModIO
             }
 
             wasPlaying = isPlaying;
-
-            // - Final Actions -
-            if(doUploadInfo)
-            {
-                EditorApplication.delayCall += UploadModInfo;
-            }
-            if(doUploadMedia)
-            {
-                EditorApplication.delayCall += SendModMediaChanges;
-            }
-            if(doUploadBinary)
-            {
-                EditorApplication.delayCall += UploadModBinary;
-            }
         }
     }
 }
