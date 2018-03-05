@@ -90,7 +90,9 @@ namespace ModIO
 
             System.Action<Modfile> onUploadSucceeded = (mf) =>
             {
-                Debug.Log("Upload succeeded!");
+                EditorUtility.DisplayDialog("Modfile Successfully Uploaded",
+                                "",
+                                "Ok");
                 isModUploading = false;
             };
 
@@ -98,7 +100,12 @@ namespace ModIO
                                                 profile,
                                                 true,
                                                 onUploadSucceeded,
-                                                (e) => isModUploading = false);
+                                                (e) =>
+                                                {
+                                                    EditorUtility.DisplayDialog("Modfile Submission failed",
+                                                                    e.message,
+                                                                    "Ok");
+                                                });
         }
     }
 }

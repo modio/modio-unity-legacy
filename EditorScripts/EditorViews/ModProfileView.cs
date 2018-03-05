@@ -411,7 +411,13 @@ namespace ModIO
                                             sceneData.modInfo = EditableModInfo.FromModInfo(mod);
                                             isUploading = false;
                                          },
-                                         (e) => { isUploading = false; });
+                                         (e) =>
+                                         {
+                                            isUploading = false;
+                                            EditorUtility.DisplayDialog("Mod Profile submission failed",
+                                                                        e.message,
+                                                                        "Ok");
+                                         });
             }
         }
     }
