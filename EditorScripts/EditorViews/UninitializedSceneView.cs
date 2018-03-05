@@ -27,6 +27,7 @@ namespace ModIO
             }
         }
         public virtual void OnDisable() {}
+        public virtual bool IsViewDisabled() { return false; }
         
         public void OnGUI(EditorSceneData sceneData)
         {

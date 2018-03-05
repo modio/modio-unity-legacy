@@ -88,6 +88,7 @@ namespace ModIO
         {
             isModUploading = true;
 
+            // --- Callbacks ---
             System.Action<Modfile> onUploadSucceeded = (mf) =>
             {
                 EditorUtility.DisplayDialog("Modfile Successfully Uploaded",
@@ -95,17 +96,20 @@ namespace ModIO
                                 "Ok");
                 isModUploading = false;
             };
+            System.Action<ErrorInfo> onUploadFailed = (mf) =>
+            {
+                EditorUtility.DisplayDialog("Modfile Successfully Uploaded",
+                                "",
+                                "Ok");
+                isModUploading = false;
+            };
 
+            // --- Start Upload ---
             ModManager.UploadModBinary_Unzipped(buildLocation,
                                                 profile,
                                                 true,
                                                 onUploadSucceeded,
-                                                (e) =>
-                                                {
-                                                    EditorUtility.DisplayDialog("Modfile Submission failed",
-                                                                    e.message,
-                                                                    "Ok");
-                                                });
+                                                onUploadFailed);
         }
     }
 }

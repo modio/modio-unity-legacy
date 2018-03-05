@@ -19,10 +19,11 @@ namespace ModIO
         private Scene currentScene;
         private EditorSceneData sceneData;
         private bool wasPlaying;
-        private int activeTabbedViewIndex;
         private Vector2 scrollPos;
 
         protected ISceneEditorView activeView;
+        private bool wasActiveViewDisabled;
+        private bool isRepaintRequired;
 
         // ------[ ABSTRACT FUNCTIONS ]------
         protected abstract ISceneEditorHeader GetEditorHeader();
@@ -39,7 +40,6 @@ namespace ModIO
             // - Initialize Scene Variables -
             currentScene = SceneManager.GetActiveScene();
             sceneData = Object.FindObjectOfType<EditorSceneData>();
-            activeTabbedViewIndex = 0;
             scrollPos = Vector2.zero;
 
             if(sceneData == null)
@@ -48,8 +48,10 @@ namespace ModIO
             }
             else
             {
-                activeView = GetTabbedViews()[activeTabbedViewIndex];
+                activeView = GetTabbedViews()[0];
             }
+            wasActiveViewDisabled = false;
+            isRepaintRequired = false;
 
             // - Call Enables on Views -
             GetEditorHeader().OnEnable();
@@ -67,7 +69,6 @@ namespace ModIO
             // - Initialize Scene Variables -
             currentScene = SceneManager.GetActiveScene();
             sceneData = Object.FindObjectOfType<EditorSceneData>();
-            activeTabbedViewIndex = (sceneData == null ? -1 : 0);
             scrollPos = Vector2.zero;
 
             if(sceneData == null)
@@ -76,7 +77,7 @@ namespace ModIO
             }
             else
             {
-                SetActiveView(GetTabbedViews()[activeTabbedViewIndex]);
+                SetActiveView(GetTabbedViews()[0]);
             }
         }
 
@@ -84,12 +85,27 @@ namespace ModIO
         {
             activeView.OnDisable();
 
-            scrollPos = Vector2.zero;
             activeView = newActiveView;
             activeView.OnEnable();
+
+            scrollPos = Vector2.zero;
+            wasActiveViewDisabled = false;
+            isRepaintRequired = true;
         }
 
         // ---------[ UPDATES ]---------
+        protected virtual void OnInspectorUpdate()
+        {
+            if(isRepaintRequired
+               || wasActiveViewDisabled != activeView.IsViewDisabled())
+            {
+                Debug.Log("Inspector Repaint Requested");
+                Repaint();
+                isRepaintRequired = false;
+            }
+            wasActiveViewDisabled = activeView.IsViewDisabled();
+        }
+
         protected virtual void OnGUI()
         {
             bool isPlaying = Application.isPlaying;

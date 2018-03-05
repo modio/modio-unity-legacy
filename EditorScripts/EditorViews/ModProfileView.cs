@@ -26,6 +26,10 @@ namespace ModIO
             isTagsExpanded = false;
         }
         public void OnDisable() {}
+        public virtual bool IsViewDisabled()
+        {
+            return isUploading;
+        }
 
         public void OnGUI(EditorSceneData sceneData)
         {

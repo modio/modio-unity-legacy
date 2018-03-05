@@ -10,6 +10,9 @@ namespace ModIO
         void OnEnable();
         void OnDisable();
         void OnGUI(EditorSceneData sceneData);
+
+        bool IsViewDisabled();
+        // bool IsRepaintRequested();
     }
 }
 

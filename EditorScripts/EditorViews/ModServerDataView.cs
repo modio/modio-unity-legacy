@@ -10,9 +10,10 @@ namespace ModIO
     public class ModServerDataView : ISceneEditorView
     {
         // - ISceneEditorView Interface -
-        public string GetViewHeader() { return "Files"; }
+        public string GetViewHeader() { return "Data"; }
         public void OnEnable() {}
         public void OnDisable() {}
+        public bool IsViewDisabled() { return false; }
         public void OnGUI(EditorSceneData sceneData)
         {
             SerializedObject serializedSceneData = new SerializedObject(sceneData);
