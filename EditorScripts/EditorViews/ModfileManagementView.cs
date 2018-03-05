@@ -24,7 +24,6 @@ namespace ModIO
             return isModUploading;
         }
 
-        // TODO(@jackson): Show all modfiles
         public void OnGUI(EditorSceneData sceneData)
         {
             using(new EditorGUI.DisabledScope(this.IsViewDisabled()))
@@ -33,6 +32,7 @@ namespace ModIO
             }
         }
 
+        // TODO(@jackson): Show all modfiles
         protected virtual void OnGUIInner(EditorSceneData sceneData)
         {
             SerializedObject serializedSceneData = new SerializedObject(sceneData);

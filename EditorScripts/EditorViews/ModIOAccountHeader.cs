@@ -88,14 +88,22 @@ namespace ModIO
             }
             else
             {
+                string username = ModManager.GetActiveUser().username;
+
                 EditorGUILayout.LabelField("MOD.IO HEADER");
 
                 EditorGUILayout.BeginHorizontal();
                 {
-                    EditorGUILayout.LabelField("Welcome " + ModManager.GetActiveUser().username);
+                    EditorGUILayout.LabelField("Welcome " + username);
                     if(GUILayout.Button("Log Out"))
                     {
-                        ModManager.LogUserOut();
+                        EditorApplication.delayCall += () =>
+                        {
+                            if(EditorDialog.ConfirmLogOut(username))
+                            {
+                                ModManager.LogUserOut();
+                            }
+                        };
                     }
                 }
                 EditorGUILayout.EndHorizontal();

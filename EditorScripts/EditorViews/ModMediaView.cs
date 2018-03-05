@@ -18,6 +18,11 @@ namespace ModIO
 
         private bool isUploading = false;
 
+        public virtual bool IsViewDisabled()
+        {
+            return isUploading;
+        }
+
         // - ISceneEditorView Interface -
         public string GetViewHeader() { return "Media"; }
         public void OnEnable()
@@ -29,6 +34,14 @@ namespace ModIO
         public void OnDisable() {}
         
         public void OnGUI(EditorSceneData sceneData)
+        {
+            using(new EditorGUI.DisabledScope(this.IsViewDisabled()))
+            {
+                this.OnGUIInner(sceneData);
+            }
+        }
+
+        protected virtual void OnGUIInner(EditorSceneData sceneData)
         {
             bool isNewMod = sceneData.modInfo.id <= 0;
 
@@ -65,6 +78,7 @@ namespace ModIO
             }
         }
 
+        // - Misc Functionality -
         private void ResetModMedia(SerializedProperty modInfoProp)
         {
             SerializedProperty initialDataProp;
@@ -117,41 +131,37 @@ namespace ModIO
             {
                 EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
-                bool isAddCompleted = false;
-                bool isDeleteCompleted = false;
-
                 isUploading = true;
 
-                System.Action onAddCompleted = () =>
+                System.Action<APIMessage> onDeleteCompleted = (m) =>
                 {
-                    // TODO(@jackson): Update the object with the changes
-                    isAddCompleted = true;
-                    if(isDeleteCompleted)
-                    {
-                        APIClient.GetMod(modInfo.id,
-                                         (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
-                                         (e) => { isUploading = false; });
-                    }
+                    APIClient.GetMod(modInfo.id,
+                                     (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
+                                     (e) => { isUploading = false; });
                 };
 
-                System.Action onDeleteCompleted = () =>
+                System.Action<APIMessage> onAddCompleted = (m) =>
                 {
-                    // TODO(@jackson): Update the object with the changes
-                    isDeleteCompleted = true;
-                    if(isAddCompleted)
-                    {
-                        APIClient.GetMod(modInfo.id,
-                                         (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
-                                         (e) => { isUploading = false; });
-                    }
+                    ModManager.DeleteModMedia(modInfo.GetRemovedMedia(),
+                                              onDeleteCompleted,
+                                              (e) =>
+                                              {
+                                                isUploading = false;
+                                                EditorUtility.DisplayDialog("Mod Media Removal failed",
+                                                                            e.message,
+                                                                            "Ok");
+                                              });
                 };
 
                 ModManager.AddModMedia(modInfo.GetAddedMedia(),
-                                       (m) => { onAddCompleted(); },
-                                       (e) => { onAddCompleted(); });
-                ModManager.DeleteModMedia(modInfo.GetRemovedMedia(),
-                                          (m) => { onDeleteCompleted(); },
-                                          (e) => { onDeleteCompleted(); });
+                                       onAddCompleted,
+                                       (e) =>
+                                       {
+                                        isUploading = false;
+                                        EditorUtility.DisplayDialog("Mod Media Submission failed",
+                                                                    e.message,
+                                                                    "Ok");
+                                       });
             }
         }
     }
