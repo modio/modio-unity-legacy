@@ -8,41 +8,44 @@ namespace ModIO
     public class UninitializedSceneView
     {
         private int modInitializationOptionIndex;
+        private ModInfo[] modList;
+        private string[] modOptions;
 
         // ---[ ISceneEditorView Interface ]---
-        public virtual void OnEnable() {}
+        public virtual void OnEnable()
+        {
+            // TODO(@jackson): Filter by editable
+            modInitializationOptionIndex = 0;
+            modList = ModManager.GetMods(GetAllModsFilter.None);
+            modOptions = new string[modList.Length];
+            for(int i = 0; i < modList.Length; ++i)
+            {
+                ModInfo mod = modList[i];
+                modOptions[i] = mod.name;
+            }
+        }
         public virtual void OnDisable() {}
         
         public void OnGUI()
         {
-            // - Select Mod -
-            // TODO(@jackson): Filter by editable
-            ModInfo[] modList = ModManager.GetMods(GetAllModsFilter.None);
-            string[] modOptions = new string[modList.Length + 1];
+            // ---[ DISPLAY ]---
+            EditorGUILayout.Space();
 
-            modOptions[0] = "[NEW MOD]";
-
-            for(int i = 0; i < modList.Length; ++i)
+            EditorGUILayout.LabelField("Create New Mod Profile");
+            if(GUILayout.Button("Create"))
             {
-                ModInfo mod = modList[i];
-                modOptions[i+1] = mod.name;
+                EditorApplication.delayCall += () => InitializeSceneForModding(new ModInfo());
             }
 
-            modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod For Scene", modInitializationOptionIndex, modOptions, null);
-                
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
 
-            if(GUILayout.Button("Initialize Scene"))
+            EditorGUILayout.LabelField("Assign Existing Mod Profile");
+
+            modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
+            if(GUILayout.Button("Load"))
             {
-                ModInfo modInfo;
-                if(modInitializationOptionIndex > 0)
-                {
-                    modInfo = modList[modInitializationOptionIndex - 1];
-                }
-                else
-                {
-                    modInfo = new ModInfo();
-                }
-
+                ModInfo modInfo = modList[modInitializationOptionIndex];
                 EditorApplication.delayCall += () => InitializeSceneForModding(modInfo);
             }
         }
