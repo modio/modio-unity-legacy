@@ -1,6 +1,4 @@
-﻿#define LOG_ALL_REQUESTS
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -106,10 +104,13 @@ namespace ModIO
                                + "?api_key=" + GlobalSettings.GAME_APIKEY
                                + "&" + queryFilter.GenerateQueryString());
 
-            #if LOG_ALL_REQUESTS
-            Debug.Log("GENERATING QUERY"
-                      + "\nQuery: " + queryURL
-                      + "\n");
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            {
+                Debug.Log("GENERATING QUERY"
+                          + "\nQuery: " + queryURL
+                          + "\n");
+            }
             #endif
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
@@ -125,7 +126,8 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + oAuthToken);
 
-            #if LOG_ALL_REQUESTS
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
@@ -177,7 +179,8 @@ namespace ModIO
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
             webRequest.SetRequestHeader("Authorization", "Bearer " + oAuthToken);
 
-            #if LOG_ALL_REQUESTS
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
@@ -244,7 +247,8 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Authorization", "Bearer " + oAuthToken);
 
-            #if LOG_ALL_REQUESTS
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
@@ -316,7 +320,8 @@ namespace ModIO
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
             webRequest.SetRequestHeader("Authorization", "Bearer " + oAuthToken);
 
-            #if LOG_ALL_REQUESTS
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
@@ -386,8 +391,9 @@ namespace ModIO
 
                 errorCallback(errorInfo);
 
-                #if LOG_ALL_REQUESTS
-                if(errorCallback != APIClient.LogError)
+                #if DEBUG
+                if(GlobalSettings.LOG_ALL_WEBREQUESTS
+                   && errorCallback != APIClient.LogError)
                 {
                     APIClient.LogError(errorInfo);
                 }
@@ -396,11 +402,14 @@ namespace ModIO
                 return;
             }
 
-            #if LOG_ALL_REQUESTS
-            Debug.Log(webRequest.method.ToUpper() + " REQUEST SUCEEDED"
-                      + "\nURL: " + webRequest.url
-                      + "\nResponse: " + webRequest.downloadHandler.text
-                      + "\n");
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            {
+                Debug.Log(webRequest.method.ToUpper() + " REQUEST SUCEEDED"
+                          + "\nURL: " + webRequest.url
+                          + "\nResponse: " + webRequest.downloadHandler.text
+                          + "\n");
+            }
             #endif
 
             // TODO(@jackson): Handle as a T == null?
