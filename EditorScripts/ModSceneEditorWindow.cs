@@ -22,47 +22,85 @@ namespace ModIO
         private int activeTabbedViewIndex;
         private Vector2 scrollPos;
 
-        private void OnEnable()
+        // ------[ ABSTRACT FUNCTIONS ]------
+        protected abstract ISceneEditorHeader GetEditorHeader();
+        protected abstract UninitializedSceneView GetUninitializedSceneView();
+        protected abstract ISceneEditorView[] GetTabbedViews();
+
+        // ------[ INITIALIZATION ]------
+        protected virtual void OnEnable()
         {
             ModManager.Initialize();
 
-            currentScene = new Scene();
             wasPlaying = Application.isPlaying;
-            sceneData = null;
-            activeTabbedViewIndex = 0;
 
+            // - Initialize Scene Variables -
+            currentScene = SceneManager.GetActiveScene();
+            sceneData = Object.FindObjectOfType<EditorSceneData>();
+            activeTabbedViewIndex = (sceneData == null ? -1 : 0);
+            scrollPos = Vector2.zero;
+
+            // - Call Enables on Views -
             GetEditorHeader().OnEnable();
+            
+            if(sceneData == null)
+            {
+                GetUninitializedSceneView().OnEnable();
+            }
+            else
+            {
+                GetTabbedViews()[activeTabbedViewIndex].OnEnable();
+            }
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             GetEditorHeader().OnDisable();
+
+            if(sceneData == null)
+            {
+                GetUninitializedSceneView().OnDisable();
+            }
+            else
+            {
+                GetTabbedViews()[activeTabbedViewIndex].OnDisable();
+            }
         }
 
         protected virtual void OnSceneChange()
         {
+            if(sceneData == null)
+            {
+                GetUninitializedSceneView().OnDisable();
+            }
+            else
+            {
+                GetTabbedViews()[activeTabbedViewIndex].OnDisable();
+            }
+
             // - Initialize Scene Variables -
             currentScene = SceneManager.GetActiveScene();
             sceneData = Object.FindObjectOfType<EditorSceneData>();
-            
-            activeTabbedViewIndex = 0;
+            activeTabbedViewIndex = (sceneData == null ? -1 : 0);
             scrollPos = Vector2.zero;
 
             if(sceneData == null)
             {
                 GetUninitializedSceneView().OnEnable();
             }
+            else
+            {
+                GetTabbedViews()[activeTabbedViewIndex].OnEnable();
+            }
         }
-
-        protected abstract ISceneEditorHeader GetEditorHeader();
-        protected abstract UninitializedSceneView GetUninitializedSceneView();
-        protected abstract ISceneEditorView[] GetTabbedViews();
 
         // ---------[ GUI DISPLAY ]---------
         protected virtual void OnGUI()
         {
             bool isPlaying = Application.isPlaying;
-
+            int prevViewIndex = activeTabbedViewIndex;
+            ISceneEditorView[] tabbedViews = this.GetTabbedViews();
+            
             // - Update Data -
             if(currentScene != SceneManager.GetActiveScene()
                || (isPlaying != wasPlaying))
@@ -70,26 +108,23 @@ namespace ModIO
                 OnSceneChange();
             }
 
-            // ---[ Display ]---
+            if(sceneData == null)
+            {
+                sceneData = Object.FindObjectOfType<EditorSceneData>();
+                if(sceneData != null)
+                {
+                    activeTabbedViewIndex = 0;
+                }
+            }
+
+            // ---[ Header ]---
             GetEditorHeader().OnGUI();
 
             EditorGUILayout.Space();
 
-            // ---[ Main Panel ]---
-            if(sceneData == null)
+            // ---[ Tabs ]---
+            using (new EditorGUI.DisabledScope(sceneData == null))
             {
-                sceneData = Object.FindObjectOfType<EditorSceneData>();
-            }
-
-            if(sceneData == null)
-            {
-                this.GetUninitializedSceneView().OnGUI();
-            }
-            else
-            {
-                int prevViewIndex = activeTabbedViewIndex;
-                ISceneEditorView[] tabbedViews = this.GetTabbedViews();
-
                 EditorGUILayout.BeginHorizontal();
                     for(int i = 0;
                         i < tabbedViews.Length;
@@ -101,21 +136,42 @@ namespace ModIO
                         }
                     }
                 EditorGUILayout.EndHorizontal();
+            }
 
-                if(prevViewIndex != activeTabbedViewIndex)
+            // ---[ Main Panel ]---
+            if(prevViewIndex != activeTabbedViewIndex)
+            {
+                scrollPos = Vector2.zero;
+
+                if(prevViewIndex == -1)
                 {
-                    scrollPos = Vector2.zero;
-
+                    this.GetUninitializedSceneView().OnDisable();
+                }
+                else
+                {
                     tabbedViews[prevViewIndex].OnDisable();
-                    tabbedViews[activeTabbedViewIndex].OnEnable();
                 }
 
-                using (new EditorGUI.DisabledScope(Application.isPlaying))
+                if(activeTabbedViewIndex == -1)
+                {
+                    this.GetUninitializedSceneView().OnEnable();
+                }
+                else
+                {
+                    tabbedViews[activeTabbedViewIndex].OnEnable();
+                }
+            }
+
+            using (new EditorGUI.DisabledScope(Application.isPlaying))
+            {
+                if(activeTabbedViewIndex == -1)
+                {
+                    this.GetUninitializedSceneView().OnGUI();
+                }
+                else
                 {
                     scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-
-                    tabbedViews[activeTabbedViewIndex].OnGUI(sceneData);
-                
+                        tabbedViews[activeTabbedViewIndex].OnGUI(sceneData);
                     EditorGUILayout.EndScrollView();
                 }
             }
