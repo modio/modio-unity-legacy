@@ -22,6 +22,8 @@ namespace ModIO
         private int activeTabbedViewIndex;
         private Vector2 scrollPos;
 
+        protected ISceneEditorView activeView;
+
         // ------[ ABSTRACT FUNCTIONS ]------
         protected abstract ISceneEditorHeader GetEditorHeader();
         protected abstract UninitializedSceneView GetUninitializedSceneView();
@@ -37,47 +39,31 @@ namespace ModIO
             // - Initialize Scene Variables -
             currentScene = SceneManager.GetActiveScene();
             sceneData = Object.FindObjectOfType<EditorSceneData>();
-            activeTabbedViewIndex = (sceneData == null ? -1 : 0);
+            activeTabbedViewIndex = 0;
             scrollPos = Vector2.zero;
 
-            // - Call Enables on Views -
-            GetEditorHeader().OnEnable();
-            
             if(sceneData == null)
             {
-                GetUninitializedSceneView().OnEnable();
+                activeView = GetUninitializedSceneView();
             }
             else
             {
-                GetTabbedViews()[activeTabbedViewIndex].OnEnable();
+                activeView = GetTabbedViews()[activeTabbedViewIndex];
             }
+
+            // - Call Enables on Views -
+            GetEditorHeader().OnEnable();
+            activeView.OnEnable();
         }
 
         protected virtual void OnDisable()
         {
             GetEditorHeader().OnDisable();
-
-            if(sceneData == null)
-            {
-                GetUninitializedSceneView().OnDisable();
-            }
-            else
-            {
-                GetTabbedViews()[activeTabbedViewIndex].OnDisable();
-            }
+            activeView.OnDisable();
         }
 
         protected virtual void OnSceneChange()
         {
-            if(sceneData == null)
-            {
-                GetUninitializedSceneView().OnDisable();
-            }
-            else
-            {
-                GetTabbedViews()[activeTabbedViewIndex].OnDisable();
-            }
-
             // - Initialize Scene Variables -
             currentScene = SceneManager.GetActiveScene();
             sceneData = Object.FindObjectOfType<EditorSceneData>();
@@ -86,19 +72,27 @@ namespace ModIO
 
             if(sceneData == null)
             {
-                GetUninitializedSceneView().OnEnable();
+                SetActiveView(GetUninitializedSceneView());
             }
             else
             {
-                GetTabbedViews()[activeTabbedViewIndex].OnEnable();
+                SetActiveView(GetTabbedViews()[activeTabbedViewIndex]);
             }
         }
 
-        // ---------[ GUI DISPLAY ]---------
+        protected void SetActiveView(ISceneEditorView newActiveView)
+        {
+            activeView.OnDisable();
+
+            scrollPos = Vector2.zero;
+            activeView = newActiveView;
+            activeView.OnEnable();
+        }
+
+        // ---------[ UPDATES ]---------
         protected virtual void OnGUI()
         {
             bool isPlaying = Application.isPlaying;
-            int prevViewIndex = activeTabbedViewIndex;
             ISceneEditorView[] tabbedViews = this.GetTabbedViews();
             
             // - Update Data -
@@ -113,7 +107,7 @@ namespace ModIO
                 sceneData = Object.FindObjectOfType<EditorSceneData>();
                 if(sceneData != null)
                 {
-                    activeTabbedViewIndex = 0;
+                   SetActiveView(tabbedViews[0]);
                 }
             }
 
@@ -123,6 +117,8 @@ namespace ModIO
             EditorGUILayout.Space();
 
             // ---[ Tabs ]---
+            int prevViewIndex = -1;
+            int newViewIndex = -1;
             using (new EditorGUI.DisabledScope(sceneData == null))
             {
                 EditorGUILayout.BeginHorizontal();
@@ -130,50 +126,31 @@ namespace ModIO
                         i < tabbedViews.Length;
                         ++i)
                     {
+                        ISceneEditorView tabView = tabbedViews[i];
+                        if(tabView == activeView)
+                        {
+                            prevViewIndex = i;
+                        }
                         if(GUILayout.Button(tabbedViews[i].GetViewHeader()))
                         {
-                            activeTabbedViewIndex = i;
+                            newViewIndex = i;
                         }
                     }
                 EditorGUILayout.EndHorizontal();
             }
 
-            // ---[ Main Panel ]---
-            if(prevViewIndex != activeTabbedViewIndex)
+            if(newViewIndex >= 0
+               && prevViewIndex != newViewIndex)
             {
-                scrollPos = Vector2.zero;
-
-                if(prevViewIndex == -1)
-                {
-                    this.GetUninitializedSceneView().OnDisable();
-                }
-                else
-                {
-                    tabbedViews[prevViewIndex].OnDisable();
-                }
-
-                if(activeTabbedViewIndex == -1)
-                {
-                    this.GetUninitializedSceneView().OnEnable();
-                }
-                else
-                {
-                    tabbedViews[activeTabbedViewIndex].OnEnable();
-                }
+                SetActiveView(tabbedViews[newViewIndex]);
             }
 
+            // ---[ Main Panel ]---
             using (new EditorGUI.DisabledScope(Application.isPlaying))
             {
-                if(activeTabbedViewIndex == -1)
-                {
-                    this.GetUninitializedSceneView().OnGUI();
-                }
-                else
-                {
-                    scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-                        tabbedViews[activeTabbedViewIndex].OnGUI(sceneData);
-                    EditorGUILayout.EndScrollView();
-                }
+                scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+                    activeView.OnGUI(sceneData);
+                EditorGUILayout.EndScrollView();
             }
 
             wasPlaying = isPlaying;

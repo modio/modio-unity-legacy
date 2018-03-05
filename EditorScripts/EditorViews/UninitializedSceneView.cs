@@ -5,13 +5,15 @@ using UnityEditor;
 
 namespace ModIO
 {
-    public class UninitializedSceneView
+    public class UninitializedSceneView : ISceneEditorView
     {
+        // ---------[ FIELDS ]---------
         private int modInitializationOptionIndex;
         private ModInfo[] modList;
         private string[] modOptions;
 
         // ---[ ISceneEditorView Interface ]---
+        public virtual string GetViewHeader() { return "New Mod Scene"; }
         public virtual void OnEnable()
         {
             // TODO(@jackson): Filter by editable
@@ -26,7 +28,7 @@ namespace ModIO
         }
         public virtual void OnDisable() {}
         
-        public void OnGUI()
+        public void OnGUI(EditorSceneData sceneData)
         {
             // ---[ DISPLAY ]---
             EditorGUILayout.Space();
