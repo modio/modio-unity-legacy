@@ -292,13 +292,13 @@ namespace ModIO
             }
         }
 
-        public static bool BrowseButton(string buttonContent, GUIContent label)
+        public static bool BrowseButton(string path, GUIContent label)
         {
             bool doBrowse = false;
 
-            if(String.IsNullOrEmpty(buttonContent))
+            if(String.IsNullOrEmpty(path))
             {
-                buttonContent = "Browse...";
+                path = "Browse...";
             }
 
             EditorGUILayout.BeginHorizontal();
@@ -309,11 +309,11 @@ namespace ModIO
 
                 if(Event.current.type == EventType.Layout)
                 {
-                    EditorGUILayout.TextField(buttonContent);
+                    EditorGUILayout.TextField(path);
                 }
                 else
                 {
-                    doBrowse = GUILayout.Button(buttonContent, GUI.skin.textField);
+                    doBrowse = GUILayout.Button(path, GUI.skin.textField);
                 }
             EditorGUILayout.EndHorizontal();
 
