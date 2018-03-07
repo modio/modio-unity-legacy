@@ -13,7 +13,6 @@ namespace ModIO
         private bool isRequestSending;
 
         // - ISceneEditorView Interface -
-        public string GetViewHeader() { return "Account"; }
         public void OnEnable()
         {
             isRequestSending = false;
@@ -22,6 +21,11 @@ namespace ModIO
             securityCodeInput = "";
         }
         public void OnDisable() {}
+        public bool IsInteractionDisabled()
+        {
+            return isRequestSending;
+        }
+
 
         public void OnGUI()
         {

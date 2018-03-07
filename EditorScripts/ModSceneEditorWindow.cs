@@ -22,8 +22,10 @@ namespace ModIO
         private Vector2 scrollPos;
 
         protected ISceneEditorView activeView;
-        private bool wasActiveViewDisabled;
+        
         private bool isRepaintRequired;
+        private bool wasActiveViewDisabled;
+        private bool wasHeaderDisabled;
 
         // ------[ ABSTRACT FUNCTIONS ]------
         protected abstract ISceneEditorHeader GetEditorHeader();
@@ -50,8 +52,9 @@ namespace ModIO
             {
                 activeView = GetTabbedViews()[0];
             }
-            wasActiveViewDisabled = false;
             isRepaintRequired = false;
+            wasActiveViewDisabled = false;
+            wasHeaderDisabled = false;
 
             // - Call Enables on Views -
             GetEditorHeader().OnEnable();
@@ -97,13 +100,14 @@ namespace ModIO
         protected virtual void OnInspectorUpdate()
         {
             if(isRepaintRequired
-               || wasActiveViewDisabled != activeView.IsViewDisabled())
+               || wasActiveViewDisabled != activeView.IsViewDisabled()
+               || wasHeaderDisabled != GetEditorHeader().IsInteractionDisabled())
             {
-                Debug.Log("Inspector Repaint Requested");
                 Repaint();
                 isRepaintRequired = false;
             }
             wasActiveViewDisabled = activeView.IsViewDisabled();
+            wasHeaderDisabled = GetEditorHeader().IsInteractionDisabled();
         }
 
         protected virtual void OnGUI()

@@ -7,6 +7,8 @@ namespace ModIO
         void OnEnable();
         void OnDisable();
         void OnGUI();
+
+        bool IsInteractionDisabled();
     }
 }
 
