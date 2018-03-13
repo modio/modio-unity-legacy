@@ -5,7 +5,7 @@ namespace ModIO
 {
     public interface ISceneEditorView
     {
-        string GetViewHeader();
+        string GetViewTitle();
 
         void OnEnable();
         void OnDisable();

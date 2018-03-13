@@ -151,7 +151,7 @@ namespace ModIO
                         {
                             prevViewIndex = i;
                         }
-                        if(GUILayout.Button(tabbedViews[i].GetViewHeader()))
+                        if(GUILayout.Button(tabbedViews[i].GetViewTitle()))
                         {
                             newViewIndex = i;
                         }

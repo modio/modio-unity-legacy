@@ -10,7 +10,7 @@ namespace ModIO
     public class ModServerDataView : ISceneEditorView
     {
         // - ISceneEditorView Interface -
-        public string GetViewHeader() { return "Data"; }
+        public string GetViewTitle() { return "Data"; }
         public void OnEnable() {}
         public void OnDisable() {}
         public bool IsViewDisabled() { return false; }

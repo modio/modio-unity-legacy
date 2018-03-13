@@ -21,7 +21,7 @@ namespace ModIO
         private bool isUndoEnabled = false;
 
         // - ISceneEditorView Interface -
-        public string GetViewHeader() { return "Profile"; }
+        public string GetViewTitle() { return "Profile"; }
         public void OnEnable()
         {
             isTagsExpanded = false;

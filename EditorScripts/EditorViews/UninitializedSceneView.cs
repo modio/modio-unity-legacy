@@ -13,7 +13,7 @@ namespace ModIO
         private string[] modOptions;
 
         // ---[ ISceneEditorView Interface ]---
-        public virtual string GetViewHeader() { return "New Mod Scene"; }
+        public virtual string GetViewTitle() { return "New Mod Scene"; }
         public virtual void OnEnable()
         {
             // TODO(@jackson): Filter by editable

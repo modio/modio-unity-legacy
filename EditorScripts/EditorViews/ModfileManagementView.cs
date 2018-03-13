@@ -15,7 +15,7 @@ namespace ModIO
         private bool isModUploading = false;
 
         // - ISceneEditorView Interface -
-        public virtual string GetViewHeader() { return "Files"; }
+        public virtual string GetViewTitle() { return "Files"; }
         public virtual void OnEnable() {}
         public virtual void OnDisable() {}
 

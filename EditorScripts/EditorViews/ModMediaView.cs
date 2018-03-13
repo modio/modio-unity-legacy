@@ -24,7 +24,7 @@ namespace ModIO
         }
 
         // - ISceneEditorView Interface -
-        public string GetViewHeader() { return "Media"; }
+        public string GetViewTitle() { return "Media"; }
         public void OnEnable()
         {
             isYouTubeExpanded = false;
