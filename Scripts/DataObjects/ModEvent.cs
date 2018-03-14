@@ -3,7 +3,7 @@ using System;
 namespace ModIO
 {
     [Serializable]
-    public class ModEvent : IEquatable<ModEvent>, IAPIObjectWrapper<API.ModEventObject>, UnityEngine.ISerializationCallbackReceiver
+    public class ModEvent : IEquatable<ModEvent>, IAPIObjectWrapper<API.EventObject>, UnityEngine.ISerializationCallbackReceiver
     {
         // - Enums -
         public enum EventType
@@ -16,7 +16,7 @@ namespace ModIO
 
         // - Fields -
         [UnityEngine.SerializeField]
-        private API.ModEventObject _data;
+        private API.EventObject _data;
 
         public int id               { get { return _data.id; } }
         public int modId            { get { return _data.mod_id; } }
@@ -50,7 +50,7 @@ namespace ModIO
         }
         
         // - IAPIObjectWrapper Interface -
-        public void WrapAPIObject(API.ModEventObject apiObject)
+        public void WrapAPIObject(API.EventObject apiObject)
         {
             this._data = apiObject;
 
@@ -82,7 +82,7 @@ namespace ModIO
             }
         }
 
-        public API.ModEventObject GetAPIObject()
+        public API.EventObject GetAPIObject()
         {
             return this._data;
         }

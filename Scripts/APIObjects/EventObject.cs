@@ -3,7 +3,7 @@ using System;
 namespace ModIO.API
 {
     [Serializable]
-    public struct ModEventObject : IEquatable<ModEventObject>
+    public struct EventObject : IEquatable<EventObject>
     {
         // - Fields -
         public int id;  // Unique id of the event object.
@@ -20,11 +20,11 @@ namespace ModIO.API
 
         public override bool Equals(object obj)
         {
-            return (obj is ModEventObject
-                    && this.Equals((ModEventObject)obj));
+            return (obj is EventObject
+                    && this.Equals((EventObject)obj));
         }
 
-        public bool Equals(ModEventObject other)
+        public bool Equals(EventObject other)
         {
             return(this.id.Equals(other.id)
                    && this.mod_id.Equals(other.mod_id)

@@ -136,7 +136,7 @@ namespace ModIO
                 System.Action<APIMessage> onDeleteCompleted = (m) =>
                 {
                     APIClient.GetMod(modInfo.id,
-                                     (mod) => { modInfo = EditableModInfo.FromModInfo(mod); isUploading = false; },
+                                     (mod) => { modInfo = EditableModInfo.FromModObject(mod); isUploading = false; },
                                      (e) => { isUploading = false; });
                 };
 

@@ -134,9 +134,14 @@ namespace ModIO
     {
         public static EditableModInfo FromModInfo(ModInfo modInfo)
         {
+            return EditableModInfo.FromModObject(modInfo.GetAPIObject());
+        }
+
+        public static EditableModInfo FromModObject(API.ModObject modObject)
+        {
             EditableModInfo newEMI = new EditableModInfo();
 
-            newEMI.WrapAPIObject(modInfo.GetAPIObject());
+            newEMI.WrapAPIObject(modObject);
 
             return newEMI;
         }
