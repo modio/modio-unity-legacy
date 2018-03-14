@@ -155,7 +155,7 @@ namespace ModIO
                     };
 
                     APIClient.GetAuthenticatedUser(userData.oAuthToken,
-                                                   APIClient.IgnoreResponse,
+                                                   null,
                                                    onAuthenticationFail);
                 }
             }
@@ -221,7 +221,7 @@ namespace ModIO
                 WriteManifestToDisk();
             };
 
-            APIClient.GetGame(cacheGameInfo, APIClient.IgnoreResponse);
+            APIClient.GetGame(cacheGameInfo, null);
         }
 
         // ---------[ AUTOMATED UPDATING ]---------
@@ -744,7 +744,7 @@ namespace ModIO
 
                 APIClient.GetMod(modId,
                                  cacheModAndDownloadLogo,
-                                 APIClient.IgnoreResponse);
+                                 null);
             }
         }
 

@@ -81,7 +81,6 @@ namespace ModIO
         };
 
         // ---------[ DEFAULT SUCCESS/ERROR FUNCTIONS ]---------
-        public static void IgnoreResponse(object result) {}
         public static void LogError(ErrorInfo errorInfo)
         {
             string errorMessage = errorInfo.method + " REQUEST FAILED";
@@ -387,51 +386,62 @@ namespace ModIO
         {
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
-                ErrorInfo errorInfo = ErrorInfo.GenerateFromWebRequest(webRequest);
-
-                errorCallback(errorInfo);
-
                 #if DEBUG
-                if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                   && errorCallback != APIClient.LogError)
-                {
-                    APIClient.LogError(errorInfo);
-                }
+                    ErrorInfo errorInfo = ErrorInfo.GenerateFromWebRequest(webRequest);
+
+                    if(GlobalSettings.LOG_ALL_WEBREQUESTS
+                       && errorCallback != APIClient.LogError)
+                    {
+                        APIClient.LogError(errorInfo);
+                    }
+
+                    if(errorCallback != null)
+                    {
+                        errorCallback(errorInfo);
+                    }
+                #else
+                    if(errorCallback != null)
+                    {
+                        errorCallback(ErrorInfo.GenerateFromWebRequest(webRequest));
+                    }
                 #endif
-
-                return;
-            }
-
-            #if DEBUG
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
-            {
-                Debug.Log(webRequest.method.ToUpper() + " REQUEST SUCEEDED"
-                          + "\nURL: " + webRequest.url
-                          + "\nResponse: " + webRequest.downloadHandler.text
-                          + "\n");
-            }
-            #endif
-
-            // TODO(@jackson): Handle as a T == null?
-            if(webRequest.responseCode == 204)
-            {
-                if(typeof(T) == typeof(API.MessageObject))
-                {
-                    API.MessageObject response = new API.MessageObject();
-                    response.code = 204;
-                    response.message = "Succeeded";
-                    successCallback((T)(object)response);
-                }
-                else
-                {
-                    successCallback(default(T));
-                }
             }
             else
             {
-                // TODO(@jackson): Add error handling (where FromJson fails)
-                T response = JsonUtility.FromJson<T>(webRequest.downloadHandler.text);
-                successCallback(response);
+                #if DEBUG
+                if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+                {
+                    Debug.Log(webRequest.method.ToUpper() + " REQUEST SUCEEDED"
+                              + "\nURL: " + webRequest.url
+                              + "\nResponse: " + webRequest.downloadHandler.text
+                              + "\n");
+                }
+                #endif
+
+                if(successCallback != null)
+                {
+                    // TODO(@jackson): Handle as a T == null?
+                    if(webRequest.responseCode == 204)
+                    {
+                        if(typeof(T) == typeof(API.MessageObject))
+                        {
+                            API.MessageObject response = new API.MessageObject();
+                            response.code = 204;
+                            response.message = "Succeeded";
+                            successCallback((T)(object)response);
+                        }
+                        else
+                        {
+                            successCallback(default(T));
+                        }
+                    }
+                    else
+                    {
+                        // TODO(@jackson): Add error handling (where FromJson fails)
+                        T response = JsonUtility.FromJson<T>(webRequest.downloadHandler.text);
+                        successCallback(response);
+                    }
+                }
             }
         }
 
@@ -441,9 +451,12 @@ namespace ModIO
         where T_APIObj : struct
         where T : IAPIObjectWrapper<T_APIObj>, new()
         {
-            T wrapperObject = new T();
-            wrapperObject.WrapAPIObject(apiObject);
-            successCallback(wrapperObject);
+            if(successCallback != null)
+            {
+                T wrapperObject = new T();
+                wrapperObject.WrapAPIObject(apiObject);
+                successCallback(wrapperObject);
+            }
         }
 
         private static void OnSuccessWrapper<T_APIObj, T>(API.ObjectArray<T_APIObj> apiObjectArray,
@@ -451,18 +464,21 @@ namespace ModIO
         where T_APIObj : struct
         where T : IAPIObjectWrapper<T_APIObj>, new()
         {
-            T[] wrapperObjectArray = new T[apiObjectArray.data.Length];
-            for(int i = 0;
-                i < apiObjectArray.data.Length;
-                ++i)
+            if(successCallback != null)
             {
-                T newObject = new T();
-                newObject.WrapAPIObject(apiObjectArray.data[i]);
-                
-                wrapperObjectArray[i] = newObject;
-            }
+                T[] wrapperObjectArray = new T[apiObjectArray.data.Length];
+                for(int i = 0;
+                    i < apiObjectArray.data.Length;
+                    ++i)
+                {
+                    T newObject = new T();
+                    newObject.WrapAPIObject(apiObjectArray.data[i]);
+                    
+                    wrapperObjectArray[i] = newObject;
+                }
 
-            successCallback(wrapperObjectArray);
+                successCallback(wrapperObjectArray);
+            }
         }
 
 
