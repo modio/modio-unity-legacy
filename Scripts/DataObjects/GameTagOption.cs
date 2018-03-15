@@ -139,17 +139,17 @@ namespace ModIO
         }
 
         // --- ACCESSORS ---
-        public StringValueField[] GetValueFields()
+        public API.StringValueField[] GetValueFields()
         {
-            List<StringValueField> retVal = new List<StringValueField>();
+            List<API.StringValueField> retVal = new List<API.StringValueField>();
 
-            retVal.Add(StringValueField.Create("name", name));
-            retVal.Add(StringValueField.Create("type", _data.type));
-            retVal.Add(StringValueField.Create("hidden", (isHidden ? "1" : "0")));
+            retVal.Add(API.StringValueField.Create("name", name));
+            retVal.Add(API.StringValueField.Create("type", _data.type));
+            retVal.Add(API.StringValueField.Create("hidden", (isHidden ? "1" : "0")));
 
             foreach(string tagName in tagNames)
             {
-                retVal.Add(StringValueField.Create("tags[]", tagName));
+                retVal.Add(API.StringValueField.Create("tags[]", tagName));
             }
 
             return retVal.ToArray();
@@ -162,14 +162,14 @@ namespace ModIO
         public string tagGroup = ""; // [Required] Name of the tag group that you want to delete tags from.
         public string[] tags = new string[0]; // [Required] Array of strings representing the tag options to delete. An empty array will delete the entire group.
 
-        public StringValueField[] GetValueFields()
+        public API.StringValueField[] GetValueFields()
         {
-            List<StringValueField> retVal = new List<StringValueField>(1 + tags.Length);
+            List<API.StringValueField> retVal = new List<API.StringValueField>(1 + tags.Length);
 
-            retVal.Add(StringValueField.Create("name", tagGroup));
+            retVal.Add(API.StringValueField.Create("name", tagGroup));
             foreach(string tag in tags)
             {
-                retVal.Add(StringValueField.Create("tags[]", tag));
+                retVal.Add(API.StringValueField.Create("tags[]", tag));
             }
 
             return retVal.ToArray();

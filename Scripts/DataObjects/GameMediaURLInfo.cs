@@ -15,13 +15,13 @@ namespace ModIO
         public string headerImageFilepath;
 
         // --- ACCESSORS ---
-        public BinaryDataField[] GetDataFields()
+        public API.BinaryDataField[] GetDataFields()
         {
-            List<BinaryDataField> retVal = new List<BinaryDataField>(3);
+            List<API.BinaryDataField> retVal = new List<API.BinaryDataField>(3);
             
             if(System.IO.File.Exists(logoFilepath))
             {
-                BinaryDataField newData = new BinaryDataField();
+                API.BinaryDataField newData = new API.BinaryDataField();
                 newData.key = "logo";
                 newData.contents = System.IO.File.ReadAllBytes(logoFilepath);
                 newData.fileName = System.IO.Path.GetFileName(logoFilepath);
@@ -31,7 +31,7 @@ namespace ModIO
 
             if(System.IO.File.Exists(iconFilepath))
             {
-                BinaryDataField newData = new BinaryDataField();
+                API.BinaryDataField newData = new API.BinaryDataField();
                 newData.key = "icon";
                 newData.contents = System.IO.File.ReadAllBytes(iconFilepath);
                 newData.fileName = System.IO.Path.GetFileName(iconFilepath);
@@ -41,7 +41,7 @@ namespace ModIO
 
             if(System.IO.File.Exists(headerImageFilepath))
             {
-                BinaryDataField newData = new BinaryDataField();
+                API.BinaryDataField newData = new API.BinaryDataField();
                 newData.key = "header";
                 newData.contents = System.IO.File.ReadAllBytes(headerImageFilepath);
                 newData.fileName = System.IO.Path.GetFileName(headerImageFilepath);

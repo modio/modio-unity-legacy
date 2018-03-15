@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using ModIO;
-
 namespace ModIO.API
 {
     public class AddModParameters : PostParameters

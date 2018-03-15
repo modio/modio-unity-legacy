@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using ModIO.API;
 
 namespace ModIO
 {
@@ -77,7 +78,7 @@ namespace ModIO
             }
         }
 
-        private static void OnSuccessWrapper<T_APIObj, T>(API.ObjectArray<T_APIObj> apiObjectArray,
+        private static void OnSuccessWrapper<T_APIObj, T>(ObjectArray<T_APIObj> apiObjectArray,
                                                           Action<T[]> successCallback)
         where T_APIObj : struct
         where T : IAPIObjectWrapper<T_APIObj>, new()
@@ -190,7 +191,7 @@ namespace ModIO
                         }
                     };
 
-                    APIClient.GetAuthenticatedUser(userData.oAuthToken,
+                    Client.GetAuthenticatedUser(userData.oAuthToken,
                                                    null,
                                                    onAuthenticationFail);
                 }
@@ -244,9 +245,9 @@ namespace ModIO
                 }
             };
 
-            APIClient.GetAllMods(GetAllModsFilter.None,
-                                 result => OnSuccessWrapper<API.ModObject, ModInfo>(result, AddModsToCache),
-                                 APIClient.LogError);
+            Client.GetAllMods(GetAllModsFilter.None,
+                                 result => OnSuccessWrapper<ModObject, ModInfo>(result, AddModsToCache),
+                                 Client.LogError);
         }
 
         private static void FetchAndCacheGameInfo()
@@ -257,7 +258,7 @@ namespace ModIO
                 WriteManifestToDisk();
             };
 
-            APIClient.GetGame(result => OnSuccessWrapper(result, cacheGameInfo),
+            Client.GetGame(result => OnSuccessWrapper(result, cacheGameInfo),
                               null);
         }
 
@@ -305,9 +306,9 @@ namespace ModIO
                     manifest.lastUpdateTimeStamp = untilTimeStamp;
                     ProcessModEvents(eventArray);
                 };
-                APIClient.GetAllModEvents(eventFilter,
+                Client.GetAllModEvents(eventFilter,
                                           result => OnSuccessWrapper(result, onModEventsReceived),
-                                          APIClient.LogError);
+                                          Client.LogError);
 
                 // TODO(@jackson): Replace with Event Polling
                 // - Get Subscription Updates -
@@ -316,10 +317,10 @@ namespace ModIO
                     GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
                     subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
 
-                    APIClient.GetUserSubscriptions(userData.oAuthToken,
+                    Client.GetUserSubscriptions(userData.oAuthToken,
                                                    subscriptionFilter,
-                                                   result => OnSuccessWrapper<API.ModObject, ModInfo>(result, UpdateSubscriptions),
-                                                   APIClient.LogError);
+                                                   result => OnSuccessWrapper<ModObject, ModInfo>(result, UpdateSubscriptions),
+                                                   Client.LogError);
                 }
 
                 yield return new WaitForSeconds(SECONDS_BETWEEN_POLLING);
@@ -345,9 +346,9 @@ namespace ModIO
                     }
                 };
 
-                APIClient.GetMod(modEvent.modId,
+                Client.GetMod(modEvent.modId,
                                  result => OnSuccessWrapper(result, onGetMod),
-                                 APIClient.LogError);
+                                 Client.LogError);
             };
             Action<ModEvent> processModUnavailable = (modEvent) =>
             {
@@ -380,9 +381,9 @@ namespace ModIO
                         OnModUpdated(mod.id);
                     }
                 };
-                APIClient.GetMod(modEvent.modId,
+                Client.GetMod(modEvent.modId,
                                  result => OnSuccessWrapper(result, onGetMod),
-                                 APIClient.LogError);
+                                 Client.LogError);
             };
 
 
@@ -407,9 +408,9 @@ namespace ModIO
                         }
                     };
 
-                    APIClient.GetMod(mod.id,
+                    Client.GetMod(mod.id,
                                      result => OnSuccessWrapper(result, onGetMod),
-                                     APIClient.LogError);
+                                     Client.LogError);
 
                     manifest.unresolvedEvents.Remove(modEvent);
                 }
@@ -509,7 +510,7 @@ namespace ModIO
                                                Action<APIMessage> onSuccess,
                                                Action<ErrorInfo> onError)
         {
-            APIClient.RequestSecurityCode(emailAddress,
+            Client.RequestSecurityCode(emailAddress,
                                           result => OnSuccessWrapper(result, onSuccess),
                                           onError);
         }
@@ -518,7 +519,7 @@ namespace ModIO
                                              Action<string> onSuccess,
                                              Action<ErrorInfo> onError)
         {
-            APIClient.RequestOAuthToken(securityCode,
+            Client.RequestOAuthToken(securityCode,
                                         onSuccess,
                                         onError);
         }
@@ -536,13 +537,13 @@ namespace ModIO
 
                 onSuccess(user);
 
-                APIClient.GetUserSubscriptions(userOAuthToken,
+                Client.GetUserSubscriptions(userOAuthToken,
                                                GetUserSubscriptionsFilter.None,
-                                               result => OnSuccessWrapper<API.ModObject, ModInfo>(result, UpdateSubscriptions),
-                                               APIClient.LogError);
+                                               result => OnSuccessWrapper<ModObject, ModInfo>(result, UpdateSubscriptions),
+                                               Client.LogError);
             };
 
-            APIClient.GetAuthenticatedUser(userOAuthToken,
+            Client.GetAuthenticatedUser(userOAuthToken,
                                            result => OnSuccessWrapper(result, onGetUser),
                                            onError);
         }
@@ -566,7 +567,7 @@ namespace ModIO
                                           Action<ModInfo> onSuccess,
                                           Action<ErrorInfo> onError)
         {
-            APIClient.SubscribeToMod(userData.oAuthToken,
+            Client.SubscribeToMod(userData.oAuthToken,
                                      modId,
                                      (message) =>
                                      {
@@ -580,7 +581,7 @@ namespace ModIO
                                               Action<ModInfo> onSuccess,
                                               Action<ErrorInfo> onError)
         {
-            APIClient.UnsubscribeFromMod(userData.oAuthToken,
+            Client.UnsubscribeFromMod(userData.oAuthToken,
                                          modId,
                                          (message) =>
                                          {
@@ -671,7 +672,7 @@ namespace ModIO
                 DownloadManager.AddQueuedDownload(download);
             };
 
-            APIClient.GetModfile(modId, modfileId,
+            Client.GetModfile(modId, modfileId,
                                  result => OnSuccessWrapper(result, queueBinaryDownload),
                                  download.MarkAsFailed);
 
@@ -787,7 +788,7 @@ namespace ModIO
                     }
                 };
 
-                APIClient.GetMod(modId,
+                Client.GetMod(modId,
                                  result => OnSuccessWrapper(result, cacheModAndDownloadLogo),
                                  null);
             }
@@ -877,7 +878,7 @@ namespace ModIO
         public static void RequestTagCategoryMap(Action<GameTagOption[]> onSuccess,
                                                  Action<ErrorInfo> onError)
         {
-            APIClient.GetAllGameTagOptions(result => OnSuccessWrapper(result, onSuccess),
+            Client.GetAllGameTagOptions(result => OnSuccessWrapper(result, onSuccess),
                                            onError);
         }
 
@@ -912,7 +913,7 @@ namespace ModIO
             {
                 List<Action> submissionActions = new List<Action>();
                 int nextActionIndex = 0;
-                Action<API.MessageObject> doNextSubmissionAction = (m) =>
+                Action<MessageObject> doNextSubmissionAction = (m) =>
                 {
                     if(nextActionIndex < submissionActions.Count)
                     {
@@ -926,7 +927,7 @@ namespace ModIO
                     {
                         Debug.Log("Submitting Mod Tags");
 
-                        APIClient.AddModTags(userData.oAuthToken,
+                        Client.AddModTags(userData.oAuthToken,
                                              modInfo.id, modInfo.GetAddedTags(),
                                              doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -938,7 +939,7 @@ namespace ModIO
                     {
                         Debug.Log("Submitting Mod Info");
 
-                        APIClient.EditMod(userData.oAuthToken,
+                        Client.EditMod(userData.oAuthToken,
                                           modInfo,
                                           result => OnSuccessWrapper(result, modSubmissionSucceeded),
                                           modSubmissionFailed);
@@ -949,7 +950,7 @@ namespace ModIO
                 {
                     submissionActions.Add(() =>
                     {
-                        APIClient.GetMod(modInfo.id,
+                        Client.GetMod(modInfo.id,
                                          result => OnSuccessWrapper(result, modSubmissionSucceeded),
                                          modSubmissionFailed);
                     });
@@ -964,12 +965,12 @@ namespace ModIO
                 }
 
                 // - Start submission chain -
-                doNextSubmissionAction(new API.MessageObject());
+                doNextSubmissionAction(new MessageObject());
             }
             // - Add Mod -
             else
             {
-                APIClient.AddMod(userData.oAuthToken,
+                Client.AddMod(userData.oAuthToken,
                                  modInfo.AsAddModParameters(),
                                  result => OnSuccessWrapper(result, modSubmissionSucceeded),
                                  modSubmissionFailed);
@@ -997,7 +998,7 @@ namespace ModIO
                 };
             }
 
-            APIClient.AddModMedia(userData.oAuthToken, modMedia.modId,
+            Client.AddModMedia(userData.oAuthToken, modMedia.modId,
                                   null, imageGalleryUpload,
                                   modMedia.youtube, modMedia.sketchfab,
                                   result => OnSuccessWrapper(result, onSuccess),
@@ -1011,7 +1012,7 @@ namespace ModIO
             Debug.Assert(modMedia.modId > 0,
                          "Invalid mod id supplied with the mod media changes");
 
-            APIClient.DeleteModMedia(userData.oAuthToken,
+            Client.DeleteModMedia(userData.oAuthToken,
                                      modMedia,
                                      result => OnSuccessWrapper(result, onSuccess),
                                      onError);
@@ -1039,7 +1040,7 @@ namespace ModIO
             string buildFilename = Path.GetFileName(binaryZipLocation);
             byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
 
-            APIClient.AddModfile(userData.oAuthToken,
+            Client.AddModfile(userData.oAuthToken,
                                  profile,
                                  buildFilename, buildZipData,
                                  setPrimary,
@@ -1052,7 +1053,7 @@ namespace ModIO
                                         Action<APIMessage> onSuccess,
                                         Action<ErrorInfo> onError)
         {
-            APIClient.AddGameMedia(userData.oAuthToken,
+            Client.AddGameMedia(userData.oAuthToken,
                                    gameMedia,
                                    result => OnSuccessWrapper(result, onSuccess),
                                    onError);
@@ -1062,7 +1063,7 @@ namespace ModIO
                                             Action<APIMessage> onSuccess,
                                             Action<ErrorInfo> onError)
         {
-            APIClient.AddGameTagOption(userData.oAuthToken,
+            Client.AddGameTagOption(userData.oAuthToken,
                                        tagOption,
                                        result => OnSuccessWrapper(result, onSuccess),
                                        onError);
@@ -1072,7 +1073,7 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<ErrorInfo> onError)
         {
-            APIClient.AddModRating(userData.oAuthToken,
+            Client.AddModRating(userData.oAuthToken,
                                    modId, 1,
                                    result => OnSuccessWrapper(result, onSuccess),
                                    onError);
@@ -1082,7 +1083,7 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<ErrorInfo> onError)
         {
-            APIClient.AddModKVPMetadata(userData.oAuthToken,
+            Client.AddModKVPMetadata(userData.oAuthToken,
                                         modId, metadataKVPs,
                                         result => OnSuccessWrapper(result, onSuccess),
                                         onError);
@@ -1092,7 +1093,7 @@ namespace ModIO
                                             Action<APIMessage> onSuccess,
                                             Action<ErrorInfo> onError)
         {
-            APIClient.AddModTeamMember(userData.oAuthToken,
+            Client.AddModTeamMember(userData.oAuthToken,
                                        modId, teamMember,
                                        result => OnSuccessWrapper(result, onSuccess),
                                        onError);
@@ -1102,7 +1103,7 @@ namespace ModIO
                                      Action<APIMessage> onSuccess,
                                      Action<ErrorInfo> onError)
         {
-            APIClient.DeleteMod(userData.oAuthToken,
+            Client.DeleteMod(userData.oAuthToken,
                                 modId,
                                 result => OnSuccessWrapper(result, onSuccess),
                                 onError);
@@ -1112,7 +1113,7 @@ namespace ModIO
                                          Action<APIMessage> onSuccess,
                                          Action<ErrorInfo> onError)
         {
-            APIClient.DeleteModTags(userData.oAuthToken,
+            Client.DeleteModTags(userData.oAuthToken,
                                     modId, tagsToDelete,
                                     result => OnSuccessWrapper(result, onSuccess),
                                     onError);
@@ -1122,7 +1123,7 @@ namespace ModIO
                                                  Action<APIMessage> onSuccess,
                                                  Action<ErrorInfo> onError)
         {
-            APIClient.DeleteModDependencies(userData.oAuthToken,
+            Client.DeleteModDependencies(userData.oAuthToken,
                                             modId, modIdsToRemove,
                                             result => OnSuccessWrapper(result, onSuccess),
                                             onError);
@@ -1132,7 +1133,7 @@ namespace ModIO
                                               Action<APIMessage> onSuccess,
                                               Action<ErrorInfo> onError)
         {
-            APIClient.AddModDependencies(userData.oAuthToken,
+            Client.AddModDependencies(userData.oAuthToken,
                                          modId, modIdsToRemove,
                                          result => OnSuccessWrapper(result, onSuccess),
                                          onError);
@@ -1142,7 +1143,7 @@ namespace ModIO
                                                 Action<APIMessage> onSuccess,
                                                 Action<ErrorInfo> onError)
         {
-            APIClient.DeleteModKVPMetadata(userData.oAuthToken,
+            Client.DeleteModKVPMetadata(userData.oAuthToken,
                                            modId, metadataKVPs,
                                            result => OnSuccessWrapper(result, onSuccess),
                                            onError);
@@ -1152,7 +1153,7 @@ namespace ModIO
                                                Action<APIMessage> onSuccess,
                                                Action<ErrorInfo> onError)
         {
-            APIClient.DeleteModTeamMember(userData.oAuthToken,
+            Client.DeleteModTeamMember(userData.oAuthToken,
                                           modId, teamMemberId,
                                           result => OnSuccessWrapper(result, onSuccess),
                                           onError);
@@ -1162,7 +1163,7 @@ namespace ModIO
                                             Action<APIMessage> onSuccess,
                                             Action<ErrorInfo> onError)
         {
-            APIClient.DeleteModComment(userData.oAuthToken,
+            Client.DeleteModComment(userData.oAuthToken,
                                        modId, commentId,
                                        result => OnSuccessWrapper(result, onSuccess),
                                        onError);
@@ -1172,7 +1173,7 @@ namespace ModIO
                                                 Action<TeamMember[]> onSuccess,
                                                 Action<ErrorInfo> onError)
         {
-            APIClient.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
+            Client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
                                            result => OnSuccessWrapper(result, onSuccess),
                                            onError);
         }
@@ -1181,7 +1182,7 @@ namespace ModIO
                                                Action<APIMessage> onSuccess,
                                                Action<ErrorInfo> onError)
         {
-            APIClient.DeleteGameTagOption(userData.oAuthToken,
+            Client.DeleteGameTagOption(userData.oAuthToken,
                                           gameTagOption,
                                           result => OnSuccessWrapper(result, onSuccess),
                                           onError);

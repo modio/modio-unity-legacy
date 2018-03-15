@@ -86,7 +86,7 @@ namespace ModIO
                 OnFinalize_Failed(webRequest.downloadHandler, error);
                 
                 #if LOG_DOWNLOADS
-                APIClient.LogError(error);
+                API.Client.LogError(error);
                 #endif
 
                 status = Status.Error;
