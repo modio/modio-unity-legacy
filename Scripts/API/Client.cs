@@ -698,16 +698,15 @@ namespace ModIO.API
         // ---------[ MEDIA ENDPOINTS ]---------
         // Add GameInfo Media
         public static void AddGameMedia(string oAuthToken,
-                                        UnsubmittedGameMedia gameMedia,
+                                        AddGameMediaParameters parameters,
                                         Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/media";
-            BinaryDataParameter[] dataFields = gameMedia.GetDataFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                null,
-                                                                                dataFields);
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
             
 
             Client.SendRequest(webRequest, successCallback, errorCallback);

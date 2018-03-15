@@ -51,5 +51,12 @@ namespace ModIO
 
             return retVal.ToArray();
         }
+
+        public API.AddGameMediaParameters AsAddGameMediaParameters()
+        {
+            var retVal = new API.AddGameMediaParameters();
+            retVal.binaryData = new List<API.BinaryDataParameter>(this.GetDataFields());
+            return retVal;
+        }
     }
 }

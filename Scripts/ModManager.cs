@@ -1057,9 +1057,9 @@ namespace ModIO
                                         Action<ErrorInfo> onError)
         {
             Client.AddGameMedia(userData.oAuthToken,
-                                   gameMedia,
-                                   result => OnSuccessWrapper(result, onSuccess),
-                                   onError);
+                                gameMedia.AsAddGameMediaParameters(),
+                                result => OnSuccessWrapper(result, onSuccess),
+                                onError);
         }
 
         public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
