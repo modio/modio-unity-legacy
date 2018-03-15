@@ -713,52 +713,14 @@ namespace ModIO.API
         }
         // Add Mod Media
         public static void AddModMedia(string oAuthToken, int modId,
-                                       BinaryUpload logo, BinaryUpload imageGalleryZip,
-                                       string[] youtubeLinks, string[] sketchfabLinks,
+                                       AddModMediaParameters parameters,
                                        Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
-
-            // - String Values -
-            List<StringValueParameter> valueFields = new List<StringValueParameter>(youtubeLinks.Length + sketchfabLinks.Length);
-            foreach(string youtube in youtubeLinks)
-            {
-                valueFields.Add(StringValueParameter.Create("youtube[]", youtube));
-            }
-            foreach(string sketchfab in sketchfabLinks)
-            {
-                valueFields.Add(StringValueParameter.Create("sketchfab[]", sketchfab));
-            }
-
-            // - Data Values -
-            List<BinaryDataParameter> dataFields = new List<BinaryDataParameter>(2);
-            if(logo != null)
-            {
-                BinaryDataParameter logoField = new BinaryDataParameter()
-                {
-                    key = "logo",
-                    contents = logo.data,
-                    fileName = logo.fileName
-                };
-                dataFields.Add(logoField);
-            }
-            if(imageGalleryZip != null)
-            {
-                BinaryDataParameter logoField = new BinaryDataParameter()
-                {
-                    key = "images",
-                    contents = imageGalleryZip.data,
-                    fileName = "images.zip"
-                };
-                dataFields.Add(logoField);
-            }
-
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                          oAuthToken,
-                                                                                          valueFields.ToArray(),
-                                                                                          dataFields.ToArray());
-            
-
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Delete Mod Media

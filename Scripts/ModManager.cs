@@ -998,11 +998,15 @@ namespace ModIO
                 };
             }
 
+            var parameters = new AddModMediaParameters();
+            parameters.youtube = modMedia.youtube;
+            parameters.sketchfab = modMedia.sketchfab;
+            parameters.images = imageGalleryUpload;
+
             Client.AddModMedia(userData.oAuthToken, modMedia.modId,
-                                  null, imageGalleryUpload,
-                                  modMedia.youtube, modMedia.sketchfab,
-                                  result => OnSuccessWrapper(result, onSuccess),
-                                  onError);
+                               parameters,
+                               result => OnSuccessWrapper(result, onSuccess),
+                               onError);
         }
 
         public static void DeleteModMedia(ModMediaChanges modMedia,
