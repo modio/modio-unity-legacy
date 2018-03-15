@@ -298,79 +298,79 @@ namespace ModIO
             return isDirty;
         }
 
-        public StringValueField[] GetEditValueFields()
+        public StringValueParameter[] GetEditValueFields()
         {
-            List<StringValueField> retVal = new List<StringValueField>();
+            List<StringValueParameter> retVal = new List<StringValueParameter>();
 
             if(_initialData.status != _data.status)
             {
-                retVal.Add(StringValueField.Create("status", _data.status.ToString()));
+                retVal.Add(StringValueParameter.Create("status", _data.status.ToString()));
             }
             if(_initialData.visible != _data.visible)
             {
-                retVal.Add(StringValueField.Create("visible", _data.visible.ToString()));
+                retVal.Add(StringValueParameter.Create("visible", _data.visible.ToString()));
             }
             if(_initialData.name != _data.name)
             {
-                retVal.Add(StringValueField.Create("name", _data.name));
+                retVal.Add(StringValueParameter.Create("name", _data.name));
             }
             if(_initialData.name_id != _data.name_id)
             {
-                retVal.Add(StringValueField.Create("name_id", _data.name_id));
+                retVal.Add(StringValueParameter.Create("name_id", _data.name_id));
             }
             if(_initialData.summary != _data.summary)
             {
-                retVal.Add(StringValueField.Create("summary", _data.summary));
+                retVal.Add(StringValueParameter.Create("summary", _data.summary));
             }
             if(_initialData.description != _data.description)
             {
-                retVal.Add(StringValueField.Create("description", _data.description));
+                retVal.Add(StringValueParameter.Create("description", _data.description));
             }
             if(_initialData.homepage != _data.homepage)
             {
-                retVal.Add(StringValueField.Create("homepage", _data.homepage));
+                retVal.Add(StringValueParameter.Create("homepage", _data.homepage));
             }
             if(_initialData.stock != _data.stock)
             {
-                retVal.Add(StringValueField.Create("stock", _data.stock.ToString()));
+                retVal.Add(StringValueParameter.Create("stock", _data.stock.ToString()));
             }
             if(_initialData.metadata_blob != _data.metadata_blob)
             {
-                retVal.Add(StringValueField.Create("metadata_blob", _data.metadata_blob));
+                retVal.Add(StringValueParameter.Create("metadata_blob", _data.metadata_blob));
             }
 
             return retVal.ToArray();
         }
 
-        public StringValueField[] GetAddValueFields()
+        public StringValueParameter[] GetAddValueFields()
         {
-            List<StringValueField> retVal = new List<StringValueField>(8 + tags.Length);
+            List<StringValueParameter> retVal = new List<StringValueParameter>(8 + tags.Length);
 
-            retVal.Add(StringValueField.Create("visible", _data.visible));
-            retVal.Add(StringValueField.Create("name", _data.name));
-            retVal.Add(StringValueField.Create("name_id", _data.name_id));
-            retVal.Add(StringValueField.Create("summary", _data.summary));
-            retVal.Add(StringValueField.Create("description", _data.description));
-            retVal.Add(StringValueField.Create("homepage", _data.homepage));
-            retVal.Add(StringValueField.Create("stock", _data.stock));
-            retVal.Add(StringValueField.Create("metadata_blob", _data.metadata_blob));
+            retVal.Add(StringValueParameter.Create("visible", _data.visible));
+            retVal.Add(StringValueParameter.Create("name", _data.name));
+            retVal.Add(StringValueParameter.Create("name_id", _data.name_id));
+            retVal.Add(StringValueParameter.Create("summary", _data.summary));
+            retVal.Add(StringValueParameter.Create("description", _data.description));
+            retVal.Add(StringValueParameter.Create("homepage", _data.homepage));
+            retVal.Add(StringValueParameter.Create("stock", _data.stock));
+            retVal.Add(StringValueParameter.Create("metadata_blob", _data.metadata_blob));
 
             string[] tagNames = this.GetTagNames();
             foreach(string tagName in tagNames)
             {
-                retVal.Add(StringValueField.Create("tags[]", tagName));
+                retVal.Add(StringValueParameter.Create("tags[]", tagName));
             }
 
             return retVal.ToArray();
         }
 
-        public BinaryDataField[] GetAddDataFields()
+        public BinaryDataParameter[] GetAddDataFields()
         {
-            List<BinaryDataField> retVal = new List<BinaryDataField>(1);
+            List<BinaryDataParameter> retVal = new List<BinaryDataParameter>(1);
 
             if(System.IO.File.Exists(logoFilepath))
             {
-                BinaryDataField newData = new BinaryDataField();
+                BinaryDataParameter newData = new BinaryDataParameter();
                 newData.key = "logo";
                 newData.contents = System.IO.File.ReadAllBytes(logoFilepath);
                 newData.fileName = System.IO.Path.GetFileName(logoFilepath);
@@ -466,8 +466,8 @@ namespace ModIO
         public AddModParameters AsAddModParameters()
         {
             AddModParameters retVal = new AddModParameters();
-            retVal.valueFields = new List<StringValueField>(GetAddValueFields());
-            retVal.dataFields = new List<BinaryDataField>(GetAddDataFields());
+            retVal.stringValues = new List<StringValueParameter>(GetAddValueFields());
+            retVal.binaryData = new List<BinaryDataParameter>(GetAddDataFields());
             return retVal;
         }
     }

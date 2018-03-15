@@ -12,18 +12,18 @@ namespace ModIO.API
         public byte[] data = null;
     }
 
-    public class BinaryDataField
+    public class BinaryDataParameter
     {
         public string key = "";
         public string fileName = null;
         public string mimeType = null;
         public byte[] contents = null;
 
-        public static BinaryDataField Create(string key, string fileName, string mimeType, byte[] contents)
+        public static BinaryDataParameter Create(string key, string fileName, string mimeType, byte[] contents)
         {
             Debug.Assert(!String.IsNullOrEmpty(key) && contents != null);
 
-            BinaryDataField retVal = new BinaryDataField();
+            BinaryDataParameter retVal = new BinaryDataParameter();
             retVal.key = key;
             retVal.fileName = fileName;
             retVal.mimeType = mimeType;
@@ -32,16 +32,16 @@ namespace ModIO.API
         }
     }
 
-    public class StringValueField
+    public class StringValueParameter
     {
         public string key = "";
         public string value = "";
 
-        public static StringValueField Create(string k, object v)
+        public static StringValueParameter Create(string k, object v)
         {
             Debug.Assert(!String.IsNullOrEmpty(k) && v != null);
 
-            StringValueField retVal = new StringValueField();
+            StringValueParameter retVal = new StringValueParameter();
             retVal.key = k;
             retVal.value = v.ToString();
             return retVal;
@@ -175,12 +175,12 @@ namespace ModIO.API
 
         public static UnityWebRequest GeneratePutRequest<T>(string endpointURL,
                                                             string oAuthToken,
-                                                            StringValueField[] valueFields)
+                                                            StringValueParameter[] valueFields)
         {
             WWWForm form = new WWWForm();
             if(valueFields != null)
             {
-                foreach(StringValueField valueField in valueFields)
+                foreach(StringValueParameter valueField in valueFields)
                 {
                     form.AddField(valueField.key, valueField.value);
                 }
@@ -216,7 +216,7 @@ namespace ModIO.API
                 }
 
                 string formFields = "";
-                foreach(StringValueField svf in valueFields)
+                foreach(StringValueParameter svf in valueFields)
                 {
                     formFields += "\n" + svf.key + "=" + svf.value;
                 }
@@ -235,20 +235,20 @@ namespace ModIO.API
 
         public static UnityWebRequest GeneratePostRequest<T>(string endpointURL,
                                                              string oAuthToken,
-                                                             StringValueField[] valueFields,
-                                                             BinaryDataField[] dataFields)
+                                                             StringValueParameter[] valueFields,
+                                                             BinaryDataParameter[] dataFields)
         {
             WWWForm form = new WWWForm();
             if(valueFields != null)
             {
-                foreach(StringValueField valueField in valueFields)
+                foreach(StringValueParameter valueField in valueFields)
                 {
                     form.AddField(valueField.key, valueField.value);
                 }
             }
             if(dataFields != null)
             {
-                foreach(BinaryDataField dataField in dataFields)
+                foreach(BinaryDataParameter dataField in dataFields)
                 {
                     form.AddBinaryData(dataField.key, dataField.contents, dataField.fileName, dataField.mimeType);
                 }
@@ -286,7 +286,7 @@ namespace ModIO.API
                 string formFields = "";
                 if(valueFields != null)
                 {
-                    foreach(StringValueField valueField in valueFields)
+                    foreach(StringValueParameter valueField in valueFields)
                     {
                         formFields += "\n" + valueField.key + "=" + valueField.value;
                     }
@@ -294,7 +294,7 @@ namespace ModIO.API
                 }
                 if(dataFields != null)
                 {
-                    foreach(BinaryDataField dataField in dataFields)
+                    foreach(BinaryDataParameter dataField in dataFields)
                     {
                         formFields += "\n" + dataField.key + "= [BINARY DATA]: "
                                     + dataField.fileName + "("
@@ -316,12 +316,12 @@ namespace ModIO.API
 
         public static UnityWebRequest GenerateDeleteRequest<T>(string endpointURL,
                                                                string oAuthToken,
-                                                               StringValueField[] valueFields)
+                                                               StringValueParameter[] valueFields)
         {
             WWWForm form = new WWWForm();
             if(valueFields != null)
             {
-                foreach(StringValueField valueField in valueFields)
+                foreach(StringValueParameter valueField in valueFields)
                 {
                     form.AddField(valueField.key, valueField.value);
                 }
@@ -357,7 +357,7 @@ namespace ModIO.API
                 }
 
                 string formFields = "";
-                foreach(StringValueField kvp in valueFields)
+                foreach(StringValueParameter kvp in valueFields)
                 {
                     formFields += "\n" + kvp.key + "=" + kvp.value;
                 }
@@ -467,10 +467,10 @@ namespace ModIO.API
                          "Please save your game's API Key into GlobalSettings.cs before using this plugin");
 
             string endpointURL = API_URL + "oauth/emailrequest";
-            StringValueField[] valueFields = new StringValueField[]
+            StringValueParameter[] valueFields = new StringValueParameter[]
             {
-                StringValueField.Create("api_key", GlobalSettings.GAME_APIKEY),
-                StringValueField.Create("email", emailAddress),
+                StringValueParameter.Create("api_key", GlobalSettings.GAME_APIKEY),
+                StringValueParameter.Create("email", emailAddress),
             };
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL, "",
@@ -489,10 +489,10 @@ namespace ModIO.API
                          "Please save your game's API Key into GlobalSettings.cs before using this plugin");
 
             string endpointURL = API_URL + "oauth/emailexchange";
-            StringValueField[] valueFields = new StringValueField[]
+            StringValueParameter[] valueFields = new StringValueParameter[]
             {
-                StringValueField.Create("api_key", GlobalSettings.GAME_APIKEY),
-                StringValueField.Create("security_code", securityCode),
+                StringValueParameter.Create("api_key", GlobalSettings.GAME_APIKEY),
+                StringValueParameter.Create("security_code", securityCode),
             };
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<AccessTokenObject>(endpointURL,
@@ -538,7 +538,7 @@ namespace ModIO.API
                                     Action<API.GameObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + gameInfo.id;
-            StringValueField[] valueFields = gameInfo.GetValueFields();
+            StringValueParameter[] valueFields = gameInfo.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
                                                                                                oAuthToken,
@@ -581,8 +581,8 @@ namespace ModIO.API
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<ModObject>(endpointURL,
                                                                                   oAuthToken,
-                                                                                  parameters.valueFields.ToArray(),
-                                                                                  parameters.dataFields.ToArray());
+                                                                                  parameters.stringValues.ToArray(),
+                                                                                  parameters.binaryData.ToArray());
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Edit Mod
@@ -591,7 +591,7 @@ namespace ModIO.API
                                    Action<ModObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + modInfo.gameId + "/mods/" + modInfo.id;
-            StringValueField[] valueFields = modInfo.GetEditValueFields();
+            StringValueParameter[] valueFields = modInfo.GetEditValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
                                                                                                oAuthToken,
@@ -654,29 +654,29 @@ namespace ModIO.API
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + profile.modId + "/files";
             
             // - String Values -
-            List<StringValueField> valueFields = new List<StringValueField>(5);
+            List<StringValueParameter> valueFields = new List<StringValueParameter>(5);
             if(!String.IsNullOrEmpty(profile.version))
             {
-                valueFields.Add(StringValueField.Create("version", profile.version));
+                valueFields.Add(StringValueParameter.Create("version", profile.version));
             }
             if(!String.IsNullOrEmpty(profile.changelog))
             {
-                valueFields.Add(StringValueField.Create("changelog", profile.changelog));
+                valueFields.Add(StringValueParameter.Create("changelog", profile.changelog));
             }
             if(!String.IsNullOrEmpty(profile.metadataBlob))
             {
-                valueFields.Add(StringValueField.Create("metadata_blob", profile.metadataBlob));
+                valueFields.Add(StringValueParameter.Create("metadata_blob", profile.metadataBlob));
             }
-            valueFields.Add(StringValueField.Create("active", setPrimary.ToString().ToLower()));
-            valueFields.Add(StringValueField.Create("filehash", Utility.GetMD5ForData(buildZipData)));
+            valueFields.Add(StringValueParameter.Create("active", setPrimary.ToString().ToLower()));
+            valueFields.Add(StringValueParameter.Create("filehash", Utility.GetMD5ForData(buildZipData)));
 
             // - Data Values -
-            BinaryDataField dataField = new BinaryDataField();
+            BinaryDataParameter dataField = new BinaryDataParameter();
             dataField.key = "filedata";
             dataField.fileName = buildFilename;
             dataField.contents = buildZipData;
 
-            BinaryDataField[] dataFields = new BinaryDataField[] { dataField };
+            BinaryDataParameter[] dataFields = new BinaryDataParameter[] { dataField };
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<ModfileObject>(endpointURL,
                                                                                           oAuthToken,
@@ -694,20 +694,20 @@ namespace ModIO.API
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + profile.modId + "/files/" + profile.modfileId;
             
             // - String Values -
-            List<StringValueField> valueFields = new List<StringValueField>(4);
+            List<StringValueParameter> valueFields = new List<StringValueParameter>(4);
             if(!String.IsNullOrEmpty(profile.version))
             {
-                valueFields.Add(StringValueField.Create("version", profile.version));
+                valueFields.Add(StringValueParameter.Create("version", profile.version));
             }
             if(!String.IsNullOrEmpty(profile.changelog))
             {
-                valueFields.Add(StringValueField.Create("changelog", profile.changelog));
+                valueFields.Add(StringValueParameter.Create("changelog", profile.changelog));
             }
             if(!String.IsNullOrEmpty(profile.metadataBlob))
             {
-                valueFields.Add(StringValueField.Create("metadata_blob", profile.metadataBlob));
+                valueFields.Add(StringValueParameter.Create("metadata_blob", profile.metadataBlob));
             }
-            valueFields.Add(StringValueField.Create("active", setPrimary.ToString().ToLower()));
+            valueFields.Add(StringValueParameter.Create("active", setPrimary.ToString().ToLower()));
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
                                                                                          oAuthToken,
@@ -725,7 +725,7 @@ namespace ModIO.API
                                         Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/media";
-            BinaryDataField[] dataFields = gameMedia.GetDataFields();
+            BinaryDataParameter[] dataFields = gameMedia.GetDataFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
                                                                                 oAuthToken,
@@ -744,21 +744,21 @@ namespace ModIO.API
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
 
             // - String Values -
-            List<StringValueField> valueFields = new List<StringValueField>(youtubeLinks.Length + sketchfabLinks.Length);
+            List<StringValueParameter> valueFields = new List<StringValueParameter>(youtubeLinks.Length + sketchfabLinks.Length);
             foreach(string youtube in youtubeLinks)
             {
-                valueFields.Add(StringValueField.Create("youtube[]", youtube));
+                valueFields.Add(StringValueParameter.Create("youtube[]", youtube));
             }
             foreach(string sketchfab in sketchfabLinks)
             {
-                valueFields.Add(StringValueField.Create("sketchfab[]", sketchfab));
+                valueFields.Add(StringValueParameter.Create("sketchfab[]", sketchfab));
             }
 
             // - Data Values -
-            List<BinaryDataField> dataFields = new List<BinaryDataField>(2);
+            List<BinaryDataParameter> dataFields = new List<BinaryDataParameter>(2);
             if(logo != null)
             {
-                BinaryDataField logoField = new BinaryDataField()
+                BinaryDataParameter logoField = new BinaryDataParameter()
                 {
                     key = "logo",
                     contents = logo.data,
@@ -768,7 +768,7 @@ namespace ModIO.API
             }
             if(imageGalleryZip != null)
             {
-                BinaryDataField logoField = new BinaryDataField()
+                BinaryDataParameter logoField = new BinaryDataParameter()
                 {
                     key = "images",
                     contents = imageGalleryZip.data,
@@ -793,20 +793,20 @@ namespace ModIO.API
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modMediaToDelete.modId + "/media";
             
             // - String Values -
-            List<StringValueField> valueFields = new List<StringValueField>(modMediaToDelete.images.Length
+            List<StringValueParameter> valueFields = new List<StringValueParameter>(modMediaToDelete.images.Length
                                                                             + modMediaToDelete.youtube.Length
                                                                             + modMediaToDelete.sketchfab.Length);
             foreach(string image in modMediaToDelete.images)
             {
-                valueFields.Add(StringValueField.Create("images[]", image));
+                valueFields.Add(StringValueParameter.Create("images[]", image));
             }
             foreach(string youtubeLink in modMediaToDelete.youtube)
             {
-                valueFields.Add(StringValueField.Create("youtube[]", youtubeLink));
+                valueFields.Add(StringValueParameter.Create("youtube[]", youtubeLink));
             }
             foreach(string sketchfabLink in modMediaToDelete.sketchfab)
             {
-                valueFields.Add(StringValueField.Create("sketchfab[]", sketchfabLink));
+                valueFields.Add(StringValueParameter.Create("sketchfab[]", sketchfabLink));
             }
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
@@ -888,7 +888,7 @@ namespace ModIO.API
                                             Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
-            StringValueField[] valueFields = tagOption.GetValueFields();
+            StringValueParameter[] valueFields = tagOption.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
                                                                                 oAuthToken,
@@ -905,7 +905,7 @@ namespace ModIO.API
                                                Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
-            StringValueField[] valueFields = gameTagOptionToDelete.GetValueFields();
+            StringValueParameter[] valueFields = gameTagOptionToDelete.GetValueFields();
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
                                                                                                   oAuthToken,
@@ -931,11 +931,11 @@ namespace ModIO.API
                                       Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
-            StringValueField[] valueFields = new StringValueField[tagNames.Length];
+            StringValueParameter[] valueFields = new StringValueParameter[tagNames.Length];
 
             for(int i = 0; i < tagNames.Length; ++i)
             {
-                valueFields[i] = StringValueField.Create("tags[]", tagNames[i]);
+                valueFields[i] = StringValueParameter.Create("tags[]", tagNames[i]);
             }
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
@@ -952,10 +952,10 @@ namespace ModIO.API
                                          Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
-            StringValueField[] valueFields = new StringValueField[tagsToDelete.Length];
+            StringValueParameter[] valueFields = new StringValueParameter[tagsToDelete.Length];
             for(int i = 0; i < tagsToDelete.Length; ++i)
             {
-                valueFields[i] = StringValueField.Create("tags[]", tagsToDelete[i]);
+                valueFields[i] = StringValueParameter.Create("tags[]", tagsToDelete[i]);
             }
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
@@ -974,9 +974,9 @@ namespace ModIO.API
                                         Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/ratings";
-            StringValueField[] valueFields = new StringValueField[]
+            StringValueParameter[] valueFields = new StringValueParameter[]
             {
-                StringValueField.Create("rating", ratingValue),
+                StringValueParameter.Create("rating", ratingValue),
             };
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
@@ -1006,10 +1006,10 @@ namespace ModIO.API
                                              Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
-            StringValueField[] valueFields = new StringValueField[metadataKVPs.Length];
+            StringValueParameter[] valueFields = new StringValueParameter[metadataKVPs.Length];
             for(int i = 0; i < metadataKVPs.Length; ++i)
             {
-                valueFields[i] = StringValueField.Create("metadata[]",
+                valueFields[i] = StringValueParameter.Create("metadata[]",
                                                              metadataKVPs[i].key + ":" + metadataKVPs[i].value);
             }
 
@@ -1027,10 +1027,10 @@ namespace ModIO.API
                                                 Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
-            StringValueField[] valueFields = new StringValueField[metadataKVPsToRemove.Length];
+            StringValueParameter[] valueFields = new StringValueParameter[metadataKVPsToRemove.Length];
             for(int i = 0; i < metadataKVPsToRemove.Length; ++i)
             {
-                valueFields[i] = StringValueField.Create("metadata[]",
+                valueFields[i] = StringValueParameter.Create("metadata[]",
                                                              metadataKVPsToRemove[i].key + ":" + metadataKVPsToRemove[i].value);
             }
 
@@ -1060,10 +1060,10 @@ namespace ModIO.API
                                               Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
-            StringValueField[] valueFields = new StringValueField[requiredModIds.Length];
+            StringValueParameter[] valueFields = new StringValueParameter[requiredModIds.Length];
             for(int i = 0; i < requiredModIds.Length; ++i)
             {
-                valueFields[i] = StringValueField.Create("dependencies[]", requiredModIds[i]);
+                valueFields[i] = StringValueParameter.Create("dependencies[]", requiredModIds[i]);
             }
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
@@ -1080,10 +1080,10 @@ namespace ModIO.API
                                                  Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
-            StringValueField[] valueFields = new StringValueField[modIdsToRemove.Length];
+            StringValueParameter[] valueFields = new StringValueParameter[modIdsToRemove.Length];
             for(int i = 0; i < modIdsToRemove.Length; ++i)
             {
-                valueFields[i] = StringValueField.Create("dependencies[]", modIdsToRemove[i]);
+                valueFields[i] = StringValueParameter.Create("dependencies[]", modIdsToRemove[i]);
             }
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
@@ -1112,7 +1112,7 @@ namespace ModIO.API
                                             Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
-            StringValueField[] valueFields = teamMember.GetValueFields();
+            StringValueParameter[] valueFields = teamMember.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
                                                                                 oAuthToken,
@@ -1129,7 +1129,7 @@ namespace ModIO.API
                                                Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team/" + teamMember.id;
-            StringValueField[] valueFields = teamMember.GetValueFields();
+            StringValueParameter[] valueFields = teamMember.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
                                                                                                oAuthToken,
@@ -1210,10 +1210,10 @@ namespace ModIO.API
                                             Action<UserObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "general/owner";
-            StringValueField[] valueFields = new StringValueField[]
+            StringValueParameter[] valueFields = new StringValueParameter[]
             {
-                StringValueField.Create("resource_type", resourceType.ToString().ToLower()),
-                StringValueField.Create("resource_id", resourceID),
+                StringValueParameter.Create("resource_type", resourceType.ToString().ToLower()),
+                StringValueParameter.Create("resource_id", resourceID),
             };
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<UserObject>(endpointURL,
@@ -1256,7 +1256,7 @@ namespace ModIO.API
                                         Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "report";
-            StringValueField[] valueFields = report.GetValueFields();
+            StringValueParameter[] valueFields = report.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
                                                                                 oAuthToken,

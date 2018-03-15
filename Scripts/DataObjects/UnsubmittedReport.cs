@@ -73,15 +73,15 @@ namespace ModIO
         public string summary;
 
         // --- ACCESSORS ---
-        public StringValueField[] GetValueFields()
+        public StringValueParameter[] GetValueFields()
         {
-            StringValueField[] retVal = new StringValueField[5];
+            StringValueParameter[] retVal = new StringValueParameter[5];
 
-            retVal[0] = StringValueField.Create("resource", GetReportedResourceTypeString(resourceType));
-            retVal[1] = StringValueField.Create("id", resourceId);
-            retVal[2] = StringValueField.Create("dmca", (isDMCA ? "1" : "0"));
-            retVal[3] = StringValueField.Create("name", name);
-            retVal[4] = StringValueField.Create("summary", summary);
+            retVal[0] = StringValueParameter.Create("resource", GetReportedResourceTypeString(resourceType));
+            retVal[1] = StringValueParameter.Create("id", resourceId);
+            retVal[2] = StringValueParameter.Create("dmca", (isDMCA ? "1" : "0"));
+            retVal[3] = StringValueParameter.Create("name", name);
+            retVal[4] = StringValueParameter.Create("summary", summary);
 
             return retVal;
         }

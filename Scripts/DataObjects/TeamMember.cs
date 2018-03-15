@@ -77,11 +77,11 @@ namespace ModIO
         }
 
         // --- ACCESSORS --
-        public StringValueField[] GetValueFields()
+        public StringValueParameter[] GetValueFields()
         {
-            StringValueField[] retVal = new StringValueField[2];
-            retVal[0] = StringValueField.Create("level", _data.level);
-            retVal[1] = StringValueField.Create("position", _data.position);
+            StringValueParameter[] retVal = new StringValueParameter[2];
+            retVal[0] = StringValueParameter.Create("level", _data.level);
+            retVal[1] = StringValueParameter.Create("position", _data.position);
 
             return retVal;
         }
@@ -125,13 +125,13 @@ namespace ModIO
         }
 
         // --- ACCESSORS ---
-        public StringValueField[] GetValueFields()
+        public StringValueParameter[] GetValueFields()
         {
-            List<StringValueField> retVal = new List<StringValueField>();
+            List<StringValueParameter> retVal = new List<StringValueParameter>();
 
-            retVal.Add(StringValueField.Create("email", _data.email));
-            retVal.Add(StringValueField.Create("level", _data.level));
-            retVal.Add(StringValueField.Create("position", _data.position));
+            retVal.Add(StringValueParameter.Create("email", _data.email));
+            retVal.Add(StringValueParameter.Create("level", _data.level));
+            retVal.Add(StringValueParameter.Create("position", _data.position));
 
             return retVal.ToArray();
         }

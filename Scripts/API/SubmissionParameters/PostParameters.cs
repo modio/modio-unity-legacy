@@ -5,11 +5,11 @@ namespace ModIO.API
     public class PostParameters
     {
         // ---------[ STRING VALUE FIELDS ]---------
-        public List<StringValueField> valueFields;
+        public List<StringValueParameter> stringValues;
 
-        protected void SetStringParameter(string key, string value)
+        protected void SetStringValue(string key, string value)
         {
-            foreach(StringValueField valueField in valueFields)
+            foreach(StringValueParameter valueField in stringValues)
             {
                 if(valueField.key == key)
                 {
@@ -18,17 +18,17 @@ namespace ModIO.API
                 }
             }
 
-            valueFields.Add(StringValueField.Create(key, value));
+            stringValues.Add(StringValueParameter.Create(key, value));
         }
 
-        protected void SetStringArrayParameter(string key, string[] valueArray)
+        protected void SetStringArrayValue(string key, string[] valueArray)
         {
             int i = 0;
-            while(i < valueFields.Count)
+            while(i < stringValues.Count)
             {
-                if(valueFields[i].key.Equals(key))
+                if(stringValues[i].key.Equals(key))
                 {
-                    valueFields.RemoveAt(i);
+                    stringValues.RemoveAt(i);
                 }
                 else
                 {
@@ -38,16 +38,16 @@ namespace ModIO.API
 
             foreach(string value in valueArray)
             {
-                valueFields.Add(StringValueField.Create(key, value));
+                stringValues.Add(StringValueParameter.Create(key, value));
             }
         }
 
         // ---------[ BINARY DATA FIELDS ]---------
-        public List<BinaryDataField> dataFields;
+        public List<BinaryDataParameter> binaryData;
 
-        protected void SetBinaryDataParameter(string key, string fileName, byte[] data)
+        protected void SetBinaryData(string key, string fileName, byte[] data)
         {
-            foreach(BinaryDataField dataField in dataFields)
+            foreach(BinaryDataParameter dataField in binaryData)
             {
                 if(dataField.key == key)
                 {
@@ -57,7 +57,7 @@ namespace ModIO.API
                 }
             }
 
-            dataFields.Add(BinaryDataField.Create(key, fileName, null, data));
+            binaryData.Add(BinaryDataParameter.Create(key, fileName, null, data));
         }
     }
 }
