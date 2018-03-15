@@ -462,5 +462,13 @@ namespace ModIO
 
             return changes;
         }
+
+        public AddModParameters AsAddModParameters()
+        {
+            AddModParameters retVal = new AddModParameters();
+            retVal.valueFields = new List<StringValueField>(GetAddValueFields());
+            retVal.dataFields = new List<BinaryDataField>(GetAddDataFields());
+            return retVal;
+        }
     }
 }

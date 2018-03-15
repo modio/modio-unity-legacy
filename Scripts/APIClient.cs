@@ -17,9 +17,21 @@ namespace ModIO
     public class BinaryDataField
     {
         public string key = "";
-        public byte[] contents = null;
         public string fileName = null;
         public string mimeType = null;
+        public byte[] contents = null;
+
+        public static BinaryDataField Create(string key, string fileName, string mimeType, byte[] contents)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(key) && contents != null);
+
+            BinaryDataField retVal = new BinaryDataField();
+            retVal.key = key;
+            retVal.fileName = fileName;
+            retVal.mimeType = mimeType;
+            retVal.contents = contents;
+            return retVal;
+        }
     }
 
     public class StringValueField
@@ -564,19 +576,15 @@ namespace ModIO
         }
         // Add Mod
         public static void AddMod(string oAuthToken,
-                                  EditableModInfo modInfo,
+                                  AddModParameters parameters,
                                   Action<ModObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods";
-            StringValueField[] valueFields = modInfo.GetAddValueFields();
-            BinaryDataField[] dataFields = modInfo.GetAddDataFields();
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest<ModObject>(endpointURL,
-                                                                            oAuthToken,
-                                                                            valueFields,
-                                                                            dataFields);
-            
-
+                                                                                  oAuthToken,
+                                                                                  parameters.valueFields.ToArray(),
+                                                                                  parameters.dataFields.ToArray());
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Edit Mod

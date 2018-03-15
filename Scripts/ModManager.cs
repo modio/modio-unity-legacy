@@ -970,7 +970,7 @@ namespace ModIO
             else
             {
                 APIClient.AddMod(userData.oAuthToken,
-                                 modInfo,
+                                 modInfo.AsAddModParameters(),
                                  result => OnSuccessWrapper(result, modSubmissionSucceeded),
                                  modSubmissionFailed);
             }
