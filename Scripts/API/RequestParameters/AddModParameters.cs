@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-
 namespace ModIO.API
 {
-    public class AddModParameters : PostParameters
+    public class AddModParameters : RequestParameters
     {
         // ---------[ FIELDS ]---------
         // [REQUIRED] Name of your mod.

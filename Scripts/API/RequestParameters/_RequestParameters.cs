@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ModIO.API
 {
-    public class PostParameters
+    public class RequestParameters
     {
         // ---------[ STRING VALUE FIELDS ]---------
         public List<StringValueParameter> stringValues;

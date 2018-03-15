@@ -10,6 +10,14 @@ namespace ModIO.API
     {
         public string fileName = string.Empty;
         public byte[] data = null;
+
+        public static BinaryUpload Create(string fileName, byte[] data)
+        {
+            BinaryUpload retVal = new BinaryUpload();
+            retVal.fileName = fileName;
+            retVal.data = data;
+            return retVal;
+        }
     }
 
     public class BinaryDataParameter
@@ -641,47 +649,16 @@ namespace ModIO.API
         }
         // Add Modfile
         public static void AddModfile(string oAuthToken,
-                                      ModfileProfile profile,
-                                      string buildFilename, byte[] buildZipData,
-                                      bool setPrimary,
+                                      int modId,
+                                      AddModfileParameters parameters,
                                       Action<ModfileObject> successCallback, Action<ErrorInfo> errorCallback)
         {
-            Debug.Assert(profile.modId > 0,
-                         "Cannot upload modfile with unassigned mod");
-            Debug.Assert(System.IO.Path.GetExtension(buildFilename) == ".zip",
-                         "Mod IO only accepts zipped archives as builds");
-
-            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + profile.modId + "/files";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files";
             
-            // - String Values -
-            List<StringValueParameter> valueFields = new List<StringValueParameter>(5);
-            if(!String.IsNullOrEmpty(profile.version))
-            {
-                valueFields.Add(StringValueParameter.Create("version", profile.version));
-            }
-            if(!String.IsNullOrEmpty(profile.changelog))
-            {
-                valueFields.Add(StringValueParameter.Create("changelog", profile.changelog));
-            }
-            if(!String.IsNullOrEmpty(profile.metadataBlob))
-            {
-                valueFields.Add(StringValueParameter.Create("metadata_blob", profile.metadataBlob));
-            }
-            valueFields.Add(StringValueParameter.Create("active", setPrimary.ToString().ToLower()));
-            valueFields.Add(StringValueParameter.Create("filehash", Utility.GetMD5ForData(buildZipData)));
-
-            // - Data Values -
-            BinaryDataParameter dataField = new BinaryDataParameter();
-            dataField.key = "filedata";
-            dataField.fileName = buildFilename;
-            dataField.contents = buildZipData;
-
-            BinaryDataParameter[] dataFields = new BinaryDataParameter[] { dataField };
-
             UnityWebRequest webRequest = Client.GeneratePostRequest<ModfileObject>(endpointURL,
-                                                                                          oAuthToken,
-                                                                                          valueFields.ToArray(),
-                                                                                          dataFields);
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

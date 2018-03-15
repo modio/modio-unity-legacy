@@ -1040,12 +1040,15 @@ namespace ModIO
             string buildFilename = Path.GetFileName(binaryZipLocation);
             byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
 
+            AddModfileParameters amp = profile.AsAddModfileParameters();
+            amp.filedata = BinaryUpload.Create(buildFilename, buildZipData);
+            // TODO(@jackson): amp.filehash
+
             Client.AddModfile(userData.oAuthToken,
-                                 profile,
-                                 buildFilename, buildZipData,
-                                 setPrimary,
-                                 result => OnSuccessWrapper(result, onSuccess),
-                                 onError);
+                              profile.modId,
+                              amp,
+                              result => OnSuccessWrapper(result, onSuccess),
+                              onError);
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
