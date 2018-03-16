@@ -899,21 +899,15 @@ namespace ModIO.API
         // ---------[ RATING ENDPOINTS ]---------
         // Add Mod Rating
         public static void AddModRating(string oAuthToken,
-                                        int modId, int ratingValue,
+                                        int modId, AddModRatingParameters parameters,
                                         Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/ratings";
-            StringValueParameter[] valueFields = new StringValueParameter[]
-            {
-                StringValueParameter.Create("rating", ratingValue),
-            };
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                null);
-            
-
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
 

@@ -1083,9 +1083,9 @@ namespace ModIO
                                              Action<ErrorInfo> onError)
         {
             Client.AddModRating(userData.oAuthToken,
-                                   modId, 1,
-                                   result => OnSuccessWrapper(result, onSuccess),
-                                   onError);
+                                modId, new AddModRatingParameters(1),
+                                result => OnSuccessWrapper(result, onSuccess),
+                                onError);
         }
 
         public static void AddModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
