@@ -135,5 +135,12 @@ namespace ModIO
 
             return retVal.ToArray();
         }
+
+        public AddModTeamMemberParameters AsAddModTeamMemberParameters()
+        {
+            var parameters = new AddModTeamMemberParameters();
+            parameters.stringValues = new List<StringValueParameter>(this.GetValueFields());
+            return parameters;
+        }
     }
 }

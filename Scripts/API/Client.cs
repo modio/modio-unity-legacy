@@ -1016,17 +1016,15 @@ namespace ModIO.API
         }
         // Add Mod Team Member
         public static void AddModTeamMember(string oAuthToken,
-                                            int modId, UnsubmittedTeamMember teamMember,
+                                            int modId, AddModTeamMemberParameters parameters,
                                             Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
-            StringValueParameter[] valueFields = teamMember.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                null);
-            
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

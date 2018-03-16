@@ -1109,9 +1109,9 @@ namespace ModIO
                                             Action<ErrorInfo> onError)
         {
             Client.AddModTeamMember(userData.oAuthToken,
-                                       modId, teamMember,
-                                       result => OnSuccessWrapper(result, onSuccess),
-                                       onError);
+                                    modId, teamMember.AsAddModTeamMemberParameters(),
+                                    result => OnSuccessWrapper(result, onSuccess),
+                                    onError);
         }
 
         public static void DeleteMod(int modId,
