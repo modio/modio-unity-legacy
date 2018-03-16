@@ -154,6 +154,13 @@ namespace ModIO
 
             return retVal.ToArray();
         }
+
+        public API.AddGameTagOptionParameters AsAddGameTagOptionParameters()
+        {
+            var parameters = new API.AddGameTagOptionParameters();
+            parameters.stringValues = new List<API.StringValueParameter>(this.GetValueFields());
+            return parameters;
+        }
     }
 
     public class GameTagOptionToDelete

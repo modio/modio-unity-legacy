@@ -822,18 +822,15 @@ namespace ModIO.API
 
         // Add Game Tag Option
         public static void AddGameTagOption(string oAuthToken,
-                                            UnsubmittedGameTagOption tagOption,
+                                            AddGameTagOptionParameters parameters,
                                             Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
-            StringValueParameter[] valueFields = tagOption.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
                                                                                 oAuthToken,
-                                                                                valueFields,
-                                                                                null);
-            
-
+                                                                                parameters.stringValues.ToArray(),
+                                                                                parameters.binaryData.ToArray());
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
 

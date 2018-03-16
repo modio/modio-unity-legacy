@@ -1071,9 +1071,9 @@ namespace ModIO
                                             Action<ErrorInfo> onError)
         {
             Client.AddGameTagOption(userData.oAuthToken,
-                                       tagOption,
-                                       result => OnSuccessWrapper(result, onSuccess),
-                                       onError);
+                                    tagOption.AsAddGameTagOptionParameters(),
+                                    result => OnSuccessWrapper(result, onSuccess),
+                                    onError);
         }
 
         public static void AddPositiveRating(int modId,
