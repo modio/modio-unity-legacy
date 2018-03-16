@@ -1092,10 +1092,16 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<ErrorInfo> onError)
         {
+            string[] metadataKVPStrings = new string[metadataKVPs.Length];
+            for(int i = 0; i < metadataKVPs.Length; ++i)
+            {
+                metadataKVPStrings[i] = metadataKVPs[i].key + ":" + metadataKVPs[i].value;
+            }
+
             Client.AddModKVPMetadata(userData.oAuthToken,
-                                        modId, metadataKVPs,
-                                        result => OnSuccessWrapper(result, onSuccess),
-                                        onError);
+                                     modId, new AddModKVPMetadataParameters(metadataKVPStrings),
+                                     result => OnSuccessWrapper(result, onSuccess),
+                                     onError);
         }
 
         public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,

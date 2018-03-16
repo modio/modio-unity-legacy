@@ -925,23 +925,14 @@ namespace ModIO.API
         }
         // Add Mod KVP Metadata
         public static void AddModKVPMetadata(string oAuthToken,
-                                             int modId, UnsubmittedMetadataKVP[] metadataKVPs,
+                                             int modId, AddModKVPMetadataParameters parameters,
                                              Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
-            StringValueParameter[] valueFields = new StringValueParameter[metadataKVPs.Length];
-            for(int i = 0; i < metadataKVPs.Length; ++i)
-            {
-                valueFields[i] = StringValueParameter.Create("metadata[]",
-                                                             metadataKVPs[i].key + ":" + metadataKVPs[i].value);
-            }
-
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                null);
-            
-
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Delete Mod KVP Metadata
