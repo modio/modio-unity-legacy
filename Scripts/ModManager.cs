@@ -1144,14 +1144,14 @@ namespace ModIO
                                             onError);
         }
 
-        public static void AddModDependencies(int modId, int[] modIdsToRemove,
+        public static void AddModDependencies(int modId, int[] modIdsToAdd,
                                               Action<APIMessage> onSuccess,
                                               Action<ErrorInfo> onError)
         {
             Client.AddModDependencies(userData.oAuthToken,
-                                         modId, modIdsToRemove,
-                                         result => OnSuccessWrapper(result, onSuccess),
-                                         onError);
+                                      modId, new AddModDependenciesParameters(modIdsToAdd),
+                                      result => OnSuccessWrapper(result, onSuccess),
+                                      onError);
         }
 
         public static void DeleteModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,

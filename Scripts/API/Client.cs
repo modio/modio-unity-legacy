@@ -970,21 +970,15 @@ namespace ModIO.API
         }
         // Add Mod Dependencies
         public static void AddModDependencies(string oAuthToken,
-                                              int modId, int[] requiredModIds,
+                                              int modId, AddModDependenciesParameters parameters,
                                               Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
-            StringValueParameter[] valueFields = new StringValueParameter[requiredModIds.Length];
-            for(int i = 0; i < requiredModIds.Length; ++i)
-            {
-                valueFields[i] = StringValueParameter.Create("dependencies[]", requiredModIds[i]);
-            }
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                null);
-            
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

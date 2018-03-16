@@ -7,13 +7,13 @@ namespace ModIO.API
         // ---------[ STRING VALUE FIELDS ]---------
         public List<StringValueParameter> stringValues;
 
-        protected void SetStringValue(string key, string value)
+        protected void SetStringValue<T>(string key, T value)
         {
             foreach(StringValueParameter valueField in stringValues)
             {
                 if(valueField.key == key)
                 {
-                    valueField.value = value;
+                    valueField.value = value.ToString();
                     return;
                 }
             }
@@ -21,7 +21,7 @@ namespace ModIO.API
             stringValues.Add(StringValueParameter.Create(key, value));
         }
 
-        protected void SetStringArrayValue(string key, string[] valueArray)
+        protected void SetStringArrayValue<T>(string key, T[] valueArray)
         {
             int i = 0;
             while(i < stringValues.Count)
@@ -36,9 +36,9 @@ namespace ModIO.API
                 }
             }
 
-            foreach(string value in valueArray)
+            foreach(T value in valueArray)
             {
-                stringValues.Add(StringValueParameter.Create(key, value));
+                stringValues.Add(StringValueParameter.Create(key, value.ToString()));
             }
         }
 
