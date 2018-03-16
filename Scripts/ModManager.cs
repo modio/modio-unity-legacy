@@ -927,9 +927,11 @@ namespace ModIO
                     {
                         Debug.Log("Submitting Mod Tags");
 
+                        var parameters = new AddModTagsParameters();
+                        parameters.tags = modInfo.GetAddedTags();
                         Client.AddModTags(userData.oAuthToken,
-                                             modInfo.id, modInfo.GetAddedTags(),
-                                             doNextSubmissionAction, modSubmissionFailed);
+                                          modInfo.id, parameters,
+                                          doNextSubmissionAction, modSubmissionFailed);
                     });
                 }
 

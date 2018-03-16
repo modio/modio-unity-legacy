@@ -862,21 +862,15 @@ namespace ModIO.API
         }
         // Add Mod Tags
         public static void AddModTags(string oAuthToken,
-                                      int modId, string[] tagNames,
+                                      int modId, AddModTagsParameters parameters,
                                       Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
-            StringValueParameter[] valueFields = new StringValueParameter[tagNames.Length];
-
-            for(int i = 0; i < tagNames.Length; ++i)
-            {
-                valueFields[i] = StringValueParameter.Create("tags[]", tagNames[i]);
-            }
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                          oAuthToken,
-                                                                                          valueFields,
-                                                                                          null);
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
             
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
