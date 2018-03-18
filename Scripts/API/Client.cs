@@ -542,16 +542,14 @@ namespace ModIO.API
 
         // Edit GameInfo
         public static void EditGame(string oAuthToken,
-                                    EditableGameInfo gameInfo,
+                                    EditGameParameters parameters,
                                     Action<API.GameObject> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + gameInfo.id;
-            StringValueParameter[] valueFields = gameInfo.GetValueFields();
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID;
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
-                                                                                               oAuthToken,
-                                                                                               valueFields);
-            
+                                                                                  oAuthToken,
+                                                                                  parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -662,32 +660,15 @@ namespace ModIO.API
         }
         // Edit Modfile
         public static void EditModfile(string oAuthToken,
-                                       ModfileProfile profile,
-                                       bool setPrimary,
+                                       int modId, int modfileId,
+                                       EditModfileParameters parameters,
                                        Action<ModfileObject> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + profile.modId + "/files/" + profile.modfileId;
-            
-            // - String Values -
-            List<StringValueParameter> valueFields = new List<StringValueParameter>(4);
-            if(!String.IsNullOrEmpty(profile.version))
-            {
-                valueFields.Add(StringValueParameter.Create("version", profile.version));
-            }
-            if(!String.IsNullOrEmpty(profile.changelog))
-            {
-                valueFields.Add(StringValueParameter.Create("changelog", profile.changelog));
-            }
-            if(!String.IsNullOrEmpty(profile.metadataBlob))
-            {
-                valueFields.Add(StringValueParameter.Create("metadata_blob", profile.metadataBlob));
-            }
-            valueFields.Add(StringValueParameter.Create("active", setPrimary.ToString().ToLower()));
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files/" + modfileId;
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
-                                                                                         oAuthToken,
-                                                                                         valueFields.ToArray());
-            
+                                                                                  oAuthToken,
+                                                                                  parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
