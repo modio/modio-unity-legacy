@@ -42,5 +42,17 @@ namespace ModIO
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
         }
+
+        public ModImageURLCollection AsModImageURLCollection(int modId)
+        {
+            var muc = new ModImageURLCollection();
+            muc.modId = modId;
+            muc.filename = this.filename;
+            muc.original = this.original;
+            muc.thumb320x180 = this.thumb320x180;
+            muc.thumb640x360 = this.thumb640x360;
+            muc.thumb1280x720 = this.thumb1280x720;
+            return muc;
+        }
     }
 }

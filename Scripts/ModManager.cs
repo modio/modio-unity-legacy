@@ -623,9 +623,17 @@ namespace ModIO
 
         private static void CacheMod(ModInfo mod)
         {
+            string modDir = GetModDirectory(mod.id);
+            Directory.CreateDirectory(modDir);
+            
             modCache[mod.id] = mod;
-            WriteModToDisk(mod);
+            File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
+
+            var modLogoCollection = mod.logo.AsModImageURLCollection(mod.id);
+            modLogoURLMap[mod.id] = modLogoCollection;
+            File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modLogoCollection));
         }
+
         private static void CacheMods(ModInfo[] modArray)
         {
             foreach(ModInfo mod in modArray)
@@ -726,6 +734,8 @@ namespace ModIO
         }
 
         // ---------[ LOGO MANAGEMENT ]---------
+        private static Dictionary<int, ModImageURLCollection> modLogoURLMap = new Dictionary<int, ModImageURLCollection>();
+
         private static Dictionary<LogoVersion, string> logoFilenameMap = new Dictionary<LogoVersion, string>()
         {
             { LogoVersion.Original,         "logo_original.png" },
@@ -733,13 +743,29 @@ namespace ModIO
             { LogoVersion.Thumb_640x360,    "logo_640x360.png" },
             { LogoVersion.Thumb_1280x720,   "logo_1280x720.png" },
         };
-        private static Dictionary<LogoVersion, Func<LogoURLInfo, string>> logoServerURLGetterMap = new Dictionary<LogoVersion, Func<LogoURLInfo, string>>()
+        private static Func<ModImageURLCollection, string> GenerateGetModLogoURLFunction(LogoVersion version)
         {
-            { LogoVersion.Original,         (LogoURLInfo logoInfo) => { return logoInfo.original; } },
-            { LogoVersion.Thumb_320x180,    (LogoURLInfo logoInfo) => { return logoInfo.thumb320x180; } },
-            { LogoVersion.Thumb_640x360,    (LogoURLInfo logoInfo) => { return logoInfo.thumb640x360; } },
-            { LogoVersion.Thumb_1280x720,   (LogoURLInfo logoInfo) => { return logoInfo.thumb1280x720; } },
-        };
+            switch(version)
+            {
+                case LogoVersion.Original:
+                {
+                    return (ModImageURLCollection collection) => { return collection.original; };
+                }
+                case LogoVersion.Thumb_320x180:
+                {
+                    return (ModImageURLCollection collection) => { return collection.thumb320x180; };
+                }
+                case LogoVersion.Thumb_640x360:
+                {
+                    return (ModImageURLCollection collection) => { return collection.thumb640x360; };
+                }
+                case LogoVersion.Thumb_1280x720:
+                {
+                    return (ModImageURLCollection collection) => { return collection.thumb1280x720; };
+                }
+            }
+            return null;
+        }
 
         public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
         public static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
@@ -765,65 +791,64 @@ namespace ModIO
             }
             #endif
 
-            return logoTexture;
+                return logoTexture;
         }
 
         public static void DownloadModLogo(int modId, LogoVersion logoVersion)
         {
-            ModInfo modInfo = GetMod(modId);
-            if(modInfo != null)
+            ModImageURLCollection logoURLCollection = null;
+            if(modLogoURLMap.TryGetValue(modId, out logoURLCollection))
             {
-                StartLogoDownload(modInfo, logoVersion);
+                // - Start Download -
+                string logoURL = GenerateGetModLogoURLFunction(logoVersion)(logoURLCollection);
+
+                TextureDownload download = new TextureDownload();
+                download.sourceURL = logoURL;
+                download.OnCompleted += (d) => CacheModLogo(modId, logoVersion, download.texture);
+
+                DownloadManager.AddConcurrentDownload(download);
             }
             else
             {
                 Action<ModInfo> cacheModAndDownloadLogo = (mod) =>
                 {
                     CacheMod(mod);
-                    StartLogoDownload(mod, logoVersion);
 
                     if(OnModAdded != null)
                     {
                         OnModAdded(mod);
                     }
+
+                    DownloadModLogo(mod.id, logoVersion);
                 };
 
+                // TODO(@jackson): Fix up the onError
                 Client.GetMod(modId,
-                                 result => OnSuccessWrapper(result, cacheModAndDownloadLogo),
-                                 null);
+                              result => OnSuccessWrapper(result, cacheModAndDownloadLogo),
+                              null);
             }
         }
 
-        private static void StartLogoDownload(ModInfo mod, LogoVersion logoVersion)
+        private static void CacheModLogo(int modId,
+                                         LogoVersion logoVersion,
+                                         Texture2D logoTexture)
         {
-            string logoURL = logoServerURLGetterMap[logoVersion](mod.logo);
-
-            TextureDownload download = new TextureDownload();
-            download.sourceURL = logoURL;
-            download.OnCompleted += (d) =>
+            // - Cache -
+            if(cachedLogoVersion == logoVersion)
             {
-                TextureDownload textureDownload = download as TextureDownload;
-                Texture2D logoTexture = textureDownload.texture;
+                modLogoCache[modId] = logoTexture;
+            }
 
-                // - Cache -
-                if(cachedLogoVersion == logoVersion)
-                {
-                    modLogoCache[mod.id] = logoTexture;
-                }
+            // - Save to disk -
+            string localURL = GetModDirectory(modId) + logoFilenameMap[logoVersion];
+            byte[] bytes = logoTexture.EncodeToPNG();
+            File.WriteAllBytes(localURL, bytes);
 
-                // - Save to disk -
-                string localURL = GetModDirectory(mod.id) + logoFilenameMap[logoVersion];
-                byte[] bytes = logoTexture.EncodeToPNG();
-                File.WriteAllBytes(localURL, bytes);
-
-                // - Notify -
-                if(OnModLogoUpdated != null)
-                {
-                    OnModLogoUpdated(mod.id, logoTexture, logoVersion);
-                }
-            };
-
-            DownloadManager.AddConcurrentDownload(download);
+            // - Notify -
+            if(OnModLogoUpdated != null)
+            {
+                OnModLogoUpdated(modId, logoTexture, logoVersion);
+            }
         }
 
         public static void DownloadModLogos(ModInfo[] modLogosToCache,
@@ -868,9 +893,16 @@ namespace ModIO
             }
 
             // Download
+            Func<ModImageURLCollection, string> getModLogoURL = GenerateGetModLogoURLFunction(logoVersion);
             foreach(ModInfo mod in missingLogoList)
             {
-                StartLogoDownload(mod, logoVersion);
+                string logoURL = getModLogoURL(null);
+
+                TextureDownload download = new TextureDownload();
+                download.sourceURL = logoURL;
+                download.OnCompleted += (d) => CacheModLogo(mod.id, logoVersion, download.texture);
+
+                DownloadManager.AddConcurrentDownload(download);
             }
         }
 
@@ -890,13 +922,6 @@ namespace ModIO
         private static void WriteUserDataToDisk()
         {
             File.WriteAllText(userdataPath, JsonUtility.ToJson(userData));
-        }
-
-        private static void WriteModToDisk(ModInfo mod)
-        {
-            string modDir = GetModDirectory(mod.id);
-            Directory.CreateDirectory(modDir);
-            File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
         }
 
         private static void DeleteUserDataFromDisk()
