@@ -971,16 +971,15 @@ namespace ModIO.API
         // Update Mod Team Member
         // NOTE(@jackson): Untested
         public static void UpdateModTeamMember(string oAuthToken,
-                                               int modId, EditableTeamMember teamMember,
+                                               int modId, int teamMemberId,
+                                               UpdateModTeamMemberParameters parameters,
                                                Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team/" + teamMember.id;
-            StringValueParameter[] valueFields = teamMember.GetValueFields();
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team/" + teamMemberId;
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
-                                                                                               oAuthToken,
-                                                                                               valueFields);
-            
+                                                                                  oAuthToken,
+                                                                                  parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
