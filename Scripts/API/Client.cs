@@ -796,16 +796,14 @@ namespace ModIO.API
 
         // Delete Game Tag Option
         public static void DeleteGameTagOption(string oAuthToken,
-                                               GameTagOptionToDelete gameTagOptionToDelete,
+                                               DeleteGameTagOptionParameters parameters,
                                                Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
-            StringValueParameter[] valueFields = gameTagOptionToDelete.GetValueFields();
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  valueFields);
-            
+                                                                                     oAuthToken,
+                                                                                     parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

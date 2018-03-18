@@ -1205,9 +1205,9 @@ namespace ModIO
                                                Action<ErrorInfo> onError)
         {
             Client.DeleteGameTagOption(userData.oAuthToken,
-                                          gameTagOption,
-                                          result => OnSuccessWrapper(result, onSuccess),
-                                          onError);
+                                       gameTagOption.AsDeleteGameTagOptionParameters(),
+                                       result => OnSuccessWrapper(result, onSuccess),
+                                       onError);
         }
     }
 }

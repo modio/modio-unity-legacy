@@ -180,7 +180,14 @@ namespace ModIO
             }
 
             return retVal.ToArray();
+        }
 
+        public API.DeleteGameTagOptionParameters AsDeleteGameTagOptionParameters()
+        {
+            var parameters = new API.DeleteGameTagOptionParameters();
+            parameters.name = tagGroup;
+            parameters.tags = tags;
+            return parameters;
         }
     }
 }
