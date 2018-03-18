@@ -930,20 +930,14 @@ namespace ModIO.API
         }
         // Delete Mod Dependencies
         public static void DeleteModDependencies(string oAuthToken,
-                                                 int modId, int[] modIdsToRemove,
+                                                 int modId, DeleteModDependenciesParameters parameters,
                                                  Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
-            StringValueParameter[] valueFields = new StringValueParameter[modIdsToRemove.Length];
-            for(int i = 0; i < modIdsToRemove.Length; ++i)
-            {
-                valueFields[i] = StringValueParameter.Create("dependencies[]", modIdsToRemove[i]);
-            }
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  valueFields);
-            
+                                                                                     oAuthToken,
+                                                                                     parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

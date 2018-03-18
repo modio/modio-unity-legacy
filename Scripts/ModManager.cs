@@ -1146,9 +1146,9 @@ namespace ModIO
                                                  Action<ErrorInfo> onError)
         {
             Client.DeleteModDependencies(userData.oAuthToken,
-                                            modId, modIdsToRemove,
-                                            result => OnSuccessWrapper(result, onSuccess),
-                                            onError);
+                                         modId, new DeleteModDependenciesParameters(modIdsToRemove),
+                                         result => OnSuccessWrapper(result, onSuccess),
+                                         onError);
         }
 
         public static void AddModDependencies(int modId, int[] modIdsToAdd,
