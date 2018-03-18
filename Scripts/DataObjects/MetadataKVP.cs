@@ -47,5 +47,10 @@ namespace ModIO
         // --- FIELDS ---
         public string key;
         public string value;
+
+        public override string ToString()
+        {
+            return key + ":" + value;
+        }
     }
 }

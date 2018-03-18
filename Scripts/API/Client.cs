@@ -890,21 +890,14 @@ namespace ModIO.API
         }
         // Delete Mod KVP Metadata
         public static void DeleteModKVPMetadata(string oAuthToken,
-                                                int modId, UnsubmittedMetadataKVP[] metadataKVPsToRemove,
+                                                int modId, DeleteModKVPMetadataParameters parameters,
                                                 Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
-            StringValueParameter[] valueFields = new StringValueParameter[metadataKVPsToRemove.Length];
-            for(int i = 0; i < metadataKVPsToRemove.Length; ++i)
-            {
-                valueFields[i] = StringValueParameter.Create("metadata[]",
-                                                             metadataKVPsToRemove[i].key + ":" + metadataKVPsToRemove[i].value);
-            }
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  valueFields);
-            
+                                                                                     oAuthToken,
+                                                                                     parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

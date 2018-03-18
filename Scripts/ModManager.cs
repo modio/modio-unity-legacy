@@ -1165,10 +1165,19 @@ namespace ModIO
                                                 Action<APIMessage> onSuccess,
                                                 Action<ErrorInfo> onError)
         {
+            string[] kvpStrings = new string[metadataKVPs.Length];
+            for(int i = 0; i < metadataKVPs.Length; ++i)
+            {
+                kvpStrings[i] = metadataKVPs[i].ToString();
+            }
+
+            var parameters = new DeleteModKVPMetadataParameters();
+            parameters.metadata = kvpStrings;
+
             Client.DeleteModKVPMetadata(userData.oAuthToken,
-                                           modId, metadataKVPs,
-                                           result => OnSuccessWrapper(result, onSuccess),
-                                           onError);
+                                        modId, parameters,
+                                        result => OnSuccessWrapper(result, onSuccess),
+                                        onError);
         }
 
         public static void DeleteModTeamMember(int modId, int teamMemberId,
