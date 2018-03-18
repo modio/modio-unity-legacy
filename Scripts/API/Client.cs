@@ -612,9 +612,8 @@ namespace ModIO.API
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  null);
-            
+                                                                                     oAuthToken,
+                                                                                     null);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -703,33 +702,15 @@ namespace ModIO.API
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Delete Mod Media
-        public static void DeleteModMedia(string oAuthToken,
-                                          ModMediaChanges modMediaToDelete,
+        public static void DeleteModMedia(string oAuthToken, int modId,
+                                          DeleteModMediaParameters parameters,
                                           Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modMediaToDelete.modId + "/media";
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
             
-            // - String Values -
-            List<StringValueParameter> valueFields = new List<StringValueParameter>(modMediaToDelete.images.Length
-                                                                            + modMediaToDelete.youtube.Length
-                                                                            + modMediaToDelete.sketchfab.Length);
-            foreach(string image in modMediaToDelete.images)
-            {
-                valueFields.Add(StringValueParameter.Create("images[]", image));
-            }
-            foreach(string youtubeLink in modMediaToDelete.youtube)
-            {
-                valueFields.Add(StringValueParameter.Create("youtube[]", youtubeLink));
-            }
-            foreach(string sketchfabLink in modMediaToDelete.sketchfab)
-            {
-                valueFields.Add(StringValueParameter.Create("sketchfab[]", sketchfabLink));
-            }
-
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                            oAuthToken,
-                                                                                            valueFields.ToArray());
-            
+                                                                                     oAuthToken,
+                                                                                     parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

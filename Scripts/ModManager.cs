@@ -1019,10 +1019,16 @@ namespace ModIO
             Debug.Assert(modMedia.modId > 0,
                          "Invalid mod id supplied with the mod media changes");
 
-            Client.DeleteModMedia(userData.oAuthToken,
-                                     modMedia,
-                                     result => OnSuccessWrapper(result, onSuccess),
-                                     onError);
+            // Create Parameters
+            var parameters = new DeleteModMediaParameters();
+            parameters.youtube = modMedia.youtube;
+            parameters.sketchfab = modMedia.sketchfab;
+            parameters.images = modMedia.images;
+
+            Client.DeleteModMedia(userData.oAuthToken, modMedia.modId,
+                                  parameters,
+                                  result => OnSuccessWrapper(result, onSuccess),
+                                  onError);
         }
 
         public static void UploadModBinary_Unzipped(string unzippedBinaryLocation,
