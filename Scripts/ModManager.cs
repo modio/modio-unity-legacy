@@ -1136,9 +1136,9 @@ namespace ModIO
                                          Action<ErrorInfo> onError)
         {
             Client.DeleteModTags(userData.oAuthToken,
-                                    modId, tagsToDelete,
-                                    result => OnSuccessWrapper(result, onSuccess),
-                                    onError);
+                                 modId, new DeleteModTagsParameters(tagsToDelete),
+                                 result => OnSuccessWrapper(result, onSuccess),
+                                 onError);
         }
 
         public static void DeleteModDependencies(int modId, int[] modIdsToRemove,

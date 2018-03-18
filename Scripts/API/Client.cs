@@ -835,20 +835,15 @@ namespace ModIO.API
         }
         // Delete Mod Tags
         public static void DeleteModTags(string oAuthToken,
-                                         int modId, string[] tagsToDelete,
+                                         int modId,
+                                         DeleteModTagsParameters parameters,
                                          Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
-            StringValueParameter[] valueFields = new StringValueParameter[tagsToDelete.Length];
-            for(int i = 0; i < tagsToDelete.Length; ++i)
-            {
-                valueFields[i] = StringValueParameter.Create("tags[]", tagsToDelete[i]);
-            }
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  valueFields);
-            
+                                                                                     oAuthToken,
+                                                                                     parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
