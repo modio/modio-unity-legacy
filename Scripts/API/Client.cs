@@ -992,9 +992,8 @@ namespace ModIO.API
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team/" + teamMemberId;
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  null);
-            
+                                                                                     oAuthToken,
+                                                                                     null);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1034,8 +1033,8 @@ namespace ModIO.API
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments/" + commentId;
 
             UnityWebRequest webRequest = Client.GenerateDeleteRequest<MessageObject>(endpointURL,
-                                                                                                  oAuthToken,
-                                                                                                  null);
+                                                                                     oAuthToken,
+                                                                                     null);
             
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
@@ -1098,17 +1097,15 @@ namespace ModIO.API
         // Submit Report
         // NOTE(@jackson): Untested
         public static void SubmitReport(string oAuthToken,
-                                        UnsubmittedReport report,
+                                        SubmitReportParameters parameters,
                                         Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "report";
-            StringValueParameter[] valueFields = report.GetValueFields();
 
             UnityWebRequest webRequest = Client.GeneratePostRequest<MessageObject>(endpointURL,
-                                                                                oAuthToken,
-                                                                                valueFields,
-                                                                                null);
-            
+                                                                                   oAuthToken,
+                                                                                   parameters.stringValues.ToArray(),
+                                                                                   parameters.binaryData.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
