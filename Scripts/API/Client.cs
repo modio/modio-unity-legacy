@@ -594,17 +594,15 @@ namespace ModIO.API
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Edit Mod
-        public static void EditMod(string oAuthToken,
-                                   EditableModInfo modInfo,
+        public static void EditMod(string oAuthToken, int modId,
+                                   EditModParameters parameters,
                                    Action<ModObject> successCallback, Action<ErrorInfo> errorCallback)
         {
-            string endpointURL = API_URL + "games/" + modInfo.gameId + "/mods/" + modInfo.id;
-            StringValueParameter[] valueFields = modInfo.GetEditValueFields();
+            string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
 
             UnityWebRequest webRequest = Client.GeneratePutRequest<MessageObject>(endpointURL,
-                                                                                               oAuthToken,
-                                                                                               valueFields);
-            
+                                                                                  oAuthToken,
+                                                                                  parameters.stringValues.ToArray());
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

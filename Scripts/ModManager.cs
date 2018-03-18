@@ -942,9 +942,10 @@ namespace ModIO
                         Debug.Log("Submitting Mod Info");
 
                         Client.EditMod(userData.oAuthToken,
-                                          modInfo,
-                                          result => OnSuccessWrapper(result, modSubmissionSucceeded),
-                                          modSubmissionFailed);
+                                       modInfo.id,
+                                       modInfo.AsEditModParameters(),
+                                       result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                                       modSubmissionFailed);
                     });
                 }
                 // - Get updated ModInfo if other submissions occurred -
@@ -953,8 +954,8 @@ namespace ModIO
                     submissionActions.Add(() =>
                     {
                         Client.GetMod(modInfo.id,
-                                         result => OnSuccessWrapper(result, modSubmissionSucceeded),
-                                         modSubmissionFailed);
+                                      result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                                      modSubmissionFailed);
                     });
                 }
                 // - Just notify succeeded -

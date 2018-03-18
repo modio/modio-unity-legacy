@@ -470,5 +470,12 @@ namespace ModIO
             retVal.binaryData = new List<BinaryDataParameter>(GetAddDataFields());
             return retVal;
         }
+
+        public EditModParameters AsEditModParameters()
+        {
+            EditModParameters retVal = new EditModParameters();
+            retVal.stringValues = new List<StringValueParameter>(GetEditValueFields());
+            return retVal;
+        }
     }
 }
