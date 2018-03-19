@@ -38,11 +38,11 @@ namespace ModIO
             SerializedObject serializedSceneData = new SerializedObject(sceneData);
 
             SerializedProperty buildLocationProp = serializedSceneData.FindProperty("buildLocation");
-            SerializedProperty modfileProfileProp = serializedSceneData.FindProperty("buildProfile");
+            SerializedProperty modfileValuesProp = serializedSceneData.FindProperty("modfileEdits");
             SerializedProperty setPrimaryProp = serializedSceneData.FindProperty("setBuildAsPrimary");
 
             DisplayBuildLocationProperty(buildLocationProp);
-            EditorGUILayout.PropertyField(modfileProfileProp, GUIContent.none);
+            EditorGUILayout.PropertyField(modfileValuesProp, GUIContent.none);
             EditorGUILayout.PropertyField(setPrimaryProp, new GUIContent("Set Primary"));
 
             serializedSceneData.ApplyModifiedProperties();
@@ -53,14 +53,11 @@ namespace ModIO
                 {
                     EditorApplication.delayCall += () =>
                     {
-                        // TODO(@jackson): Unhack
-                        sceneData.buildProfile.modId = sceneData.modInfo.id;
-
                         if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before publishing online"))
                         {
                             EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
-                            UploadModBinary(sceneData.buildLocation, sceneData.buildProfile);
+                            UploadModBinary(sceneData.modInfo.id, sceneData.buildLocation, sceneData.modfileValues);
                         }
                     };
                 }
@@ -84,7 +81,9 @@ namespace ModIO
             }
         }
 
-        protected virtual void UploadModBinary(string buildLocation, ModfileProfile profile)
+        protected virtual void UploadModBinary(int modId,
+                                               string buildLocation,
+                                               ModfileEditableFields modfileValues)
         {
             isModUploading = true;
 
@@ -105,8 +104,9 @@ namespace ModIO
             };
 
             // --- Start Upload ---
-            ModManager.UploadModBinary_Unzipped(buildLocation,
-                                                profile,
+            ModManager.UploadModBinary_Unzipped(modId,
+                                                buildLocation,
+                                                modfileValues,
                                                 true,
                                                 onUploadSucceeded,
                                                 onUploadFailed);

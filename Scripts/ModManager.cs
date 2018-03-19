@@ -1091,8 +1091,9 @@ namespace ModIO
                                   onError);
         }
 
-        public static void UploadModBinary_Unzipped(string unzippedBinaryLocation,
-                                                    ModfileProfile profile,
+        public static void UploadModBinary_Unzipped(int modId,
+                                                    string unzippedBinaryLocation,
+                                                    ModfileEditableFields modfileValues,
                                                     bool setPrimary,
                                                     Action<Modfile> onSuccess,
                                                     Action<ErrorInfo> onError)
@@ -1101,11 +1102,12 @@ namespace ModIO
 
             ZipUtil.Zip(binaryZipLocation, unzippedBinaryLocation);
 
-            UploadModBinary_Zipped(binaryZipLocation, profile, setPrimary, onSuccess, onError);
+            UploadModBinary_Zipped(modId, binaryZipLocation, modfileValues, setPrimary, onSuccess, onError);
         }
 
-        public static void UploadModBinary_Zipped(string binaryZipLocation,
-                                                  ModfileProfile profile,
+        public static void UploadModBinary_Zipped(int modId,
+                                                  string binaryZipLocation,
+                                                  ModfileEditableFields modfileValues,
                                                   bool setPrimary,
                                                   Action<Modfile> onSuccess,
                                                   Action<ErrorInfo> onError)
@@ -1113,13 +1115,26 @@ namespace ModIO
             string buildFilename = Path.GetFileName(binaryZipLocation);
             byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
 
-            AddModfileParameters amp = profile.AsAddModfileParameters();
-            amp.filedata = BinaryUpload.Create(buildFilename, buildZipData);
-            // TODO(@jackson): amp.filehash
+            AddModfileParameters parameters = new AddModfileParameters();
+            parameters.filedata = BinaryUpload.Create(buildFilename, buildZipData);
+            if(modfileValues.version.isDirty)
+            {
+                parameters.version = modfileValues.version.value;
+            }
+            if(modfileValues.changelog.isDirty)
+            {
+                parameters.changelog = modfileValues.changelog.value;
+            }
+            if(modfileValues.metadataBlob.isDirty)
+            {
+                parameters.metadata_blob = modfileValues.metadataBlob.value;
+            }
+
+            // TODO(@jackson): parameters.filehash
 
             Client.AddModfile(userData.oAuthToken,
-                              profile.modId,
-                              amp,
+                              modId,
+                              parameters,
                               (m) => onSuccess(Modfile.CreateFromAPIObject(m)),
                               onError);
         }

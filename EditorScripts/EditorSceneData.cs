@@ -13,8 +13,9 @@ namespace ModIO
         public EditableModInfo modInfo = new EditableModInfo();
 
         public string buildLocation = string.Empty;
-        public ModfileProfile buildProfile = null;
         public bool setBuildAsPrimary = true;
+
+        public ModfileEditableFields modfileValues = null;
 
         private Texture2D modLogoTexture = null;
         private string modLogoSource = string.Empty;

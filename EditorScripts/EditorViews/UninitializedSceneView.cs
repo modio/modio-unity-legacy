@@ -60,10 +60,7 @@ namespace ModIO
 
             EditorSceneData sceneData = sd_go.AddComponent<EditorSceneData>();
             sceneData.modInfo = EditableModInfo.FromModInfo(modInfo);
-
-            sceneData.buildProfile = new ModfileProfile();
-            sceneData.buildProfile.modId = modInfo.id;
-            sceneData.buildProfile.modfileId = 0;
+            sceneData.modfileValues = new ModfileEditableFields();
 
             Undo.RegisterCreatedObjectUndo(sd_go, "Initialize scene");
         }
