@@ -940,28 +940,29 @@ namespace ModIO
         }
     }
 
-    public class GetAllModfilesFilter : Filter<Modfile, GetAllModfilesFilter.Field>
-    {
-        public enum Field
-        {
-            Id,
-        }
+    // public class GetAllModfilesFilter : Filter<Modfile, GetAllModfilesFilter.Field>
+    // {
+    //     public enum Field
+    //     {
+    //         Id,
+    //     }
 
-        public static readonly new GetAllModfilesFilter None = new GetAllModfilesFilter();
+    //     public static readonly new GetAllModfilesFilter None = new GetAllModfilesFilter();
 
-        // ---------[ ABSTRACT IMPLEMENTATION ]---------
-        public GetAllModfilesFilter() : base("id", (a,b) => a.id - b.id)
-        {
-        }
+    //     // ---------[ ABSTRACT IMPLEMENTATION ]---------
+    //     public GetAllModfilesFilter() : base("id", (a,b) => a.id - b.id)
+    //     {
+    //     }
 
-        public override void ResetSorting()
-        {
-            sortString = "id";
-            sortDelegate = (a,b) => { return a.id.CompareTo(b.id); };
-        }
+    //     public override void ResetSorting()
+    //     {
+    //         sortString = "id";
+    //         sortDelegate = (a,b) => { return a.id.CompareTo(b.id); };
+    //     }
 
-        internal override FieldInformation GetFieldInformation(GetAllModfilesFilter.Field fieldIdentifier) { return null; }
-    }
+    //     internal override FieldInformation GetFieldInformation(GetAllModfilesFilter.Field fieldIdentifier) { return null; }
+    // }
+    public class GetAllModfilesFilter : Filter {}
 
     public class GetAllModEventsFilter : Filter<ModEvent, GetAllModEventsFilter.Field>
     {

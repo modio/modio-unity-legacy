@@ -653,43 +653,10 @@ namespace ModIO
             return retVal;
         }
 
-        public static FileDownload StartBinaryDownload(int modId, int modfileId)
+
+        public static void DeleteAllDownloadedBinaries(int modId)
         {
-            string fileURL = GetModDirectory(modId) + "modfile_" + modfileId + ".zip";
-            
-            FileDownload download = new FileDownload();
-            download.OnCompleted += (d) =>
-            {
-                // Remove any other binaries
-                string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(modId), "modfile_*.zip");
-                foreach(string binaryFilePath in binaryFilePaths)
-                {
-                    if(binaryFilePath != fileURL)
-                    {
-                        File.Delete(binaryFilePath);
-                    }
-                }
-            };
-
-            Action<Modfile> queueBinaryDownload = (modfile) =>
-            {
-                download.sourceURL = modfile.download.binaryURL;
-                download.fileURL = fileURL;
-                download.EnableFilehashVerification(modfile.filehash.md5);
-
-                DownloadManager.AddQueuedDownload(download);
-            };
-
-            Client.GetModfile(modId, modfileId,
-                                 result => OnSuccessWrapper(result, queueBinaryDownload),
-                                 download.MarkAsFailed);
-
-            return download;
-        }
-
-        public static void DeleteAllDownloadedBinaries(ModInfo mod)
-        {
-            string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(mod.id), "modfile_*.zip");
+            string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(modId), "modfile_*.zip");
             foreach(string binaryFilePath in binaryFilePaths)
             {
                 File.Delete(binaryFilePath);
@@ -731,6 +698,57 @@ namespace ModIO
                 }
             }
             return null;
+        }
+
+        // ---------[ MODFILE & BINARY MANAGEMENT ]---------
+        public static void LoadOrDownloadModfile(int modId, int modfileId,
+                                                 Action<Modfile> onSuccess,
+                                                 Action<ErrorInfo> onError)
+        {
+            string modfileFilePath = (GetModDirectory(modId) + "modfile_"
+                                      + modfileId.ToString() + ".data");
+            if(File.Exists(modfileFilePath))
+            {
+                // Load ModInfo from Disk
+                Modfile modfile = JsonUtility.FromJson<Modfile>(File.ReadAllText(modfileFilePath));
+                onSuccess(modfile);
+            }
+            else
+            {
+                Action<ModfileObject> writeModfileToDisk = (m) =>
+                {
+                    Modfile newModfile = Modfile.CreateFromAPIObject(m);
+                    File.WriteAllText(modfileFilePath,
+                                      JsonUtility.ToJson(newModfile));
+                    onSuccess(newModfile);
+                };
+
+                Client.GetModfile(modId, modfileId,
+                                  writeModfileToDisk,
+                                  onError);
+            }
+        }
+
+        public static FileDownload StartBinaryDownload(int modId, int modfileId)
+        {
+            string binaryFilePath = (GetModDirectory(modId) + "binary_"
+                                     + modfileId.ToString() + ".zip");
+
+            FileDownload download = new FileDownload();
+            Action<ModfileObject> queueBinaryDownload = (m) =>
+            {
+                download.sourceURL = m.download.binary_url;
+                download.fileURL = binaryFilePath;
+                download.EnableFilehashVerification(m.filehash.md5);
+
+                DownloadManager.AddQueuedDownload(download);
+            };
+
+            Client.GetModfile(modId, modfileId,
+                              queueBinaryDownload,
+                              download.MarkAsFailed);
+
+            return download;
         }
 
         // ---------[ LOGO MANAGEMENT ]---------
@@ -1102,7 +1120,7 @@ namespace ModIO
             Client.AddModfile(userData.oAuthToken,
                               profile.modId,
                               amp,
-                              result => OnSuccessWrapper(result, onSuccess),
+                              (m) => onSuccess(Modfile.CreateFromAPIObject(m)),
                               onError);
         }
 

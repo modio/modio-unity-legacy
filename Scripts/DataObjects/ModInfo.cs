@@ -73,8 +73,7 @@ namespace ModIO
             this.dateLive = TimeStamp.GenerateFromServerTimeStamp(_data.date_live);
             this.logo = new LogoURLInfo();
             this.logo.WrapAPIObject(_data.logo);
-            this.modfile = new Modfile();
-            this.modfile.WrapAPIObject(_data.modfile);
+            this.modfile = Modfile.CreateFromAPIObject(_data.modfile);
             this.media = new ModMediaURLInfo();
             this.media.WrapAPIObject(_data.media);
             this.ratingSummary = new RatingSummary();
@@ -224,11 +223,11 @@ namespace ModIO
 
             _data.homepage = value;
         }
-        // Unique id of the Modfile Object to be labelled as the current release.
-        public void SetModfile(Modfile value)
-        {
-            _data.modfile = value.GetAPIObject();
-        }
+        // // Unique id of the Modfile Object to be labelled as the current release.
+        // public void SetModfile(Modfile value)
+        // {
+        //     _data.modfile = value.GetAPIObject();
+        // }
         // Artificially limit the amount of times the mod can be subscribed too.
         public void SetStock(int value)
         {
