@@ -736,13 +736,9 @@ namespace ModIO
         // ---------[ LOGO MANAGEMENT ]---------
         private static Dictionary<int, ModImageURLCollection> modLogoURLMap = new Dictionary<int, ModImageURLCollection>();
 
-        private static Dictionary<LogoVersion, string> logoFilenameMap = new Dictionary<LogoVersion, string>()
-        {
-            { LogoVersion.Original,         "logo_original.png" },
-            { LogoVersion.Thumb_320x180,    "logo_320x180.png" },
-            { LogoVersion.Thumb_640x360,    "logo_640x360.png" },
-            { LogoVersion.Thumb_1280x720,   "logo_1280x720.png" },
-        };
+        public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
+        public static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
+
         private static Func<ModImageURLCollection, string> GenerateGetModLogoURLFunction(LogoVersion version)
         {
             switch(version)
@@ -767,8 +763,29 @@ namespace ModIO
             return null;
         }
 
-        public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
-        public static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
+        private static string GetLogoFileName(LogoVersion logoVersion)
+        {
+            switch(logoVersion)
+            {
+                case LogoVersion.Original:
+                {
+                    return "logo_original.png";
+                }
+                case LogoVersion.Thumb_320x180:
+                {
+                    return "logo_320x180.png";
+                }
+                case LogoVersion.Thumb_640x360:
+                {
+                    return "logo_640x360.png";
+                }
+                case LogoVersion.Thumb_1280x720:
+                {
+                    return "logo_1280x720.png";
+                }
+            }
+            return null;
+        }
 
         public static Texture2D LoadCachedModLogo(int modId, LogoVersion logoVersion)
         {
@@ -782,7 +799,7 @@ namespace ModIO
             #if !TEST_IGNORE_DISK_CACHE
             if(logoTexture == null)
             {
-                string localURL = GetModDirectory(modId) + logoFilenameMap[logoVersion];
+                string localURL = GetModDirectory(modId) + GetLogoFileName(logoVersion);
                 if(File.Exists(localURL))
                 {
                     logoTexture = new Texture2D(0, 0);
@@ -840,7 +857,7 @@ namespace ModIO
             }
 
             // - Save to disk -
-            string localURL = GetModDirectory(modId) + logoFilenameMap[logoVersion];
+            string localURL = GetModDirectory(modId) + GetLogoFileName(logoVersion);
             byte[] bytes = logoTexture.EncodeToPNG();
             File.WriteAllBytes(localURL, bytes);
 
@@ -855,7 +872,7 @@ namespace ModIO
                                             LogoVersion logoVersion)
         {
             List<ModInfo> missingLogoList = new List<ModInfo>(modLogosToCache.Length);
-            string logoFilename = logoFilenameMap[logoVersion];
+            string logoFilename = GetLogoFileName(logoVersion);
             
             // Reset Cache if logoVersion is incorrect
             if(logoVersion != cachedLogoVersion)
