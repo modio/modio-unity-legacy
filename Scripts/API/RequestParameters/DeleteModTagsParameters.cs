@@ -13,6 +13,7 @@ namespace ModIO.API
         }
 
         // ---------[ CONSTRUCTOR ]---------
+        public DeleteModTagsParameters() {}
         public DeleteModTagsParameters(string[] tagsValue)
         {
             this.tags = tagsValue;

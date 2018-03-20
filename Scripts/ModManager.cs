@@ -966,7 +966,6 @@ namespace ModIO
 
         public static void SubmitNewMod(EditableModFields modData,
                                         string logoFilePath,
-                                        string[] tags,
                                         Action<ModInfo> modSubmissionSucceeded,
                                         Action<ErrorInfo> modSubmissionFailed)
         {
@@ -1002,8 +1001,10 @@ namespace ModIO
             {
                 parameters.name_id = modData.nameId.value;
             }
-            
-            parameters.tags = tags;
+            if(modData.tags.isDirty)
+            {
+                parameters.tags = modData.tags.value;
+            }
 
             Client.AddMod(userData.oAuthToken,
                           parameters,
@@ -1019,6 +1020,9 @@ namespace ModIO
         {
             Debug.Assert(modId > 0);
 
+            // TODO(@jackson): Defend this code
+            ModInfo mod = GetMod(modId);
+
             List<Action> submissionActions = new List<Action>();
             int nextActionIndex = 0;
             Action<MessageObject> doNextSubmissionAction = (m) =>
@@ -1029,21 +1033,52 @@ namespace ModIO
                 }
             };
 
-            if(modInfo.isTagsDirty())
+            if(modData.tags.isDirty)
             {
-                submissionActions.Add(() =>
+                var addedTags = new List<string>(modData.tags.value);
+                foreach(string tag in mod.GetTagNames())
                 {
-                    Debug.Log("Submitting Mod Tags");
+                    addedTags.Remove(tag);
+                }
 
-                    var parameters = new AddModTagsParameters();
-                    parameters.tags = modInfo.GetAddedTags();
-                    Client.AddModTags(userData.oAuthToken,
-                                      modId, parameters,
-                                      doNextSubmissionAction, modSubmissionFailed);
-                });
+                var removedTags = new List<string>(mod.GetTagNames());
+                foreach(string tag in modData.tags.value)
+                {
+                    removedTags.Remove(tag);
+                }
+
+                if(addedTags.Count > 0)
+                {
+                    submissionActions.Add(() =>
+                    {
+                        var parameters = new AddModTagsParameters();
+                        parameters.tags = addedTags.ToArray();
+                        Client.AddModTags(userData.oAuthToken,
+                                          modId, parameters,
+                                          doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
+                if(removedTags.Count > 0)
+                {
+                    submissionActions.Add(() =>
+                    {
+                        var parameters = new DeleteModTagsParameters();
+                        parameters.tags = removedTags.ToArray();
+                        Client.DeleteModTags(userData.oAuthToken,
+                                             modId, parameters,
+                                             doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
             }
 
-            if(modData.GetIsDirty())
+            if(modData.status.isDirty
+               || modData.visibility.isDirty
+               || modData.name.isDirty
+               || modData.nameId.isDirty
+               || modData.summary.isDirty
+               || modData.description.isDirty
+               || modData.homepage.isDirty
+               || modData.metadataBlob.isDirty)
             {
                 submissionActions.Add(() =>
                 {

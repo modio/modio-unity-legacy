@@ -430,7 +430,6 @@ namespace ModIO
                 {
                     ModManager.SubmitNewMod(sceneData.modData,
                                              sceneData.modInfo.unsubmittedLogoFilepath,
-                                             sceneData.modInfo.GetTagNames(),
                                              (mod) =>
                                              {
                                                 // TODO(@jackson): Mark Dirty -> Save
@@ -449,7 +448,6 @@ namespace ModIO
                 {
                     ModManager.SubmitModChanges(sceneData.modId,
                                              sceneData.modData,
-                                             sceneData.modInfo,
                                              (mod) =>
                                              {
                                                 // TODO(@jackson): Mark Dirty -> Save

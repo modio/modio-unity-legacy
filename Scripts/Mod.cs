@@ -14,6 +14,7 @@ namespace ModIO
         Public = 1,
     }
 
+    // TODO(@jackson): rename - ModProfile?
     [System.Serializable]
     public class Mod
     {
@@ -34,11 +35,13 @@ namespace ModIO
         [UnityEngine.SerializeField] private string _metadataBlob;
         [UnityEngine.SerializeField] private string _profileURL;
         [UnityEngine.SerializeField] private int _primaryModfileId;
-        [UnityEngine.SerializeField] private string[] _youtubeURLs;
-        [UnityEngine.SerializeField] private string[] _sketchfabURLs;
         // TODO(@jackson): Update this
         [UnityEngine.SerializeField] private RatingSummary _ratingSummary;
-        // TODO(@jackson): [UnityEngine.SerializeField] private ModTag[];
+        [UnityEngine.SerializeField] private string[] _tags;
+        // TODO(@jackson): ModMedia
+        // TODO(@jackson): TeamMembers
+        [UnityEngine.SerializeField] private string[] _youtubeURLs;
+        [UnityEngine.SerializeField] private string[] _sketchfabURLs;
 
         // ---------[ FIELDS ]---------
         public int id                       { get { return this._id; } }

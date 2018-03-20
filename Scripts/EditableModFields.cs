@@ -12,17 +12,6 @@ namespace ModIO
         public EditableField<string> description =          new EditableField<string>();
         public EditableField<string> homepage =             new EditableField<string>();
         public EditableField<string> metadataBlob =         new EditableField<string>();
-
-        public bool GetIsDirty()
-        {
-            return (this.status.isDirty
-                    || this.visibility.isDirty
-                    || this.name.isDirty
-                    || this.nameId.isDirty
-                    || this.summary.isDirty
-                    || this.description.isDirty
-                    || this.homepage.isDirty
-                    || this.metadataBlob.isDirty);
-        }
+        public EditableField<string[]> tags =               new EditableField<string[]>();
     }
 }

@@ -161,22 +161,6 @@ namespace ModIO
         // TODO(@jackson): Add Support for Mod Media
 
         // --- SETTERS ---
-        // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
-        public void SetTagNames(string[] valueArray)
-        {
-            ModTagObject[] modTagArray = new ModTagObject[valueArray.Length];
-
-            for(int i = 0; i < valueArray.Length; ++i)
-            {
-                ModTagObject tag = new ModTagObject();
-                tag.name = valueArray[i];
-                tag.date_added = TimeStamp.Now().AsServerTimeStamp();
-                modTagArray[i] = tag;
-            }
-
-            _data.tags = modTagArray;
-        }
-
         public void SetLogoFilepath(string value)
         {
             logoFilepath = value;
@@ -205,19 +189,6 @@ namespace ModIO
         public bool isMediaDirty()
         {
             return (!_data.media.Equals(_initialData.media));
-        }
-
-        public bool isTagsDirty()
-        {
-            bool isDirty = (_data.tags.Length != _initialData.tags.Length);
-            for(int i = 0;
-                !isDirty && i < _data.tags.Length;
-                ++i)
-            {
-                isDirty |= (_data.tags[i].name != _initialData.tags[i].name);
-            }
-
-            return isDirty;
         }
 
         public StringValueParameter[] GetEditValueFields()
@@ -301,16 +272,6 @@ namespace ModIO
             }
 
             return retVal.ToArray();
-        }
-
-        public string[] GetAddedTags()
-        {
-            List<string> addedTags = new List<string>(this.GetTagNames());
-            foreach(ModTagObject tag in _initialData.tags)
-            {
-                addedTags.Remove(tag.name);
-            }
-            return addedTags.ToArray();
         }
 
         public ModMediaChanges GetAddedMedia()
