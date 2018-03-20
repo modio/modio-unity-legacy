@@ -964,80 +964,144 @@ namespace ModIO
             File.Delete(userdataPath);
         }
 
-        public static void SubmitModInfo(EditableModInfo modInfo,
-                                         Action<ModInfo> modSubmissionSucceeded,
-                                         Action<ErrorInfo> modSubmissionFailed)
+        public static void SubmitNewMod(EditableModFields modData,
+                                        string logoFilePath,
+                                        string[] tags,
+                                        Action<ModInfo> modSubmissionSucceeded,
+                                        Action<ErrorInfo> modSubmissionFailed)
         {
-            // - Edit Mod -
-            if(modInfo.id > 0)
+            Debug.Assert(modData.name.isDirty && modData.summary.isDirty);
+            Debug.Assert(File.Exists(logoFilePath));
+
+            var parameters = new AddModParameters();
+            parameters.name = modData.name.value;
+            parameters.summary = modData.summary.value;
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(logoFilePath),
+                                                  File.ReadAllBytes(logoFilePath));
+            if(modData.visibility.isDirty)
             {
-                List<Action> submissionActions = new List<Action>();
-                int nextActionIndex = 0;
-                Action<MessageObject> doNextSubmissionAction = (m) =>
-                {
-                    if(nextActionIndex < submissionActions.Count)
-                    {
-                        submissionActions[nextActionIndex++]();
-                    }
-                };
-
-                if(modInfo.isTagsDirty())
-                {
-                    submissionActions.Add(() =>
-                    {
-                        Debug.Log("Submitting Mod Tags");
-
-                        var parameters = new AddModTagsParameters();
-                        parameters.tags = modInfo.GetAddedTags();
-                        Client.AddModTags(userData.oAuthToken,
-                                          modInfo.id, parameters,
-                                          doNextSubmissionAction, modSubmissionFailed);
-                    });
-                }
-
-                if(modInfo.isInfoDirty())
-                {
-                    submissionActions.Add(() =>
-                    {
-                        Debug.Log("Submitting Mod Info");
-
-                        Client.EditMod(userData.oAuthToken,
-                                       modInfo.id,
-                                       modInfo.AsEditModParameters(),
-                                       result => OnSuccessWrapper(result, modSubmissionSucceeded),
-                                       modSubmissionFailed);
-                    });
-                }
-                // - Get updated ModInfo if other submissions occurred -
-                else if(submissionActions.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        Client.GetMod(modInfo.id,
-                                      result => OnSuccessWrapper(result, modSubmissionSucceeded),
-                                      modSubmissionFailed);
-                    });
-                }
-                // - Just notify succeeded -
-                else
-                {
-                    submissionActions.Add(() =>
-                    {
-                        modSubmissionSucceeded(modInfo);
-                    });
-                }
-
-                // - Start submission chain -
-                doNextSubmissionAction(new MessageObject());
+                parameters.visible = (int)modData.visibility.value;
             }
-            // - Add Mod -
+            if(modData.nameId.isDirty)
+            {
+                parameters.name_id = modData.nameId.value;
+            }
+            if(modData.description.isDirty)
+            {
+                parameters.description = modData.description.value;
+            }
+            if(modData.homepage.isDirty)
+            {
+                parameters.name_id = modData.homepage.value;
+            }
+            if(modData.metadataBlob.isDirty)
+            {
+                parameters.metadata_blob = modData.metadataBlob.value;
+            }
+            if(modData.nameId.isDirty)
+            {
+                parameters.name_id = modData.nameId.value;
+            }
+            
+            parameters.tags = tags;
+
+            Client.AddMod(userData.oAuthToken,
+                          parameters,
+                          result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                          modSubmissionFailed);
+        }
+
+        public static void SubmitModChanges(int modId,
+                                            EditableModFields modData,
+                                            EditableModInfo modInfo,
+                                            Action<ModInfo> modSubmissionSucceeded,
+                                            Action<ErrorInfo> modSubmissionFailed)
+        {
+            Debug.Assert(modId > 0);
+
+            List<Action> submissionActions = new List<Action>();
+            int nextActionIndex = 0;
+            Action<MessageObject> doNextSubmissionAction = (m) =>
+            {
+                if(nextActionIndex < submissionActions.Count)
+                {
+                    submissionActions[nextActionIndex++]();
+                }
+            };
+
+            if(modInfo.isTagsDirty())
+            {
+                submissionActions.Add(() =>
+                {
+                    Debug.Log("Submitting Mod Tags");
+
+                    var parameters = new AddModTagsParameters();
+                    parameters.tags = modInfo.GetAddedTags();
+                    Client.AddModTags(userData.oAuthToken,
+                                      modId, parameters,
+                                      doNextSubmissionAction, modSubmissionFailed);
+                });
+            }
+
+            if(modData.GetIsDirty())
+            {
+                submissionActions.Add(() =>
+                {
+                    Debug.Log("Submitting Mod Info");
+
+                    var parameters = new EditModParameters();
+                    if(modData.status.isDirty)
+                    {
+                        parameters.status = (int)modData.status.value;
+                    }
+                    if(modData.visibility.isDirty)
+                    {
+                        parameters.visible = (int)modData.visibility.value;
+                    }
+                    if(modData.name.isDirty)
+                    {
+                        parameters.name = modData.name.value;
+                    }
+                    if(modData.nameId.isDirty)
+                    {
+                        parameters.name_id = modData.nameId.value;
+                    }
+                    if(modData.summary.isDirty)
+                    {
+                        parameters.summary = modData.summary.value;
+                    }
+                    if(modData.description.isDirty)
+                    {
+                        parameters.description = modData.description.value;
+                    }
+                    if(modData.homepage.isDirty)
+                    {
+                        parameters.homepage = modData.homepage.value;
+                    }
+                    if(modData.metadataBlob.isDirty)
+                    {
+                        parameters.metadata_blob = modData.metadataBlob.value;
+                    }
+
+                    Client.EditMod(userData.oAuthToken,
+                                   modId, parameters,
+                                   result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                                   modSubmissionFailed);
+                });
+            }
+            // - Get updated ModInfo -
             else
             {
-                Client.AddMod(userData.oAuthToken,
-                                 modInfo.AsAddModParameters(),
-                                 result => OnSuccessWrapper(result, modSubmissionSucceeded),
-                                 modSubmissionFailed);
+                submissionActions.Add(() =>
+                {
+                    Client.GetMod(modId,
+                                  result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                                  modSubmissionFailed);
+                });
             }
+
+            // - Start submission chain -
+            doNextSubmissionAction(new MessageObject());
         }
 
         public static void AddModMedia(ModMediaChanges modMedia,

@@ -59,20 +59,20 @@ namespace ModIO.API
                 this.SetStringValue("homepage", value);
             }
         }
-        // Maximium number of subscribers for this mod. A value of 0 disables this limit.
-        public int stock
-        {
-            set
-            {
-                this.SetStringValue("stock", value);
-            }
-        }
         // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
         public string metadata_blob
         {
             set
             {
                 this.SetStringValue("metadata_blob", value);
+            }
+        }
+        // Maximium number of subscribers for this mod. A value of 0 disables this limit.
+        public int stock
+        {
+            set
+            {
+                this.SetStringValue("stock", value);
             }
         }
     }

@@ -43,7 +43,7 @@ namespace ModIO
 
         protected virtual void OnGUIInner(EditorSceneData sceneData)
         {
-            bool isNewMod = sceneData.modInfo.id <= 0;
+            bool isNewMod = sceneData.modId <= 0;
 
             SerializedObject serializedSceneData = new SerializedObject(sceneData);
             SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
@@ -74,7 +74,7 @@ namespace ModIO
             // --- Uploading ---
             if(GUILayout.Button("Update Mod Media"))
             {
-                EditorApplication.delayCall += () => SendModMediaChanges(sceneData.modInfo);
+                EditorApplication.delayCall += () => SendModMediaChanges(sceneData.modId, sceneData.modInfo);
             }
         }
 
@@ -125,7 +125,7 @@ namespace ModIO
             }
         }
 
-        private void SendModMediaChanges(EditableModInfo modInfo)
+        private void SendModMediaChanges(int modId, EditableModInfo modInfo)
         {
             if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
             {
@@ -135,7 +135,7 @@ namespace ModIO
 
                 System.Action<APIMessage> onDeleteCompleted = (m) =>
                 {
-                    API.Client.GetMod(modInfo.id,
+                    API.Client.GetMod(modId,
                                      (mod) => { modInfo = EditableModInfo.FromModObject(mod); isUploading = false; },
                                      (e) => { isUploading = false; });
                 };

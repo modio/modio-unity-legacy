@@ -10,11 +10,12 @@ namespace ModIO
     [ExecuteInEditMode]
     public class EditorSceneData : MonoBehaviour
     {
+        public int modId = 0;
+        public EditableModFields modData = null;
         public EditableModInfo modInfo = new EditableModInfo();
 
         public string buildLocation = string.Empty;
         public bool setBuildAsPrimary = true;
-
         public ModfileEditableFields modfileValues = null;
 
         private Texture2D modLogoTexture = null;
@@ -35,7 +36,7 @@ namespace ModIO
 
         private void OnModLogoUpdated(int modId, Texture2D modLogo, LogoVersion logoVersion)
         {
-            if(modId == modInfo.id
+            if(this.modId == modId
                && modInfo.unsubmittedLogoFilepath == ""
                && logoVersion == LogoVersion.Thumb_320x180)
             {

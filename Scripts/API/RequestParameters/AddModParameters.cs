@@ -11,20 +11,20 @@ namespace ModIO.API
                 this.SetStringValue("name", value);
             }
         }
-        // [REQUIRED] Image file which will represent your mods logo. Must be gif, jpg or png format and cannot exceed 8MB in filesize. Dimensions must be at least 640x360 and we recommended you supply a high resolution image with a 16 / 9 ratio. mod.io will use this image to make three thumbnails for the dimensions 320x180, 640x360 and 1280x720.
-        public BinaryUpload logo
-        {
-            set
-            {
-                this.SetBinaryData("logo", value.fileName, value.data);
-            }
-        }
         // [REQUIRED] Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
         public string summary
         {
             set
             {
                 this.SetStringValue("summary", value);
+            }
+        }
+        // [REQUIRED] Image file which will represent your mods logo. Must be gif, jpg or png format and cannot exceed 8MB in filesize. Dimensions must be at least 640x360 and we recommended you supply a high resolution image with a 16 / 9 ratio. mod.io will use this image to make three thumbnails for the dimensions 320x180, 640x360 and 1280x720.
+        public BinaryUpload logo
+        {
+            set
+            {
+                this.SetBinaryData("logo", value.fileName, value.data);
             }
         }
         // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
@@ -59,14 +59,6 @@ namespace ModIO.API
                 this.SetStringValue("homepage", value);
             }
         }
-        // Maximium number of subscribers for this mod. A value of 0 disables this limit.
-        public int stock
-        {
-            set
-            {
-                this.SetStringValue("stock", value.ToString());
-            }
-        }
         // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
         public string metadata_blob
         {
@@ -81,6 +73,14 @@ namespace ModIO.API
             set
             {
                 this.SetStringArrayValue("tags[]", value);
+            }
+        }
+        // Maximium number of subscribers for this mod. A value of 0 disables this limit.
+        public int stock
+        {
+            set
+            {
+                this.SetStringValue("stock", value.ToString());
             }
         }
     }

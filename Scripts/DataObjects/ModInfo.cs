@@ -161,83 +161,6 @@ namespace ModIO
         // TODO(@jackson): Add Support for Mod Media
 
         // --- SETTERS ---
-        // Status of a mod. The mod must have at least one uploaded modfile to be 'accepted' or 'archived' (best if this field is controlled by game admins, see status and visibility for details):
-        public void SetStatus(Status value)
-        {
-            UnityEngine.Debug.Assert(value != Status.Deleted,
-                                     "Status.Deleted cannot be set via SetStatus. Use the APIClient.DeleteMod instead");
-
-            _data.status = (int)value;
-        }
-        // Visibility of the mod (best if this field is controlled by mod admins, see status and visibility for details):
-        public void SetVisibility(Visibility value)
-        {
-            _data.visible = (int)value;
-        }
-        // Name of your mod. Cannot exceed 80 characters.
-        public void SetName(string value)
-        {
-            if(value.Length > 80)
-            {
-                value = value.Substring(0, 80);
-                UnityEngine.Debug.LogWarning("ModInfo.name cannot exceed 80 characters. Truncating.");
-            }
-
-            _data.name = value;
-        }
-        // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here. Cannot exceed 80 characters.
-        public void SetNameID(string value)
-        {
-            if(value.Length > 80)
-            {
-                value = value.Substring(0, 80);
-                UnityEngine.Debug.LogWarning("ModInfo.nameId cannot exceed 80 characters. Truncating.");
-            }
-
-            _data.name_id = value;
-        }
-        // Summary for your mod, giving a brief overview of what it's about. Cannot exceed 250 characters.
-        public void SetSummary(string value)
-        {
-            if(value.Length > 250)
-            {
-                value = value.Substring(0, 250);
-                UnityEngine.Debug.LogWarning("ModInfo.summary cannot exceed 250 characters. Truncating.");
-            }
-
-            _data.summary = value;
-        }
-        // Detailed description for your mod, which can include details such as 'About', 'Features', 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
-        public void SetDescription(string value)
-        {
-            _data.description = value;
-        }
-        // Official homepage for your mod. Must be a valid URL.
-        public void SetHomepage(string value)
-        {
-            if(!Utility.IsURL(value))
-            {
-                UnityEngine.Debug.LogWarning(value + " is not a valid URL and will not be accepted by the ");
-                value = "";
-            }
-
-            _data.homepage = value;
-        }
-        // // Unique id of the Modfile Object to be labelled as the current release.
-        // public void SetModfile(Modfile value)
-        // {
-        //     _data.modfile = value.GetAPIObject();
-        // }
-        // Artificially limit the amount of times the mod can be subscribed too.
-        public void SetStock(int value)
-        {
-            _data.stock = value;
-        }
-        // Metadata stored by the game developer which may include properties as to how the item works, or other information you need to display. Metadata can also be stored as searchable key value pairs, and to individual mod files.
-        public void SetMetadataBlob(string value)
-        {
-            _data.metadata_blob = value;
-        }
         // An array of strings that represent what the mod has been tagged as. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
         public void SetTagNames(string[] valueArray)
         {
@@ -467,13 +390,6 @@ namespace ModIO
             AddModParameters retVal = new AddModParameters();
             retVal.stringValues = new List<StringValueParameter>(GetAddValueFields());
             retVal.binaryData = new List<BinaryDataParameter>(GetAddDataFields());
-            return retVal;
-        }
-
-        public EditModParameters AsEditModParameters()
-        {
-            EditModParameters retVal = new EditModParameters();
-            retVal.stringValues = new List<StringValueParameter>(GetEditValueFields());
             return retVal;
         }
     }
