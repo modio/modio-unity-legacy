@@ -149,22 +149,10 @@ namespace ModIO
         {
             base.WrapAPIObject(apiObject);
             this._initialData = apiObject.Clone();
-            this.logoFilepath = "";
         }
 
         // --- Additional Fields ---
         [UnityEngine.SerializeField] private ModObject _initialData;
-        [UnityEngine.SerializeField] private string logoFilepath;
-
-        public string unsubmittedLogoFilepath { get { return logoFilepath; } }
-
-        // TODO(@jackson): Add Support for Mod Media
-
-        // --- SETTERS ---
-        public void SetLogoFilepath(string value)
-        {
-            logoFilepath = value;
-        }
 
         // TODO(@jackson): Complete
         public void SetModMedia()
@@ -173,19 +161,6 @@ namespace ModIO
         }
 
         // --- SUBMISSION HELPERS ---
-        public bool isInfoDirty()
-        {
-            return (_data.status != _initialData.status
-                    || _data.visible != _initialData.visible
-                    || _data.name != _initialData.name
-                    || _data.name_id != _initialData.name_id
-                    || _data.summary != _initialData.summary
-                    || _data.description != _initialData.description
-                    || _data.homepage != _initialData.homepage
-                    || _data.stock != _initialData.stock
-                    || _data.metadata_blob != _initialData.metadata_blob);
-        }
-
         public bool isMediaDirty()
         {
             return (!_data.media.Equals(_initialData.media));
@@ -252,23 +227,6 @@ namespace ModIO
             foreach(string tagName in tagNames)
             {
                 retVal.Add(StringValueParameter.Create("tags[]", tagName));
-            }
-
-            return retVal.ToArray();
-        }
-
-        public BinaryDataParameter[] GetAddDataFields()
-        {
-            List<BinaryDataParameter> retVal = new List<BinaryDataParameter>(1);
-
-            if(System.IO.File.Exists(logoFilepath))
-            {
-                BinaryDataParameter newData = new BinaryDataParameter();
-                newData.key = "logo";
-                newData.contents = System.IO.File.ReadAllBytes(logoFilepath);
-                newData.fileName = System.IO.Path.GetFileName(logoFilepath);
-                
-                retVal.Add(newData);
             }
 
             return retVal.ToArray();
@@ -344,14 +302,6 @@ namespace ModIO
             changes.images = removedImages.ToArray();
 
             return changes;
-        }
-
-        public AddModParameters AsAddModParameters()
-        {
-            AddModParameters retVal = new AddModParameters();
-            retVal.stringValues = new List<StringValueParameter>(GetAddValueFields());
-            retVal.binaryData = new List<BinaryDataParameter>(GetAddDataFields());
-            return retVal;
         }
     }
 }

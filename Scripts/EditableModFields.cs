@@ -13,5 +13,7 @@ namespace ModIO
         public EditableField<string> homepage =             new EditableField<string>();
         public EditableField<string> metadataBlob =         new EditableField<string>();
         public EditableField<string[]> tags =               new EditableField<string[]>();
+        // - Mod Media -
+        public EditableField<string> logoFilePath =         new EditableField<string>();
     }
 }

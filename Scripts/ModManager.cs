@@ -965,18 +965,17 @@ namespace ModIO
         }
 
         public static void SubmitNewMod(EditableModFields modData,
-                                        string logoFilePath,
                                         Action<ModInfo> modSubmissionSucceeded,
                                         Action<ErrorInfo> modSubmissionFailed)
         {
             Debug.Assert(modData.name.isDirty && modData.summary.isDirty);
-            Debug.Assert(File.Exists(logoFilePath));
+            Debug.Assert(File.Exists(modData.logoFilePath.value));
 
             var parameters = new AddModParameters();
             parameters.name = modData.name.value;
             parameters.summary = modData.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(logoFilePath),
-                                                  File.ReadAllBytes(logoFilePath));
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoFilePath.value),
+                                                  File.ReadAllBytes(modData.logoFilePath.value));
             if(modData.visibility.isDirty)
             {
                 parameters.visible = (int)modData.visibility.value;
@@ -1014,7 +1013,6 @@ namespace ModIO
 
         public static void SubmitModChanges(int modId,
                                             EditableModFields modData,
-                                            EditableModInfo modInfo,
                                             Action<ModInfo> modSubmissionSucceeded,
                                             Action<ErrorInfo> modSubmissionFailed)
         {

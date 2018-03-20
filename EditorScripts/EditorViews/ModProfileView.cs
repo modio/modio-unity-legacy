@@ -429,7 +429,6 @@ namespace ModIO
                 if(sceneData.modId == 0)
                 {
                     ModManager.SubmitNewMod(sceneData.modData,
-                                             sceneData.modInfo.unsubmittedLogoFilepath,
                                              (mod) =>
                                              {
                                                 // TODO(@jackson): Mark Dirty -> Save

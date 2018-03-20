@@ -1,5 +1,6 @@
 ﻿namespace ModIO
 {
+    // TODO(@jackson): rename - LogoSize
     public enum LogoVersion
     {
         Original = 0,

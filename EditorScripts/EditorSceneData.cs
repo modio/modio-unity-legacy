@@ -36,36 +36,38 @@ namespace ModIO
 
         private void OnModLogoUpdated(int modId, Texture2D modLogo, LogoVersion logoVersion)
         {
+            // TODO(@jackson): Serialize this
+            // TODO(@jackson): Other thumb sizes?
             if(this.modId == modId
-               && modInfo.unsubmittedLogoFilepath == ""
+               && !modData.logoFilePath.isDirty
                && logoVersion == LogoVersion.Thumb_320x180)
             {
                 modLogoTexture = modLogo;
-                modLogoSource = modInfo.logo.thumb320x180;
+                modData.logoFilePath.value = modInfo.logo.thumb320x180;
                 modLogoLastWrite = new DateTime();
             }
         }
 
         private void ReacquireModLogo()
         {
-            if(modInfo.id > 0
-               && modInfo.unsubmittedLogoFilepath == "")
+            if(modId > 0
+               && !modData.logoFilePath.isDirty)
             {
                 modLogoSource = modInfo.logo.thumb320x180;
 
-                modLogoTexture = ModManager.LoadCachedModLogo(modInfo.id, LogoVersion.Thumb_320x180);
+                modLogoTexture = ModManager.LoadCachedModLogo(modId, LogoVersion.Thumb_320x180);
                 modLogoLastWrite = new DateTime();
 
                 if(modLogoTexture == null)
                 {
                     modLogoTexture = UISettings.Instance.LoadingPlaceholder320x180;
 
-                    ModManager.DownloadModLogo(modInfo.id, LogoVersion.Thumb_320x180);
+                    ModManager.DownloadModLogo(modId, LogoVersion.Thumb_320x180);
                 }
             }
             else
             {
-                modLogoSource = modInfo.unsubmittedLogoFilepath;
+                modLogoSource = modData.logoFilePath.value;
 
                 if(File.Exists(modLogoSource))
                 {
@@ -79,14 +81,14 @@ namespace ModIO
 
         private void Update()
         {
-            string newLogoLocal = modInfo.unsubmittedLogoFilepath;
+            string newLogoLocal = modData.logoFilePath.value;
             string newLogoServer = modInfo.logo.thumb320x180;
-            string newLogoSource = (modInfo.id > 0 && newLogoLocal == "" ? newLogoServer : newLogoLocal);
+            string newLogoSource = (modId > 0 && newLogoLocal == "" ? newLogoServer : newLogoLocal);
 
             // TODO(@jackson): Handle file missing
             // - If file has changed or unsubmitted file is updated -
             if((modLogoSource != newLogoSource)
-               || (File.Exists(modInfo.unsubmittedLogoFilepath) && File.GetLastWriteTime(modInfo.unsubmittedLogoFilepath) > modLogoLastWrite))
+               || (File.Exists(modData.logoFilePath.value) && File.GetLastWriteTime(modData.logoFilePath.value) > modLogoLastWrite))
             {
                 ReacquireModLogo();
             }
