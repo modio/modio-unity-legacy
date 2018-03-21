@@ -11,96 +11,78 @@ namespace ModIO
     public class EditorSceneData : MonoBehaviour
     {
         public int modId = 0;
-        public ModInfo modInfo = null;
         public EditableModFields modData = null;
 
         public string buildLocation = string.Empty;
         public bool setBuildAsPrimary = true;
         public ModfileEditableFields modfileValues = null;
 
-        private Texture2D modLogoTexture = null;
-        private string modLogoSource = string.Empty;
+        public Texture2D modLogoTexture = null;
         private DateTime modLogoLastWrite = new DateTime();
 
         private void OnEnable()
         {
-            ModManager.OnModLogoUpdated += OnModLogoUpdated;
+            ModManager.OnModImageUpdated += OnModImageUpdated;
 
             ReacquireModLogo();
         }
 
         private void OnDisable()
         {
-            ModManager.OnModLogoUpdated -= OnModLogoUpdated;
+            ModManager.OnModImageUpdated -= OnModImageUpdated;
         }
 
-        private void OnModLogoUpdated(int modId, Texture2D modLogo, ImageVersion logoVersion)
+        // TODO(@jackson): Move to PropertyDrawer
+        private void OnModImageUpdated(string identifier, ImageVersion version, Texture2D imageTexture)
         {
             // TODO(@jackson): Serialize this
             // TODO(@jackson): Other thumb sizes?
-            if(this.modId == modId
-               && !modData.logoIdentifier.isDirty
-               && logoVersion == ImageVersion.Thumb_320x180)
+            if(modData.logoIdentifier.value.Equals(identifier)
+               && version == ImageVersion.Thumb_320x180)
             {
-                modLogoTexture = modLogo;
-                modData.logoIdentifier.value = modInfo.logo.thumb320x180;
+                modLogoTexture = imageTexture;
                 modLogoLastWrite = new DateTime();
             }
         }
 
+        // TODO(@jackson): Move to PropertyDrawer
         private void ReacquireModLogo()
         {
-            if(modId > 0
-               && !modData.logoIdentifier.isDirty)
+            if(File.Exists(modData.logoIdentifier.value))
             {
-                modLogoSource = modInfo.logo.thumb320x180;
+                modLogoTexture = new Texture2D(0, 0);
+                modLogoTexture.LoadImage(File.ReadAllBytes(modData.logoIdentifier.value));
 
-                modLogoTexture = ModManager.LoadCachedModLogo(modId, ImageVersion.Thumb_320x180);
+                modLogoLastWrite = File.GetLastWriteTime(modData.logoIdentifier.value);
+            }
+            else if(modId > 0)
+            {
+                modData.logoIdentifier.value = ModManager.GetMod(modId).logoIdentifier;
+                modData.logoIdentifier.isDirty = false;
+                modLogoTexture = ModManager.LoadOrDownloadModImage(modData.logoIdentifier.value, ImageVersion.Thumb_320x180);
                 modLogoLastWrite = new DateTime();
-
-                if(modLogoTexture == null)
-                {
-                    modLogoTexture = UISettings.Instance.LoadingPlaceholder320x180;
-
-                    ModManager.DownloadModLogo(modId, ImageVersion.Thumb_320x180);
-                }
             }
             else
             {
-                modLogoSource = modData.logoIdentifier.value;
-
-                if(File.Exists(modLogoSource))
-                {
-                    modLogoTexture = new Texture2D(0, 0);
-                    modLogoTexture.LoadImage(File.ReadAllBytes(modLogoSource));
-
-                    modLogoLastWrite = File.GetLastWriteTime(modLogoSource);
-                }
+                modData.logoIdentifier.value = "";
+                modData.logoIdentifier.isDirty = false;
             }
         }
 
+        // TODO(@jackson): Move to PropertyDrawer
         private void Update()
         {
-            string newLogoLocal = modData.logoIdentifier.value;
-            string newLogoServer = modInfo.logo.thumb320x180;
-            string newLogoSource = (modId > 0 && newLogoLocal == "" ? newLogoServer : newLogoLocal);
+            // string newLogoLocal = modData.logoIdentifier.value;
+            // string newLogoServer = modInfo.logo.thumb320x180;
+            // string newLogoSource = (modId > 0 && newLogoLocal == "" ? newLogoServer : newLogoLocal);
 
-            // TODO(@jackson): Handle file missing
-            // - If file has changed or unsubmitted file is updated -
-            if((modLogoSource != newLogoSource)
-               || (File.Exists(modData.logoIdentifier.value) && File.GetLastWriteTime(modData.logoIdentifier.value) > modLogoLastWrite))
-            {
-                ReacquireModLogo();
-            }
-        }
-
-        public Texture2D GetModLogoTexture()
-        {
-            return modLogoTexture;
-        }
-        public string GetModLogoSource()
-        {
-            return modLogoSource;
+            // // TODO(@jackson): Handle file missing
+            // // - If file has changed or unsubmitted file is updated -
+            // if((modLogoSource != newLogoSource)
+            //    || (File.Exists(modData.logoIdentifier.value) && File.GetLastWriteTime(modData.logoIdentifier.value) > modLogoLastWrite))
+            // {
+            //     ReacquireModLogo();
+            // }
         }
     }
 }

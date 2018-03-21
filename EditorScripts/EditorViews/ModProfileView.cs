@@ -43,26 +43,26 @@ namespace ModIO
         protected virtual void OnGUIInner(EditorSceneData sceneData)
         {
             // TODO(@jackson): Move textures to tempcache
-            Texture2D logoTexture = sceneData.GetModLogoTexture();
-            string logoSource = sceneData.GetModLogoSource();
-            List<string> selectedTags = new List<string>(sceneData.modInfo.GetTagNames());
-            isUndoEnabled = sceneData.modInfo.id > 0;
+            Texture2D logoTexture = sceneData.modLogoTexture;
+            string logoSource = sceneData.modData.logoIdentifier.value;
+            List<string> selectedTags = new List<string>(sceneData.modData.tags.value);
+            isUndoEnabled = sceneData.modId > 0;
 
             SerializedObject serializedSceneData = new SerializedObject(sceneData);
-            SerializedProperty modInfoProp = serializedSceneData.FindProperty("modInfo");
+            SerializedProperty modProfileProp = serializedSceneData.FindProperty("modData");
  
-            LayoutLogoTexture(modInfoProp, logoTexture, logoSource);
-            LayoutNameField(modInfoProp);
-            LayoutNameIDField(modInfoProp);
-            LayoutHomepageField(modInfoProp);
-            LayoutTagsField(modInfoProp, selectedTags, ref isTagsExpanded);
-            LayoutVisibilityField(modInfoProp);
-            LayoutStockField(modInfoProp);
-            LayoutSummaryField(modInfoProp);
-            LayoutDescriptionField(modInfoProp);
-            // LayoutModDependenciesField(modInfoProp);
-            LayoutMetadataField(modInfoProp);
-            // LayoutMetadataKVPField(modInfoProp);
+            LayoutLogoTexture(modProfileProp, logoTexture, logoSource);
+            LayoutNameField(modProfileProp);
+            LayoutNameIDField(modProfileProp);
+            LayoutHomepageField(modProfileProp);
+            LayoutTagsField(modProfileProp, selectedTags, ref isTagsExpanded);
+            LayoutVisibilityField(modProfileProp);
+            LayoutStockField(modProfileProp);
+            LayoutSummaryField(modProfileProp);
+            LayoutDescriptionField(modProfileProp);
+            // LayoutModDependenciesField(modProfileProp);
+            LayoutMetadataField(modProfileProp);
+            // LayoutMetadataKVPField(modProfileProp);
 
             serializedSceneData.ApplyModifiedProperties();
 
@@ -70,7 +70,7 @@ namespace ModIO
         }
 
         // ---------[ LAYOUT FUNCTIONS ]---------
-        protected virtual void LayoutLogoTexture(SerializedProperty modInfoProp,
+        protected virtual void LayoutLogoTexture(SerializedProperty modProfileProp,
                                                  Texture2D cachedTexture,
                                                  string browseButtonContent)
         {
@@ -100,63 +100,63 @@ namespace ModIO
                     string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
                     if (path.Length != 0)
                     {
-                        modInfoProp.FindPropertyRelative("logoFilepath").stringValue = path;
-                        modInfoProp.serializedObject.ApplyModifiedProperties();
+                        modProfileProp.FindPropertyRelative("logoFilepath").stringValue = path;
+                        modProfileProp.serializedObject.ApplyModifiedProperties();
                     }
                 };
             }
 
             if(isUndoRequested)
             {
-                modInfoProp.FindPropertyRelative("logoFilepath").stringValue = "";
+                modProfileProp.FindPropertyRelative("logoFilepath").stringValue = "";
             }
         }
 
-        protected virtual void LayoutNameField(SerializedProperty modInfoProp)
+        protected virtual void LayoutNameField(SerializedProperty modProfileProp)
         {
             EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PropertyField(modInfoProp.FindPropertyRelative("_data.name"),
+                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.name"),
                                               new GUIContent("Name"));
                 bool isUndoRequested = LayoutUndoButton();
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
             {
-                ResetStringField(modInfoProp, "name");
+                ResetStringField(modProfileProp, "name");
             }
         }
 
-        protected virtual void LayoutNameIDField(SerializedProperty modInfoProp)
+        protected virtual void LayoutNameIDField(SerializedProperty modProfileProp)
         {
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Profile URL");
                 EditorGUILayout.LabelField("@", GUILayout.Width(13));
-                EditorGUILayout.PropertyField(modInfoProp.FindPropertyRelative("_data.name_id"),
+                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.name_id"),
                                               GUIContent.none);
                 bool isUndoRequested = LayoutUndoButton();
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
             {
-                ResetStringField(modInfoProp, "name_id");
+                ResetStringField(modProfileProp, "name_id");
             }
         }
 
-        protected virtual void LayoutHomepageField(SerializedProperty modInfoProp)
+        protected virtual void LayoutHomepageField(SerializedProperty modProfileProp)
         {
             EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PropertyField(modInfoProp.FindPropertyRelative("_data.homepage"),
+                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.homepage"),
                                               new GUIContent("Homepage"));
                 bool isUndoRequested = LayoutUndoButton();
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
             {
-                ResetStringField(modInfoProp, "homepage");
+                ResetStringField(modProfileProp, "homepage");
             }
         }
 
-        protected virtual void LayoutTagsField(SerializedProperty modInfoProp,
+        protected virtual void LayoutTagsField(SerializedProperty modProfileProp,
                                                List<string> selectedTags,
                                                ref bool isExpanded)
         {
@@ -175,7 +175,7 @@ namespace ModIO
                     {
                         if(!tagOption.isHidden)
                         {
-                            LayoutTagOption(modInfoProp, tagOption, selectedTags, ref tagsRemovedCount);
+                            LayoutTagOption(modProfileProp, tagOption, selectedTags, ref tagsRemovedCount);
                         }
                     }
                 --EditorGUI.indentLevel;
@@ -183,11 +183,11 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                ResetTags(modInfoProp);
+                ResetTags(modProfileProp);
             }
         }
 
-        protected virtual void LayoutTagOption(SerializedProperty modInfoProp,
+        protected virtual void LayoutTagOption(SerializedProperty modProfileProp,
                                                GameTagOption tagOption,
                                                List<string> selectedTags,
                                                ref int tagsRemovedCount)
@@ -216,11 +216,11 @@ namespace ModIO
                         {
                             if(selectedTag != "")
                             {
-                                RemoveTagFromMod(modInfoProp, selectedTags.IndexOf(selectedTag) - tagsRemovedCount);
+                                RemoveTagFromMod(modProfileProp, selectedTags.IndexOf(selectedTag) - tagsRemovedCount);
                                 ++tagsRemovedCount;
                             }
 
-                            AddTagToMod(modInfoProp, tag);
+                            AddTagToMod(modProfileProp, tag);
                         }
                     }
                 }
@@ -235,11 +235,11 @@ namespace ModIO
                         {
                             if(isSelected)
                             {
-                                AddTagToMod(modInfoProp, tag);
+                                AddTagToMod(modProfileProp, tag);
                             }
                             else
                             {
-                                RemoveTagFromMod(modInfoProp, selectedTags.IndexOf(tag) - tagsRemovedCount);
+                                RemoveTagFromMod(modProfileProp, selectedTags.IndexOf(tag) - tagsRemovedCount);
                                 ++tagsRemovedCount;
                             }
                         }
@@ -249,9 +249,9 @@ namespace ModIO
             // EditorGUILayout.EndHorizontal();
         }
 
-        protected virtual void LayoutVisibilityField(SerializedProperty modInfoProp)
+        protected virtual void LayoutVisibilityField(SerializedProperty modProfileProp)
         {
-            ModInfo.Visibility modVisibility = (ModInfo.Visibility)modInfoProp.FindPropertyRelative("_data.visible").intValue;
+            ModInfo.Visibility modVisibility = (ModInfo.Visibility)modProfileProp.FindPropertyRelative("_data.visible").intValue;
 
             EditorGUILayout.BeginHorizontal();
                     modVisibility = (ModInfo.Visibility)EditorGUILayout.EnumPopup("Visibility", modVisibility);             bool isUndoRequested = LayoutUndoButton();
@@ -259,21 +259,21 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                ResetIntField(modInfoProp, "visible");
+                ResetIntField(modProfileProp, "visible");
             }
             else
             {
-                modInfoProp.FindPropertyRelative("_data.visible").intValue = (int)modVisibility;
+                modProfileProp.FindPropertyRelative("_data.visible").intValue = (int)modVisibility;
             }
         }
 
-        protected virtual void LayoutStockField(SerializedProperty modInfoProp)
+        protected virtual void LayoutStockField(SerializedProperty modProfileProp)
         {
             #if ENABLE_MOD_STOCK
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Stock");
 
-                EditorGUILayout.PropertyField(modInfoProp.FindPropertyRelative("_data.stock"),
+                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.stock"),
                                               GUIContent.none);//, GUILayout.Width(40));
 
                 // TODO(@jackson): Change to checkbox
@@ -283,14 +283,14 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                ResetIntField(modInfoProp, "stock");
+                ResetIntField(modProfileProp, "stock");
             }
             #endif
         }
 
-        protected virtual void LayoutSummaryField(SerializedProperty modInfoProp)
+        protected virtual void LayoutSummaryField(SerializedProperty modProfileProp)
         {
-            SerializedProperty summaryProp = modInfoProp.FindPropertyRelative("_data.summary");
+            SerializedProperty summaryProp = modProfileProp.FindPropertyRelative("_data.summary");
             EditorGUILayout.BeginHorizontal();
                 int charCount = summaryProp.stringValue.Length;
 
@@ -309,13 +309,13 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                ResetStringField(modInfoProp, "summary");
+                ResetStringField(modProfileProp, "summary");
             }
         }
 
-        protected virtual void LayoutDescriptionField(SerializedProperty modInfoProp)
+        protected virtual void LayoutDescriptionField(SerializedProperty modProfileProp)
         {
-            SerializedProperty descriptionProp = modInfoProp.FindPropertyRelative("_data.description");
+            SerializedProperty descriptionProp = modProfileProp.FindPropertyRelative("_data.description");
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Description");
                 EditorGUILayout.LabelField("[HTML Tags accepted]");
@@ -326,18 +326,18 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                ResetStringField(modInfoProp, "description");
+                ResetStringField(modProfileProp, "description");
             }
         }
 
-        protected virtual void LayoutModDependenciesField(SerializedProperty modInfoProp)
+        protected virtual void LayoutModDependenciesField(SerializedProperty modProfileProp)
         {
             // TODO(@jackson): Dependencies
         }
 
-        protected virtual void LayoutMetadataField(SerializedProperty modInfoProp)
+        protected virtual void LayoutMetadataField(SerializedProperty modProfileProp)
         {
-            SerializedProperty metadataProp = modInfoProp.FindPropertyRelative("_data.metadata_blob");
+            SerializedProperty metadataProp = modProfileProp.FindPropertyRelative("_data.metadata_blob");
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Metadata");
                 GUILayout.FlexibleSpace();
@@ -348,7 +348,7 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                ResetStringField(modInfoProp, "description");
+                ResetStringField(modProfileProp, "description");
             }
         }
 
@@ -369,24 +369,24 @@ namespace ModIO
         }
 
         // ---------[ RESET FUNCTIONS ]---------
-        private static void ResetStringField(SerializedProperty modInfoProp, string fieldName)
+        private static void ResetStringField(SerializedProperty modProfileProp, string fieldName)
         {
-            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).stringValue
-            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).stringValue;
+            modProfileProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).stringValue
+            = modProfileProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).stringValue;
         }
 
-        private static void ResetIntField(SerializedProperty modInfoProp, string fieldName)
+        private static void ResetIntField(SerializedProperty modProfileProp, string fieldName)
         {
-            modInfoProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).intValue
-            = modInfoProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).intValue;
+            modProfileProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).intValue
+            = modProfileProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).intValue;
         }
 
 
         // ---------[ TAG OPTIONS ]---------
         //  TODO(@jackson): Work out a better way of displaying this
-        private static void AddTagToMod(SerializedProperty modInfoProp, string tag)
+        private static void AddTagToMod(SerializedProperty modProfileProp, string tag)
         {
-            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data.tags");
+            SerializedProperty tagsArrayProp = modProfileProp.FindPropertyRelative("_data.tags");
             int newIndex = tagsArrayProp.arraySize;
             ++tagsArrayProp.arraySize;
 
@@ -394,17 +394,17 @@ namespace ModIO
             tagsArrayProp.GetArrayElementAtIndex(newIndex).FindPropertyRelative("date_added").intValue = TimeStamp.Now().AsServerTimeStamp();
         }
 
-        private static void RemoveTagFromMod(SerializedProperty modInfoProp, int tagIndex)
+        private static void RemoveTagFromMod(SerializedProperty modProfileProp, int tagIndex)
         {
-            SerializedProperty tagsArrayProp = modInfoProp.FindPropertyRelative("_data.tags");
+            SerializedProperty tagsArrayProp = modProfileProp.FindPropertyRelative("_data.tags");
 
             tagsArrayProp.DeleteArrayElementAtIndex(tagIndex);
         }
 
-        private static void ResetTags(SerializedProperty modInfoProp)
+        private static void ResetTags(SerializedProperty modProfileProp)
         {
-            SerializedProperty initTagsProp = modInfoProp.FindPropertyRelative("_initialData.tags");
-            SerializedProperty currentTagsProp = modInfoProp.FindPropertyRelative("_data.tags");
+            SerializedProperty initTagsProp = modProfileProp.FindPropertyRelative("_initialData.tags");
+            SerializedProperty currentTagsProp = modProfileProp.FindPropertyRelative("_data.tags");
 
             currentTagsProp.arraySize = initTagsProp.arraySize;
 

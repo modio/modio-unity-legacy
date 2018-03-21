@@ -13,7 +13,7 @@ namespace ModIO
     public delegate void ModEventHandler(ModInfo mod);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
-    public delegate void ModLogoEventHandler(int modId, Texture2D modLogo, ImageVersion logoVersion);
+    public delegate void ModImageUpdatedEventHandler(string modImageIdentifier, ImageVersion version, Texture2D imageTexture);
 
     public enum ModBinaryStatus
     {
@@ -605,7 +605,6 @@ namespace ModIO
         public static event ModIDEventHandler OnModRemoved;
         public static event ModIDEventHandler OnModUpdated;
         public static event ModfileEventHandler OnModfileChanged;
-        public static event ModLogoEventHandler OnModLogoUpdated;
 
         private static Dictionary<int, ModInfo> modCache = new Dictionary<int, ModInfo>();
 
@@ -752,6 +751,7 @@ namespace ModIO
         }
 
         // ---------[ IMAGE MANAGEMENT ]---------
+        public static event ModImageUpdatedEventHandler OnModImageUpdated;
         public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
         
         private static Dictionary<string, ModImageURLCollection> modImageMap = new Dictionary<string, ModImageURLCollection>();
@@ -781,10 +781,40 @@ namespace ModIO
             return null;
         }
 
-        private static Texture2D LoadOrDownloadModImage(string modImageIdentifier)
+        public static Texture2D LoadOrDownloadModImage(string modImageIdentifier, ImageVersion version)
         {
-            return null;
+            throw new System.NotImplementedException();
         }
+
+        public static string GetModImageServerURL(string identifier, ImageVersion version)
+        {
+            ModImageURLCollection collection;
+            if(modImageMap.TryGetValue(identifier, out collection))
+            {
+                // TODO(@jackson): Optimize?
+                switch(version)
+                {
+                    case ImageVersion.Original:
+                    {
+                        return collection.original;
+                    }
+                    case ImageVersion.Thumb_320x180:
+                    {
+                        return collection.thumb320x180;
+                    }
+                    case ImageVersion.Thumb_640x360:
+                    {
+                        return collection.thumb640x360;
+                    }
+                    case ImageVersion.Thumb_1280x720:
+                    {
+                        return collection.thumb1280x720;
+                    }
+                }
+            }
+            return string.Empty;
+        }
+
 
         private static string GetLogoFileName(ImageVersion logoVersion)
         {
@@ -809,6 +839,7 @@ namespace ModIO
             }
             return null;
         }
+
 
         public static Texture2D LoadCachedModLogo(int modId, ImageVersion logoVersion)
         {
@@ -889,9 +920,9 @@ namespace ModIO
             File.WriteAllBytes(localURL, bytes);
 
             // - Notify -
-            if(OnModLogoUpdated != null)
+            if(OnModImageUpdated != null)
             {
-                OnModLogoUpdated(modId, logoTexture, logoVersion);
+                OnModImageUpdated(ModImageIdentifier.GenerateForModLogo(modId), logoVersion, logoTexture);
             }
         }
 
@@ -924,9 +955,11 @@ namespace ModIO
 
                     modLogoCache[mod.id] = logoTexture;
 
-                    if(OnModLogoUpdated != null)
+                    if(OnModImageUpdated != null)
                     {
-                        OnModLogoUpdated(mod.id, logoTexture, logoVersion);
+                        OnModImageUpdated(ModImageIdentifier.GenerateForModLogo(mod.id),
+                                          logoVersion,
+                                          logoTexture);
                     }
                 }
                 else
@@ -1163,8 +1196,8 @@ namespace ModIO
                         int identifierModId;
                         string fileName;
                         if(ModImageIdentifier.TryParse(identifier,
-                                                       out isLogo,
                                                        out identifierModId,
+                                                       out isLogo,
                                                        out fileName))
                         {
                             removedImages.Remove(fileName);

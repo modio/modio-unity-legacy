@@ -91,7 +91,7 @@ namespace ModIO
                 this.tags[i].WrapAPIObject(_data.tags[i]);
             }
 
-            this.logoIdentifier = ModImageIdentifier.GenerateForLogo(_data.id, _data.logo.filename);
+            this.logoIdentifier = ModImageIdentifier.GenerateForModLogo(_data.id);
         }
 
         // - IAPIObjectWrapper Interface -
@@ -129,6 +129,25 @@ namespace ModIO
         {
             return (Object.ReferenceEquals(this, other)
                     || this._data.Equals(other._data));
+        }
+
+        public static EditableModFields CreateEMF(ModInfo info)
+        {
+            var retVal = new EditableModFields();
+            retVal.status.value = (ModStatus)(int)info.status;
+            retVal.visibility.value = (ModVisibility)(int)info.visibility;
+            retVal.name.value = info.name;
+            retVal.nameId.value = info.nameId;
+            retVal.summary.value = info.summary;
+            retVal.description.value = info.description;
+            retVal.homepage.value = info.homepage;
+            retVal.metadataBlob.value = info.metadataBlob;
+            retVal.tags.value = info.GetTagNames();
+            retVal.logoIdentifier.value = info.logoIdentifier;
+            retVal.youtubeURLs.value = info.media.youtubeURLs;
+            retVal.sketchfabURLs.value = info.media.sketchfabURLs;
+            // retVal.iamgeIdentifiers.value = info.media.imageIdentifiers;
+            return retVal;
         }
     }
 }

@@ -47,7 +47,7 @@ namespace ModIO
 
             serializedSceneData.ApplyModifiedProperties();
 
-            using(new EditorGUI.DisabledScope(sceneData.modInfo.id <= 0))
+            using(new EditorGUI.DisabledScope(sceneData.modId <= 0))
             {
                 if(GUILayout.Button("Package and Upload"))
                 {
@@ -57,7 +57,7 @@ namespace ModIO
                         {
                             EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
-                            UploadModBinary(sceneData.modInfo.id, sceneData.buildLocation, sceneData.modfileValues);
+                            UploadModBinary(sceneData.modId, sceneData.buildLocation, sceneData.modfileValues);
                         }
                     };
                 }
