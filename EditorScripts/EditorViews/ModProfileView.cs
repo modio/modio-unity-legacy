@@ -420,48 +420,50 @@ namespace ModIO
         // ---------[ UPLOADING ]---------
         private void UploadModInfo(EditorSceneData sceneData)
         {
-            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
-            {
-                EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+            throw new System.NotImplementedException();
 
-                isUploading = true;
+            // if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
+            // {
+            //     EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
-                if(sceneData.modId == 0)
-                {
-                    ModManager.SubmitNewMod(sceneData.modData,
-                                             (mod) =>
-                                             {
-                                                // TODO(@jackson): Mark Dirty -> Save
-                                                sceneData.modInfo = EditableModInfo.FromModInfo(mod);
-                                                isUploading = false;
-                                             },
-                                             (e) =>
-                                             {
-                                                isUploading = false;
-                                                EditorUtility.DisplayDialog("Mod Profile submission failed",
-                                                                            e.message,
-                                                                            "Ok");
-                                             });
-                }
-                else
-                {
-                    ModManager.SubmitModChanges(sceneData.modId,
-                                             sceneData.modData,
-                                             (mod) =>
-                                             {
-                                                // TODO(@jackson): Mark Dirty -> Save
-                                                sceneData.modInfo = EditableModInfo.FromModInfo(mod);
-                                                isUploading = false;
-                                             },
-                                             (e) =>
-                                             {
-                                                isUploading = false;
-                                                EditorUtility.DisplayDialog("Mod Profile submission failed",
-                                                                            e.message,
-                                                                            "Ok");
-                                             });
-                }
-            }
+            //     isUploading = true;
+
+            //     if(sceneData.modId == 0)
+            //     {
+            //         ModManager.SubmitNewMod(sceneData.modData,
+            //                                  (mod) =>
+            //                                  {
+            //                                     // TODO(@jackson): Mark Dirty -> Save
+            //                                     sceneData.modInfo = EditableModInfo.FromModInfo(mod);
+            //                                     isUploading = false;
+            //                                  },
+            //                                  (e) =>
+            //                                  {
+            //                                     isUploading = false;
+            //                                     EditorUtility.DisplayDialog("Mod Profile submission failed",
+            //                                                                 e.message,
+            //                                                                 "Ok");
+            //                                  });
+            //     }
+            //     else
+            //     {
+            //         ModManager.SubmitModChanges(sceneData.modId,
+            //                                  sceneData.modData,
+            //                                  (mod) =>
+            //                                  {
+            //                                     // TODO(@jackson): Mark Dirty -> Save
+            //                                     sceneData.modInfo = EditableModInfo.FromModInfo(mod);
+            //                                     isUploading = false;
+            //                                  },
+            //                                  (e) =>
+            //                                  {
+            //                                     isUploading = false;
+            //                                     EditorUtility.DisplayDialog("Mod Profile submission failed",
+            //                                                                 e.message,
+            //                                                                 "Ok");
+            //                                  });
+            //     }
+            // }
         }
     }
 }

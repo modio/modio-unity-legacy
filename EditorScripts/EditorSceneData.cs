@@ -11,8 +11,8 @@ namespace ModIO
     public class EditorSceneData : MonoBehaviour
     {
         public int modId = 0;
+        public ModInfo modInfo = null;
         public EditableModFields modData = null;
-        public EditableModInfo modInfo = new EditableModInfo();
 
         public string buildLocation = string.Empty;
         public bool setBuildAsPrimary = true;
@@ -39,11 +39,11 @@ namespace ModIO
             // TODO(@jackson): Serialize this
             // TODO(@jackson): Other thumb sizes?
             if(this.modId == modId
-               && !modData.logoFilePath.isDirty
+               && !modData.logoIdentifier.isDirty
                && logoVersion == ImageVersion.Thumb_320x180)
             {
                 modLogoTexture = modLogo;
-                modData.logoFilePath.value = modInfo.logo.thumb320x180;
+                modData.logoIdentifier.value = modInfo.logo.thumb320x180;
                 modLogoLastWrite = new DateTime();
             }
         }
@@ -51,7 +51,7 @@ namespace ModIO
         private void ReacquireModLogo()
         {
             if(modId > 0
-               && !modData.logoFilePath.isDirty)
+               && !modData.logoIdentifier.isDirty)
             {
                 modLogoSource = modInfo.logo.thumb320x180;
 
@@ -67,7 +67,7 @@ namespace ModIO
             }
             else
             {
-                modLogoSource = modData.logoFilePath.value;
+                modLogoSource = modData.logoIdentifier.value;
 
                 if(File.Exists(modLogoSource))
                 {
@@ -81,14 +81,14 @@ namespace ModIO
 
         private void Update()
         {
-            string newLogoLocal = modData.logoFilePath.value;
+            string newLogoLocal = modData.logoIdentifier.value;
             string newLogoServer = modInfo.logo.thumb320x180;
             string newLogoSource = (modId > 0 && newLogoLocal == "" ? newLogoServer : newLogoLocal);
 
             // TODO(@jackson): Handle file missing
             // - If file has changed or unsubmitted file is updated -
             if((modLogoSource != newLogoSource)
-               || (File.Exists(modData.logoFilePath.value) && File.GetLastWriteTime(modData.logoFilePath.value) > modLogoLastWrite))
+               || (File.Exists(modData.logoIdentifier.value) && File.GetLastWriteTime(modData.logoIdentifier.value) > modLogoLastWrite))
             {
                 ReacquireModLogo();
             }

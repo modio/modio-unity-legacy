@@ -978,13 +978,13 @@ namespace ModIO
                                         Action<ErrorInfo> modSubmissionFailed)
         {
             Debug.Assert(modData.name.isDirty && modData.summary.isDirty);
-            Debug.Assert(File.Exists(modData.logoFilePath.value));
+            Debug.Assert(File.Exists(modData.logoIdentifier.value));
 
             var parameters = new AddModParameters();
             parameters.name = modData.name.value;
             parameters.summary = modData.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoFilePath.value),
-                                                  File.ReadAllBytes(modData.logoFilePath.value));
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoIdentifier.value),
+                                                  File.ReadAllBytes(modData.logoIdentifier.value));
             if(modData.visibility.isDirty)
             {
                 parameters.visible = (int)modData.visibility.value;
@@ -1078,6 +1078,102 @@ namespace ModIO
                 }
             }
 
+            if(modData.logoIdentifier.isDirty
+               || modData.youtubeURLs.isDirty
+               || modData.sketchfabURLs.isDirty
+               || modData.imageIdentifiers.isDirty)
+            {
+                var addMediaParameters = new AddModMediaParameters();
+                var deleteMediaParameters = new DeleteModMediaParameters();
+                
+                if(modData.logoIdentifier.isDirty
+                   && File.Exists(modData.logoIdentifier.value))
+                {
+                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoIdentifier.value),
+                                                                  File.ReadAllBytes(modData.logoIdentifier.value));
+                }
+                
+                if(modData.youtubeURLs.isDirty)
+                {
+                    var addedYouTubeLinks = new List<string>(modData.youtubeURLs.value);
+                    foreach(string youtubeLink in mod.media.youtubeURLs)
+                    {
+                        addedYouTubeLinks.Remove(youtubeLink);
+                    }
+                    addMediaParameters.youtube = addedYouTubeLinks.ToArray();
+
+                    var removedTags = new List<string>(mod.media.youtubeURLs);
+                    foreach(string youtubeLink in modData.youtubeURLs.value)
+                    {
+                        removedTags.Remove(youtubeLink);
+                    }
+                    deleteMediaParameters.youtube = addedYouTubeLinks.ToArray();
+                }
+                
+                if(modData.sketchfabURLs.isDirty)
+                {
+                    var addedSketchfabLinks = new List<string>(modData.sketchfabURLs.value);
+                    foreach(string sketchfabLink in mod.media.sketchfabURLs)
+                    {
+                        addedSketchfabLinks.Remove(sketchfabLink);
+                    }
+                    addMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
+
+                    var removedTags = new List<string>(mod.media.sketchfabURLs);
+                    foreach(string sketchfabLink in modData.sketchfabURLs.value)
+                    {
+                        removedTags.Remove(sketchfabLink);
+                    }
+                    deleteMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
+                }
+
+                if(modData.imageIdentifiers.isDirty)
+                {
+                    var addedImageFilePaths = new List<string>();
+                    foreach(string imageIdentifier in modData.imageIdentifiers.value)
+                    {
+                        if(!Utility.IsURL(imageIdentifier)
+                           && File.Exists(imageIdentifier))
+                        {
+                            addedImageFilePaths.Add(imageIdentifier);
+                        }
+                    }
+                    // - Create Images.Zip -
+                    if(addedImageFilePaths.Count > 0)
+                    {
+                        string galleryZipLocation = Application.temporaryCachePath + "/modio/imageGallery_" + DateTime.Now.ToFileTime() + ".zip";
+                        ZipUtil.Zip(galleryZipLocation, addedImageFilePaths.ToArray());
+        
+                        var imageGalleryUpload = BinaryUpload.Create("images.zip",
+                                                                     File.ReadAllBytes(galleryZipLocation));
+
+                        addMediaParameters.images = imageGalleryUpload;
+                    }
+
+                    // TODO(@jackson): FIX! (Should be able to straight up remove)
+                    var removedImages = new List<string>(mod.media.images.Length);
+                    foreach(ImageURLInfo iInfo in mod.media.images)
+                    {
+                        removedImages.Add(iInfo.filename);
+                    }
+
+                    foreach(string identifier in modData.imageIdentifiers.value)
+                    {
+                        bool isLogo;
+                        int identifierModId;
+                        string fileName;
+                        if(ModImageIdentifier.TryParse(identifier,
+                                                       out isLogo,
+                                                       out identifierModId,
+                                                       out fileName))
+                        {
+                            removedImages.Remove(fileName);
+                        }
+                    }
+                    deleteMediaParameters.images = removedImages.ToArray();
+                }
+            }
+
             if(modData.status.isDirty
                || modData.visibility.isDirty
                || modData.name.isDirty
@@ -1144,57 +1240,6 @@ namespace ModIO
 
             // - Start submission chain -
             doNextSubmissionAction(new MessageObject());
-        }
-
-        public static void AddModMedia(ModMediaChanges modMedia,
-                                       Action<APIMessage> onSuccess,
-                                       Action<ErrorInfo> onError)
-        {
-            Debug.Assert(modMedia.modId > 0,
-                         "Invalid mod id supplied with the mod media changes");
-
-            // - Image Gallery -
-            BinaryUpload imageGalleryUpload = null;
-            if(modMedia.images.Length > 0)
-            {
-                string galleryZipLocation = Application.temporaryCachePath + "/modio/imageUpload_" + DateTime.Now.ToFileTime() + ".zip";
-                ZipUtil.Zip(galleryZipLocation, modMedia.images);
-
-                imageGalleryUpload = new BinaryUpload()
-                {
-                    fileName = "images.zip",
-                    data = File.ReadAllBytes(galleryZipLocation)
-                };
-            }
-
-            var parameters = new AddModMediaParameters();
-            parameters.youtube = modMedia.youtube;
-            parameters.sketchfab = modMedia.sketchfab;
-            parameters.images = imageGalleryUpload;
-
-            Client.AddModMedia(userData.oAuthToken, modMedia.modId,
-                               parameters,
-                               result => OnSuccessWrapper(result, onSuccess),
-                               onError);
-        }
-
-        public static void DeleteModMedia(ModMediaChanges modMedia,
-                                          Action<APIMessage> onSuccess,
-                                          Action<ErrorInfo> onError)
-        {
-            Debug.Assert(modMedia.modId > 0,
-                         "Invalid mod id supplied with the mod media changes");
-
-            // Create Parameters
-            var parameters = new DeleteModMediaParameters();
-            parameters.youtube = modMedia.youtube;
-            parameters.sketchfab = modMedia.sketchfab;
-            parameters.images = modMedia.images;
-
-            Client.DeleteModMedia(userData.oAuthToken, modMedia.modId,
-                                  parameters,
-                                  result => OnSuccessWrapper(result, onSuccess),
-                                  onError);
         }
 
         public static void UploadModBinary_Unzipped(int modId,

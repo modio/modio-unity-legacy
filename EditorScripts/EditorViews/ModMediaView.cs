@@ -74,7 +74,7 @@ namespace ModIO
             // --- Uploading ---
             if(GUILayout.Button("Update Mod Media"))
             {
-                EditorApplication.delayCall += () => SendModMediaChanges(sceneData.modId, sceneData.modInfo);
+                EditorApplication.delayCall += () => SendModMediaChanges(sceneData);
             }
         }
 
@@ -125,44 +125,47 @@ namespace ModIO
             }
         }
 
-        private void SendModMediaChanges(int modId, EditableModInfo modInfo)
+        private void SendModMediaChanges(EditorSceneData sceneData)
         {
-            if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
-            {
-                EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+            throw new System.NotImplementedException();
+            // int modId = sceneData.modId;
 
-                isUploading = true;
+            // if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
+            // {
+            //     EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
-                System.Action<APIMessage> onDeleteCompleted = (m) =>
-                {
-                    API.Client.GetMod(modId,
-                                     (mod) => { modInfo = EditableModInfo.FromModObject(mod); isUploading = false; },
-                                     (e) => { isUploading = false; });
-                };
+            //     isUploading = true;
 
-                System.Action<APIMessage> onAddCompleted = (m) =>
-                {
-                    ModManager.DeleteModMedia(modInfo.GetRemovedMedia(),
-                                              onDeleteCompleted,
-                                              (e) =>
-                                              {
-                                                isUploading = false;
-                                                EditorUtility.DisplayDialog("Mod Media Removal failed",
-                                                                            e.message,
-                                                                            "Ok");
-                                              });
-                };
+            //     System.Action<APIMessage> onDeleteCompleted = (m) =>
+            //     {
+            //         API.Client.GetMod(modId,
+            //                          (mod) => { sceneData.modInfo = new ModInfo(); modInfo.WrapAPIObject(mod); isUploading = false; },
+            //                          (e) => { isUploading = false; });
+            //     };
 
-                ModManager.AddModMedia(modInfo.GetAddedMedia(),
-                                       onAddCompleted,
-                                       (e) =>
-                                       {
-                                        isUploading = false;
-                                        EditorUtility.DisplayDialog("Mod Media Submission failed",
-                                                                    e.message,
-                                                                    "Ok");
-                                       });
-            }
+            //     System.Action<APIMessage> onAddCompleted = (m) =>
+            //     {
+            //         ModManager.DeleteModMedia(modInfo.GetRemovedMedia(),
+            //                                   onDeleteCompleted,
+            //                                   (e) =>
+            //                                   {
+            //                                     isUploading = false;
+            //                                     EditorUtility.DisplayDialog("Mod Media Removal failed",
+            //                                                                 e.message,
+            //                                                                 "Ok");
+            //                                   });
+            //     };
+
+            //     ModManager.AddModMedia(modInfo.GetAddedMedia(),
+            //                            onAddCompleted,
+            //                            (e) =>
+            //                            {
+            //                             isUploading = false;
+            //                             EditorUtility.DisplayDialog("Mod Media Submission failed",
+            //                                                         e.message,
+            //                                                         "Ok");
+            //                            });
+            // }
         }
     }
 }

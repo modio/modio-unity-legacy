@@ -12,7 +12,7 @@ namespace ModIO
         private ModMediaObject _data;
 
         public string[] youtubeURLs     { get { return _data.youtube; } }
-        public string[] sketchfabURLS   { get { return _data.sketchfab; } }
+        public string[] sketchfabURLs   { get { return _data.sketchfab; } }
         public ImageURLInfo[] images    { get; private set; }
         
         // - IAPIObjectWrapper Interface -
