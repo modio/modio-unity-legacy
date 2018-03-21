@@ -46,6 +46,8 @@ namespace ModIO
         public RatingSummary ratingSummary  { get; protected set; }
         public ModTag[] tags                { get; protected set; }
 
+        public string logoIdentifier = string.Empty;
+
         // - Accessors -
         public string[] GetTagNames()
         {
@@ -88,6 +90,8 @@ namespace ModIO
                 this.tags[i] = new ModTag();
                 this.tags[i].WrapAPIObject(_data.tags[i]);
             }
+
+            this.logoIdentifier = ModImageIdentifier.GenerateForLogo(_data.id, _data.logo.filename);
         }
 
         // - IAPIObjectWrapper Interface -

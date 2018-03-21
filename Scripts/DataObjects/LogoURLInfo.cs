@@ -43,10 +43,9 @@ namespace ModIO
                     || this._data.Equals(other._data));
         }
 
-        public ModImageURLCollection AsModImageURLCollection(int modId)
+        public ModImageURLCollection AsModImageURLCollection()
         {
             var muc = new ModImageURLCollection();
-            muc.modId = modId;
             muc.filename = this.filename;
             muc.original = this.original;
             muc.thumb320x180 = this.thumb320x180;

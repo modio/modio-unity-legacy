@@ -1,3 +1,5 @@
+using SerializeField = UnityEngine.SerializeField;
+
 namespace ModIO
 {
     // - Enums -
@@ -19,29 +21,31 @@ namespace ModIO
     public class Mod
     {
         // ---------[ SERIALIZED MEMBERS ]---------
-        [UnityEngine.SerializeField] private int _id;
-        [UnityEngine.SerializeField] private int _gameId;
-        [UnityEngine.SerializeField] private ModStatus _status;
-        [UnityEngine.SerializeField] private ModVisibility _visibility;
-        [UnityEngine.SerializeField] private int _submittedById;
-        [UnityEngine.SerializeField] private TimeStamp _dateAdded;
-        [UnityEngine.SerializeField] private TimeStamp _dateUpdated;
-        [UnityEngine.SerializeField] private TimeStamp _dateLive;
-        [UnityEngine.SerializeField] private string _homepageURL;
-        [UnityEngine.SerializeField] private string _name;
-        [UnityEngine.SerializeField] private string _nameId;
-        [UnityEngine.SerializeField] private string _summary;
-        [UnityEngine.SerializeField] private string _description;
-        [UnityEngine.SerializeField] private string _metadataBlob;
-        [UnityEngine.SerializeField] private string _profileURL;
-        [UnityEngine.SerializeField] private int _primaryModfileId;
+        [SerializeField] private int _id;
+        [SerializeField] private int _gameId;
+        [SerializeField] private ModStatus _status;
+        [SerializeField] private ModVisibility _visibility;
+        [SerializeField] private int _submittedById;
+        [SerializeField] private TimeStamp _dateAdded;
+        [SerializeField] private TimeStamp _dateUpdated;
+        [SerializeField] private TimeStamp _dateLive;
+        [SerializeField] private string _homepageURL;
+        [SerializeField] private string _name;
+        [SerializeField] private string _nameId;
+        [SerializeField] private string _summary;
+        [SerializeField] private string _description;
+        [SerializeField] private string _metadataBlob;
+        [SerializeField] private string _profileURL;
+        [SerializeField] private int _primaryModfileId;
         // TODO(@jackson): Update this
-        [UnityEngine.SerializeField] private RatingSummary _ratingSummary;
-        [UnityEngine.SerializeField] private string[] _tags;
-        // TODO(@jackson): ModMedia
+        [SerializeField] private RatingSummary _ratingSummary;
+        [SerializeField] private string[] _tags;
         // TODO(@jackson): TeamMembers
-        [UnityEngine.SerializeField] private string[] _youtubeURLs;
-        [UnityEngine.SerializeField] private string[] _sketchfabURLs;
+        
+        // TODO(@jackson): ModMedia
+        [SerializeField] private string _logoIdentifier;
+        [SerializeField] private string[] _youtubeURLs;
+        [SerializeField] private string[] _sketchfabURLs;
 
         // ---------[ FIELDS ]---------
         public int id                       { get { return this._id; } }

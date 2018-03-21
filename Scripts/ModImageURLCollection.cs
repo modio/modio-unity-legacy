@@ -3,8 +3,6 @@ namespace ModIO
     [System.Serializable]
     public class ModImageURLCollection
     {
-        public int modId;
-        
         public string filename;
         public string original;
         public string thumb320x180;

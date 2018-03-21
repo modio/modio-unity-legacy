@@ -629,8 +629,8 @@ namespace ModIO
             modCache[mod.id] = mod;
             File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
 
-            var modLogoCollection = mod.logo.AsModImageURLCollection(mod.id);
-            modLogoURLMap[mod.id] = modLogoCollection;
+            var modLogoCollection = mod.logo.AsModImageURLCollection();
+            modImageMap[mod.logoIdentifier] = modLogoCollection;
             File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modLogoCollection));
         }
 
@@ -751,11 +751,11 @@ namespace ModIO
             return download;
         }
 
-        // ---------[ LOGO MANAGEMENT ]---------
-        private static Dictionary<int, ModImageURLCollection> modLogoURLMap = new Dictionary<int, ModImageURLCollection>();
-
+        // ---------[ IMAGE MANAGEMENT ]---------
         public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
-        public static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
+        
+        private static Dictionary<string, ModImageURLCollection> modImageMap = new Dictionary<string, ModImageURLCollection>();
+        private static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
 
         private static Func<ModImageURLCollection, string> GenerateGetModLogoURLFunction(ImageVersion version)
         {
@@ -778,6 +778,11 @@ namespace ModIO
                     return (ModImageURLCollection collection) => { return collection.thumb1280x720; };
                 }
             }
+            return null;
+        }
+
+        private static Texture2D LoadOrDownloadModImage(string modImageIdentifier)
+        {
             return null;
         }
 
@@ -832,7 +837,11 @@ namespace ModIO
         public static void DownloadModLogo(int modId, ImageVersion logoVersion)
         {
             ModImageURLCollection logoURLCollection = null;
-            if(modLogoURLMap.TryGetValue(modId, out logoURLCollection))
+
+            // TODO(@jackson): Handle Miss
+            ModInfo modInfo = GetMod(modId);
+
+            if(modImageMap.TryGetValue(modInfo.logoIdentifier, out logoURLCollection))
             {
                 // - Start Download -
                 string logoURL = GenerateGetModLogoURLFunction(logoVersion)(logoURLCollection);
