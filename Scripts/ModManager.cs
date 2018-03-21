@@ -13,7 +13,7 @@ namespace ModIO
     public delegate void ModEventHandler(ModInfo mod);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
-    public delegate void ModLogoEventHandler(int modId, Texture2D modLogo, LogoVersion logoVersion);
+    public delegate void ModLogoEventHandler(int modId, Texture2D modLogo, ImageVersion logoVersion);
 
     public enum ModBinaryStatus
     {
@@ -754,26 +754,26 @@ namespace ModIO
         // ---------[ LOGO MANAGEMENT ]---------
         private static Dictionary<int, ModImageURLCollection> modLogoURLMap = new Dictionary<int, ModImageURLCollection>();
 
-        public static LogoVersion cachedLogoVersion = LogoVersion.Thumb_1280x720;
+        public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
         public static Dictionary<int, Texture2D> modLogoCache = new Dictionary<int, Texture2D>();
 
-        private static Func<ModImageURLCollection, string> GenerateGetModLogoURLFunction(LogoVersion version)
+        private static Func<ModImageURLCollection, string> GenerateGetModLogoURLFunction(ImageVersion version)
         {
             switch(version)
             {
-                case LogoVersion.Original:
+                case ImageVersion.Original:
                 {
                     return (ModImageURLCollection collection) => { return collection.original; };
                 }
-                case LogoVersion.Thumb_320x180:
+                case ImageVersion.Thumb_320x180:
                 {
                     return (ModImageURLCollection collection) => { return collection.thumb320x180; };
                 }
-                case LogoVersion.Thumb_640x360:
+                case ImageVersion.Thumb_640x360:
                 {
                     return (ModImageURLCollection collection) => { return collection.thumb640x360; };
                 }
-                case LogoVersion.Thumb_1280x720:
+                case ImageVersion.Thumb_1280x720:
                 {
                     return (ModImageURLCollection collection) => { return collection.thumb1280x720; };
                 }
@@ -781,23 +781,23 @@ namespace ModIO
             return null;
         }
 
-        private static string GetLogoFileName(LogoVersion logoVersion)
+        private static string GetLogoFileName(ImageVersion logoVersion)
         {
             switch(logoVersion)
             {
-                case LogoVersion.Original:
+                case ImageVersion.Original:
                 {
                     return "logo_original.png";
                 }
-                case LogoVersion.Thumb_320x180:
+                case ImageVersion.Thumb_320x180:
                 {
                     return "logo_320x180.png";
                 }
-                case LogoVersion.Thumb_640x360:
+                case ImageVersion.Thumb_640x360:
                 {
                     return "logo_640x360.png";
                 }
-                case LogoVersion.Thumb_1280x720:
+                case ImageVersion.Thumb_1280x720:
                 {
                     return "logo_1280x720.png";
                 }
@@ -805,12 +805,12 @@ namespace ModIO
             return null;
         }
 
-        public static Texture2D LoadCachedModLogo(int modId, LogoVersion logoVersion)
+        public static Texture2D LoadCachedModLogo(int modId, ImageVersion logoVersion)
         {
             Texture2D logoTexture = null;
 
             // NOTE(@jackson): Potentially return an off-res version?
-            if(cachedLogoVersion == logoVersion)
+            if(cachedImageVersion == logoVersion)
             {
                modLogoCache.TryGetValue(modId, out logoTexture);
             }
@@ -829,7 +829,7 @@ namespace ModIO
                 return logoTexture;
         }
 
-        public static void DownloadModLogo(int modId, LogoVersion logoVersion)
+        public static void DownloadModLogo(int modId, ImageVersion logoVersion)
         {
             ModImageURLCollection logoURLCollection = null;
             if(modLogoURLMap.TryGetValue(modId, out logoURLCollection))
@@ -865,11 +865,11 @@ namespace ModIO
         }
 
         private static void CacheModLogo(int modId,
-                                         LogoVersion logoVersion,
+                                         ImageVersion logoVersion,
                                          Texture2D logoTexture)
         {
             // - Cache -
-            if(cachedLogoVersion == logoVersion)
+            if(cachedImageVersion == logoVersion)
             {
                 modLogoCache[modId] = logoTexture;
             }
@@ -887,13 +887,13 @@ namespace ModIO
         }
 
         public static void DownloadModLogos(ModInfo[] modLogosToCache,
-                                            LogoVersion logoVersion)
+                                            ImageVersion logoVersion)
         {
             List<ModInfo> missingLogoList = new List<ModInfo>(modLogosToCache.Length);
             string logoFilename = GetLogoFileName(logoVersion);
             
             // Reset Cache if logoVersion is incorrect
-            if(logoVersion != cachedLogoVersion)
+            if(logoVersion != cachedImageVersion)
             {
                 modLogoCache = new Dictionary<int, Texture2D>(modLogosToCache.Length);
             }

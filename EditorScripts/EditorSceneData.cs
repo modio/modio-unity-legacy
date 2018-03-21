@@ -34,13 +34,13 @@ namespace ModIO
             ModManager.OnModLogoUpdated -= OnModLogoUpdated;
         }
 
-        private void OnModLogoUpdated(int modId, Texture2D modLogo, LogoVersion logoVersion)
+        private void OnModLogoUpdated(int modId, Texture2D modLogo, ImageVersion logoVersion)
         {
             // TODO(@jackson): Serialize this
             // TODO(@jackson): Other thumb sizes?
             if(this.modId == modId
                && !modData.logoFilePath.isDirty
-               && logoVersion == LogoVersion.Thumb_320x180)
+               && logoVersion == ImageVersion.Thumb_320x180)
             {
                 modLogoTexture = modLogo;
                 modData.logoFilePath.value = modInfo.logo.thumb320x180;
@@ -55,14 +55,14 @@ namespace ModIO
             {
                 modLogoSource = modInfo.logo.thumb320x180;
 
-                modLogoTexture = ModManager.LoadCachedModLogo(modId, LogoVersion.Thumb_320x180);
+                modLogoTexture = ModManager.LoadCachedModLogo(modId, ImageVersion.Thumb_320x180);
                 modLogoLastWrite = new DateTime();
 
                 if(modLogoTexture == null)
                 {
                     modLogoTexture = UISettings.Instance.LoadingPlaceholder320x180;
 
-                    ModManager.DownloadModLogo(modId, LogoVersion.Thumb_320x180);
+                    ModManager.DownloadModLogo(modId, ImageVersion.Thumb_320x180);
                 }
             }
             else

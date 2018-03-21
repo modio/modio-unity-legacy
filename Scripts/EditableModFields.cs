@@ -15,5 +15,8 @@ namespace ModIO
         public EditableField<string[]> tags =               new EditableField<string[]>();
         // - Mod Media -
         public EditableField<string> logoFilePath =         new EditableField<string>();
+        public EditableField<string[]> youtubeURLs =        new EditableField<string[]>();
+        public EditableField<string[]> sketchfabURLS =      new EditableField<string[]>();
+        public EditableField<string[]> imageLocators =      new EditableField<string[]>();
     }
 }
