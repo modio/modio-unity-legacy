@@ -622,18 +622,15 @@ namespace ModIO
 
         private static void StoreModData(ModInfo mod)
         {
-            var modLogoCollection = mod.logo.AsModImageURLCollection();
-
             // - Cache -
             modCache[mod.id] = mod;
-            modImageMap_remote[mod.logoIdentifier] = modLogoCollection;
-            modImageMap_local[mod.logoIdentifier] = new ModImageURLCollection(){ fileName = modLogoCollection.fileName };
+            modImageMap[mod.logoIdentifier] = mod.logo.AsModImageInfo();
 
             // - Write to disk -
             string modDir = GetModDirectory(mod.id);
             Directory.CreateDirectory(modDir);
             File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
-            File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modLogoCollection));
+            File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(mod.logo.AsModImageInfo()));
         }
 
         private static void StoreModDatas(ModInfo[] modArray)
@@ -757,32 +754,21 @@ namespace ModIO
         public static event ModImageUpdatedEventHandler OnModImageUpdated;
         public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
         
-        private static Dictionary<string, ModImageURLCollection> modImageMap_remote = new Dictionary<string, ModImageURLCollection>();
-        private static Dictionary<string, ModImageURLCollection> modImageMap_local = new Dictionary<string, ModImageURLCollection>();
+        private static Dictionary<string, ModImageInfo> modImageMap = new Dictionary<string, ModImageInfo>();
 
         public static Texture2D LoadOrDownloadModImage(string modImageIdentifier, ImageVersion version)
         {
             throw new System.NotImplementedException();
         }
 
-        public static string GetLocalModImageURL(string identifier, ImageVersion version)
+        public static FilePathURLPair GetModImageLocation(string identifier, ImageVersion version)
         {
-            ModImageURLCollection collection;
-            if(modImageMap_local.TryGetValue(identifier, out collection))
+            ModImageInfo info;
+            if(modImageMap.TryGetValue(identifier, out info))
             {
-                return collection.urlMap[version];
+                return info.locationMap[version];
             }
-            return string.Empty;
-        }
-
-        public static string GetRemoteModImageURL(string identifier, ImageVersion version)
-        {
-            ModImageURLCollection collection;
-            if(modImageMap_remote.TryGetValue(identifier, out collection))
-            {
-                return collection.urlMap[version];
-            }
-            return string.Empty;
+            return null;
         }
 
         // private static string GetLogoFileName(ImageVersion logoVersion)
@@ -809,45 +795,42 @@ namespace ModIO
         //     return null;
         // }
 
-        public static void DownloadModLogo(int modId, ImageVersion logoVersion)
+        public static void DownloadModLogo(int modId, ImageVersion version)
         {
-            ModImageURLCollection logoURLCollection = null;
+            Debug.Assert(modId > 0);
 
             // TODO(@jackson): Handle Miss
             ModInfo modInfo = GetMod(modId);
+            ModImageInfo logoInfo = modImageMap[modInfo.logoIdentifier];
 
-            if(modImageMap_remote.TryGetValue(modInfo.logoIdentifier, out logoURLCollection))
-            {
-                // - Start Download -
-                string logoURL = logoURLCollection.urlMap[logoVersion];
+            // - Start Download -
+            TextureDownload download = new TextureDownload();
+            download.sourceURL = logoInfo.locationMap[version].url;
+            download.OnCompleted += (d) => StoreModImage(ModImageIdentifier.GenerateForModLogo(modId),
+                                                         version,
+                                                         download.texture);
 
-                TextureDownload download = new TextureDownload();
-                download.sourceURL = logoURL;
-                download.OnCompleted += (d) => StoreModImage(ModImageIdentifier.GenerateForModLogo(modId),
-                                                             logoVersion,
-                                                             download.texture);
+            DownloadManager.AddConcurrentDownload(download);
 
-                DownloadManager.AddConcurrentDownload(download);
-            }
-            else
-            {
-                Action<ModInfo> cacheModAndDownloadLogo = (mod) =>
-                {
-                    StoreModData(mod);
+            // else
+            // {
+            //     Action<ModInfo> cacheModAndDownloadLogo = (mod) =>
+            //     {
+            //         StoreModData(mod);
 
-                    if(OnModAdded != null)
-                    {
-                        OnModAdded(mod);
-                    }
+            //         if(OnModAdded != null)
+            //         {
+            //             OnModAdded(mod);
+            //         }
 
-                    DownloadModLogo(mod.id, logoVersion);
-                };
+            //         DownloadModLogo(mod.id, version);
+            //     };
 
-                // TODO(@jackson): Fix up the onError
-                Client.GetMod(modId,
-                              result => OnSuccessWrapper(result, cacheModAndDownloadLogo),
-                              null);
-            }
+            //     // TODO(@jackson): Fix up the onError
+            //     Client.GetMod(modId,
+            //                   result => OnSuccessWrapper(result, cacheModAndDownloadLogo),
+            //                   null);
+            // }
         }
 
         private static void StoreModImage(string identifier,
@@ -920,7 +903,7 @@ namespace ModIO
 
         }
 
-        // TODO(@jackson): param -> ids
+        // TODO(@jackson): param -> ids.
         // TODO(@jackson): defend
         // TODO(@jackson): separate (This is Download _MISSING_ Logos)
         // TODO(@jackson): Add preload function?
@@ -933,8 +916,8 @@ namespace ModIO
             foreach(ModInfo mod in mods)
             {
                 string identifier = ModImageIdentifier.GenerateForModLogo(mod.id);
-                ModImageURLCollection collection = modImageMap_local[identifier];
-                if(!File.Exists(collection.urlMap[version]))
+                ModImageInfo imageInfo = modImageMap[identifier];
+                if(!File.Exists(imageInfo.locationMap[version].filePath))
                 {
                     missingLogoIdentifiers.Add(identifier);
                 }
@@ -945,8 +928,10 @@ namespace ModIO
             foreach(string identifier in missingLogoIdentifiers)
             {
                 TextureDownload download = new TextureDownload();
-                download.sourceURL = GetRemoteModImageURL(identifier, version);
-                download.OnCompleted += (d) => StoreModImage(identifier, version, download.texture);
+                download.sourceURL = GetModImageLocation(identifier, version).url;
+                download.OnCompleted += (d) => StoreModImage(identifier,
+                                                             version,
+                                                             download.texture);
 
                 DownloadManager.AddConcurrentDownload(download);
             }

@@ -43,14 +43,14 @@ namespace ModIO
                     || this._data.Equals(other._data));
         }
 
-        public ModImageURLCollection AsModImageURLCollection()
+        public ModImageInfo AsModImageInfo()
         {
-            var muc = new ModImageURLCollection();
+            var muc = new ModImageInfo();
             muc.fileName = this.filename;
-            muc.urlMap[ImageVersion.Original] = this.original;
-            muc.urlMap[ImageVersion.Thumb_320x180] = this.thumb320x180;
-            muc.urlMap[ImageVersion.Thumb_640x360] = this.thumb640x360;
-            muc.urlMap[ImageVersion.Thumb_1280x720] = this.thumb1280x720;
+            muc.locationMap[ImageVersion.Original] = new FilePathURLPair() { url = this.original };
+            muc.locationMap[ImageVersion.Thumb_320x180] = new FilePathURLPair() { url = this.thumb320x180 };
+            muc.locationMap[ImageVersion.Thumb_640x360] = new FilePathURLPair() { url = this.thumb640x360 };
+            muc.locationMap[ImageVersion.Thumb_1280x720] = new FilePathURLPair() { url = this.thumb1280x720 };
             return muc;
         }
     }
