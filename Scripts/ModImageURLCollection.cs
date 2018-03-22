@@ -6,7 +6,8 @@ namespace ModIO
     [System.Serializable]
     public class ModImageURLCollection : ISerializationCallbackReceiver
     {
-        public string filename = string.Empty;
+        // TODO(@jackson): Remove?
+        public string fileName = string.Empty;
         public Dictionary<ImageVersion, string> urlMap = new Dictionary<ImageVersion, string>(4);
 
         // - Serialized Backing For Dictionary -

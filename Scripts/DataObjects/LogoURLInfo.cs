@@ -46,7 +46,7 @@ namespace ModIO
         public ModImageURLCollection AsModImageURLCollection()
         {
             var muc = new ModImageURLCollection();
-            muc.filename = this.filename;
+            muc.fileName = this.filename;
             muc.urlMap[ImageVersion.Original] = this.original;
             muc.urlMap[ImageVersion.Thumb_320x180] = this.thumb320x180;
             muc.urlMap[ImageVersion.Thumb_640x360] = this.thumb640x360;
