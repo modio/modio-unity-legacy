@@ -4,9 +4,10 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Networking;
+
 using ModIO.API;
+
+using UnityEngine;
 
 namespace ModIO
 {
@@ -22,19 +23,8 @@ namespace ModIO
         UpToDate
     }
 
-    public class ModManager : MonoBehaviour
+    public class ModManager
     {
-        private static ModManager instance = null;
-
-        private Action requestHandlerUpdateHandle = null;
-        private void Update()
-        {
-            if(requestHandlerUpdateHandle != null)
-            {
-                requestHandlerUpdateHandle();
-            }
-        }
-
         // ---------[ INNER CLASSES ]---------
         [System.Serializable]
         private class UserData
@@ -125,6 +115,15 @@ namespace ModIO
                       + "\nModIO Directory: " + cacheDirectory);
 
             // TODO(@jackson): Listen to logo update for caching
+
+            #if UNITY_EDITOR
+            if(Application.isPlaying)
+            #endif
+            {
+                var go = new UnityEngine.GameObject("ModIO.UpdateRunner");
+                go.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
+                go.AddComponent<UpdateRunner>();
+            }
 
             LoadCacheFromDisk();
             FetchAndCacheAllMods();
@@ -263,30 +262,52 @@ namespace ModIO
         }
 
         // ---------[ AUTOMATED UPDATING ]---------
-        private const float SECONDS_BETWEEN_POLLING = 15.0f;
+        private const int SECONDS_BETWEEN_POLLING = 15;
         private static bool isUpdatePollingEnabled = false;
         private static bool isUpdatePollingRunning = false;
 
         public static void EnableUpdatePolling()
         {
-            isUpdatePollingEnabled = true;
-            
-            if(!isUpdatePollingRunning)
+            if(!isUpdatePollingEnabled)
             {
-                instance.StartCoroutine(PollForUpdates());
+                #if UNITY_EDITOR
+                if(!Application.isPlaying)
+                {
+                    UnityEditor.EditorApplication.update += PollForUpdates;
+                }
+                else
+                #endif
+                {
+                    UpdateRunner.onUpdate += PollForUpdates;
+                }
+                isUpdatePollingEnabled = true;
             }
         }
         public static void DisableUpdatePolling()
         {
-            isUpdatePollingEnabled = false;
-        }
-
-        private static IEnumerator PollForUpdates()
-        {
             if(isUpdatePollingEnabled)
             {
-                isUpdatePollingRunning = true;
-                
+                isUpdatePollingEnabled = false;
+                #if UNITY_EDITOR
+                if(!Application.isPlaying)
+                {
+                    UnityEditor.EditorApplication.update -= PollForUpdates;
+                }
+                else
+                #endif
+                {
+                    UpdateRunner.onUpdate -= PollForUpdates;
+                }
+            }
+        }
+
+        private static void PollForUpdates()
+        {
+            int secondsSinceUpdate = (TimeStamp.Now().AsServerTimeStamp()
+                                      - manifest.lastUpdateTimeStamp.AsServerTimeStamp());
+
+            if(secondsSinceUpdate >= SECONDS_BETWEEN_POLLING)
+            {
                 TimeStamp fromTimeStamp = manifest.lastUpdateTimeStamp;
                 TimeStamp untilTimeStamp = TimeStamp.Now();
 
@@ -322,11 +343,6 @@ namespace ModIO
                                                    result => OnSuccessWrapper<ModObject, ModInfo>(result, UpdateSubscriptions),
                                                    Client.LogError);
                 }
-
-                yield return new WaitForSeconds(SECONDS_BETWEEN_POLLING);
-                isUpdatePollingRunning = false;
-
-                instance.StartCoroutine(PollForUpdates());
             }
         }
 
