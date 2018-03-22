@@ -622,6 +622,9 @@ namespace ModIO
 
         private static void StoreModData(ModInfo mod)
         {
+            var modProfile = new ModProfile();
+            modProfile.CopyAPIObjectValues(mod.GetAPIObject());
+
             // - Cache -
             modCache[mod.id] = mod;
             modImageMap[mod.logoIdentifier] = mod.logo.AsModImageInfo();
@@ -629,6 +632,7 @@ namespace ModIO
             // - Write to disk -
             string modDir = GetModDirectory(mod.id);
             Directory.CreateDirectory(modDir);
+            File.WriteAllText(modDir + "mod_profile.data", JsonUtility.ToJson(modProfile));
             File.WriteAllText(modDir + "mod.data", JsonUtility.ToJson(mod));
             File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(mod.logo.AsModImageInfo()));
         }

@@ -98,11 +98,19 @@ namespace ModIO
             this._logoIdentifier = ModImageIdentifier.GenerateForModLogo(apiObject.id);
             this._youtubeURLs = apiObject.media.youtube;
             this._sketchfabURLs = apiObject.media.sketchfab;
-            this._imageIdentifiers = new string[apiObject.media.images.Length];
-            for(int i = 0; i < apiObject.media.images.Length; ++i)
+
+            if(apiObject.media.images != null)
             {
-                this._imageIdentifiers[i] = ModImageIdentifier.GenerateForModMedia(apiObject.id,
-                                                                                   apiObject.media.images[i].filename);
+                this._imageIdentifiers = new string[apiObject.media.images.Length];
+                for(int i = 0; i < apiObject.media.images.Length; ++i)
+                {
+                    this._imageIdentifiers[i] = ModImageIdentifier.GenerateForModMedia(apiObject.id,
+                                                                                       apiObject.media.images[i].filename);
+                }
+            }
+            else
+            {
+                this._imageIdentifiers = new string[0];
             }
         }
     }
