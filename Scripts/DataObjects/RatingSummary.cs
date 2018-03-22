@@ -17,6 +17,12 @@ namespace ModIO
         public string displayText       { get { return _data.display_text; } }
         
         // - IAPIObjectWrapper Interface -
+        public RatingSummary() {}
+        public RatingSummary(API.RatingSummaryObject apiObject)
+        {
+            this.WrapAPIObject(apiObject);
+        }
+
         public void WrapAPIObject(API.RatingSummaryObject apiObject)
         {
             this._data = apiObject;

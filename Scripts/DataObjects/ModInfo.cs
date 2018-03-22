@@ -146,7 +146,7 @@ namespace ModIO
             retVal.logoIdentifier.value = info.logoIdentifier;
             retVal.youtubeURLs.value = info.media.youtubeURLs;
             retVal.sketchfabURLs.value = info.media.sketchfabURLs;
-            // retVal.iamgeIdentifiers.value = info.media.imageIdentifiers;
+            // retVal.imageIdentifiers.value = info.media.imageIdentifiers;
             return retVal;
         }
     }
