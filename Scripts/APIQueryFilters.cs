@@ -624,8 +624,8 @@ namespace ModIO
                           (a,b) => a.status.CompareTo(b.status));
             StoreIntField(fieldInformationMap,
                           Field.SubmittedBy, "submitted_by",
-                          (game) => game.submittedBy.id,
-                          (a,b) => a.submittedBy.id.CompareTo(b.submittedBy.id));
+                          (game) => game.submittedById,
+                          (a,b) => a.submittedById.CompareTo(b.submittedById));
             StoreIntField(fieldInformationMap,
                           Field.DateAdded, "date_added",
                           (game) => game.dateAdded.AsServerTimeStamp(),
@@ -738,7 +738,7 @@ namespace ModIO
     }
 
     // TODO(@jackson): REDO
-    public class GetAllModsFilter : Filter<ModInfo, GetAllModsFilter.Field>
+    public class GetAllModsFilter : Filter<ModProfile, GetAllModsFilter.Field>
     {
         public enum Field
         {
@@ -800,8 +800,8 @@ namespace ModIO
             // integer(int32)  Unique id of the user who has ownership of the game.
             StoreIntField(fieldInformationMap,
                           Field.SubmittedBy, "submitted_by",
-                          (mod) => mod.submittedBy.id,
-                          (a,b) => a.submittedBy.id.CompareTo(b.submittedBy.id));
+                          (mod) => mod.submittedById,
+                          (a,b) => a.submittedById.CompareTo(b.submittedById));
             // integer(int32)  Unix timestamp of date registered.
             StoreIntField(fieldInformationMap,
                           Field.DateAdded, "date_added",
@@ -818,16 +818,12 @@ namespace ModIO
                           (mod) => mod.dateLive.AsServerTimeStamp(),
                           (a,b) => a.dateLive.CompareTo(b.dateLive));
 
-            // string  The filename of the logo.
-            StoreStringField(fieldInformationMap,
-                             Field.Logo, "logo",
-                             (mod) => mod.logo.filename,
-                             (a,b) => a.logo.filename.CompareTo(b.logo.filename));
             // string  Official homepage of the mod.
             StoreStringField(fieldInformationMap,
                              Field.Homepage, "homepage",
-                             (mod) => mod.homepage,
-                             (a,b) => a.homepage.CompareTo(b.homepage));
+                             (mod) => mod.homepageURL,
+                             (a,b) => a.homepageURL.CompareTo(b.homepageURL));
+
             // string  Name of the mod.
             StoreStringField(fieldInformationMap,
                              Field.Name, "name",
@@ -856,8 +852,8 @@ namespace ModIO
             // integer(int32)  Unique id of the Modfile Object marked as current release.
             StoreIntField(fieldInformationMap,
                           Field.Modfile, "modfile",
-                          (mod) => mod.modfile.id,
-                          (a,b) => a.modfile.id.CompareTo(b.modfile.id));
+                          (mod) => mod.primaryModfileId,
+                          (a,b) => a.primaryModfileId.CompareTo(b.primaryModfileId));
             // string  Sort results by weighted rating using _sort filter, value should be ratings for descending or -ratings for ascending results.
             StoreFloatField(fieldInformationMap,
                             Field.Ratings, "ratings",
@@ -888,7 +884,7 @@ namespace ModIO
             //      To determine what tags are eligible, see the tags values within 'Tag Options' column on the parent Game Object.
             StoreStringArrayField(fieldInformationMap,
                                   Field.Tags, "tags",
-                                  (mod) => mod.GetTagNames(),
+                                  (mod) => new List<string>(mod.tags).ToArray(),
                                   (a,b) => { Debug.LogError("The 'tags' attribute cannot be sorted on"); return a.id.CompareTo(b.id); });
         }
 
@@ -911,11 +907,11 @@ namespace ModIO
             filterStringMap[Field.Name] = "_q=" + query;
             filterDelegateMap[Field.Name] = (mod => mod.name.Contains(query));
         }
-        public void ApplyStatus(ModInfo.Status value)
+        public void ApplyStatus(ModStatus value)
         {
             base.ApplyIntEquality(Field.Status, (int)value);
         }
-        public void ApplyVisible(ModInfo.Visibility value)
+        public void ApplyVisible(ModVisibility value)
         {
             base.ApplyIntEquality(Field.Visible, (int)value);
         }
@@ -1217,7 +1213,7 @@ namespace ModIO
         internal override FieldInformation GetFieldInformation(GetAllUsersFilter.Field fieldIdentifier) { return null; }
     }
 
-    public class GetUserSubscriptionsFilter : Filter<ModInfo, GetUserSubscriptionsFilter.Field>
+    public class GetUserSubscriptionsFilter : Filter<ModProfile, GetUserSubscriptionsFilter.Field>
     {
         public static readonly new GetUserSubscriptionsFilter None = new GetUserSubscriptionsFilter();
 
@@ -1276,8 +1272,8 @@ namespace ModIO
                           (a,b) => a.gameId.CompareTo(b.gameId));
             StoreIntField(fieldInformationMap,
                           Field.SubmittedBy, "submitted_by",
-                          (mod) => mod.submittedBy.id,
-                          (a,b) => a.submittedBy.id.CompareTo(b.submittedBy.id));
+                          (mod) => mod.submittedById,
+                          (a,b) => a.submittedById.CompareTo(b.submittedById));
             StoreIntField(fieldInformationMap,
                           Field.DateAdded, "date_added",
                           (mod) => mod.dateAdded.AsServerTimeStamp(),
@@ -1308,8 +1304,8 @@ namespace ModIO
                              (a,b) => a.description.CompareTo(b.description));
             StoreStringField(fieldInformationMap,
                              Field.Homepage, "homepage",
-                             (mod) => mod.homepage,
-                             (a,b) => a.homepage.CompareTo(b.homepage));
+                             (mod) => mod.homepageURL,
+                             (a,b) => a.homepageURL.CompareTo(b.homepageURL));
             StoreStringField(fieldInformationMap,
                              Field.MetadataBlob, "metadata_blob",
                              (mod) => mod.metadataBlob,

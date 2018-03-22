@@ -10,7 +10,7 @@ using ModIO.API;
 
 namespace ModIO
 {
-    public delegate void ModEventHandler(ModInfo mod);
+    public delegate void ModEventHandler(ModProfile modProfile);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
     public delegate void ModImageUpdatedEventHandler(string modImageIdentifier, ImageVersion version, Texture2D imageTexture);
@@ -232,7 +232,7 @@ namespace ModIO
                 {
                     foreach(ModInfo mod in addedMods)
                     {
-                        OnModAdded(mod);
+                        OnModAdded(mod.AsModProfile());
                     }
                 }
 
@@ -342,7 +342,7 @@ namespace ModIO
 
                     if(OnModAdded != null)
                     {
-                        OnModAdded(mod);
+                        OnModAdded(mod.AsModProfile());
                     }
                 };
 
@@ -664,13 +664,8 @@ namespace ModIO
 
         public static ModProfile[] GetModProfiles(GetAllModsFilter filter)
         {
-            ModInfo[] modInfoArray = filter.FilterCollection(modCache.Values);
-            ModProfile[] retVal = new ModProfile[modInfoArray.Length];
-            for(int i = 0; i < modInfoArray.Length; ++i)
-            {
-                retVal[i] = modInfoArray[i].AsModProfile();
-            }
-            return retVal;
+            // return filter.FilterCollection(modCache.Values);
+            return new ModProfile[0];
         }
 
 

@@ -87,6 +87,8 @@ namespace ModIO
         public string instructions                      { get { return _data.instructions; } }
         public string profileURL                        { get { return _data.profile_url; } }
         public GameTagOption[] taggingOptions           { get; protected set; }
+
+        public int submittedById    { get { return this.submittedBy.id; } }
         
         // - IAPIObjectWrapper Interface -
         public void WrapAPIObject(API.GameObject apiObject)

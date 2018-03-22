@@ -251,10 +251,10 @@ namespace ModIO
 
         protected virtual void LayoutVisibilityField(SerializedProperty modProfileProp)
         {
-            ModInfo.Visibility modVisibility = (ModInfo.Visibility)modProfileProp.FindPropertyRelative("_data.visible").intValue;
+            ModVisibility modVisibility = (ModVisibility)modProfileProp.FindPropertyRelative("_data.visible").intValue;
 
             EditorGUILayout.BeginHorizontal();
-                    modVisibility = (ModInfo.Visibility)EditorGUILayout.EnumPopup("Visibility", modVisibility);             bool isUndoRequested = LayoutUndoButton();
+                    modVisibility = (ModVisibility)EditorGUILayout.EnumPopup("Visibility", modVisibility);             bool isUndoRequested = LayoutUndoButton();
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)

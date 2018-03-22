@@ -36,7 +36,7 @@ namespace ModIO
                     EditorGUILayout.LabelField("Submitted By",
                                                modObjectProp.FindPropertyRelative("submitted_by.username").stringValue);
 
-                    ModInfo.Status modStatus = (ModInfo.Status)modObjectProp.FindPropertyRelative("status").intValue;
+                    ModStatus modStatus = (ModStatus)modObjectProp.FindPropertyRelative("status").intValue;
                     EditorGUILayout.LabelField("Status",
                                                modStatus.ToString());
 
