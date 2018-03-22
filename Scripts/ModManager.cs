@@ -389,9 +389,9 @@ namespace ModIO
 
             Action<ModEvent> processModfileChange = (modEvent) =>
             {
-                ModInfo mod = GetMod(modEvent.modId);
+                ModProfile profile = GetModProfile(modEvent.modId);
 
-                if(mod == null)
+                if(profile == null)
                 {
                     Debug.Log("Received Modfile change for uncached mod. Ignoring.");
                     manifest.unresolvedEvents.Remove(modEvent);
@@ -408,9 +408,9 @@ namespace ModIO
                         }
                     };
 
-                    Client.GetMod(mod.id,
-                                     result => OnSuccessWrapper(result, onGetMod),
-                                     Client.LogError);
+                    Client.GetMod(profile.id,
+                                  result => OnSuccessWrapper(result, onGetMod),
+                                  Client.LogError);
 
                     manifest.unresolvedEvents.Remove(modEvent);
                 }
@@ -564,7 +564,7 @@ namespace ModIO
         }
 
         public static void SubscribeToMod(int modId,
-                                          Action<ModInfo> onSuccess,
+                                          Action<ModProfile> onSuccess,
                                           Action<ErrorInfo> onError)
         {
             Client.SubscribeToMod(userData.oAuthToken,
@@ -572,13 +572,13 @@ namespace ModIO
                                      (message) =>
                                      {
                                         userData.subscribedModIDs.Add(modId);
-                                        onSuccess(GetMod(modId));
+                                        onSuccess(GetModProfile(modId));
                                      },
                                      onError);
         }
 
         public static void UnsubscribeFromMod(int modId,
-                                              Action<ModInfo> onSuccess,
+                                              Action<ModProfile> onSuccess,
                                               Action<ErrorInfo> onError)
         {
             Client.UnsubscribeFromMod(userData.oAuthToken,
@@ -586,7 +586,7 @@ namespace ModIO
                                          (message) =>
                                          {
                                             userData.subscribedModIDs.Remove(modId);
-                                            onSuccess(GetMod(modId));
+                                            onSuccess(GetModProfile(modId));
                                          },
                                          onError);
         }
@@ -613,11 +613,23 @@ namespace ModIO
             return cacheDirectory + "mods/" + modId + "/";
         }
 
-        public static ModInfo GetMod(int modId)
+        public static ModProfile GetModProfile(int modId)
         {
-            ModInfo mod = null;
-            modCache.TryGetValue(modId, out mod);
-            return mod;
+            ModInfo mod;
+            if(modCache.TryGetValue(modId, out mod))
+            {
+                ModProfile profile = new ModProfile();
+                profile.CopyAPIObjectValues(mod.GetAPIObject());
+                return profile;
+            }
+            return null;
+        }
+
+        private static ModInfo GetModInfo(int modId)
+        {
+            ModInfo modInfo;
+            modCache.TryGetValue(modId, out modInfo);
+            return modInfo;
         }
 
         private static void StoreModData(ModInfo mod)
@@ -650,9 +662,14 @@ namespace ModIO
             Directory.Delete(modDir, true);
         }
 
-        public static ModInfo[] GetMods(GetAllModsFilter filter)
+        public static ModProfile[] GetModProfiles(GetAllModsFilter filter)
         {
-            ModInfo[] retVal = filter.FilterCollection(modCache.Values);
+            ModInfo[] modInfoArray = filter.FilterCollection(modCache.Values);
+            ModProfile[] retVal = new ModProfile[modInfoArray.Length];
+            for(int i = 0; i < modInfoArray.Length; ++i)
+            {
+                retVal[i] = modInfoArray[i].AsModProfile();
+            }
             return retVal;
         }
 
@@ -804,7 +821,7 @@ namespace ModIO
             Debug.Assert(modId > 0);
 
             // TODO(@jackson): Handle Miss
-            ModInfo modInfo = GetMod(modId);
+            ModInfo modInfo = GetModInfo(modId);
             ModImageInfo logoInfo = modImageMap[modInfo.logoIdentifier];
 
             // - Start Download -
@@ -965,7 +982,7 @@ namespace ModIO
         }
 
         public static void SubmitNewMod(EditableModFields modData,
-                                        Action<ModInfo> modSubmissionSucceeded,
+                                        Action<ModProfile> modSubmissionSucceeded,
                                         Action<ErrorInfo> modSubmissionFailed)
         {
             Debug.Assert(modData.name.isDirty && modData.summary.isDirty);
@@ -988,9 +1005,9 @@ namespace ModIO
             {
                 parameters.description = modData.description.value;
             }
-            if(modData.homepage.isDirty)
+            if(modData.homepageURL.isDirty)
             {
-                parameters.name_id = modData.homepage.value;
+                parameters.name_id = modData.homepageURL.value;
             }
             if(modData.metadataBlob.isDirty)
             {
@@ -1002,24 +1019,24 @@ namespace ModIO
             }
             if(modData.tags.isDirty)
             {
-                parameters.tags = modData.tags.value;
+                parameters.tags = modData.tags.value.ToArray();
             }
 
             Client.AddMod(userData.oAuthToken,
                           parameters,
-                          result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                          result => modSubmissionSucceeded(ModProfile.CreateFromAPIObject(result)),
                           modSubmissionFailed);
         }
 
         public static void SubmitModChanges(int modId,
                                             EditableModFields modData,
-                                            Action<ModInfo> modSubmissionSucceeded,
+                                            Action<ModProfile> modSubmissionSucceeded,
                                             Action<ErrorInfo> modSubmissionFailed)
         {
             Debug.Assert(modId > 0);
 
             // TODO(@jackson): Defend this code
-            ModInfo mod = GetMod(modId);
+            ModInfo mod = GetModInfo(modId);
 
             List<Action> submissionActions = new List<Action>();
             int nextActionIndex = 0;
@@ -1171,7 +1188,7 @@ namespace ModIO
                || modData.nameId.isDirty
                || modData.summary.isDirty
                || modData.description.isDirty
-               || modData.homepage.isDirty
+               || modData.homepageURL.isDirty
                || modData.metadataBlob.isDirty)
             {
                 submissionActions.Add(() =>
@@ -1203,9 +1220,9 @@ namespace ModIO
                     {
                         parameters.description = modData.description.value;
                     }
-                    if(modData.homepage.isDirty)
+                    if(modData.homepageURL.isDirty)
                     {
-                        parameters.homepage = modData.homepage.value;
+                        parameters.homepage = modData.homepageURL.value;
                     }
                     if(modData.metadataBlob.isDirty)
                     {
@@ -1214,7 +1231,7 @@ namespace ModIO
 
                     Client.EditMod(userData.oAuthToken,
                                    modId, parameters,
-                                   result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                                   result => modSubmissionSucceeded(ModProfile.CreateFromAPIObject(result)),
                                    modSubmissionFailed);
                 });
             }
@@ -1224,7 +1241,7 @@ namespace ModIO
                 submissionActions.Add(() =>
                 {
                     Client.GetMod(modId,
-                                  result => OnSuccessWrapper(result, modSubmissionSucceeded),
+                                  result => modSubmissionSucceeded(ModProfile.CreateFromAPIObject(result)),
                                   modSubmissionFailed);
                 });
             }

@@ -9,7 +9,7 @@ namespace ModIO
     {
         // ---------[ FIELDS ]---------
         private int modInitializationOptionIndex;
-        private ModInfo[] modList;
+        private ModProfile[] modList;
         private string[] modOptions;
 
         // ---[ ISceneEditorView Interface ]---
@@ -18,11 +18,11 @@ namespace ModIO
         {
             // TODO(@jackson): Filter by editable
             modInitializationOptionIndex = 0;
-            modList = ModManager.GetMods(GetAllModsFilter.None);
+            modList = ModManager.GetModProfiles(GetAllModsFilter.None);
             modOptions = new string[modList.Length];
             for(int i = 0; i < modList.Length; ++i)
             {
-                ModInfo mod = modList[i];
+                ModProfile mod = modList[i];
                 modOptions[i] = mod.name;
             }
         }
@@ -37,7 +37,7 @@ namespace ModIO
             EditorGUILayout.LabelField("Create New Mod Profile");
             if(GUILayout.Button("Create"))
             {
-                EditorApplication.delayCall += () => InitializeSceneForModding(new ModInfo());
+                EditorApplication.delayCall += () => InitializeSceneForModding(new ModProfile());
             }
 
             EditorGUILayout.Space();
@@ -48,18 +48,18 @@ namespace ModIO
             modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
             if(GUILayout.Button("Load"))
             {
-                ModInfo modInfo = modList[modInitializationOptionIndex];
-                EditorApplication.delayCall += () => InitializeSceneForModding(modInfo);
+                ModProfile profile = modList[modInitializationOptionIndex];
+                EditorApplication.delayCall += () => InitializeSceneForModding(profile);
             }
         }
 
-        protected virtual void InitializeSceneForModding(ModInfo modInfo)
+        protected virtual void InitializeSceneForModding(ModProfile profile)
         {
             GameObject sd_go = new GameObject("ModIO Scene Data");
             sd_go.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
 
             EditorSceneData sceneData = sd_go.AddComponent<EditorSceneData>();
-            sceneData.modData = ModInfo.CreateEMF(modInfo);
+            sceneData.modData = EditableModFields.CreateFromProfile(profile);
             sceneData.modfileValues = new ModfileEditableFields();
 
             Undo.RegisterCreatedObjectUndo(sd_go, "Initialize scene");

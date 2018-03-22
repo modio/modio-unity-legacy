@@ -131,23 +131,11 @@ namespace ModIO
                     || this._data.Equals(other._data));
         }
 
-        public static EditableModFields CreateEMF(ModInfo info)
+        public ModProfile AsModProfile()
         {
-            var retVal = new EditableModFields();
-            retVal.status.value = (ModStatus)(int)info.status;
-            retVal.visibility.value = (ModVisibility)(int)info.visibility;
-            retVal.name.value = info.name;
-            retVal.nameId.value = info.nameId;
-            retVal.summary.value = info.summary;
-            retVal.description.value = info.description;
-            retVal.homepage.value = info.homepage;
-            retVal.metadataBlob.value = info.metadataBlob;
-            retVal.tags.value = info.GetTagNames();
-            retVal.logoIdentifier.value = info.logoIdentifier;
-            retVal.youtubeURLs.value = info.media.youtubeURLs;
-            retVal.sketchfabURLs.value = info.media.sketchfabURLs;
-            // retVal.imageIdentifiers.value = info.media.imageIdentifiers;
-            return retVal;
+            ModProfile profile = new ModProfile();
+            profile.CopyAPIObjectValues(_data);
+            return profile;
         }
     }
 }

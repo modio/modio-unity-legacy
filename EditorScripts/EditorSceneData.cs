@@ -57,7 +57,7 @@ namespace ModIO
             }
             else if(modId > 0)
             {
-                modData.logoIdentifier.value = ModManager.GetMod(modId).logoIdentifier;
+                modData.logoIdentifier.value = ModManager.GetModProfile(modId).logoIdentifier;
                 modData.logoIdentifier.isDirty = false;
                 modLogoTexture = ModManager.LoadOrDownloadModImage(modData.logoIdentifier.value, ImageVersion.Thumb_320x180);
                 modLogoLastWrite = new DateTime();

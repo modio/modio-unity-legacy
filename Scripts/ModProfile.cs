@@ -70,7 +70,8 @@ namespace ModIO
         public ICollection<string> sketchfabURLs    { get { return new List<string>(this._sketchfabURLs); } }
         public ICollection<string> imageIdentifiers { get { return new List<string>(this._imageIdentifiers); } }
 
-        // ---------[ INITIALIZATION ]---------
+        // ---------[ API OBJECT INTERFACE ]---------
+        // TODO(@jackson): Move to ModManager
         public void CopyAPIObjectValues(API.ModObject apiObject)
         {
             this._id = apiObject.id;
@@ -112,6 +113,14 @@ namespace ModIO
             {
                 this._imageIdentifiers = new string[0];
             }
+        }
+
+        public static ModProfile CreateFromAPIObject(API.ModObject apiObject)
+        {
+            UnityEngine.Debug.LogWarning("@jackson: STOP DOING THIS!");
+            ModProfile profile = new ModProfile();
+            profile.CopyAPIObjectValues(apiObject);
+            return profile;
         }
     }
 }
