@@ -47,10 +47,10 @@ namespace ModIO
         {
             var muc = new ModImageURLCollection();
             muc.filename = this.filename;
-            muc.original = this.original;
-            muc.thumb320x180 = this.thumb320x180;
-            muc.thumb640x360 = this.thumb640x360;
-            muc.thumb1280x720 = this.thumb1280x720;
+            muc.urlMap[ImageVersion.Original] = this.original;
+            muc.urlMap[ImageVersion.Thumb_320x180] = this.thumb320x180;
+            muc.urlMap[ImageVersion.Thumb_640x360] = this.thumb640x360;
+            muc.urlMap[ImageVersion.Thumb_1280x720] = this.thumb1280x720;
             return muc;
         }
     }
