@@ -356,7 +356,7 @@ namespace ModIO
         {
             if(GUILayout.Button("Save To Server"))
             {
-                EditorApplication.delayCall += () => UploadModInfo(sceneData);
+                EditorApplication.delayCall += () => UploadModProfile(sceneData);
             }
         }
 
@@ -418,7 +418,7 @@ namespace ModIO
         }
 
         // ---------[ UPLOADING ]---------
-        private void UploadModInfo(EditorSceneData sceneData)
+        private void UploadModProfile(EditorSceneData sceneData)
         {
             throw new System.NotImplementedException();
 
@@ -434,7 +434,7 @@ namespace ModIO
             //                                  (mod) =>
             //                                  {
             //                                     // TODO(@jackson): Mark Dirty -> Save
-            //                                     sceneData.modInfo = EditableModInfo.FromModInfo(mod);
+            //                                     sceneData.modInfo = EditableModProfile.FromModProfile(mod);
             //                                     isUploading = false;
             //                                  },
             //                                  (e) =>
@@ -452,7 +452,7 @@ namespace ModIO
             //                                  (mod) =>
             //                                  {
             //                                     // TODO(@jackson): Mark Dirty -> Save
-            //                                     sceneData.modInfo = EditableModInfo.FromModInfo(mod);
+            //                                     sceneData.modInfo = EditableModProfile.FromModProfile(mod);
             //                                     isUploading = false;
             //                                  },
             //                                  (e) =>

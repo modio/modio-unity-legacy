@@ -77,5 +77,16 @@ namespace ModIO
             // if(!int.TryParse(identifierParts[2], out versionInt)) { return false; }
             // version = (ImageVersion)versionInt;
         }
+
+        public static string GetFileName(string identifier)
+        {
+            int modId;
+            bool isLogo;
+            string fileName;
+
+            TryParse(identifier, out modId, out isLogo, out fileName);
+
+            return fileName;
+        }
     }
 }

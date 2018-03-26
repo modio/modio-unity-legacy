@@ -8,7 +8,7 @@ namespace ModIO
     {
         // TODO(@jackson): Remove?
         public string fileName = string.Empty;
-        public Dictionary<ImageVersion, FilePathURLPair> locationMap = new Dictionary<ImageVersion, FilePathURLPair>(4);
+        public Dictionary<ImageVersion, FilePathURLPair> locationMap = new Dictionary<ImageVersion, FilePathURLPair>();
 
         // - Serialized Backing For Dictionaries -
         [System.Serializable]
@@ -35,6 +35,15 @@ namespace ModIO
             {
                 this._locationMap.Add(new VersionLocationPair(){ version = kvp.Key, location = kvp.Value });
             }
+        }
+
+        public void ApplyLogoObjectValues(API.LogoObject logoObject)
+        {
+            this.fileName = logoObject.filename;
+            this.locationMap[ImageVersion.Original]         = new FilePathURLPair(){ url = logoObject.original };
+            this.locationMap[ImageVersion.Thumb_320x180]    = new FilePathURLPair(){ url = logoObject.thumb_320x180 };
+            this.locationMap[ImageVersion.Thumb_640x360]    = new FilePathURLPair(){ url = logoObject.thumb_640x360 };
+            this.locationMap[ImageVersion.Thumb_1280x720]   = new FilePathURLPair(){ url = logoObject.thumb_1280x720 };
         }
     }
 }

@@ -139,7 +139,7 @@ namespace ModIO
             //     System.Action<APIMessage> onDeleteCompleted = (m) =>
             //     {
             //         API.Client.GetMod(modId,
-            //                          (mod) => { sceneData.modInfo = new ModInfo(); modInfo.WrapAPIObject(mod); isUploading = false; },
+            //                          (mod) => { sceneData.modInfo = new ModProfile(); modInfo.WrapAPIObject(mod); isUploading = false; },
             //                          (e) => { isUploading = false; });
             //     };
 

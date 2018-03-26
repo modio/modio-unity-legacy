@@ -117,7 +117,6 @@ namespace ModIO
 
         public static ModProfile CreateFromAPIObject(API.ModObject apiObject)
         {
-            UnityEngine.Debug.LogWarning("@jackson: STOP DOING THIS!");
             ModProfile profile = new ModProfile();
             profile.CopyAPIObjectValues(apiObject);
             return profile;
