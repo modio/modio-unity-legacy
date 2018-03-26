@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using JsonUtility = UnityEngine.JsonUtility;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -43,6 +45,42 @@ namespace ModIO
                 hashString = BitConverter.ToString(md5.ComputeHash(data)).Replace("-", "").ToLowerInvariant();
             }
             return hashString;
+        }
+
+        public static bool TryParseJsonFile<T>(string filePath,
+                                               out T targetObject)
+        {
+            try
+            {
+                targetObject = JsonUtility.FromJson<T>(File.ReadAllText(filePath));
+            }
+            #pragma warning disable CS0168
+            catch(Exception e)
+            {
+                targetObject = default(T);
+                return false;
+            }
+            #pragma warning restore CS0168
+
+            return true;
+        }
+
+        public static bool TryParseJsonString<T>(string jsonObject,
+                                                 out T targetObject)
+        {
+            try
+            {
+                targetObject = JsonUtility.FromJson<T>(jsonObject);
+            }
+            #pragma warning disable CS0168
+            catch(Exception e)
+            {
+                targetObject = default(T);
+                return false;
+            }
+            #pragma warning restore CS0168
+
+            return true;
         }
     }
 
