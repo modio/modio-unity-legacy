@@ -39,12 +39,12 @@ namespace ModIO
         {
             public TimeStamp lastUpdateTimeStamp;
             public List<ModEvent> unresolvedEvents;
-            public GameInfo game;
+            public GameProfile gameProfile;
         }
 
         // ---------[ VARIABLES ]---------
         private static ManifestData manifest = null;
-        public static GameInfo gameInfo { get { return manifest.game; }}
+        public static GameProfile gameProfile { get { return manifest.gameProfile; }}
 
         private static UserData userData = null;
         public static User currentUser { get { return userData == null ? null : userData.user; } }
@@ -127,7 +127,7 @@ namespace ModIO
 
             LoadCacheFromDisk();
             FetchAndCacheAllMods();
-            FetchAndCacheGameInfo();
+            FetchAndCacheGameProfile();
         }
 
         private static void LoadCacheFromDisk()
@@ -255,16 +255,15 @@ namespace ModIO
                               Client.LogError);
         }
 
-        private static void FetchAndCacheGameInfo()
+        private static void FetchAndCacheGameProfile()
         {
-            Action<GameInfo> cacheGameInfo = (game) =>
+            Action<API.GameObject> cacheGameProfile = (gameObject) =>
             {
-                manifest.game = game;
+                manifest.gameProfile = GameProfile.CreateFromAPIObject(gameObject);
                 WriteManifestToDisk();
             };
 
-            Client.GetGame(result => OnSuccessWrapper(result, cacheGameInfo),
-                              null);
+            Client.GetGame(cacheGameProfile, null);
         }
 
         // ---------[ AUTOMATED UPDATING ]---------
@@ -318,7 +317,7 @@ namespace ModIO
                 TimeStamp untilTimeStamp = TimeStamp.Now();
 
                 // - Get Game Updates -
-                FetchAndCacheGameInfo();
+                FetchAndCacheGameProfile();
 
                 // - Get ModProfile Events -
                 GetAllModEventsFilter eventFilter = new GetAllModEventsFilter();
@@ -423,7 +422,7 @@ namespace ModIO
                 {
                     Action<ModObject> onGetMod = (modObject) =>
                     {
-                        profile.CopyAPIObjectValues(modObject);
+                        profile.ApplyAPIObjectValues(modObject);
 
                         StoreModData(profile);
 
@@ -655,14 +654,14 @@ namespace ModIO
         {
             // - Cache -
             modCache[modProfile.id] = modProfile;
-            // modImageMap[modProfile.logoIdentifier] = modProfile.logo.AsModImageInfo();
-            modImageMap[modProfile.logoIdentifier] = new ModImageInfo();
+            // modImageMap[modProfile.logoIdentifier] = modProfile.logo.AsImageInfo();
+            modImageMap[modProfile.logoIdentifier] = new ImageInfo();
 
             // - Write to disk -
             string modDir = GetModDirectory(modProfile.id);
             Directory.CreateDirectory(modDir);
             File.WriteAllText(modDir + "mod_profile.data", JsonUtility.ToJson(modProfile));
-            // File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modProfile.logo.AsModImageInfo()));
+            // File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modProfile.logo.AsImageInfo()));
         }
 
         private static void StoreModDatas(ModProfile[] modArray)
@@ -786,7 +785,7 @@ namespace ModIO
         public static event ModImageUpdatedEventHandler OnModImageUpdated;
         public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
         
-        private static Dictionary<string, ModImageInfo> modImageMap = new Dictionary<string, ModImageInfo>();
+        private static Dictionary<string, ImageInfo> modImageMap = new Dictionary<string, ImageInfo>();
 
         public static Texture2D LoadOrDownloadModImage(string modImageIdentifier, ImageVersion version)
         {
@@ -795,12 +794,14 @@ namespace ModIO
 
         public static FilePathURLPair GetModImageLocation(string identifier, ImageVersion version)
         {
-            ModImageInfo info;
-            if(modImageMap.TryGetValue(identifier, out info))
-            {
-                return info.locationMap[version];
-            }
-            return null;
+            throw new System.NotImplementedException();
+
+            // ImageInfo info;
+            // if(modImageMap.TryGetValue(identifier, out info))
+            // {
+            //     return info.locationMap[(int)version];
+            // }
+            // return null;
         }
 
         // private static string GetLogoFileName(ImageVersion logoVersion)
@@ -833,11 +834,11 @@ namespace ModIO
 
             // TODO(@jackson): Handle Miss
             ModProfile modInfo = GetModProfile(modId);
-            ModImageInfo logoInfo = modImageMap[modInfo.logoIdentifier];
+            ImageInfo logoInfo = modImageMap[modInfo.logoIdentifier];
 
             // - Start Download -
             TextureDownload download = new TextureDownload();
-            download.sourceURL = logoInfo.locationMap[version].url;
+            download.sourceURL = logoInfo.locationMap[(int)version].url;
             download.OnCompleted += (d) => StoreModImage(ModImageIdentifier.GenerateForModLogo(modId),
                                                          version,
                                                          download.texture);
@@ -948,8 +949,8 @@ namespace ModIO
             foreach(ModProfile mod in mods)
             {
                 string identifier = ModImageIdentifier.GenerateForModLogo(mod.id);
-                ModImageInfo imageInfo = modImageMap[identifier];
-                if(!File.Exists(imageInfo.locationMap[version].filePath))
+                ImageInfo imageInfo = modImageMap[identifier];
+                if(!File.Exists(imageInfo.locationMap[(int)version].filePath))
                 {
                     missingLogoIdentifiers.Add(identifier);
                 }

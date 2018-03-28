@@ -71,8 +71,7 @@ namespace ModIO
         public ICollection<string> imageIdentifiers { get { return new List<string>(this._imageIdentifiers); } }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        // TODO(@jackson): Move to ModManager
-        public void CopyAPIObjectValues(API.ModObject apiObject)
+        public void ApplyAPIObjectValues(API.ModObject apiObject)
         {
             this._id = apiObject.id;
             this._gameId = apiObject.game_id;
@@ -118,7 +117,7 @@ namespace ModIO
         public static ModProfile CreateFromAPIObject(API.ModObject apiObject)
         {
             ModProfile profile = new ModProfile();
-            profile.CopyAPIObjectValues(apiObject);
+            profile.ApplyAPIObjectValues(apiObject);
             return profile;
         }
     }

@@ -528,7 +528,7 @@ namespace ModIO.API
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Get GameInfo
+        // Get GameProfile
         public static void GetGame(Action<API.GameObject> successCallback, Action<ErrorInfo> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID;
@@ -540,7 +540,7 @@ namespace ModIO.API
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Edit GameInfo
+        // Edit GameProfile
         public static void EditGame(string oAuthToken,
                                     EditGameParameters parameters,
                                     Action<API.GameObject> successCallback, Action<ErrorInfo> errorCallback)
@@ -674,7 +674,7 @@ namespace ModIO.API
 
 
         // ---------[ MEDIA ENDPOINTS ]---------
-        // Add GameInfo Media
+        // Add GameProfile Media
         public static void AddGameMedia(string oAuthToken,
                                         AddGameMediaParameters parameters,
                                         Action<MessageObject> successCallback, Action<ErrorInfo> errorCallback)

@@ -565,7 +565,7 @@ namespace ModIO
     }
 
     // ---------[ QUERY FILTERS ]---------
-    public class GetAllGamesFilter : Filter<GameInfo, GetAllGamesFilter.Field>
+    public class GetAllGamesFilter : Filter<GameProfile, GetAllGamesFilter.Field>
     {
         public static readonly new GetAllGamesFilter None = new GetAllGamesFilter();
 
@@ -652,8 +652,8 @@ namespace ModIO
                              (a,b) => a.summary.CompareTo(b.summary));
             StoreStringField(fieldInformationMap,
                              Field.Homepage, "homepage",
-                             (game) => game.homepage,
-                             (a,b) => a.homepage.CompareTo(b.homepage));
+                             (game) => game.homepageURL,
+                             (a,b) => a.homepageURL.CompareTo(b.homepageURL));
             StoreStringField(fieldInformationMap,
                              Field.UGCName, "ugc_name",
                              (game) => game.ugcName,
@@ -676,12 +676,12 @@ namespace ModIO
                           (a,b) => a.communityOptions.CompareTo(b.communityOptions));
             StoreIntField(fieldInformationMap,
                           Field.RevenueOptions, "revenue_options",
-                          (game) => (int)game.revenueOptions,
-                          (a,b) => a.revenueOptions.CompareTo(b.revenueOptions));
+                          (game) => (int)game.revenuePermissions,
+                          (a,b) => a.revenuePermissions.CompareTo(b.revenuePermissions));
             StoreIntField(fieldInformationMap,
                           Field.APIAccessOptions, "api_access_options",
-                          (game) => (int)game.apiAccessOptions,
-                          (a,b) => a.apiAccessOptions.CompareTo(b.apiAccessOptions));
+                          (game) => (int)game.apiPermissions,
+                          (a,b) => a.apiPermissions.CompareTo(b.apiPermissions));
         }
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------
@@ -701,37 +701,37 @@ namespace ModIO
         }
 
         // ---[ SPECIALIZED FILTERS ]---
-        public void ApplyStatus(GameInfo.Status value)
+        public void ApplyStatus(GameStatus value)
         {
             base.ApplyIntEquality(Field.Status, (int)value);
         }
 
-        public void ApplyPresentation(GameInfo.PresentationOption value)
+        public void ApplyPresentation(ModGalleryPresentationOption value)
         {
             base.ApplyIntEquality(Field.PresentationOption, (int)value);
         }
 
-        public void ApplyModSubmissionMode(GameInfo.SubmissionOption value)
+        public void ApplyModSubmissionMode(ModSubmissionOption value)
         {
             base.ApplyIntEquality(Field.SubmissionOption, (int)value);
         }
 
-        public void ApplyCurationMode(GameInfo.CurationOption value)
+        public void ApplyCurationMode(ModCurationOption value)
         {
             base.ApplyIntEquality(Field.CurationOption, (int)value);
         }
 
-        public void ApplyCommunityOptions(GameInfo.CommunityOptions value)
+        public void ApplyCommunityOptions(GameCommunityOptions value)
         {
             base.ApplyIntEquality(Field.CommunityOptions, (int)value);
         }
 
-        public void ApplyRevenueOptions(GameInfo.RevenueOptions value)
+        public void ApplyRevenueOptions(ModRevenuePermissions value)
         {
             base.ApplyIntEquality(Field.RevenueOptions, (int)value);
         }
 
-        public void ApplyAPIAccessOptions(GameInfo.APIAccessOptions value)
+        public void ApplyAPIAccessOptions(GameAPIPermissions value)
         {
             base.ApplyIntEquality(Field.APIAccessOptions, (int)value);
         }
