@@ -1167,7 +1167,7 @@ namespace ModIO
         internal override FieldInformation GetFieldInformation(GetAllModTeamMembersFilter.Field fieldIdentifier) { return null; }
     }
 
-    public class GetAllModCommentsFilter : Filter<UserComment, GetAllModCommentsFilter.Field>
+    public class GetAllModCommentsFilter : Filter<ModComment, GetAllModCommentsFilter.Field>
     {
         public enum Field
         {
