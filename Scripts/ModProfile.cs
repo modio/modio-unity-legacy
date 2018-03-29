@@ -37,7 +37,6 @@ namespace ModIO
         [SerializeField] private string _metadataBlob;
         [SerializeField] private string _profileURL;
         [SerializeField] private int _primaryModfileId;
-        // TODO(@jackson): Update this
         [SerializeField] private RatingSummary _ratingSummary;
         [SerializeField] private string[] _tags;
         [SerializeField] private string _logoIdentifier;

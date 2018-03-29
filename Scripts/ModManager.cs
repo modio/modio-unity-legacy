@@ -30,7 +30,7 @@ namespace ModIO
         private class UserData
         {
             public string oAuthToken = "";
-            public User user = null;
+            public UserProfile userProfile = null;
             public List<int> subscribedModIDs = new List<int>();
         }
 
@@ -47,7 +47,7 @@ namespace ModIO
         public static GameProfile gameProfile { get { return manifest.gameProfile; }}
 
         private static UserData userData = null;
-        public static User currentUser { get { return userData == null ? null : userData.user; } }
+        public static UserProfile currentUser { get { return userData == null ? null : userData.userProfile; } }
 
         public static string cacheDirectory { get; private set; }
         
@@ -554,17 +554,17 @@ namespace ModIO
         }
 
         public static void TryLogUserIn(string userOAuthToken,
-                                        Action<User> onSuccess,
+                                        Action<UserProfile> onSuccess,
                                         Action<ErrorInfo> onError)
         {
-            Action<User> onGetUser = (user) =>
+            Action<API.UserObject> onGetUser = (userObject) =>
             {
                 userData = new UserData();
                 userData.oAuthToken = userOAuthToken;
-                userData.user = user;
+                userData.userProfile = UserProfile.CreateFromAPIObject(userObject);
                 WriteUserDataToDisk();
 
-                onSuccess(user);
+                onSuccess(userData.userProfile);
 
                 Client.GetUserSubscriptions(userOAuthToken,
                                             GetUserSubscriptionsFilter.None,
@@ -573,8 +573,8 @@ namespace ModIO
             };
 
             Client.GetAuthenticatedUser(userOAuthToken,
-                                           result => OnSuccessWrapper(result, onGetUser),
-                                           onError);
+                                        onGetUser,
+                                        onError);
         }
 
         public static void LogUserOut()
@@ -587,9 +587,9 @@ namespace ModIO
             }
         }
 
-        public static User GetActiveUser()
+        public static UserProfile GetActiveUser()
         {
-            return (userData == null ? null : userData.user);
+            return (userData == null ? null : userData.userProfile);
         }
 
         public static void SubscribeToMod(int modId,
@@ -1345,15 +1345,15 @@ namespace ModIO
                                      onError);
         }
 
-        public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
-                                            Action<APIMessage> onSuccess,
-                                            Action<ErrorInfo> onError)
-        {
-            Client.AddModTeamMember(userData.oAuthToken,
-                                    modId, teamMember.AsAddModTeamMemberParameters(),
-                                    result => OnSuccessWrapper(result, onSuccess),
-                                    onError);
-        }
+        // public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
+        //                                     Action<APIMessage> onSuccess,
+        //                                     Action<ErrorInfo> onError)
+        // {
+        //     Client.AddModTeamMember(userData.oAuthToken,
+        //                             modId, teamMember.AsAddModTeamMemberParameters(),
+        //                             result => OnSuccessWrapper(result, onSuccess),
+        //                             onError);
+        // }
 
         public static void DeleteMod(int modId,
                                      Action<APIMessage> onSuccess,
@@ -1434,14 +1434,14 @@ namespace ModIO
                                        onError);
         }
 
-        public static void GetAllModTeamMembers(int modId,
-                                                Action<TeamMember[]> onSuccess,
-                                                Action<ErrorInfo> onError)
-        {
-            Client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
-                                           result => OnSuccessWrapper(result, onSuccess),
-                                           onError);
-        }
+        // public static void GetAllModTeamMembers(int modId,
+        //                                         Action<TeamMember[]> onSuccess,
+        //                                         Action<ErrorInfo> onError)
+        // {
+        //     Client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
+        //                                    result => OnSuccessWrapper(result, onSuccess),
+        //                                    onError);
+        // }
 
         public static void DeleteGameTagOption(GameTagOptionToDelete gameTagOption,
                                                Action<APIMessage> onSuccess,

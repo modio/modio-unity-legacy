@@ -1121,7 +1121,7 @@ namespace ModIO
         internal override FieldInformation GetFieldInformation(GetAllModDependenciesFilter.Field fieldIdentifier) { return null; }
     }
 
-    public class GetAllGameTeamMembersFilter : Filter<TeamMember, GetAllGameTeamMembersFilter.Field>
+    public class GetAllGameTeamMembersFilter : Filter<TeamMemberInfo, GetAllGameTeamMembersFilter.Field>
     {
         public enum Field
         {
@@ -1144,7 +1144,7 @@ namespace ModIO
         internal override FieldInformation GetFieldInformation(GetAllGameTeamMembersFilter.Field fieldIdentifier) { return null; }
     }
 
-    public class GetAllModTeamMembersFilter : Filter<TeamMember, GetAllModTeamMembersFilter.Field>
+    public class GetAllModTeamMembersFilter : Filter<TeamMemberInfo, GetAllModTeamMembersFilter.Field>
     {
         public enum Field
         {
@@ -1190,7 +1190,7 @@ namespace ModIO
         internal override FieldInformation GetFieldInformation(GetAllModCommentsFilter.Field fieldIdentifier) { return null; }
     }
 
-    public class GetAllUsersFilter : Filter<User, GetAllUsersFilter.Field>
+    public class GetAllUsersFilter : Filter<UserProfile, GetAllUsersFilter.Field>
     {
         public enum Field
         {

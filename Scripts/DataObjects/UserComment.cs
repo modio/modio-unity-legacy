@@ -22,7 +22,7 @@ namespace ModIO
 
         public int id                   { get { return _data.id; } }
         public int modId                { get { return _data.mod_id; }}
-        public User submittedBy         { get; private set; }
+        public UserProfile submittedBy         { get; private set; }
         public TimeStamp dateAdded      { get; private set; }
         public int parentCommentId      { get { return _data.reply_id; } }
         public CommentPosition position { get; private set; }
@@ -30,13 +30,13 @@ namespace ModIO
         public int karmaGuest           { get { return _data.karma_guest; } }
         public string content           { get { return _data.content; } }
 
-        // - IAPIObjectWrapper - 
+        // - IAPIObjectWrapper -
         public void WrapAPIObject(API.CommentObject apiObject)
         {
             this._data = apiObject;
 
-            this.submittedBy = new User();
-            this.submittedBy.WrapAPIObject(apiObject.submitted_by);
+            // this.submittedBy = new User();
+            // this.submittedBy.WrapAPIObject(apiObject.submitted_by);
             this.dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
 
             // - Parse the position of the comment -
@@ -51,7 +51,7 @@ namespace ModIO
             {
                 this.position.mainThread = positionValue;
 
-                if(positionStrings.Length > 1 
+                if(positionStrings.Length > 1
                    && int.TryParse(positionStrings[1], out positionValue))
                 {
                     this.position.replyThread = positionValue;
