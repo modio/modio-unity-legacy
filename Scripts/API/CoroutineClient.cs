@@ -7,7 +7,7 @@ namespace ModIO.API
     public class Response<T>
     {
         public T apiObject = default(T);
-        public ErrorInfo error = null;
+        public WebRequestError error = null;
         public bool isError = true;
     }
 
@@ -22,7 +22,7 @@ namespace ModIO.API
             isDone = true;
         }
 
-        private static void OnError<T>(ErrorInfo error, Response<T> response, out bool isDone)
+        private static void OnError<T>(WebRequestError error, Response<T> response, out bool isDone)
         {
             response.error = error;
             response.isError = true;

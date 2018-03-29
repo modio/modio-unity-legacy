@@ -181,10 +181,10 @@ namespace ModIO
                 {
                     userData = JsonUtility.FromJson<UserData>(File.ReadAllText(userdataPath));
 
-                    Action<ErrorInfo> onAuthenticationFail = (error) =>
+                    Action<WebRequestError> onAuthenticationFail = (error) =>
                     {
-                        if(error.httpStatusCode == 401
-                            || error.httpStatusCode == 403) // Failed authentication
+                        if(error.responseCode == 401
+                            || error.responseCode == 403) // Failed authentication
                         {
                             LogUserOut();
                         }
@@ -537,7 +537,7 @@ namespace ModIO
 
         public static void RequestSecurityCode(string emailAddress,
                                                Action<APIMessage> onSuccess,
-                                               Action<ErrorInfo> onError)
+                                               Action<WebRequestError> onError)
         {
             Client.RequestSecurityCode(emailAddress,
                                           result => OnSuccessWrapper(result, onSuccess),
@@ -546,7 +546,7 @@ namespace ModIO
 
         public static void RequestOAuthToken(string securityCode,
                                              Action<string> onSuccess,
-                                             Action<ErrorInfo> onError)
+                                             Action<WebRequestError> onError)
         {
             Client.RequestOAuthToken(securityCode,
                                         onSuccess,
@@ -555,7 +555,7 @@ namespace ModIO
 
         public static void TryLogUserIn(string userOAuthToken,
                                         Action<UserProfile> onSuccess,
-                                        Action<ErrorInfo> onError)
+                                        Action<WebRequestError> onError)
         {
             Action<API.UserObject> onGetUser = (userObject) =>
             {
@@ -594,7 +594,7 @@ namespace ModIO
 
         public static void SubscribeToMod(int modId,
                                           Action<ModProfile> onSuccess,
-                                          Action<ErrorInfo> onError)
+                                          Action<WebRequestError> onError)
         {
             Client.SubscribeToMod(userData.oAuthToken,
                                      modId,
@@ -608,7 +608,7 @@ namespace ModIO
 
         public static void UnsubscribeFromMod(int modId,
                                               Action<ModProfile> onSuccess,
-                                              Action<ErrorInfo> onError)
+                                              Action<WebRequestError> onError)
         {
             Client.UnsubscribeFromMod(userData.oAuthToken,
                                          modId,
@@ -733,7 +733,7 @@ namespace ModIO
         // ---------[ MODFILE & BINARY MANAGEMENT ]---------
         public static void LoadOrDownloadModfile(int modId, int modfileId,
                                                  Action<Modfile> onSuccess,
-                                                 Action<ErrorInfo> onError)
+                                                 Action<WebRequestError> onError)
         {
             string modfileFilePath = (GetModDirectory(modId) + "modfile_"
                                       + modfileId.ToString() + ".data");
@@ -972,7 +972,7 @@ namespace ModIO
 
         // ---------[ MISC ]------------
         public static void RequestTagCategoryMap(Action<GameTagOption[]> onSuccess,
-                                                 Action<ErrorInfo> onError)
+                                                 Action<WebRequestError> onError)
         {
             Client.GetAllGameTagOptions(result => OnSuccessWrapper(result, onSuccess),
                                            onError);
@@ -995,7 +995,7 @@ namespace ModIO
 
         public static void SubmitNewMod(EditableModFields modData,
                                         Action<ModProfile> modSubmissionSucceeded,
-                                        Action<ErrorInfo> modSubmissionFailed)
+                                        Action<WebRequestError> modSubmissionFailed)
         {
             Debug.Assert(modData.name.isDirty && modData.summary.isDirty);
             Debug.Assert(File.Exists(modData.logoIdentifier.value));
@@ -1043,7 +1043,7 @@ namespace ModIO
         public static void SubmitModChanges(int modId,
                                             EditableModFields modData,
                                             Action<ModProfile> modSubmissionSucceeded,
-                                            Action<ErrorInfo> modSubmissionFailed)
+                                            Action<WebRequestError> modSubmissionFailed)
         {
             Debug.Assert(modId > 0);
 
@@ -1255,7 +1255,7 @@ namespace ModIO
                                                     ModfileEditableFields modfileValues,
                                                     bool setPrimary,
                                                     Action<Modfile> onSuccess,
-                                                    Action<ErrorInfo> onError)
+                                                    Action<WebRequestError> onError)
         {
             string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + DateTime.Now.ToFileTime() + ".zip";
 
@@ -1269,7 +1269,7 @@ namespace ModIO
                                                   ModfileEditableFields modfileValues,
                                                   bool setPrimary,
                                                   Action<Modfile> onSuccess,
-                                                  Action<ErrorInfo> onError)
+                                                  Action<WebRequestError> onError)
         {
             string buildFilename = Path.GetFileName(binaryZipLocation);
             byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
@@ -1301,7 +1301,7 @@ namespace ModIO
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
         public static void AddGameMedia(UnsubmittedGameMedia gameMedia,
                                         Action<APIMessage> onSuccess,
-                                        Action<ErrorInfo> onError)
+                                        Action<WebRequestError> onError)
         {
             Client.AddGameMedia(userData.oAuthToken,
                                 gameMedia.AsAddGameMediaParameters(),
@@ -1311,7 +1311,7 @@ namespace ModIO
 
         public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
                                             Action<APIMessage> onSuccess,
-                                            Action<ErrorInfo> onError)
+                                            Action<WebRequestError> onError)
         {
             Client.AddGameTagOption(userData.oAuthToken,
                                     tagOption.AsAddGameTagOptionParameters(),
@@ -1321,7 +1321,7 @@ namespace ModIO
 
         public static void AddPositiveRating(int modId,
                                              Action<APIMessage> onSuccess,
-                                             Action<ErrorInfo> onError)
+                                             Action<WebRequestError> onError)
         {
             Client.AddModRating(userData.oAuthToken,
                                 modId, new AddModRatingParameters(1),
@@ -1331,7 +1331,7 @@ namespace ModIO
 
         public static void AddModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
                                              Action<APIMessage> onSuccess,
-                                             Action<ErrorInfo> onError)
+                                             Action<WebRequestError> onError)
         {
             string[] metadataKVPStrings = new string[metadataKVPs.Length];
             for(int i = 0; i < metadataKVPs.Length; ++i)
@@ -1347,7 +1347,7 @@ namespace ModIO
 
         // public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
         //                                     Action<APIMessage> onSuccess,
-        //                                     Action<ErrorInfo> onError)
+        //                                     Action<WebRequestError> onError)
         // {
         //     Client.AddModTeamMember(userData.oAuthToken,
         //                             modId, teamMember.AsAddModTeamMemberParameters(),
@@ -1357,7 +1357,7 @@ namespace ModIO
 
         public static void DeleteMod(int modId,
                                      Action<APIMessage> onSuccess,
-                                     Action<ErrorInfo> onError)
+                                     Action<WebRequestError> onError)
         {
             Client.DeleteMod(userData.oAuthToken,
                                 modId,
@@ -1367,7 +1367,7 @@ namespace ModIO
 
         public static void DeleteModTags(int modId, string[] tagsToDelete,
                                          Action<APIMessage> onSuccess,
-                                         Action<ErrorInfo> onError)
+                                         Action<WebRequestError> onError)
         {
             Client.DeleteModTags(userData.oAuthToken,
                                  modId, new DeleteModTagsParameters(tagsToDelete),
@@ -1377,7 +1377,7 @@ namespace ModIO
 
         public static void DeleteModDependencies(int modId, int[] modIdsToRemove,
                                                  Action<APIMessage> onSuccess,
-                                                 Action<ErrorInfo> onError)
+                                                 Action<WebRequestError> onError)
         {
             Client.DeleteModDependencies(userData.oAuthToken,
                                          modId, new DeleteModDependenciesParameters(modIdsToRemove),
@@ -1387,7 +1387,7 @@ namespace ModIO
 
         public static void AddModDependencies(int modId, int[] modIdsToAdd,
                                               Action<APIMessage> onSuccess,
-                                              Action<ErrorInfo> onError)
+                                              Action<WebRequestError> onError)
         {
             Client.AddModDependencies(userData.oAuthToken,
                                       modId, new AddModDependenciesParameters(modIdsToAdd),
@@ -1397,7 +1397,7 @@ namespace ModIO
 
         public static void DeleteModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
                                                 Action<APIMessage> onSuccess,
-                                                Action<ErrorInfo> onError)
+                                                Action<WebRequestError> onError)
         {
             string[] kvpStrings = new string[metadataKVPs.Length];
             for(int i = 0; i < metadataKVPs.Length; ++i)
@@ -1416,7 +1416,7 @@ namespace ModIO
 
         public static void DeleteModTeamMember(int modId, int teamMemberId,
                                                Action<APIMessage> onSuccess,
-                                               Action<ErrorInfo> onError)
+                                               Action<WebRequestError> onError)
         {
             Client.DeleteModTeamMember(userData.oAuthToken,
                                           modId, teamMemberId,
@@ -1426,7 +1426,7 @@ namespace ModIO
 
         public static void DeleteModComment(int modId, int commentId,
                                             Action<APIMessage> onSuccess,
-                                            Action<ErrorInfo> onError)
+                                            Action<WebRequestError> onError)
         {
             Client.DeleteModComment(userData.oAuthToken,
                                        modId, commentId,
@@ -1436,7 +1436,7 @@ namespace ModIO
 
         // public static void GetAllModTeamMembers(int modId,
         //                                         Action<TeamMember[]> onSuccess,
-        //                                         Action<ErrorInfo> onError)
+        //                                         Action<WebRequestError> onError)
         // {
         //     Client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
         //                                    result => OnSuccessWrapper(result, onSuccess),
@@ -1445,7 +1445,7 @@ namespace ModIO
 
         public static void DeleteGameTagOption(GameTagOptionToDelete gameTagOption,
                                                Action<APIMessage> onSuccess,
-                                               Action<ErrorInfo> onError)
+                                               Action<WebRequestError> onError)
         {
             Client.DeleteGameTagOption(userData.oAuthToken,
                                        gameTagOption.AsDeleteGameTagOptionParameters(),

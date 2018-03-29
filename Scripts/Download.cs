@@ -8,7 +8,7 @@ namespace ModIO
 {
     public delegate void DownloadStartedCallback(Download download);
     public delegate void DownloadCompletedCallback(Download download);
-    public delegate void DownloadFailedCallback(Download download, ErrorInfo error);
+    public delegate void DownloadFailedCallback(Download download, WebRequestError error);
 
     public abstract class Download
     {
@@ -61,7 +61,7 @@ namespace ModIO
             }
         }
 
-        public void MarkAsFailed(ErrorInfo error)
+        public void MarkAsFailed(WebRequestError error)
         {
             this.OnCancelled();
 
@@ -78,11 +78,11 @@ namespace ModIO
         private void Finalize(AsyncOperation operation)
         {
             UnityWebRequest webRequest = (operation as UnityWebRequestAsyncOperation).webRequest;
-            ErrorInfo error;
+            WebRequestError error;
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
-                error = ErrorInfo.GenerateFromWebRequest(webRequest);
+                error = WebRequestError.GenerateFromWebRequest(webRequest);
                 OnFinalize_Failed(webRequest.downloadHandler, error);
                 
                 #if LOG_DOWNLOADS
@@ -127,9 +127,9 @@ namespace ModIO
             }
         }
 
-        protected virtual bool IsErrorFree(DownloadHandler handler, out ErrorInfo error) { error = null; return true; }
+        protected virtual bool IsErrorFree(DownloadHandler handler, out WebRequestError error) { error = null; return true; }
         protected virtual void OnFinalize_Succeeded(DownloadHandler handler) { }
-        protected virtual void OnFinalize_Failed(DownloadHandler handler, ErrorInfo error) {}
+        protected virtual void OnFinalize_Failed(DownloadHandler handler, WebRequestError error) {}
         protected virtual void OnCancelled() {}
     }
 
@@ -150,8 +150,10 @@ namespace ModIO
             webRequest.downloadHandler = downloadHandler;
         }
 
-        protected override bool IsErrorFree(DownloadHandler handler, out ErrorInfo error)
+        protected override bool IsErrorFree(DownloadHandler handler, out WebRequestError error)
         {
+            error = null;
+
             if(expectedMD5 != "")
             {
                 using (var md5 = System.Security.Cryptography.MD5.Create())
@@ -169,10 +171,11 @@ namespace ModIO
 
                         if(!isValidHash)
                         {
-                        	error = new ErrorInfo();
-                            error.httpStatusCode = -1;
-                            error.message = "Downloaded file failed Hash-check";
-                            error.url = sourceURL;
+                            // TODO(@jackson): Fix
+                        	// error = new WebRequestError();
+                         //    error.responseCode = -1;
+                         //    error.message = "Downloaded file failed Hash-check";
+                         //    error.url = sourceURL;
 
                             return false;
                         }

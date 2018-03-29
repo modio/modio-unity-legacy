@@ -95,7 +95,7 @@ namespace ModIO
                                 "Ok");
                 isModUploading = false;
             };
-            System.Action<ErrorInfo> onUploadFailed = (mf) =>
+            System.Action<WebRequestError> onUploadFailed = (mf) =>
             {
                 EditorUtility.DisplayDialog("Modfile Successfully Uploaded",
                                 "",
