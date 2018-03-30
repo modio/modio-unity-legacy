@@ -1299,16 +1299,6 @@ namespace ModIO
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
-        public static void AddGameMedia(UnsubmittedGameMedia gameMedia,
-                                        Action<APIMessage> onSuccess,
-                                        Action<WebRequestError> onError)
-        {
-            Client.AddGameMedia(userData.oAuthToken,
-                                gameMedia.AsAddGameMediaParameters(),
-                                result => OnSuccessWrapper(result, onSuccess),
-                                onError);
-        }
-
         public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
                                             Action<APIMessage> onSuccess,
                                             Action<WebRequestError> onError)

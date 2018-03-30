@@ -1073,7 +1073,8 @@ namespace ModIO
         internal override FieldInformation GetFieldInformation(GetModEventFilter.Field fieldIdentifier) { return null; }
     }
 
-    public class GetAllModTagsFilter : Filter<ModTag, GetAllModTagsFilter.Field>
+    // TODO(@jackson): Yeah, I know...
+    public class GetAllModTagsFilter : Filter<ModProfile, GetAllModTagsFilter.Field>
     {
         public enum Field
         {
