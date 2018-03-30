@@ -915,25 +915,25 @@ namespace ModIO
         {
             base.ApplyIntEquality(Field.Visible, (int)value);
         }
-        public void ApplyKVP(MetadataKVP value)
-        {
-            Debug.LogError("Not yet implemented");
+        // public void ApplyKVP(MetadataKVP value)
+        // {
+        //     Debug.LogError("Not yet implemented");
 
-            // TODO(@jackson): FIX THIS! Won't work locally
-            // ApplyStringEquality(Field.MetadataKVP, kvp.GetFilterString());
-        }
-        public void ApplyKVPArray(MetadataKVP[] value)
-        {
-            Debug.LogError("Not yet implemented");
+        //     // TODO(@jackson): FIX THIS! Won't work locally
+        //     // ApplyStringEquality(Field.MetadataKVP, kvp.GetFilterString());
+        // }
+        // public void ApplyKVPArray(MetadataKVP[] value)
+        // {
+        //     Debug.LogError("Not yet implemented");
 
-            // TODO(@jackson): FIX THIS! Won't work locally
-            // string[] filterStrings = new string[kvpArray];
-            // for(int i = 0; i < kvpArray.Length; ++i)
-            // {
-            //     filterStrings[i] = kvpArray[i].GetFilterString();
-            // }
-            // ApplyStringArrayContainsAll(Field.MetadataKVP, filterStrings);
-        }
+        //     // TODO(@jackson): FIX THIS! Won't work locally
+        //     // string[] filterStrings = new string[kvpArray];
+        //     // for(int i = 0; i < kvpArray.Length; ++i)
+        //     // {
+        //     //     filterStrings[i] = kvpArray[i].GetFilterString();
+        //     // }
+        //     // ApplyStringArrayContainsAll(Field.MetadataKVP, filterStrings);
+        // }
     }
 
     // public class GetAllModfilesFilter : Filter<Modfile, GetAllModfilesFilter.Field>

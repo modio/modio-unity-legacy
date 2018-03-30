@@ -991,6 +991,7 @@ namespace ModIO
             File.Delete(userdataPath);
         }
 
+        // TODO(@jackson): Add MKVPs
         public static void SubmitNewMod(EditableModFields modData,
                                         Action<ModProfile> modSubmissionSucceeded,
                                         Action<WebRequestError> modSubmissionFailed)
@@ -1037,7 +1038,7 @@ namespace ModIO
                           result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
                           modSubmissionFailed);
         }
-
+        // TODO(@jackson): Add MKVPs
         public static void SubmitModChanges(int modId,
                                             EditableModFields modData,
                                             Action<ModProfile> modSubmissionSucceeded,
@@ -1307,22 +1308,6 @@ namespace ModIO
                                 onError);
         }
 
-        public static void AddModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
-                                             Action<APIMessage> onSuccess,
-                                             Action<WebRequestError> onError)
-        {
-            string[] metadataKVPStrings = new string[metadataKVPs.Length];
-            for(int i = 0; i < metadataKVPs.Length; ++i)
-            {
-                metadataKVPStrings[i] = metadataKVPs[i].key + ":" + metadataKVPs[i].value;
-            }
-
-            Client.AddModKVPMetadata(userData.oAuthToken,
-                                     modId, new AddModKVPMetadataParameters(metadataKVPStrings),
-                                     result => OnSuccessWrapper(result, onSuccess),
-                                     onError);
-        }
-
         // public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
         //                                     Action<APIMessage> onSuccess,
         //                                     Action<WebRequestError> onError)
@@ -1371,25 +1356,6 @@ namespace ModIO
                                       modId, new AddModDependenciesParameters(modIdsToAdd),
                                       result => OnSuccessWrapper(result, onSuccess),
                                       onError);
-        }
-
-        public static void DeleteModKVPMetadata(int modId, UnsubmittedMetadataKVP[] metadataKVPs,
-                                                Action<APIMessage> onSuccess,
-                                                Action<WebRequestError> onError)
-        {
-            string[] kvpStrings = new string[metadataKVPs.Length];
-            for(int i = 0; i < metadataKVPs.Length; ++i)
-            {
-                kvpStrings[i] = metadataKVPs[i].ToString();
-            }
-
-            var parameters = new DeleteModKVPMetadataParameters();
-            parameters.metadata = kvpStrings;
-
-            Client.DeleteModKVPMetadata(userData.oAuthToken,
-                                        modId, parameters,
-                                        result => OnSuccessWrapper(result, onSuccess),
-                                        onError);
         }
 
         public static void DeleteModTeamMember(int modId, int teamMemberId,
