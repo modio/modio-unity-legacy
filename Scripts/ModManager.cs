@@ -327,14 +327,19 @@ namespace ModIO
                 eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest,
                                            true);
 
-                Action<ModEvent[]> onModEventsReceived = (eventArray) =>
+                Action<ObjectArray<EventObject>> onModEventsReceived = (eventObjectArray) =>
                 {
                     manifest.lastUpdateTimeStamp = untilTimeStamp;
-                    ProcessModEvents(eventArray);
+                    var modEvents = new ModEvent[eventObjectArray.data.Length];
+                    for(int i = 0; i < eventObjectArray.data.Length; ++i)
+                    {
+                        modEvents[i] = ModEvent.CreateFromAPIObject(eventObjectArray.data[i]);
+                    }
+                    ProcessModEvents(modEvents);
                 };
                 Client.GetAllModEvents(eventFilter,
-                                          result => OnSuccessWrapper(result, onModEventsReceived),
-                                          Client.LogError);
+                                       onModEventsReceived,
+                                       Client.LogError);
 
                 // TODO(@jackson): Replace with Event Polling
                 // - Get Subscription Updates -
@@ -454,22 +459,22 @@ namespace ModIO
 
                 switch(modEvent.eventType)
                 {
-                    case ModEvent.EventType.ModfileChanged:
+                    case ModEventType.ModfileChanged:
                     {
                         processModfileChange(modEvent);
                     }
                     break;
-                    case ModEvent.EventType.ModAvailable:
+                    case ModEventType.ModAvailable:
                     {
                         processModAvailable(modEvent);
                     }
                     break;
-                    case ModEvent.EventType.ModUnavailable:
+                    case ModEventType.ModUnavailable:
                     {
                         processModUnavailable(modEvent);
                     }
                     break;
-                    case ModEvent.EventType.ModEdited:
+                    case ModEventType.ModEdited:
                     {
                         processModEdited(modEvent);
                     }

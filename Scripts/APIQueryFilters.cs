@@ -1010,7 +1010,7 @@ namespace ModIO
             
             StoreStringField(fieldInformationMap,
                              Field.EventType, "event_type",
-                             (e) => ModEvent.GetNameForType(e.eventType),
+                             (e) => ModEvent.EventTypeToAPIString(e.eventType),
                              (a,b) => a.eventType.CompareTo(b.eventType));
 
             StoreBooleanField(fieldInformationMap,
@@ -1041,9 +1041,9 @@ namespace ModIO
         }
 
         // ---[ SPECIALIZED FILTERS ]---
-        public void ApplyEventType(ModEvent.EventType eventType)
+        public void ApplyEventType(ModEventType eventType)
         {
-            base.ApplyStringEquality(Field.EventType, ModEvent.GetNameForType(eventType));
+            base.ApplyStringEquality(Field.EventType, ModEvent.EventTypeToAPIString(eventType));
         }
     }
 
