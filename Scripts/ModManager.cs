@@ -971,13 +971,6 @@ namespace ModIO
         }
 
         // ---------[ MISC ]------------
-        public static void RequestTagCategoryMap(Action<GameTagOption[]> onSuccess,
-                                                 Action<WebRequestError> onError)
-        {
-            Client.GetAllGameTagOptions(result => OnSuccessWrapper(result, onSuccess),
-                                           onError);
-        }
-
         private static void WriteManifestToDisk()
         {
             File.WriteAllText(manifestPath, JsonUtility.ToJson(manifest));
@@ -1299,16 +1292,6 @@ namespace ModIO
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
-        public static void AddGameTagOption(UnsubmittedGameTagOption tagOption,
-                                            Action<APIMessage> onSuccess,
-                                            Action<WebRequestError> onError)
-        {
-            Client.AddGameTagOption(userData.oAuthToken,
-                                    tagOption.AsAddGameTagOptionParameters(),
-                                    result => OnSuccessWrapper(result, onSuccess),
-                                    onError);
-        }
-
         public static void AddPositiveRating(int modId,
                                              Action<APIMessage> onSuccess,
                                              Action<WebRequestError> onError)
@@ -1432,15 +1415,5 @@ namespace ModIO
         //                                    result => OnSuccessWrapper(result, onSuccess),
         //                                    onError);
         // }
-
-        public static void DeleteGameTagOption(GameTagOptionToDelete gameTagOption,
-                                               Action<APIMessage> onSuccess,
-                                               Action<WebRequestError> onError)
-        {
-            Client.DeleteGameTagOption(userData.oAuthToken,
-                                       gameTagOption.AsDeleteGameTagOptionParameters(),
-                                       result => OnSuccessWrapper(result, onSuccess),
-                                       onError);
-        }
     }
 }

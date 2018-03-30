@@ -171,11 +171,11 @@ namespace ModIO
                 int tagsRemovedCount = 0;
 
                 ++EditorGUI.indentLevel;
-                    foreach(GameTagOption tagOption in ModManager.gameProfile.taggingOptions)
+                    foreach(ModTagCategory tagCategory in ModManager.gameProfile.taggingOptions)
                     {
-                        if(!tagOption.isHidden)
+                        if(!tagCategory.isHidden)
                         {
-                            LayoutTagOption(modProfileProp, tagOption, selectedTags, ref tagsRemovedCount);
+                            LayoutTagCategory(modProfileProp, tagCategory, selectedTags, ref tagsRemovedCount);
                         }
                     }
                 --EditorGUI.indentLevel;
@@ -187,19 +187,19 @@ namespace ModIO
             }
         }
 
-        protected virtual void LayoutTagOption(SerializedProperty modProfileProp,
-                                               GameTagOption tagOption,
-                                               List<string> selectedTags,
-                                               ref int tagsRemovedCount)
+        protected virtual void LayoutTagCategory(SerializedProperty modProfileProp,
+                                                 ModTagCategory tagCategory,
+                                                 List<string> selectedTags,
+                                                 ref int tagsRemovedCount)
         {
             // EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel(tagOption.name);
+            EditorGUILayout.PrefixLabel(tagCategory.name);
 
             EditorGUILayout.BeginVertical();
-                if(tagOption.tagType == GameTagOption.TagType.SingleValue)
+                if(!tagCategory.isFlag)
                 {
                     string selectedTag = "";
-                    foreach(string tag in tagOption.tags)
+                    foreach(string tag in tagCategory.tags)
                     {
                         if(selectedTags.Contains(tag))
                         {
@@ -207,7 +207,7 @@ namespace ModIO
                         }
                     }
 
-                    foreach(string tag in tagOption.tags)
+                    foreach(string tag in tagCategory.tags)
                     {
                         bool isSelected = (tag == selectedTag);
                         isSelected = EditorGUILayout.Toggle(tag, isSelected, EditorStyles.radioButton);
@@ -226,7 +226,7 @@ namespace ModIO
                 }
                 else
                 {
-                    foreach(string tag in tagOption.tags)
+                    foreach(string tag in tagCategory.tags)
                     {
                         bool wasSelected = selectedTags.Contains(tag);
                         bool isSelected = EditorGUILayout.Toggle(tag, wasSelected);

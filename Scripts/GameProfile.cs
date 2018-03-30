@@ -85,7 +85,7 @@ namespace ModIO
         [SerializeField] private string _summary;
         [SerializeField] private string _instructions;
         [SerializeField] private string _profileURL;
-        [SerializeField] private GameTagOption[] _taggingOptions;
+        [SerializeField] private ModTagCategory[] _taggingOptions;
 
         // ---------[ FIELDS ]---------
         public int id                                           { get { return this._id; } }
@@ -110,7 +110,7 @@ namespace ModIO
         public string summary                                   { get { return this._summary; } }
         public string instructions                              { get { return this._instructions; } }
         public string profileURL                                { get { return this._profileURL; } }
-        public ICollection<GameTagOption> taggingOptions        { get { return new List<GameTagOption>(this.taggingOptions); } }
+        public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this.taggingOptions); } }
         
         // ---------[ API OBJECT INTERFACE ]---------
         public void ApplyAPIObjectValues(API.GameObject apiObject)
@@ -137,7 +137,12 @@ namespace ModIO
             this._summary = apiObject.summary;
             this._instructions = apiObject.instructions;
             this._profileURL = apiObject.profile_url;
-            // this._taggingOptions = apiObject.tag_options;
+
+            this._taggingOptions = new ModTagCategory[apiObject.tag_options.Length];
+            for(int i = 0; i < apiObject.tag_options.Length; ++i)
+            {
+                this._taggingOptions[i] = ModTagCategory.CreateFromAPIObject(apiObject.tag_options[i]);
+            }
         }
 
         public static GameProfile CreateFromAPIObject(API.GameObject apiObject)
