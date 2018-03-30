@@ -79,6 +79,7 @@ namespace ModIO
         [SerializeField] private string[] _youtubeURLs;
         [SerializeField] private string[] _sketchfabURLs;
         [SerializeField] private string[] _imageIdentifiers;
+        [SerializeField] private int[] _dependencies;
         // TODO(@jackson): TeamMembers
 
         // ---------[ FIELDS ]---------
@@ -104,9 +105,10 @@ namespace ModIO
         public ICollection<string> youtubeURLs      { get { return new List<string>(this._youtubeURLs); } }
         public ICollection<string> sketchfabURLs    { get { return new List<string>(this._sketchfabURLs); } }
         public ICollection<string> imageIdentifiers { get { return new List<string>(this._imageIdentifiers); } }
+        public ICollection<int> dependencies        { get { return new List<int>(this._dependencies); } }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.ModObject apiObject)
+        public void ApplyModObjectValues(API.ModObject apiObject)
         {
             this._id = apiObject.id;
             this._gameId = apiObject.game_id;
@@ -154,10 +156,19 @@ namespace ModIO
             }
         }
 
-        public static ModProfile CreateFromAPIObject(API.ModObject apiObject)
+        public void ApplyModDependencyObjectValues(API.ModDependencyObject[] apiObjectArray)
+        {
+            this._dependencies = new int[apiObjectArray.Length];
+            for(int i = 0; i < apiObjectArray.Length; ++i)
+            {
+                this._dependencies[i] = apiObjectArray[i].mod_id;
+            }
+        }
+
+        public static ModProfile CreateFromModObject(API.ModObject apiObject)
         {
             ModProfile profile = new ModProfile();
-            profile.ApplyAPIObjectValues(apiObject);
+            profile.ApplyModObjectValues(apiObject);
             return profile;
         }
     }

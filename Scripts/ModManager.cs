@@ -211,7 +211,7 @@ namespace ModIO
                 var mods = new List<ModProfile>(modObjects.data.Length);
                 foreach(ModObject modObject in modObjects.data)
                 {
-                    mods.Add(ModProfile.CreateFromAPIObject(modObject));
+                    mods.Add(ModProfile.CreateFromModObject(modObject));
                 }
 
                 List<ModProfile> updatedMods = new List<ModProfile>();
@@ -363,7 +363,7 @@ namespace ModIO
             {
                 Action<ModObject> onGetMod = (modObject) =>
                 {
-                    var profile = ModProfile.CreateFromAPIObject(modObject);
+                    var profile = ModProfile.CreateFromModObject(modObject);
 
                     StoreModData(profile);
                     manifest.unresolvedEvents.Remove(modEvent);
@@ -399,7 +399,7 @@ namespace ModIO
             {
                 Action<ModObject> onGetMod = (modObject) =>
                 {
-                    var profile = ModProfile.CreateFromAPIObject(modObject);
+                    var profile = ModProfile.CreateFromModObject(modObject);
 
                     StoreModData(profile);
                     manifest.unresolvedEvents.Remove(modEvent);
@@ -427,7 +427,7 @@ namespace ModIO
                 {
                     Action<ModObject> onGetMod = (modObject) =>
                     {
-                        profile.ApplyAPIObjectValues(modObject);
+                        profile.ApplyModObjectValues(modObject);
 
                         StoreModData(profile);
 
@@ -495,7 +495,7 @@ namespace ModIO
             var subscribedMods = new List<ModProfile>(modObjectArray.data.Length);
             foreach(ModObject modObject in modObjectArray.data)
             {
-                subscribedMods.Add(ModProfile.CreateFromAPIObject(modObject));
+                subscribedMods.Add(ModProfile.CreateFromModObject(modObject));
             }
 
             List<int> addedMods = new List<int>();
@@ -1034,7 +1034,7 @@ namespace ModIO
 
             Client.AddMod(userData.oAuthToken,
                           parameters,
-                          result => modSubmissionSucceeded(ModProfile.CreateFromAPIObject(result)),
+                          result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
                           modSubmissionFailed);
         }
 
@@ -1229,7 +1229,7 @@ namespace ModIO
 
                     Client.EditMod(userData.oAuthToken,
                                    modId, parameters,
-                                   result => modSubmissionSucceeded(ModProfile.CreateFromAPIObject(result)),
+                                   result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
                                    modSubmissionFailed);
                 });
             }
@@ -1239,7 +1239,7 @@ namespace ModIO
                 submissionActions.Add(() =>
                 {
                     Client.GetMod(modId,
-                                  result => modSubmissionSucceeded(ModProfile.CreateFromAPIObject(result)),
+                                  result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
                                   modSubmissionFailed);
                 });
             }

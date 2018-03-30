@@ -1099,7 +1099,8 @@ namespace ModIO
 
     // Note(@jackson): The GetAllModKVPMetadata filter offers no fields
 
-    public class GetAllModDependenciesFilter : Filter<ModDependency, GetAllModDependenciesFilter.Field>
+    // TODO(@jackson): Whaaaaa
+    public class GetAllModDependenciesFilter : Filter<Modfile, GetAllModDependenciesFilter.Field>
     {
         public enum Field
         {
