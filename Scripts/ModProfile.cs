@@ -20,6 +20,42 @@ namespace ModIO
     [System.Serializable]
     public class ModProfile
     {
+        // ---------[ INNER CLASSES ]---------
+        [System.Serializable]
+        public struct RatingSummary
+        {
+            // ---------[ SERIALIZED MEMBERS ]---------
+            [SerializeField] private int _totalRatingCount;
+            [SerializeField] private int _positiveRatingCount;
+            [SerializeField] private float _weightedAggregate;
+            [SerializeField] private string _displayText;
+
+            // ---------[ FIELDS ]---------
+            public int totalRatingCount { get { return this._totalRatingCount; } }
+            public int positiveRatingCount  { get { return this._positiveRatingCount; } }
+            public float weightedAggregate  { get { return this._weightedAggregate; } }
+            public string displayText   { get { return this._displayText; } }
+
+            // ---------[ ACCESSORS ]---------
+            public int GetNegativeRatingCount()
+            {
+                return this._totalRatingCount - this._positiveRatingCount;
+            }
+            public float GetPositiveRatingPercentage()
+            {
+                return (float)this._positiveRatingCount / (float)this._totalRatingCount;
+            }
+
+            // ---------[ API OBJECT INTERFACE ]---------
+            public void ApplyAPIObjectValues(API.RatingSummaryObject apiObject)
+            {
+                this._totalRatingCount = apiObject.total_ratings;
+                this._positiveRatingCount = apiObject.positive_ratings;
+                this._weightedAggregate = apiObject.weighted_aggregate;
+                this._displayText = apiObject.display_text;
+            }
+        }
+
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] private int _id;
         [SerializeField] private int _gameId;
@@ -88,12 +124,17 @@ namespace ModIO
             this._metadataBlob = apiObject.metadata_blob;
             this._profileURL = apiObject.profile_url;
             this._primaryModfileId = apiObject.modfile.id;
-            this._ratingSummary = new RatingSummary(apiObject.rating_summary);
+
+            this._ratingSummary.ApplyAPIObjectValues(apiObject.rating_summary);
+
+            // - Tags -
             this._tags = new string[apiObject.tags.Length];
             for(int i = 0; i < apiObject.tags.Length; ++i)
             {
                 this._tags[i] = apiObject.tags[i].name;
             }
+
+            // - Media -
             this._logoIdentifier = ModImageIdentifier.GenerateForModLogo(apiObject.id);
             this._youtubeURLs = apiObject.media.youtube;
             this._sketchfabURLs = apiObject.media.sketchfab;
