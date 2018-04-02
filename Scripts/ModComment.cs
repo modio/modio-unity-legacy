@@ -7,42 +7,19 @@ namespace ModIO
     {
         // - Inner Classes -
         [System.Serializable]
-        public class CommentThreadPosition
+        public struct CommentThreadPosition
         {
             // ---------[ SERIALIZED MEMBERS ]---------
-            [SerializeField] private int _depth = -1;
-            [SerializeField] private int _mainThread = -1;
-            [SerializeField] private int _replyThread = -1;
-            [SerializeField] private int _subReplyThread = -1;
+            [SerializeField] internal int _depth;
+            [SerializeField] internal int _mainThread;
+            [SerializeField] internal int _replyThread;
+            [SerializeField] internal int _subReplyThread;
 
             // ---------[ FIELDS ]---------
             public int depth            { get { return this._depth; } }
             public int mainThread       { get { return this._mainThread; } }
             public int replyThread      { get { return this._replyThread; } }
             public int subReplyThread   { get { return this._subReplyThread; } }
-
-            // ---------[ INITIALIZATION ]---------
-            public void ApplyAPIObjectValues(string replyPosition)
-            {
-                string[] positionElements = replyPosition.Split('.');
-
-                this._depth = 0;
-                if(positionElements.Length > 0)
-                {
-                    this._depth = 1;
-                    if(int.TryParse(positionElements[0], out this._mainThread)
-                       && positionElements.Length > 1)
-                    {
-                        this._depth = 2;
-                        if(int.TryParse(positionElements[1], out this._replyThread)
-                           && positionElements.Length > 2)
-                        {
-                            this._depth = 3;
-                            int.TryParse(positionElements[2], out this._subReplyThread);
-                        }
-                    }
-                }
-            }
         }
 
         // ---------[ SERIALIZED MEMBERS ]---------
@@ -68,7 +45,7 @@ namespace ModIO
         public string content                       { get { return this._content; } }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.CommentObject apiObject)
+        public void ApplyCommentObjectValues(API.CommentObject apiObject)
         {
             this._id = apiObject.id;
             this._modId = apiObject.mod_id;
@@ -80,17 +57,34 @@ namespace ModIO
             this._content = apiObject.content;
 
             // - Parse Thread Position -
-            if(this._threadPosition == null)
+            string[] positionElements = apiObject.reply_position.Split('.');
+
+            this._threadPosition._depth = 0;
+            this._threadPosition._mainThread = -1;
+            this._threadPosition._replyThread = -1;
+            this._threadPosition._subReplyThread = -1;
+            
+            if(positionElements.Length > 0)
             {
-                this._threadPosition = new CommentThreadPosition();
+                this._threadPosition._depth = 1;
+                if(int.TryParse(positionElements[0], out this._threadPosition._mainThread)
+                   && positionElements.Length > 1)
+                {
+                    this._threadPosition._depth = 2;
+                    if(int.TryParse(positionElements[1], out this._threadPosition._replyThread)
+                       && positionElements.Length > 2)
+                    {
+                        this._threadPosition._depth = 3;
+                        int.TryParse(positionElements[2], out this._threadPosition._subReplyThread);
+                    }
+                }
             }
-            this._threadPosition.ApplyAPIObjectValues(apiObject.reply_position);
         }
 
-        public static ModComment CreateFromAPIObject(API.CommentObject apiObject)
+        public static ModComment CreateFromCommentObject(API.CommentObject apiObject)
         {
             var retVal = new ModComment();
-            retVal.ApplyAPIObjectValues(apiObject);
+            retVal.ApplyCommentObjectValues(apiObject);
             return retVal;
         }
     }

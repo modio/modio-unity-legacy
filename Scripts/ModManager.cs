@@ -223,7 +223,7 @@ namespace ModIO
         {
             Action<API.GameObject> cacheGameProfile = (gameObject) =>
             {
-                manifest.gameProfile = GameProfile.CreateFromAPIObject(gameObject);
+                manifest.gameProfile = GameProfile.CreateFromGameObject(gameObject);
                 WriteManifestToDisk();
             };
 
@@ -297,7 +297,7 @@ namespace ModIO
                     var modEvents = new ModEvent[eventObjectArray.data.Length];
                     for(int i = 0; i < eventObjectArray.data.Length; ++i)
                     {
-                        modEvents[i] = ModEvent.CreateFromAPIObject(eventObjectArray.data[i]);
+                        modEvents[i] = ModEvent.CreateFromEventObject(eventObjectArray.data[i]);
                     }
                     ProcessModEvents(modEvents);
                 };
@@ -530,7 +530,7 @@ namespace ModIO
             {
                 userData = new UserData();
                 userData.oAuthToken = userOAuthToken;
-                userData.userProfile = UserProfile.CreateFromAPIObject(userObject);
+                userData.userProfile = UserProfile.CreateFromUserObject(userObject);
                 WriteUserDataToDisk();
 
                 onSuccess(userData.userProfile);
@@ -716,7 +716,7 @@ namespace ModIO
             {
                 Action<ModfileObject> writeModfileToDisk = (m) =>
                 {
-                    Modfile newModfile = Modfile.CreateFromAPIObject(m);
+                    Modfile newModfile = Modfile.CreateFromModfileObject(m);
                     File.WriteAllText(modfileFilePath,
                                       JsonUtility.ToJson(newModfile));
                     onSuccess(newModfile);
@@ -1257,7 +1257,7 @@ namespace ModIO
             Client.AddModfile(userData.oAuthToken,
                               modId,
                               parameters,
-                              (m) => onSuccess(Modfile.CreateFromAPIObject(m)),
+                              (m) => onSuccess(Modfile.CreateFromModfileObject(m)),
                               onError);
         }
 

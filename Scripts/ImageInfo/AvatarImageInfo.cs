@@ -24,17 +24,17 @@ namespace ModIO
         }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.AvatarObject apiObject)
+        public void ApplyAvatarObjectValues(API.AvatarObject apiObject)
         {
             this.fileName = apiObject.filename;
             this.locationMap[(int)AvatarVersion.Original]         = new FilePathURLPair(){ url = apiObject.original };
             this.locationMap[(int)AvatarVersion.Thumb_50x50]      = new FilePathURLPair(){ url = apiObject.thumb_50x50 };
             this.locationMap[(int)AvatarVersion.Thumb_100x100]    = new FilePathURLPair(){ url = apiObject.thumb_100x100 };
         }
-        public static AvatarImageInfo CreateFromAPIObject(API.AvatarObject apiObject)
+        public static AvatarImageInfo CreateFromAvatarObject(API.AvatarObject apiObject)
         {
             var retVal = new AvatarImageInfo();
-            retVal.ApplyAPIObjectValues(apiObject);
+            retVal.ApplyAvatarObjectValues(apiObject);
             return retVal;
         }
     }

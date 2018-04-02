@@ -23,16 +23,16 @@ namespace ModIO
         }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.ImageObject apiObject)
+        public void ApplyImageObjectValues(API.ImageObject apiObject)
         {
             this.fileName = apiObject.filename;
             this.locationMap[(int)ModImageVersion.Original]         = new FilePathURLPair(){ url = apiObject.original };
             this.locationMap[(int)ModImageVersion.Thumb_320x180]    = new FilePathURLPair(){ url = apiObject.thumb_320x180 };
         }
-        public static ModImageInfo CreateFromAPIObject(API.ImageObject iconObject)
+        public static ModImageInfo CreateFromImageObject(API.ImageObject iconObject)
         {
             var retVal = new ModImageInfo();
-            retVal.ApplyAPIObjectValues(iconObject);
+            retVal.ApplyImageObjectValues(iconObject);
             return retVal;
         }
     }

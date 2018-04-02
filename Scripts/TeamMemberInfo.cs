@@ -30,7 +30,7 @@ namespace ModIO
         public string title                                 { get { return this._title; } }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.TeamMemberObject apiObject)
+        public void ApplyTeamMemberObjectValues(API.TeamMemberObject apiObject)
         {
             this._id = apiObject.id;
             this._userId = apiObject.user.id;
@@ -39,10 +39,10 @@ namespace ModIO
             this._title = apiObject.position;
         }
 
-        public static TeamMemberInfo CreateFromAPIObject(API.TeamMemberObject apiObject)
+        public static TeamMemberInfo CreateFromTeamMemberObject(API.TeamMemberObject apiObject)
         {
             var retVal = new TeamMemberInfo();
-            retVal.ApplyAPIObjectValues(apiObject);
+            retVal.ApplyTeamMemberObjectValues(apiObject);
             return retVal;
         }
     }

@@ -28,7 +28,7 @@ namespace ModIO
         public string metadataBlob  { get { return this._metadataBlob; } }
 
         // ---------[ INITIALIZATION ]---------
-        public void ApplyAPIObjectValues(API.ModfileObject apiObject)
+        public void ApplyModfileObjectValues(API.ModfileObject apiObject)
         {
             this._id = apiObject.id;
             this._modId = apiObject.mod_id;
@@ -41,10 +41,10 @@ namespace ModIO
             this._metadataBlob = apiObject.metadata_blob;
         }
 
-        public static Modfile CreateFromAPIObject(API.ModfileObject apiObject)
+        public static Modfile CreateFromModfileObject(API.ModfileObject apiObject)
         {
             var retVal = new Modfile();
-            retVal.ApplyAPIObjectValues(apiObject);
+            retVal.ApplyModfileObjectValues(apiObject);
             return retVal;
         }
     }

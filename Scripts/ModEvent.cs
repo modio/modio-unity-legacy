@@ -36,7 +36,7 @@ namespace ModIO
         public ModEventType eventType   { get { return this._eventType; } }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.EventObject apiObject)
+        public void ApplyEventObjectValues(API.EventObject apiObject)
         {
             this._id = apiObject.id;
             this._modId = apiObject.mod_id;
@@ -45,10 +45,10 @@ namespace ModIO
             this._eventType = ModEvent.ParseAPITypeStringAsEventType(apiObject.event_type);
         }
 
-        public static ModEvent CreateFromAPIObject(API.EventObject apiObject)
+        public static ModEvent CreateFromEventObject(API.EventObject apiObject)
         {
             var retVal = new ModEvent();
-            retVal.ApplyAPIObjectValues(apiObject);
+            retVal.ApplyEventObjectValues(apiObject);
             return retVal;
         }
 

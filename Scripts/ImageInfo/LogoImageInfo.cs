@@ -25,7 +25,7 @@ namespace ModIO
         }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.LogoObject apiObject)
+        public void ApplyLogoObjectValues(API.LogoObject apiObject)
         {
             this.fileName = apiObject.filename;
             this.locationMap[(int)ImageVersion.Original]         = new FilePathURLPair(){ url = apiObject.original };
@@ -34,10 +34,10 @@ namespace ModIO
             this.locationMap[(int)ImageVersion.Thumb_1280x720]   = new FilePathURLPair(){ url = apiObject.thumb_1280x720 };
         }
 
-        public static LogoImageInfo CreateFromAPIObject(API.LogoObject apiObject)
+        public static LogoImageInfo CreateFromLogoObject(API.LogoObject apiObject)
         {
             var retVal = new LogoImageInfo();
-            retVal.ApplyAPIObjectValues(apiObject);
+            retVal.ApplyLogoObjectValues(apiObject);
             return retVal;
         }
     }

@@ -113,7 +113,7 @@ namespace ModIO
         public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this.taggingOptions); } }
         
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.GameObject apiObject)
+        public void ApplyGameObjectValues(API.GameObject apiObject)
         {
             this._id = apiObject.id;
             this._status = (GameStatus)apiObject.status;
@@ -128,9 +128,9 @@ namespace ModIO
             this._revenuePermissions = (ModRevenuePermissions)apiObject.revenue_options;
             this._apiPermissions = (GameAPIPermissions)apiObject.api_access_options;
             this._ugcName = apiObject.ugc_name;
-            this._icon = IconImageInfo.CreateFromAPIObject(apiObject.icon);
-            this._logo = LogoImageInfo.CreateFromAPIObject(apiObject.logo);
-            this._headerImage = HeaderImageInfo.CreateFromAPIObject(apiObject.header);
+            this._icon = IconImageInfo.CreateFromIconObject(apiObject.icon);
+            this._logo = LogoImageInfo.CreateFromLogoObject(apiObject.logo);
+            this._headerImage = HeaderImageInfo.CreateFromHeaderImageObject(apiObject.header);
             this._homepageURL = apiObject.homepage;
             this._name = apiObject.name;
             this._nameId = apiObject.name_id;
@@ -141,14 +141,14 @@ namespace ModIO
             this._taggingOptions = new ModTagCategory[apiObject.tag_options.Length];
             for(int i = 0; i < apiObject.tag_options.Length; ++i)
             {
-                this._taggingOptions[i] = ModTagCategory.CreateFromAPIObject(apiObject.tag_options[i]);
+                this._taggingOptions[i] = ModTagCategory.CreateFromGameTagOptionObject(apiObject.tag_options[i]);
             }
         }
 
-        public static GameProfile CreateFromAPIObject(API.GameObject apiObject)
+        public static GameProfile CreateFromGameObject(API.GameObject apiObject)
         {
             var newGP = new GameProfile();
-            newGP.ApplyAPIObjectValues(apiObject);
+            newGP.ApplyGameObjectValues(apiObject);
             return newGP;
         }
     }

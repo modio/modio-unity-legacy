@@ -22,7 +22,7 @@ namespace ModIO
         public ICollection<string> tags { get { return new List<string>(this._tags); } }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyAPIObjectValues(API.GameTagOptionObject apiObject)
+        public void ApplyGameTagOptionObjectValues(API.GameTagOptionObject apiObject)
         {
             this._name = apiObject.name;
             this._isFlag = ModTagCategory.ParseAPITypeStringAsIsFlag(apiObject.type);
@@ -31,10 +31,10 @@ namespace ModIO
             System.Array.Copy(apiObject.tags, this._tags, apiObject.tags.Length);
         }
 
-        public static ModTagCategory CreateFromAPIObject(API.GameTagOptionObject apiObject)
+        public static ModTagCategory CreateFromGameTagOptionObject(API.GameTagOptionObject apiObject)
         {
             var retVal = new ModTagCategory();
-            retVal.ApplyAPIObjectValues(apiObject);
+            retVal.ApplyGameTagOptionObjectValues(apiObject);
             return retVal;
         }
 
