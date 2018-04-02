@@ -168,7 +168,7 @@ namespace ModIO
             }
         }
 
-        public void ApplyModDependencyObjectValues(API.ModDependencyObject[] apiObjectArray)
+        public void ApplyModDependenciesObjectValues(API.ModDependenciesObject[] apiObjectArray)
         {
             this._dependencies = new int[apiObjectArray.Length];
             for(int i = 0; i < apiObjectArray.Length; ++i)

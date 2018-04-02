@@ -443,17 +443,17 @@ namespace ModIO.API
                     // TODO(@jackson): Handle as a T == null?
                     if(webRequest.responseCode == 204)
                     {
-                        if(typeof(T) == typeof(MessageObject))
-                        {
-                            MessageObject response = new MessageObject();
-                            response.code = 204;
-                            response.message = "Succeeded";
-                            successCallback((T)(object)response);
-                        }
-                        else
-                        {
+                        // if(typeof(T) == typeof(MessageObject))
+                        // {
+                        //     MessageObject response = new MessageObject();
+                        //     response.code = 204;
+                        //     response.message = "Succeeded";
+                        //     successCallback((T)(object)response);
+                        // }
+                        // else
+                        // {
                             successCallback(default(T));
-                        }
+                        // }
                     }
                     else
                     {
@@ -906,7 +906,7 @@ namespace ModIO.API
         // ---------[ DEPENDENCIES ENDPOINTS ]---------
         // Get All Mod Dependencies
         public static void GetAllModDependencies(int modId, GetAllModDependenciesFilter filter,
-                                                 Action<ObjectArray<ModDependencyObject>> successCallback, Action<WebRequestError> errorCallback)
+                                                 Action<ObjectArray<ModDependenciesObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
 
