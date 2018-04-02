@@ -54,42 +54,6 @@ namespace ModIO
         private static string manifestPath { get { return cacheDirectory + "manifest.data"; } }
         private static string userdataPath { get { return cacheDirectory + "user.data"; } }
 
-        // ---------[ OBJECT WRAPPING ]---------
-        private static void OnSuccessWrapper<T_APIObj, T>(T_APIObj apiObject,
-                                                          Action<T> successCallback)
-        where T_APIObj : struct
-        where T : IAPIObjectWrapper<T_APIObj>, new()
-        {
-            if(successCallback != null)
-            {
-                T wrapperObject = new T();
-                wrapperObject.WrapAPIObject(apiObject);
-                successCallback(wrapperObject);
-            }
-        }
-
-        private static void OnSuccessWrapper<T_APIObj, T>(ObjectArray<T_APIObj> apiObjectArray,
-                                                          Action<T[]> successCallback)
-        where T_APIObj : struct
-        where T : IAPIObjectWrapper<T_APIObj>, new()
-        {
-            if(successCallback != null)
-            {
-                T[] wrapperObjectArray = new T[apiObjectArray.data.Length];
-                for(int i = 0;
-                    i < apiObjectArray.data.Length;
-                    ++i)
-                {
-                    T newObject = new T();
-                    newObject.WrapAPIObject(apiObjectArray.data[i]);
-                    
-                    wrapperObjectArray[i] = newObject;
-                }
-
-                successCallback(wrapperObjectArray);
-            }
-        }
-
         // --------- [ INITIALIZATION ]---------
         public static void Initialize()
         {
@@ -545,8 +509,8 @@ namespace ModIO
                                                Action<WebRequestError> onError)
         {
             Client.RequestSecurityCode(emailAddress,
-                                          result => OnSuccessWrapper(result, onSuccess),
-                                          onError);
+                                       result => onSuccess(APIMessage.CreateFromMessageObject(result)),
+                                       onError);
         }
 
         public static void RequestOAuthToken(string securityCode,
@@ -991,7 +955,7 @@ namespace ModIO
             File.Delete(userdataPath);
         }
 
-        // TODO(@jackson): Add MKVPs
+        // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitNewMod(EditableModFields modData,
                                         Action<ModProfile> modSubmissionSucceeded,
                                         Action<WebRequestError> modSubmissionFailed)
@@ -1038,7 +1002,7 @@ namespace ModIO
                           result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
                           modSubmissionFailed);
         }
-        // TODO(@jackson): Add MKVPs
+        // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitModChanges(int modId,
                                             EditableModFields modData,
                                             Action<ModProfile> modSubmissionSucceeded,
@@ -1304,7 +1268,7 @@ namespace ModIO
         {
             Client.AddModRating(userData.oAuthToken,
                                 modId, new AddModRatingParameters(1),
-                                result => OnSuccessWrapper(result, onSuccess),
+                                result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                 onError);
         }
 
@@ -1318,54 +1282,16 @@ namespace ModIO
         //                             onError);
         // }
 
-        public static void DeleteMod(int modId,
-                                     Action<APIMessage> onSuccess,
-                                     Action<WebRequestError> onError)
-        {
-            Client.DeleteMod(userData.oAuthToken,
-                                modId,
-                                result => OnSuccessWrapper(result, onSuccess),
-                                onError);
-        }
-
-        public static void DeleteModTags(int modId, string[] tagsToDelete,
-                                         Action<APIMessage> onSuccess,
-                                         Action<WebRequestError> onError)
-        {
-            Client.DeleteModTags(userData.oAuthToken,
-                                 modId, new DeleteModTagsParameters(tagsToDelete),
-                                 result => OnSuccessWrapper(result, onSuccess),
-                                 onError);
-        }
-
-        public static void DeleteModDependencies(int modId, int[] modIdsToRemove,
-                                                 Action<APIMessage> onSuccess,
-                                                 Action<WebRequestError> onError)
-        {
-            Client.DeleteModDependencies(userData.oAuthToken,
-                                         modId, new DeleteModDependenciesParameters(modIdsToRemove),
-                                         result => OnSuccessWrapper(result, onSuccess),
-                                         onError);
-        }
-
-        public static void AddModDependencies(int modId, int[] modIdsToAdd,
-                                              Action<APIMessage> onSuccess,
-                                              Action<WebRequestError> onError)
-        {
-            Client.AddModDependencies(userData.oAuthToken,
-                                      modId, new AddModDependenciesParameters(modIdsToAdd),
-                                      result => OnSuccessWrapper(result, onSuccess),
-                                      onError);
-        }
-
-        public static void DeleteModTeamMember(int modId, int teamMemberId,
+        public static void DeleteModFromServer(int modId,
                                                Action<APIMessage> onSuccess,
                                                Action<WebRequestError> onError)
         {
-            Client.DeleteModTeamMember(userData.oAuthToken,
-                                          modId, teamMemberId,
-                                          result => OnSuccessWrapper(result, onSuccess),
-                                          onError);
+            // TODO(@jackson): Remvoe Mod Locally
+
+            Client.DeleteMod(userData.oAuthToken,
+                             modId,
+                             result => onSuccess(APIMessage.CreateFromMessageObject(result)),
+                             onError);
         }
 
         public static void DeleteModComment(int modId, int commentId,
@@ -1373,9 +1299,9 @@ namespace ModIO
                                             Action<WebRequestError> onError)
         {
             Client.DeleteModComment(userData.oAuthToken,
-                                       modId, commentId,
-                                       result => OnSuccessWrapper(result, onSuccess),
-                                       onError);
+                                    modId, commentId,
+                                    result => onSuccess(APIMessage.CreateFromMessageObject(result)),
+                                    onError);
         }
 
         // public static void GetAllModTeamMembers(int modId,
