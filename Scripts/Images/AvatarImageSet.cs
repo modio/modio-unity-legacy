@@ -8,9 +8,9 @@ namespace ModIO
     }
 
     [System.Serializable]
-    public class AvatarImageInfo : ImageInfo
+    public class AvatarImageSet : ImageSet
     {
-        public AvatarImageInfo()
+        public AvatarImageSet()
         {
             foreach (AvatarVersion version in System.Enum.GetValues(typeof(AvatarVersion)))
             {
@@ -31,9 +31,9 @@ namespace ModIO
             this.locationMap[(int)AvatarVersion.Thumb_50x50]      = new FilePathURLPair(){ url = apiObject.thumb_50x50 };
             this.locationMap[(int)AvatarVersion.Thumb_100x100]    = new FilePathURLPair(){ url = apiObject.thumb_100x100 };
         }
-        public static AvatarImageInfo CreateFromAvatarObject(API.AvatarObject apiObject)
+        public static AvatarImageSet CreateFromAvatarObject(API.AvatarObject apiObject)
         {
-            var retVal = new AvatarImageInfo();
+            var retVal = new AvatarImageSet();
             retVal.ApplyAvatarObjectValues(apiObject);
             return retVal;
         }

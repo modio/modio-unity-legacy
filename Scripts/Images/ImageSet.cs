@@ -6,7 +6,7 @@ using UnityEngine;
 namespace ModIO
 {
     [System.Serializable]
-    public class ImageInfo : ISerializationCallbackReceiver
+    public class ImageSet : ISerializationCallbackReceiver
     {
         // TODO(@jackson): Remove?
         public string fileName = string.Empty;

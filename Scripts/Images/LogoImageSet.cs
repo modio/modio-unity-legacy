@@ -9,9 +9,9 @@ namespace ModIO
     }
 
     [System.Serializable]
-    public class LogoImageInfo : ImageInfo
+    public class LogoImageSet : ImageSet
     {
-        public LogoImageInfo()
+        public LogoImageSet()
         {
             foreach (LogoVersion version in System.Enum.GetValues(typeof(LogoVersion)))
             {
@@ -34,9 +34,9 @@ namespace ModIO
             this.locationMap[(int)ImageVersion.Thumb_1280x720]   = new FilePathURLPair(){ url = apiObject.thumb_1280x720 };
         }
 
-        public static LogoImageInfo CreateFromLogoObject(API.LogoObject apiObject)
+        public static LogoImageSet CreateFromLogoObject(API.LogoObject apiObject)
         {
-            var retVal = new LogoImageInfo();
+            var retVal = new LogoImageSet();
             retVal.ApplyLogoObjectValues(apiObject);
             return retVal;
         }

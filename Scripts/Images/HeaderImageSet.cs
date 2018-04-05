@@ -1,9 +1,9 @@
 namespace ModIO
 {
     [System.Serializable]
-    public class HeaderImageInfo : ImageInfo
+    public class HeaderImageSet : ImageSet
     {
-        public HeaderImageInfo()
+        public HeaderImageSet()
         {
             this.locationMap[0] = new FilePathURLPair();
         }
@@ -20,9 +20,9 @@ namespace ModIO
             this.locationMap[0] = new FilePathURLPair(){ url = apiObject.original };
         }
 
-        public static HeaderImageInfo CreateFromHeaderImageObject(API.HeaderImageObject apiObject)
+        public static HeaderImageSet CreateFromHeaderImageObject(API.HeaderImageObject apiObject)
         {
-            var retVal = new HeaderImageInfo();
+            var retVal = new HeaderImageSet();
             retVal.ApplyHeaderImageObjectValues(apiObject);
             return retVal;
         }

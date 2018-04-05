@@ -623,14 +623,14 @@ namespace ModIO
         {
             // - Cache -
             modCache[modProfile.id] = modProfile;
-            // modImageMap[modProfile.logoIdentifier] = modProfile.logo.AsImageInfo();
-            modImageMap[modProfile.logoIdentifier] = new ImageInfo();
+            // modImageMap[modProfile.logoIdentifier] = modProfile.logo.AsImageSet();
+            modImageMap[modProfile.logoIdentifier] = new ImageSet();
 
             // - Write to disk -
             string modDir = GetModDirectory(modProfile.id);
             Directory.CreateDirectory(modDir);
             File.WriteAllText(modDir + "mod_profile.data", JsonUtility.ToJson(modProfile));
-            // File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modProfile.logo.AsImageInfo()));
+            // File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modProfile.logo.AsImageSet()));
         }
 
         private static void StoreModDatas(ModProfile[] modArray)
@@ -754,7 +754,7 @@ namespace ModIO
         public static event ModImageUpdatedEventHandler OnModImageUpdated;
         public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
         
-        private static Dictionary<string, ImageInfo> modImageMap = new Dictionary<string, ImageInfo>();
+        private static Dictionary<string, ImageSet> modImageMap = new Dictionary<string, ImageSet>();
 
         public static Texture2D LoadOrDownloadModImage(string modImageIdentifier, ImageVersion version)
         {
@@ -765,7 +765,7 @@ namespace ModIO
         {
             throw new System.NotImplementedException();
 
-            // ImageInfo info;
+            // ImageSet info;
             // if(modImageMap.TryGetValue(identifier, out info))
             // {
             //     return info.locationMap[(int)version];
@@ -803,7 +803,7 @@ namespace ModIO
 
             // TODO(@jackson): Handle Miss
             ModProfile modInfo = GetModProfile(modId);
-            ImageInfo logoInfo = modImageMap[modInfo.logoIdentifier];
+            ImageSet logoInfo = modImageMap[modInfo.logoIdentifier];
 
             // - Start Download -
             TextureDownload download = new TextureDownload();
@@ -918,7 +918,7 @@ namespace ModIO
             foreach(ModProfile mod in mods)
             {
                 string identifier = ModImageIdentifier.GenerateForModLogo(mod.id);
-                ImageInfo imageInfo = modImageMap[identifier];
+                ImageSet imageInfo = modImageMap[identifier];
                 if(!File.Exists(imageInfo.locationMap[(int)version].filePath))
                 {
                     missingLogoIdentifiers.Add(identifier);

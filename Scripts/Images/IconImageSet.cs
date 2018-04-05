@@ -9,9 +9,9 @@ namespace ModIO
     }
 
     [System.Serializable]
-    public class IconImageInfo : ImageInfo
+    public class IconImageSet : ImageSet
     {
-        public IconImageInfo()
+        public IconImageSet()
         {
             foreach (IconVersion version in System.Enum.GetValues(typeof(IconVersion)))
             {
@@ -33,9 +33,9 @@ namespace ModIO
             this.locationMap[(int)IconVersion.Thumb_128x128]    = new FilePathURLPair(){ url = apiObject.thumb_128x128 };
             this.locationMap[(int)IconVersion.Thumb_256x256]    = new FilePathURLPair(){ url = apiObject.thumb_256x256 };
         }
-        public static IconImageInfo CreateFromIconObject(API.IconObject iconObject)
+        public static IconImageSet CreateFromIconObject(API.IconObject iconObject)
         {
-            var retVal = new IconImageInfo();
+            var retVal = new IconImageSet();
             retVal.ApplyIconObjectValues(iconObject);
             return retVal;
         }

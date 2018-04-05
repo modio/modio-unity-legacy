@@ -76,9 +76,9 @@ namespace ModIO
         [SerializeField] private ModRevenuePermissions _revenuePermissions;
         [SerializeField] private GameAPIPermissions _apiPermissions;
         [SerializeField] private string _ugcName;
-        [SerializeField] private IconImageInfo _icon;
-        [SerializeField] private LogoImageInfo _logo;
-        [SerializeField] private HeaderImageInfo _headerImage;
+        [SerializeField] private IconImageSet _icon;
+        [SerializeField] private LogoImageSet _logo;
+        [SerializeField] private HeaderImageSet _headerImage;
         [SerializeField] private string _homepageURL;
         [SerializeField] private string _name;
         [SerializeField] private string _nameId;
@@ -101,9 +101,9 @@ namespace ModIO
         public ModRevenuePermissions revenuePermissions         { get { return this._revenuePermissions; } }
         public GameAPIPermissions apiPermissions                { get { return this._apiPermissions; } }
         public string ugcName                                   { get { return this._ugcName; } }
-        public IconImageInfo icon                               { get { return this._icon; } }
-        public LogoImageInfo logo                               { get { return this._logo; } }
-        public HeaderImageInfo headerImage                      { get { return this._headerImage; } }
+        public IconImageSet icon                               { get { return this._icon; } }
+        public LogoImageSet logo                               { get { return this._logo; } }
+        public HeaderImageSet headerImage                      { get { return this._headerImage; } }
         public string homepageURL                               { get { return this._homepageURL; } }
         public string name                                      { get { return this._name; } }
         public string nameId                                    { get { return this._nameId; } }
@@ -128,9 +128,9 @@ namespace ModIO
             this._revenuePermissions = (ModRevenuePermissions)apiObject.revenue_options;
             this._apiPermissions = (GameAPIPermissions)apiObject.api_access_options;
             this._ugcName = apiObject.ugc_name;
-            this._icon = IconImageInfo.CreateFromIconObject(apiObject.icon);
-            this._logo = LogoImageInfo.CreateFromLogoObject(apiObject.logo);
-            this._headerImage = HeaderImageInfo.CreateFromHeaderImageObject(apiObject.header);
+            this._icon = IconImageSet.CreateFromIconObject(apiObject.icon);
+            this._logo = LogoImageSet.CreateFromLogoObject(apiObject.logo);
+            this._headerImage = HeaderImageSet.CreateFromHeaderImageObject(apiObject.header);
             this._homepageURL = apiObject.homepage;
             this._name = apiObject.name;
             this._nameId = apiObject.name_id;

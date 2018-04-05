@@ -11,7 +11,7 @@ namespace ModIO
         [SerializeField] private string _username;
         [SerializeField] private TimeStamp _dateOnline;
         // TODO(@jackson): Replace with identifier
-        [SerializeField] private AvatarImageInfo _avatar;
+        [SerializeField] private AvatarImageSet _avatar;
         [SerializeField] private string _timezone;
         [SerializeField] private string _language;
         [SerializeField] private string _profileURL;
@@ -21,7 +21,7 @@ namespace ModIO
         public string nameId            { get { return this._nameId; } }
         public string username          { get { return this._username; } }
         public TimeStamp dateOnline     { get { return this._dateOnline; } }
-        public AvatarImageInfo avatar   { get { return this._avatar; } }
+        public AvatarImageSet avatar   { get { return this._avatar; } }
         public string timezone          { get { return this._timezone; } }
         public string language          { get { return this._language; } }
         public string profileURL        { get { return this._profileURL; } }
@@ -33,7 +33,7 @@ namespace ModIO
             this._nameId = apiObject.name_id;
             this._username = apiObject.username;
             this._dateOnline = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_online);
-            this._avatar = AvatarImageInfo.CreateFromAvatarObject(apiObject.avatar);
+            this._avatar = AvatarImageSet.CreateFromAvatarObject(apiObject.avatar);
             this._timezone = apiObject.timezone;
             this._language = apiObject.language;
             this._profileURL = apiObject.profile_url;
