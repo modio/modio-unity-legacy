@@ -16,6 +16,13 @@ namespace ModIO
         Hidden = 0,
         Public = 1,
     }
+    public enum ModLogoVersion
+    {
+        FullSize = 0,
+        Thumbnail_320x180,
+        Thumbnail_640x360,
+        Thumbnail_1280x720,
+    }
 
     [System.Serializable]
     public class ModProfile
@@ -48,6 +55,31 @@ namespace ModIO
         }
 
         [System.Serializable]
+        public class LogoImageLocator : MultiVersionImageLocator<ModLogoVersion>
+        {
+            // ---------[ ABSTRACTS ]---------
+            protected override ModLogoVersion FullSizeVersionEnum() { return ModLogoVersion.FullSize; }
+
+            // ---------[ API OBJECT INTERFACE ]---------
+            public void ApplyLogoObjectValues(API.LogoObject apiObject)
+            {
+                this._fileName = apiObject.filename;
+                this._versionPairing = new List<VersionSourcePair>(4);
+                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.FullSize,           source = apiObject.original });
+                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.Thumbnail_320x180,  source = apiObject.thumb_320x180 });
+                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.Thumbnail_640x360,  source = apiObject.thumb_640x360 });
+                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.Thumbnail_1280x720, source = apiObject.thumb_1280x720 });
+            }
+
+            public static LogoImageLocator CreateFromLogoObject(API.LogoObject apiObject)
+            {
+                var retVal = new LogoImageLocator();
+                retVal.ApplyLogoObjectValues(apiObject);
+                return retVal;
+            }
+        }
+
+        [System.Serializable]
         public struct MetadataKVP
         {
             public string key;
@@ -73,7 +105,7 @@ namespace ModIO
         [SerializeField] private int _primaryModfileId;
         [SerializeField] private RatingSummary _ratingSummary;
         [SerializeField] private string[] _tags;
-        [SerializeField] private string _logoIdentifier;
+        [SerializeField] private LogoImageLocator _logoLocator;
         [SerializeField] private string[] _youtubeURLs;
         [SerializeField] private string[] _sketchfabURLs;
         [SerializeField] private string[] _imageIdentifiers;
@@ -100,7 +132,8 @@ namespace ModIO
         public int primaryModfileId                     { get { return this._primaryModfileId; } }
         public RatingSummary ratingSummary              { get { return this._ratingSummary; } }
         public ICollection<string> tags                 { get { return new List<string>(this._tags); } }
-        public string logoIdentifier                    { get { return this._logoIdentifier; } }
+        // - Media -
+        public LogoImageLocator logoLocator             { get { return this._logoLocator; } }
         public ICollection<string> youtubeURLs          { get { return new List<string>(this._youtubeURLs); } }
         public ICollection<string> sketchfabURLs        { get { return new List<string>(this._sketchfabURLs); } }
         public ICollection<string> imageIdentifiers     { get { return new List<string>(this._imageIdentifiers); } }
@@ -149,7 +182,7 @@ namespace ModIO
             }
 
             // - Media -
-            this._logoIdentifier = ModImageIdentifier.GenerateForModLogo(apiObject.id);
+            this._logoLocator = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
             this._youtubeURLs = apiObject.media.youtube;
             this._sketchfabURLs = apiObject.media.sketchfab;
 

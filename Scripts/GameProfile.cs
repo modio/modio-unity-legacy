@@ -59,9 +59,43 @@ namespace ModIO
         AllowDirectDownloads = 2, // This game allows mods to be downloaded directly without API validation
     }
 
+    public enum GameLogoVersion
+    {
+        FullSize = 0,
+        Thumbnail_320x180,
+        Thumbnail_640x360,
+        Thumbnail_1280x720,
+    }
+
     [Serializable]
     public class GameProfile
     {
+        // ---------[ INNER CLASSES ]---------
+        [System.Serializable]
+        public class LogoImageLocator : MultiVersionImageLocator<GameLogoVersion>
+        {
+            // ---------[ ABSTRACTS ]---------
+            protected override GameLogoVersion FullSizeVersionEnum() { return GameLogoVersion.FullSize; }
+
+            // ---------[ API OBJECT INTERFACE ]---------
+            public void ApplyLogoObjectValues(API.LogoObject apiObject)
+            {
+                this._fileName = apiObject.filename;
+                this._versionPairing = new List<VersionSourcePair>(4);
+                this._versionPairing.Add(new VersionSourcePair() { version = GameLogoVersion.FullSize,           source = apiObject.original });
+                this._versionPairing.Add(new VersionSourcePair() { version = GameLogoVersion.Thumbnail_320x180,  source = apiObject.thumb_320x180 });
+                this._versionPairing.Add(new VersionSourcePair() { version = GameLogoVersion.Thumbnail_640x360,  source = apiObject.thumb_640x360 });
+                this._versionPairing.Add(new VersionSourcePair() { version = GameLogoVersion.Thumbnail_1280x720, source = apiObject.thumb_1280x720 });
+            }
+
+            public static LogoImageLocator CreateFromLogoObject(API.LogoObject apiObject)
+            {
+                var retVal = new LogoImageLocator();
+                retVal.ApplyLogoObjectValues(apiObject);
+                return retVal;
+            }
+        }
+
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] private int _id;
         [SerializeField] private GameStatus _status;
@@ -77,7 +111,7 @@ namespace ModIO
         [SerializeField] private GameAPIPermissions _apiPermissions;
         [SerializeField] private string _ugcName;
         [SerializeField] private IconImageSet _icon;
-        [SerializeField] private LogoImageSet _logo;
+        [SerializeField] private LogoImageLocator _logo;
         [SerializeField] private HeaderImageSet _headerImage;
         [SerializeField] private string _homepageURL;
         [SerializeField] private string _name;
@@ -102,7 +136,7 @@ namespace ModIO
         public GameAPIPermissions apiPermissions                { get { return this._apiPermissions; } }
         public string ugcName                                   { get { return this._ugcName; } }
         public IconImageSet icon                               { get { return this._icon; } }
-        public LogoImageSet logo                               { get { return this._logo; } }
+        public LogoImageLocator logo                               { get { return this._logo; } }
         public HeaderImageSet headerImage                      { get { return this._headerImage; } }
         public string homepageURL                               { get { return this._homepageURL; } }
         public string name                                      { get { return this._name; } }
@@ -129,7 +163,7 @@ namespace ModIO
             this._apiPermissions = (GameAPIPermissions)apiObject.api_access_options;
             this._ugcName = apiObject.ugc_name;
             this._icon = IconImageSet.CreateFromIconObject(apiObject.icon);
-            this._logo = LogoImageSet.CreateFromLogoObject(apiObject.logo);
+            this._logo = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
             this._headerImage = HeaderImageSet.CreateFromHeaderImageObject(apiObject.header);
             this._homepageURL = apiObject.homepage;
             this._name = apiObject.name;

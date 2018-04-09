@@ -15,7 +15,7 @@ namespace ModIO
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
     public delegate void ModImageUpdatedEventHandler(string modImageIdentifier, ImageVersion version, Texture2D imageTexture);
-    public delegate void ModLogoUpdatedEventHandler(int modId, ImageVersion version, Texture2D texture);
+    public delegate void ModLogoUpdatedEventHandler(int modId, ModLogoVersion version, Texture2D texture);
 
     public enum ModBinaryStatus
     {
@@ -624,8 +624,8 @@ namespace ModIO
         {
             // - Cache -
             modCache[modProfile.id] = modProfile;
-            // modImageMap[modProfile.logoIdentifier] = modProfile.logo.AsImageSet();
-            // modImageMap[modProfile.logoIdentifier] = new ImageSet();
+            // modImageMap[modProfile.logoLocator] = modProfile.logo.AsImageSet();
+            // modImageMap[modProfile.logoLocator] = new ImageSet();
 
             // - Write to disk -
             string modDir = GetModDirectory(modProfile.id);
@@ -758,7 +758,7 @@ namespace ModIO
         
         private static Dictionary<string, string> serverToLocalImageURLMap = new Dictionary<string, string>();
 
-        public static string GenerateModLogoFilePath(int modId, ImageVersion version)
+        public static string GenerateModLogoFilePath(int modId, ModLogoVersion version)
         {
             return GetModDirectory(modId) + @"/logo/" + version.ToString() + ".png";
         }
@@ -780,14 +780,15 @@ namespace ModIO
             return download;
         }
 
-        public static Texture2D LoadOrDownloadModLogo(int modId, ImageVersion version)
+        public static Texture2D LoadOrDownloadModLogo(int modId, ModLogoVersion version)
         {
             // TODO(@jackson): Defend
             ModProfile profile = GetModProfile(modId);
 
             Texture2D texture = null;
             string filePath = string.Empty;
-            if(serverToLocalImageURLMap.TryGetValue(profile.logoIdentifier, out filePath))
+            string serverURL = profile.logoLocator.GetVersionSource(version);
+            if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
             {
                 Utility.TryLoadTextureFromFile(filePath, out texture);
             }
@@ -796,7 +797,7 @@ namespace ModIO
             {
                 texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
-                var download = DownloadAndSaveImage(profile.logoIdentifier,
+                var download = DownloadAndSaveImage(serverURL,
                                                     GenerateModLogoFilePath(profile.id, version),
                                                     texture);
                 download.OnCompleted += (d) =>
@@ -977,13 +978,13 @@ namespace ModIO
                                         Action<WebRequestError> modSubmissionFailed)
         {
             Debug.Assert(modData.name.isDirty && modData.summary.isDirty);
-            Debug.Assert(File.Exists(modData.logoIdentifier.value));
+            Debug.Assert(File.Exists(modData.logoLocator.source));
 
             var parameters = new AddModParameters();
             parameters.name = modData.name.value;
             parameters.summary = modData.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoIdentifier.value),
-                                                  File.ReadAllBytes(modData.logoIdentifier.value));
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoLocator.source),
+                                                  File.ReadAllBytes(modData.logoLocator.source));
             if(modData.visibility.isDirty)
             {
                 parameters.visible = (int)modData.visibility.value;
@@ -1077,7 +1078,7 @@ namespace ModIO
                 }
             }
 
-            if(modData.logoIdentifier.isDirty
+            if(modData.logoLocator.isDirty
                || modData.youtubeURLs.isDirty
                || modData.sketchfabURLs.isDirty
                || modData.imageIdentifiers.isDirty)
@@ -1085,11 +1086,11 @@ namespace ModIO
                 var addMediaParameters = new AddModMediaParameters();
                 var deleteMediaParameters = new DeleteModMediaParameters();
                 
-                if(modData.logoIdentifier.isDirty
-                   && File.Exists(modData.logoIdentifier.value))
+                if(modData.logoLocator.isDirty
+                   && File.Exists(modData.logoLocator.source))
                 {
-                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoIdentifier.value),
-                                                                  File.ReadAllBytes(modData.logoIdentifier.value));
+                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoLocator.source),
+                                                                  File.ReadAllBytes(modData.logoLocator.source));
                 }
                 
                 if(modData.youtubeURLs.isDirty)

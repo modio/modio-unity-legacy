@@ -16,7 +16,7 @@ namespace ModIO
         public EditableField<string> metadataBlob =             new EditableField<string>();
         public EditableField<List<string>> tags =               new EditableField<List<string>>();
         // - Mod Media -
-        public EditableField<string> logoIdentifier =           new EditableField<string>();
+        public EditableImageLocatorField logoLocator =          new EditableImageLocatorField();
         public EditableField<List<string>> youtubeURLs =        new EditableField<List<string>>();
         public EditableField<List<string>> sketchfabURLs =      new EditableField<List<string>>();
         public EditableField<List<string>> imageIdentifiers =   new EditableField<List<string>>();
@@ -34,10 +34,13 @@ namespace ModIO
             retVal.homepageURL.value = profile.homepageURL;
             retVal.metadataBlob.value = profile.metadataBlob;
             retVal.tags.value = new List<string>(profile.tags);
-            retVal.logoIdentifier.value = profile.logoIdentifier;
             retVal.youtubeURLs.value = new List<string>(profile.youtubeURLs);
             retVal.sketchfabURLs.value = new List<string>(profile.sketchfabURLs);
             retVal.imageIdentifiers.value = new List<string>(profile.imageIdentifiers);
+
+            retVal.logoLocator.fileName = profile.logoLocator.fileName;
+            retVal.logoLocator.source = profile.logoLocator.source;
+
             return retVal;
         }
     }

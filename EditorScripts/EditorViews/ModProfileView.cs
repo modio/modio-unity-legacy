@@ -44,8 +44,8 @@ namespace ModIO
         {
             // TODO(@jackson): Move textures to tempcache
             Texture2D logoTexture = sceneData.modLogoTexture;
-            string logoSource = sceneData.modData.logoIdentifier.value;
-            List<string> selectedTags = new List<string>(sceneData.modData.tags.value);
+            string logoSource = sceneData.modProfileEdits.logoLocator.source;
+            List<string> selectedTags = new List<string>(sceneData.modProfileEdits.tags.value);
             isUndoEnabled = sceneData.modId > 0;
 
             SerializedObject serializedSceneData = new SerializedObject(sceneData);
@@ -430,7 +430,7 @@ namespace ModIO
 
             //     if(sceneData.modId == 0)
             //     {
-            //         ModManager.SubmitNewMod(sceneData.modData,
+            //         ModManager.SubmitNewMod(sceneData.modProfileEdits,
             //                                  (mod) =>
             //                                  {
             //                                     // TODO(@jackson): Mark Dirty -> Save
@@ -448,7 +448,7 @@ namespace ModIO
             //     else
             //     {
             //         ModManager.SubmitModChanges(sceneData.modId,
-            //                                  sceneData.modData,
+            //                                  sceneData.modProfileEdits,
             //                                  (mod) =>
             //                                  {
             //                                     // TODO(@jackson): Mark Dirty -> Save
