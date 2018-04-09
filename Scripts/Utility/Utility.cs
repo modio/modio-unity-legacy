@@ -82,6 +82,26 @@ namespace ModIO
 
             return true;
         }
+
+        public static bool TryLoadTextureFromFile(string filePath,
+                                                  out Texture2D texture)
+        {
+            bool retVal;
+            try
+            {
+                texture = new Texture2D(0, 0);
+                texture.LoadImage(File.ReadAllBytes(filePath));
+                retVal = true;
+            }
+            #pragma warning disable CS0168
+            catch(Exception e)
+            {
+                texture = null;
+                retVal = false;
+            }
+            #pragma warning restore CS0168
+            return retVal;
+        }
     }
 
     // TODO(@jackson): Remove after ModMediaObject.Equals is removed

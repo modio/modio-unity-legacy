@@ -15,6 +15,7 @@ namespace ModIO
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
     public delegate void ModImageUpdatedEventHandler(string modImageIdentifier, ImageVersion version, Texture2D imageTexture);
+    public delegate void ModLogoUpdatedEventHandler(int modId, ImageVersion version, Texture2D texture);
 
     public enum ModBinaryStatus
     {
@@ -624,7 +625,7 @@ namespace ModIO
             // - Cache -
             modCache[modProfile.id] = modProfile;
             // modImageMap[modProfile.logoIdentifier] = modProfile.logo.AsImageSet();
-            modImageMap[modProfile.logoIdentifier] = new ImageSet();
+            // modImageMap[modProfile.logoIdentifier] = new ImageSet();
 
             // - Write to disk -
             string modDir = GetModDirectory(modProfile.id);
@@ -751,10 +752,64 @@ namespace ModIO
         }
 
         // ---------[ IMAGE MANAGEMENT ]---------
+        public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
         public static event ModImageUpdatedEventHandler OnModImageUpdated;
         public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
         
-        private static Dictionary<string, ImageSet> modImageMap = new Dictionary<string, ImageSet>();
+        private static Dictionary<string, string> serverToLocalImageURLMap = new Dictionary<string, string>();
+
+        public static string GenerateModLogoFilePath(int modId, ImageVersion version)
+        {
+            return GetModDirectory(modId) + @"/logo/" + version.ToString() + ".png";
+        }
+
+        // TODO(@jackson): Defend
+        private static TextureDownload DownloadAndSaveImage(string serverURL,
+                                                            string downloadTarget,
+                                                            Texture2D placeholderTexture)
+        {
+            var download = new TextureDownload();
+
+            // TODO(@jackson): Check if exists
+            serverToLocalImageURLMap[serverURL] = downloadTarget;
+            File.WriteAllBytes(downloadTarget, placeholderTexture.EncodeToPNG());
+
+            download.sourceURL = serverURL;
+            DownloadManager.AddConcurrentDownload(download);
+
+            return download;
+        }
+
+        public static Texture2D LoadOrDownloadModLogo(int modId, ImageVersion version)
+        {
+            // TODO(@jackson): Defend
+            ModProfile profile = GetModProfile(modId);
+
+            Texture2D texture = null;
+            string filePath = string.Empty;
+            if(serverToLocalImageURLMap.TryGetValue(profile.logoIdentifier, out filePath))
+            {
+                Utility.TryLoadTextureFromFile(filePath, out texture);
+            }
+
+            if(texture == null)
+            {
+                texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+
+                var download = DownloadAndSaveImage(profile.logoIdentifier,
+                                                    GenerateModLogoFilePath(profile.id, version),
+                                                    texture);
+                download.OnCompleted += (d) =>
+                {
+                    if(OnModLogoUpdated != null)
+                    {
+                        OnModLogoUpdated(modId, version, download.texture);
+                    }
+                };
+            }
+
+            return texture;
+        }
 
         public static Texture2D LoadOrDownloadModImage(string modImageIdentifier, ImageVersion version)
         {
@@ -796,44 +851,6 @@ namespace ModIO
         //     }
         //     return null;
         // }
-
-        public static void DownloadModLogo(int modId, ImageVersion version)
-        {
-            Debug.Assert(modId > 0);
-
-            // TODO(@jackson): Handle Miss
-            ModProfile modInfo = GetModProfile(modId);
-            ImageSet logoInfo = modImageMap[modInfo.logoIdentifier];
-
-            // - Start Download -
-            TextureDownload download = new TextureDownload();
-            download.sourceURL = logoInfo.locationMap[(int)version].url;
-            download.OnCompleted += (d) => StoreModImage(ModImageIdentifier.GenerateForModLogo(modId),
-                                                         version,
-                                                         download.texture);
-
-            DownloadManager.AddConcurrentDownload(download);
-
-            // else
-            // {
-            //     Action<ModProfile> cacheModAndDownloadLogo = (mod) =>
-            //     {
-            //         StoreModData(mod);
-
-            //         if(OnModAdded != null)
-            //         {
-            //             OnModAdded(mod);
-            //         }
-
-            //         DownloadModLogo(mod.id, version);
-            //     };
-
-            //     // TODO(@jackson): Fix up the onError
-            //     Client.GetMod(modId,
-            //                   result => OnSuccessWrapper(result, cacheModAndDownloadLogo),
-            //                   null);
-            // }
-        }
 
         private static void StoreModImage(string identifier,
                                           ImageVersion version,
@@ -902,7 +919,6 @@ namespace ModIO
                 }
 
             }
-
         }
 
         // TODO(@jackson): param -> ids.
@@ -918,7 +934,7 @@ namespace ModIO
             foreach(ModProfile mod in mods)
             {
                 string identifier = ModImageIdentifier.GenerateForModLogo(mod.id);
-                ImageSet imageInfo = modImageMap[identifier];
+                ImageSet imageInfo = null;// modImageMap[identifier];
                 if(!File.Exists(imageInfo.locationMap[(int)version].filePath))
                 {
                     missingLogoIdentifiers.Add(identifier);

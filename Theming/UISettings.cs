@@ -26,6 +26,13 @@ namespace ModIO
             }
         }
 
+        // ------[ INNER CLASSES ]------
+        [System.Serializable]
+        public class PlaceholderImages
+        {
+            public Texture2D modLogo;
+        }
+
         // ------[ FIELDS ]------
         // 0x44BFD5FF (Blue)
         public Color PrimaryColor   = new Color(0x44/255.0f, 0xBF/255.0f, 0xD5/255.0f, 1.0f);
@@ -46,7 +53,7 @@ namespace ModIO
         public Texture2D AppLogoColour;
 
         // Default loading textures
-        public Texture2D LoadingPlaceholder320x180;
+        public PlaceholderImages DownloadingPlaceholderImages;
 
         // Default editor textures
         public Texture2D EditorTexture_UndoButton;
