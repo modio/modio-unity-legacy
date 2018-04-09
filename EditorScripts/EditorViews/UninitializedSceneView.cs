@@ -59,8 +59,8 @@ namespace ModIO
             sd_go.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
 
             EditorSceneData sceneData = sd_go.AddComponent<EditorSceneData>();
-            sceneData.modProfileEdits = EditableModFields.CreateFromProfile(profile);
-            sceneData.modfileValues = new ModfileEditableFields();
+            sceneData.modProfileEdits = EditableModProfile.CreateFromProfile(profile);
+            sceneData.modfileValues = new EditableModfile();
 
             Undo.RegisterCreatedObjectUndo(sd_go, "Initialize scene");
         }

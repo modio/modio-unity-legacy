@@ -13,11 +13,11 @@ namespace ModIO
         public const ModLogoVersion LOGO_VERSION = ModLogoVersion.Thumbnail_320x180;
 
         public int modId = 0;
-        public EditableModFields modProfileEdits = null;
+        public EditableModProfile modProfileEdits = null;
 
         public string buildLocation = string.Empty;
         public bool setBuildAsPrimary = true;
-        public ModfileEditableFields modfileValues = null;
+        public EditableModfile modfileValues = null;
 
         public Texture2D modLogoTexture = null;
         private DateTime modLogoLastWrite = new DateTime();

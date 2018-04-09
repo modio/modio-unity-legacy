@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace ModIO
 {
     [System.Serializable]
-    public class EditableModFields
+    public class EditableModProfile
     {
         // ---------[ FIELDS ]---------
         public EditableField<ModStatus> status =                new EditableField<ModStatus>();
@@ -22,9 +22,9 @@ namespace ModIO
         public EditableField<List<string>> imageIdentifiers =   new EditableField<List<string>>();
 
         // ---------[ INITIALIZATION ]---------
-        public static EditableModFields CreateFromProfile(ModProfile profile)
+        public static EditableModProfile CreateFromProfile(ModProfile profile)
         {
-            EditableModFields retVal = new EditableModFields();
+            EditableModProfile retVal = new EditableModProfile();
             retVal.status.value = profile.status;
             retVal.visibility.value = profile.visibility;
             retVal.name.value = profile.name;

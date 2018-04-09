@@ -1,7 +1,7 @@
 namespace ModIO
 {
     [System.Serializable]
-    public class ModfileEditableFields
+    public class EditableModfile
     {
         // ---------[ FIELDS ]---------
         public EditableField<string> version        = new EditableField<string>();

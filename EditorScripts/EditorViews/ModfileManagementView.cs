@@ -83,7 +83,7 @@ namespace ModIO
 
         protected virtual void UploadModBinary(int modId,
                                                string buildLocation,
-                                               ModfileEditableFields modfileValues)
+                                               EditableModfile modfileValues)
         {
             isModUploading = true;
 

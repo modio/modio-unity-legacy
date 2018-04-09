@@ -973,7 +973,7 @@ namespace ModIO
         }
 
         // TODO(@jackson): Add MKVPs, Mod Dependencies
-        public static void SubmitNewMod(EditableModFields modData,
+        public static void SubmitNewMod(EditableModProfile modData,
                                         Action<ModProfile> modSubmissionSucceeded,
                                         Action<WebRequestError> modSubmissionFailed)
         {
@@ -1021,7 +1021,7 @@ namespace ModIO
         }
         // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitModChanges(int modId,
-                                            EditableModFields modData,
+                                            EditableModProfile modData,
                                             Action<ModProfile> modSubmissionSucceeded,
                                             Action<WebRequestError> modSubmissionFailed)
         {
@@ -1232,7 +1232,7 @@ namespace ModIO
 
         public static void UploadModBinary_Unzipped(int modId,
                                                     string unzippedBinaryLocation,
-                                                    ModfileEditableFields modfileValues,
+                                                    EditableModfile modfileValues,
                                                     bool setPrimary,
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
@@ -1246,7 +1246,7 @@ namespace ModIO
 
         public static void UploadModBinary_Zipped(int modId,
                                                   string binaryZipLocation,
-                                                  ModfileEditableFields modfileValues,
+                                                  EditableModfile modfileValues,
                                                   bool setPrimary,
                                                   Action<Modfile> onSuccess,
                                                   Action<WebRequestError> onError)
