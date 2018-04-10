@@ -67,6 +67,14 @@ namespace ModIO
         Thumbnail_1280x720,
     }
 
+    public enum GameIconVersion
+    {
+        FullSize = 0,
+        Thumbnail_64x64,
+        Thumbnail_128x128,
+        Thumbnail_256x256,
+    }
+
     [Serializable]
     public class GameProfile
     {
@@ -132,6 +140,49 @@ namespace ModIO
             }
         }
 
+        [System.Serializable]
+        public class IconImageLocator : MultiVersionImageLocator<GameIconVersion>
+        {
+            // ---------[ ABSTRACTS ]---------
+            protected override GameIconVersion FullSizeVersionEnum() { return GameIconVersion.FullSize; }
+
+            // ---------[ API OBJECT INTERFACE ]---------
+            public void ApplyIconObjectValues(API.IconObject apiObject)
+            {
+                this._fileName = apiObject.filename;
+                this._versionPairing = new VersionSourcePair[]
+                {
+                    new VersionSourcePair()
+                    {
+                        version = GameIconVersion.FullSize,
+                        source = apiObject.original
+                    },
+                    new VersionSourcePair()
+                    {
+                        version = GameIconVersion.Thumbnail_64x64,
+                        source = apiObject.thumb_64x64
+                    },
+                    new VersionSourcePair()
+                    {
+                        version = GameIconVersion.Thumbnail_128x128,
+                        source = apiObject.thumb_128x128
+                    },
+                    new VersionSourcePair()
+                    {
+                        version = GameIconVersion.Thumbnail_256x256,
+                        source = apiObject.thumb_256x256
+                    },
+                };
+            }
+
+            public static IconImageLocator CreateFromIconObject(API.IconObject apiObject)
+            {
+                var retVal = new IconImageLocator();
+                retVal.ApplyIconObjectValues(apiObject);
+                return retVal;
+            }
+        }
+
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] private int _id;
         [SerializeField] private GameStatus _status;
@@ -146,8 +197,8 @@ namespace ModIO
         [SerializeField] private ModRevenuePermissions _revenuePermissions;
         [SerializeField] private GameAPIPermissions _apiPermissions;
         [SerializeField] private string _ugcName;
-        [SerializeField] private IconImageSet _icon;
-        [SerializeField] private LogoImageLocator _logo;
+        [SerializeField] private IconImageLocator _iconLocator;
+        [SerializeField] private LogoImageLocator _logoLocator;
         [SerializeField] private HeaderImageLocator _headerImageLocator;
         [SerializeField] private string _homepageURL;
         [SerializeField] private string _name;
@@ -171,9 +222,9 @@ namespace ModIO
         public ModRevenuePermissions revenuePermissions         { get { return this._revenuePermissions; } }
         public GameAPIPermissions apiPermissions                { get { return this._apiPermissions; } }
         public string ugcName                                   { get { return this._ugcName; } }
-        public IconImageSet icon                               { get { return this._icon; } }
-        public LogoImageLocator logo                               { get { return this._logo; } }
-        public HeaderImageLocator headerImageLocator                      { get { return this._headerImageLocator; } }
+        public IconImageLocator iconLocator                     { get { return this._iconLocator; } }
+        public LogoImageLocator logoLocator                     { get { return this._logoLocator; } }
+        public HeaderImageLocator headerImageLocator            { get { return this._headerImageLocator; } }
         public string homepageURL                               { get { return this._homepageURL; } }
         public string name                                      { get { return this._name; } }
         public string nameId                                    { get { return this._nameId; } }
@@ -198,8 +249,8 @@ namespace ModIO
             this._revenuePermissions = (ModRevenuePermissions)apiObject.revenue_options;
             this._apiPermissions = (GameAPIPermissions)apiObject.api_access_options;
             this._ugcName = apiObject.ugc_name;
-            this._icon = IconImageSet.CreateFromIconObject(apiObject.icon);
-            this._logo = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
+            this._iconLocator = IconImageLocator.CreateFromIconObject(apiObject.icon);
+            this._logoLocator = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
             this._headerImageLocator = HeaderImageLocator.CreateFromHeaderImageObject(apiObject.header);
             this._homepageURL = apiObject.homepage;
             this._name = apiObject.name;
