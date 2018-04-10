@@ -37,7 +37,7 @@ namespace ModIO
 
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] protected string _fileName;
-        [SerializeField] protected List<VersionSourcePair> _versionPairing;
+        [SerializeField] protected VersionSourcePair[] _versionPairing;
 
         // ---------[ FIELDS ]---------
         public string fileName  { get { return this._fileName; } }
@@ -48,9 +48,12 @@ namespace ModIO
         
         public string GetVersionSource(E version)
         {
-            foreach(VersionSourcePair pair in _versionPairing)
+            if(this._versionPairing != null)
             {
-                if(pair.version.Equals(version)) { return pair.source; }
+                foreach(VersionSourcePair pair in this._versionPairing)
+                {
+                    if(pair.version.Equals(version)) { return pair.source; }
+                }
             }
             return null;
         }

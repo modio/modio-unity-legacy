@@ -69,11 +69,29 @@ namespace ModIO
             public void ApplyLogoObjectValues(API.LogoObject apiObject)
             {
                 this._fileName = apiObject.filename;
-                this._versionPairing = new List<VersionSourcePair>(4);
-                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.FullSize,           source = apiObject.original });
-                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.Thumbnail_320x180,  source = apiObject.thumb_320x180 });
-                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.Thumbnail_640x360,  source = apiObject.thumb_640x360 });
-                this._versionPairing.Add(new VersionSourcePair() { version = ModLogoVersion.Thumbnail_1280x720, source = apiObject.thumb_1280x720 });
+                this._versionPairing = new VersionSourcePair[]
+                {
+                    new VersionSourcePair()
+                    {
+                        version = ModLogoVersion.FullSize,
+                        source = apiObject.original
+                    },
+                    new VersionSourcePair()
+                    {
+                        version = ModLogoVersion.Thumbnail_320x180,
+                        source = apiObject.thumb_320x180
+                    },
+                    new VersionSourcePair()
+                    {
+                        version = ModLogoVersion.Thumbnail_640x360,
+                        source = apiObject.thumb_640x360
+                    },
+                    new VersionSourcePair()
+                    {
+                        version = ModLogoVersion.Thumbnail_1280x720,
+                        source = apiObject.thumb_1280x720
+                    },
+                };
             }
 
             public static LogoImageLocator CreateFromLogoObject(API.LogoObject apiObject)
@@ -94,8 +112,19 @@ namespace ModIO
             public void ApplyImageObjectValues(API.ImageObject apiObject)
             {
                 this._fileName = apiObject.filename;
-                this._versionPairing.Add(new VersionSourcePair() { version = ModGalleryImageVersion.FullSize,            source = apiObject.original });
-                this._versionPairing.Add(new VersionSourcePair() { version = ModGalleryImageVersion.Thumbnail_320x180,   source = apiObject.thumb_320x180 });
+                this._versionPairing = new VersionSourcePair[]
+                {
+                    new VersionSourcePair()
+                    {
+                        version = ModGalleryImageVersion.FullSize,
+                        source = apiObject.original
+                    },
+                    new VersionSourcePair()
+                    {
+                        version = ModGalleryImageVersion.Thumbnail_320x180,
+                        source = apiObject.thumb_320x180
+                    },
+                };
             }
             public static GalleryImageLocator CreateFromImageObject(API.ImageObject apiObject)
             {
