@@ -973,45 +973,45 @@ namespace ModIO
         }
 
         // TODO(@jackson): Add MKVPs, Mod Dependencies
-        public static void SubmitNewMod(EditableModProfile modData,
+        public static void SubmitNewMod(EditableModProfile modEdits,
                                         Action<ModProfile> modSubmissionSucceeded,
                                         Action<WebRequestError> modSubmissionFailed)
         {
-            Debug.Assert(modData.name.isDirty && modData.summary.isDirty);
-            Debug.Assert(File.Exists(modData.logoLocator.source));
+            Debug.Assert(modEdits.name.isDirty && modEdits.summary.isDirty);
+            Debug.Assert(File.Exists(modEdits.logoLocator.value.source));
 
             var parameters = new AddModParameters();
-            parameters.name = modData.name.value;
-            parameters.summary = modData.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoLocator.source),
-                                                  File.ReadAllBytes(modData.logoLocator.source));
-            if(modData.visibility.isDirty)
+            parameters.name = modEdits.name.value;
+            parameters.summary = modEdits.summary.value;
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.source),
+                                                  File.ReadAllBytes(modEdits.logoLocator.value.source));
+            if(modEdits.visibility.isDirty)
             {
-                parameters.visible = (int)modData.visibility.value;
+                parameters.visible = (int)modEdits.visibility.value;
             }
-            if(modData.nameId.isDirty)
+            if(modEdits.nameId.isDirty)
             {
-                parameters.name_id = modData.nameId.value;
+                parameters.name_id = modEdits.nameId.value;
             }
-            if(modData.description.isDirty)
+            if(modEdits.description.isDirty)
             {
-                parameters.description = modData.description.value;
+                parameters.description = modEdits.description.value;
             }
-            if(modData.homepageURL.isDirty)
+            if(modEdits.homepageURL.isDirty)
             {
-                parameters.name_id = modData.homepageURL.value;
+                parameters.name_id = modEdits.homepageURL.value;
             }
-            if(modData.metadataBlob.isDirty)
+            if(modEdits.metadataBlob.isDirty)
             {
-                parameters.metadata_blob = modData.metadataBlob.value;
+                parameters.metadata_blob = modEdits.metadataBlob.value;
             }
-            if(modData.nameId.isDirty)
+            if(modEdits.nameId.isDirty)
             {
-                parameters.name_id = modData.nameId.value;
+                parameters.name_id = modEdits.nameId.value;
             }
-            if(modData.tags.isDirty)
+            if(modEdits.tags.isDirty)
             {
-                parameters.tags = modData.tags.value.ToArray();
+                parameters.tags = modEdits.tags.value.ToArray();
             }
 
             Client.AddMod(userData.oAuthToken,
@@ -1021,7 +1021,7 @@ namespace ModIO
         }
         // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitModChanges(int modId,
-                                            EditableModProfile modData,
+                                            EditableModProfile modEdits,
                                             Action<ModProfile> modSubmissionSucceeded,
                                             Action<WebRequestError> modSubmissionFailed)
         {
@@ -1040,16 +1040,16 @@ namespace ModIO
                 }
             };
 
-            if(modData.tags.isDirty)
+            if(modEdits.tags.isDirty)
             {
-                var addedTags = new List<string>(modData.tags.value);
+                var addedTags = new List<string>(modEdits.tags.value);
                 foreach(string tag in profile.tags)
                 {
                     addedTags.Remove(tag);
                 }
 
                 var removedTags = new List<string>(profile.tags);
-                foreach(string tag in modData.tags.value)
+                foreach(string tag in modEdits.tags.value)
                 {
                     removedTags.Remove(tag);
                 }
@@ -1078,24 +1078,24 @@ namespace ModIO
                 }
             }
 
-            if(modData.logoLocator.isDirty
-               || modData.youtubeURLs.isDirty
-               || modData.sketchfabURLs.isDirty
-               || modData.imageIdentifiers.isDirty)
+            if(modEdits.logoLocator.isDirty
+               || modEdits.youtubeURLs.isDirty
+               || modEdits.sketchfabURLs.isDirty
+               || modEdits.galleryImageLocators.isDirty)
             {
                 var addMediaParameters = new AddModMediaParameters();
                 var deleteMediaParameters = new DeleteModMediaParameters();
                 
-                if(modData.logoLocator.isDirty
-                   && File.Exists(modData.logoLocator.source))
+                if(modEdits.logoLocator.isDirty
+                   && File.Exists(modEdits.logoLocator.value.source))
                 {
-                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modData.logoLocator.source),
-                                                                  File.ReadAllBytes(modData.logoLocator.source));
+                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.source),
+                                                                  File.ReadAllBytes(modEdits.logoLocator.value.source));
                 }
                 
-                if(modData.youtubeURLs.isDirty)
+                if(modEdits.youtubeURLs.isDirty)
                 {
-                    var addedYouTubeLinks = new List<string>(modData.youtubeURLs.value);
+                    var addedYouTubeLinks = new List<string>(modEdits.youtubeURLs.value);
                     foreach(string youtubeLink in profile.youtubeURLs)
                     {
                         addedYouTubeLinks.Remove(youtubeLink);
@@ -1103,16 +1103,16 @@ namespace ModIO
                     addMediaParameters.youtube = addedYouTubeLinks.ToArray();
 
                     var removedTags = new List<string>(profile.youtubeURLs);
-                    foreach(string youtubeLink in modData.youtubeURLs.value)
+                    foreach(string youtubeLink in modEdits.youtubeURLs.value)
                     {
                         removedTags.Remove(youtubeLink);
                     }
                     deleteMediaParameters.youtube = addedYouTubeLinks.ToArray();
                 }
                 
-                if(modData.sketchfabURLs.isDirty)
+                if(modEdits.sketchfabURLs.isDirty)
                 {
-                    var addedSketchfabLinks = new List<string>(modData.sketchfabURLs.value);
+                    var addedSketchfabLinks = new List<string>(modEdits.sketchfabURLs.value);
                     foreach(string sketchfabLink in profile.sketchfabURLs)
                     {
                         addedSketchfabLinks.Remove(sketchfabLink);
@@ -1120,22 +1120,21 @@ namespace ModIO
                     addMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
 
                     var removedTags = new List<string>(profile.sketchfabURLs);
-                    foreach(string sketchfabLink in modData.sketchfabURLs.value)
+                    foreach(string sketchfabLink in modEdits.sketchfabURLs.value)
                     {
                         removedTags.Remove(sketchfabLink);
                     }
                     deleteMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
                 }
 
-                if(modData.imageIdentifiers.isDirty)
+                if(modEdits.galleryImageLocators.isDirty)
                 {
                     var addedImageFilePaths = new List<string>();
-                    foreach(string imageIdentifier in modData.imageIdentifiers.value)
+                    foreach(var locator in modEdits.galleryImageLocators.value)
                     {
-                        if(!Utility.IsURL(imageIdentifier)
-                           && File.Exists(imageIdentifier))
+                        if(File.Exists(locator.source))
                         {
-                            addedImageFilePaths.Add(imageIdentifier);
+                            addedImageFilePaths.Add(locator.source);
                         }
                     }
                     // - Create Images.Zip -
@@ -1150,63 +1149,68 @@ namespace ModIO
                         addMediaParameters.images = imageGalleryUpload;
                     }
 
-                    // TODO(@jackson): FIX! (Should be able to straight up remove)
                     var removedImageFileNames = new List<string>();
-                    foreach(string imageIdentifier in profile.imageIdentifiers)
+                    foreach(var locator in profile.galleryImageLocators)
                     {
-                        if(!modData.imageIdentifiers.value.Contains(imageIdentifier))
-                        {
-                            removedImageFileNames.Add(ModImageIdentifier.GetFileName(imageIdentifier));
-                        }
+                        removedImageFileNames.Add(locator.fileName);
+                    }
+                    foreach(var locator in modEdits.galleryImageLocators.value)
+                    {
+                        removedImageFileNames.Remove(locator.fileName);
+                    }
+
+                    if(removedImageFileNames.Count > 0)
+                    {
+                        deleteMediaParameters.images = removedImageFileNames.ToArray();
                     }
                 }
             }
 
-            if(modData.status.isDirty
-               || modData.visibility.isDirty
-               || modData.name.isDirty
-               || modData.nameId.isDirty
-               || modData.summary.isDirty
-               || modData.description.isDirty
-               || modData.homepageURL.isDirty
-               || modData.metadataBlob.isDirty)
+            if(modEdits.status.isDirty
+               || modEdits.visibility.isDirty
+               || modEdits.name.isDirty
+               || modEdits.nameId.isDirty
+               || modEdits.summary.isDirty
+               || modEdits.description.isDirty
+               || modEdits.homepageURL.isDirty
+               || modEdits.metadataBlob.isDirty)
             {
                 submissionActions.Add(() =>
                 {
                     Debug.Log("Submitting Mod Info");
 
                     var parameters = new EditModParameters();
-                    if(modData.status.isDirty)
+                    if(modEdits.status.isDirty)
                     {
-                        parameters.status = (int)modData.status.value;
+                        parameters.status = (int)modEdits.status.value;
                     }
-                    if(modData.visibility.isDirty)
+                    if(modEdits.visibility.isDirty)
                     {
-                        parameters.visible = (int)modData.visibility.value;
+                        parameters.visible = (int)modEdits.visibility.value;
                     }
-                    if(modData.name.isDirty)
+                    if(modEdits.name.isDirty)
                     {
-                        parameters.name = modData.name.value;
+                        parameters.name = modEdits.name.value;
                     }
-                    if(modData.nameId.isDirty)
+                    if(modEdits.nameId.isDirty)
                     {
-                        parameters.name_id = modData.nameId.value;
+                        parameters.name_id = modEdits.nameId.value;
                     }
-                    if(modData.summary.isDirty)
+                    if(modEdits.summary.isDirty)
                     {
-                        parameters.summary = modData.summary.value;
+                        parameters.summary = modEdits.summary.value;
                     }
-                    if(modData.description.isDirty)
+                    if(modEdits.description.isDirty)
                     {
-                        parameters.description = modData.description.value;
+                        parameters.description = modEdits.description.value;
                     }
-                    if(modData.homepageURL.isDirty)
+                    if(modEdits.homepageURL.isDirty)
                     {
-                        parameters.homepage = modData.homepageURL.value;
+                        parameters.homepage = modEdits.homepageURL.value;
                     }
-                    if(modData.metadataBlob.isDirty)
+                    if(modEdits.metadataBlob.isDirty)
                     {
-                        parameters.metadata_blob = modData.metadataBlob.value;
+                        parameters.metadata_blob = modEdits.metadataBlob.value;
                     }
 
                     Client.EditMod(userData.oAuthToken,

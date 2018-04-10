@@ -44,7 +44,7 @@ namespace ModIO
         {
             // TODO(@jackson): Move textures to tempcache
             Texture2D logoTexture = sceneData.modLogoTexture;
-            string logoSource = sceneData.modProfileEdits.logoLocator.source;
+            string logoSource = sceneData.modProfileEdits.logoLocator.value.source;
             List<string> selectedTags = new List<string>(sceneData.modProfileEdits.tags.value);
             isUndoEnabled = sceneData.modId > 0;
 

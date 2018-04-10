@@ -61,8 +61,8 @@ namespace ModIO
             {
                 ModProfile profile = ModManager.GetModProfile(this.modId);
 
-                modProfileEdits.logoLocator.fileName = profile.logoLocator.fileName;
-                modProfileEdits.logoLocator.source = profile.logoLocator.source;
+                modProfileEdits.logoLocator.value.fileName = profile.logoLocator.fileName;
+                modProfileEdits.logoLocator.value.source = profile.logoLocator.source;
                 
                 modLogoTexture = ModManager.LoadOrDownloadModLogo(this.modId, LOGO_VERSION);
                 modLogoLastWrite = new DateTime();
