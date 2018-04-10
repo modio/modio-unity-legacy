@@ -14,7 +14,6 @@ namespace ModIO
     public delegate void ModEventHandler(ModProfile modProfile);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
-    public delegate void ModImageUpdatedEventHandler(string modImageIdentifier, ImageVersion version, Texture2D imageTexture);
     public delegate void ModLogoUpdatedEventHandler(int modId, ModLogoVersion version, Texture2D texture);
 
     public enum ModBinaryStatus
@@ -653,7 +652,6 @@ namespace ModIO
             return new ModProfile[0];
         }
 
-
         public static void DeleteAllDownloadedBinaries(int modId)
         {
             string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(modId), "modfile_*.zip");
@@ -753,8 +751,6 @@ namespace ModIO
 
         // ---------[ IMAGE MANAGEMENT ]---------
         public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
-        public static event ModImageUpdatedEventHandler OnModImageUpdated;
-        public static ImageVersion cachedImageVersion = ImageVersion.Thumb_1280x720;
         
         private static Dictionary<string, string> serverToLocalImageURLMap = new Dictionary<string, string>();
 
@@ -770,7 +766,6 @@ namespace ModIO
         {
             var download = new TextureDownload();
 
-            // TODO(@jackson): Check if exists
             serverToLocalImageURLMap[serverURL] = downloadTarget;
             File.WriteAllBytes(downloadTarget, placeholderTexture.EncodeToPNG());
 
@@ -812,147 +807,47 @@ namespace ModIO
             return texture;
         }
 
-        public static Texture2D LoadOrDownloadModImage(string modImageIdentifier, ImageVersion version)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public static FilePathURLPair GetModImageLocation(string identifier, ImageVersion version)
-        {
-            throw new System.NotImplementedException();
-
-            // ImageSet info;
-            // if(modImageMap.TryGetValue(identifier, out info))
-            // {
-            //     return info.locationMap[(int)version];
-            // }
-            // return null;
-        }
-
-        // private static string GetLogoFileName(ImageVersion logoVersion)
-        // {
-        //     switch(logoVersion)
-        //     {
-        //         case ImageVersion.Original:
-        //         {
-        //             return "logo_original.png";
-        //         }
-        //         case ImageVersion.Thumb_320x180:
-        //         {
-        //             return "logo_320x180.png";
-        //         }
-        //         case ImageVersion.Thumb_640x360:
-        //         {
-        //             return "logo_640x360.png";
-        //         }
-        //         case ImageVersion.Thumb_1280x720:
-        //         {
-        //             return "logo_1280x720.png";
-        //         }
-        //     }
-        //     return null;
-        // }
-
-        private static void StoreModImage(string identifier,
-                                          ImageVersion version,
-                                          Texture2D imageTexture)
-        {
-            int modId;
-            bool isLogo;
-            string fileName;
-
-            // - Write to disk -
-            if(ModImageIdentifier.TryParse(identifier,
-                                           out modId,
-                                           out isLogo,
-                                           out fileName))
-            {
-                string versionPart = string.Empty;
-                switch(version)
-                {
-                    case ImageVersion.Original:
-                    {
-                        versionPart = "f";
-                    }
-                    break;
-                    case ImageVersion.Thumb_320x180:
-                    {
-                        versionPart = "s";
-                    }
-                    break;
-                    case ImageVersion.Thumb_640x360:
-                    {
-                        versionPart = "m";
-                    }
-                    break;
-                    case ImageVersion.Thumb_1280x720:
-                    {
-                        versionPart = "l";
-                    }
-                    break;
-                }
-
-                string localURL;
-                if(isLogo)
-                {
-                    localURL = (GetModDirectory(modId)
-                               + @"logo_images/logo_"
-                               + versionPart + ".png");
-                }
-                else
-                {
-                    string fileNameNoExtension = fileName.Substring(0, fileName.LastIndexOf('.'));
-                    localURL = (Application.temporaryCachePath
-                                + @"images/mod_" + modId.ToString()
-                                + @"/" + fileNameNoExtension
-                                + "_" + versionPart + ".png");
-                }
-
-                byte[] bytes = imageTexture.EncodeToPNG();
-                File.WriteAllBytes(localURL, bytes);
-
-                // - Notify -
-                if(OnModImageUpdated != null)
-                {
-                    OnModImageUpdated(ModImageIdentifier.GenerateForModLogo(modId),
-                                      version,
-                                      imageTexture);
-                }
-
-            }
-        }
-
-        // TODO(@jackson): param -> ids.
+        // TODO(@jackson): param -> ids?
         // TODO(@jackson): defend
-        // TODO(@jackson): separate (This is Download _MISSING_ Logos)
         // TODO(@jackson): Add preload function?
-        public static void DownloadModLogos(ModProfile[] mods,
-                                            ImageVersion version)
+        public static void DownloadMissingModLogos(ModProfile[] modProfiles,
+                                                   ModLogoVersion version)
         {
-            List<string> missingLogoIdentifiers = new List<string>(mods.Length);
+            var missingLogoProfiles = new List<ModProfile>(modProfiles);
 
             // Check which logos are missing
-            foreach(ModProfile mod in mods)
+            foreach(ModProfile profile in modProfiles)
             {
-                string identifier = ModImageIdentifier.GenerateForModLogo(mod.id);
-                ImageSet imageInfo = null;// modImageMap[identifier];
-                if(!File.Exists(imageInfo.locationMap[(int)version].filePath))
+                string serverURL = profile.logoLocator.GetVersionSource(version);
+                string filePath;
+                if(serverToLocalImageURLMap.TryGetValue(serverURL,
+                                                        out filePath))
                 {
-                    missingLogoIdentifiers.Add(identifier);
+                    if(File.Exists(filePath))
+                    {
+                        missingLogoProfiles.Remove(profile);
+                    }
+                    else
+                    {
+                        serverToLocalImageURLMap.Remove(serverURL);
+                    }
                 }
             }
 
             // Download
-            // foreach(int modId in missingModIds)
-            foreach(string identifier in missingLogoIdentifiers)
+            foreach(ModProfile profile in missingLogoProfiles)
             {
-                TextureDownload download = new TextureDownload();
-                download.sourceURL = GetModImageLocation(identifier, version).url;
-                download.OnCompleted += (d) => StoreModImage(identifier,
-                                                             version,
-                                                             download.texture);
+                var download = DownloadAndSaveImage(profile.logoLocator.GetVersionSource(version),
+                                                    GenerateModLogoFilePath(profile.id, version),
+                                                    UISettings.Instance.DownloadingPlaceholderImages.modLogo);
 
-                DownloadManager.AddConcurrentDownload(download);
+                download.OnCompleted += (d) =>
+                {
+                    if(OnModLogoUpdated != null)
+                    {
+                        OnModLogoUpdated(profile.id, version, download.texture);
+                    }
+                };
             }
         }
 

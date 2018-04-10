@@ -22,7 +22,7 @@ MonoBehaviour:
   AppLogoLight: {fileID: 2800000, guid: 0a88513ea3a246b4d9b441de20ec92bc, type: 3}
   AppLogoDark: {fileID: 2800000, guid: d89ac59496de3094d8d985b7fbf745be, type: 3}
   AppLogoColour: {fileID: 2800000, guid: 9fbf86d526c2cb340864a7ad5e0671a1, type: 3}
-  LoadingPlaceholder320x180: {fileID: 2800000, guid: 4e384c613233c46069608efcd5635029,
-    type: 3}
+  DownloadingPlaceholderImages:
+    modLogo: {fileID: 2800000, guid: 4e384c613233c46069608efcd5635029, type: 3}
   EditorTexture_UndoButton: {fileID: 2800000, guid: 10f0d2057536e464da15487b52d9e849,
     type: 3}
