@@ -13,11 +13,11 @@ namespace ModIO
     }
 
     [Serializable]
-    public struct SingleVersionImageLocator : IImageLocator
+    public class SingleVersionImageLocator : IImageLocator
     {
         // ---------[ SERIALIZED MEMBERS ]---------
-        [SerializeField] private string _fileName;
-        [SerializeField] private string _source;
+        [SerializeField] protected string _fileName;
+        [SerializeField] protected string _source;
 
         // ---------[ FIELDS ]---------
         public string fileName  { get { return this._fileName; } }

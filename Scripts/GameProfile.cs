@@ -114,6 +114,24 @@ namespace ModIO
             }
         }
 
+        [System.Serializable]
+        public class HeaderImageLocator : SingleVersionImageLocator
+        {
+            // ---------[ API OBJECT INTERFACE ]---------
+            public void ApplyHeaderImageObjectValues(API.HeaderImageObject apiObject)
+            {
+                this._fileName = apiObject.filename;
+                this._source = apiObject.original;
+            }
+
+            public static HeaderImageLocator CreateFromHeaderImageObject(API.HeaderImageObject apiObject)
+            {
+                var retVal = new HeaderImageLocator();
+                retVal.ApplyHeaderImageObjectValues(apiObject);
+                return retVal;
+            }
+        }
+
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] private int _id;
         [SerializeField] private GameStatus _status;
@@ -130,7 +148,7 @@ namespace ModIO
         [SerializeField] private string _ugcName;
         [SerializeField] private IconImageSet _icon;
         [SerializeField] private LogoImageLocator _logo;
-        [SerializeField] private HeaderImageSet _headerImage;
+        [SerializeField] private HeaderImageLocator _headerImageLocator;
         [SerializeField] private string _homepageURL;
         [SerializeField] private string _name;
         [SerializeField] private string _nameId;
@@ -155,7 +173,7 @@ namespace ModIO
         public string ugcName                                   { get { return this._ugcName; } }
         public IconImageSet icon                               { get { return this._icon; } }
         public LogoImageLocator logo                               { get { return this._logo; } }
-        public HeaderImageSet headerImage                      { get { return this._headerImage; } }
+        public HeaderImageLocator headerImageLocator                      { get { return this._headerImageLocator; } }
         public string homepageURL                               { get { return this._homepageURL; } }
         public string name                                      { get { return this._name; } }
         public string nameId                                    { get { return this._nameId; } }
@@ -182,7 +200,7 @@ namespace ModIO
             this._ugcName = apiObject.ugc_name;
             this._icon = IconImageSet.CreateFromIconObject(apiObject.icon);
             this._logo = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
-            this._headerImage = HeaderImageSet.CreateFromHeaderImageObject(apiObject.header);
+            this._headerImageLocator = HeaderImageLocator.CreateFromHeaderImageObject(apiObject.header);
             this._homepageURL = apiObject.homepage;
             this._name = apiObject.name;
             this._nameId = apiObject.name_id;
