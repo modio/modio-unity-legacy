@@ -8,11 +8,6 @@ using UnityEngine.SceneManagement;
 
 namespace ModIO
 {
-    // TODO(@jackson): Needs beauty-pass
-    // TODO(@jackson): Force repaint on Callbacks
-    // TODO(@jackson): Implement client-side error-checking in submission
-    // TODO(@jackson): Check if undos are necessary
-    // TODO(@jackson): Check for scene change between callbacks
     public abstract class ModSceneEditorWindow : EditorWindow
     {
         // ------[ WINDOW FIELDS ]---------
@@ -136,34 +131,6 @@ namespace ModIO
 
             EditorGUILayout.Space();
 
-            // ---[ Tabs ]---
-            int prevViewIndex = -1;
-            int newViewIndex = -1;
-            using (new EditorGUI.DisabledScope(sceneData == null))
-            {
-                EditorGUILayout.BeginHorizontal();
-                    for(int i = 0;
-                        i < tabbedViews.Length;
-                        ++i)
-                    {
-                        ISceneEditorView tabView = tabbedViews[i];
-                        if(tabView == activeView)
-                        {
-                            prevViewIndex = i;
-                        }
-                        if(GUILayout.Button(tabbedViews[i].GetViewTitle()))
-                        {
-                            newViewIndex = i;
-                        }
-                    }
-                EditorGUILayout.EndHorizontal();
-            }
-
-            if(newViewIndex >= 0
-               && prevViewIndex != newViewIndex)
-            {
-                SetActiveView(tabbedViews[newViewIndex]);
-            }
 
             // ---[ Main Panel ]---
             using (new EditorGUI.DisabledScope(Application.isPlaying))
