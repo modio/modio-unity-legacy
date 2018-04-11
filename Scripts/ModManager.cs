@@ -906,7 +906,7 @@ namespace ModIO
             }
             if(modEdits.tags.isDirty)
             {
-                parameters.tags = modEdits.tags.value.ToArray();
+                parameters.tags = modEdits.tags.value;
             }
 
             Client.AddMod(userData.oAuthToken,

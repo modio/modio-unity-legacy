@@ -1,25 +1,32 @@
+using System;
 using System.Collections.Generic;
 
 namespace ModIO
 {
-    [System.Serializable]
+    [Serializable]
     public class EditableModProfile
     {
+        // ---------[ SERIALIZABLE EDITABLE CLASSES ]---------
+        [Serializable]
+        public class EditableModStatusField : EditableField<ModStatus> {}
+        [Serializable]
+        public class EditableModVisibilityField : EditableField<ModVisibility> {}
+
         // ---------[ FIELDS ]---------
-        public EditableField<ModStatus> status =                    new EditableField<ModStatus>();
-        public EditableField<ModVisibility> visibility =            new EditableField<ModVisibility>();
-        public EditableField<string> name =                         new EditableField<string>();
-        public EditableField<string> nameId =                       new EditableField<string>();
-        public EditableField<string> summary =                      new EditableField<string>();
-        public EditableField<string> description =                  new EditableField<string>();
-        public EditableField<string> homepageURL =                  new EditableField<string>();
-        public EditableField<string> metadataBlob =                 new EditableField<string>();
-        public EditableField<List<string>> tags =                   new EditableField<List<string>>();
+        public EditableModStatusField status =                      new EditableModStatusField();
+        public EditableModVisibilityField visibility =              new EditableModVisibilityField();
+        public EditableStringField name =                           new EditableStringField();
+        public EditableStringField nameId =                         new EditableStringField();
+        public EditableStringField summary =                        new EditableStringField();
+        public EditableStringField description =                    new EditableStringField();
+        public EditableStringField homepageURL =                    new EditableStringField();
+        public EditableStringField metadataBlob =                   new EditableStringField();
+        public EditableStringArrayField tags =                      new EditableStringArrayField();
         // - Mod Media -
-        public EditableField<EditableImageLocator> logoLocator =    new EditableField<EditableImageLocator>();
-        public EditableField<List<string>> youtubeURLs =            new EditableField<List<string>>();
-        public EditableField<List<string>> sketchfabURLs =          new EditableField<List<string>>();
-        public EditableField<List<EditableImageLocator>> galleryImageLocators = new EditableField<List<EditableImageLocator>>();
+        public EditableImageLocatorField logoLocator =              new EditableImageLocatorField();
+        public EditableStringArrayField youtubeURLs =               new EditableStringArrayField();
+        public EditableStringArrayField sketchfabURLs =             new EditableStringArrayField();
+        public EditableImageLocatorArrayField galleryImageLocators =new EditableImageLocatorArrayField();
 
         // ---------[ INITIALIZATION ]---------
         public static EditableModProfile CreateFromProfile(ModProfile profile)
@@ -33,24 +40,18 @@ namespace ModIO
             retVal.description.value = profile.description;
             retVal.homepageURL.value = profile.homepageURL;
             retVal.metadataBlob.value = profile.metadataBlob;
-            retVal.tags.value = new List<string>(profile.tags);
+            retVal.tags.value = Utility.CollectionToArray(profile.tags);
 
             // - Media -
-            retVal.logoLocator.value.fileName = profile.logoLocator.fileName;
-            retVal.logoLocator.value.source = profile.logoLocator.source;
+            retVal.logoLocator.fileName = profile.logoLocator.fileName;
+            retVal.logoLocator.source = profile.logoLocator.source;
 
-            retVal.youtubeURLs.value = new List<string>(profile.youtubeURLs);
-            retVal.sketchfabURLs.value = new List<string>(profile.sketchfabURLs);
+            retVal.youtubeURLs.value = Utility.CollectionToArray(profile.youtubeURLs);
+            retVal.sketchfabURLs.value = Utility.CollectionToArray(profile.sketchfabURLs);
 
-            retVal.galleryImageLocators.value = new List<EditableImageLocator>();
-            foreach(var locator in profile.galleryImageLocators)
-            {
-                var newLocator = new EditableImageLocator();
-                newLocator.fileName = locator.fileName;
-                newLocator.source = locator.source;
-
-                retVal.galleryImageLocators.value.Add(newLocator);
-            }
+            Utility.MapArrays(Utility.CollectionToArray(profile.galleryImageLocators),
+                              (l) => { return ImageLocatorData.CreateFromImageLocator(l); },
+                              out retVal.galleryImageLocators.value);
 
             return retVal;
         }

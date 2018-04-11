@@ -102,6 +102,25 @@ namespace ModIO
             #pragma warning restore CS0168
             return retVal;
         }
+
+        public static T[] CollectionToArray<T>(ICollection<T> collection)
+        {
+            T[] array = new T[collection.Count];
+            collection.CopyTo(array, 0);
+            return array;
+        }
+        public static void MapArrays<T1, T2>(T1[] sourceArray,
+                                             Func<T1, T2> mapElementDelegate,
+                                             out T2[] destinationArray)
+        {
+            destinationArray = new T2[sourceArray.Length];
+            for(int i = 0;
+                i < sourceArray.Length;
+                ++i)
+            {
+                destinationArray[i] = mapElementDelegate(sourceArray[i]);
+            }
+        }
     }
 
     // TODO(@jackson): Remove after ModMediaObject.Equals is removed

@@ -10,12 +10,16 @@ namespace ModIO
             User,
         }
 
+        // ---------[ SERIALIZABLE EDIT FIELDS ]------
+        [System.Serializable]
+        public class EditableResourceTypeField : EditableField<ResourceType> {}
+
         // ---------[ FIELDS ]---------
-        public EditableField<ResourceType> resourceType = new EditableField<ResourceType>();
-        public EditableField<int> resourceId            = new EditableField<int>();
-        public EditableField<bool> isDMCA               = new EditableField<bool>();
-        public EditableField<string> name               = new EditableField<string>();
-        public EditableField<string> summary            = new EditableField<string>();
+        public EditableResourceTypeField resourceType=  new EditableResourceTypeField();
+        public EditableIntField resourceId =            new EditableIntField();
+        public EditableBoolField isDMCA =               new EditableBoolField();
+        public EditableStringField name =               new EditableStringField();
+        public EditableStringField summary =            new EditableStringField();
 
         public static string ResourceTypeToAPIString(ResourceType resourceType)
         {

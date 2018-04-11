@@ -4,8 +4,8 @@ namespace ModIO
     public class EditableModfile
     {
         // ---------[ FIELDS ]---------
-        public EditableField<string> version        = new EditableField<string>();
-        public EditableField<string> changelog      = new EditableField<string>();
-        public EditableField<string> metadataBlob   = new EditableField<string>();
+        public EditableStringField version        = new EditableStringField();
+        public EditableStringField changelog      = new EditableStringField();
+        public EditableStringField metadataBlob   = new EditableStringField();
     }
 }
