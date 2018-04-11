@@ -14,6 +14,10 @@ namespace ModIO
     [CustomEditor(typeof(ScriptableModProfile))]
     public class ModProfileEditor : Editor
     {
+        // ------[ SERIALIZED PROPERTIES ]------
+        private SerializedProperty modIdProperty;
+        private SerializedProperty modEditsProperty;
+
         // ------[ EDITOR CACHING ]------
         private ModProfile profile;
 
@@ -22,28 +26,25 @@ namespace ModIO
         protected Vector2 scrollPos;
         protected bool isRepaintRequired;
 
-        // ------[ SERIALIZED PROPERTIES ]------
-        private SerializedProperty modIdProperty;
-        private SerializedProperty modEditsProperty;
-
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
         {
-            // TODO(@jackson): Attempt profile collection
+            // Grab Serialized Properties
+            modIdProperty = serializedObject.FindProperty("modId");
+            modEditsProperty = serializedObject.FindProperty("modEdits");
+
+            profile = ModManager.GetModProfile(modIdProperty.intValue);
 
             profileViewParts = CreateProfileViewParts();
 
             // Initialize View
             foreach(IModProfileViewPart viewPart in profileViewParts)
             {
-                viewPart.OnEnable(serializedObject, profile);
+                viewPart.OnEnable(modEditsProperty, profile);
             }
             scrollPos = Vector2.zero;
             isRepaintRequired = false;
 
-            // Grab Serialized Properties
-            modIdProperty = serializedObject.FindProperty("modId");
-            modEditsProperty = serializedObject.FindProperty("modEdits");
         }
 
         protected virtual void OnDisable()
@@ -58,7 +59,7 @@ namespace ModIO
         {
             return new IModProfileViewPart[]
             {
-                null,
+                new ModProfileInfoViewPart(),
             };
         }
 
@@ -70,6 +71,7 @@ namespace ModIO
             {
                 viewPart.OnGUI();
             }
+            serializedObject.ApplyModifiedProperties();
         }
 
         // ------[ ONUPDATE ]------

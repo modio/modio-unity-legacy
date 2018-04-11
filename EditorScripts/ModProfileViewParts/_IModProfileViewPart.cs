@@ -7,7 +7,7 @@ namespace ModIO
     {
         bool isDisabled { get; }
 
-        void OnEnable(SerializedObject serializedModEdits, ModProfile profile);
+        void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile profile);
         void OnDisable();
         void OnGUI();
         void OnUpdate();

@@ -759,10 +759,23 @@ namespace ModIO
             return GetModDirectory(modId) + @"/logo/" + version.ToString() + ".png";
         }
 
+        public static Texture2D FindSavedImageMatchingServerURL(string serverURL)
+        {
+            string filePath;
+            Texture2D imageTexture;
+            if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath)
+               && Utility.TryLoadTextureFromFile(filePath, out imageTexture))
+            {
+                return imageTexture;
+            }
+            return null;
+        }
+
         // TODO(@jackson): Defend
-        private static TextureDownload DownloadAndSaveImage(string serverURL,
-                                                            string downloadTarget,
-                                                            Texture2D placeholderTexture)
+        // TODO(@jackson): Record whether completed (lest placeholder be accepted)
+        public static TextureDownload DownloadAndSaveImage(string serverURL,
+                                                           string downloadTarget,
+                                                           Texture2D placeholderTexture)
         {
             var download = new TextureDownload();
 

@@ -289,11 +289,14 @@ namespace ModIO
         }
 
         private static GUILayoutOption[] buttonLayout = new GUILayoutOption[]{ GUILayout.Width(EditorGUIUtility.singleLineHeight), GUILayout.Height(EditorGUIUtility.singleLineHeight) };
-        public static bool UndoButton()
+        public static bool UndoButton(bool isEnabled = true)
         {
-            return GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton,
-                                    GUI.skin.label,
-                                    buttonLayout);
+            using (new EditorGUI.DisabledScope(!isEnabled))
+            {
+                return GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton,
+                                        GUI.skin.label,
+                                        buttonLayout);
+            }
         }
 
         public static string MultilineTextField(string content)
