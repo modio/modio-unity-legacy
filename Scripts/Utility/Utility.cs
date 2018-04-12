@@ -109,16 +109,33 @@ namespace ModIO
             collection.CopyTo(array, 0);
             return array;
         }
-        public static void MapArrays<T1, T2>(T1[] sourceArray,
-                                             Func<T1, T2> mapElementDelegate,
-                                             out T2[] destinationArray)
+
+        public static T[] SafeCopyArrayOrZero<T>(T[] array)
         {
-            destinationArray = new T2[sourceArray.Length];
-            for(int i = 0;
-                i < sourceArray.Length;
-                ++i)
+            if(array == null)
             {
-                destinationArray[i] = mapElementDelegate(sourceArray[i]);
+                return new T[0];
+            }
+
+            var retVal = new T[array.Length];
+            Array.Copy(array, retVal, array.Length);
+            return retVal;
+        }
+        
+        public static void SafeMapArraysOrZero<T1, T2>(T1[] sourceArray, 
+                                                       Func<T1, T2> mapElementDelegate, 
+                                                       out T2[] destinationArray)
+        {
+            if(sourceArray == null) { destinationArray = new T2[0]; }
+            else
+            {
+                destinationArray = new T2[sourceArray.Length];
+                for(int i = 0;
+                    i < sourceArray.Length;
+                    ++i)
+                {
+                    destinationArray[i] = mapElementDelegate(sourceArray[i]);
+                }
             }
         }
     }

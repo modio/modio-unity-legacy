@@ -49,9 +49,9 @@ namespace ModIO
             retVal.youtubeURLs.value = Utility.CollectionToArray(profile.youtubeURLs);
             retVal.sketchfabURLs.value = Utility.CollectionToArray(profile.sketchfabURLs);
 
-            Utility.MapArrays(Utility.CollectionToArray(profile.galleryImageLocators),
-                              (l) => { return ImageLocatorData.CreateFromImageLocator(l); },
-                              out retVal.galleryImageLocators.value);
+            Utility.SafeMapArraysOrZero(Utility.CollectionToArray(profile.galleryImageLocators), 
+                                        (l) => { return ImageLocatorData.CreateFromImageLocator(l); }, 
+                                        out retVal.galleryImageLocators.value);
 
             return retVal;
         }

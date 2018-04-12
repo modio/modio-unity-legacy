@@ -232,16 +232,23 @@ namespace ModIO
             this._ratingSummary._displayText = apiObject.rating_summary.display_text;
 
             // - Tags -
-            this._tags = new string[apiObject.tags.Length];
-            for(int i = 0; i < apiObject.tags.Length; ++i)
+            if(apiObject.tags != null)
             {
-                this._tags[i] = apiObject.tags[i].name;
+                this._tags = new string[apiObject.tags.Length];
+                for(int i = 0; i < apiObject.tags.Length; ++i)
+                {
+                    this._tags[i] = apiObject.tags[i].name;
+                }
+            }
+            else
+            {
+                this._tags = new string[0];
             }
 
             // - Media -
             this._logoLocator = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
-            this._youtubeURLs = apiObject.media.youtube;
-            this._sketchfabURLs = apiObject.media.sketchfab;
+            this._youtubeURLs = Utility.SafeCopyArrayOrZero(apiObject.media.youtube);
+            this._sketchfabURLs = Utility.SafeCopyArrayOrZero(apiObject.media.sketchfab);
 
             if(apiObject.media.images != null)
             {

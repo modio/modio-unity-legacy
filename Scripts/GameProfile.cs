@@ -259,11 +259,9 @@ namespace ModIO
             this._instructions = apiObject.instructions;
             this._profileURL = apiObject.profile_url;
 
-            this._taggingOptions = new ModTagCategory[apiObject.tag_options.Length];
-            for(int i = 0; i < apiObject.tag_options.Length; ++i)
-            {
-                this._taggingOptions[i] = ModTagCategory.CreateFromGameTagOptionObject(apiObject.tag_options[i]);
-            }
+            Utility.SafeMapArraysOrZero(apiObject.tag_options,
+                                        (o) => { return ModTagCategory.CreateFromGameTagOptionObject(o); },
+                                        out this._taggingOptions);
         }
 
         public static GameProfile CreateFromGameObject(API.GameObject apiObject)

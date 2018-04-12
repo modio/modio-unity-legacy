@@ -1,4 +1,4 @@
-﻿// #define TEST_IGNORE_DISK_CACHE
+﻿// #define DO_NOT_LOAD_CACHE
 
 using System;
 using System.IO;
@@ -61,6 +61,7 @@ namespace ModIO
             {
                 return;
             }
+            manifest = new ManifestData();
 
             #pragma warning disable CS0162
             #if DEBUG
@@ -90,8 +91,8 @@ namespace ModIO
             }
 
             LoadCacheFromDisk();
-            FetchAndCacheAllMods();
             FetchAndCacheGameProfile();
+            FetchAndCacheAllMods();
         }
 
         private static void LoadCacheFromDisk()
@@ -101,7 +102,7 @@ namespace ModIO
                 Directory.CreateDirectory(cacheDirectory);
             }
 
-            #if TEST_IGNORE_DISK_CACHE
+            #if DO_NOT_LOAD_CACHE
             {
                 manifest = new ManifestData();
                 manifest.lastUpdateTimeStamp = new TimeStamp();
@@ -136,8 +137,16 @@ namespace ModIO
                 foreach(string modDir in modDirectories)
                 {
                     // Load ModProfile from Disk
-                    ModProfile mod = JsonUtility.FromJson<ModProfile>(File.ReadAllText(modDir + "/mod.data"));
-                    modCache.Add(mod.id, mod);
+                    ModProfile profile;
+                    if(Utility.TryParseJsonFile(modDir + "/mod_profile.data", out profile))
+                    {
+                        modCache.Add(profile.id, profile);
+                    }
+                    else
+                    {
+                        // TODO(@jackson): better
+                        Debug.LogWarning("[mod.io] Unable to parse mod profile at: " + modDir + "/mod_profile.data");
+                    }
                 }
 
                 // Attempt to load user
@@ -160,6 +169,17 @@ namespace ModIO
                 }
             }
             #endif
+        }
+
+        private static void FetchAndCacheGameProfile()
+        {
+            Action<API.GameObject> cacheGameProfile = (gameObject) =>
+            {
+                manifest.gameProfile = GameProfile.CreateFromGameObject(gameObject);
+                WriteManifestToDisk();
+            };
+
+            Client.GetGame(cacheGameProfile, null);
         }
 
         private static void FetchAndCacheAllMods()
@@ -217,17 +237,6 @@ namespace ModIO
             Client.GetAllMods(GetAllModsFilter.None,
                               addModsToCache,
                               Client.LogError);
-        }
-
-        private static void FetchAndCacheGameProfile()
-        {
-            Action<API.GameObject> cacheGameProfile = (gameObject) =>
-            {
-                manifest.gameProfile = GameProfile.CreateFromGameObject(gameObject);
-                WriteManifestToDisk();
-            };
-
-            Client.GetGame(cacheGameProfile, null);
         }
 
         // ---------[ AUTOMATED UPDATING ]---------
