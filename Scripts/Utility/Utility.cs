@@ -110,6 +110,18 @@ namespace ModIO
             return array;
         }
 
+        public static string[] SerializedPropertyToStringArray(SerializedProperty arrayProperty)
+        {
+            Debug.Assert(arrayProperty.isArray);
+            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
+            string[] retVal = new string[arrayProperty.arraySize];
+            foreach(SerializedProperty property in arrayProperty)
+            {
+                Debug.Log("Array Property Element: " + property.stringValue);
+            }
+            return retVal;
+        }
+
         public static T[] SafeCopyArrayOrZero<T>(T[] array)
         {
             if(array == null)

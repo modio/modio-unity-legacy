@@ -231,7 +231,7 @@ namespace ModIO
         public string summary                                   { get { return this._summary; } }
         public string instructions                              { get { return this._instructions; } }
         public string profileURL                                { get { return this._profileURL; } }
-        public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this.taggingOptions); } }
+        public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this._taggingOptions); } }
         
         // ---------[ API OBJECT INTERFACE ]---------
         public void ApplyGameObjectValues(API.GameObject apiObject)

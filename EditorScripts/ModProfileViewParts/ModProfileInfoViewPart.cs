@@ -20,7 +20,6 @@ namespace ModIO
         private const int SUMMARY_CHAR_LIMIT = 250;
         private const int DESCRIPTION_CHAR_MIN = 100;
 
-        private bool isTagsExpanded = false;
         private bool isUndoEnabled = false;
 
         public bool isDisabled { get { return false; } }
@@ -33,6 +32,9 @@ namespace ModIO
         private SerializedProperty logoProperty;
         private Texture2D logoTexture;
         private string logoLocation;
+
+        // - Tags -
+        private bool isTagsExpanded;
 
         // ------[ INITIALIZATION ]------
         public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile)
@@ -88,7 +90,8 @@ namespace ModIO
         // ------[ ONGUI ]------
         public void OnGUI()
         {
-            LayoutLogoTexture();
+            LayoutLogoField();
+            LayoutTagsField();
 
             // // TODO(@jackson): Move textures to tempcache
             // Texture2D logoTexture = sceneData.logoTexture;
@@ -99,11 +102,9 @@ namespace ModIO
             // SerializedObject serializedSceneData = new SerializedObject(sceneData);
             // SerializedProperty modProfileProp = serializedSceneData.FindProperty("modData");
  
-            // LayoutLogoTexture(modProfileProp, logoTexture, logoSource);
             // LayoutNameField(modProfileProp);
             // LayoutNameIDField(modProfileProp);
             // LayoutHomepageField(modProfileProp);
-            // LayoutTagsField(modProfileProp, selectedTags, ref isTagsExpanded);
             // LayoutVisibilityField(modProfileProp);
             // LayoutStockField(modProfileProp);
             // LayoutSummaryField(modProfileProp);
@@ -111,14 +112,10 @@ namespace ModIO
             // // LayoutModDependenciesField(modProfileProp);
             // LayoutMetadataField(modProfileProp);
             // // LayoutMetadataKVPField(modProfileProp);
-
-            // serializedSceneData.ApplyModifiedProperties();
-
-            // LayoutUploadButton(sceneData);
         }
 
         // ---------[ LAYOUT FUNCTIONS ]---------
-        protected virtual void LayoutLogoTexture()
+        protected virtual void LayoutLogoField()
         {
             bool doBrowse = false;
 
@@ -174,6 +171,55 @@ namespace ModIO
             }
         }
 
+        protected virtual void LayoutTagsField()
+        {
+            using(new EditorGUI.DisabledScope(ModManager.gameProfile == null))
+            {
+                EditorGUILayout.BeginHorizontal();
+                    this.isTagsExpanded = EditorGUILayout.Foldout(this.isTagsExpanded, "Tags", true);
+                    GUILayout.FlexibleSpace();
+                    bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
+                EditorGUILayout.EndHorizontal();
+
+                if(this.isTagsExpanded)
+                {
+                    if(ModManager.gameProfile == null)
+                    {
+                        EditorGUILayout.HelpBox("The Game's Profile is not yet loaded, and thus tags cannot be displayed. Please wait...", MessageType.Warning);
+                    }
+                    else if(ModManager.gameProfile.taggingOptions.Count == 0)
+                    {
+                        EditorGUILayout.HelpBox("The developers of "
+                                                + ModManager.gameProfile.name
+                                                + " have not designated any tagging options",
+                                                MessageType.Info);
+                    }
+                    else
+                    {
+                        string[] selectedTags = Utility.SerializedPropertyToStringArray(editableProfileProperty.FindPropertyRelative("tags.value"));
+
+                        int tagsRemovedCount = 0;
+
+                        ++EditorGUI.indentLevel;
+                            foreach(ModTagCategory tagCategory in ModManager.gameProfile.taggingOptions)
+                            {
+                                if(!tagCategory.isHidden)
+                                {
+                                    EditorGUILayout.LabelField(tagCategory.name);
+                                    // LayoutTagCategory(tagCategory, selectedTags, ref tagsRemovedCount);
+                                }
+                            }
+                        --EditorGUI.indentLevel;
+                    }
+
+                    if(isUndoRequested)
+                    {
+                        // ResetTags(modProfileProp);
+                    }
+                }
+            }
+        }
+
         protected virtual void LayoutNameField(SerializedProperty modProfileProp)
         {
             EditorGUILayout.BeginHorizontal();
@@ -215,37 +261,6 @@ namespace ModIO
             if(isUndoRequested)
             {
                 ResetStringField(modProfileProp, "homepage");
-            }
-        }
-
-        protected virtual void LayoutTagsField(SerializedProperty modProfileProp,
-                                               List<string> selectedTags,
-                                               ref bool isExpanded)
-        {
-            EditorGUILayout.BeginHorizontal();
-                isExpanded = EditorGUILayout.Foldout(isExpanded, "Tags", true);
-                GUILayout.FlexibleSpace();
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            if(isExpanded)
-            {
-                int tagsRemovedCount = 0;
-
-                ++EditorGUI.indentLevel;
-                    foreach(ModTagCategory tagCategory in ModManager.gameProfile.taggingOptions)
-                    {
-                        if(!tagCategory.isHidden)
-                        {
-                            LayoutTagCategory(modProfileProp, tagCategory, selectedTags, ref tagsRemovedCount);
-                        }
-                    }
-                --EditorGUI.indentLevel;
-            }
-
-            if(isUndoRequested)
-            {
-                ResetTags(modProfileProp);
             }
         }
 

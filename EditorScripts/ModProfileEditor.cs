@@ -26,9 +26,12 @@ namespace ModIO
         protected Vector2 scrollPos;
         protected bool isRepaintRequired;
 
+
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
         {
+            ModManager.Initialize();
+
             // Grab Serialized Properties
             modIdProperty = serializedObject.FindProperty("modId");
             modEditsProperty = serializedObject.FindProperty("modEdits");

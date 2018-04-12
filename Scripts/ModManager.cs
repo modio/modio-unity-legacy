@@ -79,8 +79,6 @@ namespace ModIO
             Debug.Log("Initializing ModIO.ModManager"
                       + "\nModIO Directory: " + cacheDirectory);
 
-            // TODO(@jackson): Listen to logo update for caching
-
             #if UNITY_EDITOR
             if(Application.isPlaying)
             #endif
@@ -112,7 +110,7 @@ namespace ModIO
             }
             #else
             {
-                if(!File.Exists(manifestPath))
+                if(!Utility.TryParseJsonFile(manifestPath, out manifest))
                 {
                     // --- INITIALIZE FIRST RUN ---
                     manifest = new ManifestData();
@@ -121,11 +119,23 @@ namespace ModIO
 
                     WriteManifestToDisk();
                 }
-                else
-                {
-                    manifest = JsonUtility.FromJson<ManifestData>(File.ReadAllText(manifestPath));
-                }
 
+                // Attempt to load user
+                if(Utility.TryParseJsonFile(userdataPath, out userData))
+                {
+                    Action<WebRequestError> onAuthenticationFail = (error) =>
+                    {
+                        if(error.responseCode == 401
+                            || error.responseCode == 403) // Failed authentication
+                        {
+                            LogUserOut();
+                        }
+                    };
+
+                    Client.GetAuthenticatedUser(userData.oAuthToken, 
+                                                null, 
+                                                onAuthenticationFail);
+                }
 
                 // iterate through folders, load ModProfile
                 if(!Directory.Exists(cacheDirectory + "mods/"))
@@ -147,25 +157,6 @@ namespace ModIO
                         // TODO(@jackson): better
                         Debug.LogWarning("[mod.io] Unable to parse mod profile at: " + modDir + "/mod_profile.data");
                     }
-                }
-
-                // Attempt to load user
-                if(File.Exists(userdataPath))
-                {
-                    userData = JsonUtility.FromJson<UserData>(File.ReadAllText(userdataPath));
-
-                    Action<WebRequestError> onAuthenticationFail = (error) =>
-                    {
-                        if(error.responseCode == 401
-                            || error.responseCode == 403) // Failed authentication
-                        {
-                            LogUserOut();
-                        }
-                    };
-
-                    Client.GetAuthenticatedUser(userData.oAuthToken,
-                                                   null,
-                                                   onAuthenticationFail);
                 }
             }
             #endif
@@ -192,28 +183,29 @@ namespace ModIO
                 manifest.lastUpdateTimeStamp = TimeStamp.Now();
                 WriteManifestToDisk();
 
-                var mods = new List<ModProfile>(modObjects.data.Length);
+                var profiles = new List<ModProfile>(modObjects.data.Length);
                 foreach(ModObject modObject in modObjects.data)
                 {
-                    mods.Add(ModProfile.CreateFromModObject(modObject));
+                    ModProfile profile = ModProfile.CreateFromModObject(modObject);
+                    profiles.Add(profile);
                 }
 
                 List<ModProfile> updatedMods = new List<ModProfile>();
                 List<ModProfile> addedMods = new List<ModProfile>();
 
-                foreach(ModProfile mod in mods)
+                foreach(ModProfile profile in profiles)
                 {
                     ModProfile cachedMod;
-                    if(modCache.TryGetValue(mod.id, out cachedMod)
-                       && !cachedMod.Equals(mod))
+                    if(modCache.TryGetValue(profile.id, out cachedMod)
+                       && !cachedMod.Equals(profile))
                     {
-                        StoreModData(mod);
-                        updatedMods.Add(mod);
+                        StoreModData(profile);
+                        updatedMods.Add(profile);
                     }
                     else
                     {
-                        StoreModData(mod);
-                        addedMods.Add(mod);
+                        StoreModData(profile);
+                        addedMods.Add(profile);
                     }
                 }
 
