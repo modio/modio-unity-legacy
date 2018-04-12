@@ -16,7 +16,7 @@ namespace ModIO
     {
         // ------[ SERIALIZED PROPERTIES ]------
         private SerializedProperty modIdProperty;
-        private SerializedProperty modEditsProperty;
+        private SerializedProperty editableModProfileProperty;
 
         // ------[ EDITOR CACHING ]------
         private ModProfile profile;
@@ -34,7 +34,7 @@ namespace ModIO
 
             // Grab Serialized Properties
             modIdProperty = serializedObject.FindProperty("modId");
-            modEditsProperty = serializedObject.FindProperty("modEdits");
+            editableModProfileProperty = serializedObject.FindProperty("editableModProfile");
 
             profile = ModManager.GetModProfile(modIdProperty.intValue);
 
@@ -43,7 +43,7 @@ namespace ModIO
             // Initialize View
             foreach(IModProfileViewPart viewPart in profileViewParts)
             {
-                viewPart.OnEnable(modEditsProperty, profile);
+                viewPart.OnEnable(editableModProfileProperty, profile);
             }
             scrollPos = Vector2.zero;
             isRepaintRequired = false;

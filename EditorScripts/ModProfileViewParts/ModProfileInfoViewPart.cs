@@ -17,8 +17,11 @@ namespace ModIO
         private const ModLogoVersion LOGO_PREVIEW_VERSION = ModLogoVersion.Thumbnail_320x180;
         private const float LOGO_PREVIEW_WIDTH = 320;
         private const float LOGO_PREVIEW_HEIGHT = 180;
+        // TODO(@jackson): Move to EditModParameters?
         private const int SUMMARY_CHAR_LIMIT = 250;
         private const int DESCRIPTION_CHAR_MIN = 100;
+        private const int DESCRIPTION_CHAR_LIMIT = 50000;
+        private const int METADATA_CHAR_LIMIT = 50000;
 
         private bool isUndoEnabled = false;
 
@@ -90,31 +93,172 @@ namespace ModIO
         // ------[ ONGUI ]------
         public void OnGUI()
         {
+            LayoutNameField();
+            LayoutNameIDField();
             LayoutLogoField();
+            LayoutVisibilityField();
             LayoutTagsField();
+            LayoutHomepageField();
+            LayoutSummaryField();
+            LayoutDescriptionField();
+            LayoutStockField();
+            LayoutMetadataField();
 
-            // // TODO(@jackson): Move textures to tempcache
-            // Texture2D logoTexture = sceneData.logoTexture;
-            // string logoSource = sceneData.modProfileEdits.logoLocator.value.source;
-            // List<string> selectedTags = new List<string>(sceneData.modProfileEdits.tags.value);
-            // isUndoEnabled = sceneData.modId > 0;
-
-            // SerializedObject serializedSceneData = new SerializedObject(sceneData);
-            // SerializedProperty modProfileProp = serializedSceneData.FindProperty("modData");
- 
-            // LayoutNameField(modProfileProp);
-            // LayoutNameIDField(modProfileProp);
-            // LayoutHomepageField(modProfileProp);
-            // LayoutVisibilityField(modProfileProp);
-            // LayoutStockField(modProfileProp);
-            // LayoutSummaryField(modProfileProp);
-            // LayoutDescriptionField(modProfileProp);
-            // // LayoutModDependenciesField(modProfileProp);
-            // LayoutMetadataField(modProfileProp);
-            // // LayoutMetadataKVPField(modProfileProp);
+            // LayoutModDependenciesField();
+            // LayoutMetadataKVPField();
         }
 
-        // ---------[ LAYOUT FUNCTIONS ]---------
+        // ---------[ SIMPLE LAYOUT FUNCTIONS ]---------
+        protected void LayoutEditablePropertySimple(string fieldName, 
+                                                    SerializedProperty fieldProperty)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(fieldProperty.FindPropertyRelative("value"),
+                                          new GUIContent(fieldName));
+            if(EditorGUI.EndChangeCheck())
+            {
+                fieldProperty.FindPropertyRelative("isDirty").boolValue = true;
+            }
+        }
+
+        protected virtual void LayoutNameField()
+        {
+            EditorGUILayout.BeginHorizontal();
+                LayoutEditablePropertySimple("Name", editableProfileProperty.FindPropertyRelative("name"));
+                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
+            EditorGUILayout.EndHorizontal();
+
+            if(isUndoRequested)
+            {
+                // ResetStringField(editableProfileProperty, "name");
+            }
+        }
+
+        protected virtual void LayoutVisibilityField()
+        {
+            EditorGUILayout.BeginHorizontal();
+                LayoutEditablePropertySimple("Visibility", editableProfileProperty.FindPropertyRelative("visibility"));
+                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
+            EditorGUILayout.EndHorizontal();
+
+            if(isUndoRequested)
+            {
+                // ResetIntField(editableProfileProperty, "visibility");
+            }
+        }
+
+        protected virtual void LayoutHomepageField()
+        {
+            EditorGUILayout.BeginHorizontal();
+                LayoutEditablePropertySimple("Homepage", editableProfileProperty.FindPropertyRelative("homepageURL"));
+                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
+            EditorGUILayout.EndHorizontal();
+
+            if(isUndoRequested)
+            {
+                // ResetStringField(editableProfileProperty, "homepage");
+            }
+        }
+
+        // ---------[ TEXT AREAS ]---------
+        protected void LayoutEditablePropertyTextArea(string fieldName,
+                                                      SerializedProperty fieldProperty,
+                                                      int characterLimit,
+                                                      out bool isUndoRequested)
+        {
+            SerializedProperty fieldValueProperty = fieldProperty.FindPropertyRelative("value");
+            int charCount = fieldValueProperty.stringValue.Length;
+
+            EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel(fieldName);
+                EditorGUILayout.LabelField("[" + (characterLimit - charCount).ToString()
+                                           + " characters remaining]");
+                isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUI.BeginChangeCheck();
+                fieldValueProperty.stringValue
+                    = EditorGUILayoutExtensions.MultilineTextField(fieldValueProperty.stringValue);
+            if(EditorGUI.EndChangeCheck())
+            {
+                if(fieldValueProperty.stringValue.Length > characterLimit)
+                {
+                    fieldValueProperty.stringValue
+                        = fieldValueProperty.stringValue.Substring(0, characterLimit);
+                }
+
+                fieldProperty.FindPropertyRelative("isDirty").boolValue = true;
+            }
+            
+        }
+
+        protected virtual void LayoutSummaryField()
+        {
+            bool isUndoRequested;
+            LayoutEditablePropertyTextArea("Summary",
+                                           editableProfileProperty.FindPropertyRelative("summary"),
+                                           SUMMARY_CHAR_LIMIT,
+                                           out isUndoRequested);
+            if(isUndoRequested)
+            {
+                // ResetStringField(editableProfileProperty, "summary");
+            }
+        }
+
+        protected virtual void LayoutDescriptionField()
+        {
+            bool isUndoRequested;
+            LayoutEditablePropertyTextArea("Description",
+                                           editableProfileProperty.FindPropertyRelative("description"),
+                                           DESCRIPTION_CHAR_LIMIT,
+                                           out isUndoRequested);
+
+            if(isUndoRequested)
+            {
+                // ResetStringField(editableProfileProperty, "description");
+            }
+        }
+
+        protected virtual void LayoutMetadataField()
+        {
+            bool isUndoRequested;
+            LayoutEditablePropertyTextArea("Metadata",
+                                           editableProfileProperty.FindPropertyRelative("metadataBlob"),
+                                           DESCRIPTION_CHAR_LIMIT,
+                                           out isUndoRequested);
+
+            if(isUndoRequested)
+            {
+                // ResetStringField(editableProfileProperty, "metadataBlob");
+            }
+        }
+
+
+
+        // ---------[ SUPER JANKY ]---------
+        protected virtual void LayoutNameIDField()
+        {
+            bool isDirty = false;
+            EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel("Profile URL");
+                EditorGUILayout.LabelField("@", GUILayout.Width(13));
+                
+                EditorGUI.BeginChangeCheck();
+                    EditorGUILayout.PropertyField(editableProfileProperty.FindPropertyRelative("nameId.value"),
+                                                  GUIContent.none);
+                isDirty = EditorGUI.EndChangeCheck();
+
+                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
+            EditorGUILayout.EndHorizontal();
+
+            editableProfileProperty.FindPropertyRelative("nameId.isDirty").boolValue |= isDirty;
+
+            if(isUndoRequested)
+            {
+                // ResetStringField(editableProfileProperty, "name_id");
+            }
+        }
+
         protected virtual void LayoutLogoField()
         {
             bool doBrowse = false;
@@ -208,7 +352,7 @@ namespace ModIO
                                 if(!tagCategory.isHidden)
                                 {
                                     bool wasSelectionModified;
-                                    LayoutTagCategory(tagCategory, ref selectedTags, out wasSelectionModified);
+                                    LayoutTagCategoryField(tagCategory, ref selectedTags, out wasSelectionModified);
                                     isDirty |= wasSelectionModified;
                                 }
                             }
@@ -224,16 +368,17 @@ namespace ModIO
                     if(isUndoRequested)
                     {
                         var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
-                        Utility.SetSerializedPropertyStringArray(tagsProperty, profile.tags);
+                        Utility.SetSerializedPropertyStringArray(tagsProperty,
+                                                                 Utility.CollectionToArray(profile.tags));
                         editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue = false;
                     }
                 }
             }
         }
 
-        protected virtual void LayoutTagCategory(ModTagCategory tagCategory,
-                                                 ref List<string> selectedTags,
-                                                 out bool wasSelectionModified)
+        protected virtual void LayoutTagCategoryField(ModTagCategory tagCategory, 
+                                                      ref List<string> selectedTags, 
+                                                      out bool wasSelectionModified)
         {
             wasSelectionModified = false;
 
@@ -301,258 +446,25 @@ namespace ModIO
             EditorGUILayout.EndVertical();
             // EditorGUILayout.EndHorizontal();
         }
-
-        protected virtual void LayoutNameField(SerializedProperty modProfileProp)
-        {
-            EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.name"),
-                                              new GUIContent("Name"));
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            if(isUndoRequested)
-            {
-                ResetStringField(modProfileProp, "name");
-            }
-        }
-
-        protected virtual void LayoutNameIDField(SerializedProperty modProfileProp)
-        {
-            EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Profile URL");
-                EditorGUILayout.LabelField("@", GUILayout.Width(13));
-                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.name_id"),
-                                              GUIContent.none);
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            if(isUndoRequested)
-            {
-                ResetStringField(modProfileProp, "name_id");
-            }
-        }
-
-        protected virtual void LayoutHomepageField(SerializedProperty modProfileProp)
-        {
-            EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.homepage"),
-                                              new GUIContent("Homepage"));
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            if(isUndoRequested)
-            {
-                ResetStringField(modProfileProp, "homepage");
-            }
-        }
-
-        protected virtual void LayoutVisibilityField(SerializedProperty modProfileProp)
-        {
-            ModVisibility modVisibility = (ModVisibility)modProfileProp.FindPropertyRelative("_data.visible").intValue;
-
-            EditorGUILayout.BeginHorizontal();
-                    modVisibility = (ModVisibility)EditorGUILayout.EnumPopup("Visibility", modVisibility);             bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            if(isUndoRequested)
-            {
-                ResetIntField(modProfileProp, "visible");
-            }
-            else
-            {
-                modProfileProp.FindPropertyRelative("_data.visible").intValue = (int)modVisibility;
-            }
-        }
-
-        protected virtual void LayoutStockField(SerializedProperty modProfileProp)
+        protected virtual void LayoutStockField()
         {
             #if ENABLE_MOD_STOCK
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Stock");
 
-                EditorGUILayout.PropertyField(modProfileProp.FindPropertyRelative("_data.stock"),
+                EditorGUILayout.PropertyField(editableProfileProperty.FindPropertyRelative("stock.value"),
                                               GUIContent.none);//, GUILayout.Width(40));
 
                 // TODO(@jackson): Change to checkbox
                 EditorGUILayout.LabelField("0 = Unlimited", GUILayout.Width(80));
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
+                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
             EditorGUILayout.EndHorizontal();
 
             if(isUndoRequested)
             {
-                ResetIntField(modProfileProp, "stock");
+                // ResetIntField(editableProfileProperty, "stock");
             }
             #endif
-        }
-
-        protected virtual void LayoutSummaryField(SerializedProperty modProfileProp)
-        {
-            SerializedProperty summaryProp = modProfileProp.FindPropertyRelative("_data.summary");
-            EditorGUILayout.BeginHorizontal();
-                int charCount = summaryProp.stringValue.Length;
-
-                EditorGUILayout.PrefixLabel("Summary");
-                EditorGUILayout.LabelField("[" + (SUMMARY_CHAR_LIMIT - charCount).ToString()
-                                           + " characters remaining]");
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            summaryProp.stringValue = EditorGUILayoutExtensions.MultilineTextField(summaryProp.stringValue);
-
-            if(summaryProp.stringValue.Length > SUMMARY_CHAR_LIMIT)
-            {
-                summaryProp.stringValue = summaryProp.stringValue.Substring(0, SUMMARY_CHAR_LIMIT);
-            }
-
-            if(isUndoRequested)
-            {
-                ResetStringField(modProfileProp, "summary");
-            }
-        }
-
-        protected virtual void LayoutDescriptionField(SerializedProperty modProfileProp)
-        {
-            SerializedProperty descriptionProp = modProfileProp.FindPropertyRelative("_data.description");
-            EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Description");
-                EditorGUILayout.LabelField("[HTML Tags accepted]");
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            descriptionProp.stringValue = EditorGUILayoutExtensions.MultilineTextField(descriptionProp.stringValue);
-
-            if(isUndoRequested)
-            {
-                ResetStringField(modProfileProp, "description");
-            }
-        }
-
-        protected virtual void LayoutModDependenciesField(SerializedProperty modProfileProp)
-        {
-            // TODO(@jackson): Dependencies
-        }
-
-        protected virtual void LayoutMetadataField(SerializedProperty modProfileProp)
-        {
-            SerializedProperty metadataProp = modProfileProp.FindPropertyRelative("_data.metadata_blob");
-            EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Metadata");
-                GUILayout.FlexibleSpace();
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton();
-            EditorGUILayout.EndHorizontal();
-
-            metadataProp.stringValue = EditorGUILayoutExtensions.MultilineTextField(metadataProp.stringValue);
-
-            if(isUndoRequested)
-            {
-                ResetStringField(modProfileProp, "description");
-            }
-        }
-
-        protected virtual void LayoutUploadButton(EditorSceneData sceneData)
-        {
-            if(GUILayout.Button("Save To Server"))
-            {
-                EditorApplication.delayCall += () => UploadModProfile(sceneData);
-            }
-        }
-
-        // ---------[ RESET FUNCTIONS ]---------
-        private static void ResetStringField(SerializedProperty modProfileProp, string fieldName)
-        {
-            modProfileProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).stringValue
-            = modProfileProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).stringValue;
-        }
-
-        private static void ResetIntField(SerializedProperty modProfileProp, string fieldName)
-        {
-            modProfileProp.FindPropertyRelative("_data").FindPropertyRelative(fieldName).intValue
-            = modProfileProp.FindPropertyRelative("_initialData").FindPropertyRelative(fieldName).intValue;
-        }
-
-
-        // ---------[ TAG OPTIONS ]---------
-        //  TODO(@jackson): Work out a better way of displaying this
-        private static void AddTagToMod(SerializedProperty modProfileProp, string tag)
-        {
-            SerializedProperty tagsArrayProp = modProfileProp.FindPropertyRelative("_data.tags");
-            int newIndex = tagsArrayProp.arraySize;
-            ++tagsArrayProp.arraySize;
-
-            tagsArrayProp.GetArrayElementAtIndex(newIndex).FindPropertyRelative("name").stringValue = tag;
-            tagsArrayProp.GetArrayElementAtIndex(newIndex).FindPropertyRelative("date_added").intValue = TimeStamp.Now().AsServerTimeStamp();
-        }
-
-        private static void RemoveTagFromMod(SerializedProperty modProfileProp, int tagIndex)
-        {
-            SerializedProperty tagsArrayProp = modProfileProp.FindPropertyRelative("_data.tags");
-
-            tagsArrayProp.DeleteArrayElementAtIndex(tagIndex);
-        }
-
-        private static void ResetTags(SerializedProperty modProfileProp)
-        {
-            SerializedProperty initTagsProp = modProfileProp.FindPropertyRelative("_initialData.tags");
-            SerializedProperty currentTagsProp = modProfileProp.FindPropertyRelative("_data.tags");
-
-            currentTagsProp.arraySize = initTagsProp.arraySize;
-
-            for(int i = 0; i < initTagsProp.arraySize; ++i)
-            {
-                currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue
-                    = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("name").stringValue;
-                currentTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue
-                    = initTagsProp.GetArrayElementAtIndex(i).FindPropertyRelative("date_added").intValue;
-            }
-        }
-
-        // ---------[ UPLOADING ]---------
-        private void UploadModProfile(EditorSceneData sceneData)
-        {
-            throw new System.NotImplementedException();
-
-            // if(EditorSceneManager.EnsureUntitledSceneHasBeenSaved("The scene needs to be saved before uploading mod data"))
-            // {
-            //     EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
-
-            //     isUploading = true;
-
-            //     if(sceneData.modId == 0)
-            //     {
-            //         ModManager.SubmitNewMod(sceneData.modProfileEdits,
-            //                                  (mod) =>
-            //                                  {
-            //                                     // TODO(@jackson): Mark Dirty -> Save
-            //                                     sceneData.modInfo = EditableModProfile.FromModProfile(mod);
-            //                                     isUploading = false;
-            //                                  },
-            //                                  (e) =>
-            //                                  {
-            //                                     isUploading = false;
-            //                                     EditorUtility.DisplayDialog("Mod Profile submission failed",
-            //                                                                 e.message,
-            //                                                                 "Ok");
-            //                                  });
-            //     }
-            //     else
-            //     {
-            //         ModManager.SubmitModChanges(sceneData.modId,
-            //                                  sceneData.modProfileEdits,
-            //                                  (mod) =>
-            //                                  {
-            //                                     // TODO(@jackson): Mark Dirty -> Save
-            //                                     sceneData.modInfo = EditableModProfile.FromModProfile(mod);
-            //                                     isUploading = false;
-            //                                  },
-            //                                  (e) =>
-            //                                  {
-            //                                     isUploading = false;
-            //                                     EditorUtility.DisplayDialog("Mod Profile submission failed",
-            //                                                                 e.message,
-            //                                                                 "Ok");
-            //                                  });
-            //     }
-            // }
         }
     }
 }

@@ -6,6 +6,6 @@ namespace ModIO
     public class ScriptableModProfile : ScriptableObject
     {
         public int modId = 0;
-        public EditableModProfile modEdits = new EditableModProfile();
+        public EditableModProfile editableModProfile = new EditableModProfile();
     }
 }
