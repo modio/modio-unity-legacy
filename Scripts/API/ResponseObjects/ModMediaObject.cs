@@ -4,10 +4,10 @@ namespace ModIO.API
     public struct ModMediaObject
     {
         // Array of YouTube links.
-        public readonly string[] youtube;
+        public string[] youtube;
         // Array of SketchFab links.
-        public readonly string[] sketchfab;
+        public string[] sketchfab;
         // Array of image objects (a gallery).
-        public readonly ImageObject[] images;
+        public ImageObject[] images;
     }
 }

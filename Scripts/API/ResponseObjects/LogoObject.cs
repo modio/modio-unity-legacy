@@ -4,14 +4,14 @@ namespace ModIO.API
     public struct LogoObject
     {
         // Logo filename including extension.
-        public readonly string filename;
+        public string filename;
         // URL to the full-sized logo.
-        public readonly string original;
+        public string original;
         // URL to the small logo thumbnail.
-        public readonly string thumb_320x180;
+        public string thumb_320x180;
         // URL to the medium logo thumbnail.
-        public readonly string thumb_640x360;
+        public string thumb_640x360;
         // URL to the large logo thumbnail.
-        public readonly string thumb_1280x720;
+        public string thumb_1280x720;
     }
 }

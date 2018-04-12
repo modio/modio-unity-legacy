@@ -4,8 +4,8 @@ namespace ModIO.API
     public struct DownloadObject
     {
         // URL to download the file from the mod.io CDN.
-        public readonly string binary_url;
+        public string binary_url;
         // Unix timestamp of when the binary_url will expire.
-        public readonly int date_expires;
+        public int date_expires;
     }
 }

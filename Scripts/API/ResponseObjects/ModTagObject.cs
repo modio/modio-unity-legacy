@@ -4,8 +4,8 @@ namespace ModIO.API
     public struct ModTagObject
     {
         // Tag name.
-        public readonly string name;
+        public string name;
         // Unix timestamp of date tag was applied.
-        public readonly int date_added;
+        public int date_added;
     }
 }

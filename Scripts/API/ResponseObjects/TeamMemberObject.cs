@@ -4,14 +4,14 @@ namespace ModIO.API
     public struct TeamMemberObject
     {
         // Unique team member id.
-        public readonly int id;
+        public int id;
         // Level of permission the user has:
-        public readonly int level;
+        public int level;
         // Unix timestamp of the date the user was added to the team.
-        public readonly int date_added;
+        public int date_added;
         // Custom title given to the user in this team.
-        public readonly string position;
+        public string position;
         // Contains user data.
-        public readonly UserObject user;
+        public UserObject user;
     }
 }

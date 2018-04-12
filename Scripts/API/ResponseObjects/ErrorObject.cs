@@ -4,6 +4,6 @@ namespace ModIO.API
     public struct ErrorObject
     {
         // Contains error data.
-        public readonly MessageObject error;
+        public MessageObject error;
     }
 }

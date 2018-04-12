@@ -4,10 +4,10 @@ namespace ModIO.API
     public struct ImageObject
     {
         // Image filename including extension.
-        public readonly string filename;
+        public string filename;
         // URL to the full-sized image.
-        public readonly string original;
+        public string original;
         // URL to the image thumbnail.
-        public readonly string thumb_320x180;
+        public string thumb_320x180;
     }
 }

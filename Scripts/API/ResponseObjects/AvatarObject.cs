@@ -4,12 +4,12 @@ namespace ModIO.API
     public struct AvatarObject
     {
         // Avatar filename including extension.
-        public readonly string filename;
+        public string filename;
         // URL to the full-sized avatar.
-        public readonly string original;
+        public string original;
         // URL to the small thumbnail image.
-        public readonly string thumb_50x50;
+        public string thumb_50x50;
         // URL to the medium thumbnail image.
-        public readonly string thumb_100x100;
+        public string thumb_100x100;
     }
 }
