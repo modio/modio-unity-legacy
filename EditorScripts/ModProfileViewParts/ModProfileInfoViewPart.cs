@@ -195,21 +195,25 @@ namespace ModIO
                                                 MessageType.Info);
                     }
                     else
-                    {
-                        string[] selectedTags = Utility.SerializedPropertyToStringArray(editableProfileProperty.FindPropertyRelative("tags.value"));
-
-                        int tagsRemovedCount = 0;
+                    {   
+                        var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
+                        var selectedTags = new List<string>(Utility.GetSerializedPropertyStringArray(tagsProperty));
+                        bool isDirty = false;
 
                         ++EditorGUI.indentLevel;
                             foreach(ModTagCategory tagCategory in ModManager.gameProfile.taggingOptions)
                             {
                                 if(!tagCategory.isHidden)
                                 {
-                                    EditorGUILayout.LabelField(tagCategory.name);
-                                    // LayoutTagCategory(tagCategory, selectedTags, ref tagsRemovedCount);
+                                    bool wasSelectionModified;
+                                    LayoutTagCategory(tagCategory, ref selectedTags, out wasSelectionModified);
+                                    isDirty |= wasSelectionModified;
                                 }
                             }
                         --EditorGUI.indentLevel;
+
+                        Utility.SetSerializedPropertyStringArray(tagsProperty, selectedTags.ToArray());
+                        editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue |= isDirty;
                     }
 
                     if(isUndoRequested)
@@ -218,6 +222,77 @@ namespace ModIO
                     }
                 }
             }
+        }
+
+        protected virtual void LayoutTagCategory(ModTagCategory tagCategory,
+                                                 ref List<string> selectedTags,
+                                                 out bool wasSelectionModified)
+        {
+            wasSelectionModified = false;
+            
+            // EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(tagCategory.name);
+
+            EditorGUILayout.BeginVertical();
+                if(!tagCategory.isFlag)
+                {
+                    string oldSelectedTag = string.Empty;
+                    foreach(string tag in tagCategory.tags)
+                    {
+                        if(selectedTags.Contains(tag))
+                        {
+                            oldSelectedTag = tag;
+                        }
+                    }
+
+                    string newSelectedTag = string.Empty;
+                    foreach(string tag in tagCategory.tags)
+                    {
+                        bool isSelected = (tag == oldSelectedTag);
+                        isSelected = EditorGUILayout.Toggle(tag, isSelected, EditorStyles.radioButton);
+
+                        if(isSelected)
+                        {
+                            newSelectedTag = tag;
+                        }
+                    }
+
+                    if(newSelectedTag != oldSelectedTag)
+                    {
+                        wasSelectionModified = true;
+
+                        selectedTags.Remove(oldSelectedTag);
+
+                        if(!System.String.IsNullOrEmpty(newSelectedTag))
+                        {
+                            selectedTags.Add(newSelectedTag);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach(string tag in tagCategory.tags)
+                    {
+                        bool wasSelected = selectedTags.Contains(tag);
+                        bool isSelected = EditorGUILayout.Toggle(tag, wasSelected);
+
+                        if(wasSelected != isSelected)
+                        {
+                            wasSelectionModified = true;
+
+                            if(isSelected)
+                            {
+                                selectedTags.Add(tag);
+                            }
+                            else
+                            {
+                                selectedTags.Remove(tag);
+                            }
+                        }
+                    }
+                }
+            EditorGUILayout.EndVertical();
+            // EditorGUILayout.EndHorizontal();
         }
 
         protected virtual void LayoutNameField(SerializedProperty modProfileProp)
@@ -262,68 +337,6 @@ namespace ModIO
             {
                 ResetStringField(modProfileProp, "homepage");
             }
-        }
-
-        protected virtual void LayoutTagCategory(SerializedProperty modProfileProp,
-                                                 ModTagCategory tagCategory,
-                                                 List<string> selectedTags,
-                                                 ref int tagsRemovedCount)
-        {
-            // EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel(tagCategory.name);
-
-            EditorGUILayout.BeginVertical();
-                if(!tagCategory.isFlag)
-                {
-                    string selectedTag = "";
-                    foreach(string tag in tagCategory.tags)
-                    {
-                        if(selectedTags.Contains(tag))
-                        {
-                            selectedTag = tag;
-                        }
-                    }
-
-                    foreach(string tag in tagCategory.tags)
-                    {
-                        bool isSelected = (tag == selectedTag);
-                        isSelected = EditorGUILayout.Toggle(tag, isSelected, EditorStyles.radioButton);
-
-                        if(isSelected && tag != selectedTag)
-                        {
-                            if(selectedTag != "")
-                            {
-                                RemoveTagFromMod(modProfileProp, selectedTags.IndexOf(selectedTag) - tagsRemovedCount);
-                                ++tagsRemovedCount;
-                            }
-
-                            AddTagToMod(modProfileProp, tag);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach(string tag in tagCategory.tags)
-                    {
-                        bool wasSelected = selectedTags.Contains(tag);
-                        bool isSelected = EditorGUILayout.Toggle(tag, wasSelected);
-
-                        if(wasSelected != isSelected)
-                        {
-                            if(isSelected)
-                            {
-                                AddTagToMod(modProfileProp, tag);
-                            }
-                            else
-                            {
-                                RemoveTagFromMod(modProfileProp, selectedTags.IndexOf(tag) - tagsRemovedCount);
-                                ++tagsRemovedCount;
-                            }
-                        }
-                    }
-                }
-            EditorGUILayout.EndVertical();
-            // EditorGUILayout.EndHorizontal();
         }
 
         protected virtual void LayoutVisibilityField(SerializedProperty modProfileProp)

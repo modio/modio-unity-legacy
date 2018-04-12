@@ -110,16 +110,36 @@ namespace ModIO
             return array;
         }
 
-        public static string[] SerializedPropertyToStringArray(SerializedProperty arrayProperty)
+        public static string[] GetSerializedPropertyStringArray(SerializedProperty arrayProperty)
         {
             Debug.Assert(arrayProperty.isArray);
             Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
-            string[] retVal = new string[arrayProperty.arraySize];
-            foreach(SerializedProperty property in arrayProperty)
+            
+            var retVal = new string[arrayProperty.arraySize];
+            int retValIndex = 0;
+            for(int i = 0;
+                i < arrayProperty.arraySize;
+                ++i)
             {
-                Debug.Log("Array Property Element: " + property.stringValue);
+                retVal[i] = arrayProperty.GetArrayElementAtIndex(i).stringValue;
             }
             return retVal;
+        }
+
+        public static void SetSerializedPropertyStringArray(SerializedProperty arrayProperty,
+                                                            string[] value)
+        {
+            Debug.Assert(arrayProperty.isArray);
+            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
+
+            int valueIndex = 0;
+            arrayProperty.arraySize = value.Length;
+            for(int i = 0;
+                i < value.Length;
+                ++i)
+            {
+                arrayProperty.GetArrayElementAtIndex(i).stringValue = value[i];
+            }
         }
 
         public static T[] SafeCopyArrayOrZero<T>(T[] array)
