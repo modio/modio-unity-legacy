@@ -167,7 +167,9 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                logoProperty.FindPropertyRelative("value/source").stringValue = "";
+                logoProperty.FindPropertyRelative("value.source").stringValue = profile.logoLocator.source;
+                logoProperty.FindPropertyRelative("value.fileName").stringValue = profile.logoLocator.fileName;
+                logoProperty.FindPropertyRelative("isDirty").boolValue = false;
             }
         }
 
@@ -212,13 +214,18 @@ namespace ModIO
                             }
                         --EditorGUI.indentLevel;
 
-                        Utility.SetSerializedPropertyStringArray(tagsProperty, selectedTags.ToArray());
-                        editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue |= isDirty;
+                        if(isDirty)
+                        {
+                            Utility.SetSerializedPropertyStringArray(tagsProperty, selectedTags.ToArray());
+                            editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue = true;
+                        }
                     }
 
                     if(isUndoRequested)
                     {
-                        // ResetTags(modProfileProp);
+                        var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
+                        Utility.SetSerializedPropertyStringArray(tagsProperty, profile.tags);
+                        editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue = false;
                     }
                 }
             }
@@ -229,7 +236,7 @@ namespace ModIO
                                                  out bool wasSelectionModified)
         {
             wasSelectionModified = false;
-            
+
             // EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(tagCategory.name);
 
