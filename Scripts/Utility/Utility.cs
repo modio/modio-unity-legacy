@@ -116,7 +116,6 @@ namespace ModIO
             Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
             
             var retVal = new string[arrayProperty.arraySize];
-            int retValIndex = 0;
             for(int i = 0;
                 i < arrayProperty.arraySize;
                 ++i)
@@ -132,7 +131,6 @@ namespace ModIO
             Debug.Assert(arrayProperty.isArray);
             Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
 
-            int valueIndex = 0;
             arrayProperty.arraySize = value.Length;
             for(int i = 0;
                 i < value.Length;

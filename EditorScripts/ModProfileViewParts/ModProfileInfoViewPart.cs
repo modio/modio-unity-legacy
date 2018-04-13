@@ -14,6 +14,7 @@ namespace ModIO
     // TODO(@jackson): Use cache originalModLogo and use Unity built in image inspector?
     public class ModProfileInfoViewPart : IModProfileViewPart
     {
+        // ------[ CONSTANTS ]------
         private const ModLogoVersion LOGO_PREVIEW_VERSION = ModLogoVersion.Thumbnail_320x180;
         private const float LOGO_PREVIEW_WIDTH = 320;
         private const float LOGO_PREVIEW_HEIGHT = 180;
@@ -23,13 +24,10 @@ namespace ModIO
         private const int DESCRIPTION_CHAR_LIMIT = 50000;
         private const int METADATA_CHAR_LIMIT = 50000;
 
-        private bool isUndoEnabled = false;
-
-        public bool isDisabled { get { return false; } }
-
         // ------[ EDITOR CACHING ]------
         private SerializedProperty editableProfileProperty;
         private ModProfile profile;
+        private bool isUndoEnabled = false;
 
         // - Logo -
         private SerializedProperty logoProperty;
@@ -44,6 +42,7 @@ namespace ModIO
         {
             this.editableProfileProperty = serializedEditableModProfile;
             this.profile = baseProfile;
+            this.isUndoEnabled = (baseProfile != null);
 
             isTagsExpanded = false;
 
@@ -91,7 +90,7 @@ namespace ModIO
         }
 
         // ------[ ONGUI ]------
-        public void OnGUI()
+        public virtual void OnGUI()
         {
             LayoutNameField();
             LayoutNameIDField();
@@ -130,7 +129,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                // ResetStringField(editableProfileProperty, "name");
+                editableProfileProperty.FindPropertyRelative("name.value").stringValue = profile.name;
+                editableProfileProperty.FindPropertyRelative("name.isDirty").boolValue = false;
             }
         }
 
@@ -143,7 +143,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                // ResetIntField(editableProfileProperty, "visibility");
+                editableProfileProperty.FindPropertyRelative("visibility.value").intValue = (int)profile.visibility;
+                editableProfileProperty.FindPropertyRelative("visibility.isDirty").boolValue = false;
             }
         }
 
@@ -156,7 +157,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                // ResetStringField(editableProfileProperty, "homepage");
+                editableProfileProperty.FindPropertyRelative("homepageURL.value").stringValue = profile.homepageURL;
+                editableProfileProperty.FindPropertyRelative("homepageURL.isDirty").boolValue = false;
             }
         }
 
@@ -201,7 +203,8 @@ namespace ModIO
                                            out isUndoRequested);
             if(isUndoRequested)
             {
-                // ResetStringField(editableProfileProperty, "summary");
+                editableProfileProperty.FindPropertyRelative("summary.value").stringValue = profile.summary;
+                editableProfileProperty.FindPropertyRelative("summary.isDirty").boolValue = false;
             }
         }
 
@@ -215,7 +218,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                // ResetStringField(editableProfileProperty, "description");
+                editableProfileProperty.FindPropertyRelative("description.value").stringValue = profile.description;
+                editableProfileProperty.FindPropertyRelative("description.isDirty").boolValue = false;
             }
         }
 
@@ -229,7 +233,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                // ResetStringField(editableProfileProperty, "metadataBlob");
+                editableProfileProperty.FindPropertyRelative("metadataBlob.value").stringValue = profile.metadataBlob;
+                editableProfileProperty.FindPropertyRelative("metadataBlob.isDirty").boolValue = false;
             }
         }
 
@@ -255,7 +260,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                // ResetStringField(editableProfileProperty, "name_id");
+                editableProfileProperty.FindPropertyRelative("nameId.value").stringValue = profile.nameId;
+                editableProfileProperty.FindPropertyRelative("nameId.isDirty").boolValue = false;
             }
         }
 
@@ -446,6 +452,7 @@ namespace ModIO
             EditorGUILayout.EndVertical();
             // EditorGUILayout.EndHorizontal();
         }
+
         protected virtual void LayoutStockField()
         {
             #if ENABLE_MOD_STOCK
@@ -462,7 +469,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                // ResetIntField(editableProfileProperty, "stock");
+                editableProfileProperty.FindPropertyRelative("stock.value").intValue = profile.stock;
+                editableProfileProperty.FindPropertyRelative("stock.isDirty").boolValue = false;
             }
             #endif
         }
