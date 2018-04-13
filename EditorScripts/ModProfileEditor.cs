@@ -63,6 +63,7 @@ namespace ModIO
             return new IModProfileViewPart[]
             {
                 new ModProfileInfoViewPart(),
+                new ModMediaViewPart(),
             };
         }
 

@@ -110,9 +110,9 @@ namespace ModIO
             }
             #else
             {
+                // Attempt to load manifest
                 if(!Utility.TryParseJsonFile(manifestPath, out manifest))
                 {
-                    // --- INITIALIZE FIRST RUN ---
                     manifest = new ManifestData();
                     manifest.lastUpdateTimeStamp = new TimeStamp();
                     manifest.unresolvedEvents = new List<ModEvent>();
@@ -137,7 +137,7 @@ namespace ModIO
                                                 onAuthenticationFail);
                 }
 
-                // iterate through folders, load ModProfile
+                // Attempt to load mod data
                 if(!Directory.Exists(cacheDirectory + "mods/"))
                 {
                     Directory.CreateDirectory(cacheDirectory + "mods/");
