@@ -171,7 +171,7 @@ namespace ModIO
                 int tagsRemovedCount = 0;
 
                 ++EditorGUI.indentLevel;
-                    foreach(ModTagCategory tagCategory in ModManager.gameProfile.taggingOptions)
+                    foreach(ModTagCategory tagCategory in ModManager.GetGameProfile().taggingOptions)
                     {
                         if(!tagCategory.isHidden)
                         {

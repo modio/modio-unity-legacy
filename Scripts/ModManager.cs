@@ -45,10 +45,7 @@ namespace ModIO
 
         // ---------[ VARIABLES ]---------
         private static ManifestData manifest = null;
-        public static GameProfile gameProfile { get { return manifest.gameProfile; }}
-
         private static UserData userData = null;
-        public static UserProfile currentUser { get { return userData == null ? null : userData.userProfile; } }
 
         public static string cacheDirectory { get; private set; }
         
@@ -133,8 +130,8 @@ namespace ModIO
                         }
                     };
 
-                    Client.GetAuthenticatedUser(userData.oAuthToken, 
-                                                null, 
+                    Client.GetAuthenticatedUser(userData.oAuthToken,
+                                                null,
                                                 onAuthenticationFail);
                 }
 
@@ -918,6 +915,11 @@ namespace ModIO
         }
 
         // ---------[ MISC ]------------
+        public static GameProfile GetGameProfile()
+        {
+            return manifest.gameProfile;
+        }
+
         private static void WriteManifestToDisk()
         {
             File.WriteAllText(manifestPath, JsonUtility.ToJson(manifest));

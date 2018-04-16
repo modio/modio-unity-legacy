@@ -29,7 +29,7 @@ namespace ModIO
 
         public void OnGUI()
         {
-            if(ModManager.currentUser == null)
+            if(ModManager.GetActiveUser() == null)
             {
                 // TODO(@jackson): Improve with deselection/reselection of text on submit
                 EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");

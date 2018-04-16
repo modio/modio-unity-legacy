@@ -152,8 +152,8 @@ namespace ModIO
             return retVal;
         }
         
-        public static void SafeMapArraysOrZero<T1, T2>(T1[] sourceArray, 
-                                                       Func<T1, T2> mapElementDelegate, 
+        public static void SafeMapArraysOrZero<T1, T2>(T1[] sourceArray,
+                                                       Func<T1, T2> mapElementDelegate,
                                                        out T2[] destinationArray)
         {
             if(sourceArray == null) { destinationArray = new T2[0]; }
@@ -315,7 +315,7 @@ namespace ModIO
                 }
 
                 EditorGUI.indentLevel -= 3;
-            }   
+            }
         }
 
         public static bool BrowseButton(string path, GUIContent label)

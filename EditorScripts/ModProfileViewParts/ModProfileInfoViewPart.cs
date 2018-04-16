@@ -108,7 +108,7 @@ namespace ModIO
         }
 
         // ---------[ SIMPLE LAYOUT FUNCTIONS ]---------
-        protected void LayoutEditablePropertySimple(string fieldName, 
+        protected void LayoutEditablePropertySimple(string fieldName,
                                                     SerializedProperty fieldProperty)
         {
             EditorGUI.BeginChangeCheck();
@@ -325,7 +325,7 @@ namespace ModIO
 
         protected virtual void LayoutTagsField()
         {
-            using(new EditorGUI.DisabledScope(ModManager.gameProfile == null))
+            using(new EditorGUI.DisabledScope(ModManager.GetGameProfile() == null))
             {
                 EditorGUILayout.BeginHorizontal();
                     this.isTagsExpanded = EditorGUILayout.Foldout(this.isTagsExpanded, "Tags", true);
@@ -335,25 +335,25 @@ namespace ModIO
 
                 if(this.isTagsExpanded)
                 {
-                    if(ModManager.gameProfile == null)
+                    if(ModManager.GetGameProfile() == null)
                     {
                         EditorGUILayout.HelpBox("The Game's Profile is not yet loaded, and thus tags cannot be displayed. Please wait...", MessageType.Warning);
                     }
-                    else if(ModManager.gameProfile.taggingOptions.Count == 0)
+                    else if(ModManager.GetGameProfile().taggingOptions.Count == 0)
                     {
                         EditorGUILayout.HelpBox("The developers of "
-                                                + ModManager.gameProfile.name
+                                                + ModManager.GetGameProfile().name
                                                 + " have not designated any tagging options",
                                                 MessageType.Info);
                     }
                     else
-                    {   
+                    {
                         var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
                         var selectedTags = new List<string>(Utility.GetSerializedPropertyStringArray(tagsProperty));
                         bool isDirty = false;
 
                         ++EditorGUI.indentLevel;
-                            foreach(ModTagCategory tagCategory in ModManager.gameProfile.taggingOptions)
+                            foreach(ModTagCategory tagCategory in ModManager.GetGameProfile().taggingOptions)
                             {
                                 if(!tagCategory.isHidden)
                                 {
@@ -382,8 +382,8 @@ namespace ModIO
             }
         }
 
-        protected virtual void LayoutTagCategoryField(ModTagCategory tagCategory, 
-                                                      ref List<string> selectedTags, 
+        protected virtual void LayoutTagCategoryField(ModTagCategory tagCategory,
+                                                      ref List<string> selectedTags,
                                                       out bool wasSelectionModified)
         {
             wasSelectionModified = false;
