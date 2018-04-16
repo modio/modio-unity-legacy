@@ -103,7 +103,7 @@ namespace ModIO
                     {
                         EditorApplication.delayCall += () =>
                         {
-                            if(EditorDialog.ConfirmLogOut(username))
+                            if(EditorDialogs.ConfirmLogOut(username))
                             {
                                 ModManager.LogUserOut();
                             }
