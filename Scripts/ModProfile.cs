@@ -205,6 +205,17 @@ namespace ModIO
             }
             return retVal;
         }
+        public GalleryImageLocator GetGalleryImageWithFileName(string fileName)
+        {
+            foreach(var locator in this._galleryImageLocators)
+            {
+                if(locator.fileName == fileName)
+                {
+                    return locator;
+                }
+            }
+            return null;
+        }
 
         // ---------[ API OBJECT INTERFACE ]---------
         public void ApplyModObjectValues(API.ModObject apiObject)

@@ -15,6 +15,7 @@ namespace ModIO
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
     public delegate void ModLogoUpdatedEventHandler(int modId, ModLogoVersion version, Texture2D texture);
+    public delegate void ModGalleryImageUpdatedEventHandler(int modId, string imageFileName, ModGalleryImageVersion version, Texture2D texture);
 
     public enum ModBinaryStatus
     {
@@ -752,6 +753,7 @@ namespace ModIO
 
         // ---------[ IMAGE MANAGEMENT ]---------
         public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
+        public static event ModGalleryImageUpdatedEventHandler OnModGalleryImageUpdated;
         
         private static Dictionary<string, string> serverToLocalImageURLMap = new Dictionary<string, string>();
 
@@ -814,6 +816,56 @@ namespace ModIO
                     if(OnModLogoUpdated != null)
                     {
                         OnModLogoUpdated(modId, version, download.texture);
+                    }
+                };
+            }
+
+            return texture;
+        }
+
+        // TODO(@jackson): Defend
+        public static Texture2D LoadOrDownloadModGalleryImage(int modId, string imageFileName,
+                                                              ModGalleryImageVersion version)
+        {
+            // TODO(@jackson): Defend
+            var profile = GetModProfile(modId);
+
+            var imageLocator = profile.GetGalleryImageWithFileName(imageFileName);
+            if(imageLocator == null)
+            {
+                Debug.LogWarning("[mod.io] Unable to find Gallery Image with FileName \'"
+                                 + imageFileName + "\' in mod profile ["
+                                 + modId + "]:"
+                                 + profile.name);
+                return null;
+            }
+
+            string serverURL = imageLocator.GetVersionSource(version);
+            string filePath = null;
+            Texture2D texture = null;
+            if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
+            {
+                Utility.TryLoadTextureFromFile(filePath, out texture);
+            }
+
+            if(texture == null)
+            {
+                // TODO(@jackson): Replace with correct placeholder
+                texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+
+                filePath = (Application.temporaryCachePath + @"/modImages/"
+                            + modId + @"/" + version.ToString()
+                            + @"/" + imageFileName);
+
+                var download = DownloadAndSaveImage(serverURL,
+                                                    filePath,
+                                                    texture);
+                download.OnCompleted += (d) =>
+                {
+                    if(OnModGalleryImageUpdated != null)
+                    {
+                        OnModGalleryImageUpdated(modId, imageFileName,
+                                                 version, download.texture);
                     }
                 };
             }
