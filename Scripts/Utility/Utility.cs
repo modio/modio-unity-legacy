@@ -286,9 +286,20 @@ namespace ModIO
 
     public static class EditorGUILayoutExtensions
     {
-        public static void ArrayPropertyField(SerializedProperty arrayProperty, string dispName, ref bool isExpanded)
+        public static void ArrayPropertyField(SerializedProperty arrayProperty,
+                                              string arrayLabel,
+                                              ref bool isExpanded)
         {
-            isExpanded = EditorGUILayout.Foldout(isExpanded, dispName, true);
+            CustomLayoutArrayPropertyField(arrayProperty, arrayLabel, ref isExpanded,
+                                           (p) => EditorGUILayout.PropertyField(p));
+        }
+
+        public static void CustomLayoutArrayPropertyField(SerializedProperty arrayProperty,
+                                                          string arrayLabel,
+                                                          ref bool isExpanded,
+                                                          Action<SerializedProperty> customLayoutFunction)
+        {
+            isExpanded = EditorGUILayout.Foldout(isExpanded, arrayLabel, true);
 
             if(isExpanded)
             {
@@ -300,11 +311,11 @@ namespace ModIO
                 for (int i = 0; i < arrayProperty.arraySize; ++i)
                 {
                     SerializedProperty prop = arrayProperty.FindPropertyRelative("Array.data[" + i + "]");
-                    EditorGUILayout.PropertyField(prop);
+                    customLayoutFunction(prop);
                 }
 
                 EditorGUI.indentLevel -= 3;
-            }
+            }   
         }
 
         public static bool BrowseButton(string path, GUIContent label)
@@ -324,7 +335,7 @@ namespace ModIO
 
                 if(Event.current.type == EventType.Layout)
                 {
-                    EditorGUILayout.TextField(path);
+                    EditorGUILayout.TextField(path, "");
                 }
                 else
                 {
