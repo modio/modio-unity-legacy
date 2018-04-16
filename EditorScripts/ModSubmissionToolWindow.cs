@@ -15,7 +15,7 @@ namespace ModIO
         [MenuItem("mod.io/Mod Submission Tool")]
         public static void ShowWindow()
         {
-            GetWindow<ModSubmissionToolWindow>("Mod Submission Tool");
+            GetWindow<ModSubmissionToolWindow>("Submit Mod");
         }
 
         // ------[ WINDOW FIELDS ]---------
@@ -24,6 +24,9 @@ namespace ModIO
         private string emailAddressInput;
         private string securityCodeInput;
         private bool isRequestSending;
+        // - Submission -
+        private ScriptableModProfile profile;
+        private AssetBundle build;
 
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
@@ -58,132 +61,173 @@ namespace ModIO
         // ---------[ GUI ]---------
         protected virtual void OnGUI()
         {
-            LayoutAccountHeader();
-
-            // using (new EditorGUI.DisabledScope(Application.isPlaying))
-            // {
-            //     scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-            //         activeView.OnGUI(sceneData);
-            //     EditorGUILayout.EndScrollView();
-            // }
-
-            // wasPlaying = isPlaying;
+            if(ModManager.GetActiveUser() == null)
+            {
+                LayoutLoginPrompt();
+            }
+            else
+            {
+                LayoutSubmissionFields();
+            }
         }
 
-        // ------[ ACCOUNT HEADER ]------
-        protected virtual void LayoutAccountHeader()
+        // ------[ LOGIN PROMPT ]------
+        protected virtual void LayoutLoginPrompt()
         {
-            if(ModManager.GetActiveUser() != null)
+            // TODO(@jackson): Improve with deselection/reselection of text on submit
+            EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
+
+            using (new EditorGUI.DisabledScope(isRequestSending))
             {
-                string username = ModManager.GetActiveUser().username;
+                EditorGUILayout.BeginHorizontal();
+                {
+                    using (new EditorGUI.DisabledScope(isInputtingEmail))
+                    {
+                        if(GUILayout.Button("Email"))
+                        {
+                            isInputtingEmail = true;
+                        }
+                    }
+                    using (new EditorGUI.DisabledScope(!isInputtingEmail))
+                    {
+                        if(GUILayout.Button("Security Code"))
+                        {
+                            isInputtingEmail = false;
+                        }
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+
+
+                if(isInputtingEmail)
+                {
+                    emailAddressInput = EditorGUILayout.TextField("Email Address", emailAddressInput);
+                }
+                else
+                {
+                    securityCodeInput = EditorGUILayout.TextField("Security Code", securityCodeInput);
+                }
 
                 EditorGUILayout.BeginHorizontal();
                 {
-                    EditorGUILayout.LabelField("Logged in as:  " + username);
-                    GUILayout.FlexibleSpace();
-                    if(GUILayout.Button("Log Out"))
+                    if(GUILayout.Button("Submit"))
                     {
-                        EditorApplication.delayCall += () =>
+                        isRequestSending = true;
+
+                        Action endRequestSendingAndInputEmail = () =>
                         {
-                            if(EditorDialogs.ConfirmLogOut(username))
-                            {
-                                ModManager.LogUserOut();
-                                Repaint();
-                            }
+                            isRequestSending = false;
+                            isInputtingEmail = true;
                         };
+
+                        Action endRequestSendingAndInputCode = () =>
+                        {
+                            isRequestSending = false;
+                            isInputtingEmail = false;
+                        };
+
+                        if(isInputtingEmail)
+                        {
+                            securityCodeInput = "";
+
+                            ModManager.RequestSecurityCode(emailAddressInput,
+                                                           m => endRequestSendingAndInputCode(),
+                                                           e => endRequestSendingAndInputEmail());
+                        }
+                        else
+                        {
+                            Action<string> onTokenReceived = (token) =>
+                            {
+                                ModManager.TryLogUserIn(token,
+                                                        (u) => { isRequestSending = false; Repaint(); },
+                                                        e => endRequestSendingAndInputCode());
+                            };
+
+                            ModManager.RequestOAuthToken(securityCodeInput,
+                                                         onTokenReceived,
+                                                         e => endRequestSendingAndInputCode());
+                        }
                     }
                 }
                 EditorGUILayout.EndHorizontal();
             }
-            else
-            {
-                // TODO(@jackson): Improve with deselection/reselection of text on submit
-                EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
-
-                using (new EditorGUI.DisabledScope(isRequestSending))
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    {
-                        using (new EditorGUI.DisabledScope(isInputtingEmail))
-                        {
-                            if(GUILayout.Button("Email"))
-                            {
-                                isInputtingEmail = true;
-                            }
-                        }
-                        using (new EditorGUI.DisabledScope(!isInputtingEmail))
-                        {
-                            if(GUILayout.Button("Security Code"))
-                            {
-                                isInputtingEmail = false;
-                            }
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-
-
-                    if(isInputtingEmail)
-                    {
-                        emailAddressInput = EditorGUILayout.TextField("Email Address", emailAddressInput);
-                    }
-                    else
-                    {
-                        securityCodeInput = EditorGUILayout.TextField("Security Code", securityCodeInput);
-                    }
-
-                    EditorGUILayout.BeginHorizontal();
-                    {
-                        if(GUILayout.Button("Submit"))
-                        {
-                            isRequestSending = true;
-
-                            Action endRequestSendingAndInputEmail = () =>
-                            {
-                                isRequestSending = false;
-                                isInputtingEmail = true;
-                            };
-
-                            Action endRequestSendingAndInputCode = () =>
-                            {
-                                isRequestSending = false;
-                                isInputtingEmail = false;
-                            };
-
-                            if(isInputtingEmail)
-                            {
-                                securityCodeInput = "";
-
-                                ModManager.RequestSecurityCode(emailAddressInput,
-                                                               m => endRequestSendingAndInputCode(),
-                                                               e => endRequestSendingAndInputEmail());
-                            }
-                            else
-                            {
-                                Action<string> onTokenReceived = (token) =>
-                                {
-                                    ModManager.TryLogUserIn(token,
-                                                            (u) => { isRequestSending = false; Repaint(); },
-                                                            e => endRequestSendingAndInputCode());
-                                };
-
-                                ModManager.RequestOAuthToken(securityCodeInput,
-                                                             onTokenReceived,
-                                                             e => endRequestSendingAndInputCode());
-                            }
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-            }
         }
 
-        // ---------[ FIELDS ]---------
-        // public void OnGUI()
-        // {
+        protected virtual void LayoutSubmissionFields()
+        {
+            // - Account Header -
+            string username = ModManager.GetActiveUser().username;
 
-        //
-        //     }
-        // }
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUILayout.LabelField("Logged in as:  " + username);
+                GUILayout.FlexibleSpace();
+                if(GUILayout.Button("Log Out"))
+                {
+                    EditorApplication.delayCall += () =>
+                    {
+                        if(EditorDialogs.ConfirmLogOut(username))
+                        {
+                            ModManager.LogUserOut();
+
+                            isInputtingEmail = true;
+                            emailAddressInput = "";
+                            securityCodeInput = "";
+                            isRequestSending = false;
+                            
+                            Repaint();
+                        }
+                    };
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            // - Submission Section -
+            if(profile == null)
+            {
+                EditorGUILayout.HelpBox("Please select a mod profile as a the upload target.",
+                                        MessageType.Info);
+            }
+            else if(profile.modId > 0)
+            {
+                EditorGUILayout.HelpBox(profile.editableModProfile.name.value
+                                        + " will be updated as used as the upload target on the server.",
+                                        MessageType.Info);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(profile.editableModProfile.name.value
+                                        + " will be created as a new profile on the server.",
+                                        MessageType.Info);
+            }
+            EditorGUILayout.Space();
+
+
+            // TODO(@jackson): Support mods that haven't been downloaded
+            profile = EditorGUILayout.ObjectField("Mod Profile",
+                                                  profile,
+                                                  typeof(ScriptableModProfile),
+                                                  false) as ScriptableModProfile;
+
+            using(new EditorGUI.DisabledScope(profile == null))
+            {
+                build = EditorGUILayout.ObjectField("Add Build",
+                                                    build,
+                                                    typeof(AssetBundle),
+                                                    false) as AssetBundle;
+
+                // TODO(@jackson): if(profile) -> show build list?
+
+                EditorGUILayout.Space();
+                EditorGUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    GUILayout.Button("Upload to Server");
+                    GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
+            }
+        }
     }
 }
 
