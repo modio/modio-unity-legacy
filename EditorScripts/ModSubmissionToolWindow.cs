@@ -19,7 +19,7 @@ namespace ModIO
         }
 
         // ------[ WINDOW FIELDS ]---------
-        private static bool isAwaitingServerResponse;
+        private static bool isAwaitingServerResponse = false;
         // - Login -
         private bool isInputtingEmail;
         private string emailAddressInput;
@@ -37,7 +37,9 @@ namespace ModIO
             isInputtingEmail = true;
             emailAddressInput = "";
             securityCodeInput = "";
-            isAwaitingServerResponse = false;
+
+            buildProfile = new EditableModfile();
+            buildProfile.version.value = "0.0.0";
         }
 
         protected virtual void OnDisable()
@@ -218,9 +220,37 @@ namespace ModIO
                                                     build,
                                                     typeof(AssetBundle),
                                                     false) as AssetBundle;
+    
+                // - Build Profile -
+                using(new EditorGUI.DisabledScope(build == null))
+                {
+                    // - Version -
+                    EditorGUI.BeginChangeCheck();
+                        buildProfile.version.value = EditorGUILayout.TextField("Version",
+                                                                               buildProfile.version.value);
+                    if(EditorGUI.EndChangeCheck())
+                    {
+                        buildProfile.version.isDirty = true;
+                    }
+                    // - Changelog -
+                    EditorGUI.BeginChangeCheck();
+                        EditorGUILayout.PrefixLabel("Changelog");
+                        buildProfile.changelog.value = EditorGUILayoutExtensions.MultilineTextField(buildProfile.changelog.value);
+                    if(EditorGUI.EndChangeCheck())
+                    {
+                        buildProfile.changelog.isDirty = true;
+                    }
+                    // - Metadata -
+                    EditorGUI.BeginChangeCheck();
+                        EditorGUILayout.PrefixLabel("Metadata");
+                        buildProfile.metadataBlob.value = EditorGUILayoutExtensions.MultilineTextField(buildProfile.metadataBlob.value);
+                    if(EditorGUI.EndChangeCheck())
+                    {
+                        buildProfile.metadataBlob.isDirty = true;
+                    }
+                }
 
                 // TODO(@jackson): if(profile) -> show build list?
-
                 EditorGUILayout.Space();
                 EditorGUILayout.BeginHorizontal();
                     GUILayout.FlexibleSpace();
