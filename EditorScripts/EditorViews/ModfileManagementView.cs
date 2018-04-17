@@ -105,8 +105,8 @@ namespace ModIO
 
             // --- Start Upload ---
             ModManager.UploadModBinary_Unzipped(modId,
-                                                buildLocation,
                                                 modfileValues,
+                                                buildLocation,
                                                 true,
                                                 onUploadSucceeded,
                                                 onUploadFailed);

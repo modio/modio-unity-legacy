@@ -1197,9 +1197,10 @@ namespace ModIO
             doNextSubmissionAction(new MessageObject());
         }
 
+        // TODO(@jackson): Convert onError to string!
         public static void UploadModBinary_Unzipped(int modId,
-                                                    string unzippedBinaryLocation,
                                                     EditableModfile modfileValues,
+                                                    string unzippedBinaryLocation,
                                                     bool setPrimary,
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
@@ -1208,12 +1209,12 @@ namespace ModIO
 
             ZipUtil.Zip(binaryZipLocation, unzippedBinaryLocation);
 
-            UploadModBinary_Zipped(modId, binaryZipLocation, modfileValues, setPrimary, onSuccess, onError);
+            UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setPrimary, onSuccess, onError);
         }
 
         public static void UploadModBinary_Zipped(int modId,
-                                                  string binaryZipLocation,
                                                   EditableModfile modfileValues,
+                                                  string binaryZipLocation,
                                                   bool setPrimary,
                                                   Action<Modfile> onSuccess,
                                                   Action<WebRequestError> onError)

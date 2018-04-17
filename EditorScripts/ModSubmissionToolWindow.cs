@@ -19,14 +19,15 @@ namespace ModIO
         }
 
         // ------[ WINDOW FIELDS ]---------
+        private static bool isAwaitingServerResponse;
         // - Login -
         private bool isInputtingEmail;
         private string emailAddressInput;
         private string securityCodeInput;
-        private bool isRequestSending;
         // - Submission -
         private ScriptableModProfile profile;
         private AssetBundle build;
+        private EditableModfile buildProfile;
 
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
@@ -36,7 +37,7 @@ namespace ModIO
             isInputtingEmail = true;
             emailAddressInput = "";
             securityCodeInput = "";
-            isRequestSending = false;
+            isAwaitingServerResponse = false;
         }
 
         protected virtual void OnDisable()
@@ -77,7 +78,7 @@ namespace ModIO
             // TODO(@jackson): Improve with deselection/reselection of text on submit
             EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
 
-            using (new EditorGUI.DisabledScope(isRequestSending))
+            using (new EditorGUI.DisabledScope(isAwaitingServerResponse))
             {
                 EditorGUILayout.BeginHorizontal();
                 {
@@ -112,17 +113,17 @@ namespace ModIO
                 {
                     if(GUILayout.Button("Submit"))
                     {
-                        isRequestSending = true;
+                        isAwaitingServerResponse = true;
 
                         Action endRequestSendingAndInputEmail = () =>
                         {
-                            isRequestSending = false;
+                            isAwaitingServerResponse = false;
                             isInputtingEmail = true;
                         };
 
                         Action endRequestSendingAndInputCode = () =>
                         {
-                            isRequestSending = false;
+                            isAwaitingServerResponse = false;
                             isInputtingEmail = false;
                         };
 
@@ -139,7 +140,7 @@ namespace ModIO
                             Action<string> onTokenReceived = (token) =>
                             {
                                 ModManager.TryLogUserIn(token,
-                                                        (u) => { isRequestSending = false; Repaint(); },
+                                                        (u) => { isAwaitingServerResponse = false; Repaint(); },
                                                         e => endRequestSendingAndInputCode());
                             };
 
@@ -173,8 +174,8 @@ namespace ModIO
                             isInputtingEmail = true;
                             emailAddressInput = "";
                             securityCodeInput = "";
-                            isRequestSending = false;
-                            
+                            isAwaitingServerResponse = false;
+
                             Repaint();
                         }
                     };
@@ -223,12 +224,84 @@ namespace ModIO
                 EditorGUILayout.Space();
                 EditorGUILayout.BeginHorizontal();
                     GUILayout.FlexibleSpace();
-                    GUILayout.Button("Upload to Server");
+                    if(GUILayout.Button("Upload to Server"))
+                    {
+                        UploadToServer();
+                    }
                     GUILayout.FlexibleSpace();
                 EditorGUILayout.EndHorizontal();
             }
         }
+
+        // TODO(@jackson): Check hash of build for potential match
+        // TODO(@jackson): Check profile errors
+        protected virtual void UploadToServer()
+        {
+            isAwaitingServerResponse = true;
+
+            string profileFilePath = AssetDatabase.GetAssetPath(profile);
+
+            Action<WebRequestError> onSubmissionFailed = (e) =>
+            {
+                // TODO(@jackson): Dialog Window?
+                isAwaitingServerResponse = false;
+            };
+
+            if(profile.modId > 0)
+            {
+                ModManager.SubmitModChanges(profile.modId,
+                                            profile.editableModProfile,
+                                            (m) => ModProfileSubmissionSucceeded(m, profileFilePath),
+                                            onSubmissionFailed);
+            }
+            else
+            {
+                ModManager.SubmitNewMod(profile.editableModProfile,
+                                        (m) => ModProfileSubmissionSucceeded(m, profileFilePath),
+                                        onSubmissionFailed);
+            }
+        }
+
+        private void ModProfileSubmissionSucceeded(ModProfile updatedProfile,
+                                                   string profileFilePath)
+        {
+            // Update ScriptableModProfile
+            profile.modId = updatedProfile.id;
+            profile.editableModProfile = EditableModProfile.CreateFromProfile(updatedProfile);
+            AssetDatabase.CreateAsset(profile, profileFilePath);
+
+            // Upload Build
+            if(build != null)
+            {
+                Action<WebRequestError> onSubmissionFailed = (e) =>
+                {
+                    // TODO(@jackson): Dialog Window?
+                    isAwaitingServerResponse = false;
+                };
+
+                string buildFilePath = AssetDatabase.GetAssetPath(build);
+                ModManager.UploadModBinary_Unzipped(profile.modId,
+                                                    buildProfile,
+                                                    buildFilePath,
+                                                    true,
+                                                    mf => NotifySubmissionSucceeded(updatedProfile.name,
+                                                                                    updatedProfile.profileURL),
+                                                    onSubmissionFailed);
+            }
+            else
+            {
+                NotifySubmissionSucceeded(updatedProfile.name, updatedProfile.profileURL);
+            }
+        }
+
+        private void NotifySubmissionSucceeded(string modName, string modProfileURL)
+        {
+            EditorUtility.DisplayDialog("Submission Successful",
+                                        modName + " was successfully updated on the server."
+                                        + "\nView the changes here: " + modProfileURL,
+                                        "Close");
+            isAwaitingServerResponse = false;
+        }
     }
 }
-
 #endif
