@@ -776,7 +776,7 @@ namespace ModIO
                                                                 Texture2D placeholderTexture)
         {
             Debug.Assert(Path.GetExtension(downloadFilePath).Equals(".png"),
-                         String.Format("Images can only be saved in PNG format."
+                         String.Format("[mod.io] Images can only be saved in PNG format."
                                        + "\n\'{0}\' appears to be in a different format.",
                                        downloadFilePath));
 
@@ -857,9 +857,11 @@ namespace ModIO
                 // TODO(@jackson): Replace with correct placeholder
                 texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
-                filePath = (Application.temporaryCachePath + @"/modImages/"
-                            + modId + @"/" + version.ToString()
-                            + @"/" + imageFileName);
+                filePath = String.Format(@"{0}/modImages/{1}/{2}/{3}.png",
+                                         Application.temporaryCachePath,
+                                         modId,
+                                         version.ToString(),
+                                         Path.GetFileNameWithoutExtension(imageFileName));
 
                 // TODO(@jackson): Fix the filePath
                 var download = DownloadAndSaveImageAsPNG(serverURL,

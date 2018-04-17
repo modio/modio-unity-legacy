@@ -16,6 +16,8 @@ namespace ModIO
         private const ModGalleryImageVersion IMAGE_PREVIEW_VERSION = ModGalleryImageVersion.Thumbnail_320x180;
 
         // ------[ EDITOR CACHING ]------
+        private bool isRepaintRequired = false;
+
         // - Serialized Property -
         private ModProfile profile;
         private SerializedProperty youtubeURLsProp;
@@ -118,16 +120,39 @@ namespace ModIO
                     this.textureCache[imageFileName] = imageTexture;
                 }
             }
+
+            // - Handle Updates -
+            ModManager.OnModGalleryImageUpdated += OnModGalleryImageUpdated;
         }
 
-        public void OnDisable() {}
+        public void OnDisable()
+        {
+            ModManager.OnModGalleryImageUpdated -= OnModGalleryImageUpdated;
+        }
 
-        // ------[ UPDATE ]------
+        // ------[ UPDATES ]------
         public void OnUpdate() {}
+
+        protected virtual void OnModGalleryImageUpdated(int modId,
+                                                        string imageFileName,
+                                                        ModGalleryImageVersion version,
+                                                        Texture2D texture)
+        {
+            if(profile != null
+               && profile.id == modId
+               && version == IMAGE_PREVIEW_VERSION
+               && textureCache.ContainsKey(imageFileName))
+            {
+                textureCache[imageFileName] = texture;
+                isRepaintRequired = true;
+            }
+        }
 
         // ------[ GUI ]------
         public void OnGUI()
         {
+            isRepaintRequired = false;
+
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Media");
                 GUILayout.FlexibleSpace();
@@ -164,24 +189,27 @@ namespace ModIO
 
         public bool IsRepaintRequired()
         {
-            return false;
+            return this.isRepaintRequired;
         }
 
         // - Image Locator Layouting -
         private void LayoutGalleryImageProperty(SerializedProperty elementProperty)
         {
             bool doBrowse = false;
+            string imageFileName = elementProperty.FindPropertyRelative("fileName").stringValue;
+            string imageSource = elementProperty.FindPropertyRelative("source").stringValue;
 
             // - Browse Field -
             EditorGUILayout.BeginHorizontal();
-                doBrowse |= EditorGUILayoutExtensions.BrowseButton(elementProperty.FindPropertyRelative("source").stringValue,
+                doBrowse |= EditorGUILayoutExtensions.BrowseButton(imageSource,
                                                                    new GUIContent("Location"));
             EditorGUILayout.EndHorizontal();
 
             // - Draw Texture -
-            Texture2D texture = null;
-            if(this.textureCache.TryGetValue(elementProperty.FindPropertyRelative("fileName").stringValue,
-                                             out texture))
+            Texture2D imageTexture = GetOrLoadOrDownloadGalleryImageTexture(imageFileName,
+                                                                            imageSource);
+
+            if(imageTexture != null)
             {
                 // TODO(@jackson): Make full-width
                 Rect imageRect = EditorGUILayout.GetControlRect(false, 180.0f, null);
@@ -189,7 +217,7 @@ namespace ModIO
                                                       imageRect.y,
                                                       320.0f,
                                                       imageRect.height),
-                                             texture, null, ScaleMode.ScaleAndCrop);
+                                             imageTexture, null, ScaleMode.ScaleAndCrop);
                 doBrowse |= GUI.Button(imageRect, "", GUI.skin.label);
             }
 
@@ -216,6 +244,39 @@ namespace ModIO
                     }
                 };
             }
+        }
+
+        private Texture2D GetOrLoadOrDownloadGalleryImageTexture(string imageFileName,
+                                                                 string imageSource)
+        {
+            if(String.IsNullOrEmpty(imageFileName))
+            {
+                return null;
+            }
+
+            Texture2D texture;
+            // - Get -
+            if(this.textureCache.TryGetValue(imageFileName, out texture))
+            {
+                return texture;
+            }
+            // - Load -
+            else if(Utility.TryLoadTextureFromFile(imageSource, out texture))
+            {
+                this.textureCache.Add(imageFileName, texture);
+                return texture;
+            }
+            // - LoadOrDownload -
+            else if(profile != null)
+            {
+                texture = ModManager.LoadOrDownloadModGalleryImage(profile.id,
+                                                                   imageFileName,
+                                                                   IMAGE_PREVIEW_VERSION);
+                this.textureCache.Add(imageFileName, texture);
+                return texture;
+            }
+
+            return null;
         }
 
         // - Misc Functionality -
