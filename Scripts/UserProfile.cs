@@ -17,7 +17,7 @@ namespace ModIO
         public class AvatarImageLocator : MultiVersionImageLocator<UserAvatarVersion>
         {
             // ---------[ ABSTRACTS ]---------
-            protected override UserAvatarVersion FullSizeVersionEnum() { return UserAvatarVersion.FullSize; }
+            protected override int FullSizeVersion() { return (int)UserAvatarVersion.FullSize; }
 
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyAvatarObjectValues(API.AvatarObject apiObject)
@@ -27,17 +27,17 @@ namespace ModIO
                 {
                     new VersionSourcePair()
                     {
-                        version = UserAvatarVersion.FullSize,
+                        versionId = (int)UserAvatarVersion.FullSize,
                         source = apiObject.original
                     },
                     new VersionSourcePair()
                     {
-                        version = UserAvatarVersion.Thumbnail_50x50,
+                        versionId = (int)UserAvatarVersion.Thumbnail_50x50,
                         source = apiObject.thumb_50x50
                     },
                     new VersionSourcePair()
                     {
-                        version = UserAvatarVersion.Thumbnail_100x100,
+                        versionId = (int)UserAvatarVersion.Thumbnail_100x100,
                         source = apiObject.thumb_100x100
                     },
                 };

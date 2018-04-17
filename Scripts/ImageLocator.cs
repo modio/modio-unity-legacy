@@ -25,13 +25,13 @@ namespace ModIO
     }
 
     [Serializable]
-    public abstract class MultiVersionImageLocator<E> : IImageLocator where E : struct, IConvertible
+    public abstract class MultiVersionImageLocator : IImageLocator
     {
         // ---------[ INNER CLASSES ]---------
         [Serializable]
-        protected class VersionSourcePair
+        public class VersionSourcePair
         {
-            public E version;
+            public int versionId;
             public string source;
         }
 
@@ -41,21 +41,31 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         public string fileName  { get { return this._fileName; } }
-        public string source    { get { return this.GetVersionSource(this.FullSizeVersionEnum()); } }
+        public string source    { get { return this.GetVersionSource(this.FullSizeVersion()); } }
 
         // ---------[ ACCESSORS ]---------
-        protected abstract E FullSizeVersionEnum();
-        
-        public string GetVersionSource(E version)
+        protected abstract int FullSizeVersion();
+
+        public string GetVersionSource(int versionId)
         {
             if(this._versionPairing != null)
             {
                 foreach(VersionSourcePair pair in this._versionPairing)
                 {
-                    if(pair.version.Equals(version)) { return pair.source; }
+                    if(pair.versionId == versionId) { return pair.source; }
                 }
             }
             return null;
+        }
+    }
+
+    public abstract class MultiVersionImageLocator<E> : MultiVersionImageLocator
+        where E : struct, IConvertible
+    {
+        public string GetVersionSource(E version)
+        {
+            int versionId = version.ToInt32(null);
+            return this.GetVersionSource(versionId);
         }
     }
 }

@@ -83,7 +83,7 @@ namespace ModIO
         public class LogoImageLocator : MultiVersionImageLocator<GameLogoVersion>
         {
             // ---------[ ABSTRACTS ]---------
-            protected override GameLogoVersion FullSizeVersionEnum() { return GameLogoVersion.FullSize; }
+            protected override int FullSizeVersion() { return (int)GameLogoVersion.FullSize; }
 
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyLogoObjectValues(API.LogoObject apiObject)
@@ -93,22 +93,22 @@ namespace ModIO
                 {
                     new VersionSourcePair()
                     {
-                        version = GameLogoVersion.FullSize,
+                        versionId = (int)GameLogoVersion.FullSize,
                         source = apiObject.original
                     },
                     new VersionSourcePair()
                     {
-                        version = GameLogoVersion.Thumbnail_320x180,
+                        versionId = (int)GameLogoVersion.Thumbnail_320x180,
                         source = apiObject.thumb_320x180
                     },
                     new VersionSourcePair()
                     {
-                        version = GameLogoVersion.Thumbnail_640x360,
+                        versionId = (int)GameLogoVersion.Thumbnail_640x360,
                         source = apiObject.thumb_640x360
                     },
                     new VersionSourcePair()
                     {
-                        version = GameLogoVersion.Thumbnail_1280x720,
+                        versionId = (int)GameLogoVersion.Thumbnail_1280x720,
                         source = apiObject.thumb_1280x720
                     },
                 };
@@ -144,7 +144,7 @@ namespace ModIO
         public class IconImageLocator : MultiVersionImageLocator<GameIconVersion>
         {
             // ---------[ ABSTRACTS ]---------
-            protected override GameIconVersion FullSizeVersionEnum() { return GameIconVersion.FullSize; }
+            protected override int FullSizeVersion() { return (int)GameIconVersion.FullSize; }
 
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyIconObjectValues(API.IconObject apiObject)
@@ -154,22 +154,22 @@ namespace ModIO
                 {
                     new VersionSourcePair()
                     {
-                        version = GameIconVersion.FullSize,
+                        versionId = (int)GameIconVersion.FullSize,
                         source = apiObject.original
                     },
                     new VersionSourcePair()
                     {
-                        version = GameIconVersion.Thumbnail_64x64,
+                        versionId = (int)GameIconVersion.Thumbnail_64x64,
                         source = apiObject.thumb_64x64
                     },
                     new VersionSourcePair()
                     {
-                        version = GameIconVersion.Thumbnail_128x128,
+                        versionId = (int)GameIconVersion.Thumbnail_128x128,
                         source = apiObject.thumb_128x128
                     },
                     new VersionSourcePair()
                     {
-                        version = GameIconVersion.Thumbnail_256x256,
+                        versionId = (int)GameIconVersion.Thumbnail_256x256,
                         source = apiObject.thumb_256x256
                     },
                 };

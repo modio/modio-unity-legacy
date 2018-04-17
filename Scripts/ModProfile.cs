@@ -63,7 +63,7 @@ namespace ModIO
         public class LogoImageLocator : MultiVersionImageLocator<ModLogoVersion>
         {
             // ---------[ ABSTRACTS ]---------
-            protected override ModLogoVersion FullSizeVersionEnum() { return ModLogoVersion.FullSize; }
+            protected override int FullSizeVersion() { return (int)ModLogoVersion.FullSize; }
 
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyLogoObjectValues(API.LogoObject apiObject)
@@ -73,22 +73,22 @@ namespace ModIO
                 {
                     new VersionSourcePair()
                     {
-                        version = ModLogoVersion.FullSize,
+                        versionId = (int)ModLogoVersion.FullSize,
                         source = apiObject.original
                     },
                     new VersionSourcePair()
                     {
-                        version = ModLogoVersion.Thumbnail_320x180,
+                        versionId = (int)ModLogoVersion.Thumbnail_320x180,
                         source = apiObject.thumb_320x180
                     },
                     new VersionSourcePair()
                     {
-                        version = ModLogoVersion.Thumbnail_640x360,
+                        versionId = (int)ModLogoVersion.Thumbnail_640x360,
                         source = apiObject.thumb_640x360
                     },
                     new VersionSourcePair()
                     {
-                        version = ModLogoVersion.Thumbnail_1280x720,
+                        versionId = (int)ModLogoVersion.Thumbnail_1280x720,
                         source = apiObject.thumb_1280x720
                     },
                 };
@@ -106,7 +106,7 @@ namespace ModIO
         public class GalleryImageLocator : MultiVersionImageLocator<ModGalleryImageVersion>
         {
             // ---------[ ABSTRACTS ]---------
-            protected override ModGalleryImageVersion FullSizeVersionEnum() { return ModGalleryImageVersion.FullSize; }
+            protected override int FullSizeVersion() { return (int)ModGalleryImageVersion.FullSize; }
 
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyImageObjectValues(API.ImageObject apiObject)
@@ -116,12 +116,12 @@ namespace ModIO
                 {
                     new VersionSourcePair()
                     {
-                        version = ModGalleryImageVersion.FullSize,
+                        versionId = (int)ModGalleryImageVersion.FullSize,
                         source = apiObject.original
                     },
                     new VersionSourcePair()
                     {
-                        version = ModGalleryImageVersion.Thumbnail_320x180,
+                        versionId = (int)ModGalleryImageVersion.Thumbnail_320x180,
                         source = apiObject.thumb_320x180
                     },
                 };
