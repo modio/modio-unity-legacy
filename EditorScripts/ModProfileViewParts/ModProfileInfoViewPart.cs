@@ -349,7 +349,7 @@ namespace ModIO
                     else
                     {
                         var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
-                        var selectedTags = new List<string>(Utility.GetSerializedPropertyStringArray(tagsProperty));
+                        var selectedTags = new List<string>(EditorUtilityExtensions.GetSerializedPropertyStringArray(tagsProperty));
                         bool isDirty = false;
 
                         ++EditorGUI.indentLevel;
@@ -366,7 +366,7 @@ namespace ModIO
 
                         if(isDirty)
                         {
-                            Utility.SetSerializedPropertyStringArray(tagsProperty, selectedTags.ToArray());
+                            EditorUtilityExtensions.SetSerializedPropertyStringArray(tagsProperty, selectedTags.ToArray());
                             editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue = true;
                         }
                     }
@@ -374,8 +374,8 @@ namespace ModIO
                     if(isUndoRequested)
                     {
                         var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
-                        Utility.SetSerializedPropertyStringArray(tagsProperty,
-                                                                 Utility.CollectionToArray(profile.tags));
+                        EditorUtilityExtensions.SetSerializedPropertyStringArray(tagsProperty,
+                                                                                 Utility.CollectionToArray(profile.tags));
                         editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue = false;
                     }
                 }

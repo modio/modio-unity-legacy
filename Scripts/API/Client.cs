@@ -103,7 +103,10 @@ namespace ModIO.API
         // ---------[ DEFAULT SUCCESS/ERROR FUNCTIONS ]---------
         public static void LogError(WebRequestError errorInfo)
         {
+            var responseTimeStamp = TimeStamp.Now();
+            
             string errorMessage = errorInfo.method + " REQUEST FAILED";
+            errorMessage += "\nResponse received at: " + responseTimeStamp.AsLocalDateTime() + " [" + responseTimeStamp.AsServerTimeStamp() + "]";
             errorMessage += "\nURL: " + errorInfo.url;
             errorMessage += "\nCode: " + errorInfo.responseCode;
             errorMessage += "\nMessage: " + errorInfo.message;

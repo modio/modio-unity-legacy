@@ -26,7 +26,7 @@ namespace ModIO
         private string securityCodeInput;
         // - Submission -
         private ScriptableModProfile profile;
-        private AssetBundle build;
+        private string buildFilePath;
         private EditableModfile buildProfile;
 
         // ------[ INITIALIZATION ]------
@@ -42,24 +42,7 @@ namespace ModIO
             buildProfile.version.value = "0.0.0";
         }
 
-        protected virtual void OnDisable()
-        {
-        }
-
-        // ---------[ UPDATES ]---------
-        protected virtual void OnInspectorUpdate()
-        {
-            // TODO(@jackson): Repaint once uploaded
-            // if(isRepaintRequired
-            //    || wasActiveViewDisabled != activeView.IsViewDisabled()
-            //    || wasHeaderDisabled != GetEditorHeader().IsInteractionDisabled())
-            // {
-            //     Repaint();
-            //     isRepaintRequired = false;
-            // }
-            // wasActiveViewDisabled = activeView.IsViewDisabled();
-            // wasHeaderDisabled = GetEditorHeader().IsInteractionDisabled();
-        }
+        protected virtual void OnDisable() {}
 
         // ---------[ GUI ]---------
         protected virtual void OnGUI()
@@ -214,15 +197,24 @@ namespace ModIO
                                                   typeof(ScriptableModProfile),
                                                   false) as ScriptableModProfile;
 
+            // - Build Profile -
             using(new EditorGUI.DisabledScope(profile == null))
             {
-                build = EditorGUILayout.ObjectField("Add Build",
-                                                    build,
-                                                    typeof(AssetBundle),
-                                                    false) as AssetBundle;
+                if(EditorGUILayoutExtensions.BrowseButton(buildFilePath, new GUIContent("Modfile")))
+                {
+                    EditorApplication.delayCall += () =>
+                    {
+                        // TODO(@jackson): Allow folders?
+                        string path = EditorUtility.OpenFilePanel("Set Build Location", "", "unity3d");
+                        if (path.Length != 0)
+                        {
+                            buildFilePath = path;
+                        }
+                    };
+                }
     
                 // - Build Profile -
-                using(new EditorGUI.DisabledScope(build == null))
+                using(new EditorGUI.DisabledScope(!System.IO.File.Exists(buildFilePath)))
                 {
                     // - Version -
                     EditorGUI.BeginChangeCheck();
@@ -298,10 +290,11 @@ namespace ModIO
             // Update ScriptableModProfile
             profile.modId = updatedProfile.id;
             profile.editableModProfile = EditableModProfile.CreateFromProfile(updatedProfile);
-            AssetDatabase.CreateAsset(profile, profileFilePath);
+            EditorUtility.SetDirty(profile);
+            AssetDatabase.SaveAssets();
 
             // Upload Build
-            if(build != null)
+            if(System.IO.File.Exists(buildFilePath))
             {
                 Action<WebRequestError> onSubmissionFailed = (e) =>
                 {
@@ -309,7 +302,6 @@ namespace ModIO
                     isAwaitingServerResponse = false;
                 };
 
-                string buildFilePath = AssetDatabase.GetAssetPath(build);
                 ModManager.UploadModBinary_Unzipped(profile.modId,
                                                     buildProfile,
                                                     buildFilePath,

@@ -5,7 +5,7 @@ namespace ModIO.API
     public class RequestParameters
     {
         // ---------[ STRING VALUE FIELDS ]---------
-        public List<StringValueParameter> stringValues;
+        public List<StringValueParameter> stringValues = new List<StringValueParameter>();
 
         protected void SetStringValue<T>(string key, T value)
         {
@@ -43,7 +43,7 @@ namespace ModIO.API
         }
 
         // ---------[ BINARY DATA FIELDS ]---------
-        public List<BinaryDataParameter> binaryData;
+        public List<BinaryDataParameter> binaryData = new List<BinaryDataParameter>();
 
         protected void SetBinaryData(string key, string fileName, byte[] data)
         {

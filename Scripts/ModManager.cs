@@ -612,9 +612,9 @@ namespace ModIO
 
         public static ModProfile GetModProfile(int modId)
         {
-            ModProfile modInfo;
-            modCache.TryGetValue(modId, out modInfo);
-            return modInfo;
+            ModProfile profile;
+            modCache.TryGetValue(modId, out profile);
+            return profile;
         }
 
         // TODO(@jackson): Pass other components
@@ -622,8 +622,6 @@ namespace ModIO
         {
             // - Cache -
             modCache[modProfile.id] = modProfile;
-            // modImageMap[modProfile.logoLocator] = modProfile.logo.AsImageSet();
-            // modImageMap[modProfile.logoLocator] = new ImageSet();
 
             // - Write to disk -
             string modDir = GetModDirectory(modProfile.id);

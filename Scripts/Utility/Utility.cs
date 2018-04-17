@@ -110,36 +110,6 @@ namespace ModIO
             return array;
         }
 
-        public static string[] GetSerializedPropertyStringArray(SerializedProperty arrayProperty)
-        {
-            Debug.Assert(arrayProperty.isArray);
-            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
-            
-            var retVal = new string[arrayProperty.arraySize];
-            for(int i = 0;
-                i < arrayProperty.arraySize;
-                ++i)
-            {
-                retVal[i] = arrayProperty.GetArrayElementAtIndex(i).stringValue;
-            }
-            return retVal;
-        }
-
-        public static void SetSerializedPropertyStringArray(SerializedProperty arrayProperty,
-                                                            string[] value)
-        {
-            Debug.Assert(arrayProperty.isArray);
-            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
-
-            arrayProperty.arraySize = value.Length;
-            for(int i = 0;
-                i < value.Length;
-                ++i)
-            {
-                arrayProperty.GetArrayElementAtIndex(i).stringValue = value[i];
-            }
-        }
-
         public static T[] SafeCopyArrayOrZero<T>(T[] array)
         {
             if(array == null)
@@ -267,6 +237,39 @@ namespace ModIO
     }
 
     #if UNITY_EDITOR
+    public static class EditorUtilityExtensions
+    {
+        public static string[] GetSerializedPropertyStringArray(SerializedProperty arrayProperty)
+        {
+            Debug.Assert(arrayProperty.isArray);
+            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
+            
+            var retVal = new string[arrayProperty.arraySize];
+            for(int i = 0;
+                i < arrayProperty.arraySize;
+                ++i)
+            {
+                retVal[i] = arrayProperty.GetArrayElementAtIndex(i).stringValue;
+            }
+            return retVal;
+        }
+
+        public static void SetSerializedPropertyStringArray(SerializedProperty arrayProperty,
+                                                            string[] value)
+        {
+            Debug.Assert(arrayProperty.isArray);
+            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
+
+            arrayProperty.arraySize = value.Length;
+            for(int i = 0;
+                i < value.Length;
+                ++i)
+            {
+                arrayProperty.GetArrayElementAtIndex(i).stringValue = value[i];
+            }
+        }
+    }
+
     public static class EditorGUIExtensions
     {
         public static string MultilineTextField(Rect position, string content)
