@@ -9,6 +9,7 @@ namespace ModIO
         void OnDisable();
         void OnGUI();
         void OnUpdate();
+        bool IsRepaintRequired();
     }
 }
 

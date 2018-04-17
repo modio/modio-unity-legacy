@@ -122,10 +122,10 @@ namespace ModIO
 
         public void OnDisable() {}
 
-        // ------[ ONUPDATE ]------
+        // ------[ UPDATE ]------
         public void OnUpdate() {}
 
-        // ------[ ONGUI ]------
+        // ------[ GUI ]------
         public void OnGUI()
         {
             EditorGUILayout.BeginHorizontal();
@@ -160,6 +160,11 @@ namespace ModIO
                                                                          LayoutGalleryImageProperty);
                 galleryImagesProp.FindPropertyRelative("isDirty").boolValue |= EditorGUI.EndChangeCheck();
             }
+        }
+
+        public bool IsRepaintRequired()
+        {
+            return false;
         }
 
         // - Image Locator Layouting -

@@ -48,6 +48,7 @@ namespace ModIO
             scrollPos = Vector2.zero;
             isRepaintRequired = false;
 
+            EditorApplication.update += OnUpdate;
         }
 
         protected virtual void OnDisable()
@@ -56,6 +57,8 @@ namespace ModIO
             {
                 viewPart.OnDisable();
             }
+
+            EditorApplication.update -= OnUpdate;
         }
 
         protected virtual IModProfileViewPart[] CreateProfileViewParts()
@@ -67,7 +70,7 @@ namespace ModIO
             };
         }
 
-        // ------[ ONGUI ]------
+        // ------[ GUI ]------
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -76,20 +79,22 @@ namespace ModIO
                 viewPart.OnGUI();
             }
             serializedObject.ApplyModifiedProperties();
+
+            isRepaintRequired = false;
         }
 
-        // ------[ ONUPDATE ]------
-        public virtual void OnInspectorUpdate()
+        // ------[ UPDATE ]------
+        public virtual void OnUpdate()
         {
             foreach(IModProfileViewPart viewPart in profileViewParts)
             {
                 viewPart.OnUpdate();
+                isRepaintRequired |= viewPart.IsRepaintRequired();
             }
 
             if(isRepaintRequired)
             {
                 Repaint();
-                isRepaintRequired = false;
             }
         }
     }

@@ -28,6 +28,7 @@ namespace ModIO
         private SerializedProperty editableProfileProperty;
         private ModProfile profile;
         private bool isUndoEnabled = false;
+        private bool isRepaintRequired = false;
 
         // - Logo -
         private SerializedProperty logoProperty;
@@ -75,7 +76,7 @@ namespace ModIO
             ModManager.OnModLogoUpdated -= OnModLogoUpdated;
         }
 
-        // ------[ ONUPDATE ]------
+        // ------[ UPDATE ]------
         public void OnUpdate() {}
 
         private void OnModLogoUpdated(int modId, ModLogoVersion version, Texture2D texture)
@@ -86,12 +87,15 @@ namespace ModIO
                && logoProperty.FindPropertyRelative("isDirty").boolValue == false)
             {
                 logoTexture = texture;
+                isRepaintRequired = true;
             }
         }
 
-        // ------[ ONGUI ]------
+        // ------[ GUI ]------
         public virtual void OnGUI()
         {
+            isRepaintRequired = false;
+
             LayoutNameField();
             LayoutNameIDField();
             LayoutLogoField();
@@ -105,6 +109,11 @@ namespace ModIO
 
             // LayoutModDependenciesField();
             // LayoutMetadataKVPField();
+        }
+
+        public virtual bool IsRepaintRequired()
+        {
+            return this.isRepaintRequired;
         }
 
         // ---------[ SIMPLE LAYOUT FUNCTIONS ]---------

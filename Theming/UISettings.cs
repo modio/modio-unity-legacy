@@ -27,6 +27,9 @@ namespace ModIO
         }
 
         // ------[ INNER CLASSES ]------
+        // NOTE(@jackson): In order to be used correctly, textures need to
+        //  have the Import Setting: Advanced > Read/Write Enabled checked
+        //  and Compression = None set
         [System.Serializable]
         public class PlaceholderImages
         {

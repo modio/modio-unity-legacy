@@ -771,16 +771,24 @@ namespace ModIO
 
         // TODO(@jackson): Defend
         // TODO(@jackson): Record whether completed (lest placeholder be accepted)
-        public static TextureDownload DownloadAndSaveImage(string serverURL,
-                                                           string downloadTarget,
-                                                           Texture2D placeholderTexture)
+        public static TextureDownload DownloadAndSaveImageAsPNG(string serverURL,
+                                                                string downloadFilePath,
+                                                                Texture2D placeholderTexture)
         {
+            Debug.Assert(Path.GetExtension(downloadFilePath).Equals(".png"),
+                         String.Format("Images can only be saved in PNG format."
+                                       + "\n\'{0}\' appears to be in a different format.",
+                                       downloadFilePath));
+
             var download = new TextureDownload();
 
-            serverToLocalImageURLMap[serverURL] = downloadTarget;
-            File.WriteAllBytes(downloadTarget, placeholderTexture.EncodeToPNG());
+            Directory.CreateDirectory(Path.GetDirectoryName(downloadFilePath));
+            File.WriteAllBytes(downloadFilePath, placeholderTexture.EncodeToPNG());
+
+            serverToLocalImageURLMap[serverURL] = downloadFilePath;
 
             download.sourceURL = serverURL;
+            download.OnCompleted += (d) => File.WriteAllBytes(downloadFilePath, download.texture.EncodeToPNG());
             DownloadManager.AddConcurrentDownload(download);
 
             return download;
@@ -802,10 +810,11 @@ namespace ModIO
             if(texture == null)
             {
                 texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+                filePath = GenerateModLogoFilePath(profile.id, version);
 
-                var download = DownloadAndSaveImage(serverURL,
-                                                    GenerateModLogoFilePath(profile.id, version),
-                                                    texture);
+                var download = DownloadAndSaveImageAsPNG(serverURL,
+                                                         filePath,
+                                                         texture);
                 download.OnCompleted += (d) =>
                 {
                     if(OnModLogoUpdated != null)
@@ -852,9 +861,10 @@ namespace ModIO
                             + modId + @"/" + version.ToString()
                             + @"/" + imageFileName);
 
-                var download = DownloadAndSaveImage(serverURL,
-                                                    filePath,
-                                                    texture);
+                // TODO(@jackson): Fix the filePath
+                var download = DownloadAndSaveImageAsPNG(serverURL,
+                                                         filePath,
+                                                         texture);
                 download.OnCompleted += (d) =>
                 {
                     if(OnModGalleryImageUpdated != null)
@@ -898,9 +908,11 @@ namespace ModIO
             // Download
             foreach(ModProfile profile in missingLogoProfiles)
             {
-                var download = DownloadAndSaveImage(profile.logoLocator.GetVersionSource(version),
-                                                    GenerateModLogoFilePath(profile.id, version),
-                                                    UISettings.Instance.DownloadingPlaceholderImages.modLogo);
+                string logoURL = profile.logoLocator.GetVersionSource(version);
+                string filePath = GenerateModLogoFilePath(profile.id, version);
+                var download = DownloadAndSaveImageAsPNG(logoURL,
+                                                         filePath,
+                                                         UISettings.Instance.DownloadingPlaceholderImages.modLogo);
 
                 download.OnCompleted += (d) =>
                 {
