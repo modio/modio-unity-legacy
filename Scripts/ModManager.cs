@@ -849,11 +849,16 @@ namespace ModIO
             Texture2D texture = null;
             if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
             {
+                Debug.Log(String.Format("Found cached image for [{0}] with filename {1}",
+                                        modId, imageFileName));
                 Utility.TryLoadTextureFromFile(filePath, out texture);
             }
 
             if(texture == null)
             {
+                Debug.Log(String.Format("No cached image found for [{0}] with filename {1}",
+                                        modId, imageFileName));
+
                 // TODO(@jackson): Replace with correct placeholder
                 texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
@@ -955,6 +960,7 @@ namespace ModIO
             Debug.Assert(modEdits.name.isDirty && modEdits.summary.isDirty);
             Debug.Assert(File.Exists(modEdits.logoLocator.value.source));
 
+            // - Initial Mod Submission -
             var parameters = new AddModParameters();
             parameters.name = modEdits.name.value;
             parameters.summary = modEdits.summary.value;
@@ -989,9 +995,20 @@ namespace ModIO
                 parameters.tags = modEdits.tags.value;
             }
 
+            // NOTE(@jackson): As add Mod takes more parameters than edit,
+            //  we can ignore some of the elements in the EditModParameters
+            //  when passing to SubmitModProfileComponents
+            var remainingModEdits = new EditableModProfile();
+            remainingModEdits.youtubeURLs = modEdits.youtubeURLs;
+            remainingModEdits.sketchfabURLs = modEdits.sketchfabURLs;
+            remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
+
             Client.AddMod(userData.oAuthToken,
                           parameters,
-                          result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
+                          result => SubmitModProfileComponents(ModProfile.CreateFromModObject(result),
+                                                               remainingModEdits,
+                                                               modSubmissionSucceeded,
+                                                               modSubmissionFailed),
                           modSubmissionFailed);
         }
         // TODO(@jackson): Add MKVPs, Mod Dependencies
@@ -1005,6 +1022,71 @@ namespace ModIO
             // TODO(@jackson): Defend this code
             ModProfile profile = GetModProfile(modId);
 
+            if(modEdits.status.isDirty
+               || modEdits.visibility.isDirty
+               || modEdits.name.isDirty
+               || modEdits.nameId.isDirty
+               || modEdits.summary.isDirty
+               || modEdits.description.isDirty
+               || modEdits.homepageURL.isDirty
+               || modEdits.metadataBlob.isDirty)
+            {
+                var parameters = new EditModParameters();
+                if(modEdits.status.isDirty)
+                {
+                    parameters.status = (int)modEdits.status.value;
+                }
+                if(modEdits.visibility.isDirty)
+                {
+                    parameters.visible = (int)modEdits.visibility.value;
+                }
+                if(modEdits.name.isDirty)
+                {
+                    parameters.name = modEdits.name.value;
+                }
+                if(modEdits.nameId.isDirty)
+                {
+                    parameters.name_id = modEdits.nameId.value;
+                }
+                if(modEdits.summary.isDirty)
+                {
+                    parameters.summary = modEdits.summary.value;
+                }
+                if(modEdits.description.isDirty)
+                {
+                    parameters.description = modEdits.description.value;
+                }
+                if(modEdits.homepageURL.isDirty)
+                {
+                    parameters.homepage = modEdits.homepageURL.value;
+                }
+                if(modEdits.metadataBlob.isDirty)
+                {
+                    parameters.metadata_blob = modEdits.metadataBlob.value;
+                }
+
+                Client.EditMod(userData.oAuthToken,
+                               modId, parameters,
+                               (p) => SubmitModProfileComponents(profile, modEdits,
+                                                                 modSubmissionSucceeded,
+                                                                 modSubmissionFailed),
+                               modSubmissionFailed);
+            }
+            // - Get updated ModProfile -
+            else
+            {
+                SubmitModProfileComponents(profile,
+                                           modEdits,
+                                           modSubmissionSucceeded,
+                                           modSubmissionFailed);
+            }
+        }
+
+        private static void SubmitModProfileComponents(ModProfile profile,
+                                                       EditableModProfile modEdits,
+                                                       Action<ModProfile> modSubmissionSucceeded,
+                                                       Action<WebRequestError> modSubmissionFailed)
+        {
             List<Action> submissionActions = new List<Action>();
             int nextActionIndex = 0;
             Action<MessageObject> doNextSubmissionAction = (m) =>
@@ -1015,44 +1097,7 @@ namespace ModIO
                 }
             };
 
-            if(modEdits.tags.isDirty)
-            {
-                var addedTags = new List<string>(modEdits.tags.value);
-                foreach(string tag in profile.tags)
-                {
-                    addedTags.Remove(tag);
-                }
-
-                var removedTags = new List<string>(profile.tags);
-                foreach(string tag in modEdits.tags.value)
-                {
-                    removedTags.Remove(tag);
-                }
-
-                if(addedTags.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new AddModTagsParameters();
-                        parameters.tags = addedTags.ToArray();
-                        Client.AddModTags(userData.oAuthToken,
-                                          modId, parameters,
-                                          doNextSubmissionAction, modSubmissionFailed);
-                    });
-                }
-                if(removedTags.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new DeleteModTagsParameters();
-                        parameters.tags = removedTags.ToArray();
-                        Client.DeleteModTags(userData.oAuthToken,
-                                             modId, parameters,
-                                             doNextSubmissionAction, modSubmissionFailed);
-                    });
-                }
-            }
-
+            // - Media -
             if(modEdits.logoLocator.isDirty
                || modEdits.youtubeURLs.isDirty
                || modEdits.sketchfabURLs.isDirty
@@ -1139,71 +1184,83 @@ namespace ModIO
                         deleteMediaParameters.images = removedImageFileNames.ToArray();
                     }
                 }
-            }
 
-            if(modEdits.status.isDirty
-               || modEdits.visibility.isDirty
-               || modEdits.name.isDirty
-               || modEdits.nameId.isDirty
-               || modEdits.summary.isDirty
-               || modEdits.description.isDirty
-               || modEdits.homepageURL.isDirty
-               || modEdits.metadataBlob.isDirty)
-            {
-                submissionActions.Add(() =>
+                if(addMediaParameters.stringValues.Count > 0
+                   || addMediaParameters.binaryData.Count > 0)
                 {
-                    Debug.Log("Submitting Mod Info");
-
-                    var parameters = new EditModParameters();
-                    if(modEdits.status.isDirty)
+                    submissionActions.Add(() =>
                     {
-                        parameters.status = (int)modEdits.status.value;
-                    }
-                    if(modEdits.visibility.isDirty)
-                    {
-                        parameters.visible = (int)modEdits.visibility.value;
-                    }
-                    if(modEdits.name.isDirty)
-                    {
-                        parameters.name = modEdits.name.value;
-                    }
-                    if(modEdits.nameId.isDirty)
-                    {
-                        parameters.name_id = modEdits.nameId.value;
-                    }
-                    if(modEdits.summary.isDirty)
-                    {
-                        parameters.summary = modEdits.summary.value;
-                    }
-                    if(modEdits.description.isDirty)
-                    {
-                        parameters.description = modEdits.description.value;
-                    }
-                    if(modEdits.homepageURL.isDirty)
-                    {
-                        parameters.homepage = modEdits.homepageURL.value;
-                    }
-                    if(modEdits.metadataBlob.isDirty)
-                    {
-                        parameters.metadata_blob = modEdits.metadataBlob.value;
-                    }
-
-                    Client.EditMod(userData.oAuthToken,
-                                   modId, parameters,
-                                   result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
-                                   modSubmissionFailed);
-                });
-            }
-            // - Get updated ModProfile -
-            else
-            {
-                submissionActions.Add(() =>
+                        Client.AddModMedia(userData.oAuthToken,
+                                           profile.id,
+                                           addMediaParameters,
+                                           doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
+                if(deleteMediaParameters.stringValues.Count > 0)
                 {
-                    Client.GetMod(modId,
-                                  result => modSubmissionSucceeded(ModProfile.CreateFromModObject(result)),
-                                  modSubmissionFailed);
-                });
+                    submissionActions.Add(() =>
+                    {
+                        Client.DeleteModMedia(userData.oAuthToken,
+                                              profile.id,
+                                              deleteMediaParameters,
+                                              doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
             }
+
+            // - Tags -
+            if(modEdits.tags.isDirty)
+            {
+                var addedTags = new List<string>(modEdits.tags.value);
+                foreach(string tag in profile.tags)
+                {
+                    addedTags.Remove(tag);
+                }
+
+                var removedTags = new List<string>(profile.tags);
+                foreach(string tag in modEdits.tags.value)
+                {
+                    removedTags.Remove(tag);
+                }
+
+                if(addedTags.Count > 0)
+                {
+                    submissionActions.Add(() =>
+                    {
+                        var parameters = new AddModTagsParameters();
+                        parameters.tags = addedTags.ToArray();
+                        Client.AddModTags(userData.oAuthToken,
+                                          profile.id, parameters,
+                                          doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
+                if(removedTags.Count > 0)
+                {
+                    submissionActions.Add(() =>
+                    {
+                        var parameters = new DeleteModTagsParameters();
+                        parameters.tags = removedTags.ToArray();
+                        Client.DeleteModTags(userData.oAuthToken,
+                                             profile.id, parameters,
+                                             doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
+            }
+
+            // - Metadata KVP -
+
+            // - Mod Dependencies -
+
+            // - Team Members -
+
+            // - Get Updated Profile -
+            submissionActions.Add(() => Client.GetMod(profile.id,
+                                                      (mo) =>
+                                                      {
+                                                        profile.ApplyModObjectValues(mo);
+                                                        modSubmissionSucceeded(profile);
+                                                      },
+                                                      modSubmissionFailed));
 
             // - Start submission chain -
             doNextSubmissionAction(new MessageObject());
