@@ -36,6 +36,7 @@ namespace ModIO
             ModManager.Initialize();
 
             // Grab Serialized Properties
+            serializedObject.Update();
             modIdProperty = serializedObject.FindProperty("modId");
             editableModProfileProperty = serializedObject.FindProperty("editableModProfile");
 
@@ -44,6 +45,8 @@ namespace ModIO
             // Profile Initialization
             if(modIdProperty.intValue < 0)
             {
+                profile = null;
+
                 // TODO(@jackson): Filter by editable
                 modInitializationOptionIndex = 0;
                 modList = ModManager.GetModProfiles(GetAllModsFilter.None);
@@ -53,21 +56,19 @@ namespace ModIO
                     ModProfile mod = modList[i];
                     modOptions[i] = mod.name;
                 }
-
-                profile = null;
             }
             else
             {
+                // Initialize View
                 profile = ModManager.GetModProfile(modIdProperty.intValue);
+
+                foreach(IModProfileViewPart viewPart in profileViewParts)
+                {
+                    viewPart.OnEnable(editableModProfileProperty, profile);
+                }
             }
 
-            // Initialize View
-            foreach(IModProfileViewPart viewPart in profileViewParts)
-            {
-                viewPart.OnEnable(editableModProfileProperty, profile);
-            }
             scrollPos = Vector2.zero;
-            isRepaintRequired = false;
 
             // Events
             EditorApplication.update += OnUpdate;
@@ -128,6 +129,10 @@ namespace ModIO
                     
                     smp.modId = 0;
                     smp.editableModProfile = new EditableModProfile();
+
+                    OnDisable();
+                    OnEnable();
+                    isRepaintRequired = true;
                 };
             }
 
@@ -141,18 +146,30 @@ namespace ModIO
 
             EditorGUILayout.LabelField("Load Existing Profile");
 
-            modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
-            if(GUILayout.Button("Load"))
+            if(modList.Length > 0)
             {
-                ModProfile profile = modList[modInitializationOptionIndex];
-                EditorApplication.delayCall += () =>
+                modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
+                if(GUILayout.Button("Load"))
                 {
-                    ScriptableModProfile smp = this.target as ScriptableModProfile;
-                    Undo.RecordObject(smp, "Initialize Mod Profile");
-                    
-                    smp.modId = profile.id;
-                    smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
-                };
+                    ModProfile profile = modList[modInitializationOptionIndex];
+                    EditorApplication.delayCall += () =>
+                    {
+                        ScriptableModProfile smp = this.target as ScriptableModProfile;
+                        Undo.RecordObject(smp, "Initialize Mod Profile");
+                        
+                        smp.modId = profile.id;
+                        smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
+
+                        OnDisable();
+                        OnEnable();
+                        isRepaintRequired = true;
+                    };
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("No loadable mod profiles detected.",
+                                        MessageType.Info);
             }
         }
 

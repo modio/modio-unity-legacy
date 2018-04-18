@@ -645,8 +645,7 @@ namespace ModIO
 
         public static ModProfile[] GetModProfiles(GetAllModsFilter filter)
         {
-            // return filter.FilterCollection(modCache.Values);
-            return new ModProfile[0];
+            return Utility.CollectionToArray(modCache.Values);
         }
 
         public static void DeleteAllDownloadedBinaries(int modId)
