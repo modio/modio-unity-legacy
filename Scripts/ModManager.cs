@@ -849,16 +849,11 @@ namespace ModIO
             Texture2D texture = null;
             if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
             {
-                Debug.Log(String.Format("Found cached image for [{0}] with filename {1}",
-                                        modId, imageFileName));
                 Utility.TryLoadTextureFromFile(filePath, out texture);
             }
 
             if(texture == null)
             {
-                Debug.Log(String.Format("No cached image found for [{0}] with filename {1}",
-                                        modId, imageFileName));
-
                 // TODO(@jackson): Replace with correct placeholder
                 texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 

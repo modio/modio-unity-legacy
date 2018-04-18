@@ -434,10 +434,13 @@ namespace ModIO.API
                 #if DEBUG
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
-                    Debug.Log(webRequest.method.ToUpper() + " REQUEST SUCEEDED"
-                              + "\nURL: " + webRequest.url
-                              + "\nResponse: " + webRequest.downloadHandler.text
-                              + "\n");
+                    var responseTimeStamp = TimeStamp.Now();
+                    Debug.Log(String.Format("{0} REQUEST SUCEEDED\nResponse received at: {1} [{2}]\nURL: {3}\nResponse: {4}\n",
+                                            webRequest.method.ToUpper(),
+                                            responseTimeStamp.AsLocalDateTime(),
+                                            responseTimeStamp.AsServerTimeStamp(),
+                                            webRequest.url,
+                                            webRequest.downloadHandler.text));
                 }
                 #endif
 

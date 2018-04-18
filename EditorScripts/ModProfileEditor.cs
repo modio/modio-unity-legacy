@@ -25,7 +25,10 @@ namespace ModIO
         private IModProfileViewPart[] profileViewParts;
         protected Vector2 scrollPos;
         protected bool isRepaintRequired;
-
+        // Profile Initialization
+        private int modInitializationOptionIndex;
+        private ModProfile[] modList;
+        private string[] modOptions;
 
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
@@ -36,9 +39,27 @@ namespace ModIO
             modIdProperty = serializedObject.FindProperty("modId");
             editableModProfileProperty = serializedObject.FindProperty("editableModProfile");
 
-            profile = ModManager.GetModProfile(modIdProperty.intValue);
-
             profileViewParts = CreateProfileViewParts();
+
+            // Profile Initialization
+            if(modIdProperty.intValue < 0)
+            {
+                // TODO(@jackson): Filter by editable
+                modInitializationOptionIndex = 0;
+                modList = ModManager.GetModProfiles(GetAllModsFilter.None);
+                modOptions = new string[modList.Length];
+                for(int i = 0; i < modList.Length; ++i)
+                {
+                    ModProfile mod = modList[i];
+                    modOptions[i] = mod.name;
+                }
+
+                profile = null;
+            }
+            else
+            {
+                profile = ModManager.GetModProfile(modIdProperty.intValue);
+            }
 
             // Initialize View
             foreach(IModProfileViewPart viewPart in profileViewParts)
@@ -48,6 +69,7 @@ namespace ModIO
             scrollPos = Vector2.zero;
             isRepaintRequired = false;
 
+            // Events
             EditorApplication.update += OnUpdate;
         }
 
@@ -73,14 +95,65 @@ namespace ModIO
         // ------[ GUI ]------
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
-            foreach(IModProfileViewPart viewPart in profileViewParts)
+            if(serializedObject.FindProperty("modId").intValue < 0)
             {
-                viewPart.OnGUI();
+                LayoutProfileInitialization();
             }
-            serializedObject.ApplyModifiedProperties();
+            else
+            {
+                serializedObject.Update();
+                foreach(IModProfileViewPart viewPart in profileViewParts)
+                {
+                    viewPart.OnGUI();
+                }
+                serializedObject.ApplyModifiedProperties();
+            }
 
             isRepaintRequired = false;
+        }
+
+        protected virtual void LayoutProfileInitialization()
+        {
+            EditorGUILayout.LabelField("Initialize Mod Profile");
+
+            // ---[ DISPLAY ]---
+            EditorGUILayout.Space();
+
+            if(GUILayout.Button("Create New"))
+            {
+                EditorApplication.delayCall += () =>
+                {
+                    ScriptableModProfile smp = this.target as ScriptableModProfile;
+                    Undo.RecordObject(smp, "Initialize Mod Profile");
+                    
+                    smp.modId = 0;
+                    smp.editableModProfile = new EditableModProfile();
+                };
+            }
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("---- OR ----");
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Load Existing Profile");
+
+            modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
+            if(GUILayout.Button("Load"))
+            {
+                ModProfile profile = modList[modInitializationOptionIndex];
+                EditorApplication.delayCall += () =>
+                {
+                    ScriptableModProfile smp = this.target as ScriptableModProfile;
+                    Undo.RecordObject(smp, "Initialize Mod Profile");
+                    
+                    smp.modId = profile.id;
+                    smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
+                };
+            }
         }
 
         // ------[ UPDATE ]------
