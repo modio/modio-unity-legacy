@@ -8,7 +8,7 @@ namespace ModIO.API
         {
             set
             {
-                this.SetStringArrayValue("metadata", value);
+                this.SetStringArrayValue("metadata[]", value);
             }
         }
 

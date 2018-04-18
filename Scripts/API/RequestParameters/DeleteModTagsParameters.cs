@@ -8,7 +8,7 @@ namespace ModIO.API
         {
             set
             {
-                this.SetStringArrayValue("tags", value);
+                this.SetStringArrayValue("tags[]", value);
             }
         }
 
