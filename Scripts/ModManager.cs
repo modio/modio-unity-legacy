@@ -248,6 +248,7 @@ namespace ModIO
             };
 
             Client.GetAllMods(GetAllModsFilter.All,
+                              PaginationParameters.Default,
                               addModsToCache,
                               Client.LogError);
         }
@@ -324,6 +325,7 @@ namespace ModIO
                     ProcessModEvents(modEvents);
                 };
                 Client.GetAllModEvents(eventFilter,
+                                       PaginationParameters.Default,
                                        onModEventsReceived,
                                        Client.LogError);
 
@@ -336,6 +338,7 @@ namespace ModIO
 
                     Client.GetUserSubscriptions(userData.oAuthToken,
                                                 subscriptionFilter,
+                                                PaginationParameters.Default,
                                                 UpdateSubscriptions,
                                                 Client.LogError);
                 }
@@ -559,6 +562,7 @@ namespace ModIO
 
                 Client.GetUserSubscriptions(userOAuthToken,
                                             GetUserSubscriptionsFilter.All,
+                                            PaginationParameters.Default,
                                             UpdateSubscriptions,
                                             Client.LogError);
             };
@@ -1378,6 +1382,14 @@ namespace ModIO
                                     modId, commentId,
                                     result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                     onError);
+        }
+
+        private static void CollectEntireResultSetFromQuery<T>(Action apiRequest,
+                                                               ref ObjectArray<T> results,
+                                                               ref PaginationParameters pagination
+                                                            )
+        {
+            //
         }
 
         // public static void GetAllModTeamMembers(int modId,

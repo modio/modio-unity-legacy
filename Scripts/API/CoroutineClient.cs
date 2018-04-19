@@ -31,12 +31,12 @@ namespace ModIO.API
 
         // ---------[ MOD ENDPOINTS ]---------
         // Get All Mods
-        public static IEnumerator GetAllMods(GetAllModsFilter filter,
+        public static IEnumerator GetAllMods(GetAllModsFilter filter, PaginationParameters pagination,
                                              Response<ObjectArray<ModObject>> response)
         {
             bool isDone = false;
 
-            Client.GetAllMods(filter,
+            Client.GetAllMods(filter, pagination,
                               (r) => OnSuccess(r, response, out isDone),
                               (e) => OnError(e, response, out isDone));
 

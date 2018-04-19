@@ -63,7 +63,7 @@ namespace ModIO
         // ------[ OUTPUT FUNCTIONS ]------
         public string GenerateQueryString()
         {
-            string filterString = "_sort=" + sortString;
+            string filterString = "&_sort=" + sortString;
 
             foreach(string fs in filterStringMap.Values)
             {
@@ -555,7 +555,7 @@ namespace ModIO
     // ---------[ QUERY FILTERS ]---------
     public class GetAllGamesFilter : Filter<GameProfile, GetAllGamesFilter.Field>
     {
-        public static readonly new GetAllGamesFilter None = new GetAllGamesFilter();
+        public static readonly GetAllGamesFilter None = new GetAllGamesFilter();
 
         // ---------[ FIELD MAPPING ]---------
         public enum Field
@@ -755,7 +755,7 @@ namespace ModIO
             Subscribers,
         }
 
-        public readonly static new GetAllModsFilter All = new GetAllModsFilter();
+        public static readonly GetAllModsFilter All = new GetAllModsFilter();
 
         // ---------[ FIELD MAPPING ]---------
         private static Dictionary<Field, FieldInformation> fieldInformationMap;
@@ -931,7 +931,7 @@ namespace ModIO
     //         Id,
     //     }
 
-    //     public static readonly new GetAllModfilesFilter None = new GetAllModfilesFilter();
+    //     public static readonly GetAllModfilesFilter None = new GetAllModfilesFilter();
 
     //     // ---------[ ABSTRACT IMPLEMENTATION ]---------
     //     public GetAllModfilesFilter() : base("id", (a,b) => a.id - b.id)
@@ -953,7 +953,7 @@ namespace ModIO
 
     public class GetAllModEventsFilter : Filter<ModEvent, GetAllModEventsFilter.Field>
     {
-        public static readonly new GetAllModEventsFilter None = new GetAllModEventsFilter();
+        public static readonly GetAllModEventsFilter None = new GetAllModEventsFilter();
 
         // ---------[ FIELD MAPPING ]---------
         public enum Field
@@ -1040,7 +1040,7 @@ namespace ModIO
 
     public class GetModEventFilter : Filter<ModEvent, GetModEventFilter.Field>
     {
-        public static readonly new GetModEventFilter None = new GetModEventFilter();
+        public static readonly GetModEventFilter None = new GetModEventFilter();
 
         // ---------[ FIELD MAPPING ]---------
         public enum Field
@@ -1072,7 +1072,7 @@ namespace ModIO
             Id,
         }
 
-        public static readonly new GetAllModTagsFilter None = new GetAllModTagsFilter();
+        public static readonly GetAllModTagsFilter None = new GetAllModTagsFilter();
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------
         public GetAllModTagsFilter() : base("name", (a,b) => a.name.CompareTo(b.name))
@@ -1098,7 +1098,7 @@ namespace ModIO
             Id,
         }
 
-        public static readonly new GetAllModDependenciesFilter None = new GetAllModDependenciesFilter();
+        public static readonly GetAllModDependenciesFilter None = new GetAllModDependenciesFilter();
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------
         public GetAllModDependenciesFilter() : base("id", (a,b) => a.modId - b.modId)
@@ -1121,7 +1121,7 @@ namespace ModIO
             Id,
         }
 
-        public static readonly new GetAllGameTeamMembersFilter None = new GetAllGameTeamMembersFilter();
+        public static readonly GetAllGameTeamMembersFilter None = new GetAllGameTeamMembersFilter();
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------
         public GetAllGameTeamMembersFilter() : base("id", (a,b) => a.id - b.id)
@@ -1144,7 +1144,7 @@ namespace ModIO
             Id,
         }
 
-        public static readonly new GetAllModTeamMembersFilter None = new GetAllModTeamMembersFilter();
+        public static readonly GetAllModTeamMembersFilter None = new GetAllModTeamMembersFilter();
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------
         public GetAllModTeamMembersFilter() : base("id", (a,b) => a.id - b.id)
@@ -1167,7 +1167,7 @@ namespace ModIO
             Id,
         }
 
-        public static readonly new GetAllModCommentsFilter None = new GetAllModCommentsFilter();
+        public static readonly GetAllModCommentsFilter None = new GetAllModCommentsFilter();
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------
         public GetAllModCommentsFilter() : base("id", (a,b) => a.id - b.id)
@@ -1190,7 +1190,7 @@ namespace ModIO
             Id,
         }
 
-        public static readonly new GetAllUsersFilter None = new GetAllUsersFilter();
+        public static readonly GetAllUsersFilter None = new GetAllUsersFilter();
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------
         public GetAllUsersFilter() : base("id", (a,b) => a.id - b.id)
@@ -1208,7 +1208,7 @@ namespace ModIO
 
     public class GetUserSubscriptionsFilter : Filter<ModProfile, GetUserSubscriptionsFilter.Field>
     {
-        public static readonly new GetUserSubscriptionsFilter All = new GetUserSubscriptionsFilter();
+        public static readonly GetUserSubscriptionsFilter All = new GetUserSubscriptionsFilter();
 
         // ---------[ FIELD MAPPING ]---------
         public enum Field

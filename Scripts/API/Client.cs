@@ -56,6 +56,20 @@ namespace ModIO.API
         }
     }
 
+    public class PaginationParameters
+    {
+        public const int LIMIT_MAXIMUM = 100;
+
+        public static readonly PaginationParameters Default = new PaginationParameters()
+        {
+            limit = LIMIT_MAXIMUM,
+            offset = 0,
+        };
+
+        public int limit;
+        public int offset;
+    }
+
     public static class Client
     {
         // ---------[ CONSTANTS ]---------
@@ -117,14 +131,17 @@ namespace ModIO.API
 
         // ---------[ REQUEST HANDLING ]---------
         public static UnityWebRequest GenerateQuery(string endpointURL,
-                                                    IFilter filter)
+                                                    IFilter filter,
+                                                    PaginationParameters pagination)
         {
             Debug.Assert(!String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY),
                          "Please save your game's API Key into GlobalSettings.cs before using this plugin");
 
             string queryURL = (endpointURL
                                + "?api_key=" + GlobalSettings.GAME_APIKEY
-                               + "&" + filter.GenerateQueryString());
+                               + "&_limit=" + pagination.limit
+                               + "&_offset=" + pagination.offset
+                               + filter.GenerateQueryString());
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -141,9 +158,13 @@ namespace ModIO.API
 
         public static UnityWebRequest GenerateGetRequest<T>(string endpointURL,
                                                             string oAuthToken,
-                                                            IFilter filter)
+                                                            IFilter filter,
+                                                            PaginationParameters pagination)
         {
-            string constructedURL = endpointURL + "?" + filter.GenerateQueryString();
+            string constructedURL = (endpointURL
+                                     + "?_limit=" + pagination.limit
+                                     + "&_offset=" + pagination.offset
+                                     + filter.GenerateQueryString());
             
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + oAuthToken);
@@ -524,12 +545,12 @@ namespace ModIO.API
 
         // ---------[ GAME ENDPOINTS ]---------
         // Get All Games
-        public static void GetAllGames(GetAllGamesFilter filter,
+        public static void GetAllGames(GetAllGamesFilter filter, PaginationParameters pagination,
                                        Action<ObjectArray<API.GameObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -539,7 +560,7 @@ namespace ModIO.API
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID;
             
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter());
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
             
             
 
@@ -563,12 +584,12 @@ namespace ModIO.API
 
         // ---------[ MOD ENDPOINTS ]---------
         // Get All Mods
-        public static void GetAllMods(GetAllModsFilter filter,
+        public static void GetAllMods(GetAllModsFilter filter, PaginationParameters pagination,
                                       Action<ObjectArray<ModObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -578,7 +599,7 @@ namespace ModIO.API
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
             
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter());
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
             
             
 
@@ -627,12 +648,12 @@ namespace ModIO.API
 
         // ---------[ MODFILE ENDPOINTS ]---------
         // Get All Modfiles
-        public static void GetAllModfiles(int modId, GetAllModfilesFilter filter,
+        public static void GetAllModfiles(int modId, GetAllModfilesFilter filter, PaginationParameters pagination,
                                           Action<ObjectArray<ModfileObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -642,7 +663,7 @@ namespace ModIO.API
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files/" + modfileId;
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter());
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
 
             
 
@@ -754,22 +775,22 @@ namespace ModIO.API
 
         // ---------[ EVENT ENDPOINTS ]---------
         // Get Mod Events
-        public static void GetModEvents(int modId, GetModEventFilter filter,
+        public static void GetModEvents(int modId, GetModEventFilter filter, PaginationParameters pagination,
                                         Action<ObjectArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/events";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get All Mod Events
-        public static void GetAllModEvents(GetAllModEventsFilter filter,
+        public static void GetAllModEvents(GetAllModEventsFilter filter, PaginationParameters pagination,
                                            Action<ObjectArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/events";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -781,7 +802,7 @@ namespace ModIO.API
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/tags";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter());
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -815,12 +836,12 @@ namespace ModIO.API
         }
 
         // Get All Mod Tags
-        public static void GetAllModTags(int modId, GetAllModTagsFilter filter,
+        public static void GetAllModTags(int modId, GetAllModTagsFilter filter, PaginationParameters pagination,
                                          Action<ObjectArray<ModTagObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -878,7 +899,7 @@ namespace ModIO.API
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter());
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -911,12 +932,12 @@ namespace ModIO.API
 
         // ---------[ DEPENDENCIES ENDPOINTS ]---------
         // Get All Mod Dependencies
-        public static void GetAllModDependencies(int modId, GetAllModDependenciesFilter filter,
+        public static void GetAllModDependencies(int modId, GetAllModDependenciesFilter filter, PaginationParameters pagination,
                                                  Action<ObjectArray<ModDependenciesObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -951,12 +972,12 @@ namespace ModIO.API
 
         // ---------[ TEAM ENDPOINTS ]---------
         // Get All Mod Team Members
-        public static void GetAllModTeamMembers(int modId, GetAllModTeamMembersFilter filter,
+        public static void GetAllModTeamMembers(int modId, GetAllModTeamMembersFilter filter, PaginationParameters pagination,
                                                 Action<ObjectArray<TeamMemberObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1007,12 +1028,12 @@ namespace ModIO.API
         // ---------[ COMMENT ENDPOINTS ]---------
         // Get All Mod Comments
         // NOTE(@jackson): Untested
-        public static void GetAllModComments(int modId, GetAllModCommentsFilter filter,
+        public static void GetAllModComments(int modId, GetAllModCommentsFilter filter, PaginationParameters pagination,
                                              Action<ObjectArray<CommentObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1023,7 +1044,7 @@ namespace ModIO.API
         {
             string endpointURL = API_URL + "games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments/" + commentId;
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter());
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
 
             
 
@@ -1075,12 +1096,12 @@ namespace ModIO.API
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get All Users
-        public static void GetAllUsers(GetAllUsersFilter filter,
+        public static void GetAllUsers(GetAllUsersFilter filter, PaginationParameters pagination,
                                        Action<ObjectArray<UserObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "users";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1090,7 +1111,7 @@ namespace ModIO.API
         {
             string endpointURL = API_URL + "users/" + userID;
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter());
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
 
             
 
@@ -1124,22 +1145,24 @@ namespace ModIO.API
             string endpointURL = API_URL + "me";
 
             UnityWebRequest webRequest = Client.GenerateGetRequest<UserObject>(endpointURL,
-                                                                                            oAuthToken,
-                                                                                            new EmptyFilter());
+                                                                               oAuthToken,
+                                                                               new EmptyFilter(),
+                                                                               PaginationParameters.Default);
             
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get User Subscriptions
         public static void GetUserSubscriptions(string oAuthToken,
-                                                GetUserSubscriptionsFilter filter,
+                                                GetUserSubscriptionsFilter filter, PaginationParameters pagination,
                                                 Action<ObjectArray<ModObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "me/subscribed";
 
             UnityWebRequest webRequest = Client.GenerateGetRequest<ObjectArray<ModObject>>(endpointURL,
-                                                                                             oAuthToken,
-                                                                                             filter);
+                                                                                           oAuthToken,
+                                                                                           filter,
+                                                                                           pagination);
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get User Games
@@ -1149,31 +1172,36 @@ namespace ModIO.API
             string endpointURL = API_URL + "me/games";
 
             UnityWebRequest webRequest = Client.GenerateGetRequest<ObjectArray<API.GameObject>>(endpointURL,
-                                                                                              oAuthToken,
-                                                                                              new EmptyFilter());
+                                                                                                oAuthToken,
+                                                                                                new EmptyFilter(),
+                                                                                                PaginationParameters.Default);
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get User Mods
         public static void GetUserMods(string oAuthToken,
+                                       PaginationParameters pagination,
                                        Action<ObjectArray<ModObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "me/mods";
 
             UnityWebRequest webRequest = Client.GenerateGetRequest<ObjectArray<ModObject>>(endpointURL,
-                                                                                             oAuthToken,
-                                                                                             new EmptyFilter());
+                                                                                           oAuthToken,
+                                                                                           new EmptyFilter(),
+                                                                                           pagination);
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get User Files
         public static void GetUserModfiles(string oAuthToken,
+                                           PaginationParameters pagination,
                                            Action<ObjectArray<ModfileObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "me/files";
 
             UnityWebRequest webRequest = Client.GenerateGetRequest<ObjectArray<ModfileObject>>(endpointURL,
-                                                                                                 oAuthToken,
-                                                                                                 new EmptyFilter());
+                                                                                               oAuthToken,
+                                                                                               new EmptyFilter(),
+                                                                                               pagination);
             Client.SendRequest(webRequest, successCallback, errorCallback);
-            }
+        }
     }
 }
