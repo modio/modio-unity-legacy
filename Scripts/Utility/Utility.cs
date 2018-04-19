@@ -321,6 +321,7 @@ namespace ModIO
             }
         }
 
+        // TODO(@jackson): Add a clear button
         public static bool BrowseButton(string path, GUIContent label)
         {
             bool doBrowse = false;

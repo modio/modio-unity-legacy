@@ -41,6 +41,7 @@ namespace ModIO
             public TimeStamp lastUpdateTimeStamp;
             public List<ModEvent> unresolvedEvents;
             public GameProfile gameProfile;
+            public List<string> serializedImageCache;
         }
 
         // ---------[ VARIABLES ]---------
@@ -89,6 +90,7 @@ namespace ModIO
             LoadCacheFromDisk();
             FetchAndCacheGameProfile();
             FetchAndCacheAllMods();
+
         }
 
         private static void LoadCacheFromDisk()
@@ -114,8 +116,29 @@ namespace ModIO
                     manifest = new ManifestData();
                     manifest.lastUpdateTimeStamp = new TimeStamp();
                     manifest.unresolvedEvents = new List<ModEvent>();
+                    manifest.serializedImageCache = new List<string>();
 
                     WriteManifestToDisk();
+                }
+
+                // Attempt to load imageCache
+                serverToLocalImageURLMap = new Dictionary<string, string>();
+                int i = 0;
+                while(i < manifest.serializedImageCache.Count)
+                {
+                    string[] imageLocation = manifest.serializedImageCache[i].Split('*');
+                    if(imageLocation.Length != 2
+                       || String.IsNullOrEmpty(imageLocation[0])
+                       || String.IsNullOrEmpty(imageLocation[1])
+                       || !File.Exists(imageLocation[1]))
+                    {
+                        manifest.serializedImageCache.RemoveAt(i);
+                    }
+                    else
+                    {
+                        serverToLocalImageURLMap.Add(imageLocation[0], imageLocation[1]);
+                        ++i;
+                    }
                 }
 
                 // Attempt to load user
@@ -749,7 +772,7 @@ namespace ModIO
         public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
         public static event ModGalleryImageUpdatedEventHandler OnModGalleryImageUpdated;
         
-        private static Dictionary<string, string> serverToLocalImageURLMap = new Dictionary<string, string>();
+        private static Dictionary<string, string> serverToLocalImageURLMap;
 
         public static string GenerateModLogoFilePath(int modId, ModLogoVersion version)
         {
@@ -787,7 +810,12 @@ namespace ModIO
             serverToLocalImageURLMap[serverURL] = downloadFilePath;
 
             download.sourceURL = serverURL;
-            download.OnCompleted += (d) => File.WriteAllBytes(downloadFilePath, download.texture.EncodeToPNG());
+            download.OnCompleted += (d) =>
+            {
+                File.WriteAllBytes(downloadFilePath, download.texture.EncodeToPNG());
+                manifest.serializedImageCache.Add(serverURL + "*" + downloadFilePath);
+                WriteManifestToDisk();
+            };
             DownloadManager.AddConcurrentDownload(download);
 
             return download;
