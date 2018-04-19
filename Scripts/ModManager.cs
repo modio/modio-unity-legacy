@@ -247,7 +247,7 @@ namespace ModIO
                 }
             };
 
-            Client.GetAllMods(GetAllModsFilter.None,
+            Client.GetAllMods(GetAllModsFilter.All,
                               addModsToCache,
                               Client.LogError);
         }
@@ -558,7 +558,7 @@ namespace ModIO
                 onSuccess(userData.userProfile);
 
                 Client.GetUserSubscriptions(userOAuthToken,
-                                            GetUserSubscriptionsFilter.None,
+                                            GetUserSubscriptionsFilter.All,
                                             UpdateSubscriptions,
                                             Client.LogError);
             };

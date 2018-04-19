@@ -6,19 +6,17 @@ using UnityEngine;
 namespace ModIO
 {
     // ---------[ BASE CLASSES ]---------
-    public class Filter
+    public interface IFilter
     {
-        public readonly static Filter None = new Filter();
-
-        protected int limit = 20;
-
-        public virtual string GenerateQueryString()
-        {
-            return "_limit=" + limit;
-        }
+        string GenerateQueryString();
     }
 
-    public abstract class Filter<T,E> : Filter
+    public class EmptyFilter : IFilter
+    {
+        public string GenerateQueryString() { return ""; }
+    }
+
+    public abstract class Filter<T,E> : IFilter
     {
         internal delegate int SortDelegate(T a, T b);
         internal delegate T_Field GetFieldDelegate<T_Field>(T o);
@@ -63,10 +61,9 @@ namespace ModIO
         internal abstract FieldInformation GetFieldInformation(E fieldIdentifier);
 
         // ------[ OUTPUT FUNCTIONS ]------
-        public override string GenerateQueryString()
+        public string GenerateQueryString()
         {
-            string filterString = "_limit=" + limit;
-            filterString += "&_sort=" + sortString;
+            string filterString = "_sort=" + sortString;
 
             foreach(string fs in filterStringMap.Values)
             {
@@ -102,17 +99,8 @@ namespace ModIO
 
             filteredList.Sort(sortDelegate);
 
-            T[] retVal;
-
-            if(filteredList.Count <= limit)
-            {
-                retVal = filteredList.ToArray();
-            }
-            else
-            {
-                retVal = new T[limit];
-                filteredList.CopyTo(0, retVal, 0, limit);
-            }
+            T[] retVal = new T[filteredList.Count];
+            filteredList.CopyTo(0, retVal, 0, filteredList.Count);
 
             return retVal;
         }
@@ -767,7 +755,7 @@ namespace ModIO
             Subscribers,
         }
 
-        public readonly static new GetAllModsFilter None = new GetAllModsFilter();
+        public readonly static new GetAllModsFilter All = new GetAllModsFilter();
 
         // ---------[ FIELD MAPPING ]---------
         private static Dictionary<Field, FieldInformation> fieldInformationMap;
@@ -958,7 +946,10 @@ namespace ModIO
 
     //     internal override FieldInformation GetFieldInformation(GetAllModfilesFilter.Field fieldIdentifier) { return null; }
     // }
-    public class GetAllModfilesFilter : Filter {}
+    public class GetAllModfilesFilter : IFilter
+    {
+        public string GenerateQueryString() { return ""; }
+    }
 
     public class GetAllModEventsFilter : Filter<ModEvent, GetAllModEventsFilter.Field>
     {
@@ -1217,7 +1208,7 @@ namespace ModIO
 
     public class GetUserSubscriptionsFilter : Filter<ModProfile, GetUserSubscriptionsFilter.Field>
     {
-        public static readonly new GetUserSubscriptionsFilter None = new GetUserSubscriptionsFilter();
+        public static readonly new GetUserSubscriptionsFilter All = new GetUserSubscriptionsFilter();
 
         // ---------[ FIELD MAPPING ]---------
         public enum Field
