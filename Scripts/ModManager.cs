@@ -89,8 +89,8 @@ namespace ModIO
 
             LoadCacheFromDisk();
             FetchAndCacheGameProfile();
-            FetchAndCacheAllMods();
-
+            FetchAllModObjects(ApplyModObjectsToCache,
+                               Client.LogError);
         }
 
         private static void LoadCacheFromDisk()
@@ -194,63 +194,99 @@ namespace ModIO
             Client.GetGame(cacheGameProfile, null);
         }
 
-        private static void FetchAndCacheAllMods()
+        private static void FetchAllModObjects(Action<List<ModObject>> onSuccess,
+                                               Action<WebRequestError> onError)
         {
-            Action<ObjectArray<ModObject>> addModsToCache = (modObjects) =>
+            var pagination = new PaginationParameters()
             {
-                // TODO(@jackson): Implement mod is unavailable
-                // TODO(@jackson): Check for modfile change
-
-                manifest.lastUpdateTimeStamp = TimeStamp.Now();
-                WriteManifestToDisk();
-
-                var profiles = new List<ModProfile>(modObjects.data.Length);
-                foreach(ModObject modObject in modObjects.data)
-                {
-                    ModProfile profile = ModProfile.CreateFromModObject(modObject);
-                    profiles.Add(profile);
-                }
-
-                List<ModProfile> updatedMods = new List<ModProfile>();
-                List<ModProfile> addedMods = new List<ModProfile>();
-
-                foreach(ModProfile profile in profiles)
-                {
-                    ModProfile cachedMod;
-                    if(modCache.TryGetValue(profile.id, out cachedMod)
-                       && !cachedMod.Equals(profile))
-                    {
-                        StoreModData(profile);
-                        updatedMods.Add(profile);
-                    }
-                    else
-                    {
-                        StoreModData(profile);
-                        addedMods.Add(profile);
-                    }
-                }
-
-                if(OnModAdded != null)
-                {
-                    foreach(ModProfile mod in addedMods)
-                    {
-                        OnModAdded(mod);
-                    }
-                }
-
-                if(OnModUpdated != null)
-                {
-                    foreach(ModProfile mod in updatedMods)
-                    {
-                        OnModUpdated(mod.id);
-                    }
-                }
+                limit = PaginationParameters.LIMIT_MAX,
+                offset = 0,
             };
 
+            var modObjectResults = new List<ModObject>();
+
             Client.GetAllMods(GetAllModsFilter.All,
-                              PaginationParameters.Default,
-                              addModsToCache,
-                              Client.LogError);
+                              pagination,
+                              (r) => FetchModsRecursively(r,
+                                                          pagination,
+                                                          modObjectResults,
+                                                          onSuccess,
+                                                          onError),
+                              onError);
+        }
+
+        private static void FetchModsRecursively(ObjectArray<ModObject> previousResult,
+                                                 PaginationParameters pagination,
+                                                 List<ModObject> modObjectResults,
+                                                 Action<List<ModObject>> onSuccess,
+                                                 Action<WebRequestError> onError)
+        {
+            Debug.Assert(pagination.limit > 0);
+
+            modObjectResults.AddRange(previousResult.data);
+                
+            if(previousResult.result_count < previousResult.result_limit)
+            {
+                // we done
+                onSuccess(modObjectResults);
+            }
+            else
+            {
+                pagination.offset += pagination.limit;
+
+                Client.GetAllMods(GetAllModsFilter.All,
+                                  pagination,
+                                  (r) => FetchModsRecursively(r,
+                                                              pagination,
+                                                              modObjectResults,
+                                                              onSuccess,
+                                                              onError),
+                                  onError);
+            }
+        }
+
+        private static void ApplyModObjectsToCache(List<ModObject> modObjects)
+        {
+            // TODO(@jackson): Implement mod is unavailable
+            // TODO(@jackson): Check for modfile change
+
+            manifest.lastUpdateTimeStamp = TimeStamp.Now();
+            WriteManifestToDisk();
+
+            var addedMods = new List<ModProfile>();
+            var updatedMods = new List<ModProfile>();
+            foreach(ModObject modObject in modObjects)
+            {
+                ModProfile profile;
+                if(modCache.TryGetValue(modObject.id, out profile))
+                {
+                    updatedMods.Add(profile);
+                }
+                else
+                {
+                    profile = new ModProfile();
+                    addedMods.Add(profile);
+                }
+
+                profile.ApplyModObjectValues(modObject);
+                StoreModData(profile);
+            }
+
+            if(OnModAdded != null)
+            {
+                foreach(ModProfile profile in addedMods)
+                {
+                    OnModAdded(profile);
+                }
+            }
+
+            if(OnModUpdated != null)
+            {
+                foreach(ModProfile profile in updatedMods)
+                {
+                    OnModUpdated(profile.id);
+                }
+            }
         }
 
         // ---------[ AUTOMATED UPDATING ]---------
@@ -1382,14 +1418,6 @@ namespace ModIO
                                     modId, commentId,
                                     result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                     onError);
-        }
-
-        private static void CollectEntireResultSetFromQuery<T>(Action apiRequest,
-                                                               ref ObjectArray<T> results,
-                                                               ref PaginationParameters pagination
-                                                            )
-        {
-            //
         }
 
         // public static void GetAllModTeamMembers(int modId,

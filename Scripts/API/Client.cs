@@ -58,11 +58,11 @@ namespace ModIO.API
 
     public class PaginationParameters
     {
-        public const int LIMIT_MAXIMUM = 100;
+        public const int LIMIT_MAX = 100;
 
         public static readonly PaginationParameters Default = new PaginationParameters()
         {
-            limit = LIMIT_MAXIMUM,
+            limit = LIMIT_MAX,
             offset = 0,
         };
 
