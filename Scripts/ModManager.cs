@@ -317,11 +317,11 @@ namespace ModIO
                     GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
                     subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
 
-                    Client.GetUserSubscriptions(userData.oAuthToken,
-                                                subscriptionFilter,
-                                                PaginationParameters.Default,
-                                                UpdateSubscriptions,
-                                                Client.LogError);
+                    FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userData.oAuthToken,
+                                                                                            subscriptionFilter,
+                                                                                            p, s, e),
+                                                        UpdateUserSubscriptions,
+                                                        Client.LogError);
                 }
             }
         }
@@ -458,31 +458,25 @@ namespace ModIO
             }
         }
 
-        private static void UpdateSubscriptions(ObjectArray<ModObject> modObjectArray)
+        private static void UpdateUserSubscriptions(List<ModObject> userSubscriptions)
         {
             if(userData == null) { return; }
 
-            var subscribedMods = new List<ModProfile>(modObjectArray.data.Length);
-            foreach(ModObject modObject in modObjectArray.data)
-            {
-                subscribedMods.Add(ModProfile.CreateFromModObject(modObject));
-            }
-
             List<int> addedMods = new List<int>();
-            List<int> removedMods = new List<int>(userData.subscribedModIDs);
-            userData.subscribedModIDs = new List<int>(subscribedMods.Count);
+            List<int> removedMods = userData.subscribedModIDs;
+            userData.subscribedModIDs = new List<int>(userSubscriptions.Count);
 
-            foreach(ModProfile mod in subscribedMods)
+            foreach(ModObject modObject in userSubscriptions)
             {
-                userData.subscribedModIDs.Add(mod.id);
+                userData.subscribedModIDs.Add(modObject.id);
 
-                if(removedMods.Contains(mod.id))
+                if(removedMods.Contains(modObject.id))
                 {
-                    removedMods.Remove(mod.id);
+                    removedMods.Remove(modObject.id);
                 }
                 else
                 {
-                    addedMods.Add(mod.id);
+                    addedMods.Add(modObject.id);
                 }
             }
 
@@ -541,11 +535,14 @@ namespace ModIO
 
                 onSuccess(userData.userProfile);
 
-                Client.GetUserSubscriptions(userOAuthToken,
-                                            GetUserSubscriptionsFilter.All,
-                                            PaginationParameters.Default,
-                                            UpdateSubscriptions,
-                                            Client.LogError);
+                GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
+                subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
+                                    
+                FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userData.oAuthToken,
+                                                                                        subscriptionFilter,
+                                                                                        p, s, e),
+                                                    UpdateUserSubscriptions,
+                                                    Client.LogError);
             };
 
             Client.GetAuthenticatedUser(userOAuthToken,
