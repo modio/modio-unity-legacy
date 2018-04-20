@@ -89,8 +89,9 @@ namespace ModIO
 
             LoadCacheFromDisk();
             FetchAndCacheGameProfile();
-            FetchAllModObjects(ApplyModObjectsToCache,
-                               Client.LogError);
+            FetchAllResultsForQuery<ModObject>((p,s,e) => Client.GetAllMods(GetAllModsFilter.All, p, s, e),
+                                               ApplyModObjectsToCache,
+                                               Client.LogError);
         }
 
         private static void LoadCacheFromDisk()
@@ -194,57 +195,6 @@ namespace ModIO
             };
 
             Client.GetGame(cacheGameProfile, null);
-        }
-
-        private static void FetchAllModObjects(Action<List<ModObject>> onSuccess,
-                                               Action<WebRequestError> onError)
-        {
-            var pagination = new PaginationParameters()
-            {
-                limit = PaginationParameters.LIMIT_MAX,
-                offset = 0,
-            };
-
-            var modObjectResults = new List<ModObject>();
-
-            Client.GetAllMods(GetAllModsFilter.All,
-                              pagination,
-                              (r) => FetchModsRecursively(r,
-                                                          pagination,
-                                                          modObjectResults,
-                                                          onSuccess,
-                                                          onError),
-                              onError);
-        }
-
-        private static void FetchModsRecursively(ObjectArray<ModObject> previousResult,
-                                                 PaginationParameters pagination,
-                                                 List<ModObject> modObjectResults,
-                                                 Action<List<ModObject>> onSuccess,
-                                                 Action<WebRequestError> onError)
-        {
-            Debug.Assert(pagination.limit > 0);
-
-            modObjectResults.AddRange(previousResult.data);
-                
-            if(previousResult.result_count < previousResult.result_limit)
-            {
-                // we done
-                onSuccess(modObjectResults);
-            }
-            else
-            {
-                pagination.offset += pagination.limit;
-
-                Client.GetAllMods(GetAllModsFilter.All,
-                                  pagination,
-                                  (r) => FetchModsRecursively(r,
-                                                              pagination,
-                                                              modObjectResults,
-                                                              onSuccess,
-                                                              onError),
-                                  onError);
-            }
         }
 
         private static void ApplyModObjectsToCache(List<ModObject> modObjects)
@@ -352,14 +302,13 @@ namespace ModIO
                 eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest,
                                            true);
 
-
-                FetchAllModEventObjects(eventFilter,
-                                        (r) =>
-                                        {
-                                            ProcessModEvents(r);
-                                            manifest.lastUpdateTimeStamp = untilTimeStamp;
-                                        },
-                                        Client.LogError);
+                FetchAllResultsForQuery<EventObject>((p, s, e) => Client.GetAllModEvents(eventFilter, p, s, e),
+                                                     (r) =>
+                                                     {
+                                                        ProcessModEvents(r);
+                                                        manifest.lastUpdateTimeStamp = untilTimeStamp;
+                                                     },
+                                                     Client.LogError);
 
                 // TODO(@jackson): Replace with Event Polling
                 // - Get Subscription Updates -
@@ -374,61 +323,6 @@ namespace ModIO
                                                 UpdateSubscriptions,
                                                 Client.LogError);
                 }
-            }
-        }
-
-        private static void FetchAllModEventObjects(GetAllModEventsFilter filter,
-                                                    Action<List<EventObject>> onSuccess,
-                                                    Action<WebRequestError> onError)
-        {
-            var pagination = new PaginationParameters()
-            {
-                limit = PaginationParameters.LIMIT_MAX,
-                offset = 0,
-            };
-
-            var eventObjectResults = new List<EventObject>();
-
-            Client.GetAllModEvents(filter,
-                                   pagination,
-                                   (r) => FetchModEventsRecursively(r,
-                                                                    filter,
-                                                                    pagination,
-                                                                    eventObjectResults,
-                                                                    onSuccess,
-                                                                    onError),
-                                   onError);
-        }
-
-        private static void FetchModEventsRecursively(ObjectArray<EventObject> previousResult,
-                                                      GetAllModEventsFilter filter,
-                                                      PaginationParameters pagination,
-                                                      List<EventObject> eventObjectResults,
-                                                      Action<List<EventObject>> onSuccess,
-                                                      Action<WebRequestError> onError)
-        {
-            Debug.Assert(pagination.limit > 0);
-
-            eventObjectResults.AddRange(previousResult.data);
-
-            if(previousResult.result_count < previousResult.result_limit)
-            {
-                onSuccess(eventObjectResults);
-            }
-            else
-            {
-                pagination.offset += pagination.limit;
-
-                Client.GetAllModEvents(filter,
-                                       pagination,
-                                       (r) => FetchModEventsRecursively(r,
-                                                                        filter,
-                                                                        pagination,
-                                                                        eventObjectResults,
-                                                                        onSuccess,
-                                                                        onError),
-                                       onError);
-
             }
         }
 
@@ -1469,6 +1363,62 @@ namespace ModIO
                                     modId, commentId,
                                     result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                     onError);
+        }
+
+        public delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
+                                                    Action<ObjectArray<T>> onSuccess,
+                                                    Action<WebRequestError> onError);
+
+        public static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
+                                                      Action<List<T>> onSuccess,
+                                                      Action<WebRequestError> onError)
+        {
+            var pagination = new PaginationParameters()
+            {
+                limit = PaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            var results = new List<T>();
+
+            query(pagination,
+                  (r) => FetchQueryResultsRecursively(query,
+                                                      r,
+                                                      pagination,
+                                                      results,
+                                                      onSuccess,
+                                                      onError),
+                  onError);
+        }
+
+        private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
+                                                            ObjectArray<T> queryResult,
+                                                            PaginationParameters pagination,
+                                                            List<T> culmativeResults,
+                                                            Action<List<T>> onSuccess,
+                                                            Action<WebRequestError> onError)
+        {
+            Debug.Assert(pagination.limit > 0);
+
+            culmativeResults.AddRange(queryResult.data);
+
+            if(queryResult.result_count < queryResult.result_limit)
+            {
+                onSuccess(culmativeResults);
+            }
+            else
+            {
+                pagination.offset += pagination.limit;
+
+                query(pagination,
+                      (r) => FetchQueryResultsRecursively(query,
+                                                          queryResult,
+                                                          pagination,
+                                                          culmativeResults,
+                                                          onSuccess,
+                                                          onError),
+                      onError);
+            }
         }
 
         // public static void GetAllModTeamMembers(int modId,
