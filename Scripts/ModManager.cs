@@ -105,6 +105,7 @@ namespace ModIO
                 manifest = new ManifestData();
                 manifest.lastUpdateTimeStamp = new TimeStamp();
                 manifest.unresolvedEvents = new List<ModEvent>();
+                manifest.gameProfile = new GameProfile();
 
                 WriteManifestToDisk();
             }
@@ -117,6 +118,7 @@ namespace ModIO
                     manifest.lastUpdateTimeStamp = new TimeStamp();
                     manifest.unresolvedEvents = new List<ModEvent>();
                     manifest.serializedImageCache = new List<string>();
+                    manifest.gameProfile = new GameProfile();
 
                     WriteManifestToDisk();
                 }
@@ -187,7 +189,7 @@ namespace ModIO
         {
             Action<API.GameObject> cacheGameProfile = (gameObject) =>
             {
-                manifest.gameProfile = GameProfile.CreateFromGameObject(gameObject);
+                manifest.gameProfile.ApplyGameObjectValues(gameObject);
                 WriteManifestToDisk();
             };
 
@@ -350,20 +352,14 @@ namespace ModIO
                 eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest,
                                            true);
 
-                Action<ObjectArray<EventObject>> onModEventsReceived = (eventObjectArray) =>
-                {
-                    manifest.lastUpdateTimeStamp = untilTimeStamp;
-                    var modEvents = new ModEvent[eventObjectArray.data.Length];
-                    for(int i = 0; i < eventObjectArray.data.Length; ++i)
-                    {
-                        modEvents[i] = ModEvent.CreateFromEventObject(eventObjectArray.data[i]);
-                    }
-                    ProcessModEvents(modEvents);
-                };
-                Client.GetAllModEvents(eventFilter,
-                                       PaginationParameters.Default,
-                                       onModEventsReceived,
-                                       Client.LogError);
+
+                FetchAllModEventObjects(eventFilter,
+                                        (r) =>
+                                        {
+                                            ProcessModEvents(r);
+                                            manifest.lastUpdateTimeStamp = untilTimeStamp;
+                                        },
+                                        Client.LogError);
 
                 // TODO(@jackson): Replace with Event Polling
                 // - Get Subscription Updates -
@@ -381,7 +377,62 @@ namespace ModIO
             }
         }
 
-        private static void ProcessModEvents(ModEvent[] eventArray)
+        private static void FetchAllModEventObjects(GetAllModEventsFilter filter,
+                                                    Action<List<EventObject>> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            var pagination = new PaginationParameters()
+            {
+                limit = PaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            var eventObjectResults = new List<EventObject>();
+
+            Client.GetAllModEvents(filter,
+                                   pagination,
+                                   (r) => FetchModEventsRecursively(r,
+                                                                    filter,
+                                                                    pagination,
+                                                                    eventObjectResults,
+                                                                    onSuccess,
+                                                                    onError),
+                                   onError);
+        }
+
+        private static void FetchModEventsRecursively(ObjectArray<EventObject> previousResult,
+                                                      GetAllModEventsFilter filter,
+                                                      PaginationParameters pagination,
+                                                      List<EventObject> eventObjectResults,
+                                                      Action<List<EventObject>> onSuccess,
+                                                      Action<WebRequestError> onError)
+        {
+            Debug.Assert(pagination.limit > 0);
+
+            eventObjectResults.AddRange(previousResult.data);
+
+            if(previousResult.result_count < previousResult.result_limit)
+            {
+                onSuccess(eventObjectResults);
+            }
+            else
+            {
+                pagination.offset += pagination.limit;
+
+                Client.GetAllModEvents(filter,
+                                       pagination,
+                                       (r) => FetchModEventsRecursively(r,
+                                                                        filter,
+                                                                        pagination,
+                                                                        eventObjectResults,
+                                                                        onSuccess,
+                                                                        onError),
+                                       onError);
+
+            }
+        }
+
+        private static void ProcessModEvents(List<EventObject> modEventObjects)
         {
             // - ModProfile Processing Options -
             Action<ModEvent> processModAvailable = (modEvent) =>
@@ -438,7 +489,6 @@ namespace ModIO
                 Client.GetMod(modEvent.modId, onGetMod, Client.LogError);
             };
 
-
             Action<ModEvent> processModfileChange = (modEvent) =>
             {
                 ModProfile profile = GetModProfile(modEvent.modId);
@@ -469,10 +519,11 @@ namespace ModIO
                 }
             };
 
-
             // - Handle ModProfile Event -
-            foreach(ModEvent modEvent in eventArray)
+            foreach(EventObject eventObject in modEventObjects)
             {
+                var modEvent = ModEvent.CreateFromEventObject(eventObject);
+
                 string eventSummary = "TimeStamp (Local)=" + modEvent.dateAdded.AsLocalDateTime();
                 eventSummary += "\nMod=" + modEvent.modId;
                 eventSummary += "\nEventType=" + modEvent.eventType.ToString();
