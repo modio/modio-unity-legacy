@@ -56,19 +56,19 @@ namespace ModIO
         {
             switch(apiObjectValue.ToUpper())
             {
-                case "MOD_AVAILABLE":
+                case APIOBJECT_TYPESTRING_MODAVAILABLE:
                 {
                     return ModEventType.ModAvailable;
                 }
-                case "MOD_UNAVAILABLE":
+                case APIOBJECT_TYPESTRING_MODUNAVAILABLE:
                 {
                     return ModEventType.ModUnavailable;
                 }
-                case "MOD_EDITED":
+                case APIOBJECT_TYPESTRING_MODEDITED:
                 {
                     return ModEventType.ModEdited;
                 }
-                case "MODFILE_CHANGED":
+                case APIOBJECT_TYPESTRING_MODFILECHANGED:
                 {
                     return ModEventType.ModfileChanged;
                 }
@@ -85,19 +85,19 @@ namespace ModIO
             {
                 case ModEventType.ModAvailable:
                 {
-                    return "MOD_AVAILABLE";
+                    return APIOBJECT_TYPESTRING_MODAVAILABLE;
                 }
                 case ModEventType.ModUnavailable:
                 {
-                    return "MOD_UNAVAILABLE";
+                    return APIOBJECT_TYPESTRING_MODUNAVAILABLE;
                 }
                 case ModEventType.ModEdited:
                 {
-                    return "MOD_EDITED";
+                    return APIOBJECT_TYPESTRING_MODEDITED;
                 }
                 case ModEventType.ModfileChanged:
                 {
-                    return "MODFILE_CHANGED";
+                    return APIOBJECT_TYPESTRING_MODFILECHANGED;
                 }
                 default:
                 {

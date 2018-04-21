@@ -1206,6 +1206,93 @@ namespace ModIO
         internal override FieldInformation GetFieldInformation(GetAllUsersFilter.Field fieldIdentifier) { return null; }
     }
 
+    public class GetUserEventsFilter : Filter<UserEvent, GetUserEventsFilter.Field>
+    {
+        public static readonly GetUserEventsFilter None = new GetUserEventsFilter();
+
+        // ---------[ FIELD MAPPING ]---------
+        public enum Field
+        {
+            // Unique id of the activity object.
+            Id,
+            // Unique id of the parent mod.
+            ModId,
+            // Unique id of the user who performed the action.
+            UserId,
+            // Unix timestamp of date mod was updated.
+            DateAdded,
+            // Type of change that occurred: MOD_UPDATE, MODFILE_UPDATE, MOD_VISIBILITY_CHANGE, MOD_LIVE
+            EventType,
+            // Returns only the latest unique events, which is useful for checking if the primary modfile has changed.
+            // Default value is true.
+            Latest,
+            // Returns only events connected to mods the authenticated user is subscribed to, which is useful for keeping the users mods up-to-date.
+            // Default value is false.
+            Subscribed,
+        }
+
+        private static Dictionary<Field, FieldInformation> fieldInformationMap;
+
+        static GetUserEventsFilter()
+        {
+            fieldInformationMap = new Dictionary<Field, FieldInformation>(Enum.GetNames(typeof(Field)).Length);
+
+            StoreIntField(fieldInformationMap,
+                          Field.Id, "id",
+                          (e) => e.id,
+                          (a,b) => a.id.CompareTo(b.id));
+            StoreIntField(fieldInformationMap,
+                          Field.ModId, "mod_id",
+                          (e) => e.modId,
+                          (a,b) => a.modId.CompareTo(b.modId));
+            StoreIntField(fieldInformationMap,
+                          Field.UserId, "user_id",
+                          (e) => e.userId,
+                          (a,b) => a.userId.CompareTo(b.userId));
+            StoreIntField(fieldInformationMap,
+                          Field.DateAdded, "date_added",
+                          (e) => e.dateAdded.AsServerTimeStamp(),
+                          (a,b) => a.dateAdded.CompareTo(b.dateAdded));
+            
+            StoreStringField(fieldInformationMap,
+                             Field.EventType, "event_type",
+                             (e) => UserEvent.EventTypeToAPIString(e.eventType),
+                             (a,b) => a.eventType.CompareTo(b.eventType));
+
+            StoreBooleanField(fieldInformationMap,
+                              Field.Latest, "latest",
+                              (e) => { Debug.LogError("Filtering on latest locally is currently not implemented"); return false; },
+                              (a,b) => { Debug.LogWarning("Sorting on latest locally is currently not implemented"); return a.id.CompareTo(b.id); });
+            StoreBooleanField(fieldInformationMap,
+                              Field.Subscribed, "subscribed",
+                              (e) => { Debug.LogError("Filtering on subscribed locally is currently not implemented"); return false; },
+                              (a,b) => { Debug.LogWarning("Sorting on subscribed locally is currently not implemented"); return a.id.CompareTo(b.id); });
+        }
+
+        // ---------[ ABSTRACT IMPLEMENTATION ]---------
+        public GetUserEventsFilter() : base("id", (a,b) => a.id - b.id)
+        {
+
+        }
+
+        public override void ResetSorting()
+        {
+            sortString = "id";
+            sortDelegate = (a,b) => { return a.id.CompareTo(b.id); };
+        }
+
+        internal override FieldInformation GetFieldInformation(GetUserEventsFilter.Field fieldIdentifier)
+        {
+            return GetUserEventsFilter.fieldInformationMap[fieldIdentifier];
+        }
+
+        // ---[ SPECIALIZED FILTERS ]---
+        public void ApplyEventType(UserEventType eventType)
+        {
+            base.ApplyStringEquality(Field.EventType, UserEvent.EventTypeToAPIString(eventType));
+        }
+    }
+
     public class GetUserSubscriptionsFilter : Filter<ModProfile, GetUserSubscriptionsFilter.Field>
     {
         public static readonly GetUserSubscriptionsFilter All = new GetUserSubscriptionsFilter();
