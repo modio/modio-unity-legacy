@@ -1223,12 +1223,6 @@ namespace ModIO
             DateAdded,
             // Type of change that occurred: MOD_UPDATE, MODFILE_UPDATE, MOD_VISIBILITY_CHANGE, MOD_LIVE
             EventType,
-            // Returns only the latest unique events, which is useful for checking if the primary modfile has changed.
-            // Default value is true.
-            Latest,
-            // Returns only events connected to mods the authenticated user is subscribed to, which is useful for keeping the users mods up-to-date.
-            // Default value is false.
-            Subscribed,
         }
 
         private static Dictionary<Field, FieldInformation> fieldInformationMap;
@@ -1258,15 +1252,6 @@ namespace ModIO
                              Field.EventType, "event_type",
                              (e) => UserEvent.EventTypeToAPIString(e.eventType),
                              (a,b) => a.eventType.CompareTo(b.eventType));
-
-            StoreBooleanField(fieldInformationMap,
-                              Field.Latest, "latest",
-                              (e) => { Debug.LogError("Filtering on latest locally is currently not implemented"); return false; },
-                              (a,b) => { Debug.LogWarning("Sorting on latest locally is currently not implemented"); return a.id.CompareTo(b.id); });
-            StoreBooleanField(fieldInformationMap,
-                              Field.Subscribed, "subscribed",
-                              (e) => { Debug.LogError("Filtering on subscribed locally is currently not implemented"); return false; },
-                              (a,b) => { Debug.LogWarning("Sorting on subscribed locally is currently not implemented"); return a.id.CompareTo(b.id); });
         }
 
         // ---------[ ABSTRACT IMPLEMENTATION ]---------

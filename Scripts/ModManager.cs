@@ -24,17 +24,17 @@ namespace ModIO
         UpToDate
     }
 
+    [System.Serializable]
+    public class AuthenticatedUser
+    {
+        public string oAuthToken = "";
+        public UserProfile profile = null;
+        public List<int> subscribedModIDs = new List<int>();
+    }
+
     public class ModManager
     {
         // ---------[ INNER CLASSES ]---------
-        [System.Serializable]
-        private class UserData
-        {
-            public string oAuthToken = "";
-            public UserProfile userProfile = null;
-            public List<int> subscribedModIDs = new List<int>();
-        }
-
         [System.Serializable]
         private class ManifestData
         {
@@ -46,7 +46,7 @@ namespace ModIO
 
         // ---------[ VARIABLES ]---------
         private static ManifestData manifest = null;
-        private static UserData userData = null;
+        private static AuthenticatedUser authUser = null;
 
         public static string cacheDirectory { get; private set; }
         
@@ -145,7 +145,7 @@ namespace ModIO
                 }
 
                 // Attempt to load user
-                if(Utility.TryParseJsonFile(userdataPath, out userData))
+                if(Utility.TryParseJsonFile(userdataPath, out authUser))
                 {
                     Action<WebRequestError> onAuthenticationFail = (error) =>
                     {
@@ -156,7 +156,7 @@ namespace ModIO
                         }
                     };
 
-                    Client.GetAuthenticatedUser(userData.oAuthToken,
+                    Client.GetAuthenticatedUser(authUser.oAuthToken,
                                                 null,
                                                 onAuthenticationFail);
                 }
@@ -312,12 +312,12 @@ namespace ModIO
 
                 // TODO(@jackson): Replace with Event Polling
                 // - Get Subscription Updates -
-                if(userData != null)
+                if(authUser != null)
                 {
                     GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
                     subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
 
-                    FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userData.oAuthToken,
+                    FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(authUser.oAuthToken,
                                                                                             subscriptionFilter,
                                                                                             p, s, e),
                                                         UpdateUserSubscriptions,
@@ -349,8 +349,8 @@ namespace ModIO
             Action<ModEvent> processModUnavailable = (modEvent) =>
             {
                 // TODO(@jackson): Facilitate marking Mods as installed
-                bool isModInstalled = (userData != null
-                                       && userData.subscribedModIDs.Contains(modEvent.modId));
+                bool isModInstalled = (authUser != null
+                                       && authUser.subscribedModIDs.Contains(modEvent.modId));
 
                 if(!isModInstalled
                    && modCache.ContainsKey(modEvent.modId))
@@ -460,15 +460,15 @@ namespace ModIO
 
         private static void UpdateUserSubscriptions(List<ModObject> userSubscriptions)
         {
-            if(userData == null) { return; }
+            if(authUser == null) { return; }
 
             List<int> addedMods = new List<int>();
-            List<int> removedMods = userData.subscribedModIDs;
-            userData.subscribedModIDs = new List<int>(userSubscriptions.Count);
+            List<int> removedMods = authUser.subscribedModIDs;
+            authUser.subscribedModIDs = new List<int>(userSubscriptions.Count);
 
             foreach(ModObject modObject in userSubscriptions)
             {
-                userData.subscribedModIDs.Add(modObject.id);
+                authUser.subscribedModIDs.Add(modObject.id);
 
                 if(removedMods.Contains(modObject.id))
                 {
@@ -504,9 +504,9 @@ namespace ModIO
         public static event ModIDEventHandler OnModSubscriptionAdded;
         public static event ModIDEventHandler OnModSubscriptionRemoved;
 
-        public static UserProfile GetActiveUser()
+        public static AuthenticatedUser GetAuthenticatedUser()
         {
-            return (userData == null ? null : userData.userProfile);
+            return authUser;
         }
 
         public static void RequestSecurityCode(string emailAddress,
@@ -533,17 +533,17 @@ namespace ModIO
         {
             Action<API.UserObject> onGetUser = (userObject) =>
             {
-                userData = new UserData();
-                userData.oAuthToken = userOAuthToken;
-                userData.userProfile = UserProfile.CreateFromUserObject(userObject);
+                authUser = new AuthenticatedUser();
+                authUser.oAuthToken = userOAuthToken;
+                authUser.profile = UserProfile.CreateFromUserObject(userObject);
                 WriteUserDataToDisk();
 
-                onSuccess(userData.userProfile);
+                onSuccess(authUser.profile);
 
                 GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
                 subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
 
-                FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userData.oAuthToken,
+                FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(authUser.oAuthToken,
                                                                                         subscriptionFilter,
                                                                                         p, s, e),
                                                     UpdateUserSubscriptions,
@@ -557,7 +557,7 @@ namespace ModIO
 
         public static void LogUserOut()
         {
-            userData = null;
+            authUser = null;
             DeleteUserDataFromDisk();
             if(OnUserLoggedOut != null)
             {
@@ -569,11 +569,11 @@ namespace ModIO
                                           Action<ModProfile> onSuccess,
                                           Action<WebRequestError> onError)
         {
-            Client.SubscribeToMod(userData.oAuthToken,
+            Client.SubscribeToMod(authUser.oAuthToken,
                                      modId,
                                      (message) =>
                                      {
-                                        userData.subscribedModIDs.Add(modId);
+                                        authUser.subscribedModIDs.Add(modId);
                                         onSuccess(GetModProfile(modId));
                                      },
                                      onError);
@@ -583,11 +583,11 @@ namespace ModIO
                                               Action<ModProfile> onSuccess,
                                               Action<WebRequestError> onError)
         {
-            Client.UnsubscribeFromMod(userData.oAuthToken,
+            Client.UnsubscribeFromMod(authUser.oAuthToken,
                                          modId,
                                          (message) =>
                                          {
-                                            userData.subscribedModIDs.Remove(modId);
+                                            authUser.subscribedModIDs.Remove(modId);
                                             onSuccess(GetModProfile(modId));
                                          },
                                          onError);
@@ -595,7 +595,7 @@ namespace ModIO
 
         public static bool IsSubscribedToMod(int modId)
         {
-            foreach(int subscribedModID in userData.subscribedModIDs)
+            foreach(int subscribedModID in authUser.subscribedModIDs)
             {
                 if(subscribedModID == modId) { return true; }
             }
@@ -948,7 +948,7 @@ namespace ModIO
 
         private static void WriteUserDataToDisk()
         {
-            File.WriteAllText(userdataPath, JsonUtility.ToJson(userData));
+            File.WriteAllText(userdataPath, JsonUtility.ToJson(authUser));
         }
 
         private static void DeleteUserDataFromDisk()
@@ -1007,7 +1007,7 @@ namespace ModIO
             remainingModEdits.sketchfabURLs = modEdits.sketchfabURLs;
             remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
 
-            Client.AddMod(userData.oAuthToken,
+            Client.AddMod(authUser.oAuthToken,
                           parameters,
                           result => SubmitModProfileComponents(ModProfile.CreateFromModObject(result),
                                                                remainingModEdits,
@@ -1069,7 +1069,7 @@ namespace ModIO
                     parameters.metadata_blob = modEdits.metadataBlob.value;
                 }
 
-                Client.EditMod(userData.oAuthToken,
+                Client.EditMod(authUser.oAuthToken,
                                modId, parameters,
                                (p) => SubmitModProfileComponents(profile, modEdits,
                                                                  modSubmissionSucceeded,
@@ -1194,7 +1194,7 @@ namespace ModIO
                 {
                     submissionActions.Add(() =>
                     {
-                        Client.AddModMedia(userData.oAuthToken,
+                        Client.AddModMedia(authUser.oAuthToken,
                                            profile.id,
                                            addMediaParameters,
                                            doNextSubmissionAction, modSubmissionFailed);
@@ -1204,7 +1204,7 @@ namespace ModIO
                 {
                     submissionActions.Add(() =>
                     {
-                        Client.DeleteModMedia(userData.oAuthToken,
+                        Client.DeleteModMedia(authUser.oAuthToken,
                                               profile.id,
                                               deleteMediaParameters,
                                               doNextSubmissionAction, modSubmissionFailed);
@@ -1233,7 +1233,7 @@ namespace ModIO
                     {
                         var parameters = new AddModTagsParameters();
                         parameters.tags = addedTags.ToArray();
-                        Client.AddModTags(userData.oAuthToken,
+                        Client.AddModTags(authUser.oAuthToken,
                                           profile.id, parameters,
                                           doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -1244,7 +1244,7 @@ namespace ModIO
                     {
                         var parameters = new DeleteModTagsParameters();
                         parameters.tags = removedTags.ToArray();
-                        Client.DeleteModTags(userData.oAuthToken,
+                        Client.DeleteModTags(authUser.oAuthToken,
                                              profile.id, parameters,
                                              doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -1312,7 +1312,7 @@ namespace ModIO
 
             // TODO(@jackson): parameters.filehash
 
-            Client.AddModfile(userData.oAuthToken,
+            Client.AddModfile(authUser.oAuthToken,
                               modId,
                               parameters,
                               (m) => onSuccess(Modfile.CreateFromModfileObject(m)),
@@ -1324,7 +1324,7 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            Client.AddModRating(userData.oAuthToken,
+            Client.AddModRating(authUser.oAuthToken,
                                 modId, new AddModRatingParameters(1),
                                 result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                 onError);
@@ -1334,7 +1334,7 @@ namespace ModIO
         //                                     Action<APIMessage> onSuccess,
         //                                     Action<WebRequestError> onError)
         // {
-        //     Client.AddModTeamMember(userData.oAuthToken,
+        //     Client.AddModTeamMember(authUser.oAuthToken,
         //                             modId, teamMember.AsAddModTeamMemberParameters(),
         //                             result => OnSuccessWrapper(result, onSuccess),
         //                             onError);
@@ -1346,7 +1346,7 @@ namespace ModIO
         {
             // TODO(@jackson): Remvoe Mod Locally
 
-            Client.DeleteMod(userData.oAuthToken,
+            Client.DeleteMod(authUser.oAuthToken,
                              modId,
                              result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                              onError);
@@ -1356,7 +1356,7 @@ namespace ModIO
                                             Action<APIMessage> onSuccess,
                                             Action<WebRequestError> onError)
         {
-            Client.DeleteModComment(userData.oAuthToken,
+            Client.DeleteModComment(authUser.oAuthToken,
                                     modId, commentId,
                                     result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                     onError);

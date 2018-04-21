@@ -47,7 +47,7 @@ namespace ModIO
         // ---------[ GUI ]---------
         protected virtual void OnGUI()
         {
-            if(ModManager.GetActiveUser() == null)
+            if(ModManager.GetAuthenticatedUser() == null)
             {
                 LayoutLoginPrompt();
             }
@@ -142,7 +142,7 @@ namespace ModIO
         protected virtual void LayoutSubmissionFields()
         {
             // - Account Header -
-            string username = ModManager.GetActiveUser().username;
+            string username = ModManager.GetAuthenticatedUser().profile.username;
 
             EditorGUILayout.BeginHorizontal();
             {
