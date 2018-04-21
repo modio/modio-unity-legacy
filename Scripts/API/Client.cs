@@ -895,11 +895,12 @@ namespace ModIO.API
         // ---------[ METADATA ENDPOINTS ]---------
         // Get All Mod KVP Metadata
         public static void GetAllModKVPMetadata(int modId,
+                                                PaginationParameters pagination,
                                                 Action<ObjectArray<MetadataKVPObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), PaginationParameters.Default);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, new EmptyFilter(), pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

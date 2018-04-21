@@ -135,7 +135,7 @@ namespace ModIO
         }
 
         [System.Serializable]
-        public struct MetadataKVP
+        public class MetadataKVP
         {
             public string key;
             public string value;

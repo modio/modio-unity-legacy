@@ -75,8 +75,7 @@ namespace ModIO
             }
             #pragma warning restore CS0162
 
-            Debug.Log("Initializing ModIO.ModManager"
-                      + "\nModIO Directory: " + cacheDirectory);
+            Debug.Log("[mod.io] Initializing ModManager using cache directory: " + cacheDirectory);
 
             #if UNITY_EDITOR
             if(Application.isPlaying)
@@ -89,9 +88,8 @@ namespace ModIO
 
             LoadCacheFromDisk();
             FetchAndCacheGameProfile();
-            FetchAllResultsForQuery<ModObject>((p,s,e) => Client.GetAllMods(GetAllModsFilter.All, p, s, e),
-                                               ApplyModObjectsToCache,
-                                               Client.LogError);
+
+            FetchAndRebuildModCache();
         }
 
         private static void LoadCacheFromDisk()
@@ -197,6 +195,27 @@ namespace ModIO
             Client.GetGame(cacheGameProfile, null);
         }
 
+        private static void FetchAndRebuildModCache()
+        {
+            Action<List<ModObject>> onModObjectsReceived = (modObjects) =>
+            {
+                ApplyModObjectsToCache(modObjects);
+
+                foreach(var modObject in modObjects)
+                {
+                    int modId = modObject.id;
+                    FetchAllResultsForQuery<MetadataKVPObject>((p,s,e) => Client.GetAllModKVPMetadata(modId,
+                                                                                                      p, s, e),
+                                                               (r) => ApplyKVPsToCache(modId, r),
+                                                               Client.LogError);
+                }
+            };
+
+            FetchAllResultsForQuery<ModObject>((p,s,e) => Client.GetAllMods(GetAllModsFilter.All, p, s, e),
+                                               onModObjectsReceived,
+                                               Client.LogError);
+        }
+
         private static void ApplyModObjectsToCache(List<ModObject> modObjects)
         {
             // TODO(@jackson): Implement mod is unavailable
@@ -240,6 +259,20 @@ namespace ModIO
                 }
             }
         }
+
+        // TODO(@jackson): Defend
+        private static void ApplyKVPsToCache(int modId, List<MetadataKVPObject> kvps)
+        {
+            ModProfile profile = ModManager.GetModProfile(modId);
+
+            profile.ApplyMetadataKVPObjectValues(kvps.ToArray());
+
+            // TODO(@jackson): Notify
+            
+            StoreModData(profile);
+        }
+
+
 
         // ---------[ AUTOMATED UPDATING ]---------
         private const int SECONDS_BETWEEN_POLLING = 15;
