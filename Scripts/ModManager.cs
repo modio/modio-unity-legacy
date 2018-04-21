@@ -504,6 +504,11 @@ namespace ModIO
         public static event ModIDEventHandler OnModSubscriptionAdded;
         public static event ModIDEventHandler OnModSubscriptionRemoved;
 
+        public static UserProfile GetActiveUser()
+        {
+            return (userData == null ? null : userData.userProfile);
+        }
+
         public static void RequestSecurityCode(string emailAddress,
                                                Action<APIMessage> onSuccess,
                                                Action<WebRequestError> onError)
@@ -537,7 +542,7 @@ namespace ModIO
 
                 GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
                 subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
-                                    
+
                 FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userData.oAuthToken,
                                                                                         subscriptionFilter,
                                                                                         p, s, e),
@@ -558,11 +563,6 @@ namespace ModIO
             {
                 OnUserLoggedOut();
             }
-        }
-
-        public static UserProfile GetActiveUser()
-        {
-            return (userData == null ? null : userData.userProfile);
         }
 
         public static void SubscribeToMod(int modId,

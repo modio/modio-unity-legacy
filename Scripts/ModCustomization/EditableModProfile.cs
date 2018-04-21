@@ -22,6 +22,7 @@ namespace ModIO
         public EditableStringField homepageURL =                    new EditableStringField();
         public EditableStringField metadataBlob =                   new EditableStringField();
         public EditableStringArrayField tags =                      new EditableStringArrayField();
+        // TODO(@jackson): KVPs
         // - Mod Media -
         public EditableImageLocatorField logoLocator =              new EditableImageLocatorField();
         public EditableStringArrayField youtubeURLs =               new EditableStringArrayField();
@@ -49,8 +50,8 @@ namespace ModIO
             retVal.youtubeURLs.value = Utility.CollectionToArray(profile.youtubeURLs);
             retVal.sketchfabURLs.value = Utility.CollectionToArray(profile.sketchfabURLs);
 
-            Utility.SafeMapArraysOrZero(Utility.CollectionToArray(profile.galleryImageLocators), 
-                                        (l) => { return ImageLocatorData.CreateFromImageLocator(l); }, 
+            Utility.SafeMapArraysOrZero(Utility.CollectionToArray(profile.galleryImageLocators),
+                                        (l) => { return ImageLocatorData.CreateFromImageLocator(l); },
                                         out retVal.galleryImageLocators.value);
 
             return retVal;

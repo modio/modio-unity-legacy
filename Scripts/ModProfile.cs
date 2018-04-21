@@ -164,7 +164,6 @@ namespace ModIO
         [SerializeField] private string[] _youtubeURLs;
         [SerializeField] private string[] _sketchfabURLs;
         [SerializeField] private GalleryImageLocator[] _galleryImageLocators;
-        [SerializeField] private int[] _dependencies;
         [SerializeField] private MetadataKVP[] _metadataKVPs;
         // TODO(@jackson): TeamMembers
 
@@ -193,9 +192,8 @@ namespace ModIO
         public ICollection<string> sketchfabURLs    { get { return new List<string>(this._sketchfabURLs); } }
         public ICollection<GalleryImageLocator> galleryImageLocators
                                                     { get { return new List<GalleryImageLocator>(this._galleryImageLocators); } }
-        // - External -
-        public ICollection<int> dependencies        { get { return new List<int>(this._dependencies); } }
-
+        
+        // - Accessors -
         public Dictionary<string, string> GetMetadataKVPs()
         {
             var retVal = new Dictionary<string, string>();
@@ -273,15 +271,6 @@ namespace ModIO
             else
             {
                 this._galleryImageLocators = new GalleryImageLocator[0];
-            }
-        }
-
-        public void ApplyModDependenciesObjectValues(API.ModDependenciesObject[] apiObjectArray)
-        {
-            this._dependencies = new int[apiObjectArray.Length];
-            for(int i = 0; i < apiObjectArray.Length; ++i)
-            {
-                this._dependencies[i] = apiObjectArray[i].mod_id;
             }
         }
 
