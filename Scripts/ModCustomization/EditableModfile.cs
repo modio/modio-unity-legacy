@@ -7,5 +7,8 @@ namespace ModIO
         public EditableStringField version        = new EditableStringField();
         public EditableStringField changelog      = new EditableStringField();
         public EditableStringField metadataBlob   = new EditableStringField();
+
+        // TODO(@jackson):
+        // public static EditableModfile CreateFromModfile(Modfile modfile)
     }
 }

@@ -11,6 +11,7 @@ using UnityEditor.SceneManagement;
 
 namespace ModIO
 {
+    // TODO(@jackson): Force repaint on Callbacks
     // TODO(@jackson): Use cache originalModLogo and use Unity built in image inspector?
     public class ModProfileInfoViewPart : IModProfileViewPart
     {
@@ -18,11 +19,6 @@ namespace ModIO
         private const ModLogoVersion LOGO_PREVIEW_VERSION = ModLogoVersion.Thumbnail_320x180;
         private const float LOGO_PREVIEW_WIDTH = 320;
         private const float LOGO_PREVIEW_HEIGHT = 180;
-        // TODO(@jackson): Move to EditModParameters?
-        private const int SUMMARY_CHAR_LIMIT = 250;
-        private const int DESCRIPTION_CHAR_MIN = 100;
-        private const int DESCRIPTION_CHAR_LIMIT = 50000;
-        private const int METADATA_CHAR_LIMIT = 50000;
 
         // ------[ EDITOR CACHING ]------
         private SerializedProperty editableProfileProperty;
@@ -208,7 +204,7 @@ namespace ModIO
             bool isUndoRequested;
             LayoutEditablePropertyTextArea("Summary",
                                            editableProfileProperty.FindPropertyRelative("summary"),
-                                           SUMMARY_CHAR_LIMIT,
+                                           API.EditModParameters.SUMMARY_CHAR_LIMIT,
                                            out isUndoRequested);
             if(isUndoRequested)
             {
@@ -222,7 +218,7 @@ namespace ModIO
             bool isUndoRequested;
             LayoutEditablePropertyTextArea("Description",
                                            editableProfileProperty.FindPropertyRelative("description"),
-                                           DESCRIPTION_CHAR_LIMIT,
+                                           API.EditModParameters.DESCRIPTION_CHAR_LIMIT,
                                            out isUndoRequested);
 
             if(isUndoRequested)
@@ -237,7 +233,7 @@ namespace ModIO
             bool isUndoRequested;
             LayoutEditablePropertyTextArea("Metadata",
                                            editableProfileProperty.FindPropertyRelative("metadataBlob"),
-                                           DESCRIPTION_CHAR_LIMIT,
+                                           API.EditModParameters.DESCRIPTION_CHAR_LIMIT,
                                            out isUndoRequested);
 
             if(isUndoRequested)

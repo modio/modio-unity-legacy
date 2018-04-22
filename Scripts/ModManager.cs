@@ -272,8 +272,6 @@ namespace ModIO
             StoreModData(profile);
         }
 
-
-
         // ---------[ AUTOMATED UPDATING ]---------
         private const int SECONDS_BETWEEN_POLLING = 15;
         private static bool isUpdatePollingEnabled = false;

@@ -2,6 +2,12 @@ namespace ModIO.API
 {
     public class EditModParameters : RequestParameters
     {
+        // ---------[ CONSTRAINTS ]---------
+        public const int SUMMARY_CHAR_LIMIT = 250;
+        public const int DESCRIPTION_CHAR_MIN = 100;
+        public const int DESCRIPTION_CHAR_LIMIT = 50000;
+        public const int METADATA_CHAR_LIMIT = 50000;
+
         // ---------[ FIELDS ]---------
         // Status of a mod. The mod must have at least one uploaded modfile to be 'accepted' or 'archived' (best if this field is controlled by game admins, see status and visibility for details):
         public int status

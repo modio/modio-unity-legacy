@@ -5,12 +5,7 @@ using UnityEngine;
 
 namespace ModIO
 {
-    // TODO(@jackson): Implement Login Dialog
-    // TODO(@jackson): Needs beauty-pass
-    // TODO(@jackson): Force repaint on Callbacks
-    // TODO(@jackson): Implement client-side error-checking in submission
-    // TODO(@jackson): Check if undos are necessary
-
+    // NOTE(@jackson): Could do with a beauty-pass
     [CustomEditor(typeof(ScriptableModProfile))]
     public class ModProfileEditor : Editor
     {

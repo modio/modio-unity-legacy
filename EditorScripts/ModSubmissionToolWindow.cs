@@ -10,6 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace ModIO
 {
+    // TODO(@jackson): Implement client-side error-checking in submission
     public class ModSubmissionToolWindow : EditorWindow
     {
         [MenuItem("mod.io/Mod Submission Tool")]
