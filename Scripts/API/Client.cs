@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Networking;
+
+using Debug = UnityEngine.Debug;
+using WWWForm = UnityEngine.WWWForm;
+using JsonUtility = UnityEngine.JsonUtility;
+using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
+using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyncOperation;
 
 namespace ModIO.API
 {
@@ -567,18 +571,21 @@ namespace ModIO.API
 
         // ---------[ GAME ENDPOINTS ]---------
         // Get All Games
-        public static void GetAllGames(GetAllGamesFilter filter, PaginationParameters pagination,
-                                       Action<ObjectArray<API.GameObject>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
+                                       Action<ObjectArray<GameObject>> successCallback,
+                                       Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games";
 
-            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL, filter, pagination);
+            UnityWebRequest webRequest = Client.GenerateQuery(endpointURL,
+                                                              filter.GenerateFilterString(),
+                                                              pagination);
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
 
         // Get GameProfile
-        public static void GetGame(Action<API.GameObject> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetGame(Action<GameObject> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
             
@@ -592,7 +599,7 @@ namespace ModIO.API
         // Edit GameProfile
         public static void EditGame(string oAuthToken,
                                     EditGameParameters parameters,
-                                    Action<API.GameObject> successCallback, Action<WebRequestError> errorCallback)
+                                    Action<GameObject> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
 
@@ -1217,7 +1224,7 @@ namespace ModIO.API
 
         // Get User Games
         public static void GetUserGames(string oAuthToken,
-                                        Action<ObjectArray<API.GameObject>> successCallback, Action<WebRequestError> errorCallback)
+                                        Action<ObjectArray<GameObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/games";
 
