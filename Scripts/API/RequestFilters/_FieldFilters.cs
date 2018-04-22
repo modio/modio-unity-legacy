@@ -11,7 +11,7 @@ namespace ModIO.API
     // ------[ GENERIC FILTERS ]------
     public class EqualToFilter<T> : IRequestFieldFilter
     {
-        T filterValue;
+        public T filterValue;
 
         public string GenerateFilterString(string fieldName)
         {
@@ -21,7 +21,7 @@ namespace ModIO.API
 
     public class NotEqualToFilter<T> : IRequestFieldFilter
     {
-        T filterValue;
+        public T filterValue;
 
         public string GenerateFilterString(string fieldName)
         {
@@ -31,7 +31,7 @@ namespace ModIO.API
 
     public class MatchesArrayFilter<T> : IRequestFieldFilter
     {
-        T[] filterArray;
+        public T[] filterArray;
 
         public string GenerateFilterString(string fieldName)
         {
@@ -48,7 +48,7 @@ namespace ModIO.API
 
     public class InArrayFilter<T> : IRequestFieldFilter
     {
-        T[] filterArray;
+        public T[] filterArray;
 
         public string GenerateFilterString(string fieldName)
         {
@@ -65,7 +65,7 @@ namespace ModIO.API
 
     public class NotInArrayFilter<T> : IRequestFieldFilter
     {
-        T[] filterArray;
+        public T[] filterArray;
 
         public string GenerateFilterString(string fieldName)
         {
@@ -108,15 +108,15 @@ namespace ModIO.API
     public class RangeFilter<T> : IRequestFieldFilter
         where T : IComparable<T>
     {
-        public T minimum;
+        public T min;
         public bool isMinInclusive;
-        public T maximum;
+        public T max;
         public bool isMaxInclusive;
 
         public string GenerateFilterString(string fieldName)
         {
-            return (fieldName + (isMinInclusive ? "-min=" : "-gt") + minimum
-                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt") + maximum);
+            return (fieldName + (isMinInclusive ? "-min=" : "-gt") + min
+                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt") + max);
         }
     }
 

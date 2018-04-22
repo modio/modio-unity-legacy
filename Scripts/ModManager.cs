@@ -211,7 +211,7 @@ namespace ModIO
                 }
             };
 
-            FetchAllResultsForQuery<ModObject>((p,s,e) => Client.GetAllMods(GetAllModsFilter.All, p, s, e),
+            FetchAllResultsForQuery<ModObject>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
                                                onModObjectsReceived,
                                                Client.LogError);
         }
@@ -328,14 +328,19 @@ namespace ModIO
                 FetchAndCacheGameProfile();
 
                 // - Get ModProfile Events -
-                GetAllModEventsFilter eventFilter = new GetAllModEventsFilter();
-                eventFilter.ApplyIntRange(GetAllModEventsFilter.Field.DateAdded,
-                                          fromTimeStamp.AsServerTimeStamp(), true,
-                                          untilTimeStamp.AsServerTimeStamp(), false);
-                eventFilter.ApplyBooleanIs(GetAllModEventsFilter.Field.Latest,
-                                           true);
+                var modEventFilter = new RequestFilter();
+                modEventFilter.fieldFilters[GetAllModEventsFilterFields.dateAdded]
+                    = new RangeFilter<int>()
+                {
+                    min = fromTimeStamp.AsServerTimeStamp(),
+                    isMinInclusive = true,
+                    max = untilTimeStamp.AsServerTimeStamp(),
+                    isMaxInclusive = false,
+                };
+                modEventFilter.fieldFilters[GetAllModEventsFilterFields.latest]
+                    = new EqualToFilter<bool>() { filterValue = true };
 
-                FetchAllResultsForQuery<EventObject>((p, s, e) => Client.GetAllModEvents(eventFilter, p, s, e),
+                FetchAllResultsForQuery<EventObject>((p, s, e) => Client.GetAllModEvents(modEventFilter, p, s, e),
                                                      (r) =>
                                                      {
                                                         ProcessModEvents(r);
@@ -343,15 +348,18 @@ namespace ModIO
                                                      },
                                                      Client.LogError);
 
+                // TODO(@jackson): Add KVP updates?
+
                 // TODO(@jackson): Replace with Event Polling
                 // - Get Subscription Updates -
                 if(authUser != null)
                 {
-                    GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
-                    subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
+                    var userSubscriptionFilter = new RequestFilter();
+                    userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
+                         = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
                     FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(authUser.oAuthToken,
-                                                                                            subscriptionFilter,
+                                                                                            userSubscriptionFilter,
                                                                                             p, s, e),
                                                         UpdateUserSubscriptions,
                                                         Client.LogError);
@@ -573,11 +581,12 @@ namespace ModIO
 
                 onSuccess(authUser.profile);
 
-                GetUserSubscriptionsFilter subscriptionFilter = new GetUserSubscriptionsFilter();
-                subscriptionFilter.ApplyIntEquality(GetUserSubscriptionsFilter.Field.GameId, GlobalSettings.GAME_ID);
+                var userSubscriptionFilter = new RequestFilter();
+                userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
+                     = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
                 FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(authUser.oAuthToken,
-                                                                                        subscriptionFilter,
+                                                                                        userSubscriptionFilter,
                                                                                         p, s, e),
                                                     UpdateUserSubscriptions,
                                                     Client.LogError);
