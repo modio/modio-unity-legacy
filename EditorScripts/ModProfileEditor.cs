@@ -1,11 +1,15 @@
 ﻿#if UNITY_EDITOR
 
+using System.Linq;
+
 using UnityEditor;
 using UnityEngine;
 
 namespace ModIO
 {
     // NOTE(@jackson): Could do with a beauty-pass
+    // NOTE(@jackson): Present a login prompt for load (or force login)?
+    // TODO(@jackson): Reload on user log
     [CustomEditor(typeof(ScriptableModProfile))]
     public class ModProfileEditor : Editor
     {
@@ -40,11 +44,23 @@ namespace ModIO
             // Profile Initialization
             if(modIdProperty.intValue < 0)
             {
+                System.Func<ModProfile, bool> userIsTeamMember = (p) =>
+                {
+                    foreach(var teamMember in p.teamMembers)
+                    {
+                        if(teamMember.userId == ModManager.GetAuthenticatedUser().profile.id
+                           && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Contributor)
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                };
+
                 profile = null;
 
-                // TODO(@jackson): Filter by editable
                 modInitializationOptionIndex = 0;
-                modList = ModManager.GetAllModProfiles();
+                modList = ModManager.GetAllModProfiles().Where(userIsTeamMember).ToArray();
                 modOptions = new string[modList.Length];
                 for(int i = 0; i < modList.Length; ++i)
                 {

@@ -185,12 +185,12 @@ namespace ModIO
         [SerializeField] private int _primaryModfileId;
         [SerializeField] private RatingSummary _ratingSummary;
         [SerializeField] private string[] _tags;
+        [SerializeField] private TeamMember[] _teamMembers;
         [SerializeField] private LogoImageLocator _logoLocator;
         [SerializeField] private string[] _youtubeURLs;
         [SerializeField] private string[] _sketchfabURLs;
         [SerializeField] private GalleryImageLocator[] _galleryImageLocators;
         [SerializeField] private MetadataKVP[] _metadataKVPs;
-        [SerializeField] private TeamMember[] _teamMembers;
 
         // ---------[ FIELDS ]---------
         public int id                               { get { return this._id; } }
@@ -211,6 +211,7 @@ namespace ModIO
         public int primaryModfileId                 { get { return this._primaryModfileId; } }
         public RatingSummary ratingSummary          { get { return this._ratingSummary; } }
         public ICollection<string> tags             { get { return new List<string>(this._tags); } }
+        public ICollection<TeamMember> teamMembers  { get { return new List<TeamMember>(this._teamMembers); } }
         // - Media -
         public LogoImageLocator logoLocator         { get { return this._logoLocator; } }
         public ICollection<string> youtubeURLs      { get { return new List<string>(this._youtubeURLs); } }

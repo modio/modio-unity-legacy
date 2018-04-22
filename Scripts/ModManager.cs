@@ -9,6 +9,7 @@ using ModIO.API;
 
 using UnityEngine;
 
+// NOTE(@jackson): Had a weird bug where Initialize authenticated with a user.id of 0?
 namespace ModIO
 {
     public delegate void ModEventHandler(ModProfile modProfile);
