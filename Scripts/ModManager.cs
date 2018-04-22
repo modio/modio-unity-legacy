@@ -690,7 +690,7 @@ namespace ModIO
             Directory.Delete(modDir, true);
         }
 
-        public static ModProfile[] GetModProfiles(GetAllModsFilter filter)
+        public static ModProfile[] GetAllModProfiles()
         {
             return Utility.CollectionToArray(modCache.Values);
         }
