@@ -195,19 +195,26 @@ namespace ModIO
             Client.GetGame(cacheGameProfile, null);
         }
 
+        // TODO(@jackson): Defend everything
         private static void FetchAndRebuildModCache()
         {
             Action<List<ModObject>> onModObjectsReceived = (modObjects) =>
             {
                 ApplyModObjectsToCache(modObjects);
 
+                manifest.lastUpdateTimeStamp = TimeStamp.Now();
+                WriteManifestToDisk();
+
                 foreach(var modObject in modObjects)
                 {
                     int modId = modObject.id;
-                    FetchAllResultsForQuery<MetadataKVPObject>((p,s,e) => Client.GetAllModKVPMetadata(modId,
-                                                                                                      p, s, e),
+                    FetchAllResultsForQuery<MetadataKVPObject>((p,s,e) => Client.GetAllModKVPMetadata(modId, p, s, e),
                                                                (r) => ApplyKVPsToCache(modId, r),
                                                                Client.LogError);
+
+                    FetchAllResultsForQuery<TeamMemberObject>((p,s,e) => Client.GetAllModTeamMembers(modId, RequestFilter.None, p,s,e),
+                                                              (r) => ApplyTeamMemberObjectsToCache(modId, r),
+                                                              Client.LogError);
                 }
             };
 
@@ -220,9 +227,6 @@ namespace ModIO
         {
             // TODO(@jackson): Implement mod is unavailable
             // TODO(@jackson): Check for modfile change
-
-            manifest.lastUpdateTimeStamp = TimeStamp.Now();
-            WriteManifestToDisk();
 
             var addedMods = new List<ModProfile>();
             var updatedMods = new List<ModProfile>();
@@ -260,16 +264,22 @@ namespace ModIO
             }
         }
 
-        // TODO(@jackson): Defend
         private static void ApplyKVPsToCache(int modId, List<MetadataKVPObject> kvps)
         {
             ModProfile profile = ModManager.GetModProfile(modId);
-
             profile.ApplyMetadataKVPObjectValues(kvps.ToArray());
+            StoreModData(profile);
 
             // TODO(@jackson): Notify
-            
+        }
+
+        private static void ApplyTeamMemberObjectsToCache(int modId, List<TeamMemberObject> teamMemberObjects)
+        {
+            ModProfile profile = ModManager.GetModProfile(modId);
+            profile.ApplyTeamMemberObjectValues(teamMemberObjects.ToArray());
             StoreModData(profile);
+
+            // TODO(@jackson): Notify
         }
 
         // ---------[ AUTOMATED UPDATING ]---------

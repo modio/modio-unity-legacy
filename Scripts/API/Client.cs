@@ -80,7 +80,7 @@ namespace ModIO.API
         public const string API_VERSION = "v1";
 
         #if DEBUG
-        public static readonly string API_URL = (GlobalSettings.USE_TEST_SERVER ? "https://api.test.mod.io/" : "https://api.mod.io/") + API_VERSION + "/";
+        public static readonly string API_URL = (GlobalSettings.USE_TEST_SERVER ? "https://api.test.mod.io/" : "https://api.mod.io/") + API_VERSION;
         #else
         public const string API_URL = "https://api.mod.io/" + API_VERSION;
         #endif

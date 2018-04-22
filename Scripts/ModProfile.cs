@@ -29,6 +29,15 @@ namespace ModIO
         Thumbnail_320x180,
     }
 
+    public enum TeamMemberPermissionLevel
+    {
+        Guest = 0,
+        Member = 1,
+        Contributor = 2,
+        Manager = 4,
+        Leader = 8,
+    }
+
     [System.Serializable]
     public class ModProfile
     {
@@ -141,6 +150,22 @@ namespace ModIO
             public string value;
         }
 
+        [System.Serializable]
+        public class TeamMember
+        {
+            // ---------[ SERIALIZED MEMBERS ]---------
+            [SerializeField] internal int _userId;
+            [SerializeField] internal TeamMemberPermissionLevel _permissionLevel;
+            [SerializeField] internal TimeStamp _dateAdded;
+            [SerializeField] internal string _title;
+
+            // ---------[ FIELDS ]---------
+            public int userId                                   { get { return this._userId; } }
+            public TeamMemberPermissionLevel permissionLevel    { get { return this._permissionLevel; } }
+            public TimeStamp dateAdded                          { get { return this._dateAdded; } }
+            public string title                                 { get { return this._title; } }
+        }
+
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] private int _id;
         [SerializeField] private int _gameId;
@@ -165,7 +190,7 @@ namespace ModIO
         [SerializeField] private string[] _sketchfabURLs;
         [SerializeField] private GalleryImageLocator[] _galleryImageLocators;
         [SerializeField] private MetadataKVP[] _metadataKVPs;
-        // TODO(@jackson): TeamMembers
+        [SerializeField] private TeamMember[] _teamMembers;
 
         // ---------[ FIELDS ]---------
         public int id                               { get { return this._id; } }
@@ -194,7 +219,7 @@ namespace ModIO
                                                     { get { return new List<GalleryImageLocator>(this._galleryImageLocators); } }
         
         // - Accessors -
-        public Dictionary<string, string> GetMetadataKVPs()
+        public Dictionary<string, string> GenerateMetadataKVPDictionary()
         {
             var retVal = new Dictionary<string, string>();
             foreach(MetadataKVP kvp in this._metadataKVPs)
@@ -285,6 +310,23 @@ namespace ModIO
                     value = apiObjectArray[i].metavalue,
                 };
             }
+        }
+
+        public void ApplyTeamMemberObjectValues(API.TeamMemberObject[] apiObjectArray)
+        {
+            Utility.SafeMapArraysOrZero(apiObjectArray,
+                                        (o) =>
+                                        {
+                                            var tm = new TeamMember()
+                                            {
+                                                _userId = o.user.id,
+                                                _permissionLevel = (TeamMemberPermissionLevel)o.level,
+                                                _dateAdded = TimeStamp.GenerateFromServerTimeStamp(o.date_added),
+                                                _title = o.position,
+                                            };
+                                            return tm;
+                                        },
+                                        out this._teamMembers);
         }
 
         public static ModProfile CreateFromModObject(API.ModObject apiObject)
