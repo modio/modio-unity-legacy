@@ -27,8 +27,6 @@ namespace ModIO.API
         public int api_access_options;
         // Word used to describe user-generated content (mods, items, addons etc).
         public string ugc_name;
-        // Official homepage of the game.
-        public string homepage;
         // Name of the game.
         public string name;
         // Subdomain for the game on mod.io.
@@ -37,6 +35,8 @@ namespace ModIO.API
         public string summary;
         // A guide about creating and uploading mods for this game to mod.io (applicable if submission_option = 0).
         public string instructions;
+        // Link to a mod.io guide, your modding wiki or a page where modders can learn how to make and submit mods to your games profile.
+        public string instructions_url;
         // URL to the game's mod.io page.
         public string profile_url;
         // Contains user data.

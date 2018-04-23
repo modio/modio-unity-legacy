@@ -1,20 +1,26 @@
 using System.Collections.Generic;
 using SerializeField = UnityEngine.SerializeField;
 
+using ModObject = ModIO.API.ModObject;
+using LogoObject = ModIO.API.LogoObject;
+using ImageObject = ModIO.API.ImageObject;
+using TeamMemberObject = ModIO.API.TeamMemberObject;
+using MetadataKVPObject = ModIO.API.MetadataKVPObject;
+
 namespace ModIO
 {
     // - Enums -
     public enum ModStatus
     {
-        NotAccepted = 0,
-        Accepted = 1,
-        Archived = 2,
-        Deleted = 3,
+        NotAccepted = ModObject.StatusValue.NotAccepted,
+        Accepted = ModObject.StatusValue.Accepted,
+        Archived = ModObject.StatusValue.Archived,
+        Deleted = ModObject.StatusValue.Deleted,
     }
     public enum ModVisibility
     {
-        Hidden = 0,
-        Public = 1,
+        Hidden = ModObject.VisibleValue.Hidden,
+        Public = ModObject.VisibleValue.Public,
     }
     public enum ModLogoVersion
     {
@@ -31,11 +37,9 @@ namespace ModIO
 
     public enum TeamMemberPermissionLevel
     {
-        Guest = 0,
-        Member = 1,
-        Contributor = 2,
-        Manager = 4,
-        Leader = 8,
+        Moderator =     TeamMemberObject.LevelValue.Moderator,
+        Creator =       TeamMemberObject.LevelValue.Creator,
+        Administrator = TeamMemberObject.LevelValue.Administrator,
     }
 
     [System.Serializable]
@@ -69,13 +73,36 @@ namespace ModIO
         }
 
         [System.Serializable]
+        public class MetadataKVP
+        {
+            public string key;
+            public string value;
+        }
+
+        [System.Serializable]
+        public class TeamMember
+        {
+            // ---------[ SERIALIZED MEMBERS ]---------
+            [SerializeField] internal int _userId;
+            [SerializeField] internal TeamMemberPermissionLevel _permissionLevel;
+            [SerializeField] internal TimeStamp _dateAdded;
+            [SerializeField] internal string _title;
+
+            // ---------[ FIELDS ]---------
+            public int userId                                   { get { return this._userId; } }
+            public TeamMemberPermissionLevel permissionLevel    { get { return this._permissionLevel; } }
+            public TimeStamp dateAdded                          { get { return this._dateAdded; } }
+            public string title                                 { get { return this._title; } }
+        }
+
+        [System.Serializable]
         public class LogoImageLocator : MultiVersionImageLocator<ModLogoVersion>
         {
             // ---------[ ABSTRACTS ]---------
             protected override int FullSizeVersion() { return (int)ModLogoVersion.FullSize; }
 
             // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyLogoObjectValues(API.LogoObject apiObject)
+            public void ApplyLogoObjectValues(LogoObject apiObject)
             {
                 this._fileName = apiObject.filename;
                 this._versionPairing = new VersionSourcePair[]
@@ -103,7 +130,7 @@ namespace ModIO
                 };
             }
 
-            public static LogoImageLocator CreateFromLogoObject(API.LogoObject apiObject)
+            public static LogoImageLocator CreateFromLogoObject(LogoObject apiObject)
             {
                 var retVal = new LogoImageLocator();
                 retVal.ApplyLogoObjectValues(apiObject);
@@ -118,7 +145,7 @@ namespace ModIO
             protected override int FullSizeVersion() { return (int)ModGalleryImageVersion.FullSize; }
 
             // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyImageObjectValues(API.ImageObject apiObject)
+            public void ApplyImageObjectValues(ImageObject apiObject)
             {
                 this._fileName = apiObject.filename;
                 this._versionPairing = new VersionSourcePair[]
@@ -135,35 +162,12 @@ namespace ModIO
                     },
                 };
             }
-            public static GalleryImageLocator CreateFromImageObject(API.ImageObject apiObject)
+            public static GalleryImageLocator CreateFromImageObject(ImageObject apiObject)
             {
                 var retVal = new GalleryImageLocator();
                 retVal.ApplyImageObjectValues(apiObject);
                 return retVal;
             }
-        }
-
-        [System.Serializable]
-        public class MetadataKVP
-        {
-            public string key;
-            public string value;
-        }
-
-        [System.Serializable]
-        public class TeamMember
-        {
-            // ---------[ SERIALIZED MEMBERS ]---------
-            [SerializeField] internal int _userId;
-            [SerializeField] internal TeamMemberPermissionLevel _permissionLevel;
-            [SerializeField] internal TimeStamp _dateAdded;
-            [SerializeField] internal string _title;
-
-            // ---------[ FIELDS ]---------
-            public int userId                                   { get { return this._userId; } }
-            public TeamMemberPermissionLevel permissionLevel    { get { return this._permissionLevel; } }
-            public TimeStamp dateAdded                          { get { return this._dateAdded; } }
-            public string title                                 { get { return this._title; } }
         }
 
         // ---------[ SERIALIZED MEMBERS ]---------
@@ -242,7 +246,7 @@ namespace ModIO
         }
 
         // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyModObjectValues(API.ModObject apiObject)
+        public void ApplyModObjectValues(ModObject apiObject)
         {
             this._id = apiObject.id;
             this._gameId = apiObject.game_id;
@@ -252,7 +256,7 @@ namespace ModIO
             this._dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
             this._dateUpdated = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_updated);
             this._dateLive = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_live);
-            this._homepageURL = apiObject.homepage;
+            this._homepageURL = apiObject.homepage_url;
             this._name = apiObject.name;
             this._nameId = apiObject.name_id;
             this._summary = apiObject.summary;
@@ -300,7 +304,7 @@ namespace ModIO
             }
         }
 
-        public void ApplyMetadataKVPObjectValues(API.MetadataKVPObject[] apiObjectArray)
+        public void ApplyMetadataKVPObjectValues(MetadataKVPObject[] apiObjectArray)
         {
             this._metadataKVPs = new MetadataKVP[apiObjectArray.Length];
             for(int i = 0; i < apiObjectArray.Length; ++i)
@@ -313,7 +317,7 @@ namespace ModIO
             }
         }
 
-        public void ApplyTeamMemberObjectValues(API.TeamMemberObject[] apiObjectArray)
+        public void ApplyTeamMemberObjectValues(TeamMemberObject[] apiObjectArray)
         {
             Utility.SafeMapArraysOrZero(apiObjectArray,
                                         (o) =>
@@ -330,7 +334,7 @@ namespace ModIO
                                         out this._teamMembers);
         }
 
-        public static ModProfile CreateFromModObject(API.ModObject apiObject)
+        public static ModProfile CreateFromModObject(ModObject apiObject)
         {
             ModProfile profile = new ModProfile();
             profile.ApplyModObjectValues(apiObject);

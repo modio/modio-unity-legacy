@@ -200,7 +200,7 @@ namespace ModIO
         [SerializeField] private IconImageLocator _iconLocator;
         [SerializeField] private LogoImageLocator _logoLocator;
         [SerializeField] private HeaderImageLocator _headerImageLocator;
-        [SerializeField] private string _homepageURL;
+        [SerializeField] private string _instructionsURL;
         [SerializeField] private string _name;
         [SerializeField] private string _nameId;
         [SerializeField] private string _summary;
@@ -225,11 +225,11 @@ namespace ModIO
         public IconImageLocator iconLocator                     { get { return this._iconLocator; } }
         public LogoImageLocator logoLocator                     { get { return this._logoLocator; } }
         public HeaderImageLocator headerImageLocator            { get { return this._headerImageLocator; } }
-        public string homepageURL                               { get { return this._homepageURL; } }
         public string name                                      { get { return this._name; } }
         public string nameId                                    { get { return this._nameId; } }
         public string summary                                   { get { return this._summary; } }
         public string instructions                              { get { return this._instructions; } }
+        public string instructionsURL                           { get { return this._instructionsURL; } }
         public string profileURL                                { get { return this._profileURL; } }
         public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this._taggingOptions); } }
         
@@ -252,7 +252,7 @@ namespace ModIO
             this._iconLocator = IconImageLocator.CreateFromIconObject(apiObject.icon);
             this._logoLocator = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
             this._headerImageLocator = HeaderImageLocator.CreateFromHeaderImageObject(apiObject.header);
-            this._homepageURL = apiObject.homepage;
+            this._instructionsURL = apiObject.instructions_url;
             this._name = apiObject.name;
             this._nameId = apiObject.name_id;
             this._summary = apiObject.summary;

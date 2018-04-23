@@ -49,7 +49,7 @@ namespace ModIO
                     foreach(var teamMember in p.teamMembers)
                     {
                         if(teamMember.userId == ModManager.GetAuthenticatedUser().profile.id
-                           && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Contributor)
+                           && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Creator)
                         {
                             return true;
                         }
