@@ -791,7 +791,7 @@ namespace ModIO
                 download.fileURL = binaryFilePath;
                 download.EnableFilehashVerification(m.filehash.md5);
 
-                DownloadManager.AddQueuedDownload(download);
+                DownloadManager.QueueDownload(download);
             };
 
             Client.GetModfile(modId, modfileId,
@@ -849,7 +849,7 @@ namespace ModIO
                 manifest.serializedImageCache.Add(serverURL + "*" + downloadFilePath);
                 WriteManifestToDisk();
             };
-            DownloadManager.AddConcurrentDownload(download);
+            DownloadManager.StartDownload(download);
 
             return download;
         }

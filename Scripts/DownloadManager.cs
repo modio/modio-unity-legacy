@@ -4,78 +4,62 @@ namespace ModIO
 {
     public static class DownloadManager
     {
-        private static List<Download> concurrentDownloads = new List<Download>();
-        private static List<Download> queuedDownloads = new List<Download>();
+        private static Dictionary<string, Download> urlDownloadMap = new Dictionary<string, Download>();
+        private static List<string> queuedDownloadURLs = new List<string>();
 
         public static bool IsDownloadActive(string downloadURL)
         {
-            foreach(Download download in concurrentDownloads)
+            Download download;
+            if(urlDownloadMap.TryGetValue(downloadURL, out download))
             {
-                if(download.sourceURL == downloadURL) { return true; }
-            }
-            foreach(Download download in queuedDownloads)
-            {
-                if(download.sourceURL == downloadURL)
-                {
-                    return download.status == Download.Status.InProgress;
-                }
+                return download.status == Download.Status.InProgress;
             }
             return false;
         }
+
         public static bool IsDownloadQueued(string downloadURL)
         {
-            foreach(Download download in queuedDownloads)
-            {
-                if(download.sourceURL == downloadURL) { return true; }
-            }
-            return false;
+            return queuedDownloadURLs.Contains(downloadURL);
         }
 
-        public static void AddConcurrentDownload(Download download)
+        public static void StartDownload(Download download)
         {
             // Prevent doubling downloads
-            if(IsDownloadActive(download.sourceURL))
+            if(IsDownloadActive(download.sourceURL)) { return; }
+
+            int queueIndex = queuedDownloadURLs.IndexOf(download.sourceURL);
+            if(queueIndex >= 0)
             {
-                return;
+                queuedDownloadURLs.RemoveAt(queueIndex);
             }
-
-            concurrentDownloads.Add(download);
-
-            download.OnCompleted += (d) => concurrentDownloads.Remove(d);
-            download.OnFailed += (d,e) => concurrentDownloads.Remove(d);
 
             download.Start();
         }
 
-        public static void AddQueuedDownload(Download download)
+        public static void QueueDownload(Download download)
         {
             // Prevent doubling downloads
-            if(IsDownloadQueued(download.sourceURL) || IsDownloadActive(download.sourceURL))
+            if(urlDownloadMap.ContainsKey(download.sourceURL)) { return; }
+
+            urlDownloadMap.Add(download.sourceURL, download);
+            queuedDownloadURLs.Add(download.sourceURL);
+
+            if(queuedDownloadURLs.Count == 1)
             {
-                return;
-            }
-
-            queuedDownloads.Add(download);
-
-            if(queuedDownloads.Count == 1)
-            {
-                download.OnCompleted += OnQueuedDownloadCompleted;
-                download.OnFailed += (d,e) => OnQueuedDownloadCompleted(d);
-
-                download.Start();
+                StartNextQueuedDownload();
             }
         }
 
-        private static void OnQueuedDownloadCompleted(Download download)
+        private static void StartNextQueuedDownload()
         {
-            queuedDownloads.Remove(download);
-
-            if(queuedDownloads.Count > 0)
+            if(queuedDownloadURLs.Count > 0)
             {
-                queuedDownloads[0].OnCompleted += OnQueuedDownloadCompleted;
-                queuedDownloads[0].OnFailed += (d,e) => OnQueuedDownloadCompleted(d);
+                Download download = urlDownloadMap[queuedDownloadURLs[0]];
 
-                queuedDownloads[0].Start();
+                download.OnCompleted += (d) => StartNextQueuedDownload();
+                download.OnFailed += (d,e) => StartNextQueuedDownload();
+
+                StartDownload(download);
             }
         }
     }
