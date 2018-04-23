@@ -34,9 +34,19 @@ namespace ModIO
             }
             else // if(webRequest.isHttpError)
             {
-                API.ErrorObject error = UnityEngine.JsonUtility.FromJson<API.ErrorObject>(webRequest.downloadHandler.text);
-                retVal._responseCode = error.error.code;
-                retVal._message = error.error.message;
+                API.ErrorObject error;
+                if(Utility.TryParseJsonString(webRequest.downloadHandler.text,
+                                              out error))
+                {
+                    retVal._responseCode = error.error.code;
+                    retVal._message = error.error.message;
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("Failed to parse error from reponse:\n"
+                                                 + "[" + webRequest.responseCode + "] "
+                                                 + webRequest.downloadHandler.text);
+                }
             }
 
             return retVal;
