@@ -83,6 +83,25 @@ namespace ModIO
             return true;
         }
 
+        public static bool TryReadAllFileBytes(string filePath,
+                                               out byte[] data)
+        {
+            bool retVal = false;
+            try
+            {
+                data = File.ReadAllBytes(filePath);
+                retVal = true;
+            }
+            #pragma warning disable CS0168
+            catch(Exception e)
+            {
+                data = null;
+                retVal = false;
+            }
+            #pragma warning restore CS0168
+            return retVal;
+        }
+
         public static bool TryLoadTextureFromFile(string filePath,
                                                   out Texture2D texture)
         {
@@ -97,6 +116,24 @@ namespace ModIO
             catch(Exception e)
             {
                 texture = null;
+                retVal = false;
+            }
+            #pragma warning restore CS0168
+            return retVal;
+        }
+
+        public static bool TryWriteTextureToPNG(string filePath,
+                                                Texture2D texture)
+        {
+            bool retVal = true;
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                File.WriteAllBytes(filePath, texture.EncodeToPNG());
+            }
+            #pragma warning disable CS0168
+            catch(Exception e)
+            {
                 retVal = false;
             }
             #pragma warning restore CS0168

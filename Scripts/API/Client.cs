@@ -423,8 +423,8 @@ namespace ModIO.API
             requestOperation.completed += (operation) =>
             {
                 Client.ProcessWebResponse<T_APIObj>(webRequest,
-                                                       successCallback,
-                                                       errorCallback);
+                                                    successCallback,
+                                                    errorCallback);
             };
         }
 
