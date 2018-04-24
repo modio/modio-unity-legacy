@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using SerializeField = UnityEngine.SerializeField;
 
 using ModObject = ModIO.API.ModObject;
-using LogoObject = ModIO.API.LogoObject;
-using ImageObject = ModIO.API.ImageObject;
 using TeamMemberObject = ModIO.API.TeamMemberObject;
 using MetadataKVPObject = ModIO.API.MetadataKVPObject;
 
@@ -21,25 +19,6 @@ namespace ModIO
     {
         Hidden = ModObject.VisibleValue.Hidden,
         Public = ModObject.VisibleValue.Public,
-    }
-    public enum ModLogoVersion
-    {
-        FullSize = 0,
-        Thumbnail_320x180,
-        Thumbnail_640x360,
-        Thumbnail_1280x720,
-    }
-    public enum ModGalleryImageVersion
-    {
-        FullSize = 0,
-        Thumbnail_320x180,
-    }
-
-    public enum TeamMemberPermissionLevel
-    {
-        Moderator =     TeamMemberObject.LevelValue.Moderator,
-        Creator =       TeamMemberObject.LevelValue.Creator,
-        Administrator = TeamMemberObject.LevelValue.Administrator,
     }
 
     [System.Serializable]
@@ -73,101 +52,10 @@ namespace ModIO
         }
 
         [System.Serializable]
-        public class MetadataKVP
+        private class MetadataKVP
         {
             public string key;
             public string value;
-        }
-
-        [System.Serializable]
-        public class TeamMember
-        {
-            // ---------[ SERIALIZED MEMBERS ]---------
-            [SerializeField] internal int _userId;
-            [SerializeField] internal TeamMemberPermissionLevel _permissionLevel;
-            [SerializeField] internal TimeStamp _dateAdded;
-            [SerializeField] internal string _title;
-
-            // ---------[ FIELDS ]---------
-            public int userId                                   { get { return this._userId; } }
-            public TeamMemberPermissionLevel permissionLevel    { get { return this._permissionLevel; } }
-            public TimeStamp dateAdded                          { get { return this._dateAdded; } }
-            public string title                                 { get { return this._title; } }
-        }
-
-        [System.Serializable]
-        public class LogoImageLocator : MultiVersionImageLocator<ModLogoVersion>
-        {
-            // ---------[ ABSTRACTS ]---------
-            protected override int FullSizeVersion() { return (int)ModLogoVersion.FullSize; }
-
-            // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyLogoObjectValues(LogoObject apiObject)
-            {
-                this._fileName = apiObject.filename;
-                this._versionPairing = new VersionSourcePair[]
-                {
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)ModLogoVersion.FullSize,
-                        source = apiObject.original
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)ModLogoVersion.Thumbnail_320x180,
-                        source = apiObject.thumb_320x180
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)ModLogoVersion.Thumbnail_640x360,
-                        source = apiObject.thumb_640x360
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)ModLogoVersion.Thumbnail_1280x720,
-                        source = apiObject.thumb_1280x720
-                    },
-                };
-            }
-
-            public static LogoImageLocator CreateFromLogoObject(LogoObject apiObject)
-            {
-                var retVal = new LogoImageLocator();
-                retVal.ApplyLogoObjectValues(apiObject);
-                return retVal;
-            }
-        }
-
-        [System.Serializable]
-        public class GalleryImageLocator : MultiVersionImageLocator<ModGalleryImageVersion>
-        {
-            // ---------[ ABSTRACTS ]---------
-            protected override int FullSizeVersion() { return (int)ModGalleryImageVersion.FullSize; }
-
-            // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyImageObjectValues(ImageObject apiObject)
-            {
-                this._fileName = apiObject.filename;
-                this._versionPairing = new VersionSourcePair[]
-                {
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)ModGalleryImageVersion.FullSize,
-                        source = apiObject.original
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)ModGalleryImageVersion.Thumbnail_320x180,
-                        source = apiObject.thumb_320x180
-                    },
-                };
-            }
-            public static GalleryImageLocator CreateFromImageObject(ImageObject apiObject)
-            {
-                var retVal = new GalleryImageLocator();
-                retVal.ApplyImageObjectValues(apiObject);
-                return retVal;
-            }
         }
 
         // ---------[ SERIALIZED MEMBERS ]---------
@@ -190,10 +78,10 @@ namespace ModIO
         [SerializeField] private RatingSummary _ratingSummary;
         [SerializeField] private string[] _tags;
         [SerializeField] private TeamMember[] _teamMembers;
-        [SerializeField] private LogoImageLocator _logoLocator;
+        [SerializeField] private ModLogoImageLocator _logoLocator;
         [SerializeField] private string[] _youtubeURLs;
         [SerializeField] private string[] _sketchfabURLs;
-        [SerializeField] private GalleryImageLocator[] _galleryImageLocators;
+        [SerializeField] private ModGalleryImageLocator[] _galleryImageLocators;
         [SerializeField] private MetadataKVP[] _metadataKVPs;
 
         // ---------[ FIELDS ]---------
@@ -217,11 +105,11 @@ namespace ModIO
         public ICollection<string> tags             { get { return new List<string>(this._tags); } }
         public ICollection<TeamMember> teamMembers  { get { return new List<TeamMember>(this._teamMembers); } }
         // - Media -
-        public LogoImageLocator logoLocator         { get { return this._logoLocator; } }
+        public ModLogoImageLocator logoLocator      { get { return this._logoLocator; } }
         public ICollection<string> youtubeURLs      { get { return new List<string>(this._youtubeURLs); } }
         public ICollection<string> sketchfabURLs    { get { return new List<string>(this._sketchfabURLs); } }
-        public ICollection<GalleryImageLocator> galleryImageLocators
-                                                    { get { return new List<GalleryImageLocator>(this._galleryImageLocators); } }
+        public ICollection<ModGalleryImageLocator> galleryImageLocators
+                                                    { get { return new List<ModGalleryImageLocator>(this._galleryImageLocators); } }
         
         // - Accessors -
         public Dictionary<string, string> GenerateMetadataKVPDictionary()
@@ -233,7 +121,7 @@ namespace ModIO
             }
             return retVal;
         }
-        public GalleryImageLocator GetGalleryImageWithFileName(string fileName)
+        public ModGalleryImageLocator GetGalleryImageWithFileName(string fileName)
         {
             foreach(var locator in this._galleryImageLocators)
             {
@@ -296,22 +184,22 @@ namespace ModIO
             }
 
             // - Media -
-            this._logoLocator = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
+            this._logoLocator = ModLogoImageLocator.CreateFromLogoObject(apiObject.logo);
             this._youtubeURLs = Utility.SafeCopyArrayOrZero(apiObject.media.youtube);
             this._sketchfabURLs = Utility.SafeCopyArrayOrZero(apiObject.media.sketchfab);
 
             if(apiObject.media.images != null)
             {
-                this._galleryImageLocators = new GalleryImageLocator[apiObject.media.images.Length];
+                this._galleryImageLocators = new ModGalleryImageLocator[apiObject.media.images.Length];
                 for(int i = 0; i < apiObject.media.images.Length; ++i)
                 {
                     var imageObject = apiObject.media.images[i];
-                    this._galleryImageLocators[i] = GalleryImageLocator.CreateFromImageObject(imageObject);
+                    this._galleryImageLocators[i] = ModGalleryImageLocator.CreateFromImageObject(imageObject);
                 }
             }
             else
             {
-                this._galleryImageLocators = new GalleryImageLocator[0];
+                this._galleryImageLocators = new ModGalleryImageLocator[0];
             }
         }
 
@@ -320,13 +208,8 @@ namespace ModIO
             Utility.SafeMapArraysOrZero(apiObjectArray,
                                         (o) =>
                                         {
-                                            var tm = new TeamMember()
-                                            {
-                                                _userId = o.user.id,
-                                                _permissionLevel = (TeamMemberPermissionLevel)o.level,
-                                                _dateAdded = TimeStamp.GenerateFromServerTimeStamp(o.date_added),
-                                                _title = o.position,
-                                            };
+                                            var tm = new TeamMember();
+                                            tm.ApplyTeamMemberObjectValues(o);
                                             return tm;
                                         },
                                         out this._teamMembers);

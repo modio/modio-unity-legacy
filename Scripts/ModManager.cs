@@ -10,9 +10,13 @@ using ModIO.API;
 using UnityEngine;
 
 // NOTE(@jackson): Had a weird bug where Initialize authenticated with a user.id of 0?
+// TODO(@jackson): UISettings
+// TODO(@jackson): ModBrowser...
 namespace ModIO
 {
-    public delegate void ModEventHandler(ModProfile modProfile);
+    public delegate void GameProfileEventHandler(GameProfile profile);
+    public delegate void ModProfileEventHandler(ModProfile modProfile);
+    public delegate void AuthenticatedUserEventHandler(AuthenticatedUser user);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
     public delegate void ModLogoUpdatedEventHandler(int modId, ModLogoVersion version, Texture2D texture);
@@ -39,10 +43,10 @@ namespace ModIO
         [System.Serializable]
         private class ManifestData
         {
-            public TimeStamp lastUpdateTimeStamp;
-            public List<ModEvent> unresolvedEvents;
-            public GameProfile gameProfile;
-            public List<string> serializedImageCache;
+            public TimeStamp lastUpdateTimeStamp = TimeStamp.Now();
+            public List<ModEvent> unresolvedEvents = new List<ModEvent>();
+            public GameProfile gameProfile = new GameProfile();
+            public List<string> serializedImageCache = new List<string>();
         }
 
         // ---------[ VARIABLES ]---------
@@ -55,6 +59,8 @@ namespace ModIO
         private static string userdataPath { get { return cacheDirectory + "user.data"; } }
 
         // --------- [ INITIALIZATION ]---------
+        public static event GameProfileEventHandler gameProfileUpdated;
+
         public static void Initialize()
         {
             if(manifest != null)
@@ -102,10 +108,6 @@ namespace ModIO
             #if DO_NOT_LOAD_CACHE
             {
                 manifest = new ManifestData();
-                manifest.lastUpdateTimeStamp = new TimeStamp();
-                manifest.unresolvedEvents = new List<ModEvent>();
-                manifest.gameProfile = new GameProfile();
-
                 WriteManifestToDisk();
             }
             #else
@@ -114,11 +116,6 @@ namespace ModIO
                 if(!Utility.TryParseJsonFile(manifestPath, out manifest))
                 {
                     manifest = new ManifestData();
-                    manifest.lastUpdateTimeStamp = new TimeStamp();
-                    manifest.unresolvedEvents = new List<ModEvent>();
-                    manifest.serializedImageCache = new List<string>();
-                    manifest.gameProfile = new GameProfile();
-
                     WriteManifestToDisk();
                 }
 
@@ -190,6 +187,11 @@ namespace ModIO
             {
                 manifest.gameProfile.ApplyGameObjectValues(gameObject);
                 WriteManifestToDisk();
+
+                if(ModManager.gameProfileUpdated != null)
+                {
+                    ModManager.gameProfileUpdated(manifest.gameProfile);
+                }
             };
 
             Client.GetGame(cacheGameProfile, null);
@@ -536,7 +538,9 @@ namespace ModIO
         }
 
         // ---------[ USER MANAGEMENT ]---------
-        public static event Action OnUserLoggedOut;
+        // NOTE(@jackson): There is "userLoggedIn" event as the only time a
+        //  user can be authenticated is via 'TryAuthenticateUser'.
+        public static event Action userLoggedOut;
         public static event ModIDEventHandler OnModSubscriptionAdded;
         public static event ModIDEventHandler OnModSubscriptionRemoved;
 
@@ -564,17 +568,17 @@ namespace ModIO
         }
 
         public static void TryLogUserIn(string userOAuthToken,
-                                        Action<UserProfile> onSuccess,
+                                        Action<AuthenticatedUser> onSuccess,
                                         Action<WebRequestError> onError)
         {
-            Action<API.UserObject> onGetUser = (userObject) =>
+            Action<UserObject> onGetUser = (userObject) =>
             {
                 authUser = new AuthenticatedUser();
                 authUser.oAuthToken = userOAuthToken;
                 authUser.profile = UserProfile.CreateFromUserObject(userObject);
                 WriteUserDataToDisk();
 
-                onSuccess(authUser.profile);
+                onSuccess(authUser);
 
                 var userSubscriptionFilter = new RequestFilter();
                 userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
@@ -596,9 +600,9 @@ namespace ModIO
         {
             authUser = null;
             DeleteUserDataFromDisk();
-            if(OnUserLoggedOut != null)
+            if(userLoggedOut != null)
             {
-                OnUserLoggedOut();
+                userLoggedOut();
             }
         }
 
@@ -640,7 +644,7 @@ namespace ModIO
         }
 
         // ---------[ MOD MANAGEMENT ]---------
-        public static event ModEventHandler OnModAdded;
+        public static event ModProfileEventHandler OnModAdded;
         public static event ModIDEventHandler OnModRemoved;
         public static event ModIDEventHandler OnModUpdated;
         public static event ModfileEventHandler OnModfileChanged;
@@ -685,9 +689,9 @@ namespace ModIO
             Directory.Delete(modDir, true);
         }
 
-        public static ModProfile[] GetAllModProfiles()
+        public static IEnumerable<ModProfile> GetAllModProfiles()
         {
-            return Utility.CollectionToArray(modCache.Values);
+            return modCache.Values;
         }
 
         public static void DeleteAllDownloadedBinaries(int modId)
