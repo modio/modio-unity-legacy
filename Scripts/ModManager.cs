@@ -89,7 +89,6 @@ namespace ModIO
 
             LoadCacheFromDisk();
             FetchAndCacheGameProfile();
-
             FetchAndRebuildModCache();
         }
 
@@ -209,10 +208,6 @@ namespace ModIO
                 foreach(var modObject in modObjects)
                 {
                     int modId = modObject.id;
-                    FetchAllResultsForQuery<MetadataKVPObject>((p,s,e) => Client.GetAllModKVPMetadata(modId, p, s, e),
-                                                               (r) => ApplyKVPsToCache(modId, r),
-                                                               Client.LogError);
-
                     FetchAllResultsForQuery<TeamMemberObject>((p,s,e) => Client.GetAllModTeamMembers(modId, RequestFilter.None, p,s,e),
                                                               (r) => ApplyTeamMemberObjectsToCache(modId, r),
                                                               Client.LogError);
@@ -263,15 +258,6 @@ namespace ModIO
                     OnModUpdated(profile.id);
                 }
             }
-        }
-
-        private static void ApplyKVPsToCache(int modId, List<MetadataKVPObject> kvps)
-        {
-            ModProfile profile = ModManager.GetModProfile(modId);
-            profile.ApplyMetadataKVPObjectValues(kvps.ToArray());
-            StoreModData(profile);
-
-            // TODO(@jackson): Notify
         }
 
         private static void ApplyTeamMemberObjectsToCache(int modId, List<TeamMemberObject> teamMemberObjects)

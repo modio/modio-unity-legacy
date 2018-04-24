@@ -284,6 +284,17 @@ namespace ModIO
                 this._tags = new string[0];
             }
 
+            // - Metadata KVPs -
+            this._metadataKVPs = new MetadataKVP[apiObject.metadata_kvp.Length];
+            for(int i = 0; i < apiObject.metadata_kvp.Length; ++i)
+            {
+                this._metadataKVPs[i] = new MetadataKVP()
+                {
+                    key = apiObject.metadata_kvp[i].metakey,
+                    value = apiObject.metadata_kvp[i].metavalue,
+                };
+            }
+
             // - Media -
             this._logoLocator = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
             this._youtubeURLs = Utility.SafeCopyArrayOrZero(apiObject.media.youtube);
@@ -301,19 +312,6 @@ namespace ModIO
             else
             {
                 this._galleryImageLocators = new GalleryImageLocator[0];
-            }
-        }
-
-        public void ApplyMetadataKVPObjectValues(MetadataKVPObject[] apiObjectArray)
-        {
-            this._metadataKVPs = new MetadataKVP[apiObjectArray.Length];
-            for(int i = 0; i < apiObjectArray.Length; ++i)
-            {
-                this._metadataKVPs[i] = new MetadataKVP()
-                {
-                    key = apiObjectArray[i].metakey,
-                    value = apiObjectArray[i].metavalue,
-                };
             }
         }
 

@@ -12,7 +12,7 @@ namespace ModIO.API
         // Id of the parent comment this comment is replying to (can be 0 if the comment is not a reply).
         public int reply_id;
         // Levels of nesting in a comment thread. How it works:
-        public string reply_position;
+        public string thread_position;
         // Karma received for the comment (can be postive or negative).
         public int karma;
         // Karma received for guest comments (can be postive or negative).

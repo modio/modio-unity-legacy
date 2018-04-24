@@ -57,7 +57,7 @@ namespace ModIO
             this._content = apiObject.content;
 
             // - Parse Thread Position -
-            string[] positionElements = apiObject.reply_position.Split('.');
+            string[] positionElements = apiObject.thread_position.Split('.');
 
             this._threadPosition._depth = 0;
             this._threadPosition._mainThread = -1;

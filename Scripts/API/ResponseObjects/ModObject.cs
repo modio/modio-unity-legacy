@@ -8,7 +8,7 @@
         {
             public const int NotAccepted = 0;
             public const int Accepted = 1;
-            public const int Archived = 2; // potentially out of date or incompatible
+            public const int Archived = 2;
             public const int Deleted = 3;
         }
 
@@ -18,45 +18,78 @@
             public const int Public = 1;
         }
 
-        // Unique mod id.
+        /// <summary> Unique mod id. </summary>
         public int id;
-        // Unique game id.
+
+        /// <summary> Unique game id. </summary>
         public int game_id;
-        // Status of the mod: see StatusValues
+
+        /// <summary> Status of the mod.
+        /// See <see cref="ModIO.API.ModObject.StatusValues"/> for possible values.
+        /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
+        /// </summary>
         public int status;
-        // Visibility of the mod: see VisibleValues
+
+        /// <summary> Visibility of the mod.
+        /// See <see cref="ModIO.API.ModObject.VisibleValues"/> for possible values.
+        /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
+        /// </summary>
         public int visible;
-        // Unix timestamp of date mod was registered.
-        public int date_added;
-        // Unix timestamp of date mod was updated.
-        public int date_updated;
-        // Unix timestamp of date mod was set live.
-        public int date_live;
-        // Official homepage of the mod.
-        public string homepage_url;
-        // Name of the mod.
-        public string name;
-        // Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here
-        public string name_id;
-        // Summary of the mod.
-        public string summary;
-        // Detailed description of the mod which allows HTML.
-        public string description;
-        // Metadata stored by the game developer. Metadata can also be stored as searchable key value pairs, and to individual mod files.
-        public string metadata_blob;
-        // URL to the mod's mod.io profile.
-        public string profile_url;
-        // Contains user data.
+
+        /// <summary> Contains user data. </summary>
         public UserObject submitted_by;
-        // Contains logo data.
+
+        /// <summary> Unix timestamp of date mod was registered. </summary>
+        public int date_added;
+
+        /// <summary> Unix timestamp of date mod was updated. </summary>
+        public int date_updated;
+
+        /// <summary> Unix timestamp of date mod was set live. </summary>
+        public int date_live;
+
+        /// <summary> Contains logo data. </summary>
         public LogoObject logo;
-        // Contains modfile data.
+
+        /// <summary> Official homepage of the mod. </summary>
+        public string homepage_url;
+
+        /// <summary> Name of the mod. </summary>
+        public string name;
+
+        /// <summary> Path for the mod on mod.io.
+        /// For example: https://gamename.mod.io/mod-name-id-here
+        /// </summary>
+        public string name_id;
+
+        /// <summary> Summary of the mod. </summary>
+        public string summary;
+
+        /// <summary> Detailed description of the mod which allows HTML. </summary>
+        public string description;
+
+        /// <summary> Metadata stored by the game developer.
+        /// Metadata can also be stored as searchable key value pairs,
+        /// and to individual mod files.
+        /// </summary>
+        public string metadata_blob;
+
+        /// <summary> URL to the mod's mod.io profile. </summary>
+        public string profile_url;
+
+        /// <summary> Contains modfile data. </summary>
         public ModfileObject modfile;
-        // Contains mod media data.
+
+        /// <summary> Contains mod media data. </summary>
         public ModMediaObject media;
-        // Contains ratings summary.
+
+        /// <summary> Contains ratings summary. </summary>
         public RatingSummaryObject rating_summary;
-        // Contains mod tag data.
+        
+        /// <summary> Contains key-value metadata. </summary>
+        public MetadataKVPObject[] metadata_kvp;
+        
+        /// <summary> Contains mod tag data. </summary>
         public ModTagObject[] tags;
     }
 }
