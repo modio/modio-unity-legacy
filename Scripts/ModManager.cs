@@ -29,14 +29,6 @@ namespace ModIO
         UpToDate
     }
 
-    [System.Serializable]
-    public class AuthenticatedUser
-    {
-        public string oAuthToken = "";
-        public UserProfile profile = null;
-        public List<int> subscribedModIDs = new List<int>();
-    }
-
     public class ModManager
     {
         // ---------[ INNER CLASSES ]---------
@@ -53,10 +45,9 @@ namespace ModIO
         private static ManifestData manifest = null;
         private static AuthenticatedUser authUser = null;
 
-        public static string cacheDirectory { get; private set; }
-        
-        private static string manifestPath { get { return cacheDirectory + "manifest.data"; } }
-        private static string userdataPath { get { return cacheDirectory + "user.data"; } }
+        private static string cacheDirectory    { get { return CacheManager.GetCacheDirectory(); } }
+        private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
+        private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
 
         // --------- [ INITIALIZATION ]---------
         public static event GameProfileEventHandler gameProfileUpdated;
@@ -68,19 +59,6 @@ namespace ModIO
                 return;
             }
             manifest = new ManifestData();
-
-            #pragma warning disable CS0162
-            #if DEBUG
-            if(GlobalSettings.USE_TEST_SERVER)
-            {
-                cacheDirectory = Application.persistentDataPath + "/modio_testServer/";
-            }
-            else
-            #endif
-            {
-                cacheDirectory = Application.persistentDataPath + "/modio/";
-            }
-            #pragma warning restore CS0162
 
             Debug.Log("[mod.io] Initializing ModManager using cache directory: " + cacheDirectory);
 
@@ -143,8 +121,12 @@ namespace ModIO
                 }
 
                 // Attempt to load user
-                if(Utility.TryParseJsonFile(userdataPath, out authUser))
+                authUser = CacheManager.LoadAuthenticatedUser();
+
+                if(authUser != null)
                 {
+                    API.Client.SetUserAuthorizationToken(authUser.oAuthToken);
+
                     Action<WebRequestError> onAuthenticationFail = (error) =>
                     {
                         if(error.responseCode == 401
@@ -579,8 +561,6 @@ namespace ModIO
                 authUser.profile = UserProfile.CreateFromUserObject(userObject);
                 WriteUserDataToDisk();
 
-                API.Client.SetUserAuthorizationToken(userOAuthToken);
-
                 onSuccess(authUser);
 
                 var userSubscriptionFilter = new RequestFilter();
@@ -593,8 +573,14 @@ namespace ModIO
                                                     Client.LogError);
             };
 
+            API.Client.SetUserAuthorizationToken(userOAuthToken);
+
             Client.GetAuthenticatedUser(onGetUser,
-                                        onError);
+                                        (e) =>
+                                        {
+                                            API.Client.ClearUserAuthorizationToken();
+                                            onError(e);
+                                        });
         }
 
         public static void LogUserOut()
@@ -1460,3 +1446,30 @@ namespace ModIO
         // }
     }
 }
+
+
+
+        // public static void InitializeUsingDirectory(string cacheDirectory)
+        // {
+        //     CacheManager.cacheDirectory = cacheDirectory;
+
+        //     if (!Directory.Exists(CacheManager.cacheDirectory))
+        //     {
+        //         Directory.CreateDirectory(CacheManager.cacheDirectory);
+        //     }
+
+        //     if(File.Exists(cacheDirectory + "manifest.data"))
+        //     {
+        //         string manifestFilePath = cacheDirectory + "manifest.data";
+        //         try
+        //         {
+        //             Manifest m = JsonUtility.FromJson<Manifest>(File.ReadAllText(manifestFilePath));
+        //             CacheManager._lastUpdate = m.lastUpdateTimeStamp;
+        //         }
+        //         catch(Exception e)
+        //         {
+        //             Debug.LogWarning("[mod.io] Failed to read cache manifest from " + cacheDirectory
+        //                              + "\n" + e.Message);
+        //         }
+        //     }
+        // }

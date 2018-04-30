@@ -254,9 +254,9 @@ namespace ModIO.API
             Client.AssertAuthorizationDetails(true);
 
             string constructedURL = (endpointURL
-                                     + "?_limit=" + pagination.limit
-                                     + "&_offset=" + pagination.offset
-                                     + filterString);
+                                     + "?" + filterString
+                                     + "&_limit=" + pagination.limit
+                                     + "&_offset=" + pagination.offset);
             
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + Client._userToken);
