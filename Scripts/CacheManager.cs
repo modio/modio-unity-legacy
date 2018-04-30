@@ -56,7 +56,9 @@ namespace ModIO
         }
 
         // ---------[ USER MANAGEMENT ]---------
-        private static string userFilePath { get { return CacheManager._cacheDirectory + "user.data"; } }
+        private static string userFilePath
+        { get { return CacheManager._cacheDirectory + "user.data"; } }
+        
         public static void StoreAuthenticatedUser(AuthenticatedUser user)
         {
             try
@@ -101,6 +103,53 @@ namespace ModIO
                 Debug.LogWarning("[mod.io] Failed to delete user data save file.\n"
                                  + e.Message);
             }
+        }
+
+        // ---------[ GAME PROFILE ]---------
+        private static string gameProfileFilePath
+        { get { return CacheManager._cacheDirectory + "gameProfile.data"; } }
+        
+        public static void GetGameProfile(Action<GameProfile> onSuccess,
+                                          Action<WebRequestError> onError)
+        {
+            // - Attempt load from cache -
+            try
+            {
+                if(File.Exists(gameProfileFilePath))
+                {
+                    GameProfile profile
+                    = JsonUtility.FromJson<GameProfile>(File.ReadAllText(gameProfileFilePath));
+
+                    onSuccess(profile);
+
+                    return;
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Failed to read game profile from " + gameProfileFilePath
+                                 + "\n" + e.Message);
+            }
+
+            // - Fetch from Server -
+            Action<API.GameObject> cacheGameProfile = (gameObject) =>
+            {
+                GameProfile profile = GameProfile.CreateFromGameObject(gameObject);
+
+                try
+                {
+                    File.WriteAllText(gameProfileFilePath, JsonUtility.ToJson(profile));
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError("[mod.io] Failed to write game profile to " + gameProfileFilePath
+                                   + "\n" + e.Message);
+                }
+
+                onSuccess(profile);
+            };
+
+            API.Client.GetGame(cacheGameProfile, onError);
         }
 
     }

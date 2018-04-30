@@ -74,8 +74,18 @@ namespace ModIO
             API.Client.SetGameDetails(GlobalSettings.GAME_ID,
                                       GlobalSettings.GAME_APIKEY);
 
+            CacheManager.GetGameProfile((p) =>
+                                        {
+                                            manifest.gameProfile = p;
+
+                                            if(gameProfileUpdated != null)
+                                            {
+                                                gameProfileUpdated(p);
+                                            }
+                                        },
+                                        Client.LogError);
+
             LoadCacheFromDisk();
-            FetchAndCacheGameProfile();
             FetchAndRebuildModCache();
         }
 
@@ -163,22 +173,6 @@ namespace ModIO
                 }
             }
             #endif
-        }
-
-        private static void FetchAndCacheGameProfile()
-        {
-            Action<API.GameObject> cacheGameProfile = (gameObject) =>
-            {
-                manifest.gameProfile.ApplyGameObjectValues(gameObject);
-                WriteManifestToDisk();
-
-                if(ModManager.gameProfileUpdated != null)
-                {
-                    ModManager.gameProfileUpdated(manifest.gameProfile);
-                }
-            };
-
-            Client.GetGame(cacheGameProfile, null);
         }
 
         // TODO(@jackson): Defend everything
@@ -306,7 +300,7 @@ namespace ModIO
                 TimeStamp untilTimeStamp = TimeStamp.Now();
 
                 // - Get Game Updates -
-                FetchAndCacheGameProfile();
+                // FetchAndCacheGameProfile();
 
                 // - Get ModProfile Events -
                 var modEventFilter = new RequestFilter();
