@@ -118,6 +118,60 @@ namespace ModIO.API
             "Authorization",
         };
 
+        // ---------[ INITIALIZATION ]---------
+        private static int _gameId = -1;
+        private static string _gameKey = null;
+        private static string _userToken = null;
+
+        public static void SetGameDetails(int id, string apiKey)
+        {
+            Debug.Assert(id > 0 && !String.IsNullOrEmpty(apiKey),
+                         "[mod.io] Please provide a valid game id and api key."
+                         + " Provided you have created a game profile on mod.io,"
+                         + " these details can be found at https://mod.io/apikey/widget");
+
+            Client._gameId = id;
+            Client._gameKey = apiKey;
+        }
+
+        public static void SetUserAuthorizationToken(string oAuthToken)
+        {
+            Client._userToken = oAuthToken;
+        }
+
+        public static void ClearUserAuthorizationToken()
+        {
+            Client._userToken = null;
+        }
+
+        // ---------[ DEBUG ASSERTS ]---------
+        private static bool AssertAuthorizationDetails(bool isUserTokenRequired)
+        {
+            #if DEBUG
+            if(Client._gameId <= 0
+               || String.IsNullOrEmpty(Client._gameKey))
+            {
+                Debug.LogError("[mod.io] No API requests can be excuted without a"
+                               + " valid Game Id and Game API Key. These need to be"
+                               + " set via ModIO.API.Client.SetGameDetails() before"
+                               + " any requests can be sent to the API");
+                return false;
+            }
+
+            if(isUserTokenRequired
+               && String.IsNullOrEmpty(Client._userToken))
+            {
+                Debug.LogError("[mod.io] API request to modification or User-specific"
+                               + " endpoints cannot be made without first setting the"
+                               + " User Authorization Token via ModIO.API.Client."
+                               + "SetUserAuthorizationToken().");
+                return false;
+            }
+            #endif
+
+            return true;
+        }
+
         // ---------[ DEFAULT SUCCESS/ERROR FUNCTIONS ]---------
         public static void LogError(WebRequestError errorInfo)
         {
@@ -138,25 +192,58 @@ namespace ModIO.API
                                                     string filterString,
                                                     PaginationParameters pagination)
         {
-            Debug.Assert(!String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY),
-                         "Please save your game's API Key into GlobalSettings.cs before using this plugin");
+            Client.AssertAuthorizationDetails(false);
 
             string queryURL = (endpointURL
-                               + "?api_key=" + GlobalSettings.GAME_APIKEY
+                               + "?" + filterString
                                + "&_limit=" + pagination.limit
-                               + "&_offset=" + pagination.offset
-                               + filterString);
+                               + "&_offset=" + pagination.offset);
+
+            if(Client._userToken == null)
+            {
+                queryURL += "&api_key=" + GlobalSettings.GAME_APIKEY;
+            }
+
+            UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
+
+            if(Client._userToken != null)
+            {
+                webRequest.SetRequestHeader("Authorization", "Bearer " + Client._userToken);
+            }
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
+                string requestHeaders = "";
+                List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
+                requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
+
+                foreach(string headerKey in requestKeys)
+                {
+                    string headerValue = webRequest.GetRequestHeader(headerKey);
+                    if(headerValue != null)
+                    {
+                        if(headerKey == "Authorization"
+                           && headerValue.Length > 8) // Contains more than "Bearer "
+                        {
+                            requestHeaders += "\n" + headerKey + ": "
+                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
+                        }
+                        else
+                        {
+                            requestHeaders += "\n" + headerKey + ": " + headerValue;
+                        }
+                    }
+                }
+
                 Debug.Log("GENERATING QUERY"
-                          + "\nQuery: " + queryURL
-                          + "\n");
+                          + "\nEndpoint: " + queryURL
+                          + "\nHeaders: " + requestHeaders
+                          + "\n"
+                          );
             }
             #endif
 
-            UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
             return webRequest;
         }
 
@@ -165,6 +252,8 @@ namespace ModIO.API
                                                          string filterString,
                                                          PaginationParameters pagination)
         {
+            Client.AssertAuthorizationDetails(true);
+
             string constructedURL = (endpointURL
                                      + "?_limit=" + pagination.limit
                                      + "&_offset=" + pagination.offset
@@ -213,6 +302,8 @@ namespace ModIO.API
                                                          string oAuthToken,
                                                          StringValueParameter[] valueFields)
         {
+            Client.AssertAuthorizationDetails(true);
+
             WWWForm form = new WWWForm();
             if(valueFields != null)
             {
@@ -274,6 +365,8 @@ namespace ModIO.API
                                                           StringValueParameter[] valueFields,
                                                           BinaryDataParameter[] dataFields)
         {
+            Client.AssertAuthorizationDetails(true);
+
             WWWForm form = new WWWForm();
             if(valueFields != null)
             {
@@ -354,6 +447,8 @@ namespace ModIO.API
                                                             string oAuthToken,
                                                             StringValueParameter[] valueFields)
         {
+            Client.AssertAuthorizationDetails(true);
+            
             WWWForm form = new WWWForm();
             if(valueFields != null)
             {
