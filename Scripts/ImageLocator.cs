@@ -9,7 +9,7 @@ namespace ModIO
     public interface IImageLocator
     {
         string fileName  { get; }
-        string source    { get; }
+        string url       { get; }
     }
 
     [Serializable]
@@ -17,11 +17,11 @@ namespace ModIO
     {
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] protected string _fileName;
-        [SerializeField] protected string _source;
+        [SerializeField] protected string _url;
 
         // ---------[ FIELDS ]---------
         public string fileName  { get { return this._fileName; } }
-        public string source    { get { return this._source; } }
+        public string url       { get { return this._url; } }
     }
 
     [Serializable]
@@ -29,10 +29,10 @@ namespace ModIO
     {
         // ---------[ INNER CLASSES ]---------
         [Serializable]
-        public class VersionSourcePair
+        protected class VersionSourcePair
         {
             public int versionId;
-            public string source;
+            public string url;
         }
 
         // ---------[ SERIALIZED MEMBERS ]---------
@@ -41,18 +41,18 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         public string fileName  { get { return this._fileName; } }
-        public string source    { get { return this.GetVersionSource(this.FullSizeVersion()); } }
+        public string url       { get { return this.GetVersionURL(this.FullSizeVersion()); } }
 
         // ---------[ ACCESSORS ]---------
         protected abstract int FullSizeVersion();
 
-        public string GetVersionSource(int versionId)
+        public string GetVersionURL(int versionId)
         {
             if(this._versionPairing != null)
             {
                 foreach(VersionSourcePair pair in this._versionPairing)
                 {
-                    if(pair.versionId == versionId) { return pair.source; }
+                    if(pair.versionId == versionId) { return pair.url; }
                 }
             }
             return null;
@@ -62,10 +62,10 @@ namespace ModIO
     public abstract class MultiVersionImageLocator<E> : MultiVersionImageLocator
         where E : struct, IConvertible
     {
-        public string GetVersionSource(E version)
+        public string GetVersionURL(E version)
         {
             int versionId = version.ToInt32(null);
-            return this.GetVersionSource(versionId);
+            return this.GetVersionURL(versionId);
         }
     }
 }

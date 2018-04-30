@@ -23,12 +23,12 @@ namespace ModIO
                 new VersionSourcePair()
                 {
                     versionId = (int)ModGalleryImageVersion.FullSize,
-                    source = apiObject.original
+                    url = apiObject.original
                 },
                 new VersionSourcePair()
                 {
                     versionId = (int)ModGalleryImageVersion.Thumbnail_320x180,
-                    source = apiObject.thumb_320x180
+                    url = apiObject.thumb_320x180
                 },
             };
         }

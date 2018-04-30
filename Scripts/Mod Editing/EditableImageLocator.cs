@@ -4,14 +4,14 @@ namespace ModIO
     public struct ImageLocatorData
     {
         public string fileName;
-        public string source;
+        public string url;
 
         public static ImageLocatorData CreateFromImageLocator(IImageLocator locator)
         {
             ImageLocatorData retVal = new ImageLocatorData()
             {
                 fileName = locator.fileName,
-                source = locator.source,
+                url = locator.url,
             };
             return retVal;
         }
@@ -26,10 +26,10 @@ namespace ModIO
             get { return this.value.fileName; }
             set { this.value.fileName = value;}
         }
-        public string source
+        public string url
         {
-            get { return this.value.source; }
-            set { this.value.source = value;}
+            get { return this.value.url; }
+            set { this.value.url = value;}
         }
     }
 

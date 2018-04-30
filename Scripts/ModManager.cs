@@ -833,7 +833,7 @@ namespace ModIO
 
             Texture2D texture = null;
             string filePath = string.Empty;
-            string serverURL = profile.logoLocator.GetVersionSource(version);
+            string serverURL = profile.logoLocator.GetVersionURL(version);
             if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
             {
                 Utility.TryLoadTextureFromFile(filePath, out texture);
@@ -876,7 +876,7 @@ namespace ModIO
                 return null;
             }
 
-            string serverURL = imageLocator.GetVersionSource(version);
+            string serverURL = imageLocator.GetVersionURL(version);
             string filePath = null;
             Texture2D texture = null;
             if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
@@ -923,7 +923,7 @@ namespace ModIO
             // Check which logos are missing
             foreach(ModProfile profile in modProfiles)
             {
-                string serverURL = profile.logoLocator.GetVersionSource(version);
+                string serverURL = profile.logoLocator.GetVersionURL(version);
                 string filePath;
                 if(serverToLocalImageURLMap.TryGetValue(serverURL,
                                                         out filePath))
@@ -942,7 +942,7 @@ namespace ModIO
             // Download
             foreach(ModProfile profile in missingLogoProfiles)
             {
-                string logoURL = profile.logoLocator.GetVersionSource(version);
+                string logoURL = profile.logoLocator.GetVersionURL(version);
                 string filePath = GenerateModLogoFilePath(profile.id, version);
                 var download = DownloadAndSaveImageAsPNG(logoURL,
                                                          filePath,
@@ -985,14 +985,14 @@ namespace ModIO
                                         Action<WebRequestError> modSubmissionFailed)
         {
             Debug.Assert(modEdits.name.isDirty && modEdits.summary.isDirty);
-            Debug.Assert(File.Exists(modEdits.logoLocator.value.source));
+            Debug.Assert(File.Exists(modEdits.logoLocator.value.url));
 
             // - Initial Mod Submission -
             var parameters = new AddModParameters();
             parameters.name = modEdits.name.value;
             parameters.summary = modEdits.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.source),
-                                                  File.ReadAllBytes(modEdits.logoLocator.value.source));
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url),
+                                                  File.ReadAllBytes(modEdits.logoLocator.value.url));
             if(modEdits.visibility.isDirty)
             {
                 parameters.visible = (int)modEdits.visibility.value;
@@ -1132,10 +1132,10 @@ namespace ModIO
                 var deleteMediaParameters = new DeleteModMediaParameters();
                 
                 if(modEdits.logoLocator.isDirty
-                   && File.Exists(modEdits.logoLocator.value.source))
+                   && File.Exists(modEdits.logoLocator.value.url))
                 {
-                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.source),
-                                                                  File.ReadAllBytes(modEdits.logoLocator.value.source));
+                    addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url),
+                                                                  File.ReadAllBytes(modEdits.logoLocator.value.url));
                 }
                 
                 if(modEdits.youtubeURLs.isDirty)
@@ -1177,9 +1177,9 @@ namespace ModIO
                     var addedImageFilePaths = new List<string>();
                     foreach(var locator in modEdits.galleryImageLocators.value)
                     {
-                        if(File.Exists(locator.source))
+                        if(File.Exists(locator.url))
                         {
-                            addedImageFilePaths.Add(locator.source);
+                            addedImageFilePaths.Add(locator.url);
                         }
                     }
                     // - Create Images.Zip -

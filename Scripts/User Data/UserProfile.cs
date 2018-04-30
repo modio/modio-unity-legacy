@@ -28,17 +28,17 @@ namespace ModIO
                     new VersionSourcePair()
                     {
                         versionId = (int)UserAvatarVersion.FullSize,
-                        source = apiObject.original
+                        url = apiObject.original
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)UserAvatarVersion.Thumbnail_50x50,
-                        source = apiObject.thumb_50x50
+                        url = apiObject.thumb_50x50
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)UserAvatarVersion.Thumbnail_100x100,
-                        source = apiObject.thumb_100x100
+                        url = apiObject.thumb_100x100
                     },
                 };
             }

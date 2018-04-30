@@ -49,12 +49,12 @@ namespace ModIO
             // - Load Textures -
             if(logoProperty.FindPropertyRelative("isDirty").boolValue == true)
             {
-                logoLocation = logoProperty.FindPropertyRelative("value.source").stringValue;
+                logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
                 Utility.TryLoadTextureFromFile(logoLocation, out logoTexture);
             }
             else if(profile != null)
             {
-                logoLocation = profile.logoLocator.GetVersionSource(LOGO_PREVIEW_VERSION);
+                logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
                 logoTexture = ModManager.LoadOrDownloadModLogo(profile.id, LOGO_PREVIEW_VERSION);
             }
             else
@@ -309,7 +309,7 @@ namespace ModIO
                     if (path.Length != 0
                         && Utility.TryLoadTextureFromFile(path, out newLogoTexture))
                     {
-                        logoProperty.FindPropertyRelative("value.source").stringValue = path;
+                        logoProperty.FindPropertyRelative("value.url").stringValue = path;
                         logoProperty.FindPropertyRelative("value.fileName").stringValue = Path.GetFileName(path);
                         logoProperty.FindPropertyRelative("isDirty").boolValue = true;
                         logoProperty.serializedObject.ApplyModifiedProperties();
@@ -322,9 +322,12 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                logoProperty.FindPropertyRelative("value.source").stringValue = profile.logoLocator.source;
+                logoProperty.FindPropertyRelative("value.url").stringValue = profile.logoLocator.url;
                 logoProperty.FindPropertyRelative("value.fileName").stringValue = profile.logoLocator.fileName;
                 logoProperty.FindPropertyRelative("isDirty").boolValue = false;
+
+                logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
+                logoTexture = ModManager.LoadOrDownloadModLogo(profile.id, LOGO_PREVIEW_VERSION);
             }
         }
 

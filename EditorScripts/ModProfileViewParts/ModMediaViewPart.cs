@@ -38,7 +38,7 @@ namespace ModIO
             return (galleryImagesProp
                     .FindPropertyRelative("value")
                     .GetArrayElementAtIndex(index)
-                    .FindPropertyRelative("source")
+                    .FindPropertyRelative("url")
                     .stringValue);
         }
 
@@ -197,7 +197,7 @@ namespace ModIO
         {
             bool doBrowse = false;
             string imageFileName = elementProperty.FindPropertyRelative("fileName").stringValue;
-            string imageSource = elementProperty.FindPropertyRelative("source").stringValue;
+            string imageSource = elementProperty.FindPropertyRelative("url").stringValue;
 
             // - Browse Field -
             EditorGUILayout.BeginHorizontal();
@@ -234,7 +234,7 @@ namespace ModIO
                     {
                         string fileName = GenerateUniqueFileName(path);
 
-                        elementProperty.FindPropertyRelative("source").stringValue = path;
+                        elementProperty.FindPropertyRelative("url").stringValue = path;
                         elementProperty.FindPropertyRelative("fileName").stringValue = fileName;
 
                         galleryImagesProp.FindPropertyRelative("isDirty").boolValue = true;

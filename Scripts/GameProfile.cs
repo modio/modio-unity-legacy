@@ -94,22 +94,22 @@ namespace ModIO
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.FullSize,
-                        source = apiObject.original
+                        url = apiObject.original
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.Thumbnail_320x180,
-                        source = apiObject.thumb_320x180
+                        url = apiObject.thumb_320x180
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.Thumbnail_640x360,
-                        source = apiObject.thumb_640x360
+                        url = apiObject.thumb_640x360
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.Thumbnail_1280x720,
-                        source = apiObject.thumb_1280x720
+                        url = apiObject.thumb_1280x720
                     },
                 };
             }
@@ -129,7 +129,7 @@ namespace ModIO
             public void ApplyHeaderImageObjectValues(API.HeaderImageObject apiObject)
             {
                 this._fileName = apiObject.filename;
-                this._source = apiObject.original;
+                this._url = apiObject.original;
             }
 
             public static HeaderImageLocator CreateFromHeaderImageObject(API.HeaderImageObject apiObject)
@@ -155,22 +155,22 @@ namespace ModIO
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.FullSize,
-                        source = apiObject.original
+                        url = apiObject.original
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.Thumbnail_64x64,
-                        source = apiObject.thumb_64x64
+                        url = apiObject.thumb_64x64
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.Thumbnail_128x128,
-                        source = apiObject.thumb_128x128
+                        url = apiObject.thumb_128x128
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.Thumbnail_256x256,
-                        source = apiObject.thumb_256x256
+                        url = apiObject.thumb_256x256
                     },
                 };
             }

@@ -45,7 +45,7 @@ namespace ModIO
 
             // - Media -
             retVal.logoLocator.fileName = profile.logoLocator.fileName;
-            retVal.logoLocator.source = profile.logoLocator.source;
+            retVal.logoLocator.url = profile.logoLocator.url;
 
             retVal.youtubeURLs.value = Utility.CollectionToArray(profile.youtubeURLs);
             retVal.sketchfabURLs.value = Utility.CollectionToArray(profile.sketchfabURLs);
