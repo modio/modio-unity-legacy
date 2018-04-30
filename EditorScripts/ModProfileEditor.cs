@@ -44,28 +44,35 @@ namespace ModIO
             // Profile Initialization
             if(modIdProperty.intValue < 0)
             {
-                System.Func<ModProfile, bool> userIsTeamMember = (p) =>
+                if(ModManager.GetAuthenticatedUser() != null)
                 {
-                    foreach(var teamMember in p.teamMembers)
+                    System.Func<ModProfile, bool> userIsTeamMember = (p) =>
                     {
-                        if(teamMember.userId == ModManager.GetAuthenticatedUser().profile.id
-                           && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Creator)
+                        foreach(var teamMember in p.teamMembers)
                         {
-                            return true;
+                            if(teamMember.userId == ModManager.GetAuthenticatedUser().profile.id
+                               && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Creator)
+                            {
+                                return true;
+                            }
                         }
+                        return false;
+                    };
+
+                    profile = null;
+
+                    modInitializationOptionIndex = 0;
+                    modList = ModManager.GetAllModProfiles().Where(userIsTeamMember).ToArray();
+                    modOptions = new string[modList.Length];
+                    for(int i = 0; i < modList.Length; ++i)
+                    {
+                        ModProfile mod = modList[i];
+                        modOptions[i] = mod.name;
                     }
-                    return false;
-                };
-
-                profile = null;
-
-                modInitializationOptionIndex = 0;
-                modList = ModManager.GetAllModProfiles().Where(userIsTeamMember).ToArray();
-                modOptions = new string[modList.Length];
-                for(int i = 0; i < modList.Length; ++i)
+                }
+                else
                 {
-                    ModProfile mod = modList[i];
-                    modOptions[i] = mod.name;
+                    modList = new ModProfile[0];
                 }
             }
             else
