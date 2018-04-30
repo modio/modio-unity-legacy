@@ -55,7 +55,11 @@ namespace ModIO
             else if(profile != null)
             {
                 logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
-                logoTexture = ModManager.LoadOrDownloadModLogo(profile.id, LOGO_PREVIEW_VERSION);
+                logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+
+                CacheManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
+                                        (t) => { logoTexture = t; isRepaintRequired = true; },
+                                        API.Client.LogError);
             }
             else
             {
@@ -327,7 +331,11 @@ namespace ModIO
                 logoProperty.FindPropertyRelative("isDirty").boolValue = false;
 
                 logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
-                logoTexture = ModManager.LoadOrDownloadModLogo(profile.id, LOGO_PREVIEW_VERSION);
+                logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+
+                CacheManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
+                                        (t) => { logoTexture = t; isRepaintRequired = true; },
+                                        API.Client.LogError);
             }
         }
 

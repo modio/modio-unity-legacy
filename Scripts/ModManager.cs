@@ -826,39 +826,6 @@ namespace ModIO
             return download;
         }
 
-        public static Texture2D LoadOrDownloadModLogo(int modId, ModLogoVersion version)
-        {
-            // TODO(@jackson): Defend
-            ModProfile profile = GetModProfile(modId);
-
-            Texture2D texture = null;
-            string filePath = string.Empty;
-            string serverURL = profile.logoLocator.GetVersionURL(version);
-            if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
-            {
-                Utility.TryLoadTextureFromFile(filePath, out texture);
-            }
-
-            if(texture == null)
-            {
-                texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
-                filePath = GenerateModLogoFilePath(profile.id, version);
-
-                var download = DownloadAndSaveImageAsPNG(serverURL,
-                                                         filePath,
-                                                         texture);
-                download.OnCompleted += (d) =>
-                {
-                    if(OnModLogoUpdated != null)
-                    {
-                        OnModLogoUpdated(modId, version, download.texture);
-                    }
-                };
-            }
-
-            return texture;
-        }
-
         // TODO(@jackson): Defend
         public static Texture2D LoadOrDownloadModGalleryImage(int modId, string imageFileName,
                                                               ModGalleryImageVersion version)
