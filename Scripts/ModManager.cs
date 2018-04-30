@@ -93,6 +93,9 @@ namespace ModIO
                 go.AddComponent<UpdateRunner>();
             }
 
+            API.Client.SetGameDetails(GlobalSettings.GAME_ID,
+                                      GlobalSettings.GAME_APIKEY);
+
             LoadCacheFromDisk();
             FetchAndCacheGameProfile();
             FetchAndRebuildModCache();
@@ -151,8 +154,7 @@ namespace ModIO
                         }
                     };
 
-                    Client.GetAuthenticatedUser(authUser.oAuthToken,
-                                                null,
+                    Client.GetAuthenticatedUser(null,
                                                 onAuthenticationFail);
                 }
 
@@ -355,8 +357,7 @@ namespace ModIO
                     userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
                          = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
-                    FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(authUser.oAuthToken,
-                                                                                            userSubscriptionFilter,
+                    FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
                                                                                             p, s, e),
                                                         UpdateUserSubscriptions,
                                                         Client.LogError);
@@ -578,21 +579,21 @@ namespace ModIO
                 authUser.profile = UserProfile.CreateFromUserObject(userObject);
                 WriteUserDataToDisk();
 
+                API.Client.SetUserAuthorizationToken(userOAuthToken);
+
                 onSuccess(authUser);
 
                 var userSubscriptionFilter = new RequestFilter();
                 userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
                      = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
-                FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(authUser.oAuthToken,
-                                                                                        userSubscriptionFilter,
+                FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
                                                                                         p, s, e),
                                                     UpdateUserSubscriptions,
                                                     Client.LogError);
             };
 
-            Client.GetAuthenticatedUser(userOAuthToken,
-                                        onGetUser,
+            Client.GetAuthenticatedUser(onGetUser,
                                         onError);
         }
 
@@ -600,6 +601,9 @@ namespace ModIO
         {
             authUser = null;
             DeleteUserDataFromDisk();
+
+            API.Client.ClearUserAuthorizationToken();
+
             if(userLoggedOut != null)
             {
                 userLoggedOut();
@@ -610,28 +614,26 @@ namespace ModIO
                                           Action<ModProfile> onSuccess,
                                           Action<WebRequestError> onError)
         {
-            Client.SubscribeToMod(authUser.oAuthToken,
-                                     modId,
-                                     (message) =>
-                                     {
-                                        authUser.subscribedModIDs.Add(modId);
-                                        onSuccess(GetModProfile(modId));
-                                     },
-                                     onError);
+            Client.SubscribeToMod(modId,
+                                  (message) =>
+                                  {
+                                    authUser.subscribedModIDs.Add(modId);
+                                    onSuccess(GetModProfile(modId));
+                                  },
+                                  onError);
         }
 
         public static void UnsubscribeFromMod(int modId,
                                               Action<ModProfile> onSuccess,
                                               Action<WebRequestError> onError)
         {
-            Client.UnsubscribeFromMod(authUser.oAuthToken,
-                                         modId,
-                                         (message) =>
-                                         {
-                                            authUser.subscribedModIDs.Remove(modId);
-                                            onSuccess(GetModProfile(modId));
-                                         },
-                                         onError);
+            Client.UnsubscribeFromMod(modId,
+                                      (message) =>
+                                      {
+                                        authUser.subscribedModIDs.Remove(modId);
+                                        onSuccess(GetModProfile(modId));
+                                      },
+                                      onError);
         }
 
         public static bool IsSubscribedToMod(int modId)
@@ -1048,8 +1050,7 @@ namespace ModIO
             remainingModEdits.sketchfabURLs = modEdits.sketchfabURLs;
             remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
 
-            Client.AddMod(authUser.oAuthToken,
-                          parameters,
+            Client.AddMod(parameters,
                           result => SubmitModProfileComponents(ModProfile.CreateFromModObject(result),
                                                                remainingModEdits,
                                                                modSubmissionSucceeded,
@@ -1110,8 +1111,7 @@ namespace ModIO
                     parameters.metadata_blob = modEdits.metadataBlob.value;
                 }
 
-                Client.EditMod(authUser.oAuthToken,
-                               modId, parameters,
+                Client.EditMod(modId, parameters,
                                (p) => SubmitModProfileComponents(profile, modEdits,
                                                                  modSubmissionSucceeded,
                                                                  modSubmissionFailed),
@@ -1235,8 +1235,7 @@ namespace ModIO
                 {
                     submissionActions.Add(() =>
                     {
-                        Client.AddModMedia(authUser.oAuthToken,
-                                           profile.id,
+                        Client.AddModMedia(profile.id,
                                            addMediaParameters,
                                            doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -1245,8 +1244,7 @@ namespace ModIO
                 {
                     submissionActions.Add(() =>
                     {
-                        Client.DeleteModMedia(authUser.oAuthToken,
-                                              profile.id,
+                        Client.DeleteModMedia(profile.id,
                                               deleteMediaParameters,
                                               doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -1274,8 +1272,7 @@ namespace ModIO
                     {
                         var parameters = new AddModTagsParameters();
                         parameters.tags = addedTags.ToArray();
-                        Client.AddModTags(authUser.oAuthToken,
-                                          profile.id, parameters,
+                        Client.AddModTags(profile.id, parameters,
                                           doNextSubmissionAction, modSubmissionFailed);
                     });
                 }
@@ -1285,8 +1282,7 @@ namespace ModIO
                     {
                         var parameters = new DeleteModTagsParameters();
                         parameters.tags = removedTags.ToArray();
-                        Client.DeleteModTags(authUser.oAuthToken,
-                                             profile.id, parameters,
+                        Client.DeleteModTags(profile.id, parameters,
                                              doNextSubmissionAction, modSubmissionFailed);
                     });
                 }
@@ -1353,8 +1349,7 @@ namespace ModIO
 
             // TODO(@jackson): parameters.filehash
 
-            Client.AddModfile(authUser.oAuthToken,
-                              modId,
+            Client.AddModfile(modId,
                               parameters,
                               (m) => onSuccess(Modfile.CreateFromModfileObject(m)),
                               onError);
@@ -1365,8 +1360,7 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            Client.AddModRating(authUser.oAuthToken,
-                                modId, new AddModRatingParameters(1),
+            Client.AddModRating(modId, new AddModRatingParameters(1),
                                 result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                 onError);
         }
@@ -1375,8 +1369,7 @@ namespace ModIO
         //                                     Action<APIMessage> onSuccess,
         //                                     Action<WebRequestError> onError)
         // {
-        //     Client.AddModTeamMember(authUser.oAuthToken,
-        //                             modId, teamMember.AsAddModTeamMemberParameters(),
+        //     Client.AddModTeamMember(modId, teamMember.AsAddModTeamMemberParameters(),
         //                             result => OnSuccessWrapper(result, onSuccess),
         //                             onError);
         // }
@@ -1387,8 +1380,7 @@ namespace ModIO
         {
             // TODO(@jackson): Remvoe Mod Locally
 
-            Client.DeleteMod(authUser.oAuthToken,
-                             modId,
+            Client.DeleteMod(modId,
                              result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                              onError);
         }
@@ -1397,8 +1389,7 @@ namespace ModIO
                                             Action<APIMessage> onSuccess,
                                             Action<WebRequestError> onError)
         {
-            Client.DeleteModComment(authUser.oAuthToken,
-                                    modId, commentId,
+            Client.DeleteModComment(modId, commentId,
                                     result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                     onError);
         }
