@@ -63,40 +63,93 @@ namespace ModIO
             return CacheManager._cacheDirectory;
         }
 
+        // ---------[ BASIC FILE I/O ]---------
+        public static T ReadJsonObjectFile<T>(string filePath)
+        {
+            if(File.Exists(filePath))
+            {
+                try
+                {
+                    return JsonUtility.FromJson<T>(File.ReadAllText(filePath));
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning("[mod.io] Failed to read json object from file " + filePath
+                                     + "\nError: " + e.Message);
+                }
+            }
+            return default(T);
+        }
+
+        public static void WriteJsonObjectFile<T>(string filePath,
+                                                  T jsonObject)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                File.WriteAllText(filePath, JsonUtility.ToJson(jsonObject));
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Failed to write json object to file " + filePath
+                                 + "\nError: " + e.Message);
+            }
+        }
+
+        public static Texture2D ReadImageFile(string filePath)
+        {
+            Texture2D texture = null;
+
+            if(File.Exists(filePath))
+            {
+                try
+                {
+                    texture = new Texture2D(0,0);
+                    texture.LoadImage(File.ReadAllBytes(filePath));
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning("[mod.io] Failed to read image file " + filePath
+                                     + "\nError: " + e.Message);
+                    texture = null;
+                }
+            }
+            return texture;
+        }
+
+        public static void WriteImageFile(string filePath,
+                                          Texture2D texture)
+        {
+            Debug.Assert(Path.GetExtension(filePath).Equals(".png"),
+                         "[mod.io] Images can only be saved in PNG format."
+                         + "\n" + filePath
+                         + " is an invalid file path.");
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                File.WriteAllBytes(filePath, texture.EncodeToPNG());
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Failed to write image file " + filePath
+                                 + "\nError: " + e.Message);
+            }
+        }
+
         // ---------[ USER MANAGEMENT ]---------
         public static string userFilePath
         { get { return CacheManager._cacheDirectory + "user.data"; } }
         
         public static void StoreAuthenticatedUser(AuthenticatedUser user)
         {
-            try
-            {
-                File.WriteAllText(userFilePath, JsonUtility.ToJson(user));
-            }
-            catch(Exception e)
-            {
-                Debug.LogError("[mod.io] Failed to write user data save file.\n"
-                               + e.Message);
-            }
+            CacheManager.WriteJsonObjectFile(userFilePath, user);
         }
 
         public static AuthenticatedUser LoadAuthenticatedUser()
         {
-            AuthenticatedUser user = null;
-            try
-            {
-                if(File.Exists(userFilePath))
-                {
-                    user = JsonUtility.FromJson<AuthenticatedUser>(File.ReadAllText(userFilePath));
-                }
-            }
-            catch(Exception e)
-            {
-                user = null;
-
-                Debug.LogWarning("[mod.io] Unable to read user data save file.\n"
-                                 + e.Message);
-            }
+            AuthenticatedUser user
+            = CacheManager.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
             return user;
         }
 
@@ -121,43 +174,25 @@ namespace ModIO
                                           Action<WebRequestError> onError)
         {
             // - Attempt load from cache -
-            try
+            GameProfile profile
+            = CacheManager.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
+
+            if(profile != null)
             {
-                if(File.Exists(gameProfileFilePath))
-                {
-                    GameProfile profile
-                    = JsonUtility.FromJson<GameProfile>(File.ReadAllText(gameProfileFilePath));
-
-                    onSuccess(profile);
-
-                    return;
-                }
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning("[mod.io] Failed to read game profile from " + gameProfileFilePath
-                                 + "\n" + e.Message);
-            }
-
-            // - Fetch from Server -
-            Action<API.GameObject> cacheGameProfile = (gameObject) =>
-            {
-                GameProfile profile = GameProfile.CreateFromGameObject(gameObject);
-
-                try
-                {
-                    File.WriteAllText(gameProfileFilePath, JsonUtility.ToJson(profile));
-                }
-                catch(Exception e)
-                {
-                    Debug.LogError("[mod.io] Failed to write game profile to " + gameProfileFilePath
-                                   + "\n" + e.Message);
-                }
-
                 onSuccess(profile);
-            };
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<API.GameObject> cacheGameProfile = (gameObject) =>
+                {
+                    profile = GameProfile.CreateFromGameObject(gameObject);
+                    CacheManager.WriteJsonObjectFile(gameProfileFilePath, profile);
+                    onSuccess(profile);
+                };
 
-            API.Client.GetGame(cacheGameProfile, onError);
+                API.Client.GetGame(cacheGameProfile, onError);
+            }
         }
 
         // ---------[ IMAGE MANAGEMENT ]---------
@@ -179,28 +214,21 @@ namespace ModIO
 
             // - Attempt load from cache -
             string logoFilePath = GenerateModLogoFilePath(modId, version);
-            try
+            Texture2D logoTexture = CacheManager.ReadImageFile(logoFilePath);
+            
+            if(logoTexture != null)
             {
-                if(File.Exists(logoFilePath))
-                {
-                    Texture2D logoTexture = new Texture2D(0,0);
-                    logoTexture.LoadImage(File.ReadAllBytes(logoFilePath));
-                    onSuccess(logoTexture);
-                    return;
-                }
+                onSuccess(logoTexture);
             }
-            catch(Exception e)
+            else
             {
-                Debug.LogWarning("[mod.io] Failed to read the mod logo from " + logoFilePath
-                                 + "\n" + e.Message);
+                // - Fetch from Server -
+                // GetModProfile(modId)
+                DownloadAndSaveImageAsPNG(profile.logoLocator.GetVersionURL(version),
+                                          GenerateModLogoFilePath(modId, version),
+                                          onSuccess,
+                                          onError);
             }
-
-            // - Fetch from Server -
-            // GetModProfile(modId)
-            DownloadAndSaveImageAsPNG(profile.logoLocator.GetVersionURL(version),
-                                      GenerateModLogoFilePath(modId, version),
-                                      onSuccess,
-                                      onError);
         }
 
         // ---------[ FILE DOWNLOADING ]---------
@@ -209,27 +237,13 @@ namespace ModIO
                                                      Action<Texture2D> onSuccess,
                                                      Action<WebRequestError> onError)
         {
-            Debug.Assert(Path.GetExtension(destinationFilePath).Equals(".png"),
-                         "[mod.io] Images can only be saved in PNG format."
-                         + "\n" + destinationFilePath
-                         + " is an invalid file path.");
-
             var download = new TextureDownload();
 
             download.sourceURL = serverURL;
             download.OnCompleted += (d) =>
             {
-                try
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(destinationFilePath));
-                    File.WriteAllBytes(destinationFilePath, download.texture.EncodeToPNG());
-                }
-                catch(Exception e)
-                {
-                    Debug.LogError("[mod.io] Failed to write image to " + destinationFilePath
-                                   + "\n" + e.Message);
-                }
-
+                CacheManager.WriteImageFile(destinationFilePath,
+                                            download.texture);
                 onSuccess(download.texture);
             };
             download.OnFailed += (d, e) =>
