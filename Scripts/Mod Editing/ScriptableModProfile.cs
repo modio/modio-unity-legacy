@@ -9,6 +9,8 @@ namespace ModIO
     [CreateAssetMenu(fileName = "New Mod Profile", menuName = "ModIO/Create Mod Profile")]
     public class ScriptableModProfile : ScriptableObject
     {
+        public const int UNINITIALIZED_MOD_ID = -1;
+
         #if UNITY_EDITOR
         [MenuItem("mod.io/Create Mod Profile")]
         public static void CreateAssetInstance()
@@ -24,7 +26,7 @@ namespace ModIO
         }
         #endif
 
-        public int modId = -1;
+        public int modId = ScriptableModProfile.UNINITIALIZED_MOD_ID;
         public EditableModProfile editableModProfile = null;
     }
 }

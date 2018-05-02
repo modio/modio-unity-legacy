@@ -110,14 +110,21 @@ namespace ModIO
                 if(!String.IsNullOrEmpty(imageFileName)
                    && !String.IsNullOrEmpty(imageURL))
                 {
-                    if(!Utility.TryLoadTextureFromFile(imageURL, out imageTexture))
+                    if(Utility.TryLoadTextureFromFile(imageURL, out imageTexture))
                     {
-                        imageTexture = ModManager.LoadOrDownloadModGalleryImage(baseProfile.id,
-                                                                                imageFileName,
-                                                                                IMAGE_PREVIEW_VERSION);
+                        this.textureCache[imageFileName] = imageTexture;
+                    }
+                    else
+                    {
+                        this.textureCache[imageFileName] = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+
+                        CacheManager.GetModGalleryImage(baseProfile,
+                                                        imageFileName,
+                                                        IMAGE_PREVIEW_VERSION,
+                                                        (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
+                                                        null);
                     }
                     
-                    this.textureCache[imageFileName] = imageTexture;
                 }
             }
 
@@ -269,11 +276,14 @@ namespace ModIO
             // - LoadOrDownload -
             else if(profile != null)
             {
-                texture = ModManager.LoadOrDownloadModGalleryImage(profile.id,
-                                                                   imageFileName,
-                                                                   IMAGE_PREVIEW_VERSION);
-                this.textureCache.Add(imageFileName, texture);
-                return texture;
+                this.textureCache.Add(imageFileName, UISettings.Instance.DownloadingPlaceholderImages.modLogo);
+                
+                CacheManager.GetModGalleryImage(profile,
+                                                imageFileName,
+                                                IMAGE_PREVIEW_VERSION,
+                                                (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
+                                                null);
+                return this.textureCache[imageFileName];
             }
 
             return null;

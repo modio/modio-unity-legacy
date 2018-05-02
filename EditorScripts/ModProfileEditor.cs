@@ -13,6 +13,21 @@ namespace ModIO
     [CustomEditor(typeof(ScriptableModProfile))]
     public class ModProfileEditor : Editor
     {
+        // ------[ NESTED CLASSES ]------
+        protected class LoadingProfileViewPart : IModProfileViewPart
+        {
+            public void OnEnable(SerializedProperty editableProfileProperty, ModProfile baseProfile) {}
+            public void OnDisable(){}
+            public void OnUpdate(){}
+            public bool IsRepaintRequired() { return false; }
+
+            public void OnGUI()
+            {
+                EditorGUILayout.HelpBox("Load Mod Profile. Please wait...",
+                                        MessageType.Info);
+            }
+        }
+
         // ------[ SERIALIZED PROPERTIES ]------
         private SerializedProperty modIdProperty;
         private SerializedProperty editableModProfileProperty;
@@ -39,10 +54,8 @@ namespace ModIO
             modIdProperty = serializedObject.FindProperty("modId");
             editableModProfileProperty = serializedObject.FindProperty("editableModProfile");
 
-            profileViewParts = CreateProfileViewParts();
-
             // Profile Initialization
-            if(modIdProperty.intValue < 0)
+            if(modIdProperty.intValue == ScriptableModProfile.UNINITIALIZED_MOD_ID)
             {
                 if(ModManager.GetAuthenticatedUser() != null)
                 {
@@ -78,12 +91,25 @@ namespace ModIO
             else
             {
                 // Initialize View
-                profile = ModManager.GetModProfile(modIdProperty.intValue);
-
-                foreach(IModProfileViewPart viewPart in profileViewParts)
+                profile = null;
+                profileViewParts = new IModProfileViewPart[]
                 {
-                    viewPart.OnEnable(editableModProfileProperty, profile);
-                }
+                    new LoadingProfileViewPart()
+                };
+
+                System.Action<ModProfile> onGetProfile = (p) =>
+                {
+                    profileViewParts = CreateProfileViewParts();
+
+                    foreach(IModProfileViewPart viewPart in profileViewParts)
+                    {
+                        viewPart.OnEnable(editableModProfileProperty, p);
+                    };
+                };
+
+                CacheManager.GetModProfile(modIdProperty.intValue,
+                                           onGetProfile,
+                                           API.Client.LogError);
             }
 
             scrollPos = Vector2.zero;

@@ -2,8 +2,11 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 using UnityEngine;
+
+using ModIO.API;
 
 namespace ModIO
 {
@@ -191,7 +194,72 @@ namespace ModIO
                     onSuccess(profile);
                 };
 
-                API.Client.GetGame(cacheGameProfile, onError);
+                Client.GetGame(cacheGameProfile, onError);
+            }
+        }
+
+        // ---------[ MOD PROFILES ]---------
+        public static string GenerateModProfileFilePath(int modId)
+        {
+            return (CacheManager._cacheDirectory
+                    + "mod_profiles/"
+                    + modId + ".data");
+        }
+
+        public static void GetModProfile(int modId,
+                                         Action<ModProfile> onSuccess,
+                                         Action<WebRequestError> onError)
+        {
+            string profileFilePath = GenerateModProfileFilePath(modId);
+            ModProfile profile = CacheManager.ReadJsonObjectFile<ModProfile>(profileFilePath);
+            if(profile != null)
+            {
+                onSuccess(profile);
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<ModObject> cacheModProfile = (modObject) =>
+                {
+                    profile = ModProfile.CreateFromModObject(modObject);
+                    CacheManager.WriteJsonObjectFile(profileFilePath, profile);
+                    onSuccess(profile);
+                };
+
+                Client.GetMod(modId,
+                                  cacheModProfile,
+                                  onError);
+            }
+        }
+        
+        public static IEnumerable<ModProfile> LoadAllModProfiles()
+        {
+            string profileDirectory = CacheManager._cacheDirectory + "mod_profiles/";
+            
+            if(Directory.Exists(profileDirectory))
+            {
+                string[] profilePaths;
+                try
+                {
+                    profilePaths = Directory.GetFiles(profileDirectory,
+                                                      "*.data");
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning("[mod.io] Failed to read mod profile directory " + profileDirectory
+                                     + "\nError: " + e.Message);
+
+                    profilePaths = new string[0];
+                }
+
+                foreach(string filePath in profilePaths)
+                {
+                    ModProfile profile = CacheManager.ReadJsonObjectFile<ModProfile>(filePath);
+                    if(profile != null)
+                    {
+                        yield return profile;
+                    }
+                }
             }
         }
 
@@ -203,7 +271,17 @@ namespace ModIO
                     + modId + "/"
                     + version.ToString() + ".png");
         }
-
+        public static string GenerateModGalleryImageFilePath(int modId,
+                                                             string imageFileName,
+                                                             ModGalleryImageVersion version)
+        {
+            return (Application.temporaryCachePath
+                    + "/mod_images/"
+                    + modId + "/"
+                    + version.ToString() + "/"
+                    + Path.GetFileNameWithoutExtension(imageFileName) +
+                    ".png");
+        }
 
         // TODO(@jackson): Look at reconfiguring params
         public static void GetModLogo(ModProfile profile, ModLogoVersion version,
@@ -213,7 +291,7 @@ namespace ModIO
             int modId = profile.id;
 
             // - Attempt load from cache -
-            string logoFilePath = GenerateModLogoFilePath(modId, version);
+            string logoFilePath = CacheManager.GenerateModLogoFilePath(modId, version);
             Texture2D logoTexture = CacheManager.ReadImageFile(logoFilePath);
             
             if(logoTexture != null)
@@ -225,7 +303,36 @@ namespace ModIO
                 // - Fetch from Server -
                 // GetModProfile(modId)
                 DownloadAndSaveImageAsPNG(profile.logoLocator.GetVersionURL(version),
-                                          GenerateModLogoFilePath(modId, version),
+                                          logoFilePath,
+                                          onSuccess,
+                                          onError);
+            }
+        }
+
+        public static void GetModGalleryImage(ModProfile profile,
+                                              string imageFileName,
+                                              ModGalleryImageVersion version,
+                                              Action<Texture2D> onSuccess,
+                                              Action<WebRequestError> onError)
+        {
+            int modId = profile.id;
+
+            // - Attempt load from cache -
+            string imageFilePath = CacheManager.GenerateModGalleryImageFilePath(modId,
+                                                                                imageFileName,
+                                                                                version);
+            Texture2D imageTexture = CacheManager.ReadImageFile(imageFilePath);
+            
+            if(imageTexture != null)
+            {
+                onSuccess(imageTexture);
+            }
+            else
+            {
+                // - Fetch from Server -
+                // GetModProfile(modId)
+                DownloadAndSaveImageAsPNG(profile.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version),
+                                          imageFilePath,
                                           onSuccess,
                                           onError);
             }
@@ -252,6 +359,63 @@ namespace ModIO
             };
 
             DownloadManager.StartDownload(download);
+        }
+
+        // ---------[ FETCH ALL RESULTS ]---------
+        private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
+                                                    Action<ObjectArray<T>> onSuccess,
+                                                    Action<WebRequestError> onError);
+
+        private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
+                                                       Action<List<T>> onSuccess,
+                                                       Action<WebRequestError> onError)
+        {
+            var pagination = new PaginationParameters()
+            {
+                limit = PaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            var results = new List<T>();
+
+            query(pagination,
+                  (r) => FetchQueryResultsRecursively(query,
+                                                      r,
+                                                      pagination,
+                                                      results,
+                                                      onSuccess,
+                                                      onError),
+                  onError);
+        }
+
+        private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
+                                                            ObjectArray<T> queryResult,
+                                                            PaginationParameters pagination,
+                                                            List<T> culmativeResults,
+                                                            Action<List<T>> onSuccess,
+                                                            Action<WebRequestError> onError)
+        {
+            Debug.Assert(pagination.limit > 0);
+
+            culmativeResults.AddRange(queryResult.data);
+
+            if(queryResult.result_count < queryResult.result_limit)
+            {
+                onSuccess(culmativeResults);
+            }
+            else
+            {
+                pagination.offset += pagination.limit;
+
+                query(pagination,
+                      (r) => FetchQueryResultsRecursively(query,
+                                                          queryResult,
+                                                          pagination,
+                                                          culmativeResults,
+                                                          onSuccess,
+                                                          onError),
+                      onError);
+            }
         }
     }
 }

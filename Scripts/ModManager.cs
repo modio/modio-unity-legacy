@@ -242,9 +242,16 @@ namespace ModIO
 
         private static void ApplyTeamMemberObjectsToCache(int modId, List<TeamMemberObject> teamMemberObjects)
         {
-            ModProfile profile = ModManager.GetModProfile(modId);
-            profile.ApplyTeamMemberObjectValues(teamMemberObjects.ToArray());
-            StoreModData(profile);
+            // TODO(@jackson): Reimplement in CacheManager
+
+            // Action<ModProfile> onGetProfile = (p) =>
+            // {
+            //     p.ApplyTeamMemberObjectValues(teamMemberObjects.ToArray());
+            //     StoreModData(profile);
+            // };
+
+            // CacheManager.GetModProfile(modId,
+            //                            onGetProfile);
 
             // TODO(@jackson): Notify
         }
@@ -343,134 +350,134 @@ namespace ModIO
 
         private static void ProcessModEvents(List<EventObject> modEventObjects)
         {
-            // - ModProfile Processing Options -
-            Action<ModEvent> processModAvailable = (modEvent) =>
-            {
-                Action<ModObject> onGetMod = (modObject) =>
-                {
-                    var profile = ModProfile.CreateFromModObject(modObject);
+            // // - ModProfile Processing Options -
+            // Action<ModEvent> processModAvailable = (modEvent) =>
+            // {
+            //     Action<ModObject> onGetMod = (modObject) =>
+            //     {
+            //         var profile = ModProfile.CreateFromModObject(modObject);
 
-                    StoreModData(profile);
-                    manifest.unresolvedEvents.Remove(modEvent);
+            //         StoreModData(profile);
+            //         manifest.unresolvedEvents.Remove(modEvent);
 
-                    if(OnModAdded != null)
-                    {
-                        OnModAdded(profile);
-                    }
-                };
+            //         if(OnModAdded != null)
+            //         {
+            //             OnModAdded(profile);
+            //         }
+            //     };
 
-                Client.GetMod(modEvent.modId, onGetMod, Client.LogError);
-            };
-            Action<ModEvent> processModUnavailable = (modEvent) =>
-            {
-                // TODO(@jackson): Facilitate marking Mods as installed
-                bool isModInstalled = (authUser != null
-                                       && authUser.subscribedModIDs.Contains(modEvent.modId));
+            //     Client.GetMod(modEvent.modId, onGetMod, Client.LogError);
+            // };
+            // Action<ModEvent> processModUnavailable = (modEvent) =>
+            // {
+            //     // TODO(@jackson): Facilitate marking Mods as installed
+            //     bool isModInstalled = (authUser != null
+            //                            && authUser.subscribedModIDs.Contains(modEvent.modId));
 
-                if(!isModInstalled
-                   && modCache.ContainsKey(modEvent.modId))
-                {
-                    UncacheMod(modEvent.modId);
+            //     if(!isModInstalled
+            //        && modCache.ContainsKey(modEvent.modId))
+            //     {
+            //         UncacheMod(modEvent.modId);
 
-                    if(OnModRemoved != null)
-                    {
-                        OnModRemoved(modEvent.modId);
-                    }
-                }
-                manifest.unresolvedEvents.Remove(modEvent);
-            };
+            //         if(OnModRemoved != null)
+            //         {
+            //             OnModRemoved(modEvent.modId);
+            //         }
+            //     }
+            //     manifest.unresolvedEvents.Remove(modEvent);
+            // };
 
-            Action<ModEvent> processModEdited = (modEvent) =>
-            {
-                Action<ModObject> onGetMod = (modObject) =>
-                {
-                    var profile = ModProfile.CreateFromModObject(modObject);
+            // Action<ModEvent> processModEdited = (modEvent) =>
+            // {
+            //     Action<ModObject> onGetMod = (modObject) =>
+            //     {
+            //         var profile = ModProfile.CreateFromModObject(modObject);
 
-                    StoreModData(profile);
-                    manifest.unresolvedEvents.Remove(modEvent);
+            //         StoreModData(profile);
+            //         manifest.unresolvedEvents.Remove(modEvent);
 
-                    if(OnModUpdated != null)
-                    {
-                        OnModUpdated(profile.id);
-                    }
-                };
+            //         if(OnModUpdated != null)
+            //         {
+            //             OnModUpdated(profile.id);
+            //         }
+            //     };
 
-                Client.GetMod(modEvent.modId, onGetMod, Client.LogError);
-            };
+            //     Client.GetMod(modEvent.modId, onGetMod, Client.LogError);
+            // };
 
-            Action<ModEvent> processModfileChange = (modEvent) =>
-            {
-                ModProfile profile = GetModProfile(modEvent.modId);
+            // Action<ModEvent> processModfileChange = (modEvent) =>
+            // {
+            //     ModProfile profile = GetModProfile(modEvent.modId);
 
-                if(profile == null)
-                {
-                    Debug.Log("Received Modfile change for uncached mod. Ignoring.");
-                    manifest.unresolvedEvents.Remove(modEvent);
-                }
-                else
-                {
-                    Action<ModObject> onGetMod = (modObject) =>
-                    {
-                        profile.ApplyModObjectValues(modObject);
+            //     if(profile == null)
+            //     {
+            //         Debug.Log("Received Modfile change for uncached mod. Ignoring.");
+            //         manifest.unresolvedEvents.Remove(modEvent);
+            //     }
+            //     else
+            //     {
+            //         Action<ModObject> onGetMod = (modObject) =>
+            //         {
+            //             profile.ApplyModObjectValues(modObject);
 
-                        StoreModData(profile);
+            //             StoreModData(profile);
 
-                        if(OnModfileChanged != null)
-                        {
-                            throw new System.NotImplementedException();
-                            // OnModfileChanged(profile.id, profile.modfile);
-                        }
-                    };
+            //             if(OnModfileChanged != null)
+            //             {
+            //                 throw new System.NotImplementedException();
+            //                 // OnModfileChanged(profile.id, profile.modfile);
+            //             }
+            //         };
 
-                    Client.GetMod(profile.id, onGetMod, Client.LogError);
+            //         Client.GetMod(profile.id, onGetMod, Client.LogError);
 
-                    manifest.unresolvedEvents.Remove(modEvent);
-                }
-            };
+            //         manifest.unresolvedEvents.Remove(modEvent);
+            //     }
+            // };
 
-            // - Handle ModProfile Event -
-            foreach(EventObject eventObject in modEventObjects)
-            {
-                var modEvent = ModEvent.CreateFromEventObject(eventObject);
+            // // - Handle ModProfile Event -
+            // foreach(EventObject eventObject in modEventObjects)
+            // {
+            //     var modEvent = ModEvent.CreateFromEventObject(eventObject);
 
-                string eventSummary = "TimeStamp (Local)=" + modEvent.dateAdded.AsLocalDateTime();
-                eventSummary += "\nMod=" + modEvent.modId;
-                eventSummary += "\nEventType=" + modEvent.eventType.ToString();
+            //     string eventSummary = "TimeStamp (Local)=" + modEvent.dateAdded.AsLocalDateTime();
+            //     eventSummary += "\nMod=" + modEvent.modId;
+            //     eventSummary += "\nEventType=" + modEvent.eventType.ToString();
                 
-                Debug.Log("[PROCESSING MOD EVENT]\n" + eventSummary);
+            //     Debug.Log("[PROCESSING MOD EVENT]\n" + eventSummary);
 
 
-                manifest.unresolvedEvents.Add(modEvent);
+            //     manifest.unresolvedEvents.Add(modEvent);
 
-                switch(modEvent.eventType)
-                {
-                    case ModEventType.ModfileChanged:
-                    {
-                        processModfileChange(modEvent);
-                    }
-                    break;
-                    case ModEventType.ModAvailable:
-                    {
-                        processModAvailable(modEvent);
-                    }
-                    break;
-                    case ModEventType.ModUnavailable:
-                    {
-                        processModUnavailable(modEvent);
-                    }
-                    break;
-                    case ModEventType.ModEdited:
-                    {
-                        processModEdited(modEvent);
-                    }
-                    break;
-                    default:
-                    {
-                        Debug.LogError("Unhandled Event Type: " + modEvent.eventType.ToString());
-                    }
-                    break;
-                }
-            }
+            //     switch(modEvent.eventType)
+            //     {
+            //         case ModEventType.ModfileChanged:
+            //         {
+            //             processModfileChange(modEvent);
+            //         }
+            //         break;
+            //         case ModEventType.ModAvailable:
+            //         {
+            //             processModAvailable(modEvent);
+            //         }
+            //         break;
+            //         case ModEventType.ModUnavailable:
+            //         {
+            //             processModUnavailable(modEvent);
+            //         }
+            //         break;
+            //         case ModEventType.ModEdited:
+            //         {
+            //             processModEdited(modEvent);
+            //         }
+            //         break;
+            //         default:
+            //         {
+            //             Debug.LogError("Unhandled Event Type: " + modEvent.eventType.ToString());
+            //         }
+            //         break;
+            //     }
+            // }
         }
 
         private static void UpdateUserSubscriptions(List<ModObject> userSubscriptions)
@@ -591,27 +598,27 @@ namespace ModIO
         }
 
         public static void SubscribeToMod(int modId,
-                                          Action<ModProfile> onSuccess,
+                                          Action<APIMessage> onSuccess,
                                           Action<WebRequestError> onError)
         {
             Client.SubscribeToMod(modId,
                                   (message) =>
                                   {
                                     authUser.subscribedModIDs.Add(modId);
-                                    onSuccess(GetModProfile(modId));
+                                    onSuccess(APIMessage.CreateFromMessageObject(message));
                                   },
                                   onError);
         }
 
         public static void UnsubscribeFromMod(int modId,
-                                              Action<ModProfile> onSuccess,
+                                              Action<APIMessage> onSuccess,
                                               Action<WebRequestError> onError)
         {
             Client.UnsubscribeFromMod(modId,
                                       (message) =>
                                       {
                                         authUser.subscribedModIDs.Remove(modId);
-                                        onSuccess(GetModProfile(modId));
+                                        onSuccess(APIMessage.CreateFromMessageObject(message));
                                       },
                                       onError);
         }
@@ -636,13 +643,6 @@ namespace ModIO
         public static string GetModDirectory(int modId)
         {
             return cacheDirectory + "mods/" + modId + "/";
-        }
-
-        public static ModProfile GetModProfile(int modId)
-        {
-            ModProfile profile;
-            modCache.TryGetValue(modId, out profile);
-            return profile;
         }
 
         // TODO(@jackson): Pass other components
@@ -673,7 +673,7 @@ namespace ModIO
 
         public static IEnumerable<ModProfile> GetAllModProfiles()
         {
-            return modCache.Values;
+            return CacheManager.LoadAllModProfiles();
         }
 
         public static void DeleteAllDownloadedBinaries(int modId)
@@ -826,59 +826,6 @@ namespace ModIO
             return download;
         }
 
-        // TODO(@jackson): Defend
-        public static Texture2D LoadOrDownloadModGalleryImage(int modId, string imageFileName,
-                                                              ModGalleryImageVersion version)
-        {
-            // TODO(@jackson): Defend
-            var profile = GetModProfile(modId);
-
-            var imageLocator = profile.GetGalleryImageWithFileName(imageFileName);
-            if(imageLocator == null)
-            {
-                Debug.LogWarning("[mod.io] Unable to find Gallery Image with FileName \'"
-                                 + imageFileName + "\' in mod profile ["
-                                 + modId + "]:"
-                                 + profile.name);
-                return null;
-            }
-
-            string serverURL = imageLocator.GetVersionURL(version);
-            string filePath = null;
-            Texture2D texture = null;
-            if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath))
-            {
-                Utility.TryLoadTextureFromFile(filePath, out texture);
-            }
-
-            if(texture == null)
-            {
-                // TODO(@jackson): Replace with correct placeholder
-                texture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
-
-                filePath = String.Format(@"{0}/modImages/{1}/{2}/{3}.png",
-                                         Application.temporaryCachePath,
-                                         modId,
-                                         version.ToString(),
-                                         Path.GetFileNameWithoutExtension(imageFileName));
-
-                // TODO(@jackson): Fix the filePath
-                var download = DownloadAndSaveImageAsPNG(serverURL,
-                                                         filePath,
-                                                         texture);
-                download.OnCompleted += (d) =>
-                {
-                    if(OnModGalleryImageUpdated != null)
-                    {
-                        OnModGalleryImageUpdated(modId, imageFileName,
-                                                 version, download.texture);
-                    }
-                };
-            }
-
-            return texture;
-        }
-
         // TODO(@jackson): param -> ids?
         // TODO(@jackson): defend
         // TODO(@jackson): Add preload function?
@@ -1012,66 +959,71 @@ namespace ModIO
         {
             Debug.Assert(modId > 0);
 
-            // TODO(@jackson): Defend this code
-            ModProfile profile = GetModProfile(modId);
-
-            if(modEdits.status.isDirty
-               || modEdits.visibility.isDirty
-               || modEdits.name.isDirty
-               || modEdits.nameId.isDirty
-               || modEdits.summary.isDirty
-               || modEdits.description.isDirty
-               || modEdits.homepageURL.isDirty
-               || modEdits.metadataBlob.isDirty)
+            Action<ModProfile> submitChanges = (profile) =>
             {
-                var parameters = new EditModParameters();
-                if(modEdits.status.isDirty)
+                if(modEdits.status.isDirty
+                   || modEdits.visibility.isDirty
+                   || modEdits.name.isDirty
+                   || modEdits.nameId.isDirty
+                   || modEdits.summary.isDirty
+                   || modEdits.description.isDirty
+                   || modEdits.homepageURL.isDirty
+                   || modEdits.metadataBlob.isDirty)
                 {
-                    parameters.status = (int)modEdits.status.value;
-                }
-                if(modEdits.visibility.isDirty)
-                {
-                    parameters.visible = (int)modEdits.visibility.value;
-                }
-                if(modEdits.name.isDirty)
-                {
-                    parameters.name = modEdits.name.value;
-                }
-                if(modEdits.nameId.isDirty)
-                {
-                    parameters.name_id = modEdits.nameId.value;
-                }
-                if(modEdits.summary.isDirty)
-                {
-                    parameters.summary = modEdits.summary.value;
-                }
-                if(modEdits.description.isDirty)
-                {
-                    parameters.description = modEdits.description.value;
-                }
-                if(modEdits.homepageURL.isDirty)
-                {
-                    parameters.homepage = modEdits.homepageURL.value;
-                }
-                if(modEdits.metadataBlob.isDirty)
-                {
-                    parameters.metadata_blob = modEdits.metadataBlob.value;
-                }
+                    var parameters = new EditModParameters();
+                    if(modEdits.status.isDirty)
+                    {
+                        parameters.status = (int)modEdits.status.value;
+                    }
+                    if(modEdits.visibility.isDirty)
+                    {
+                        parameters.visible = (int)modEdits.visibility.value;
+                    }
+                    if(modEdits.name.isDirty)
+                    {
+                        parameters.name = modEdits.name.value;
+                    }
+                    if(modEdits.nameId.isDirty)
+                    {
+                        parameters.name_id = modEdits.nameId.value;
+                    }
+                    if(modEdits.summary.isDirty)
+                    {
+                        parameters.summary = modEdits.summary.value;
+                    }
+                    if(modEdits.description.isDirty)
+                    {
+                        parameters.description = modEdits.description.value;
+                    }
+                    if(modEdits.homepageURL.isDirty)
+                    {
+                        parameters.homepage = modEdits.homepageURL.value;
+                    }
+                    if(modEdits.metadataBlob.isDirty)
+                    {
+                        parameters.metadata_blob = modEdits.metadataBlob.value;
+                    }
 
-                Client.EditMod(modId, parameters,
-                               (p) => SubmitModProfileComponents(profile, modEdits,
-                                                                 modSubmissionSucceeded,
-                                                                 modSubmissionFailed),
-                               modSubmissionFailed);
-            }
-            // - Get updated ModProfile -
-            else
-            {
-                SubmitModProfileComponents(profile,
-                                           modEdits,
-                                           modSubmissionSucceeded,
-                                           modSubmissionFailed);
-            }
+                    Client.EditMod(modId, parameters,
+                                   (p) => SubmitModProfileComponents(profile, modEdits,
+                                                                     modSubmissionSucceeded,
+                                                                     modSubmissionFailed),
+                                   modSubmissionFailed);
+                }
+                // - Get updated ModProfile -
+                else
+                {
+                    SubmitModProfileComponents(profile,
+                                               modEdits,
+                                               modSubmissionSucceeded,
+                                               modSubmissionFailed);
+                }
+            };
+
+            CacheManager.GetModProfile(modId,
+                                       submitChanges,
+                                       modSubmissionFailed);
+
         }
 
         private static void SubmitModProfileComponents(ModProfile profile,
