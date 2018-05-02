@@ -3,7 +3,7 @@ Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to e
 
 ## Getting started
 
-If you are a game developer, first step is to add mod support to your Unity game. Once mod support is up and running, [create your games profile](https://mod.io/games/add) on mod.io, to get an API key and access to all [functionality mod.io offers](https://mod.io/setup).
+If you are a game developer, first step is to add mod support to your Unity game. Once mod support is up and running, [create your games profile](https://mod.io/games/add) on mod.io, to get an API key and access to all [functionality mod.io offers](https://mod.io/setup). Our generic [getting started guide](https://apps.mod.io/guides/getting-started) is a good place to start if you are completely new to mod.io.
 
 ## Contributions Welcome
 Our Unity plugin is public and open source. Game developers are welcome to utilize it directly, to add support for mods in their games, or fork it for their games customized use. Want to make changes to our plugin? Submit a pull request with your recommended changes to be reviewed.
