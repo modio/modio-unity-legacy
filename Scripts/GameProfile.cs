@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using SerializeField = UnityEngine.SerializeField;
 
+using Newtonsoft.Json;
+
 namespace ModIO
 {
     // - Enums -
@@ -184,54 +186,54 @@ namespace ModIO
         }
 
         // ---------[ SERIALIZED MEMBERS ]---------
-        [SerializeField] private int _id;
-        [SerializeField] private GameStatus _status;
-        [SerializeField] private int _submittedById;
-        [SerializeField] private TimeStamp _dateAdded;
-        [SerializeField] private TimeStamp _dateUpdated;
-        [SerializeField] private TimeStamp _dateLive;
-        [SerializeField] private ModGalleryPresentationOption _presentationOption;
-        [SerializeField] private ModSubmissionOption _submissionOption;
-        [SerializeField] private ModCurationOption _curationOption;
-        [SerializeField] private GameCommunityOptions _communityOptions;
-        [SerializeField] private ModRevenuePermissions _revenuePermissions;
-        [SerializeField] private GameAPIPermissions _apiPermissions;
-        [SerializeField] private string _ugcName;
-        [SerializeField] private IconImageLocator _iconLocator;
-        [SerializeField] private LogoImageLocator _logoLocator;
-        [SerializeField] private HeaderImageLocator _headerImageLocator;
-        [SerializeField] private string _instructionsURL;
-        [SerializeField] private string _name;
-        [SerializeField] private string _nameId;
-        [SerializeField] private string _summary;
-        [SerializeField] private string _instructions;
-        [SerializeField] private string _profileURL;
-        [SerializeField] private ModTagCategory[] _taggingOptions;
+        [JsonProperty] private int _id;
+        [JsonProperty] private GameStatus _status;
+        [JsonProperty] private int _submittedById;
+        [JsonProperty] private TimeStamp _dateAdded;
+        [JsonProperty] private TimeStamp _dateUpdated;
+        [JsonProperty] private TimeStamp _dateLive;
+        [JsonProperty] private ModGalleryPresentationOption _presentationOption;
+        [JsonProperty] private ModSubmissionOption _submissionOption;
+        [JsonProperty] private ModCurationOption _curationOption;
+        [JsonProperty] private GameCommunityOptions _communityOptions;
+        [JsonProperty] private ModRevenuePermissions _revenuePermissions;
+        [JsonProperty] private GameAPIPermissions _apiPermissions;
+        [JsonProperty] private string _ugcName;
+        [JsonProperty] private IconImageLocator _iconLocator;
+        [JsonProperty] private LogoImageLocator _logoLocator;
+        [JsonProperty] private HeaderImageLocator _headerImageLocator;
+        [JsonProperty] private string _instructionsURL;
+        [JsonProperty] private string _name;
+        [JsonProperty] private string _nameId;
+        [JsonProperty] private string _summary;
+        [JsonProperty] private string _instructions;
+        [JsonProperty] private string _profileURL;
+        [JsonProperty] private ModTagCategory[] _taggingOptions;
 
         // ---------[ FIELDS ]---------
-        public int id                                           { get { return this._id; } }
-        public GameStatus status                                { get { return this._status; } }
-        public int submittedById                                { get { return this._submittedById; } }
-        public TimeStamp dateAdded                              { get { return this._dateAdded; } }
-        public TimeStamp dateUpdated                            { get { return this._dateUpdated; } }
-        public TimeStamp dateLive                               { get { return this._dateLive; } }
-        public ModGalleryPresentationOption presentationOption  { get { return this._presentationOption; } }
-        public ModSubmissionOption submissionOption             { get { return this._submissionOption; } }
-        public ModCurationOption curationOption                 { get { return this._curationOption; } }
-        public GameCommunityOptions communityOptions            { get { return this._communityOptions; } }
-        public ModRevenuePermissions revenuePermissions         { get { return this._revenuePermissions; } }
-        public GameAPIPermissions apiPermissions                { get { return this._apiPermissions; } }
-        public string ugcName                                   { get { return this._ugcName; } }
-        public IconImageLocator iconLocator                     { get { return this._iconLocator; } }
-        public LogoImageLocator logoLocator                     { get { return this._logoLocator; } }
-        public HeaderImageLocator headerImageLocator            { get { return this._headerImageLocator; } }
-        public string name                                      { get { return this._name; } }
-        public string nameId                                    { get { return this._nameId; } }
-        public string summary                                   { get { return this._summary; } }
-        public string instructions                              { get { return this._instructions; } }
-        public string instructionsURL                           { get { return this._instructionsURL; } }
-        public string profileURL                                { get { return this._profileURL; } }
-        public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this._taggingOptions); } }
+        [JsonIgnore] public int id                                           { get { return this._id; } }
+        [JsonIgnore] public GameStatus status                                { get { return this._status; } }
+        [JsonIgnore] public int submittedById                                { get { return this._submittedById; } }
+        [JsonIgnore] public TimeStamp dateAdded                              { get { return this._dateAdded; } }
+        [JsonIgnore] public TimeStamp dateUpdated                            { get { return this._dateUpdated; } }
+        [JsonIgnore] public TimeStamp dateLive                               { get { return this._dateLive; } }
+        [JsonIgnore] public ModGalleryPresentationOption presentationOption  { get { return this._presentationOption; } }
+        [JsonIgnore] public ModSubmissionOption submissionOption             { get { return this._submissionOption; } }
+        [JsonIgnore] public ModCurationOption curationOption                 { get { return this._curationOption; } }
+        [JsonIgnore] public GameCommunityOptions communityOptions            { get { return this._communityOptions; } }
+        [JsonIgnore] public ModRevenuePermissions revenuePermissions         { get { return this._revenuePermissions; } }
+        [JsonIgnore] public GameAPIPermissions apiPermissions                { get { return this._apiPermissions; } }
+        [JsonIgnore] public string ugcName                                   { get { return this._ugcName; } }
+        [JsonIgnore] public IconImageLocator iconLocator                     { get { return this._iconLocator; } }
+        [JsonIgnore] public LogoImageLocator logoLocator                     { get { return this._logoLocator; } }
+        [JsonIgnore] public HeaderImageLocator headerImageLocator            { get { return this._headerImageLocator; } }
+        [JsonIgnore] public string name                                      { get { return this._name; } }
+        [JsonIgnore] public string nameId                                    { get { return this._nameId; } }
+        [JsonIgnore] public string summary                                   { get { return this._summary; } }
+        [JsonIgnore] public string instructions                              { get { return this._instructions; } }
+        [JsonIgnore] public string instructionsURL                           { get { return this._instructionsURL; } }
+        [JsonIgnore] public string profileURL                                { get { return this._profileURL; } }
+        [JsonIgnore] public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this._taggingOptions); } }
         
         // ---------[ API OBJECT INTERFACE ]---------
         public void ApplyGameObjectValues(API.GameObject apiObject)

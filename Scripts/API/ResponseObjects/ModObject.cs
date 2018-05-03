@@ -1,95 +1,121 @@
-﻿namespace ModIO.API
+﻿using Newtonsoft.Json;
+
+namespace ModIO
+{
+    // - Value Interpretation -
+    public enum ModStatus
+    {
+        NotAccepted = 0,
+        Accepted = 1,
+        Archived = 2,
+        Deleted = 3,
+    }
+
+    public enum ModVisibility
+    {
+        Hidden = 0,
+        Public = 1,
+    }
+}
+
+namespace ModIO.API
 {
     [System.Serializable]
     public struct ModObject
     {
-        // - Value Interpretation -
-        public static class StatusValue
-        {
-            public const int NotAccepted = 0;
-            public const int Accepted = 1;
-            public const int Archived = 2;
-            public const int Deleted = 3;
-        }
-
-        public static class VisibleValue
-        {
-            public const int Hidden = 0;
-            public const int Public = 1;
-        }
-
         /// <summary> Unique mod id. </summary>
+        [JsonProperty("id")]
         public int id;
 
         /// <summary> Unique game id. </summary>
-        public int game_id;
+        [JsonProperty("game_id")]
+        public int gameId;
 
         /// <summary> Status of the mod.
         /// See <see cref="ModIO.API.ModObject.StatusValues"/> for possible values.
         /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
         /// </summary>
-        public int status;
+        [JsonProperty("status")]
+        public ModStatus status;
 
         /// <summary> Visibility of the mod.
         /// See <see cref="ModIO.API.ModObject.VisibleValues"/> for possible values.
         /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
         /// </summary>
-        public int visible;
+        [JsonProperty("visible")]
+        public ModVisibility visibility;
 
         /// <summary> Contains user data. </summary>
-        public UserObject submitted_by;
+        [JsonProperty("submitted_by")]
+        public UserObject submittedBy;
 
         /// <summary> Unix timestamp of date mod was registered. </summary>
-        public int date_added;
+        [JsonProperty("date_added")]
+        public int dateAdded;
 
         /// <summary> Unix timestamp of date mod was updated. </summary>
-        public int date_updated;
+        [JsonProperty("date_updated")]
+        public int dateUpdated;
 
         /// <summary> Unix timestamp of date mod was set live. </summary>
-        public int date_live;
+        [JsonProperty("date_live")]
+        public int dateLive;
 
         /// <summary> Contains logo data. </summary>
+        [JsonProperty("logo")]
         public LogoObject logo;
 
         /// <summary> Official homepage of the mod. </summary>
-        public string homepage_url;
+        [JsonProperty("homepage_url")]
+        public string homepageURL;
 
         /// <summary> Name of the mod. </summary>
+        [JsonProperty("name")]
         public string name;
 
         /// <summary> Path for the mod on mod.io.
         /// For example: https://gamename.mod.io/mod-name-id-here
         /// </summary>
-        public string name_id;
+        [JsonProperty("name_id")]
+        public string nameId;
 
         /// <summary> Summary of the mod. </summary>
+        [JsonProperty("summary")]
         public string summary;
 
         /// <summary> Detailed description of the mod which allows HTML. </summary>
+        [JsonProperty("description")]
         public string description;
 
         /// <summary> Metadata stored by the game developer.
         /// Metadata can also be stored as searchable key value pairs,
         /// and to individual mod files.
         /// </summary>
-        public string metadata_blob;
+        [JsonProperty("metadata_blob")]
+        public string metadataBlob;
 
         /// <summary> URL to the mod's mod.io profile. </summary>
-        public string profile_url;
+        [JsonProperty("profile_url")]
+        public string profileURL;
 
         /// <summary> Contains modfile data. </summary>
+        [JsonProperty("modfile")]
         public ModfileObject modfile;
 
         /// <summary> Contains mod media data. </summary>
+        [JsonProperty("media")]
         public ModMediaObject media;
 
         /// <summary> Contains ratings summary. </summary>
-        public RatingSummaryObject rating_summary;
+        [JsonProperty("rating_summary")]
+        public RatingSummaryObject ratingSummary;
         
         /// <summary> Contains key-value metadata. </summary>
-        public MetadataKVPObject[] metadata_kvp;
+        [JsonProperty("metadata_kvp")]
+        public MetadataKVPObject[] metadataKVP;
         
         /// <summary> Contains mod tag data. </summary>
+        [JsonProperty("tags")]
         public ModTagObject[] tags;
     }
 }
