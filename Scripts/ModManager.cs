@@ -9,6 +9,8 @@ using ModIO.API;
 
 using UnityEngine;
 
+using Newtonsoft.Json;
+
 // NOTE(@jackson): Had a weird bug where Initialize authenticated with a user.id of 0?
 // TODO(@jackson): UISettings
 // TODO(@jackson): ModBrowser...
@@ -654,8 +656,8 @@ namespace ModIO
             // - Write to disk -
             string modDir = GetModDirectory(modProfile.id);
             Directory.CreateDirectory(modDir);
-            File.WriteAllText(modDir + "mod_profile.data", JsonUtility.ToJson(modProfile));
-            // File.WriteAllText(modDir + "mod_logo.data", JsonUtility.ToJson(modProfile.logo.AsImageSet()));
+            File.WriteAllText(modDir + "mod_profile.data", JsonConvert.SerializeObject(modProfile));
+            // File.WriteAllText(modDir + "mod_logo.data", JsonConvert.SerializeObject(modProfile.logo.AsImageSet()));
         }
 
         private static void StoreModDatas(ModProfile[] modArray)
@@ -732,7 +734,7 @@ namespace ModIO
             if(File.Exists(modfileFilePath))
             {
                 // Load ModProfile from Disk
-                Modfile modfile = JsonUtility.FromJson<Modfile>(File.ReadAllText(modfileFilePath));
+                Modfile modfile = JsonConvert.DeserializeObject<Modfile>(File.ReadAllText(modfileFilePath));
                 onSuccess(modfile);
             }
             else
@@ -741,7 +743,7 @@ namespace ModIO
                 {
                     Modfile newModfile = Modfile.CreateFromModfileObject(m);
                     File.WriteAllText(modfileFilePath,
-                                      JsonUtility.ToJson(newModfile));
+                                      JsonConvert.SerializeObject(newModfile));
                     onSuccess(newModfile);
                 };
 
@@ -880,12 +882,12 @@ namespace ModIO
 
         private static void WriteManifestToDisk()
         {
-            File.WriteAllText(manifestPath, JsonUtility.ToJson(manifest));
+            File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
         }
 
         private static void WriteUserDataToDisk()
         {
-            File.WriteAllText(userdataPath, JsonUtility.ToJson(authUser));
+            File.WriteAllText(userdataPath, JsonConvert.SerializeObject(authUser));
         }
 
         private static void DeleteUserDataFromDisk()
@@ -1376,7 +1378,7 @@ namespace ModIO
         //         string manifestFilePath = cacheDirectory + "manifest.data";
         //         try
         //         {
-        //             Manifest m = JsonUtility.FromJson<Manifest>(File.ReadAllText(manifestFilePath));
+        //             Manifest m = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestFilePath));
         //             CacheManager._lastUpdate = m.lastUpdateTimeStamp;
         //         }
         //         catch(Exception e)

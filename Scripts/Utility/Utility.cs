@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using JsonUtility = UnityEngine.JsonUtility;
+
+using Newtonsoft.Json;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -52,7 +53,7 @@ namespace ModIO
         {
             try
             {
-                targetObject = JsonUtility.FromJson<T>(File.ReadAllText(filePath));
+                targetObject = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath));
             }
             #pragma warning disable CS0168
             catch(Exception e)
@@ -70,7 +71,7 @@ namespace ModIO
         {
             try
             {
-                targetObject = JsonUtility.FromJson<T>(jsonObject);
+                targetObject = JsonConvert.DeserializeObject<T>(jsonObject);
             }
             #pragma warning disable CS0168
             catch(Exception e)

@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+
 using Debug = UnityEngine.Debug;
 using WWWForm = UnityEngine.WWWForm;
-using JsonUtility = UnityEngine.JsonUtility;
 using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyncOperation;
 
@@ -580,7 +581,7 @@ namespace ModIO.API
                     else
                     {
                         // TODO(@jackson): Add error handling (where FromJson fails)
-                        T response = JsonUtility.FromJson<T>(webRequest.downloadHandler.text);
+                        T response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
                         successCallback(response);
                     }
                 }

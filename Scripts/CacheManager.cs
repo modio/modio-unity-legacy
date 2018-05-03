@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using Newtonsoft.Json;
+
 using ModIO.API;
 
 namespace ModIO
@@ -73,7 +75,7 @@ namespace ModIO
             {
                 try
                 {
-                    return JsonUtility.FromJson<T>(File.ReadAllText(filePath));
+                    return JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath));
                 }
                 catch(Exception e)
                 {
@@ -90,7 +92,7 @@ namespace ModIO
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllText(filePath, JsonUtility.ToJson(jsonObject));
+                File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonObject));
             }
             catch(Exception e)
             {
