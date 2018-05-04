@@ -23,6 +23,7 @@ namespace ModIO.API
     [System.Serializable]
     public class ModObject
     {
+        // ---------[ FIELDS ]---------
         /// <summary> Unique mod id. </summary>
         [JsonProperty("id")]
         public int id;
@@ -108,7 +109,7 @@ namespace ModIO.API
 
         /// <summary> Contains ratings summary. </summary>
         [JsonProperty("rating_summary")]
-        public RatingSummaryObject ratingSummary;
+        public RatingSummary ratingSummary;
         
         /// <summary> Contains key-value metadata. </summary>
         [JsonProperty("metadata_kvp")]

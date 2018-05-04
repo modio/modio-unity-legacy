@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable]
-    public struct RatingSummaryObject
+    public class RatingSummary
     {
         // ---------[ FIELDS ]---------
         /// <summary>Number of times this item has been rated.</summary>

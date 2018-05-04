@@ -28,32 +28,6 @@ namespace ModIO
     {
         // ---------[ INNER CLASSES ]---------
         [System.Serializable]
-        public struct RatingSummary
-        {
-            // ---------[ SERIALIZED MEMBERS ]---------
-            [JsonProperty] internal int _totalRatingCount;
-            [JsonProperty] internal int _positiveRatingCount;
-            [JsonProperty] internal float _weightedAggregate;
-            [JsonProperty] internal string _displayText;
-
-            // ---------[ FIELDS ]---------
-            public int totalRatingCount     { get { return this._totalRatingCount; } }
-            public int positiveRatingCount  { get { return this._positiveRatingCount; } }
-            public float weightedAggregate  { get { return this._weightedAggregate; } }
-            public string displayText       { get { return this._displayText; } }
-
-            // ---------[ ACCESSORS ]---------
-            public int GetNegativeRatingCount()
-            {
-                return this._totalRatingCount - this._positiveRatingCount;
-            }
-            public float GetPositiveRatingPercentage()
-            {
-                return (float)this._positiveRatingCount / (float)this._totalRatingCount;
-            }
-        }
-
-        [System.Serializable]
         private class MetadataKVP
         {
             public string key;
@@ -154,11 +128,7 @@ namespace ModIO
             this._metadataBlob = apiObject.metadataBlob;
             this._profileURL = apiObject.profileURL;
             this._primaryModfileId = apiObject.currentRelease.id;
-
-            this._ratingSummary._totalRatingCount = apiObject.ratingSummary.totalRatingCount;
-            this._ratingSummary._positiveRatingCount = apiObject.ratingSummary.positiveRatingCount;
-            this._ratingSummary._weightedAggregate = apiObject.ratingSummary.weightedAggregate;
-            this._ratingSummary._displayText = apiObject.ratingSummary.displayText;
+            this._ratingSummary = apiObject.ratingSummary;
 
             // - Tags -
             if(apiObject.tags != null)
