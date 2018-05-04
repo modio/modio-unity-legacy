@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable]
-    public struct MetadataKVPObject
+    public class MetadataKVP
     {
         // ---------[ FIELDS ]---------
         /// <summary>The key of the key-value pair.</summary>

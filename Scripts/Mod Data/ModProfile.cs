@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 
 using ModObject = ModIO.API.ModObject;
 using TeamMemberObject = ModIO.API.TeamMemberObject;
-using MetadataKVPObject = ModIO.API.MetadataKVPObject;
 
 namespace ModIO
 {
@@ -26,14 +25,6 @@ namespace ModIO
     [System.Serializable]
     public class ModProfile
     {
-        // ---------[ INNER CLASSES ]---------
-        [System.Serializable]
-        private class MetadataKVP
-        {
-            public string key;
-            public string value;
-        }
-
         // ---------[ SERIALIZED MEMBERS ]---------
         [JsonProperty] private int _id;
         [JsonProperty] private int _gameId;

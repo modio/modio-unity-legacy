@@ -986,7 +986,7 @@ namespace ModIO.API
         // Get All Mod KVP Metadata
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
-                                                Action<ObjectArray<MetadataKVPObject>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<ObjectArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
 
