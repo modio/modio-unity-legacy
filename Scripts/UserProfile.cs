@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable]
     public class UserProfileStub
@@ -20,7 +20,7 @@ namespace ModIO.API
     }
 
     [System.Serializable]
-    public class UserObject : UserProfileStub
+    public class UserProfile : UserProfileStub
     {
         // ---------[ FIELDS ]---------
         /// <summary>Path for the user on mod.io.

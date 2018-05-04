@@ -557,11 +557,11 @@ namespace ModIO
                                         Action<AuthenticatedUser> onSuccess,
                                         Action<WebRequestError> onError)
         {
-            Action<UserObject> onGetUser = (userObject) =>
+            Action<UserProfile> onGetUser = (userProfile) =>
             {
                 authUser = new AuthenticatedUser();
                 authUser.oAuthToken = userOAuthToken;
-                authUser.profile = UserProfile.CreateFromUserObject(userObject);
+                authUser.profile = userProfile;
                 WriteUserDataToDisk();
 
                 onSuccess(authUser);

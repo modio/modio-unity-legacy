@@ -40,7 +40,7 @@ namespace ModIO.API
         // URL to the game's mod.io page.
         public string profile_url;
         // Contains user data.
-        public UserObject submitted_by;
+        public UserProfileStub submitted_by;
         // Contains icon data.
         public IconImageLocator icon;
         // Contains logo data.

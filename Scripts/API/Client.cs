@@ -1164,7 +1164,7 @@ namespace ModIO.API
             Tags
         }
         public static void GetResourceOwner(ResourceType resourceType, int resourceID,
-                                            Action<UserObject> successCallback, Action<WebRequestError> errorCallback)
+                                            Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/general/owner";
             StringValueParameter[] valueFields = new StringValueParameter[]
@@ -1181,7 +1181,7 @@ namespace ModIO.API
         }
         // Get All Users
         public static void GetAllUsers(RequestFilter filter, PaginationParameters pagination,
-                                       Action<ObjectArray<UserObject>> successCallback, Action<WebRequestError> errorCallback)
+                                       Action<ObjectArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/users";
 
@@ -1193,7 +1193,7 @@ namespace ModIO.API
         }
         // Get User
         public static void GetUser(int userID,
-                                   Action<UserObject> successCallback, Action<WebRequestError> errorCallback)
+                                   Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/users/" + userID;
 
@@ -1223,7 +1223,7 @@ namespace ModIO.API
 
         // ---------[ ME ENDPOINTS ]---------
         // Get Authenticated User
-        public static void GetAuthenticatedUser(Action<UserObject> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetAuthenticatedUser(Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me";
 

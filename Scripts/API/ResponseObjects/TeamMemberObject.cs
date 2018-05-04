@@ -20,6 +20,6 @@ namespace ModIO.API
         // Custom title given to the user in this team.
         public string position;
         // Contains user data.
-        public UserObject user;
+        public UserProfile user;
     }
 }

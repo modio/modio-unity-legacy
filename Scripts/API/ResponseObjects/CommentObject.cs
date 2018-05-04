@@ -20,6 +20,6 @@ namespace ModIO.API
         // Contents of the comment.
         public string content;
         // Contains user data.
-        public UserObject submitted_by;
+        public UserProfile submitted_by;
     }
 }
