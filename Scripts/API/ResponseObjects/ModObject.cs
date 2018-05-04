@@ -107,7 +107,7 @@ namespace ModIO.API
 
         /// <summary> Contains mod media data. </summary>
         [JsonProperty("media")]
-        public ModMediaObject media;
+        public ModMediaCollection media;
 
         /// <summary> Contains ratings summary. </summary>
         [JsonProperty("rating_summary")]

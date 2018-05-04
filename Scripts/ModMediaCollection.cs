@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable]
-    public struct ModMediaObject
+    public class ModMediaCollection
     {
         // ---------[ FIELDS ]---------
         /// <summary>Array of YouTube links.</summary>
