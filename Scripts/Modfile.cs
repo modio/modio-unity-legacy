@@ -1,51 +1,88 @@
-using SerializeField = UnityEngine.SerializeField;
+using Newtonsoft.Json;
 
 namespace ModIO
 {
-    [System.Serializable]
-    public class Modfile
+    public enum ModfileVirusScanStatus
     {
-        // ---------[ SERIALIZED MEMBERS ]---------
-        [SerializeField] private int _id;
-        [SerializeField] private int _modId;
-        [SerializeField] private int _dateAdded;
-        [SerializeField] private int _fileSize;
-        [SerializeField] private string _md5;
-        [SerializeField] private string _fileName;
-        [SerializeField] private string _version;
-        [SerializeField] private string _changelog;
-        [SerializeField] private string _metadataBlob;
+        NotScanned = 0,
+        ScanComplete = 1,
+        InProgress = 2,
+        FileTooLarge = 3,
+        FileNotFound = 4,
+        ErrorScanning = 5,
+    }
 
+    public enum ModfileVirusScanResult
+    {
+        Clean = 0,
+        FlaggedAsMalicious = 1,
+    }
+
+    [System.Serializable]
+    public class ModfileStub
+    {
         // ---------[ FIELDS ]---------
-        public int id               { get { return this._id; } }
-        public int modId            { get { return this._modId; } }
-        public int dateAdded        { get { return this._dateAdded; } }
-        public int fileSize         { get { return this._fileSize; } }
-        public string md5           { get { return this._md5; } }
-        public string fileName      { get { return this._fileName; } }
-        public string version       { get { return this._version; } }
-        public string changelog     { get { return this._changelog; } }
-        public string metadataBlob  { get { return this._metadataBlob; } }
+        /// <summary>Unique modfile id.</summary>
+        [JsonProperty("id")]
+        public int id;
 
-        // ---------[ INITIALIZATION ]---------
-        public void ApplyModfileObjectValues(API.ModfileObject apiObject)
-        {
-            this._id = apiObject.id;
-            this._modId = apiObject.modId;
-            this._dateAdded = apiObject.dateAdded;
-            this._fileSize = apiObject.filesize;
-            this._md5 = apiObject.filehash.md5;
-            this._fileName = apiObject.fileName;
-            this._version = apiObject.version;
-            this._changelog = apiObject.changelog;
-            this._metadataBlob = apiObject.metadataBlob;
-        }
+        /// <summary>Unix timestamp of date file was added.</summary>
+        [JsonProperty("date_added")]
+        public int dateAdded;
 
-        public static Modfile CreateFromModfileObject(API.ModfileObject apiObject)
-        {
-            var retVal = new Modfile();
-            retVal.ApplyModfileObjectValues(apiObject);
-            return retVal;
-        }
+        /// <summary>Size of the file in bytes.</summary>
+        [JsonProperty("filesize")]
+        public int filesize;
+
+        /// <summary>Release version this file represents.</summary>
+        [JsonProperty("version")]
+        public string version;
+
+        /// <summary>Changelog for the file.</summary>
+        [JsonProperty("changelog")]
+        public string changelog;
+
+        /// <summary>Metadata stored by the game developer for this file.</summary>
+        [JsonProperty("metadata_blob")]
+        public string metadataBlob;
+    }
+
+    [System.Serializable]
+    public class Modfile : ModfileStub
+    {
+        // ---------[ FIELDS ]---------
+        /// <summary>Unique mod id.</summary>
+        [JsonProperty("mod_id")]
+        public int modId;
+
+        /// <summary>Unix timestamp of date file was virus scanned.</summary>
+        [JsonProperty("date_scanned")]
+        public int dateScanned;
+
+        /// <summary>Current virus scan status of the file. For newly added
+        /// files that have yet to be scanned this field will change frequently
+        /// until a scan is complete</summary>
+        [JsonProperty("virus_status")]
+        public ModfileVirusScanStatus virusScanStatus;
+
+        /// <summary>Was a virus detected:</summary>
+        [JsonProperty("virus_positive")]
+        public ModfileVirusScanResult virusScanResult;
+
+        /// <summary>VirusTotal proprietary hash to view the scan results.</summary>
+        [JsonProperty("virustotal_hash")]
+        public string virusScanHash;
+
+        /// <summary>Contains filehash data.</summary>
+        [JsonProperty("filehash")]
+        public FileHash fileHash;
+
+        /// <summary>Filename including extension.</summary>
+        [JsonProperty("filename")]
+        public string fileName;
+
+        /// <summary>Contains download data.</summary>
+        [JsonProperty("download")]
+        public ModfileLocator downloadLocator;
     }
 }

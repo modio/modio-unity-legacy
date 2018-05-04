@@ -739,12 +739,11 @@ namespace ModIO
             }
             else
             {
-                Action<ModfileObject> writeModfileToDisk = (m) =>
+                Action<Modfile> writeModfileToDisk = (m) =>
                 {
-                    Modfile newModfile = Modfile.CreateFromModfileObject(m);
                     File.WriteAllText(modfileFilePath,
-                                      JsonConvert.SerializeObject(newModfile));
-                    onSuccess(newModfile);
+                                      JsonConvert.SerializeObject(m));
+                    onSuccess(m);
                 };
 
                 Client.GetModfile(modId, modfileId,
@@ -759,11 +758,11 @@ namespace ModIO
                                      + modfileId.ToString() + ".zip");
 
             FileDownload download = new FileDownload();
-            Action<ModfileObject> queueBinaryDownload = (m) =>
+            Action<Modfile> queueBinaryDownload = (m) =>
             {
-                download.sourceURL = m.download.binary_url;
+                download.sourceURL = m.downloadLocator.binaryURL;
                 download.fileURL = binaryFilePath;
-                download.EnableFilehashVerification(m.filehash.md5);
+                download.EnableFilehashVerification(m.fileHash.md5);
 
                 DownloadManager.QueueDownload(download);
             };
@@ -1252,7 +1251,7 @@ namespace ModIO
 
             Client.AddModfile(modId,
                               parameters,
-                              (m) => onSuccess(Modfile.CreateFromModfileObject(m)),
+                              onSuccess,
                               onError);
         }
 

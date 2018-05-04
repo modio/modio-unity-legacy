@@ -748,7 +748,7 @@ namespace ModIO.API
         // Get All Modfiles
         public static void GetAllModfiles(int modId,
                                           RequestFilter filter, PaginationParameters pagination,
-                                          Action<ObjectArray<ModfileObject>> successCallback, Action<WebRequestError> errorCallback)
+                                          Action<ObjectArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files";
 
@@ -760,7 +760,7 @@ namespace ModIO.API
         }
         // Get Modfile
         public static void GetModfile(int modId, int modfileId,
-                                      Action<ModfileObject> successCallback, Action<WebRequestError> errorCallback)
+                                      Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files/" + modfileId;
 
@@ -773,7 +773,7 @@ namespace ModIO.API
         // Add Modfile
         public static void AddModfile(int modId,
                                       AddModfileParameters parameters,
-                                      Action<ModfileObject> successCallback, Action<WebRequestError> errorCallback)
+                                      Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files";
             
@@ -786,7 +786,7 @@ namespace ModIO.API
         // Edit Modfile
         public static void EditModfile(int modId, int modfileId,
                                        EditModfileParameters parameters,
-                                       Action<ModfileObject> successCallback, Action<WebRequestError> errorCallback)
+                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files/" + modfileId;
 
@@ -1284,7 +1284,7 @@ namespace ModIO.API
         }
         // Get User Files
         public static void GetUserModfiles(PaginationParameters pagination,
-                                           Action<ObjectArray<ModfileObject>> successCallback, Action<WebRequestError> errorCallback)
+                                           Action<ObjectArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/files";
 
