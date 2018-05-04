@@ -10,8 +10,8 @@ namespace ModIO
         {
             ImageLocatorData retVal = new ImageLocatorData()
             {
-                fileName = locator.fileName,
-                url = locator.url,
+                fileName = locator.GetFileName(),
+                url = locator.GetURL(),
             };
             return retVal;
         }
@@ -21,16 +21,8 @@ namespace ModIO
     public class EditableImageLocatorField : EditableField<ImageLocatorData>, IImageLocator
     {
         // ---------[ IIMAGELOCATOR INTERFACE ]---------
-        public string fileName
-        {
-            get { return this.value.fileName; }
-            set { this.value.fileName = value;}
-        }
-        public string url
-        {
-            get { return this.value.url; }
-            set { this.value.url = value;}
-        }
+        public string GetFileName() { return this.value.fileName; }
+        public string GetURL()      { return this.value.url; }
     }
 
     [System.Serializable]

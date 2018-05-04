@@ -326,8 +326,8 @@ namespace ModIO
 
             if(isUndoRequested)
             {
-                logoProperty.FindPropertyRelative("value.url").stringValue = profile.logoLocator.url;
-                logoProperty.FindPropertyRelative("value.fileName").stringValue = profile.logoLocator.fileName;
+                logoProperty.FindPropertyRelative("value.url").stringValue = profile.logoLocator.GetURL();
+                logoProperty.FindPropertyRelative("value.fileName").stringValue = profile.logoLocator.GetFileName();
                 logoProperty.FindPropertyRelative("isDirty").boolValue = false;
 
                 logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);

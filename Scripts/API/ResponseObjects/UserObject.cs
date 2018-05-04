@@ -16,7 +16,7 @@ namespace ModIO.API
         
         /// <summary>Contains avatar data.</summary>
         [JsonProperty("avatar")]
-        public AvatarObject avatar;
+        public AvatarImageLocator avatarLocator;
     }
 
     [System.Serializable]

@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable]
-    public struct IconObject : IMultiVersionImageLocator<GameIconVersion>
+    public class IconImageLocator : IMultiVersionImageLocator<GameIconVersion>
     {
         // ---------[ FIELDS ]---------
         ///<summary>Icon filename including extension.</summary>

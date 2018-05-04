@@ -63,7 +63,7 @@ namespace ModIO.API
 
         /// <summary> Contains logo data. </summary>
         [JsonProperty("logo")]
-        public LogoObject logo;
+        public LogoImageLocator logoLocator;
 
         /// <summary> Official homepage of the mod. </summary>
         [JsonProperty("homepage_url")]

@@ -12,45 +12,6 @@ namespace ModIO
     [System.Serializable]
     public class UserProfile
     {
-        // ---------[ INNER CLASSES ]---------
-        [System.Serializable]
-        public class AvatarImageLocator : MultiVersionImageLocator<UserAvatarVersion>
-        {
-            // ---------[ ABSTRACTS ]---------
-            protected override int FullSizeVersion() { return (int)UserAvatarVersion.FullSize; }
-
-            // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyAvatarObjectValues(API.AvatarObject apiObject)
-            {
-                this._fileName = apiObject.fileName;
-                this._versionPairing = new VersionSourcePair[]
-                {
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)UserAvatarVersion.FullSize,
-                        url = apiObject.fullSize
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)UserAvatarVersion.Thumbnail_50x50,
-                        url = apiObject.thumbnail_50x50
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)UserAvatarVersion.Thumbnail_100x100,
-                        url = apiObject.thumbnail_100x100
-                    },
-                };
-            }
-
-            public static AvatarImageLocator CreateFromAvatarObject(API.AvatarObject apiObject)
-            {
-                var retVal = new AvatarImageLocator();
-                retVal.ApplyAvatarObjectValues(apiObject);
-                return retVal;
-            }
-        }
-
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] private int _id;
         [SerializeField] private string _nameId;
@@ -79,7 +40,7 @@ namespace ModIO
             this._nameId = apiObject.nameId;
             this._username = apiObject.username;
             this._dateOnline = apiObject.dateOnline;
-            this._avatarLocator = AvatarImageLocator.CreateFromAvatarObject(apiObject.avatar);
+            this._avatarLocator = apiObject.avatarLocator;
             this._timezone = apiObject.timezone;
             this._language = apiObject.language;
             this._profileURL = apiObject.profileURL;

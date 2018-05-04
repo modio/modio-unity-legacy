@@ -1,9 +1,9 @@
 using Newtonsoft.Json;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable]
-    public struct HeaderImageObject : IImageLocator2
+    public class HeaderImageLocator : IImageLocator
     {
         // ---------[ FIELDS ]---------
         /// <summary>Header image filename including extension.</summary>

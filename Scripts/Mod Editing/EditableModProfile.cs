@@ -44,8 +44,8 @@ namespace ModIO
             retVal.tags.value = Utility.CollectionToArray(profile.tags);
 
             // - Media -
-            retVal.logoLocator.fileName = profile.logoLocator.fileName;
-            retVal.logoLocator.url = profile.logoLocator.url;
+            retVal.logoLocator.value.fileName = profile.logoLocator.fileName;
+            retVal.logoLocator.value.url = profile.logoLocator.GetURL();
 
             retVal.youtubeURLs.value = Utility.CollectionToArray(profile.youtubeURLs);
             retVal.sketchfabURLs.value = Utility.CollectionToArray(profile.sketchfabURLs);

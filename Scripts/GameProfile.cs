@@ -80,111 +80,6 @@ namespace ModIO
     [Serializable]
     public class GameProfile
     {
-        // ---------[ INNER CLASSES ]---------
-        [System.Serializable]
-        public class LogoImageLocator : MultiVersionImageLocator<GameLogoVersion>
-        {
-            // ---------[ ABSTRACTS ]---------
-            protected override int FullSizeVersion() { return (int)GameLogoVersion.FullSize; }
-
-            // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyLogoObjectValues(API.LogoObject apiObject)
-            {
-                this._fileName = apiObject.fileName;
-                this._versionPairing = new VersionSourcePair[]
-                {
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameLogoVersion.FullSize,
-                        url = apiObject.fullSize
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameLogoVersion.Thumbnail_320x180,
-                        url = apiObject.thumbnail_320x180
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameLogoVersion.Thumbnail_640x360,
-                        url = apiObject.thumbnail_640x360
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameLogoVersion.Thumbnail_1280x720,
-                        url = apiObject.thumbnail_1280x720
-                    },
-                };
-            }
-
-            public static LogoImageLocator CreateFromLogoObject(API.LogoObject apiObject)
-            {
-                var retVal = new LogoImageLocator();
-                retVal.ApplyLogoObjectValues(apiObject);
-                return retVal;
-            }
-        }
-
-        [System.Serializable]
-        public class HeaderImageLocator : SingleVersionImageLocator
-        {
-            // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyHeaderImageObjectValues(API.HeaderImageObject apiObject)
-            {
-                this._fileName = apiObject.fileName;
-                this._url = apiObject.url;
-            }
-
-            public static HeaderImageLocator CreateFromHeaderImageObject(API.HeaderImageObject apiObject)
-            {
-                var retVal = new HeaderImageLocator();
-                retVal.ApplyHeaderImageObjectValues(apiObject);
-                return retVal;
-            }
-        }
-
-        [System.Serializable]
-        public class IconImageLocator : MultiVersionImageLocator<GameIconVersion>
-        {
-            // ---------[ ABSTRACTS ]---------
-            protected override int FullSizeVersion() { return (int)GameIconVersion.FullSize; }
-
-            // ---------[ API OBJECT INTERFACE ]---------
-            public void ApplyIconObjectValues(API.IconObject apiObject)
-            {
-                this._fileName = apiObject.fileName;
-                this._versionPairing = new VersionSourcePair[]
-                {
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameIconVersion.FullSize,
-                        url = apiObject.fullSize
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameIconVersion.Thumbnail_64x64,
-                        url = apiObject.thumbnail_64x64
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameIconVersion.Thumbnail_128x128,
-                        url = apiObject.thumbnail_128x128
-                    },
-                    new VersionSourcePair()
-                    {
-                        versionId = (int)GameIconVersion.Thumbnail_256x256,
-                        url = apiObject.thumbnail_256x256
-                    },
-                };
-            }
-
-            public static IconImageLocator CreateFromIconObject(API.IconObject apiObject)
-            {
-                var retVal = new IconImageLocator();
-                retVal.ApplyIconObjectValues(apiObject);
-                return retVal;
-            }
-        }
-
         // ---------[ SERIALIZED MEMBERS ]---------
         [JsonProperty] private int _id;
         [JsonProperty] private GameStatus _status;
@@ -251,9 +146,9 @@ namespace ModIO
             this._revenuePermissions = (ModRevenuePermissions)apiObject.revenue_options;
             this._apiPermissions = (GameAPIPermissions)apiObject.api_access_options;
             this._ugcName = apiObject.ugc_name;
-            this._iconLocator = IconImageLocator.CreateFromIconObject(apiObject.icon);
-            this._logoLocator = LogoImageLocator.CreateFromLogoObject(apiObject.logo);
-            this._headerImageLocator = HeaderImageLocator.CreateFromHeaderImageObject(apiObject.header);
+            this._iconLocator = apiObject.icon;
+            this._logoLocator = apiObject.logo;
+            this._headerImageLocator = apiObject.header;
             this._instructionsURL = apiObject.instructions_url;
             this._name = apiObject.name;
             this._nameId = apiObject.name_id;

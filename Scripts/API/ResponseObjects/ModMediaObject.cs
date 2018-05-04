@@ -16,6 +16,6 @@ namespace ModIO.API
 
         /// <summary>Array of image objects (a gallery).</summary>
         [JsonProperty("images")]
-        public ImageObject[] galleryImages;
+        public GalleryImageLocator[] galleryImageLocators;
     }
 }

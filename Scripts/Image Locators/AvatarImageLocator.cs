@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable]
-    public struct AvatarObject : IMultiVersionImageLocator<UserAvatarVersion>
+    public class AvatarImageLocator : IMultiVersionImageLocator<UserAvatarVersion>
     {
         /// <summary>Avatar filename including extension.</summary>
         [JsonProperty("filename")]

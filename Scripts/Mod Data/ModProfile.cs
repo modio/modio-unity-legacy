@@ -80,10 +80,10 @@ namespace ModIO
         [JsonProperty] private RatingSummary _ratingSummary;
         [JsonProperty] private string[] _tags;
         [JsonProperty] private TeamMember[] _teamMembers;
-        [JsonProperty] private ModLogoImageLocator _logoLocator;
+        [JsonProperty] private LogoImageLocator _logoLocator;
         [JsonProperty] private string[] _youtubeURLs;
         [JsonProperty] private string[] _sketchfabURLs;
-        [JsonProperty] private ModGalleryImageLocator[] _galleryImageLocators;
+        [JsonProperty] private GalleryImageLocator[] _galleryImageLocators;
         [JsonProperty] private MetadataKVP[] _metadataKVPs;
 
         // ---------[ FIELDS ]---------
@@ -107,11 +107,11 @@ namespace ModIO
         [JsonIgnore] public ICollection<string> tags             { get { return new List<string>(this._tags); } }
         [JsonIgnore] public ICollection<TeamMember> teamMembers  { get { return new List<TeamMember>(this._teamMembers); } }
         // - Media -
-        [JsonIgnore] public ModLogoImageLocator logoLocator      { get { return this._logoLocator; } }
+        [JsonIgnore] public LogoImageLocator logoLocator      { get { return this._logoLocator; } }
         [JsonIgnore] public ICollection<string> youtubeURLs      { get { return new List<string>(this._youtubeURLs); } }
         [JsonIgnore] public ICollection<string> sketchfabURLs    { get { return new List<string>(this._sketchfabURLs); } }
-        [JsonIgnore] public ICollection<ModGalleryImageLocator> galleryImageLocators
-                                                    { get { return new List<ModGalleryImageLocator>(this._galleryImageLocators); } }
+        [JsonIgnore] public ICollection<GalleryImageLocator> galleryImageLocators
+                                                    { get { return new List<GalleryImageLocator>(this._galleryImageLocators); } }
         
         // - Accessors -
         public Dictionary<string, string> GenerateMetadataKVPDictionary()
@@ -123,7 +123,7 @@ namespace ModIO
             }
             return retVal;
         }
-        public ModGalleryImageLocator GetGalleryImageWithFileName(string fileName)
+        public GalleryImageLocator GetGalleryImageWithFileName(string fileName)
         {
             foreach(var locator in this._galleryImageLocators)
             {
@@ -186,23 +186,10 @@ namespace ModIO
             }
 
             // - Media -
-            this._logoLocator = ModLogoImageLocator.CreateFromLogoObject(apiObject.logo);
+            this._logoLocator = apiObject.logoLocator;
             this._youtubeURLs = Utility.SafeCopyArrayOrZero(apiObject.media.youtubeURLs);
             this._sketchfabURLs = Utility.SafeCopyArrayOrZero(apiObject.media.sketchfabURLs);
-
-            if(apiObject.media.galleryImages != null)
-            {
-                this._galleryImageLocators = new ModGalleryImageLocator[apiObject.media.galleryImages.Length];
-                for(int i = 0; i < apiObject.media.galleryImages.Length; ++i)
-                {
-                    var imageObject = apiObject.media.galleryImages[i];
-                    this._galleryImageLocators[i] = ModGalleryImageLocator.CreateFromImageObject(imageObject);
-                }
-            }
-            else
-            {
-                this._galleryImageLocators = new ModGalleryImageLocator[0];
-            }
+            this._galleryImageLocators = Utility.SafeCopyArrayOrZero(apiObject.media.galleryImageLocators);
         }
 
         public void ApplyTeamMemberObjectValues(TeamMemberObject[] apiObjectArray)

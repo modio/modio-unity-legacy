@@ -42,11 +42,11 @@ namespace ModIO.API
         // Contains user data.
         public UserObject submitted_by;
         // Contains icon data.
-        public IconObject icon;
+        public IconImageLocator icon;
         // Contains logo data.
-        public LogoObject logo;
+        public LogoImageLocator logo;
         // Contains header data.
-        public HeaderImageObject header;
+        public HeaderImageLocator header;
         // Groups of tags configured by the game developer, that mods can select.
         public GameTagOptionObject[] tag_options;
     }
