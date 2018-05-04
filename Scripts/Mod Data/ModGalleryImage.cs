@@ -17,18 +17,18 @@ namespace ModIO
         // ---------[ API OBJECT INTERFACE ]---------
         public void ApplyImageObjectValues(ImageObject apiObject)
         {
-            this._fileName = apiObject.filename;
+            this._fileName = apiObject.fileName;
             this._versionPairing = new VersionSourcePair[]
             {
                 new VersionSourcePair()
                 {
                     versionId = (int)ModGalleryImageVersion.FullSize,
-                    url = apiObject.original
+                    url = apiObject.fullSize
                 },
                 new VersionSourcePair()
                 {
                     versionId = (int)ModGalleryImageVersion.Thumbnail_320x180,
-                    url = apiObject.thumb_320x180
+                    url = apiObject.thumbnail_320x180
                 },
             };
         }

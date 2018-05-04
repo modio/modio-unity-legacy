@@ -1,13 +1,20 @@
+using Newtonsoft.Json;
+
 namespace ModIO.API
 {
     [System.Serializable]
     public struct ImageObject
     {
-        // Image filename including extension.
-        public string filename;
-        // URL to the full-sized image.
-        public string original;
-        // URL to the image thumbnail.
-        public string thumb_320x180;
+        ///<summary>Image filename including extension.</summary>
+        [JsonProperty("filename")]
+        public string fileName;
+
+        ///<summary>URL to the full-sized image.</summary>
+        [JsonProperty("original")]
+        public string fullSize;
+
+        ///<summary>URL to the image thumbnail.</summary>
+        [JsonProperty("thumb_320x180")]
+        public string thumbnail_320x180;
     }
 }

@@ -22,23 +22,23 @@ namespace ModIO
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyAvatarObjectValues(API.AvatarObject apiObject)
             {
-                this._fileName = apiObject.filename;
+                this._fileName = apiObject.fileName;
                 this._versionPairing = new VersionSourcePair[]
                 {
                     new VersionSourcePair()
                     {
                         versionId = (int)UserAvatarVersion.FullSize,
-                        url = apiObject.original
+                        url = apiObject.fullSize
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)UserAvatarVersion.Thumbnail_50x50,
-                        url = apiObject.thumb_50x50
+                        url = apiObject.thumbnail_50x50
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)UserAvatarVersion.Thumbnail_100x100,
-                        url = apiObject.thumb_100x100
+                        url = apiObject.thumbnail_100x100
                     },
                 };
             }

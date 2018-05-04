@@ -19,28 +19,28 @@ namespace ModIO
         // ---------[ API OBJECT INTERFACE ]---------
         public void ApplyLogoObjectValues(LogoObject apiObject)
         {
-            this._fileName = apiObject.filename;
+            this._fileName = apiObject.fileName;
             this._versionPairing = new VersionSourcePair[]
             {
                 new VersionSourcePair()
                 {
                     versionId = (int)ModLogoVersion.FullSize,
-                    url = apiObject.original
+                    url = apiObject.fullSize
                 },
                 new VersionSourcePair()
                 {
                     versionId = (int)ModLogoVersion.Thumbnail_320x180,
-                    url = apiObject.thumb_320x180
+                    url = apiObject.thumbnail_320x180
                 },
                 new VersionSourcePair()
                 {
                     versionId = (int)ModLogoVersion.Thumbnail_640x360,
-                    url = apiObject.thumb_640x360
+                    url = apiObject.thumbnail_640x360
                 },
                 new VersionSourcePair()
                 {
                     versionId = (int)ModLogoVersion.Thumbnail_1280x720,
-                    url = apiObject.thumb_1280x720
+                    url = apiObject.thumbnail_1280x720
                 },
             };
         }

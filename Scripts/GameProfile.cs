@@ -90,28 +90,28 @@ namespace ModIO
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyLogoObjectValues(API.LogoObject apiObject)
             {
-                this._fileName = apiObject.filename;
+                this._fileName = apiObject.fileName;
                 this._versionPairing = new VersionSourcePair[]
                 {
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.FullSize,
-                        url = apiObject.original
+                        url = apiObject.fullSize
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.Thumbnail_320x180,
-                        url = apiObject.thumb_320x180
+                        url = apiObject.thumbnail_320x180
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.Thumbnail_640x360,
-                        url = apiObject.thumb_640x360
+                        url = apiObject.thumbnail_640x360
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameLogoVersion.Thumbnail_1280x720,
-                        url = apiObject.thumb_1280x720
+                        url = apiObject.thumbnail_1280x720
                     },
                 };
             }
@@ -130,8 +130,8 @@ namespace ModIO
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyHeaderImageObjectValues(API.HeaderImageObject apiObject)
             {
-                this._fileName = apiObject.filename;
-                this._url = apiObject.original;
+                this._fileName = apiObject.fileName;
+                this._url = apiObject.fullSize;
             }
 
             public static HeaderImageLocator CreateFromHeaderImageObject(API.HeaderImageObject apiObject)
@@ -151,28 +151,28 @@ namespace ModIO
             // ---------[ API OBJECT INTERFACE ]---------
             public void ApplyIconObjectValues(API.IconObject apiObject)
             {
-                this._fileName = apiObject.filename;
+                this._fileName = apiObject.fileName;
                 this._versionPairing = new VersionSourcePair[]
                 {
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.FullSize,
-                        url = apiObject.original
+                        url = apiObject.fullSize
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.Thumbnail_64x64,
-                        url = apiObject.thumb_64x64
+                        url = apiObject.thumbnail_64x64
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.Thumbnail_128x128,
-                        url = apiObject.thumb_128x128
+                        url = apiObject.thumbnail_128x128
                     },
                     new VersionSourcePair()
                     {
                         versionId = (int)GameIconVersion.Thumbnail_256x256,
-                        url = apiObject.thumb_256x256
+                        url = apiObject.thumbnail_256x256
                     },
                 };
             }
