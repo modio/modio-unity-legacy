@@ -221,16 +221,15 @@ namespace ModIO
             else
             {
                 // - Fetch from Server -
-                Action<ModObject> cacheModProfile = (modObject) =>
+                Action<ModProfile> cacheModProfile = (p) =>
                 {
-                    profile = ModProfile.CreateFromModObject(modObject);
-                    CacheManager.WriteJsonObjectFile(profileFilePath, profile);
-                    onSuccess(profile);
+                    CacheManager.WriteJsonObjectFile(profileFilePath, p);
+                    onSuccess(p);
                 };
 
                 Client.GetMod(modId,
-                                  cacheModProfile,
-                                  onError);
+                              cacheModProfile,
+                              onError);
             }
         }
         
@@ -285,14 +284,6 @@ namespace ModIO
                     ".png");
         }
 
-        public static void GetModLogo(ModObject modObject, ModLogoVersion version,
-                                      Action<Texture2D> onSuccess,
-                                      Action<WebRequestError> onError)
-        {
-            CacheManager.GetModLogo(ModProfile.CreateFromModObject(modObject),
-                                    version, onSuccess, onError);
-        }
-
         // TODO(@jackson): Look at reconfiguring params
         public static void GetModLogo(ModProfile profile, ModLogoVersion version,
                                       Action<Texture2D> onSuccess,
@@ -341,7 +332,7 @@ namespace ModIO
             {
                 // - Fetch from Server -
                 // GetModProfile(modId)
-                DownloadAndSaveImageAsPNG(profile.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version),
+                DownloadAndSaveImageAsPNG(profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version),
                                           imageFilePath,
                                           onSuccess,
                                           onError);

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Path = System.IO.Path;
+using System.Linq; // TODO(@jackson): Remove
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -391,7 +392,7 @@ namespace ModIO
                     {
                         var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
                         EditorUtilityExtensions.SetSerializedPropertyStringArray(tagsProperty,
-                                                                                 Utility.CollectionToArray(profile.tags));
+                                                                                 profile.tagNames.ToArray());
                         editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue = false;
                     }
                 }

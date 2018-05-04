@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq; // TODO(@jackson): Remove
 
 namespace ModIO
 {
@@ -41,16 +42,16 @@ namespace ModIO
             retVal.description.value = profile.description;
             retVal.homepageURL.value = profile.homepageURL;
             retVal.metadataBlob.value = profile.metadataBlob;
-            retVal.tags.value = Utility.CollectionToArray(profile.tags);
+            retVal.tags.value = profile.tagNames.ToArray();
 
             // - Media -
             retVal.logoLocator.value.fileName = profile.logoLocator.fileName;
             retVal.logoLocator.value.url = profile.logoLocator.GetURL();
 
-            retVal.youtubeURLs.value = Utility.CollectionToArray(profile.youtubeURLs);
-            retVal.sketchfabURLs.value = Utility.CollectionToArray(profile.sketchfabURLs);
+            retVal.youtubeURLs.value = profile.media.youtubeURLs;
+            retVal.sketchfabURLs.value = profile.media.sketchfabURLs;
 
-            Utility.SafeMapArraysOrZero(Utility.CollectionToArray(profile.galleryImageLocators),
+            Utility.SafeMapArraysOrZero(profile.media.galleryImageLocators,
                                         (l) => { return ImageLocatorData.CreateFromImageLocator(l); },
                                         out retVal.galleryImageLocators.value);
 

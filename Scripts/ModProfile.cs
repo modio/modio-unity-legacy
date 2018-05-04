@@ -18,12 +18,9 @@ namespace ModIO
         Hidden = 0,
         Public = 1,
     }
-}
 
-namespace ModIO.API
-{
     [System.Serializable]
-    public class ModObject
+    public class ModProfile
     {
         // ---------[ FIELDS ]---------
         /// <summary> Unique mod id. </summary>
@@ -35,14 +32,14 @@ namespace ModIO.API
         public int gameId;
 
         /// <summary> Status of the mod.
-        /// See <see cref="ModIO.API.ModObject.StatusValues"/> for possible values.
+        /// See <see cref="ModIO.API.ModProfile.StatusValues"/> for possible values.
         /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
         /// </summary>
         [JsonProperty("status")]
         public ModStatus status;
 
         /// <summary> Visibility of the mod.
-        /// See <see cref="ModIO.API.ModObject.VisibleValues"/> for possible values.
+        /// See <see cref="ModIO.API.ModProfile.VisibleValues"/> for possible values.
         /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
         /// </summary>
         [JsonProperty("visible")]

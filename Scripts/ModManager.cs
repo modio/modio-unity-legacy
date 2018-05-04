@@ -180,38 +180,38 @@ namespace ModIO
         // TODO(@jackson): Defend everything
         private static void FetchAndRebuildModCache()
         {
-            Action<List<ModObject>> onModObjectsReceived = (modObjects) =>
+            Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
             {
-                ApplyModObjectsToCache(modObjects);
+                ApplyModProfilesToCache(modProfiles);
 
                 manifest.lastUpdateTimeStamp = ServerTimeStamp.Now;
                 WriteManifestToDisk();
 
-                foreach(var modObject in modObjects)
+                foreach(var modProfile in modProfiles)
                 {
-                    int modId = modObject.id;
+                    int modId = modProfile.id;
                     FetchAllResultsForQuery<TeamMemberObject>((p,s,e) => Client.GetAllModTeamMembers(modId, RequestFilter.None, p,s,e),
                                                               (r) => ApplyTeamMemberObjectsToCache(modId, r),
                                                               Client.LogError);
                 }
             };
 
-            FetchAllResultsForQuery<ModObject>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
-                                               onModObjectsReceived,
+            FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
+                                               onModProfilesReceived,
                                                Client.LogError);
         }
 
-        private static void ApplyModObjectsToCache(List<ModObject> modObjects)
+        private static void ApplyModProfilesToCache(List<ModProfile> modProfiles)
         {
             // TODO(@jackson): Implement mod is unavailable
             // TODO(@jackson): Check for modfile change
 
             var addedMods = new List<ModProfile>();
             var updatedMods = new List<ModProfile>();
-            foreach(ModObject modObject in modObjects)
+            foreach(ModProfile modProfile in modProfiles)
             {
                 ModProfile profile;
-                if(modCache.TryGetValue(modObject.id, out profile))
+                if(modCache.TryGetValue(modProfile.id, out profile))
                 {
                     updatedMods.Add(profile);
                 }
@@ -221,7 +221,6 @@ namespace ModIO
                     addedMods.Add(profile);
                 }
 
-                profile.ApplyModObjectValues(modObject);
                 StoreModData(profile);
             }
 
@@ -342,7 +341,7 @@ namespace ModIO
                     userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
                          = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
-                    FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
+                    FetchAllResultsForQuery<ModProfile>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
                                                                                             p, s, e),
                                                         UpdateUserSubscriptions,
                                                         Client.LogError);
@@ -355,9 +354,9 @@ namespace ModIO
             // // - ModProfile Processing Options -
             // Action<ModEvent> processModAvailable = (modEvent) =>
             // {
-            //     Action<ModObject> onGetMod = (modObject) =>
+            //     Action<ModProfile> onGetMod = (modProfile) =>
             //     {
-            //         var profile = ModProfile.CreateFromModObject(modObject);
+            //         var profile = ModProfile.CreateFromModProfile(modProfile);
 
             //         StoreModData(profile);
             //         manifest.unresolvedEvents.Remove(modEvent);
@@ -391,9 +390,9 @@ namespace ModIO
 
             // Action<ModEvent> processModEdited = (modEvent) =>
             // {
-            //     Action<ModObject> onGetMod = (modObject) =>
+            //     Action<ModProfile> onGetMod = (modProfile) =>
             //     {
-            //         var profile = ModProfile.CreateFromModObject(modObject);
+            //         var profile = ModProfile.CreateFromModProfile(modProfile);
 
             //         StoreModData(profile);
             //         manifest.unresolvedEvents.Remove(modEvent);
@@ -418,9 +417,9 @@ namespace ModIO
             //     }
             //     else
             //     {
-            //         Action<ModObject> onGetMod = (modObject) =>
+            //         Action<ModProfile> onGetMod = (modProfile) =>
             //         {
-            //             profile.ApplyModObjectValues(modObject);
+            //             profile.ApplyModProfileValues(modProfile);
 
             //             StoreModData(profile);
 
@@ -482,7 +481,7 @@ namespace ModIO
             // }
         }
 
-        private static void UpdateUserSubscriptions(List<ModObject> userSubscriptions)
+        private static void UpdateUserSubscriptions(List<ModProfile> userSubscriptions)
         {
             if(authUser == null) { return; }
 
@@ -490,17 +489,17 @@ namespace ModIO
             List<int> removedMods = authUser.subscribedModIDs;
             authUser.subscribedModIDs = new List<int>(userSubscriptions.Count);
 
-            foreach(ModObject modObject in userSubscriptions)
+            foreach(ModProfile modProfile in userSubscriptions)
             {
-                authUser.subscribedModIDs.Add(modObject.id);
+                authUser.subscribedModIDs.Add(modProfile.id);
 
-                if(removedMods.Contains(modObject.id))
+                if(removedMods.Contains(modProfile.id))
                 {
-                    removedMods.Remove(modObject.id);
+                    removedMods.Remove(modProfile.id);
                 }
                 else
                 {
-                    addedMods.Add(modObject.id);
+                    addedMods.Add(modProfile.id);
                 }
             }
 
@@ -570,7 +569,7 @@ namespace ModIO
                 userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
                      = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
-                FetchAllResultsForQuery<ModObject>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
+                FetchAllResultsForQuery<ModProfile>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
                                                                                         p, s, e),
                                                     UpdateUserSubscriptions,
                                                     Client.LogError);
@@ -689,7 +688,7 @@ namespace ModIO
 
         public static ModBinaryStatus GetBinaryStatus(ModProfile profile)
         {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.primaryModfileId + ".zip"))
+            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
             {
                 return ModBinaryStatus.UpToDate;
             }
@@ -709,9 +708,9 @@ namespace ModIO
 
         public static string GetBinaryPath(ModProfile profile)
         {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.primaryModfileId + ".zip"))
+            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
             {
-                return GetModDirectory(profile.id) + "modfile_" + profile.primaryModfileId + ".zip";
+                return GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip";
             }
             else
             {
@@ -946,7 +945,7 @@ namespace ModIO
             remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
 
             Client.AddMod(parameters,
-                          result => SubmitModProfileComponents(ModProfile.CreateFromModObject(result),
+                          result => SubmitModProfileComponents(result,
                                                                remainingModEdits,
                                                                modSubmissionSucceeded,
                                                                modSubmissionFailed),
@@ -1061,13 +1060,13 @@ namespace ModIO
                 if(modEdits.youtubeURLs.isDirty)
                 {
                     var addedYouTubeLinks = new List<string>(modEdits.youtubeURLs.value);
-                    foreach(string youtubeLink in profile.youtubeURLs)
+                    foreach(string youtubeLink in profile.media.youtubeURLs)
                     {
                         addedYouTubeLinks.Remove(youtubeLink);
                     }
                     addMediaParameters.youtube = addedYouTubeLinks.ToArray();
 
-                    var removedTags = new List<string>(profile.youtubeURLs);
+                    var removedTags = new List<string>(profile.media.youtubeURLs);
                     foreach(string youtubeLink in modEdits.youtubeURLs.value)
                     {
                         removedTags.Remove(youtubeLink);
@@ -1078,13 +1077,13 @@ namespace ModIO
                 if(modEdits.sketchfabURLs.isDirty)
                 {
                     var addedSketchfabLinks = new List<string>(modEdits.sketchfabURLs.value);
-                    foreach(string sketchfabLink in profile.sketchfabURLs)
+                    foreach(string sketchfabLink in profile.media.sketchfabURLs)
                     {
                         addedSketchfabLinks.Remove(sketchfabLink);
                     }
                     addMediaParameters.sketchfab = addedSketchfabLinks.ToArray();
 
-                    var removedTags = new List<string>(profile.sketchfabURLs);
+                    var removedTags = new List<string>(profile.media.sketchfabURLs);
                     foreach(string sketchfabLink in modEdits.sketchfabURLs.value)
                     {
                         removedTags.Remove(sketchfabLink);
@@ -1115,7 +1114,7 @@ namespace ModIO
                     }
 
                     var removedImageFileNames = new List<string>();
-                    foreach(var locator in profile.galleryImageLocators)
+                    foreach(var locator in profile.media.galleryImageLocators)
                     {
                         removedImageFileNames.Add(locator.fileName);
                     }
@@ -1155,12 +1154,12 @@ namespace ModIO
             if(modEdits.tags.isDirty)
             {
                 var addedTags = new List<string>(modEdits.tags.value);
-                foreach(string tag in profile.tags)
+                foreach(string tag in profile.tagNames)
                 {
                     addedTags.Remove(tag);
                 }
 
-                var removedTags = new List<string>(profile.tags);
+                var removedTags = new List<string>(profile.tagNames);
                 foreach(string tag in modEdits.tags.value)
                 {
                     removedTags.Remove(tag);
@@ -1196,11 +1195,7 @@ namespace ModIO
 
             // - Get Updated Profile -
             submissionActions.Add(() => Client.GetMod(profile.id,
-                                                      (mo) =>
-                                                      {
-                                                        profile.ApplyModObjectValues(mo);
-                                                        modSubmissionSucceeded(profile);
-                                                      },
+                                                      modSubmissionSucceeded,
                                                       modSubmissionFailed));
 
             // - Start submission chain -

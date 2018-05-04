@@ -685,7 +685,7 @@ namespace ModIO.API
         // ---------[ MOD ENDPOINTS ]---------
         // Get All Mods
         public static void GetAllMods(RequestFilter filter, PaginationParameters pagination,
-                                      Action<ObjectArray<ModObject>> successCallback, Action<WebRequestError> errorCallback)
+                                      Action<ObjectArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods";
 
@@ -697,7 +697,7 @@ namespace ModIO.API
         }
         // Get Mod
         public static void GetMod(int modId,
-                                  Action<ModObject> successCallback, Action<WebRequestError> errorCallback)
+                                  Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
             
@@ -709,7 +709,7 @@ namespace ModIO.API
         }
         // Add Mod
         public static void AddMod(AddModParameters parameters,
-                                  Action<ModObject> successCallback, Action<WebRequestError> errorCallback)
+                                  Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods";
 
@@ -722,7 +722,7 @@ namespace ModIO.API
         // Edit Mod
         public static void EditMod(int modId,
                                    EditModParameters parameters,
-                                   Action<ModObject> successCallback, Action<WebRequestError> errorCallback)
+                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
 
@@ -1236,7 +1236,7 @@ namespace ModIO.API
         }
         // Get User Subscriptions
         public static void GetUserSubscriptions(RequestFilter filter, PaginationParameters pagination,
-                                                Action<ObjectArray<ModObject>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<ObjectArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/subscribed";
 
@@ -1272,7 +1272,7 @@ namespace ModIO.API
         }
         // Get User Mods
         public static void GetUserMods(PaginationParameters pagination,
-                                       Action<ObjectArray<ModObject>> successCallback, Action<WebRequestError> errorCallback)
+                                       Action<ObjectArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/mods";
 

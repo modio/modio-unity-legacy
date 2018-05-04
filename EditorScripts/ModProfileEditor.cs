@@ -59,18 +59,20 @@ namespace ModIO
             {
                 if(ModManager.GetAuthenticatedUser() != null)
                 {
-                    System.Func<ModProfile, bool> userIsTeamMember = (p) =>
-                    {
-                        foreach(var teamMember in p.teamMembers)
-                        {
-                            if(teamMember.userId == ModManager.GetAuthenticatedUser().profile.id
-                               && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Creator)
-                            {
-                                return true;
-                            }
-                        }
-                        return false;
-                    };
+                    // TODO(@jackson): Reimplement
+                    System.Func<ModProfile, bool> userIsTeamMember = (p) => true;
+                    // System.Func<ModProfile, bool> userIsTeamMember = (p) =>
+                    // {
+                    //     foreach(var teamMember in p.teamMembers)
+                    //     {
+                    //         if(teamMember.userId == ModManager.GetAuthenticatedUser().profile.id
+                    //            && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Creator)
+                    //         {
+                    //             return true;
+                    //         }
+                    //     }
+                    //     return false;
+                    // };
 
                     profile = null;
 
