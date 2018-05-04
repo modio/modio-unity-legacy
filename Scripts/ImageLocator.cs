@@ -12,6 +12,18 @@ namespace ModIO
         string url       { get; }
     }
 
+    public interface IImageLocator2
+    {
+        string GetFileName();
+        string GetURL();
+    }
+
+    public interface IMultiVersionImageLocator<E> : IImageLocator2
+    {
+        string GetVersionURL(E version);
+    }
+
+
     [Serializable]
     public class SingleVersionImageLocator : IImageLocator
     {

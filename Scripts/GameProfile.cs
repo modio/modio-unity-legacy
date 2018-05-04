@@ -131,7 +131,7 @@ namespace ModIO
             public void ApplyHeaderImageObjectValues(API.HeaderImageObject apiObject)
             {
                 this._fileName = apiObject.fileName;
-                this._url = apiObject.fullSize;
+                this._url = apiObject.url;
             }
 
             public static HeaderImageLocator CreateFromHeaderImageObject(API.HeaderImageObject apiObject)
