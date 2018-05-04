@@ -47,7 +47,7 @@ namespace ModIO.API
 
         /// <summary> Contains user data. </summary>
         [JsonProperty("submitted_by")]
-        public UserObject submittedBy;
+        public UserProfileStub submittedBy;
 
         /// <summary> Unix timestamp of date mod was registered. </summary>
         [JsonProperty("date_added")]
