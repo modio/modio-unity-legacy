@@ -31,14 +31,14 @@ namespace ModIO
         public void ApplyModfileObjectValues(API.ModfileObject apiObject)
         {
             this._id = apiObject.id;
-            this._modId = apiObject.mod_id;
-            this._dateAdded = (apiObject.date_added);
+            this._modId = apiObject.modId;
+            this._dateAdded = apiObject.dateAdded;
             this._fileSize = apiObject.filesize;
             this._md5 = apiObject.filehash.md5;
-            this._fileName = apiObject.filename;
+            this._fileName = apiObject.fileName;
             this._version = apiObject.version;
             this._changelog = apiObject.changelog;
-            this._metadataBlob = apiObject.metadata_blob;
+            this._metadataBlob = apiObject.metadataBlob;
         }
 
         public static Modfile CreateFromModfileObject(API.ModfileObject apiObject)
