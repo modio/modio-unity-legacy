@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+
+using Newtonsoft.Json;
 
 namespace ModIO
 {
@@ -117,6 +119,21 @@ namespace ModIO.API
         
         /// <summary> Contains mod tag data. </summary>
         [JsonProperty("tags")]
-        public ModTagObject[] tags;
+        public ModTag[] tags;
+
+        // ---------[ ACCESSORS ]---------
+        public IEnumerable<string> tagNames
+        {
+            get
+            {
+                if(tags != null)
+                {
+                    foreach(ModTag tag in tags)
+                    {
+                        yield return tag.name;
+                    }
+                }
+            }
+        }
     }
 }

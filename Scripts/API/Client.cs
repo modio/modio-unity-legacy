@@ -931,7 +931,7 @@ namespace ModIO.API
         // Get All Mod Tags
         public static void GetAllModTags(int modId,
                                          RequestFilter filter, PaginationParameters pagination,
-                                         Action<ObjectArray<ModTagObject>> successCallback, Action<WebRequestError> errorCallback)
+                                         Action<ObjectArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
 
