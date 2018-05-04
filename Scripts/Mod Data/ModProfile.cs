@@ -187,15 +187,15 @@ namespace ModIO
 
             // - Media -
             this._logoLocator = ModLogoImageLocator.CreateFromLogoObject(apiObject.logo);
-            this._youtubeURLs = Utility.SafeCopyArrayOrZero(apiObject.media.youtube);
-            this._sketchfabURLs = Utility.SafeCopyArrayOrZero(apiObject.media.sketchfab);
+            this._youtubeURLs = Utility.SafeCopyArrayOrZero(apiObject.media.youtubeURLs);
+            this._sketchfabURLs = Utility.SafeCopyArrayOrZero(apiObject.media.sketchfabURLs);
 
-            if(apiObject.media.images != null)
+            if(apiObject.media.galleryImages != null)
             {
-                this._galleryImageLocators = new ModGalleryImageLocator[apiObject.media.images.Length];
-                for(int i = 0; i < apiObject.media.images.Length; ++i)
+                this._galleryImageLocators = new ModGalleryImageLocator[apiObject.media.galleryImages.Length];
+                for(int i = 0; i < apiObject.media.galleryImages.Length; ++i)
                 {
-                    var imageObject = apiObject.media.images[i];
+                    var imageObject = apiObject.media.galleryImages[i];
                     this._galleryImageLocators[i] = ModGalleryImageLocator.CreateFromImageObject(imageObject);
                 }
             }
