@@ -224,7 +224,7 @@ namespace ModIO
                 Action<ModProfile> cacheModProfile = (p) =>
                 {
                     CacheManager.WriteJsonObjectFile(profileFilePath, p);
-                    onSuccess(p);
+                    if(onSuccess != null) { onSuccess(p); }
                 };
 
                 Client.GetMod(modId,

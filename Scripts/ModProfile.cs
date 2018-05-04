@@ -32,14 +32,12 @@ namespace ModIO
         public int gameId;
 
         /// <summary> Status of the mod.
-        /// See <see cref="ModIO.API.ModProfile.StatusValues"/> for possible values.
         /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
         /// </summary>
         [JsonProperty("status")]
         public ModStatus status;
 
         /// <summary> Visibility of the mod.
-        /// See <see cref="ModIO.API.ModProfile.VisibleValues"/> for possible values.
         /// <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
         /// </summary>
         [JsonProperty("visible")]
@@ -119,6 +117,7 @@ namespace ModIO
         public ModTag[] tags;
 
         // ---------[ ACCESSORS ]---------
+        [JsonIgnore]
         public IEnumerable<string> tagNames
         {
             get
