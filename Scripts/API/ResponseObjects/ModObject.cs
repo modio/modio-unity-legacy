@@ -21,7 +21,7 @@ namespace ModIO
 namespace ModIO.API
 {
     [System.Serializable]
-    public struct ModObject
+    public class ModObject
     {
         /// <summary> Unique mod id. </summary>
         [JsonProperty("id")]
@@ -100,7 +100,7 @@ namespace ModIO.API
 
         /// <summary> Contains modfile data. </summary>
         [JsonProperty("modfile")]
-        public ModfileObject modfile;
+        public ModfileStub currentRelease;
 
         /// <summary> Contains mod media data. </summary>
         [JsonProperty("media")]

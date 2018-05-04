@@ -153,7 +153,7 @@ namespace ModIO
             this._description = apiObject.description;
             this._metadataBlob = apiObject.metadataBlob;
             this._profileURL = apiObject.profileURL;
-            this._primaryModfileId = apiObject.modfile.id;
+            this._primaryModfileId = apiObject.currentRelease.id;
 
             this._ratingSummary._totalRatingCount = apiObject.ratingSummary.total_ratings;
             this._ratingSummary._positiveRatingCount = apiObject.ratingSummary.positive_ratings;

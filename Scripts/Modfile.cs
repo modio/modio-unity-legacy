@@ -19,7 +19,7 @@ namespace ModIO
         // ---------[ FIELDS ]---------
         public int id               { get { return this._id; } }
         public int modId            { get { return this._modId; } }
-        public int dateAdded  { get { return this._dateAdded; } }
+        public int dateAdded        { get { return this._dateAdded; } }
         public int fileSize         { get { return this._fileSize; } }
         public string md5           { get { return this._md5; } }
         public string fileName      { get { return this._fileName; } }

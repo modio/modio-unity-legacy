@@ -1,11 +1,20 @@
 namespace ModIO.API
 {
     [System.Serializable]
-    public struct ModfileObject
+    public class ModfileStub
     {
-        //Unique modfile id.
+        // Unique modfile id.
         public int id;
-        //Unique mod id.
+        // Release version this file represents.
+        public string version;
+        // Size of the file in bytes.
+        public int filesize;
+    }
+
+    [System.Serializable]
+    public class ModfileObject : ModfileStub
+    {
+        // Unique mod id.
         public int mod_id;
         //Unix timestamp of date file was added.
         public int date_added;
@@ -17,12 +26,8 @@ namespace ModIO.API
         public int virus_positive;
         //VirusTotal proprietary hash to view the scan results.
         public string virustotal_hash;
-        //Size of the file in bytes.
-        public int filesize;
         //Filename including extension.
         public string filename;
-        //Release version this file represents.
-        public string version;
         //Changelog for the file.
         public string changelog;
         //Metadata stored by the game developer for this file.
