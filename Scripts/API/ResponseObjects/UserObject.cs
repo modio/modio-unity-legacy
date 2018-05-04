@@ -1,23 +1,44 @@
+using Newtonsoft.Json;
+
 namespace ModIO.API
 {
     [System.Serializable]
     public struct UserObject
     {
-        // Unique id of the user.
+        // ---------[ FIELDS ]---------
+        /// <summary>Unique id of the user.</summary>
+        [JsonProperty("id")]
         public int id;
-        // Path for the user on mod.io. For example: https//mod.io/members/username-id-here Usually a simplified version of their username.
-        public string name_id;
-        // Username of the user.
+        
+        /// <summary>Path for the user on mod.io.
+        /// For example: https://mod.io/members/username-id-here
+        /// Usually a simplified version of their username.</summary>
+        [JsonProperty("name_id")]
+        public string nameId;
+        
+        /// <summary>Username of the user.</summary>
+        [JsonProperty("username")]
         public string username;
-        // Unix timestamp of date the user was last online.
-        public int date_online;
-        // Timezone of the user, format is country/city.
-        public string timezone;
-        // Users language preference. See localization for the supported languages.
-        public string language;
-        // URL to the user's mod.io profile.
-        public string profile_url;
-        // Contains avatar data.
+        
+        /// <summary>Unix timestamp of date the user was last online.</summary>
+        [JsonProperty("date_online")]
+        public int dateOnline;
+        
+        /// <summary>Contains avatar data.</summary>
+        [JsonProperty("avatar")]
         public AvatarObject avatar;
+        
+        /// <summary>Timezone of the user, format is country/city.</summary>
+        [JsonProperty("timezone")]
+        public string timezone;
+        
+        /// <summary>Users language preference. See localization for the
+        /// supported languages.</summary>
+        [JsonProperty("language")]
+        public string language;
+        
+        /// <summary>URL to the user's mod.io profile.</summary>
+        [JsonProperty("profile_url")]
+        public string profileURL;
     }
 }

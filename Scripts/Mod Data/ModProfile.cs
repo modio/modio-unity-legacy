@@ -155,10 +155,10 @@ namespace ModIO
             this._profileURL = apiObject.profileURL;
             this._primaryModfileId = apiObject.currentRelease.id;
 
-            this._ratingSummary._totalRatingCount = apiObject.ratingSummary.total_ratings;
-            this._ratingSummary._positiveRatingCount = apiObject.ratingSummary.positive_ratings;
-            this._ratingSummary._weightedAggregate = apiObject.ratingSummary.weighted_aggregate;
-            this._ratingSummary._displayText = apiObject.ratingSummary.display_text;
+            this._ratingSummary._totalRatingCount = apiObject.ratingSummary.totalRatingCount;
+            this._ratingSummary._positiveRatingCount = apiObject.ratingSummary.positiveRatingCount;
+            this._ratingSummary._weightedAggregate = apiObject.ratingSummary.weightedAggregate;
+            this._ratingSummary._displayText = apiObject.ratingSummary.displayText;
 
             // - Tags -
             if(apiObject.tags != null)

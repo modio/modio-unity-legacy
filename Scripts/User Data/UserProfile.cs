@@ -76,13 +76,13 @@ namespace ModIO
         public void ApplyUserObjectValues(API.UserObject apiObject)
         {
             this._id = apiObject.id;
-            this._nameId = apiObject.name_id;
+            this._nameId = apiObject.nameId;
             this._username = apiObject.username;
-            this._dateOnline = (apiObject.date_online);
+            this._dateOnline = apiObject.dateOnline;
             this._avatarLocator = AvatarImageLocator.CreateFromAvatarObject(apiObject.avatar);
             this._timezone = apiObject.timezone;
             this._language = apiObject.language;
-            this._profileURL = apiObject.profile_url;
+            this._profileURL = apiObject.profileURL;
         }
 
         public static UserProfile CreateFromUserObject(API.UserObject apiObject)
