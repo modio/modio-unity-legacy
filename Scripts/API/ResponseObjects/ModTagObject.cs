@@ -1,11 +1,16 @@
+using Newtonsoft.Json;
+
 namespace ModIO.API
 {
     [System.Serializable]
     public struct ModTagObject
     {
-        // Tag name.
+        /// <summary>Tag name.</summary>
+        [JsonProperty("name")]
         public string name;
-        // Unix timestamp of date tag was applied.
-        public int date_added;
+
+        /// <summary>Unix timestamp of date tag was applied.</summary>
+        [JsonProperty("date_added")]
+        public int dateAdded;
     }
 }

@@ -180,8 +180,8 @@ namespace ModIO
             {
                 this._metadataKVPs[i] = new MetadataKVP()
                 {
-                    key = apiObject.metadataKVP[i].metakey,
-                    value = apiObject.metadataKVP[i].metavalue,
+                    key = apiObject.metadataKVP[i].key,
+                    value = apiObject.metadataKVP[i].value,
                 };
             }
 
