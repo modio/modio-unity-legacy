@@ -189,9 +189,9 @@ namespace ModIO
         [JsonProperty] private int _id;
         [JsonProperty] private GameStatus _status;
         [JsonProperty] private int _submittedById;
-        [JsonProperty] private TimeStamp _dateAdded;
-        [JsonProperty] private TimeStamp _dateUpdated;
-        [JsonProperty] private TimeStamp _dateLive;
+        [JsonProperty] private int _dateAdded;
+        [JsonProperty] private int _dateUpdated;
+        [JsonProperty] private int _dateLive;
         [JsonProperty] private ModGalleryPresentationOption _presentationOption;
         [JsonProperty] private ModSubmissionOption _submissionOption;
         [JsonProperty] private ModCurationOption _curationOption;
@@ -214,9 +214,9 @@ namespace ModIO
         [JsonIgnore] public int id                                           { get { return this._id; } }
         [JsonIgnore] public GameStatus status                                { get { return this._status; } }
         [JsonIgnore] public int submittedById                                { get { return this._submittedById; } }
-        [JsonIgnore] public TimeStamp dateAdded                              { get { return this._dateAdded; } }
-        [JsonIgnore] public TimeStamp dateUpdated                            { get { return this._dateUpdated; } }
-        [JsonIgnore] public TimeStamp dateLive                               { get { return this._dateLive; } }
+        [JsonIgnore] public int dateAdded                              { get { return this._dateAdded; } }
+        [JsonIgnore] public int dateUpdated                            { get { return this._dateUpdated; } }
+        [JsonIgnore] public int dateLive                               { get { return this._dateLive; } }
         [JsonIgnore] public ModGalleryPresentationOption presentationOption  { get { return this._presentationOption; } }
         [JsonIgnore] public ModSubmissionOption submissionOption             { get { return this._submissionOption; } }
         [JsonIgnore] public ModCurationOption curationOption                 { get { return this._curationOption; } }
@@ -241,9 +241,9 @@ namespace ModIO
             this._id = apiObject.id;
             this._status = (GameStatus)apiObject.status;
             this._submittedById = apiObject.submitted_by.id;
-            this._dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
-            this._dateUpdated = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_updated);
-            this._dateLive = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_live);
+            this._dateAdded = apiObject.date_added;
+            this._dateUpdated = apiObject.date_updated;
+            this._dateLive = apiObject.date_live;
             this._presentationOption = (ModGalleryPresentationOption)apiObject.presentation_option;
             this._submissionOption = (ModSubmissionOption)apiObject.submission_option;
             this._curationOption = (ModCurationOption)apiObject.curation_option;

@@ -27,7 +27,7 @@ namespace ModIO
         [SerializeField] private int _modId;
         [SerializeField] private int _parentId;
         [SerializeField] private int _submittedById;
-        [SerializeField] private TimeStamp _dateAdded;
+        [SerializeField] private int _dateAdded;
         [SerializeField] private CommentThreadPosition _threadPosition;
         [SerializeField] private int _karma;
         [SerializeField] private int _karmaGuest;
@@ -37,7 +37,7 @@ namespace ModIO
         public int id                               { get { return this._id; } }
         public int modId                            { get { return this._modId; } }
         public int submittedById                    { get { return this._submittedById; } }
-        public TimeStamp dateAdded                  { get { return this._dateAdded; } }
+        public int dateAdded                        { get { return this._dateAdded; } }
         public int parentId                         { get { return this._parentId; } }
         public CommentThreadPosition threadPosition { get { return this._threadPosition; } }
         public int karma                            { get { return this._karma; } }
@@ -50,7 +50,7 @@ namespace ModIO
             this._id = apiObject.id;
             this._modId = apiObject.mod_id;
             this._submittedById = apiObject.submitted_by.id;
-            this._dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+            this._dateAdded = (apiObject.date_added);
             this._parentId = apiObject.reply_id;
             this._karma = apiObject.karma;
             this._karmaGuest = apiObject.karma_guest;

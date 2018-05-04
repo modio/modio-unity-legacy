@@ -8,7 +8,7 @@ namespace ModIO
         // ---------[ SERIALIZED MEMBERS ]---------
         [SerializeField] private int _id;
         [SerializeField] private int _modId;
-        [SerializeField] private TimeStamp _dateAdded;
+        [SerializeField] private int _dateAdded;
         [SerializeField] private int _fileSize;
         [SerializeField] private string _md5;
         [SerializeField] private string _fileName;
@@ -19,7 +19,7 @@ namespace ModIO
         // ---------[ FIELDS ]---------
         public int id               { get { return this._id; } }
         public int modId            { get { return this._modId; } }
-        public TimeStamp dateAdded  { get { return this._dateAdded; } }
+        public int dateAdded  { get { return this._dateAdded; } }
         public int fileSize         { get { return this._fileSize; } }
         public string md5           { get { return this._md5; } }
         public string fileName      { get { return this._fileName; } }
@@ -32,7 +32,7 @@ namespace ModIO
         {
             this._id = apiObject.id;
             this._modId = apiObject.mod_id;
-            this._dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+            this._dateAdded = (apiObject.date_added);
             this._fileSize = apiObject.filesize;
             this._md5 = apiObject.filehash.md5;
             this._fileName = apiObject.filename;

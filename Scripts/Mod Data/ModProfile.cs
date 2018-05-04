@@ -66,9 +66,9 @@ namespace ModIO
         [JsonProperty] private ModStatus _status;
         [JsonProperty] private ModVisibility _visibility;
         [JsonProperty] private int _submittedById;
-        [JsonProperty] private TimeStamp _dateAdded;
-        [JsonProperty] private TimeStamp _dateUpdated;
-        [JsonProperty] private TimeStamp _dateLive;
+        [JsonProperty] private int _dateAdded;
+        [JsonProperty] private int _dateUpdated;
+        [JsonProperty] private int _dateLive;
         [JsonProperty] private string _homepageURL;
         [JsonProperty] private string _name;
         [JsonProperty] private string _nameId;
@@ -92,9 +92,9 @@ namespace ModIO
         [JsonIgnore] public ModStatus status                     { get { return this._status; } }
         [JsonIgnore] public ModVisibility visibility             { get { return this._visibility; } }
         [JsonIgnore] public int submittedById                    { get { return this._submittedById; } }
-        [JsonIgnore] public TimeStamp dateAdded                  { get { return this._dateAdded; } }
-        [JsonIgnore] public TimeStamp dateUpdated                { get { return this._dateUpdated; } }
-        [JsonIgnore] public TimeStamp dateLive                   { get { return this._dateLive; } }
+        [JsonIgnore] public int dateAdded                  { get { return this._dateAdded; } }
+        [JsonIgnore] public int dateUpdated                { get { return this._dateUpdated; } }
+        [JsonIgnore] public int dateLive                   { get { return this._dateLive; } }
         [JsonIgnore] public string homepageURL                   { get { return this._homepageURL; } }
         [JsonIgnore] public string name                          { get { return this._name; } }
         [JsonIgnore] public string nameId                        { get { return this._nameId; } }
@@ -140,12 +140,12 @@ namespace ModIO
         {
             this._id = apiObject.id;
             this._gameId = apiObject.gameId;
-            this._status = (ModStatus)apiObject.status;
-            this._visibility = (ModVisibility)apiObject.visibility;
+            this._status = apiObject.status;
+            this._visibility = apiObject.visibility;
             this._submittedById = apiObject.submittedBy.id;
-            this._dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.dateAdded);
-            this._dateUpdated = TimeStamp.GenerateFromServerTimeStamp(apiObject.dateUpdated);
-            this._dateLive = TimeStamp.GenerateFromServerTimeStamp(apiObject.dateLive);
+            this._dateAdded = apiObject.dateAdded;
+            this._dateUpdated = apiObject.dateUpdated;
+            this._dateLive = apiObject.dateLive;
             this._homepageURL = apiObject.homepageURL;
             this._name = apiObject.name;
             this._nameId = apiObject.nameId;

@@ -25,14 +25,14 @@ namespace ModIO
         [SerializeField] private int _id;
         [SerializeField] private int _modId;
         [SerializeField] private int _userId;
-        [SerializeField] private TimeStamp _dateAdded;
+        [SerializeField] private int _dateAdded;
         [SerializeField] private ModEventType _eventType;
 
         // ---------[ FIELDS ]---------
         public int id                   { get { return this._id; } }
         public int modId                { get { return this._modId; } }
         public int userId               { get { return this._userId; } }
-        public TimeStamp dateAdded      { get { return this._dateAdded; } }
+        public int dateAdded      { get { return this._dateAdded; } }
         public ModEventType eventType   { get { return this._eventType; } }
 
         // ---------[ API OBJECT INTERFACE ]---------
@@ -41,7 +41,7 @@ namespace ModIO
             this._id = apiObject.id;
             this._modId = apiObject.mod_id;
             this._userId = apiObject.user_id;
-            this._dateAdded = TimeStamp.GenerateFromServerTimeStamp(apiObject.date_added);
+            this._dateAdded = (apiObject.date_added);
             this._eventType = ModEvent.ParseAPITypeStringAsEventType(apiObject.event_type);
         }
 

@@ -176,10 +176,10 @@ namespace ModIO.API
         // ---------[ DEFAULT SUCCESS/ERROR FUNCTIONS ]---------
         public static void LogError(WebRequestError errorInfo)
         {
-            var responseTimeStamp = TimeStamp.Now();
+            var responseTimeStamp = ServerTimeStamp.Now;
             
             string errorMessage = errorInfo.method + " REQUEST FAILED";
-            errorMessage += "\nResponse received at: " + responseTimeStamp.AsLocalDateTime() + " [" + responseTimeStamp.AsServerTimeStamp() + "]";
+            errorMessage += "\nResponse received at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp) + " [" + responseTimeStamp + "]";
             errorMessage += "\nURL: " + errorInfo.url;
             errorMessage += "\nCode: " + errorInfo.responseCode;
             errorMessage += "\nMessage: " + errorInfo.message;
@@ -551,11 +551,11 @@ namespace ModIO.API
                 #if DEBUG
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
-                    var responseTimeStamp = TimeStamp.Now();
+                    var responseTimeStamp = ServerTimeStamp.Now;
                     Debug.Log(String.Format("{0} REQUEST SUCEEDED\nResponse received at: {1} [{2}]\nURL: {3}\nResponse: {4}\n",
                                             webRequest.method.ToUpper(),
-                                            responseTimeStamp.AsLocalDateTime(),
-                                            responseTimeStamp.AsServerTimeStamp(),
+                                            ServerTimeStamp.ToLocalDateTime(responseTimeStamp),
+                                            responseTimeStamp,
                                             webRequest.url,
                                             webRequest.downloadHandler.text));
                 }

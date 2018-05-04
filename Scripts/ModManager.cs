@@ -37,7 +37,7 @@ namespace ModIO
         [System.Serializable]
         private class ManifestData
         {
-            public TimeStamp lastUpdateTimeStamp = TimeStamp.Now();
+            public int lastUpdateTimeStamp = ServerTimeStamp.Now;
             public List<ModEvent> unresolvedEvents = new List<ModEvent>();
             public GameProfile gameProfile = new GameProfile();
             public List<string> serializedImageCache = new List<string>();
@@ -184,7 +184,7 @@ namespace ModIO
             {
                 ApplyModObjectsToCache(modObjects);
 
-                manifest.lastUpdateTimeStamp = TimeStamp.Now();
+                manifest.lastUpdateTimeStamp = ServerTimeStamp.Now;
                 WriteManifestToDisk();
 
                 foreach(var modObject in modObjects)
@@ -300,13 +300,13 @@ namespace ModIO
 
         private static void PollForUpdates()
         {
-            int secondsSinceUpdate = (TimeStamp.Now().AsServerTimeStamp()
-                                      - manifest.lastUpdateTimeStamp.AsServerTimeStamp());
+            int secondsSinceUpdate = (ServerTimeStamp.Now
+                                      - manifest.lastUpdateTimeStamp);
 
             if(secondsSinceUpdate >= SECONDS_BETWEEN_POLLING)
             {
-                TimeStamp fromTimeStamp = manifest.lastUpdateTimeStamp;
-                TimeStamp untilTimeStamp = TimeStamp.Now();
+                int fromTimeStamp = manifest.lastUpdateTimeStamp;
+                int untilTimeStamp = ServerTimeStamp.Now;
 
                 // - Get Game Updates -
                 // FetchAndCacheGameProfile();
@@ -316,9 +316,9 @@ namespace ModIO
                 modEventFilter.fieldFilters[GetAllModEventsFilterFields.dateAdded]
                     = new RangeFilter<int>()
                 {
-                    min = fromTimeStamp.AsServerTimeStamp(),
+                    min = fromTimeStamp,
                     isMinInclusive = true,
-                    max = untilTimeStamp.AsServerTimeStamp(),
+                    max = untilTimeStamp,
                     isMaxInclusive = false,
                 };
                 modEventFilter.fieldFilters[GetAllModEventsFilterFields.latest]
@@ -442,7 +442,7 @@ namespace ModIO
             // {
             //     var modEvent = ModEvent.CreateFromEventObject(eventObject);
 
-            //     string eventSummary = "TimeStamp (Local)=" + modEvent.dateAdded.AsLocalDateTime();
+            //     string eventSummary = "int (Local)=" + modEvent.dateAdded.ToLocalDateTime();
             //     eventSummary += "\nMod=" + modEvent.modId;
             //     eventSummary += "\nEventType=" + modEvent.eventType.ToString();
                 
