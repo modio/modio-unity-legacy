@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+using System;
 using System.Collections;
 // using System.Collections.Generic;
 
@@ -24,27 +25,32 @@ namespace ModIO
         // --- Key Data ---
         public int gameId = GlobalSettings.GAME_ID;
         public string gameKey = GlobalSettings.GAME_APIKEY;
-        public AuthenticatedUser authUser = null;
+        public bool isAutomaticUpdateEnabled = false;
 
         // --- Caching ---
         public GameProfile gameProfile;
         public ModProfile[] modProfileCache;
 
-        [System.NonSerialized]
+        // ---- Non Serialized ---
+        [HideInInspector]
+        public AuthenticatedUser authUser = null;
+        [HideInInspector]
         public int lastCacheUpdate = -1;
 
         // --- File Paths ---
         public static string manifestFilePath { get { return CacheManager.GetCacheDirectory() + "browser_manifest.data"; } }
 
         // ---------[ INITIALIZATION ]---------
+        protected bool _isInitialized = false;
+
         protected virtual void Start()
         {
             API.Client.SetGameDetails(gameId, gameKey);
             
-            StartCoroutine(this.InitializationCoroutine());
+            StartCoroutine(InitializationCoroutine(OnInitialized));
         }
 
-        protected virtual IEnumerator InitializationCoroutine()
+        protected virtual IEnumerator InitializationCoroutine(Action onInitializedCallback)
         {
             // --- Load Manifest ---
             ManifestData manifest = CacheManager.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -54,13 +60,12 @@ namespace ModIO
             }
 
             // --- Load User ---
-            authUser = CacheManager.LoadAuthenticatedUser();
+            this.authUser = CacheManager.LoadAuthenticatedUser();
 
-            if(authUser != null)
+            if(this.authUser != null)
             {
-                API.Client.SetUserAuthorizationToken(authUser.oAuthToken);
+                API.Client.SetUserAuthorizationToken(this.authUser.oAuthToken);
             }
-
 
             // --- Load Game Profile ---
             ClientRequest<GameProfile> gameRequest = new ClientRequest<GameProfile>();
@@ -69,13 +74,26 @@ namespace ModIO
 
             if(gameRequest.error == null)
             {
-                gameProfile = gameRequest.response;
+                this.gameProfile = gameRequest.response;
             }
             else
             {
                 API.Client.LogError(gameRequest.error);
-                gameProfile = null;
+                this.gameProfile = null;
             }
+
+            // --- Post Initialization ---
+            this._isInitialized = true;
+
+            if(onInitializedCallback != null)
+            {
+                onInitializedCallback();
+            }
+        }
+
+        protected virtual void OnInitialized()
+        {
+            // TODO(@jackson): Process Updates
         }
 
         // ---------[ COROUTINE HELPERS ]---------
@@ -90,6 +108,40 @@ namespace ModIO
             isDone = true;
         }
 
+        // ---------[ UPDATES ]---------
+        private const float AUTOMATIC_UPDATE_INTERVAL = 2f;
+        private Coroutine updatedRoutine = null;
+
+        protected virtual void Update()
+        {
+            if(this._isInitialized)
+            {
+                bool isUpdateRunning = (updatedRoutine != null);
+                if(this.isAutomaticUpdateEnabled != isUpdateRunning)
+                {
+                    if(this.isAutomaticUpdateEnabled)
+                    {
+                        this.updatedRoutine = StartCoroutine(AutomaticUpdateCoroutine());
+                    }
+                    else
+                    {
+                        StopCoroutine(this.updatedRoutine);
+                        this.updatedRoutine = null;
+                    }
+                }
+            }
+        }
+
+        protected IEnumerator AutomaticUpdateCoroutine()
+        {
+            while(true)
+            {
+                Debug.Log("UPDATING");
+
+                yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
+            }
+        }
+
         // ---------[ GAME ENDPOINTS ]---------
         public static IEnumerator LoadOrDownloadGameProfile(ClientRequest<GameProfile> request)
         {
@@ -102,6 +154,8 @@ namespace ModIO
 
             if(request.response == null)
             {
+                isDone = false;
+
                 API.Client.GetGame((r) => ModBrowser.OnSuccess(r, request, out isDone),
                                    (e) => ModBrowser.OnError(e, request, out isDone));
 

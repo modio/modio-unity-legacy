@@ -53,6 +53,8 @@ namespace ModIO
             try
             {
                 Directory.CreateDirectory(directory);
+
+                Debug.Log("[mod.io] Successfully set cache directory to  " + directory);
             }
             catch(Exception e)
             {
@@ -174,12 +176,12 @@ namespace ModIO
 
         // ---------[ GAME PROFILE ]---------
         public static string gameProfileFilePath
-        { get { return CacheManager._cacheDirectory + "gameProfile.data"; } }
+        { get { return CacheManager._cacheDirectory + "game_profile.data"; } }
 
-        public static GameProfile LoadGameProfile(Action<GameProfile> callback)
+        public static void LoadGameProfile(Action<GameProfile> callback)
         {
             GameProfile profile = CacheManager.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
-            return profile;
+            callback(profile);
         }
 
         public static void SaveGameProfile(GameProfile profile)
