@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 
 namespace ModIO
 {
-    // - Value Interpretation -
     public enum ModStatus
     {
         NotAccepted = 0,

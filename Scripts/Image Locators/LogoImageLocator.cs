@@ -4,8 +4,16 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
+    public enum LogoVersion
+    {
+        FullSize = 0,
+        Thumbnail_320x180,
+        Thumbnail_640x360,
+        Thumbnail_1280x720,
+    }
+
     [System.Serializable]
-    public class LogoImageLocator : IMultiVersionImageLocator<ModLogoVersion>
+    public class LogoImageLocator : IMultiVersionImageLocator<LogoVersion>
     {
         // ---------[ FIELDS ]---------
         /// <summary> Logo filename including extension. </summmary>
@@ -31,29 +39,29 @@ namespace ModIO
         // ---------[ INTERFACE IMPLEMENTATION ]---------
         public string GetFileName() { return this.fileName; }
         public string GetURL()      { return this.fullSize; }
-        public string GetVersionURL(ModLogoVersion version)
+        public string GetVersionURL(LogoVersion version)
         {
             switch(version)
             {
-                case ModLogoVersion.FullSize:
+                case LogoVersion.FullSize:
                 {
                     return this.fullSize;
                 }
-                case ModLogoVersion.Thumbnail_320x180:
+                case LogoVersion.Thumbnail_320x180:
                 {
                     return this.thumbnail_320x180;
                 }
-                case ModLogoVersion.Thumbnail_640x360:
+                case LogoVersion.Thumbnail_640x360:
                 {
                     return this.thumbnail_640x360;
                 }
-                case ModLogoVersion.Thumbnail_1280x720:
+                case LogoVersion.Thumbnail_1280x720:
                 {
                     return this.thumbnail_1280x720;
                 }
                 default:
                 {
-                    Debug.LogError("[mod.io] Unrecognized ModLogoVersion");
+                    Debug.LogError("[mod.io] Unrecognized LogoVersion");
                     return string.Empty;
                 }
             }

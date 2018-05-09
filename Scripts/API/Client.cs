@@ -645,7 +645,7 @@ namespace ModIO.API
         // ---------[ GAME ENDPOINTS ]---------
         // Get All Games
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
-                                       Action<ResponseArray<GameObject>> successCallback,
+                                       Action<ResponseArray<GameProfile>> successCallback,
                                        Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games";
@@ -658,7 +658,7 @@ namespace ModIO.API
         }
 
         // Get GameProfile
-        public static void GetGame(Action<GameObject> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
             
@@ -671,7 +671,7 @@ namespace ModIO.API
 
         // Edit GameProfile
         public static void EditGame(EditGameParameters parameters,
-                                    Action<GameObject> successCallback, Action<WebRequestError> errorCallback)
+                                    Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
 
@@ -892,7 +892,7 @@ namespace ModIO.API
 
         // ---------[ TAG ENDPOINTS ]---------
         // Get All Game Tag Options
-        public static void GetAllGameTagOptions(Action<ResponseArray<GameTagOptionObject>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetAllGameTagOptions(Action<ResponseArray<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/tags";
 
@@ -1260,7 +1260,7 @@ namespace ModIO.API
         }
 
         // Get User Games
-        public static void GetUserGames(Action<ResponseArray<GameObject>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetUserGames(Action<ResponseArray<GameProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/games";
 

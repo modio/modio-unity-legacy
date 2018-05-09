@@ -252,7 +252,7 @@ namespace ModIO
         }
 
         // ---------[ IMAGE MANAGEMENT ]---------
-        public static string GenerateModLogoFilePath(int modId, ModLogoVersion version)
+        public static string GenerateModLogoFilePath(int modId, LogoVersion version)
         {
             return (CacheManager._cacheDirectory
                     + "mod_logos/"
@@ -272,7 +272,7 @@ namespace ModIO
         }
 
         // TODO(@jackson): Look at reconfiguring params
-        public static void GetModLogo(ModProfile profile, ModLogoVersion version,
+        public static void GetModLogo(ModProfile profile, LogoVersion version,
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
         {

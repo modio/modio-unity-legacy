@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
-
-using SerializeField = UnityEngine.SerializeField;
 
 using Newtonsoft.Json;
 
 namespace ModIO
 {
-    // - Enums -
     public enum GameStatus
     {
         NotAccepted = 0,
@@ -24,148 +20,203 @@ namespace ModIO
 
     public enum ModSubmissionOption
     {
+        // Mod uploads must occur via a tool created by the game developers
         ToolOnly = 0,
+        // Mod uploads can occur from anywhere, including the website and API
         Unrestricted = 1,
     }
 
     public enum ModCurationOption
     {
+        // Mods are immediately available to play
         None = 0,
+        // Mods are immediately available to play unless they choose to receive donations.
+        // These mods must be accepted to be listed
         Paid = 1,
+        // All mods must be accepted by someone to be listed
         Full = 2,
     }
 
     [Flags]
     public enum GameCommunityOptions
     {
+        // All of the options below are disabled
         Disabled = 0,
+        // Discussion board enabled
         DiscussionBoard = 0x01,
+        // Guides and news enabled
         GuidesAndNews = 0x02,
     }
 
     [Flags]
     public enum ModRevenuePermissions
     {
+        // All of the options below are disabled
         None = 0,
+        // Allow mods to be sold
         AllowSales = 0x01,
+        // Allow mods to receive donations
         AllowDonations = 0x02,
+        // Allow mods to be traded
         AllowModTrading = 0x04,
+        // Allow mods to control supply and scarcity
         AllowModScarcity = 0x08,
     }
 
     [Flags]
     public enum GameAPIPermissions
     {
+        // All of the options below are disabled
         RestrictAll = 0,
-        AllowPublicAccess = 1, // This game allows 3rd parties to access the mods API
-        AllowDirectDownloads = 2, // This game allows mods to be downloaded directly without API validation
+        // Allow 3rd parties to access this games API endpoints
+        AllowPublicAccess = 1,
+        // Allow mods to be downloaded directly
+        // (If disabled all download URLs will contain a frequently
+        // changing verification hash to stop unauthorized use)
+        AllowDirectDownloads = 2,
     }
 
-    public enum GameLogoVersion
-    {
-        FullSize = 0,
-        Thumbnail_320x180,
-        Thumbnail_640x360,
-        Thumbnail_1280x720,
-    }
-
-    public enum GameIconVersion
-    {
-        FullSize = 0,
-        Thumbnail_64x64,
-        Thumbnail_128x128,
-        Thumbnail_256x256,
-    }
-
-    [Serializable]
+    [System.Serializable]
     public class GameProfile
     {
-        // ---------[ SERIALIZED MEMBERS ]---------
-        [JsonProperty] private int _id;
-        [JsonProperty] private GameStatus _status;
-        [JsonProperty] private int _submittedById;
-        [JsonProperty] private int _dateAdded;
-        [JsonProperty] private int _dateUpdated;
-        [JsonProperty] private int _dateLive;
-        [JsonProperty] private ModGalleryPresentationOption _presentationOption;
-        [JsonProperty] private ModSubmissionOption _submissionOption;
-        [JsonProperty] private ModCurationOption _curationOption;
-        [JsonProperty] private GameCommunityOptions _communityOptions;
-        [JsonProperty] private ModRevenuePermissions _revenuePermissions;
-        [JsonProperty] private GameAPIPermissions _apiPermissions;
-        [JsonProperty] private string _ugcName;
-        [JsonProperty] private IconImageLocator _iconLocator;
-        [JsonProperty] private LogoImageLocator _logoLocator;
-        [JsonProperty] private HeaderImageLocator _headerImageLocator;
-        [JsonProperty] private string _instructionsURL;
-        [JsonProperty] private string _name;
-        [JsonProperty] private string _nameId;
-        [JsonProperty] private string _summary;
-        [JsonProperty] private string _instructions;
-        [JsonProperty] private string _profileURL;
-        [JsonProperty] private ModTagCategory[] _taggingOptions;
+        /// ---------[ FIELDS ]---------
+        /// <summary>
+        /// Unique game id.
+        /// </summary>
+        [JsonProperty("id")]
+        public int id;
 
-        // ---------[ FIELDS ]---------
-        [JsonIgnore] public int id                                           { get { return this._id; } }
-        [JsonIgnore] public GameStatus status                                { get { return this._status; } }
-        [JsonIgnore] public int submittedById                                { get { return this._submittedById; } }
-        [JsonIgnore] public int dateAdded                              { get { return this._dateAdded; } }
-        [JsonIgnore] public int dateUpdated                            { get { return this._dateUpdated; } }
-        [JsonIgnore] public int dateLive                               { get { return this._dateLive; } }
-        [JsonIgnore] public ModGalleryPresentationOption presentationOption  { get { return this._presentationOption; } }
-        [JsonIgnore] public ModSubmissionOption submissionOption             { get { return this._submissionOption; } }
-        [JsonIgnore] public ModCurationOption curationOption                 { get { return this._curationOption; } }
-        [JsonIgnore] public GameCommunityOptions communityOptions            { get { return this._communityOptions; } }
-        [JsonIgnore] public ModRevenuePermissions revenuePermissions         { get { return this._revenuePermissions; } }
-        [JsonIgnore] public GameAPIPermissions apiPermissions                { get { return this._apiPermissions; } }
-        [JsonIgnore] public string ugcName                                   { get { return this._ugcName; } }
-        [JsonIgnore] public IconImageLocator iconLocator                     { get { return this._iconLocator; } }
-        [JsonIgnore] public LogoImageLocator logoLocator                     { get { return this._logoLocator; } }
-        [JsonIgnore] public HeaderImageLocator headerImageLocator            { get { return this._headerImageLocator; } }
-        [JsonIgnore] public string name                                      { get { return this._name; } }
-        [JsonIgnore] public string nameId                                    { get { return this._nameId; } }
-        [JsonIgnore] public string summary                                   { get { return this._summary; } }
-        [JsonIgnore] public string instructions                              { get { return this._instructions; } }
-        [JsonIgnore] public string instructionsURL                           { get { return this._instructionsURL; } }
-        [JsonIgnore] public string profileURL                                { get { return this._profileURL; } }
-        [JsonIgnore] public ICollection<ModTagCategory> taggingOptions       { get { return new List<ModTagCategory>(this._taggingOptions); } }
-        
-        // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyGameObjectValues(API.GameObject apiObject)
-        {
-            this._id = apiObject.id;
-            this._status = (GameStatus)apiObject.status;
-            this._submittedById = apiObject.submitted_by.id;
-            this._dateAdded = apiObject.date_added;
-            this._dateUpdated = apiObject.date_updated;
-            this._dateLive = apiObject.date_live;
-            this._presentationOption = (ModGalleryPresentationOption)apiObject.presentation_option;
-            this._submissionOption = (ModSubmissionOption)apiObject.submission_option;
-            this._curationOption = (ModCurationOption)apiObject.curation_option;
-            this._communityOptions = (GameCommunityOptions)apiObject.community_options;
-            this._revenuePermissions = (ModRevenuePermissions)apiObject.revenue_options;
-            this._apiPermissions = (GameAPIPermissions)apiObject.api_access_options;
-            this._ugcName = apiObject.ugc_name;
-            this._iconLocator = apiObject.icon;
-            this._logoLocator = apiObject.logo;
-            this._headerImageLocator = apiObject.header;
-            this._instructionsURL = apiObject.instructions_url;
-            this._name = apiObject.name;
-            this._nameId = apiObject.name_id;
-            this._summary = apiObject.summary;
-            this._instructions = apiObject.instructions;
-            this._profileURL = apiObject.profile_url;
+        /// <summary>
+        /// Status of the game (see status and visibility for details):
+        /// </summary>
+        [JsonProperty("status")]
+        public GameStatus status;
 
-            Utility.SafeMapArraysOrZero(apiObject.tag_options,
-                                        (o) => { return ModTagCategory.CreateFromGameTagOptionObject(o); },
-                                        out this._taggingOptions);
-        }
+        /// <summary>
+        /// Contains user data.
+        /// </summary>
+        [JsonProperty("submitted_by")]
+        public UserProfileStub submittedBy;
 
-        public static GameProfile CreateFromGameObject(API.GameObject apiObject)
-        {
-            var newGP = new GameProfile();
-            newGP.ApplyGameObjectValues(apiObject);
-            return newGP;
-        }
+        /// <summary>
+        /// Unix timestamp of date game was registered.
+        /// </summary>
+        [JsonProperty("date_added")]
+        public int dateAdded;
+
+        /// <summary>
+        /// Unix timestamp of date game was updated.
+        /// </summary>
+        [JsonProperty("date_updated")]
+        public int dateUpdated;
+
+        /// <summary>
+        /// Unix timestamp of date game was set live.
+        /// </summary>
+        [JsonProperty("date_live")]
+        public int dateLive;
+
+        /// <summary>
+        /// Presentation style used on the mod.io website:
+        /// </summary>
+        [JsonProperty("presentation_option")]
+        public ModGalleryPresentationOption presentationOption;
+
+        /// <summary>
+        /// Submission process modders must follow:
+        /// </summary>
+        [JsonProperty("submission_option")]
+        public ModSubmissionOption submissionOption;
+
+        /// <summary>
+        /// Curation process used to approve mods:
+        /// </summary>
+        [JsonProperty("curation_option")]
+        public ModCurationOption curationOption;
+
+        /// <summary>
+        /// Community features enabled on the mod.io website:
+        /// </summary>
+        [JsonProperty("community_options")]
+        public GameCommunityOptions communityOptions;
+
+        /// <summary>
+        /// Revenue capabilities mods can enable:
+        /// </summary>
+        [JsonProperty("revenue_options")]
+        public ModRevenuePermissions revenuePermissions;
+
+        /// <summary>
+        /// Level of API access allowed by this game:
+        /// </summary>
+        [JsonProperty("api_access_options")]
+        public GameAPIPermissions apiPermissions;
+
+        /// <summary>
+        /// Word used to describe user-generated content (mods, items, addons etc).
+        /// </summary>
+        [JsonProperty("ugc_name")]
+        public string ugcName;
+
+        /// <summary>
+        /// Contains icon data.
+        /// </summary>
+        [JsonProperty("icon")]
+        public IconImageLocator iconLocator;
+
+        /// <summary>
+        /// Contains logo data.
+        /// </summary>
+        [JsonProperty("logo")]
+        public LogoImageLocator logoLocator;
+
+        /// <summary>
+        /// Contains header data.
+        /// </summary>
+        [JsonProperty("header")]
+        public HeaderImageLocator headerImageLocator;
+
+        /// <summary>
+        /// Name of the game.
+        /// </summary>
+        [JsonProperty("name")]
+        public string name;
+
+        /// <summary>
+        /// Subdomain for the game on mod.io.
+        /// </summary>
+        [JsonProperty("name_id")]
+        public string nameId;
+
+        /// <summary>
+        /// Summary of the game.
+        /// </summary>
+        [JsonProperty("summary")]
+        public string summary;
+
+        /// <summary>
+        /// A guide about creating and uploading mods for this game to mod.io (applicable if submissionOption = 0).
+        /// </summary>
+        [JsonProperty("instructions")]
+        public string instructions;
+
+        /// <summary>
+        /// Link to a mod.io guide, your modding wiki or a page where modders can learn how to make and submit mods to your games profile.
+        /// </summary>
+        [JsonProperty("instructions_url")]
+        public string instructionsURL;
+
+        /// <summary>
+        /// URL to the game's mod.io page.
+        /// </summary>
+        [JsonProperty("profile_url")]
+        public string profileURL;
+
+        /// <summary>
+        /// Groups of tags configured by the game developer, that mods can select.
+        /// </summary>
+        [JsonProperty("tag_options")]
+        public ModTagCategory[] taggingOptions;
+
     }
 }

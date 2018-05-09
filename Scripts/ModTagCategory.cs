@@ -1,53 +1,56 @@
 using System.Collections.Generic;
-using SerializeField = UnityEngine.SerializeField;
+using System.Runtime.Serialization;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ModIO
 {
     [System.Serializable]
     public class ModTagCategory
     {
-        private const string APIOBJECT_TYPESTRING_CATEGORYISFLAG = "checkboxes";
-        private const string APIOBJECT_TYPESTRING_CATEGORYISNOTFLAG = "dropdown";
-
-        // ---------[ SERIALIZED MEMBERS ]---------
-        [SerializeField] private string _name;
-        [SerializeField] private bool _isFlag;
-        [SerializeField] private bool _isHidden;
-        [SerializeField] private string[] _tags;
-
         // ---------[ FIELDS ]---------
-        public string name              { get { return this._name; } }
-        public bool isFlag              { get { return this._isFlag; } }
-        public bool isHidden            { get { return this._isHidden; } }
-        public ICollection<string> tags { get { return new List<string>(this._tags); } }
+        /// <summary>
+        /// Name of the tag group.
+        /// </summary>
+        [JsonProperty("name")]
+        public string name;
+        
+        /// <summary>
+        /// Can multiple tags be selected via 'checkboxes' or should only a single tag
+        /// be selected via a 'dropdown'.
+        /// </summary>
+        [JsonProperty("multiple_tags")]
+        public bool isMultiTagCategory;
+        
+        /// <summary>
+        /// Groups of tags flagged as 'admin only' should only be used for filtering, and should not be displayed to users.
+        /// </summary>
+        [JsonProperty("hidden")]
+        public bool isHidden;
+        
+        /// <summary>
+        /// Array of tags in this group.
+        /// </summary>
+        [JsonProperty("tags")]
+        public string[] tags;
 
-        // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyGameTagOptionObjectValues(API.GameTagOptionObject apiObject)
-        {
-            this._name = apiObject.name;
-            this._isFlag = ModTagCategory.ParseAPITypeStringAsIsFlag(apiObject.type);
-            this._isHidden = apiObject.hidden;
-            this._tags = new string[apiObject.tags.Length];
-            System.Array.Copy(apiObject.tags, this._tags, apiObject.tags.Length);
-        }
 
-        public static ModTagCategory CreateFromGameTagOptionObject(API.GameTagOptionObject apiObject)
-        {
-            var retVal = new ModTagCategory();
-            retVal.ApplyGameTagOptionObjectValues(apiObject);
-            return retVal;
-        }
+        // ---------[ API DESERIALIZATION ]---------
+        private const string APIOBJECT_TYPESTRING_ISMULTIVALUE_ENABLED = "CHECKBOXES";
+        private const string APIOBJECT_TYPESTRING_ISMULTIVALUE_DISABLED = "DROPDOWN";
 
-        public static bool ParseAPITypeStringAsIsFlag(string apiTypeString)
-        {
-            return apiTypeString.ToLower().Equals(APIOBJECT_TYPESTRING_CATEGORYISFLAG);
-        }
+        [JsonExtensionData]
+        private IDictionary<string, JToken> _additionalData;
 
-        public static string IsFlagToAPIString(bool isFlag)
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
         {
-            return (isFlag
-                    ? APIOBJECT_TYPESTRING_CATEGORYISFLAG
-                    : APIOBJECT_TYPESTRING_CATEGORYISNOTFLAG);
+            JToken token;
+            if(_additionalData.TryGetValue("type", out token))
+            {
+                this.isMultiTagCategory = APIOBJECT_TYPESTRING_ISMULTIVALUE_ENABLED.Equals((string)token);
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace ModIO
     public class ModProfileInfoViewPart : IModProfileViewPart
     {
         // ------[ CONSTANTS ]------
-        private const ModLogoVersion LOGO_PREVIEW_VERSION = ModLogoVersion.Thumbnail_320x180;
+        private const LogoVersion LOGO_PREVIEW_VERSION = LogoVersion.Thumbnail_320x180;
         private const float LOGO_PREVIEW_WIDTH = 320;
         private const float LOGO_PREVIEW_HEIGHT = 180;
 
@@ -80,7 +80,7 @@ namespace ModIO
         // ------[ UPDATE ]------
         public void OnUpdate() {}
 
-        private void OnModLogoUpdated(int modId, ModLogoVersion version, Texture2D texture)
+        private void OnModLogoUpdated(int modId, LogoVersion version, Texture2D texture)
         {
             if(profile != null
                && profile.id == modId
@@ -356,7 +356,7 @@ namespace ModIO
                     {
                         EditorGUILayout.HelpBox("The Game's Profile is not yet loaded, and thus tags cannot be displayed. Please wait...", MessageType.Warning);
                     }
-                    else if(ModManager.GetGameProfile().taggingOptions.Count == 0)
+                    else if(ModManager.GetGameProfile().taggingOptions.Length == 0)
                     {
                         EditorGUILayout.HelpBox("The developers of "
                                                 + ModManager.GetGameProfile().name
@@ -409,7 +409,7 @@ namespace ModIO
             EditorGUILayout.PrefixLabel(tagCategory.name);
 
             EditorGUILayout.BeginVertical();
-                if(!tagCategory.isFlag)
+                if(!tagCategory.isMultiTagCategory)
                 {
                     string oldSelectedTag = string.Empty;
                     foreach(string tag in tagCategory.tags)

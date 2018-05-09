@@ -17,19 +17,21 @@ namespace ModIO
         [System.Serializable]
         private class ManifestData
         {
-            public int lastUpdate;
+            public int lastCacheUpdate;
         }
 
         // ---------[ FIELDS ]---------
         // --- Key Data ---
         public int gameId = GlobalSettings.GAME_ID;
         public string gameKey = GlobalSettings.GAME_APIKEY;
-        public int lastUpdate = -1;
         public AuthenticatedUser authUser = null;
 
         // --- Caching ---
         public GameProfile gameProfile;
         public ModProfile[] modProfileCache;
+
+        [System.NonSerialized]
+        public int lastCacheUpdate = -1;
 
         // --- File Paths ---
         public static string manifestFilePath { get { return CacheManager.GetCacheDirectory() + "browser_manifest.data"; } }
@@ -48,7 +50,7 @@ namespace ModIO
             ManifestData manifest = CacheManager.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
             if(manifest != null)
             {
-                this.lastUpdate = manifest.lastUpdate;
+                this.lastCacheUpdate = manifest.lastCacheUpdate;
             }
 
             // --- Load User ---

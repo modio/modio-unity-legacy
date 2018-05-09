@@ -21,7 +21,7 @@ namespace ModIO
     public delegate void AuthenticatedUserEventHandler(AuthenticatedUser user);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
-    public delegate void ModLogoUpdatedEventHandler(int modId, ModLogoVersion version, Texture2D texture);
+    public delegate void ModLogoUpdatedEventHandler(int modId, LogoVersion version, Texture2D texture);
     public delegate void ModGalleryImageUpdatedEventHandler(int modId, string imageFileName, ModGalleryImageVersion version, Texture2D texture);
 
     public enum ModBinaryStatus
@@ -779,7 +779,7 @@ namespace ModIO
         
         private static Dictionary<string, string> serverToLocalImageURLMap;
 
-        public static string GenerateModLogoFilePath(int modId, ModLogoVersion version)
+        public static string GenerateModLogoFilePath(int modId, LogoVersion version)
         {
             return GetModDirectory(modId) + @"/logo/" + version.ToString() + ".png";
         }
@@ -830,7 +830,7 @@ namespace ModIO
         // TODO(@jackson): defend
         // TODO(@jackson): Add preload function?
         public static void DownloadMissingModLogos(ModProfile[] modProfiles,
-                                                   ModLogoVersion version)
+                                                   LogoVersion version)
         {
             var missingLogoProfiles = new List<ModProfile>(modProfiles);
 
