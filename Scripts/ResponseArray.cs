@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace ModIO.API
 {
-    [System.Serializable]
+    [System.Serializable] [JsonObject]
     public class ResponseArray<T> : IEnumerable<T>
     {
         // ---------[ FIELDS ]---------

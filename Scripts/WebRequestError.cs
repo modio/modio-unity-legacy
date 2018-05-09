@@ -1,55 +1,96 @@
-﻿using SerializeField = UnityEngine.SerializeField;
+﻿using Newtonsoft.Json;
 
 namespace ModIO
 {
     [System.Serializable]
     public class WebRequestError
     {
-        // ---------[ SERIALIZED MEMBERS ]---------
-        [SerializeField] private string _method;
-        [SerializeField] private string _url;
-        [SerializeField] private string _message;
-        [SerializeField] private int _responseCode;
+        // ---------[ NESTED CLASSES ]---------
+        [System.Serializable]
+        private class APIWrapper
+        {
+            public WebRequestError error = null;
+        }
 
         // ---------[ FIELDS ]---------
-        public string method    { get { return this._method; } }
-        public string url       { get { return this._url; } }
-        public string message   { get { return this._message; } }
-        public int responseCode { get { return this._responseCode; } }
+        /// <summary>
+        /// The server response to your request.
+        /// Responses will vary depending on the endpoint,
+        /// but the object structure will persist.
+        /// </summary>
+        [JsonProperty("message")]
+        public string message;
+        
+        // TODO(@jackson): Add Hyperlink
+        /// <summary>
+        /// Optional Validation errors object.
+        /// This field is only supplied if the response is
+        /// a validation error 422 Unprocessible Entity.
+        /// </summary>
+        /// <remarks>
+        /// See errors documentation for more information.
+        /// </remarks>
+        [JsonProperty("errors")]
+        public System.Collections.Generic.IDictionary<string, string> fieldValidationFailures;
+
+        public string method;
+        public string url;
+        public int timeStamp;
+        public int responseCode;
 
         // ---------[ INITIALIZATION ]---------
         public static WebRequestError GenerateFromWebRequest(UnityEngine.Networking.UnityWebRequest webRequest)
         {
             UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
             
-            var retVal = new WebRequestError();
-            retVal._method = webRequest.method.ToUpper();
-            retVal._url = webRequest.url;
+            WebRequestError.APIWrapper errorWrapper;
 
-            if(webRequest.isNetworkError
-               || webRequest.responseCode == 404)
+            bool didParse = Utility.TryParseJsonString(webRequest.downloadHandler.text,
+                                                       out errorWrapper);
+
+            WebRequestError error;
+
+            if(didParse
+               && errorWrapper.error != null)
             {
-                retVal._responseCode = (int)webRequest.responseCode;
-                retVal._message = webRequest.error;
+                error = errorWrapper.error;
             }
-            else // if(webRequest.isHttpError)
+            else
             {
-                API.ErrorObject error;
-                if(Utility.TryParseJsonString(webRequest.downloadHandler.text,
-                                              out error))
-                {
-                    retVal._responseCode = error.error.code;
-                    retVal._message = error.error.message;
-                }
-                else
-                {
-                    UnityEngine.Debug.LogWarning("Failed to parse error from reponse:\n"
-                                                 + "[" + webRequest.responseCode + "] "
-                                                 + webRequest.downloadHandler.text);
-                }
+                error = new WebRequestError();
+                error.message = webRequest.error;
             }
 
-            return retVal;
+            error.responseCode = (int)webRequest.responseCode;
+            error.method = webRequest.method.ToUpper();
+            error.url = webRequest.url;
+            error.timeStamp = ServerTimeStamp.Now;
+
+            return error;
+        }
+
+        // ---------[ HELPER FUNCTIONS ]---------
+        public string ToUnityDebugString()
+        {
+            string debugString = (this.method + " REQUEST FAILED"
+                                  + "\nResponse received at: [" + this.timeStamp + "] "
+                                  + ServerTimeStamp.ToLocalDateTime(this.timeStamp)
+                                  + "\nURL: " + this.url
+                                  + "\nCode: " + this.responseCode
+                                  + "\nMessage: " + this.message
+                                  + "\n");
+
+            if(this.fieldValidationFailures != null
+               && this.fieldValidationFailures.Count > 0)
+            {
+                debugString += "Field Validation Failures:\n";
+                foreach(var kvp in fieldValidationFailures)
+                {
+                    debugString += " [" + kvp.Key + "] " + kvp.Value + "\n";
+                }
+            }
+
+            return debugString;
         }
     }
 }
