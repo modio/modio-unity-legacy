@@ -45,6 +45,8 @@ namespace ModIO
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
+            if(_additionalData == null) { return; }
+
             JToken token;
             if(_additionalData.TryGetValue("type", out token))
             {
