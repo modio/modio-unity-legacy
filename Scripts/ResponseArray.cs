@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable] [JsonObject]
     public class ResponseArray<T> : IEnumerable<T>
@@ -56,7 +56,8 @@ namespace ModIO.API
                 return _items[index];
             }
         }
-        // ---------[ ICOLLECTION INTERFACE ]---------
+        
+        // ---------[ IENUMERABLE INTERFACE ]---------
         public IEnumerator<T> GetEnumerator()
         {
             foreach(T o in _items)

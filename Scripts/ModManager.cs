@@ -674,7 +674,8 @@ namespace ModIO
 
         public static IEnumerable<ModProfile> GetAllModProfiles()
         {
-            return CacheManager.LoadAllModProfiles();
+            // return CacheManager.LoadAllModProfiles();
+            return new List<ModProfile>();
         }
 
         public static void DeleteAllDownloadedBinaries(int modId)

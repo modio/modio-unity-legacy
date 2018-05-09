@@ -180,9 +180,9 @@ namespace ModIO
                     isMaxInclusive = true,
                 };
 
-            API.PaginationParameters modEventPagination = new API.PaginationParameters()
+            PaginationParameters modEventPagination = new PaginationParameters()
             {
-                limit = API.PaginationParameters.LIMIT_MAX,
+                limit = PaginationParameters.LIMIT_MAX,
                 offset = 0,
             };
 
@@ -190,7 +190,7 @@ namespace ModIO
             bool isRequestCompleted = false;
             while(!isRequestCompleted)
             {
-                var modEventRequest = new ClientRequest<API.ResponseArray<ModEvent>>();
+                var modEventRequest = new ClientRequest<ResponseArray<ModEvent>>();
                 bool isDone = false;
 
                 API.Client.GetAllModEvents(modEventFilter,
@@ -284,9 +284,9 @@ namespace ModIO
                     filterArray = modsToFetch.ToArray(),
                 };
 
-                API.PaginationParameters modsPagination = new API.PaginationParameters()
+                PaginationParameters modsPagination = new PaginationParameters()
                 {
-                    limit = API.PaginationParameters.LIMIT_MAX,
+                    limit = PaginationParameters.LIMIT_MAX,
                     offset = 0,
                 };
 
@@ -294,7 +294,7 @@ namespace ModIO
                 bool isRequestCompleted = false;
                 while(!isRequestCompleted)
                 {
-                    var modRequest = new ClientRequest<API.ResponseArray<ModProfile>>();
+                    var modRequest = new ClientRequest<ResponseArray<ModProfile>>();
                     bool isDone = false;
 
                     API.Client.GetAllMods(modsFilter,
