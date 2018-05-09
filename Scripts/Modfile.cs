@@ -25,6 +25,10 @@ namespace ModIO
         /// <summary>Unique modfile id.</summary>
         [JsonProperty("id")]
         public int id;
+        
+        /// <summary>Unique mod id.</summary>
+        [JsonProperty("mod_id")]
+        public int modId;
 
         /// <summary>Unix timestamp of date file was added.</summary>
         [JsonProperty("date_added")]
@@ -51,10 +55,6 @@ namespace ModIO
     public class Modfile : ModfileStub
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Unique mod id.</summary>
-        [JsonProperty("mod_id")]
-        public int modId;
-
         /// <summary>Unix timestamp of date file was virus scanned.</summary>
         [JsonProperty("date_scanned")]
         public int dateScanned;

@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ModIO
 {
-    // - Enums -
+    // TODO(@jackson): Missing MOD_DELETED, MOD_TEAM_CHANGED
     public enum ModEventType
     {
         _UNKNOWN = -1,

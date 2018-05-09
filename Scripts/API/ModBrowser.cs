@@ -6,6 +6,11 @@ using System.Collections.Generic;
 
 namespace ModIO
 {
+    // ----[ EVENT DELEGATES ]---
+    public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
+    public delegate void ModIdsEventHandler(IEnumerable<int> modIds);
+    public delegate void ModfileStubsEventHandler(IEnumerable<ModfileStub> modfiles);
+
     public class ClientRequest<T>
     {
         public T response = default(T);
@@ -39,6 +44,12 @@ namespace ModIO
 
         // --- File Paths ---
         public static string manifestFilePath { get { return CacheManager.GetCacheDirectory() + "browser_manifest.data"; } }
+
+        // ---------[ EVENTS ]---------
+        public event ModProfilesEventHandler modsAvailable;
+        public event ModProfilesEventHandler modsEdited;
+        public event ModfileStubsEventHandler modReleasesUpdated;
+        public event ModIdsEventHandler modsUnavailable;
 
         // ---------[ INITIALIZATION ]---------
         protected bool _isInitialized = false;
@@ -191,7 +202,7 @@ namespace ModIO
 
                 if(modEventRequest.response != null)
                 {
-                    yield return ProcessModEvents(modEventRequest.response.Items);
+                    yield return ProcessModEvents(modEventRequest.response);
 
                     if(modEventRequest.response.Count < modEventRequest.response.Limit)
                     {
@@ -215,12 +226,13 @@ namespace ModIO
             }
         }
 
-        public static IEnumerator ProcessModEvents(IEnumerable<ModEvent> modEvents)
+        // OPTIMIZE(@jackson): Replace List with HashSet?
+        public virtual IEnumerator ProcessModEvents(IEnumerable<ModEvent> modEvents)
         {
             List<int> addedIds = new List<int>();
-            List<int> removedIds = new List<int>();
             List<int> editedIds = new List<int>();
             List<int> modfileChangedIds = new List<int>();
+            List<int> removedIds = new List<int>();
 
             // Sort by event type
             foreach(ModEvent modEvent in modEvents)
@@ -230,11 +242,6 @@ namespace ModIO
                     case ModEventType.ModAvailable:
                     {
                         addedIds.Add(modEvent.modId);
-                    }
-                    break;
-                    case ModEventType.ModUnavailable:
-                    {
-                        removedIds.Add(modEvent.modId);
                     }
                     break;
                     case ModEventType.ModEdited:
@@ -247,13 +254,25 @@ namespace ModIO
                         modfileChangedIds.Add(modEvent.modId);
                     }
                     break;
+                    case ModEventType.ModUnavailable:
+                    {
+                        removedIds.Add(modEvent.modId);
+                    }
+                    break;
                 }
             }
 
+            // --- Process Add/Edit/ModfileChanged ---
             List<int> modsToFetch = new List<int>(addedIds.Count + editedIds.Count + modfileChangedIds.Count);
             modsToFetch.AddRange(addedIds);
             modsToFetch.AddRange(editedIds);
             modsToFetch.AddRange(modfileChangedIds);
+
+            // - Create Update Lists -
+            List<ModProfile> updatedProfiles = new List<ModProfile>(modsToFetch.Count);
+            List<ModProfile> addedProfiles = new List<ModProfile>(addedIds.Count);
+            List<ModProfile> editedProfiles = new List<ModProfile>(editedIds.Count);
+            List<ModfileStub> modfileChangedStubs = new List<ModfileStub>(modfileChangedIds.Count);
 
             if(modsToFetch.Count > 0)
             {
@@ -287,7 +306,31 @@ namespace ModIO
 
                     if(modRequest.response != null)
                     {
-                        CacheManager.SaveModProfiles(modRequest.response);
+                        foreach(ModProfile profile in modRequest.response)
+                        {
+                            int idIndex;
+                            // NOTE(@jackson): If added, ignore everything else
+                            if((idIndex = addedIds.IndexOf(profile.id)) >= 0)
+                            {
+                                addedIds.RemoveAt(idIndex);
+                                addedProfiles.Add(profile);
+                            }
+                            else
+                            {
+                                if((idIndex = editedIds.IndexOf(profile.id)) >= 0)
+                                {
+                                    editedIds.RemoveAt(idIndex);
+                                    editedProfiles.Add(profile);
+                                }
+                                if((idIndex = modfileChangedIds.IndexOf(profile.id)) >= 0)
+                                {
+                                    modfileChangedIds.RemoveAt(idIndex);
+                                    modfileChangedStubs.Add(profile.currentRelease);
+                                }
+                            }
+
+                            updatedProfiles.Add(profile);
+                        }
 
                         if(modRequest.response.Count < modRequest.response.Limit)
                         {
@@ -308,8 +351,12 @@ namespace ModIO
                         isRequestCompleted = true;
                     }
                 }
+
+                // - Save changed to cache -
+                CacheManager.SaveModProfiles(updatedProfiles);
             }
 
+            // --- Process Removed ---
             if(removedIds.Count > 0)
             {
                 foreach(int modId in removedIds)
@@ -321,7 +368,30 @@ namespace ModIO
                 // TODO(@jackson): Compare with subscriptions
             }
 
-            // TODO(@jackson): Notification Events
+            // --- Notifications ---
+            if(this.modsAvailable != null
+               && addedProfiles.Count > 0)
+            {
+                this.modsAvailable(addedProfiles);
+            }
+
+            if(this.modsEdited != null
+               && editedProfiles.Count > 0)
+            {
+                this.modsEdited(editedProfiles);
+            }
+
+            if(this.modReleasesUpdated != null
+               && modfileChangedStubs.Count > 0)
+            {
+                this.modReleasesUpdated(modfileChangedStubs);
+            }
+
+            if(this.modsUnavailable != null
+               && removedIds.Count > 0)
+            {
+                this.modsUnavailable(removedIds);
+            }
         }
 
         // ---------[ GAME ENDPOINTS ]---------
