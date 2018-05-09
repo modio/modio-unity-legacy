@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections;
-// using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ModIO
 {
@@ -136,9 +136,91 @@ namespace ModIO
         {
             while(true)
             {
-                Debug.Log("UPDATING");
+                yield return FetchAndProcessAllNewEvents();
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
+            }
+        }
+
+        public virtual IEnumerator FetchAndProcessAllNewEvents()
+        {
+            int updateStartTimeStamp = ServerTimeStamp.Now;
+
+            // - Get Mod Updates -
+            yield return FetchAndProcessModEvents(this.lastCacheUpdate,
+                                                  updateStartTimeStamp);
+
+            this.lastCacheUpdate = updateStartTimeStamp;
+        }
+
+        // TODO(@jackson): Sort dateAdded desc, save lastCacheUpdate as most recent event (re:errors, etc)
+        protected virtual IEnumerator FetchAndProcessModEvents(int fromTimeStamp,
+                                                               int untilTimeStamp)
+        {
+            // - Filter & Pagination -
+            API.RequestFilter modEventFilter = new API.RequestFilter();
+            modEventFilter.sortFieldName = API.GetAllModEventsFilterFields.dateAdded;
+            modEventFilter.fieldFilters[API.GetAllModEventsFilterFields.dateAdded]
+                = new API.RangeFilter<int>()
+                {
+                    min = fromTimeStamp,
+                    isMinInclusive = false,
+                    max = untilTimeStamp,
+                    isMaxInclusive = true,
+                };
+
+            API.PaginationParameters modEventPagination = new API.PaginationParameters()
+            {
+                limit = API.PaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            // - Get All Events -
+            bool isRequestCompleted = false;
+            while(!isRequestCompleted)
+            {
+                var modEventRequest = new ClientRequest<API.ResponseArray<ModEvent>>();
+                bool isDone = false;
+
+                API.Client.GetAllModEvents(modEventFilter,
+                                           modEventPagination,
+                                           (r) => ModBrowser.OnSuccess(r, modEventRequest, out isDone),
+                                           (e) => ModBrowser.OnError(e, modEventRequest, out isDone));
+
+                while(!isDone) { yield return null; }
+
+                if(modEventRequest.response != null)
+                {
+                    ProcessModEvents(modEventRequest.response.Items);
+
+                    if(modEventRequest.response.Count < modEventRequest.response.Limit)
+                    {
+                        isRequestCompleted = true;
+                    }
+                    else
+                    {
+                        modEventPagination.offset += modEventPagination.limit;
+                    }
+
+                }
+                else
+                {
+                    if(modEventRequest.error != null)
+                    {
+                        Debug.LogWarning(modEventRequest.error.ToUnityDebugString());
+                    }
+
+                    isRequestCompleted = true;
+                }
+            }
+        }
+
+        private static void ProcessModEvents(IEnumerable<ModEvent> modEvents)
+        {
+            foreach(ModEvent modEvent in modEvents)
+            {
+                Debug.Log("ModEvent: [" + modEvent.id + "] - "
+                          + modEvent.eventType.ToString());
             }
         }
 

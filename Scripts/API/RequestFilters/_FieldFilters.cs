@@ -96,7 +96,7 @@ namespace ModIO.API
 
         public string GenerateFilterString(string fieldName)
         {
-            return fieldName + (isInclusive ? "-min=" : "-gt") + minimum;
+            return fieldName + (isInclusive ? "-min=" : "-gt=") + minimum;
         }
     }
 
@@ -108,7 +108,7 @@ namespace ModIO.API
 
         public string GenerateFilterString(string fieldName)
         {
-            return fieldName + (isInclusive ? "-max=" : "-lt") + maximum;
+            return fieldName + (isInclusive ? "-max=" : "-lt=") + maximum;
         }
     }
 
@@ -122,8 +122,8 @@ namespace ModIO.API
 
         public string GenerateFilterString(string fieldName)
         {
-            return (fieldName + (isMinInclusive ? "-min=" : "-gt") + min
-                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt") + max);
+            return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
+                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt=") + max);
         }
     }
 
