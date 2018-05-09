@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
@@ -37,11 +36,11 @@ namespace ModIO
 
 
         // ---------[ API DESERIALIZATION ]---------
-        private const string APIOBJECT_TYPESTRING_ISMULTIVALUE_ENABLED = "CHECKBOXES";
-        private const string APIOBJECT_TYPESTRING_ISMULTIVALUE_DISABLED = "DROPDOWN";
+        private const string APIOBJECT_VALUESTRING_ISSINGLETAG  = "DROPDOWN";
+        private const string APIOBJECT_VALUESTRING_ISMULTITAG   = "CHECKBOXES";
 
         [JsonExtensionData]
-        private IDictionary<string, JToken> _additionalData;
+        private System.Collections.Generic.IDictionary<string, JToken> _additionalData;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
@@ -49,8 +48,10 @@ namespace ModIO
             JToken token;
             if(_additionalData.TryGetValue("type", out token))
             {
-                this.isMultiTagCategory = APIOBJECT_TYPESTRING_ISMULTIVALUE_ENABLED.Equals((string)token);
+                this.isMultiTagCategory = APIOBJECT_VALUESTRING_ISMULTITAG.Equals((string)token);
             }
+
+            this._additionalData = null;
         }
     }
 }

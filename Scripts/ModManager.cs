@@ -323,7 +323,7 @@ namespace ModIO
                 modEventFilter.fieldFilters[GetAllModEventsFilterFields.latest]
                     = new EqualToFilter<bool>() { filterValue = true };
 
-                FetchAllResultsForQuery<EventObject>((p, s, e) => Client.GetAllModEvents(modEventFilter, p, s, e),
+                FetchAllResultsForQuery<ModEvent>((p, s, e) => Client.GetAllModEvents(modEventFilter, p, s, e),
                                                      (r) =>
                                                      {
                                                         ProcessModEvents(r);
@@ -349,7 +349,7 @@ namespace ModIO
             }
         }
 
-        private static void ProcessModEvents(List<EventObject> modEventObjects)
+        private static void ProcessModEvents(List<ModEvent> modEventObjects)
         {
             // // - ModProfile Processing Options -
             // Action<ModEvent> processModAvailable = (modEvent) =>

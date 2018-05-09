@@ -866,7 +866,7 @@ namespace ModIO.API
         // Get Mod Events
         public static void GetModEvents(int modId,
                                         RequestFilter filter, PaginationParameters pagination,
-                                        Action<ResponseArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
+                                        Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/events";
 
@@ -878,7 +878,7 @@ namespace ModIO.API
         }
         // Get All Mod Events
         public static void GetAllModEvents(RequestFilter filter, PaginationParameters pagination,
-                                           Action<ResponseArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
+                                           Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/events";
 
@@ -1248,7 +1248,7 @@ namespace ModIO.API
         }
         // Get User Events
         public static void GetUserEvents(RequestFilter filter, PaginationParameters pagination,
-                                         Action<ResponseArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
+                                         Action<ResponseArray<UserEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/events";
 
