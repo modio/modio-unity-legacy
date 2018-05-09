@@ -136,13 +136,13 @@ namespace ModIO
         {
             while(true)
             {
-                yield return FetchAndProcessAllNewEvents();
+                yield return FetchAndProcessAllEvents();
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }
         }
 
-        public virtual IEnumerator FetchAndProcessAllNewEvents()
+        public virtual IEnumerator FetchAndProcessAllEvents()
         {
             int updateStartTimeStamp = ServerTimeStamp.Now;
 
@@ -154,8 +154,8 @@ namespace ModIO
         }
 
         // TODO(@jackson): Sort dateAdded desc, save lastCacheUpdate as most recent event (re:errors, etc)
-        protected virtual IEnumerator FetchAndProcessModEvents(int fromTimeStamp,
-                                                               int untilTimeStamp)
+        public virtual IEnumerator FetchAndProcessModEvents(int fromTimeStamp,
+                                                            int untilTimeStamp)
         {
             // - Filter & Pagination -
             API.RequestFilter modEventFilter = new API.RequestFilter();
@@ -191,7 +191,7 @@ namespace ModIO
 
                 if(modEventRequest.response != null)
                 {
-                    ProcessModEvents(modEventRequest.response.Items);
+                    yield return ProcessModEvents(modEventRequest.response.Items);
 
                     if(modEventRequest.response.Count < modEventRequest.response.Limit)
                     {
@@ -215,13 +215,113 @@ namespace ModIO
             }
         }
 
-        private static void ProcessModEvents(IEnumerable<ModEvent> modEvents)
+        public static IEnumerator ProcessModEvents(IEnumerable<ModEvent> modEvents)
         {
+            List<int> addedIds = new List<int>();
+            List<int> removedIds = new List<int>();
+            List<int> editedIds = new List<int>();
+            List<int> modfileChangedIds = new List<int>();
+
+            // Sort by event type
             foreach(ModEvent modEvent in modEvents)
             {
-                Debug.Log("ModEvent: [" + modEvent.id + "] - "
-                          + modEvent.eventType.ToString());
+                switch(modEvent.eventType)
+                {
+                    case ModEventType.ModAvailable:
+                    {
+                        addedIds.Add(modEvent.modId);
+                    }
+                    break;
+                    case ModEventType.ModUnavailable:
+                    {
+                        removedIds.Add(modEvent.modId);
+                    }
+                    break;
+                    case ModEventType.ModEdited:
+                    {
+                        editedIds.Add(modEvent.modId);
+                    }
+                    break;
+                    case ModEventType.ModfileChanged:
+                    {
+                        modfileChangedIds.Add(modEvent.modId);
+                    }
+                    break;
+                }
             }
+
+            List<int> modsToFetch = new List<int>(addedIds.Count + editedIds.Count + modfileChangedIds.Count);
+            modsToFetch.AddRange(addedIds);
+            modsToFetch.AddRange(editedIds);
+            modsToFetch.AddRange(modfileChangedIds);
+
+            if(modsToFetch.Count > 0)
+            {
+                // - Filter & Pagination -
+                API.RequestFilter modsFilter = new API.RequestFilter();
+                modsFilter.fieldFilters[API.GetAllModsFilterFields.id]
+                = new API.InArrayFilter<int>()
+                {
+                    filterArray = modsToFetch.ToArray(),
+                };
+
+                API.PaginationParameters modsPagination = new API.PaginationParameters()
+                {
+                    limit = API.PaginationParameters.LIMIT_MAX,
+                    offset = 0,
+                };
+
+                // - Get Mods -
+                bool isRequestCompleted = false;
+                while(!isRequestCompleted)
+                {
+                    var modRequest = new ClientRequest<API.ResponseArray<ModProfile>>();
+                    bool isDone = false;
+
+                    API.Client.GetAllMods(modsFilter,
+                                          modsPagination,
+                                          (r) => ModBrowser.OnSuccess(r, modRequest, out isDone),
+                                          (e) => ModBrowser.OnError(e, modRequest, out isDone));
+
+                    while(!isDone) { yield return null; }
+
+                    if(modRequest.response != null)
+                    {
+                        CacheManager.SaveModProfiles(modRequest.response);
+
+                        if(modRequest.response.Count < modRequest.response.Limit)
+                        {
+                            isRequestCompleted = true;
+                        }
+                        else
+                        {
+                            modsPagination.offset += modsPagination.limit;
+                        }
+                    }
+                    else
+                    {
+                        if(modRequest.error != null)
+                        {
+                            Debug.LogWarning(modRequest.error.ToUnityDebugString());
+                        }
+
+                        isRequestCompleted = true;
+                    }
+                }
+            }
+
+            if(removedIds.Count > 0)
+            {
+                foreach(int modId in removedIds)
+                {
+                    CacheManager.UncacheMod(modId);
+                }
+
+                // TODO(@jackson): Remove from local array
+                // TODO(@jackson): Compare with subscriptions
+            }
+
+            // TODO(@jackson): Notification Events
         }
 
         // ---------[ GAME ENDPOINTS ]---------

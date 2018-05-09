@@ -145,6 +145,35 @@ namespace ModIO
             }
         }
 
+        public static void DeleteFile(string filePath)
+        {
+            try
+            {
+                if(File.Exists(filePath)) { File.Delete(filePath); }
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Failed to delete file " + filePath
+                                 + "\nError: " + e.Message);
+            }
+        }
+
+        public static void DeleteDirectory(string directoryPath)
+        {
+            try
+            {
+                if(Directory.Exists(directoryPath))
+                {
+                    Directory.Delete(directoryPath, true);
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Failed to delete file " + directoryPath
+                                 + "\nError: " + e.Message);
+            }
+        }
+
         // ---------[ USER MANAGEMENT ]---------
         public static string userFilePath
         { get { return CacheManager._cacheDirectory + "user.data"; } }
@@ -186,7 +215,7 @@ namespace ModIO
 
         public static void SaveGameProfile(GameProfile profile)
         {
-            WriteJsonObjectFile(gameProfileFilePath, profile);
+            CacheManager.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
         // ---------[ MOD PROFILES ]---------
@@ -253,24 +282,50 @@ namespace ModIO
             }
         }
 
+        public static void SaveModProfile(ModProfile profile)
+        {
+            Debug.Assert(profile.id > 0,
+                         "[mod.io] Cannot cache a mod without a mod id");
+
+            CacheManager.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id),
+                                             profile);
+        }
+
+        public static void SaveModProfiles(IEnumerable<ModProfile> modProfiles)
+        {
+            foreach(ModProfile profile in modProfiles)
+            {
+                CacheManager.SaveModProfile(profile);
+            }
+        }
+
         // ---------[ IMAGE MANAGEMENT ]---------
+        public static string GenerateModLogoDirectoryPath(int modId)
+        {
+            return(CacheManager._cacheDirectory
+                    + "mod_logos/"
+                    + modId + "/");
+        }
         public static string GenerateModLogoFilePath(int modId, LogoVersion version)
         {
-            return (CacheManager._cacheDirectory
-                    + "mod_logos/"
-                    + modId + "/"
+            return (GenerateModLogoDirectoryPath(modId)
                     + version.ToString() + ".png");
+        }
+
+        public static string GenerateModGalleryImageDirectoryPath(int modId)
+        {
+            return(Application.temporaryCachePath
+                   + "/mod_images/"
+                   + modId + "/");
         }
         public static string GenerateModGalleryImageFilePath(int modId,
                                                              string imageFileName,
                                                              ModGalleryImageVersion version)
         {
-            return (Application.temporaryCachePath
-                    + "/mod_images/"
-                    + modId + "/"
-                    + version.ToString() + "/"
-                    + Path.GetFileNameWithoutExtension(imageFileName) +
-                    ".png");
+            return(GenerateModGalleryImageDirectoryPath(modId)
+                   + version.ToString() + "/"
+                   + Path.GetFileNameWithoutExtension(imageFileName) +
+                   ".png");
         }
 
         // TODO(@jackson): Look at reconfiguring params
@@ -350,6 +405,16 @@ namespace ModIO
 
             DownloadManager.StartDownload(download);
         }
+
+        // ---------[ UNCACHING ]---------
+        public static void UncacheMod(int modId)
+        {
+            CacheManager.DeleteFile(GenerateModProfileFilePath(modId));
+            CacheManager.DeleteDirectory(GenerateModLogoDirectoryPath(modId));
+            CacheManager.DeleteDirectory(GenerateModGalleryImageDirectoryPath(modId));
+            // TODO(@jackson): Remove Binary
+        }
+
 
         // ---------[ FETCH ALL RESULTS ]---------
         private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
