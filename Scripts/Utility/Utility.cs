@@ -176,6 +176,44 @@ namespace ModIO
                 }
             }
         }
+
+        public static void LogExceptionAsWarning(string warningPrefix,
+                                                 Exception e)
+        {
+            var debugString = new System.Text.StringBuilder(warningPrefix);
+
+            Exception baseException = e.GetBaseException();
+            debugString.Append(baseException.GetType().Name + ": " + baseException.Message + "\n");
+
+            var stackTrace = new System.Diagnostics.StackTrace(baseException, true);
+
+            int frameCount = Mathf.Min(stackTrace.FrameCount, 6);
+            for(int i = 0; i < frameCount; ++i)
+            {
+                var stackFrame = stackTrace.GetFrame(i);
+                var method = stackFrame.GetMethod();
+
+                debugString.Append(method.ReflectedType
+                                   + "." + method.Name + "(");
+
+                var methodsParameters = method.GetParameters();
+                foreach(var parameter in methodsParameters)
+                {
+                    debugString.Append(parameter.ParameterType.Name + " "
+                                       + parameter.Name + ", ");
+                }
+                if(methodsParameters.Length > 0)
+                {
+                    debugString.Length -= 2;
+                }
+
+                debugString.Append(") @ " + stackFrame.GetFileName()
+                                   + ":" + stackFrame.GetFileLineNumber()
+                                   + "\n");
+            }
+
+            Debug.LogWarning(debugString.ToString());
+        }
     }
 
     #if UNITY_EDITOR
