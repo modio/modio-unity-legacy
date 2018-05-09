@@ -20,6 +20,7 @@ namespace ModIO
         public string[] filePaths;
     }
 
+    // TODO(@jackson): -> CacheClient
     public static class CacheManager
     {
         // ---------[ MEMBERS ]---------
@@ -174,30 +175,16 @@ namespace ModIO
         // ---------[ GAME PROFILE ]---------
         public static string gameProfileFilePath
         { get { return CacheManager._cacheDirectory + "gameProfile.data"; } }
-        
-        public static void GetGameProfile(Action<GameProfile> onSuccess,
-                                          Action<WebRequestError> onError)
+
+        public static GameProfile LoadGameProfile(Action<GameProfile> callback)
         {
-            // - Attempt load from cache -
-            GameProfile profile
-            = CacheManager.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
+            GameProfile profile = CacheManager.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
+            return profile;
+        }
 
-            if(profile != null)
-            {
-                onSuccess(profile);
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<API.GameObject> cacheGameProfile = (gameObject) =>
-                {
-                    profile = GameProfile.CreateFromGameObject(gameObject);
-                    CacheManager.WriteJsonObjectFile(gameProfileFilePath, profile);
-                    onSuccess(profile);
-                };
-
-                Client.GetGame(cacheGameProfile, onError);
-            }
+        public static void SaveGameProfile(GameProfile profile)
+        {
+            WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
         // ---------[ MOD PROFILES ]---------

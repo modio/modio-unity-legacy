@@ -73,21 +73,21 @@ namespace ModIO
                 go.AddComponent<UpdateRunner>();
             }
 
-            API.Client.SetGameDetails(GlobalSettings.GAME_ID,
-                                      GlobalSettings.GAME_APIKEY);
+            // API.Client.SetGameDetails(GlobalSettings.GAME_ID,
+            //                           GlobalSettings.GAME_APIKEY);
 
-            CacheManager.GetGameProfile((p) =>
-                                        {
-                                            manifest.gameProfile = p;
+            // CacheManager.GetGameProfile((p) =>
+            //                             {
+            //                                 manifest.gameProfile = p;
 
-                                            if(gameProfileUpdated != null)
-                                            {
-                                                gameProfileUpdated(p);
-                                            }
-                                        },
-                                        Client.LogError);
+            //                                 if(gameProfileUpdated != null)
+            //                                 {
+            //                                     gameProfileUpdated(p);
+            //                                 }
+            //                             },
+            //                             Client.LogError);
 
-            LoadCacheFromDisk();
+            // LoadCacheFromDisk();
             FetchAndRebuildModCache();
         }
 
