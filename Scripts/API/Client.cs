@@ -645,7 +645,7 @@ namespace ModIO.API
         // ---------[ GAME ENDPOINTS ]---------
         // Get All Games
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
-                                       Action<ObjectArray<GameObject>> successCallback,
+                                       Action<ResponseArray<GameObject>> successCallback,
                                        Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games";
@@ -685,7 +685,7 @@ namespace ModIO.API
         // ---------[ MOD ENDPOINTS ]---------
         // Get All Mods
         public static void GetAllMods(RequestFilter filter, PaginationParameters pagination,
-                                      Action<ObjectArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                      Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods";
 
@@ -748,7 +748,7 @@ namespace ModIO.API
         // Get All Modfiles
         public static void GetAllModfiles(int modId,
                                           RequestFilter filter, PaginationParameters pagination,
-                                          Action<ObjectArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
+                                          Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files";
 
@@ -866,7 +866,7 @@ namespace ModIO.API
         // Get Mod Events
         public static void GetModEvents(int modId,
                                         RequestFilter filter, PaginationParameters pagination,
-                                        Action<ObjectArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
+                                        Action<ResponseArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/events";
 
@@ -878,7 +878,7 @@ namespace ModIO.API
         }
         // Get All Mod Events
         public static void GetAllModEvents(RequestFilter filter, PaginationParameters pagination,
-                                           Action<ObjectArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
+                                           Action<ResponseArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/events";
 
@@ -892,7 +892,7 @@ namespace ModIO.API
 
         // ---------[ TAG ENDPOINTS ]---------
         // Get All Game Tag Options
-        public static void GetAllGameTagOptions(Action<ObjectArray<GameTagOptionObject>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetAllGameTagOptions(Action<ResponseArray<GameTagOptionObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/tags";
 
@@ -931,7 +931,7 @@ namespace ModIO.API
         // Get All Mod Tags
         public static void GetAllModTags(int modId,
                                          RequestFilter filter, PaginationParameters pagination,
-                                         Action<ObjectArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
+                                         Action<ResponseArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
 
@@ -986,7 +986,7 @@ namespace ModIO.API
         // Get All Mod KVP Metadata
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
-                                                Action<ObjectArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<ResponseArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
 
@@ -1025,7 +1025,7 @@ namespace ModIO.API
         // Get All Mod Dependencies
         public static void GetAllModDependencies(int modId,
                                                  RequestFilter filter, PaginationParameters pagination,
-                                                 Action<ObjectArray<ModDependenciesObject>> successCallback, Action<WebRequestError> errorCallback)
+                                                 Action<ResponseArray<ModDependenciesObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
 
@@ -1064,7 +1064,7 @@ namespace ModIO.API
         // Get All Mod Team Members
         public static void GetAllModTeamMembers(int modId,
                                                 RequestFilter filter, PaginationParameters pagination,
-                                                Action<ObjectArray<TeamMemberObject>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<ResponseArray<TeamMemberObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
 
@@ -1117,7 +1117,7 @@ namespace ModIO.API
         // NOTE(@jackson): Untested
         public static void GetAllModComments(int modId,
                                              RequestFilter filter, PaginationParameters pagination,
-                                             Action<ObjectArray<CommentObject>> successCallback, Action<WebRequestError> errorCallback)
+                                             Action<ResponseArray<CommentObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments";
 
@@ -1181,7 +1181,7 @@ namespace ModIO.API
         }
         // Get All Users
         public static void GetAllUsers(RequestFilter filter, PaginationParameters pagination,
-                                       Action<ObjectArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                       Action<ResponseArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/users";
 
@@ -1236,7 +1236,7 @@ namespace ModIO.API
         }
         // Get User Subscriptions
         public static void GetUserSubscriptions(RequestFilter filter, PaginationParameters pagination,
-                                                Action<ObjectArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/subscribed";
 
@@ -1248,7 +1248,7 @@ namespace ModIO.API
         }
         // Get User Events
         public static void GetUserEvents(RequestFilter filter, PaginationParameters pagination,
-                                         Action<ObjectArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
+                                         Action<ResponseArray<EventObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/events";
 
@@ -1260,7 +1260,7 @@ namespace ModIO.API
         }
 
         // Get User Games
-        public static void GetUserGames(Action<ObjectArray<GameObject>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetUserGames(Action<ResponseArray<GameObject>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/games";
 
@@ -1272,7 +1272,7 @@ namespace ModIO.API
         }
         // Get User Mods
         public static void GetUserMods(PaginationParameters pagination,
-                                       Action<ObjectArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                       Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/mods";
 
@@ -1284,7 +1284,7 @@ namespace ModIO.API
         }
         // Get User Files
         public static void GetUserModfiles(PaginationParameters pagination,
-                                           Action<ObjectArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
+                                           Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/files";
 

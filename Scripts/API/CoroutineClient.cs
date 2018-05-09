@@ -32,7 +32,7 @@ namespace ModIO.API
         // ---------[ MOD ENDPOINTS ]---------
         // Get All Mods
         public static IEnumerator GetAllMods(RequestFilter filter, PaginationParameters pagination,
-                                             Response<ObjectArray<ModProfile>> response)
+                                             Response<ResponseArray<ModProfile>> response)
         {
             bool isDone = false;
 

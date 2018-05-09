@@ -216,7 +216,7 @@ namespace ModIO
             ModProfile profile = CacheManager.ReadJsonObjectFile<ModProfile>(profileFilePath);
             if(profile != null)
             {
-                onSuccess(profile);
+                if(onSuccess != null) { onSuccess(profile); }
             }
             else
             {
@@ -364,7 +364,7 @@ namespace ModIO
 
         // ---------[ FETCH ALL RESULTS ]---------
         private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
-                                                    Action<ObjectArray<T>> onSuccess,
+                                                    Action<ResponseArray<T>> onSuccess,
                                                     Action<WebRequestError> onError);
 
         private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
@@ -390,7 +390,7 @@ namespace ModIO
         }
 
         private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
-                                                            ObjectArray<T> queryResult,
+                                                            ResponseArray<T> queryResult,
                                                             PaginationParameters pagination,
                                                             List<T> culmativeResults,
                                                             Action<List<T>> onSuccess,
@@ -398,9 +398,9 @@ namespace ModIO
         {
             Debug.Assert(pagination.limit > 0);
 
-            culmativeResults.AddRange(queryResult.data);
+            culmativeResults.AddRange(queryResult.Items);
 
-            if(queryResult.result_count < queryResult.result_limit)
+            if(queryResult.Count < queryResult.Limit)
             {
                 onSuccess(culmativeResults);
             }
