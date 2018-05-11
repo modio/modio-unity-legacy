@@ -107,9 +107,9 @@ namespace ModIO
                     };
                 };
 
-                CacheManager.GetModProfile(modIdProperty.intValue,
-                                           onGetProfile,
-                                           API.Client.LogError);
+                ModManager.GetModProfile(modIdProperty.intValue,
+                                         onGetProfile,
+                                         API.Client.LogError);
             }
 
             scrollPos = Vector2.zero;

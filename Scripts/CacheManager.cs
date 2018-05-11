@@ -243,29 +243,12 @@ namespace ModIO
                     + modId + ".data");
         }
 
-        public static void GetModProfile(int modId,
-                                         Action<ModProfile> onSuccess,
-                                         Action<WebRequestError> onError)
+        public static void LoadModProfile(int modId,
+                                          Action<ModProfile> callback)
         {
             string profileFilePath = GenerateModProfileFilePath(modId);
             ModProfile profile = CacheManager.ReadJsonObjectFile<ModProfile>(profileFilePath);
-            if(profile != null)
-            {
-                if(onSuccess != null) { onSuccess(profile); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<ModProfile> cacheModProfile = (p) =>
-                {
-                    CacheManager.WriteJsonObjectFile(profileFilePath, p);
-                    if(onSuccess != null) { onSuccess(p); }
-                };
-
-                Client.GetMod(modId,
-                              cacheModProfile,
-                              onError);
-            }
+            callback(profile);
         }
 
         public static IEnumerable<ModProfile> LoadAllModProfiles()

@@ -108,7 +108,7 @@ namespace ModIO
             isDone = true;
         }
 
-        // ---------[ GAME ENDPOINTS ]---------
+        // ---------[ GAME PROFILE ]---------
         public static IEnumerator RequestGameProfile(ClientRequest<GameProfile> request)
         {
             bool isDone = false;
@@ -132,6 +132,35 @@ namespace ModIO
                     CacheManager.SaveGameProfile(request.response);
                 }
             }
+        }
+
+        // ---------[ MOD PROFILES ]---------
+        // TODO(@jackson): Implement GetModProfiles
+        public static void GetModProfile(int modId,
+                                         Action<ModProfile> onSuccess,
+                                         Action<WebRequestError> onError)
+        {
+            CacheManager.LoadModProfile(modId,
+                                        (cachedProfile) =>
+            {
+                if(cachedProfile != null)
+                {
+                    if(onSuccess != null) { onSuccess(cachedProfile); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<ModProfile> onGetMod = (profile) =>
+                    {
+                        CacheManager.SaveModProfile(profile);
+                        if(onSuccess != null) { onSuccess(profile); }
+                    };
+
+                    Client.GetMod(modId,
+                                  onGetMod,
+                                  onError);
+                }
+            });
         }
 
         // ---------[ UPDATES ]---------
@@ -959,9 +988,9 @@ namespace ModIO
                 }
             };
 
-            CacheManager.GetModProfile(modId,
-                                       submitChanges,
-                                       modSubmissionFailed);
+            ModManager.GetModProfile(modId,
+                                     submitChanges,
+                                     modSubmissionFailed);
 
         }
 
