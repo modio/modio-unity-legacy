@@ -106,8 +106,8 @@ namespace ModIO.API
         };
 
         // ---------[ INITIALIZATION ]---------
-        private static int _gameId = -1;
-        private static string _gameKey = null;
+        private static int _gameId = GlobalSettings.GAME_ID;
+        private static string _gameKey = GlobalSettings.GAME_APIKEY;
         private static string _userToken = null;
 
         public static void SetGameDetails(int id, string apiKey)
@@ -140,8 +140,9 @@ namespace ModIO.API
             {
                 Debug.LogError("[mod.io] No API requests can be excuted without a"
                                + " valid Game Id and Game API Key. These need to be"
+                               + " saved in ModIO.GlobalSettings or"
                                + " set via ModIO.API.Client.SetGameDetails() before"
-                               + " any requests can be sent to the API");
+                               + " any requests can be sent to the API.");
                 return false;
             }
 
@@ -235,7 +236,7 @@ namespace ModIO.API
                                      + "?" + filterString
                                      + "&_limit=" + pagination.limit
                                      + "&_offset=" + pagination.offset);
-            
+
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + Client._userToken);
 
@@ -394,7 +395,7 @@ namespace ModIO.API
                     {
                         formFields += "\n" + valueField.key + "=" + valueField.value;
                     }
-                    
+
                 }
                 if(dataFields != null)
                 {
@@ -422,7 +423,7 @@ namespace ModIO.API
                                                             StringValueParameter[] valueFields)
         {
             Client.AssertAuthorizationDetails(true);
-            
+
             WWWForm form = new WWWForm();
             if(valueFields != null)
             {
@@ -482,7 +483,7 @@ namespace ModIO.API
 
             return webRequest;
         }
-        
+
         public static void SendRequest<T_APIObj>(UnityWebRequest webRequest,
                                                  Action<T_APIObj> successCallback,
                                                  Action<WebRequestError> errorCallback)
@@ -638,7 +639,7 @@ namespace ModIO.API
         public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
-            
+
             UnityWebRequest webRequest = Client.GenerateQuery(endpointURL,
                                                               "",
                                                               PaginationParameters.Default);
@@ -677,7 +678,7 @@ namespace ModIO.API
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
-            
+
             UnityWebRequest webRequest = Client.GenerateQuery(endpointURL,
                                                               "",
                                                               PaginationParameters.Default);
@@ -753,7 +754,7 @@ namespace ModIO.API
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files";
-            
+
             UnityWebRequest webRequest = Client.GeneratePostRequest(endpointURL,
                                                                     parameters.stringValues.ToArray(),
                                                                     parameters.binaryData.ToArray());
@@ -793,7 +794,7 @@ namespace ModIO.API
                                        Action<MessageObject> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
-            
+
             UnityWebRequest webRequest = Client.GeneratePostRequest(endpointURL,
                                                                     parameters.stringValues.ToArray(),
                                                                     parameters.binaryData.ToArray());
@@ -806,7 +807,7 @@ namespace ModIO.API
                                           Action<MessageObject> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
-            
+
             UnityWebRequest webRequest = Client.GenerateDeleteRequest(endpointURL,
                                                                       parameters.stringValues.ToArray());
 
@@ -823,7 +824,7 @@ namespace ModIO.API
             UnityWebRequest webRequest = Client.GeneratePostRequest(endpointURL,
                                                                     null,
                                                                     null);
-            
+
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -978,7 +979,7 @@ namespace ModIO.API
                                              Action<MessageObject> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
-            
+
             UnityWebRequest webRequest = Client.GeneratePostRequest(endpointURL,
                                                                     parameters.stringValues.ToArray(),
                                                                     parameters.binaryData.ToArray());
@@ -1196,7 +1197,7 @@ namespace ModIO.API
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }
-        
+
 
         // ---------[ ME ENDPOINTS ]---------
         // Get Authenticated User
@@ -1207,7 +1208,7 @@ namespace ModIO.API
             UnityWebRequest webRequest = Client.GenerateGetRequest(endpointURL,
                                                                    "",
                                                                    PaginationParameters.Default);
-            
+
 
             Client.SendRequest(webRequest, successCallback, errorCallback);
         }

@@ -47,8 +47,6 @@ namespace ModIO
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
         {
-            ModManager.Initialize();
-
             // Grab Serialized Properties
             serializedObject.Update();
             modIdProperty = serializedObject.FindProperty("modId");
@@ -172,7 +170,7 @@ namespace ModIO
                 {
                     ScriptableModProfile smp = this.target as ScriptableModProfile;
                     Undo.RecordObject(smp, "Initialize Mod Profile");
-                    
+
                     smp.modId = 0;
                     smp.editableModProfile = new EditableModProfile();
 
@@ -202,7 +200,7 @@ namespace ModIO
                     {
                         ScriptableModProfile smp = this.target as ScriptableModProfile;
                         Undo.RecordObject(smp, "Initialize Mod Profile");
-                        
+
                         smp.modId = profile.id;
                         smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
 

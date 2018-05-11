@@ -58,9 +58,9 @@ namespace ModIO
                 logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
                 logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
-                CacheManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
-                                        (t) => { logoTexture = t; isRepaintRequired = true; },
-                                        API.Client.LogError);
+                ModManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
+                                      (t) => { logoTexture = t; isRepaintRequired = true; },
+                                      API.Client.LogError);
             }
             else
             {
@@ -201,7 +201,7 @@ namespace ModIO
 
                 fieldProperty.FindPropertyRelative("isDirty").boolValue = true;
             }
-            
+
         }
 
         protected virtual void LayoutSummaryField()
@@ -257,7 +257,7 @@ namespace ModIO
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Profile URL");
                 EditorGUILayout.LabelField("@", GUILayout.Width(13));
-                
+
                 EditorGUI.BeginChangeCheck();
                     EditorGUILayout.PropertyField(editableProfileProperty.FindPropertyRelative("nameId.value"),
                                                   GUIContent.none);
@@ -334,9 +334,9 @@ namespace ModIO
                 logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
                 logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
-                CacheManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
-                                        (t) => { logoTexture = t; isRepaintRequired = true; },
-                                        API.Client.LogError);
+                ModManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
+                                      (t) => { logoTexture = t; isRepaintRequired = true; },
+                                      API.Client.LogError);
             }
         }
 

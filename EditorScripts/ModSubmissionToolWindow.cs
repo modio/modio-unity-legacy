@@ -33,8 +33,6 @@ namespace ModIO
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
         {
-            ModManager.Initialize();
-
             isInputtingEmail = true;
             emailAddressInput = "";
             securityCodeInput = "";
@@ -217,7 +215,7 @@ namespace ModIO
                         }
                     };
                 }
-    
+
                 // - Build Profile -
                 using(new EditorGUI.DisabledScope(!System.IO.File.Exists(buildFilePath)))
                 {

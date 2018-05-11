@@ -60,7 +60,7 @@ namespace ModIO
             {
                 string warningInfo = ("[mod.io] Failed to set cache directory."
                                       + "\nDirectory: " + directory + "\n");
-            
+
                 Utility.LogExceptionAsWarning(warningInfo, e);
 
                 return false;
@@ -192,7 +192,7 @@ namespace ModIO
         // ---------[ USER MANAGEMENT ]---------
         public static string userFilePath
         { get { return CacheManager._cacheDirectory + "user.data"; } }
-        
+
         public static void StoreAuthenticatedUser(AuthenticatedUser user)
         {
             CacheManager.WriteJsonObjectFile(userFilePath, user);
@@ -267,11 +267,11 @@ namespace ModIO
                               onError);
             }
         }
-        
+
         public static IEnumerable<ModProfile> LoadAllModProfiles()
         {
             string profileDirectory = CacheManager._cacheDirectory + "mod_profiles/";
-            
+
             if(Directory.Exists(profileDirectory))
             {
                 string[] profilePaths;
@@ -348,29 +348,19 @@ namespace ModIO
         }
 
         // TODO(@jackson): Look at reconfiguring params
-        public static void GetModLogo(ModProfile profile, LogoVersion version,
-                                      Action<Texture2D> onSuccess,
-                                      Action<WebRequestError> onError)
+        public static void LoadModLogo(int modId, LogoVersion version,
+                                       Action<Texture2D> callback)
         {
-            int modId = profile.id;
-
-            // - Attempt load from cache -
             string logoFilePath = CacheManager.GenerateModLogoFilePath(modId, version);
             Texture2D logoTexture = CacheManager.ReadImageFile(logoFilePath);
-            
-            if(logoTexture != null)
-            {
-                onSuccess(logoTexture);
-            }
-            else
-            {
-                // - Fetch from Server -
-                // GetModProfile(modId)
-                DownloadAndSaveImageAsPNG(profile.logoLocator.GetVersionURL(version),
-                                          logoFilePath,
-                                          onSuccess,
-                                          onError);
-            }
+            callback(logoTexture);
+        }
+
+        public static void SaveModLogo(int modId, LogoVersion version,
+                                       Texture2D logoTexture)
+        {
+            string logoFilePath = CacheManager.GenerateModLogoFilePath(modId, version);
+            CacheManager.WriteImageFile(logoFilePath, logoTexture);
         }
 
         public static void GetModGalleryImage(ModProfile profile,
@@ -386,7 +376,7 @@ namespace ModIO
                                                                                 imageFileName,
                                                                                 version);
             Texture2D imageTexture = CacheManager.ReadImageFile(imageFilePath);
-            
+
             if(imageTexture != null)
             {
                 onSuccess(imageTexture);

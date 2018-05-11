@@ -31,6 +31,7 @@ namespace ModIO
         UpToDate
     }
 
+    // TODO(@jackson): -> RequestManager?
     public class ModManager
     {
         // ---------[ INNER CLASSES ]---------
@@ -54,131 +55,8 @@ namespace ModIO
         // --------- [ INITIALIZATION ]---------
         public static event GameProfileEventHandler gameProfileUpdated;
 
-        public static void Initialize()
-        {
-            if(manifest != null)
-            {
-                return;
-            }
-            manifest = new ManifestData();
-
-            Debug.Log("[mod.io] Initializing ModManager using cache directory: " + cacheDirectory);
-
-            #if UNITY_EDITOR
-            if(Application.isPlaying)
-            #endif
-            {
-                var go = new UnityEngine.GameObject("ModIO.UpdateRunner");
-                go.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
-                go.AddComponent<UpdateRunner>();
-            }
-
-            // API.Client.SetGameDetails(GlobalSettings.GAME_ID,
-            //                           GlobalSettings.GAME_APIKEY);
-
-            // CacheManager.GetGameProfile((p) =>
-            //                             {
-            //                                 manifest.gameProfile = p;
-
-            //                                 if(gameProfileUpdated != null)
-            //                                 {
-            //                                     gameProfileUpdated(p);
-            //                                 }
-            //                             },
-            //                             Client.LogError);
-
-            // LoadCacheFromDisk();
-            FetchAndRebuildModCache();
-        }
-
-        private static void LoadCacheFromDisk()
-        {
-            if (!Directory.Exists(cacheDirectory))
-            {
-                Directory.CreateDirectory(cacheDirectory);
-            }
-
-            #if DO_NOT_LOAD_CACHE
-            {
-                manifest = new ManifestData();
-                WriteManifestToDisk();
-            }
-            #else
-            {
-                // Attempt to load manifest
-                if(!Utility.TryParseJsonFile(manifestPath, out manifest))
-                {
-                    manifest = new ManifestData();
-                    WriteManifestToDisk();
-                }
-
-                // Attempt to load imageCache
-                serverToLocalImageURLMap = new Dictionary<string, string>();
-                int i = 0;
-                while(i < manifest.serializedImageCache.Count)
-                {
-                    string[] imageLocation = manifest.serializedImageCache[i].Split('*');
-                    if(imageLocation.Length != 2
-                       || String.IsNullOrEmpty(imageLocation[0])
-                       || String.IsNullOrEmpty(imageLocation[1])
-                       || !File.Exists(imageLocation[1]))
-                    {
-                        manifest.serializedImageCache.RemoveAt(i);
-                    }
-                    else
-                    {
-                        serverToLocalImageURLMap.Add(imageLocation[0], imageLocation[1]);
-                        ++i;
-                    }
-                }
-
-                // Attempt to load user
-                authUser = CacheManager.LoadAuthenticatedUser();
-
-                if(authUser != null)
-                {
-                    API.Client.SetUserAuthorizationToken(authUser.oAuthToken);
-
-                    Action<WebRequestError> onAuthenticationFail = (error) =>
-                    {
-                        if(error.responseCode == 401
-                            || error.responseCode == 403) // Failed authentication
-                        {
-                            LogUserOut();
-                        }
-                    };
-
-                    Client.GetAuthenticatedUser(null,
-                                                onAuthenticationFail);
-                }
-
-                // Attempt to load mod data
-                if(!Directory.Exists(cacheDirectory + "mods/"))
-                {
-                    Directory.CreateDirectory(cacheDirectory + "mods/");
-                }
-
-                string[] modDirectories = Directory.GetDirectories(cacheDirectory + "mods/");
-                foreach(string modDir in modDirectories)
-                {
-                    // Load ModProfile from Disk
-                    ModProfile profile;
-                    if(Utility.TryParseJsonFile(modDir + "/mod_profile.data", out profile))
-                    {
-                        modCache.Add(profile.id, profile);
-                    }
-                    else
-                    {
-                        // TODO(@jackson): better
-                        Debug.LogWarning("[mod.io] Unable to parse mod profile at: " + modDir + "/mod_profile.data");
-                    }
-                }
-            }
-            #endif
-        }
-
         // TODO(@jackson): Defend everything
-        private static void FetchAndRebuildModCache()
+        private static void FetchAndRebuildEntireCache()
         {
             Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
             {
@@ -257,230 +135,20 @@ namespace ModIO
             // TODO(@jackson): Notify
         }
 
+
+        // ---------[ COROUTINE HELPERS ]---------
+        private static void OnSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
+        {
+            request.response = response;
+            isDone = true;
+        }
+        private static void OnError<T>(WebRequestError error, ClientRequest<T> request, out bool isDone)
+        {
+            request.error = error;
+            isDone = true;
+        }
+
         // ---------[ AUTOMATED UPDATING ]---------
-        private const int SECONDS_BETWEEN_POLLING = 15;
-        private static bool isUpdatePollingEnabled = false;
-        private static bool isUpdatePollingRunning = false;
-
-        public static void EnableUpdatePolling()
-        {
-            if(!isUpdatePollingEnabled)
-            {
-                #if UNITY_EDITOR
-                if(!Application.isPlaying)
-                {
-                    UnityEditor.EditorApplication.update += PollForUpdates;
-                }
-                else
-                #endif
-                {
-                    UpdateRunner.onUpdate += PollForUpdates;
-                }
-                isUpdatePollingEnabled = true;
-            }
-        }
-        public static void DisableUpdatePolling()
-        {
-            if(isUpdatePollingEnabled)
-            {
-                isUpdatePollingEnabled = false;
-                #if UNITY_EDITOR
-                if(!Application.isPlaying)
-                {
-                    UnityEditor.EditorApplication.update -= PollForUpdates;
-                }
-                else
-                #endif
-                {
-                    UpdateRunner.onUpdate -= PollForUpdates;
-                }
-            }
-        }
-
-        private static void PollForUpdates()
-        {
-            int secondsSinceUpdate = (ServerTimeStamp.Now
-                                      - manifest.lastUpdateTimeStamp);
-
-            if(secondsSinceUpdate >= SECONDS_BETWEEN_POLLING)
-            {
-                int fromTimeStamp = manifest.lastUpdateTimeStamp;
-                int untilTimeStamp = ServerTimeStamp.Now;
-
-                // - Get Game Updates -
-                // FetchAndCacheGameProfile();
-
-                // - Get ModProfile Events -
-                var modEventFilter = new RequestFilter();
-                modEventFilter.fieldFilters[GetAllModEventsFilterFields.dateAdded]
-                    = new RangeFilter<int>()
-                {
-                    min = fromTimeStamp,
-                    isMinInclusive = true,
-                    max = untilTimeStamp,
-                    isMaxInclusive = false,
-                };
-                modEventFilter.fieldFilters[GetAllModEventsFilterFields.latest]
-                    = new EqualToFilter<bool>() { filterValue = true };
-
-                FetchAllResultsForQuery<ModEvent>((p, s, e) => Client.GetAllModEvents(modEventFilter, p, s, e),
-                                                     (r) =>
-                                                     {
-                                                        ProcessModEvents(r);
-                                                        manifest.lastUpdateTimeStamp = untilTimeStamp;
-                                                     },
-                                                     Client.LogError);
-
-                // TODO(@jackson): Add KVP updates?
-
-                // TODO(@jackson): Replace with Event Polling
-                // - Get Subscription Updates -
-                if(authUser != null)
-                {
-                    var userSubscriptionFilter = new RequestFilter();
-                    userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
-                         = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
-
-                    FetchAllResultsForQuery<ModProfile>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
-                                                                                            p, s, e),
-                                                        UpdateUserSubscriptions,
-                                                        Client.LogError);
-                }
-            }
-        }
-
-        private static void ProcessModEvents(List<ModEvent> modEventObjects)
-        {
-            // // - ModProfile Processing Options -
-            // Action<ModEvent> processModAvailable = (modEvent) =>
-            // {
-            //     Action<ModProfile> onGetMod = (modProfile) =>
-            //     {
-            //         var profile = ModProfile.CreateFromModProfile(modProfile);
-
-            //         StoreModData(profile);
-            //         manifest.unresolvedEvents.Remove(modEvent);
-
-            //         if(OnModAdded != null)
-            //         {
-            //             OnModAdded(profile);
-            //         }
-            //     };
-
-            //     Client.GetMod(modEvent.modId, onGetMod, Client.LogError);
-            // };
-            // Action<ModEvent> processModUnavailable = (modEvent) =>
-            // {
-            //     // TODO(@jackson): Facilitate marking Mods as installed
-            //     bool isModInstalled = (authUser != null
-            //                            && authUser.subscribedModIDs.Contains(modEvent.modId));
-
-            //     if(!isModInstalled
-            //        && modCache.ContainsKey(modEvent.modId))
-            //     {
-            //         UncacheMod(modEvent.modId);
-
-            //         if(OnModRemoved != null)
-            //         {
-            //             OnModRemoved(modEvent.modId);
-            //         }
-            //     }
-            //     manifest.unresolvedEvents.Remove(modEvent);
-            // };
-
-            // Action<ModEvent> processModEdited = (modEvent) =>
-            // {
-            //     Action<ModProfile> onGetMod = (modProfile) =>
-            //     {
-            //         var profile = ModProfile.CreateFromModProfile(modProfile);
-
-            //         StoreModData(profile);
-            //         manifest.unresolvedEvents.Remove(modEvent);
-
-            //         if(OnModUpdated != null)
-            //         {
-            //             OnModUpdated(profile.id);
-            //         }
-            //     };
-
-            //     Client.GetMod(modEvent.modId, onGetMod, Client.LogError);
-            // };
-
-            // Action<ModEvent> processModfileChange = (modEvent) =>
-            // {
-            //     ModProfile profile = GetModProfile(modEvent.modId);
-
-            //     if(profile == null)
-            //     {
-            //         Debug.Log("Received Modfile change for uncached mod. Ignoring.");
-            //         manifest.unresolvedEvents.Remove(modEvent);
-            //     }
-            //     else
-            //     {
-            //         Action<ModProfile> onGetMod = (modProfile) =>
-            //         {
-            //             profile.ApplyModProfileValues(modProfile);
-
-            //             StoreModData(profile);
-
-            //             if(OnModfileChanged != null)
-            //             {
-            //                 throw new System.NotImplementedException();
-            //                 // OnModfileChanged(profile.id, profile.modfile);
-            //             }
-            //         };
-
-            //         Client.GetMod(profile.id, onGetMod, Client.LogError);
-
-            //         manifest.unresolvedEvents.Remove(modEvent);
-            //     }
-            // };
-
-            // // - Handle ModProfile Event -
-            // foreach(EventObject eventObject in modEventObjects)
-            // {
-            //     var modEvent = ModEvent.CreateFromEventObject(eventObject);
-
-            //     string eventSummary = "int (Local)=" + modEvent.dateAdded.ToLocalDateTime();
-            //     eventSummary += "\nMod=" + modEvent.modId;
-            //     eventSummary += "\nEventType=" + modEvent.eventType.ToString();
-                
-            //     Debug.Log("[PROCESSING MOD EVENT]\n" + eventSummary);
-
-
-            //     manifest.unresolvedEvents.Add(modEvent);
-
-            //     switch(modEvent.eventType)
-            //     {
-            //         case ModEventType.ModfileChanged:
-            //         {
-            //             processModfileChange(modEvent);
-            //         }
-            //         break;
-            //         case ModEventType.ModAvailable:
-            //         {
-            //             processModAvailable(modEvent);
-            //         }
-            //         break;
-            //         case ModEventType.ModUnavailable:
-            //         {
-            //             processModUnavailable(modEvent);
-            //         }
-            //         break;
-            //         case ModEventType.ModEdited:
-            //         {
-            //             processModEdited(modEvent);
-            //         }
-            //         break;
-            //         default:
-            //         {
-            //             Debug.LogError("Unhandled Event Type: " + modEvent.eventType.ToString());
-            //         }
-            //         break;
-            //     }
-            // }
-        }
-
         private static void UpdateUserSubscriptions(List<ModProfile> userSubscriptions)
         {
             if(authUser == null) { return; }
@@ -777,13 +445,58 @@ namespace ModIO
         // ---------[ IMAGE MANAGEMENT ]---------
         public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
         public static event ModGalleryImageUpdatedEventHandler OnModGalleryImageUpdated;
-        
+
         private static Dictionary<string, string> serverToLocalImageURLMap;
 
         public static string GenerateModLogoFilePath(int modId, LogoVersion version)
         {
             return GetModDirectory(modId) + @"/logo/" + version.ToString() + ".png";
         }
+
+        // TODO(@jackson): Look at reconfiguring params
+        public static void GetModLogo(ModProfile profile, LogoVersion version,
+                                      Action<Texture2D> onSuccess,
+                                      Action<WebRequestError> onError)
+        {
+            CacheManager.LoadModLogo(profile.id, version,
+                                     (logoTexture) =>
+            {
+                if(logoTexture != null)
+                {
+                    onSuccess(logoTexture);
+                }
+                else
+                {
+                    var download = new TextureDownload();
+                    download.sourceURL = profile.logoLocator.GetVersionURL(version);
+                    download.OnCompleted += (d) =>
+                    {
+                        CacheManager.SaveModLogo(profile.id, version, download.texture);
+                        onSuccess(download.texture);
+                    };
+                    download.OnFailed += (d,e) => onError(e);
+
+                    DownloadManager.StartDownload(download);
+                }
+            });
+        }
+
+        public static IEnumerator RequestModLogo(ModProfile profile,
+                                                 LogoVersion version,
+                                                 ClientRequest<Texture2D> logoRequest)
+        {
+            bool isDone = false;
+
+            ModManager.GetModLogo(profile, version,
+                                  (r) => ModManager.OnSuccess(r, logoRequest, out isDone),
+                                  (e) => ModManager.OnError(e, logoRequest, out isDone));
+
+            while(!isDone)
+            {
+                yield return null;
+            }
+        }
+
 
         public static Texture2D FindSavedImageMatchingServerURL(string serverURL)
         {
@@ -1050,14 +763,14 @@ namespace ModIO
             {
                 var addMediaParameters = new AddModMediaParameters();
                 var deleteMediaParameters = new DeleteModMediaParameters();
-                
+
                 if(modEdits.logoLocator.isDirty
                    && File.Exists(modEdits.logoLocator.value.url))
                 {
                     addMediaParameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url),
                                                                   File.ReadAllBytes(modEdits.logoLocator.value.url));
                 }
-                
+
                 if(modEdits.youtubeURLs.isDirty)
                 {
                     var addedYouTubeLinks = new List<string>(modEdits.youtubeURLs.value);
@@ -1074,7 +787,7 @@ namespace ModIO
                     }
                     deleteMediaParameters.youtube = addedYouTubeLinks.ToArray();
                 }
-                
+
                 if(modEdits.sketchfabURLs.isDirty)
                 {
                     var addedSketchfabLinks = new List<string>(modEdits.sketchfabURLs.value);
@@ -1107,7 +820,7 @@ namespace ModIO
                     {
                         string galleryZipLocation = Application.temporaryCachePath + "/modio/imageGallery_" + DateTime.Now.ToFileTime() + ".zip";
                         ZipUtil.Zip(galleryZipLocation, addedImageFilePaths.ToArray());
-        
+
                         var imageGalleryUpload = BinaryUpload.Create("images.zip",
                                                                      File.ReadAllBytes(galleryZipLocation));
 
