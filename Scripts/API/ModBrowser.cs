@@ -123,8 +123,11 @@ namespace ModIO
             {
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
-                yield return ModManager.FetchAndProcessAllEvents(this.lastCacheUpdate,
-                                                                 updateStartTimeStamp);
+                var request = new ClientRequest<List<ModEvent>>();
+
+                yield return ModManager.RequestAndApplyAllModEventsToCache(this.lastCacheUpdate,
+                                                                           updateStartTimeStamp,
+                                                                           request);
 
                 this.lastCacheUpdate = updateStartTimeStamp;
 

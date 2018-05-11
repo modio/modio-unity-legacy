@@ -89,9 +89,9 @@ namespace ModIO
                 }
             };
 
-            FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
-                                                onModProfilesReceived,
-                                                onError);
+            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
+                                                           onModProfilesReceived,
+                                                           onError);
 
             // TODO(@jackson): Other bits
         }
@@ -164,120 +164,59 @@ namespace ModIO
         }
 
         // ---------[ UPDATES ]---------
-        private static void UpdateUserSubscriptions(List<ModProfile> userSubscriptions)
+        public static IEnumerable RequestAndApplyAllModEventsToCache(int fromTimeStamp,
+                                                                     int untilTimeStamp,
+                                                                     ClientRequest<List<ModEvent>> request)
         {
-            if(authUser == null) { return; }
+            bool isDone = false;
 
-            List<int> addedMods = new List<int>();
-            List<int> removedMods = authUser.subscribedModIDs;
-            authUser.subscribedModIDs = new List<int>(userSubscriptions.Count);
+            ModManager.GetAndApplyAllModEvents(fromTimeStamp, untilTimeStamp,
+                                               (r) => ModManager.OnRequestSuccess(r, request, out isDone),
+                                               (e) => ModManager.OnRequestError(e, request, out isDone));
 
-            foreach(ModProfile modProfile in userSubscriptions)
-            {
-                authUser.subscribedModIDs.Add(modProfile.id);
-
-                if(removedMods.Contains(modProfile.id))
-                {
-                    removedMods.Remove(modProfile.id);
-                }
-                else
-                {
-                    addedMods.Add(modProfile.id);
-                }
-            }
-
-            WriteUserDataToDisk();
-
-            // - Notify -
-            if(OnModSubscriptionAdded != null)
-            {
-                foreach(int modId in addedMods)
-                {
-                    OnModSubscriptionAdded(modId);
-                }
-            }
-            if(OnModSubscriptionRemoved != null)
-            {
-                foreach(int modId in removedMods)
-                {
-                    OnModSubscriptionRemoved(modId);
-                }
-            }
+            while(!isDone) { yield return null; }
         }
 
-        public static IEnumerator FetchAndProcessAllEvents(int fromTimeStamp,
-                                                           int untilTimeStamp)
+        public static void GetAndApplyAllModEvents(int fromTimeStamp,
+                                                   int untilTimeStamp,
+                                                   Action<List<ModEvent>> onSuccess,
+                                                   Action<WebRequestError> onError)
         {
-            // - Mod Updates -
-            yield return ModManager.FetchAndProcessAllModEvents(fromTimeStamp,
-                                                                untilTimeStamp);
+            ModManager.GetAllModEvents(fromTimeStamp, untilTimeStamp,
+            (modEvents) =>
+            {
+                ApplyModEventsToCache(modEvents);
+
+                if(onSuccess != null) { onSuccess(modEvents); }
+            },
+            onError);
         }
 
-        // TODO(@jackson): Sort dateAdded desc, save lastCacheUpdate as most recent event (re:errors, etc)
-        public static IEnumerator FetchAndProcessAllModEvents(int fromTimeStamp,
-                                                              int untilTimeStamp)
+        public static void GetAllModEvents(int fromTimeStamp,
+                                           int untilTimeStamp,
+                                           Action<List<ModEvent>> onSuccess,
+                                           Action<WebRequestError> onError)
         {
             // - Filter & Pagination -
             API.RequestFilter modEventFilter = new API.RequestFilter();
             modEventFilter.sortFieldName = API.GetAllModEventsFilterFields.dateAdded;
             modEventFilter.fieldFilters[API.GetAllModEventsFilterFields.dateAdded]
-                = new API.RangeFilter<int>()
-                {
-                    min = fromTimeStamp,
-                    isMinInclusive = false,
-                    max = untilTimeStamp,
-                    isMaxInclusive = true,
-                };
-
-            PaginationParameters modEventPagination = new PaginationParameters()
+            = new API.RangeFilter<int>()
             {
-                limit = PaginationParameters.LIMIT_MAX,
-                offset = 0,
+                min = fromTimeStamp,
+                isMinInclusive = false,
+                max = untilTimeStamp,
+                isMaxInclusive = true,
             };
 
             // - Get All Events -
-            bool isRequestCompleted = false;
-            while(!isRequestCompleted)
-            {
-                var modEventRequest = new ClientRequest<ResponseArray<ModEvent>>();
-                bool isDone = false;
-
-                API.Client.GetAllModEvents(modEventFilter,
-                                           modEventPagination,
-                                           (r) => ModManager.OnRequestSuccess(r, modEventRequest, out isDone),
-                                           (e) => ModManager.OnRequestError(e, modEventRequest, out isDone));
-
-                while(!isDone) { yield return null; }
-
-                if(modEventRequest.response != null)
-                {
-                    yield return ProcessModEvents(modEventRequest.response);
-
-                    if(modEventRequest.response.Count < modEventRequest.response.Limit)
-                    {
-                        isRequestCompleted = true;
-                    }
-                    else
-                    {
-                        modEventPagination.offset += modEventPagination.limit;
-                    }
-
-                }
-                else
-                {
-                    if(modEventRequest.error != null)
-                    {
-                        Debug.LogWarning(modEventRequest.error.ToUnityDebugString());
-                    }
-
-                    isRequestCompleted = true;
-                }
-            }
+            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => API.Client.GetAllModEvents(modEventFilter, p, s, e),
+                                                         onSuccess,
+                                                         onError);
         }
 
-        // OPTIMIZE(@jackson): Replace List with HashSet?
         // TODO(@jackson): Check updates against ModProfile dateUpdated
-        public static IEnumerator ProcessModEvents(IEnumerable<ModEvent> modEvents)
+        public static void ApplyModEventsToCache(IEnumerable<ModEvent> modEvents)
         {
             List<int> addedIds = new List<int>();
             List<int> editedIds = new List<int>();
@@ -318,12 +257,6 @@ namespace ModIO
             modsToFetch.AddRange(editedIds);
             modsToFetch.AddRange(modfileChangedIds);
 
-            // - Create Update Lists -
-            List<ModProfile> updatedProfiles = new List<ModProfile>(modsToFetch.Count);
-            List<ModProfile> addedProfiles = new List<ModProfile>(addedIds.Count);
-            List<ModProfile> editedProfiles = new List<ModProfile>(editedIds.Count);
-            List<ModfileStub> modfileChangedStubs = new List<ModfileStub>(modfileChangedIds.Count);
-
             if(modsToFetch.Count > 0)
             {
                 // - Filter & Pagination -
@@ -333,77 +266,64 @@ namespace ModIO
                 {
                     filterArray = modsToFetch.ToArray(),
                 };
-
-                PaginationParameters modsPagination = new PaginationParameters()
-                {
-                    limit = PaginationParameters.LIMIT_MAX,
-                    offset = 0,
-                };
-
                 // - Get Mods -
-                bool isRequestCompleted = false;
-                while(!isRequestCompleted)
+                Action<List<ModProfile>> onGetMods = (updatedProfiles) =>
                 {
-                    var modRequest = new ClientRequest<ResponseArray<ModProfile>>();
-                    bool isDone = false;
+                    // - Create Update Lists -
+                    List<ModProfile> addedProfiles = new List<ModProfile>(addedIds.Count);
+                    List<ModProfile> editedProfiles = new List<ModProfile>(editedIds.Count);
+                    List<ModfileStub> modfileChangedStubs = new List<ModfileStub>(modfileChangedIds.Count);
 
-                    API.Client.GetAllMods(modsFilter,
-                                          modsPagination,
-                                          (r) => ModManager.OnRequestSuccess(r, modRequest, out isDone),
-                                          (e) => ModManager.OnRequestError(e, modRequest, out isDone));
-
-                    while(!isDone) { yield return null; }
-
-                    if(modRequest.response != null)
+                    foreach(ModProfile profile in updatedProfiles)
                     {
-                        foreach(ModProfile profile in modRequest.response)
+                        int idIndex;
+                        // NOTE(@jackson): If added, ignore everything else
+                        if((idIndex = addedIds.IndexOf(profile.id)) >= 0)
                         {
-                            int idIndex;
-                            // NOTE(@jackson): If added, ignore everything else
-                            if((idIndex = addedIds.IndexOf(profile.id)) >= 0)
-                            {
-                                addedIds.RemoveAt(idIndex);
-                                addedProfiles.Add(profile);
-                            }
-                            else
-                            {
-                                if((idIndex = editedIds.IndexOf(profile.id)) >= 0)
-                                {
-                                    editedIds.RemoveAt(idIndex);
-                                    editedProfiles.Add(profile);
-                                }
-                                if((idIndex = modfileChangedIds.IndexOf(profile.id)) >= 0)
-                                {
-                                    modfileChangedIds.RemoveAt(idIndex);
-                                    modfileChangedStubs.Add(profile.currentRelease);
-                                }
-                            }
-
-                            updatedProfiles.Add(profile);
-                        }
-
-                        if(modRequest.response.Count < modRequest.response.Limit)
-                        {
-                            isRequestCompleted = true;
+                            addedIds.RemoveAt(idIndex);
+                            addedProfiles.Add(profile);
                         }
                         else
                         {
-                            modsPagination.offset += modsPagination.limit;
+                            if((idIndex = editedIds.IndexOf(profile.id)) >= 0)
+                            {
+                                editedIds.RemoveAt(idIndex);
+                                editedProfiles.Add(profile);
+                            }
+                            if((idIndex = modfileChangedIds.IndexOf(profile.id)) >= 0)
+                            {
+                                modfileChangedIds.RemoveAt(idIndex);
+                                modfileChangedStubs.Add(profile.currentRelease);
+                            }
                         }
                     }
-                    else
+
+                    // - Save changed to cache -
+                    CacheClient.SaveModProfiles(updatedProfiles);
+
+                    // --- Notifications ---
+                    if(ModManager.modsAvailable != null
+                       && addedProfiles.Count > 0)
                     {
-                        if(modRequest.error != null)
-                        {
-                            Debug.LogWarning(modRequest.error.ToUnityDebugString());
-                        }
-
-                        isRequestCompleted = true;
+                        ModManager.modsAvailable(addedProfiles);
                     }
-                }
 
-                // - Save changed to cache -
-                CacheClient.SaveModProfiles(updatedProfiles);
+                    if(ModManager.modsEdited != null
+                       && editedProfiles.Count > 0)
+                    {
+                        ModManager.modsEdited(editedProfiles);
+                    }
+
+                    if(ModManager.modReleasesUpdated != null
+                       && modfileChangedStubs.Count > 0)
+                    {
+                        ModManager.modReleasesUpdated(modfileChangedStubs);
+                    }
+                };
+
+                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(modsFilter, p, s, e),
+                                                               onGetMods,
+                                                               null);
             }
 
             // --- Process Removed ---
@@ -416,31 +336,52 @@ namespace ModIO
 
                 // TODO(@jackson): Remove from local array
                 // TODO(@jackson): Compare with subscriptions
+
+                if(ModManager.modsUnavailable != null)
+                {
+                    ModManager.modsUnavailable(removedIds);
+                }
+            }
+        }
+
+        private static void UpdateUserSubscriptions(List<ModProfile> userSubscriptions)
+        {
+            if(authUser == null) { return; }
+
+            List<int> addedMods = new List<int>();
+            List<int> removedMods = authUser.subscribedModIDs;
+            authUser.subscribedModIDs = new List<int>(userSubscriptions.Count);
+
+            foreach(ModProfile modProfile in userSubscriptions)
+            {
+                authUser.subscribedModIDs.Add(modProfile.id);
+
+                if(removedMods.Contains(modProfile.id))
+                {
+                    removedMods.Remove(modProfile.id);
+                }
+                else
+                {
+                    addedMods.Add(modProfile.id);
+                }
             }
 
-            // --- Notifications ---
-            if(ModManager.modsAvailable != null
-               && addedProfiles.Count > 0)
-            {
-                ModManager.modsAvailable(addedProfiles);
-            }
+            WriteUserDataToDisk();
 
-            if(ModManager.modsEdited != null
-               && editedProfiles.Count > 0)
+            // - Notify -
+            if(OnModSubscriptionAdded != null)
             {
-                ModManager.modsEdited(editedProfiles);
+                foreach(int modId in addedMods)
+                {
+                    OnModSubscriptionAdded(modId);
+                }
             }
-
-            if(ModManager.modReleasesUpdated != null
-               && modfileChangedStubs.Count > 0)
+            if(OnModSubscriptionRemoved != null)
             {
-                ModManager.modReleasesUpdated(modfileChangedStubs);
-            }
-
-            if(ModManager.modsUnavailable != null
-               && removedIds.Count > 0)
-            {
-                ModManager.modsUnavailable(removedIds);
+                foreach(int modId in removedMods)
+                {
+                    OnModSubscriptionRemoved(modId);
+                }
             }
         }
 
@@ -491,9 +432,9 @@ namespace ModIO
                 userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
                      = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
-                FetchAllResultsForQuery<ModProfile>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
-                                                                                        p, s, e),
-                                                    UpdateUserSubscriptions,
+                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
+                                                                                                    p, s, e),
+                UpdateUserSubscriptions,
                                                     Client.LogError);
             };
 
