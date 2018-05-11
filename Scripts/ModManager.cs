@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 // NOTE(@jackson): Had a weird bug where Initialize authenticated with a user.id of 0?
 // TODO(@jackson): UISettings
-// TODO(@jackson): ModBrowser...
+// TODO(@jackson): ModManager...
 namespace ModIO
 {
     public delegate void GameProfileEventHandler(GameProfile profile);
@@ -23,6 +23,10 @@ namespace ModIO
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
     public delegate void ModLogoUpdatedEventHandler(int modId, LogoVersion version, Texture2D texture);
     public delegate void ModGalleryImageUpdatedEventHandler(int modId, string imageFileName, ModGalleryImageVersion version, Texture2D texture);
+
+    public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
+    public delegate void ModIdsEventHandler(IEnumerable<int> modIds);
+    public delegate void ModfileStubsEventHandler(IEnumerable<ModfileStub> modfiles);
 
     public enum ModBinaryStatus
     {
@@ -44,6 +48,12 @@ namespace ModIO
             public List<string> serializedImageCache = new List<string>();
         }
 
+        // ---------[ EVENTS ]---------
+        public static event ModProfilesEventHandler modsAvailable;
+        public static event ModProfilesEventHandler modsEdited;
+        public static event ModfileStubsEventHandler modReleasesUpdated;
+        public static event ModIdsEventHandler modsUnavailable;
+
         // ---------[ VARIABLES ]---------
         private static ManifestData manifest = null;
         private static AuthenticatedUser authUser = null;
@@ -54,6 +64,16 @@ namespace ModIO
 
         // --------- [ INITIALIZATION ]---------
         public static event GameProfileEventHandler gameProfileUpdated;
+
+        public static void AuthorizeClientUsingCachedUser()
+        {
+            AuthenticatedUser authUser = CacheManager.LoadAuthenticatedUser();
+
+            if(authUser != null)
+            {
+                API.Client.SetUserAuthorizationToken(authUser.oAuthToken);
+            }
+        }
 
         // TODO(@jackson): Defend everything
         private static void FetchAndRebuildEntireCache()
@@ -148,7 +168,33 @@ namespace ModIO
             isDone = true;
         }
 
-        // ---------[ AUTOMATED UPDATING ]---------
+        // ---------[ GAME ENDPOINTS ]---------
+        public static IEnumerator RequestGameProfile(ClientRequest<GameProfile> request)
+        {
+            bool isDone = false;
+
+            // - Attempt load from cache -
+            CacheManager.LoadGameProfile((r) => ModManager.OnSuccess(r, request, out isDone));
+
+            while(!isDone) { yield return null; }
+
+            if(request.response == null)
+            {
+                isDone = false;
+
+                API.Client.GetGame((r) => ModManager.OnSuccess(r, request, out isDone),
+                                   (e) => ModManager.OnError(e, request, out isDone));
+
+                while(!isDone) { yield return null; }
+
+                if(request.error == null)
+                {
+                    CacheManager.SaveGameProfile(request.response);
+                }
+            }
+        }
+
+        // ---------[ UPDATES ]---------
         private static void UpdateUserSubscriptions(List<ModProfile> userSubscriptions)
         {
             if(authUser == null) { return; }
@@ -187,6 +233,245 @@ namespace ModIO
                 {
                     OnModSubscriptionRemoved(modId);
                 }
+            }
+        }
+
+        public static IEnumerator FetchAndProcessAllEvents(int fromTimeStamp,
+                                                           int untilTimeStamp)
+        {
+            // - Mod Updates -
+            yield return ModManager.FetchAndProcessAllModEvents(fromTimeStamp,
+                                                                untilTimeStamp);
+        }
+
+        // TODO(@jackson): Sort dateAdded desc, save lastCacheUpdate as most recent event (re:errors, etc)
+        public static IEnumerator FetchAndProcessAllModEvents(int fromTimeStamp,
+                                                              int untilTimeStamp)
+        {
+            // - Filter & Pagination -
+            API.RequestFilter modEventFilter = new API.RequestFilter();
+            modEventFilter.sortFieldName = API.GetAllModEventsFilterFields.dateAdded;
+            modEventFilter.fieldFilters[API.GetAllModEventsFilterFields.dateAdded]
+                = new API.RangeFilter<int>()
+                {
+                    min = fromTimeStamp,
+                    isMinInclusive = false,
+                    max = untilTimeStamp,
+                    isMaxInclusive = true,
+                };
+
+            PaginationParameters modEventPagination = new PaginationParameters()
+            {
+                limit = PaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            // - Get All Events -
+            bool isRequestCompleted = false;
+            while(!isRequestCompleted)
+            {
+                var modEventRequest = new ClientRequest<ResponseArray<ModEvent>>();
+                bool isDone = false;
+
+                API.Client.GetAllModEvents(modEventFilter,
+                                           modEventPagination,
+                                           (r) => ModManager.OnSuccess(r, modEventRequest, out isDone),
+                                           (e) => ModManager.OnError(e, modEventRequest, out isDone));
+
+                while(!isDone) { yield return null; }
+
+                if(modEventRequest.response != null)
+                {
+                    yield return ProcessModEvents(modEventRequest.response);
+
+                    if(modEventRequest.response.Count < modEventRequest.response.Limit)
+                    {
+                        isRequestCompleted = true;
+                    }
+                    else
+                    {
+                        modEventPagination.offset += modEventPagination.limit;
+                    }
+
+                }
+                else
+                {
+                    if(modEventRequest.error != null)
+                    {
+                        Debug.LogWarning(modEventRequest.error.ToUnityDebugString());
+                    }
+
+                    isRequestCompleted = true;
+                }
+            }
+        }
+
+        // OPTIMIZE(@jackson): Replace List with HashSet?
+        // TODO(@jackson): Check updates against ModProfile dateUpdated
+        public static IEnumerator ProcessModEvents(IEnumerable<ModEvent> modEvents)
+        {
+            List<int> addedIds = new List<int>();
+            List<int> editedIds = new List<int>();
+            List<int> modfileChangedIds = new List<int>();
+            List<int> removedIds = new List<int>();
+
+            // Sort by event type
+            foreach(ModEvent modEvent in modEvents)
+            {
+                switch(modEvent.eventType)
+                {
+                    case ModEventType.ModAvailable:
+                    {
+                        addedIds.Add(modEvent.modId);
+                    }
+                    break;
+                    case ModEventType.ModEdited:
+                    {
+                        editedIds.Add(modEvent.modId);
+                    }
+                    break;
+                    case ModEventType.ModfileChanged:
+                    {
+                        modfileChangedIds.Add(modEvent.modId);
+                    }
+                    break;
+                    case ModEventType.ModUnavailable:
+                    {
+                        removedIds.Add(modEvent.modId);
+                    }
+                    break;
+                }
+            }
+
+            // --- Process Add/Edit/ModfileChanged ---
+            List<int> modsToFetch = new List<int>(addedIds.Count + editedIds.Count + modfileChangedIds.Count);
+            modsToFetch.AddRange(addedIds);
+            modsToFetch.AddRange(editedIds);
+            modsToFetch.AddRange(modfileChangedIds);
+
+            // - Create Update Lists -
+            List<ModProfile> updatedProfiles = new List<ModProfile>(modsToFetch.Count);
+            List<ModProfile> addedProfiles = new List<ModProfile>(addedIds.Count);
+            List<ModProfile> editedProfiles = new List<ModProfile>(editedIds.Count);
+            List<ModfileStub> modfileChangedStubs = new List<ModfileStub>(modfileChangedIds.Count);
+
+            if(modsToFetch.Count > 0)
+            {
+                // - Filter & Pagination -
+                API.RequestFilter modsFilter = new API.RequestFilter();
+                modsFilter.fieldFilters[API.GetAllModsFilterFields.id]
+                = new API.InArrayFilter<int>()
+                {
+                    filterArray = modsToFetch.ToArray(),
+                };
+
+                PaginationParameters modsPagination = new PaginationParameters()
+                {
+                    limit = PaginationParameters.LIMIT_MAX,
+                    offset = 0,
+                };
+
+                // - Get Mods -
+                bool isRequestCompleted = false;
+                while(!isRequestCompleted)
+                {
+                    var modRequest = new ClientRequest<ResponseArray<ModProfile>>();
+                    bool isDone = false;
+
+                    API.Client.GetAllMods(modsFilter,
+                                          modsPagination,
+                                          (r) => ModManager.OnSuccess(r, modRequest, out isDone),
+                                          (e) => ModManager.OnError(e, modRequest, out isDone));
+
+                    while(!isDone) { yield return null; }
+
+                    if(modRequest.response != null)
+                    {
+                        foreach(ModProfile profile in modRequest.response)
+                        {
+                            int idIndex;
+                            // NOTE(@jackson): If added, ignore everything else
+                            if((idIndex = addedIds.IndexOf(profile.id)) >= 0)
+                            {
+                                addedIds.RemoveAt(idIndex);
+                                addedProfiles.Add(profile);
+                            }
+                            else
+                            {
+                                if((idIndex = editedIds.IndexOf(profile.id)) >= 0)
+                                {
+                                    editedIds.RemoveAt(idIndex);
+                                    editedProfiles.Add(profile);
+                                }
+                                if((idIndex = modfileChangedIds.IndexOf(profile.id)) >= 0)
+                                {
+                                    modfileChangedIds.RemoveAt(idIndex);
+                                    modfileChangedStubs.Add(profile.currentRelease);
+                                }
+                            }
+
+                            updatedProfiles.Add(profile);
+                        }
+
+                        if(modRequest.response.Count < modRequest.response.Limit)
+                        {
+                            isRequestCompleted = true;
+                        }
+                        else
+                        {
+                            modsPagination.offset += modsPagination.limit;
+                        }
+                    }
+                    else
+                    {
+                        if(modRequest.error != null)
+                        {
+                            Debug.LogWarning(modRequest.error.ToUnityDebugString());
+                        }
+
+                        isRequestCompleted = true;
+                    }
+                }
+
+                // - Save changed to cache -
+                CacheManager.SaveModProfiles(updatedProfiles);
+            }
+
+            // --- Process Removed ---
+            if(removedIds.Count > 0)
+            {
+                foreach(int modId in removedIds)
+                {
+                    CacheManager.UncacheMod(modId);
+                }
+
+                // TODO(@jackson): Remove from local array
+                // TODO(@jackson): Compare with subscriptions
+            }
+
+            // --- Notifications ---
+            if(ModManager.modsAvailable != null
+               && addedProfiles.Count > 0)
+            {
+                ModManager.modsAvailable(addedProfiles);
+            }
+
+            if(ModManager.modsEdited != null
+               && editedProfiles.Count > 0)
+            {
+                ModManager.modsEdited(editedProfiles);
+            }
+
+            if(ModManager.modReleasesUpdated != null
+               && modfileChangedStubs.Count > 0)
+            {
+                ModManager.modReleasesUpdated(modfileChangedStubs);
+            }
+
+            if(ModManager.modsUnavailable != null
+               && removedIds.Count > 0)
+            {
+                ModManager.modsUnavailable(removedIds);
             }
         }
 
