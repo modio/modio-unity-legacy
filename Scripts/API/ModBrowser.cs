@@ -38,7 +38,7 @@ namespace ModIO
         public int lastCacheUpdate = -1;
 
         // --- File Paths ---
-        public static string manifestFilePath { get { return CacheManager.GetCacheDirectory() + "browser_manifest.data"; } }
+        public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
 
         // ---------[ INITIALIZATION ]---------
         protected bool _isInitialized = false;
@@ -54,7 +54,7 @@ namespace ModIO
         protected virtual IEnumerator InitializationCoroutine(Action onInitializedCallback)
         {
             // --- Load Manifest ---
-            ManifestData manifest = CacheManager.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
+            ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
             if(manifest != null)
             {
                 this.lastCacheUpdate = manifest.lastCacheUpdate;

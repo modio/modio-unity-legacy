@@ -58,7 +58,7 @@ namespace ModIO
         private static ManifestData manifest = null;
         private static AuthenticatedUser authUser = null;
 
-        private static string cacheDirectory    { get { return CacheManager.GetCacheDirectory(); } }
+        private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
         private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
         private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
 
@@ -67,7 +67,7 @@ namespace ModIO
 
         public static void AuthorizeClientUsingCachedUser()
         {
-            AuthenticatedUser authUser = CacheManager.LoadAuthenticatedUser();
+            AuthenticatedUser authUser = CacheClient.LoadAuthenticatedUser();
 
             if(authUser != null)
             {
@@ -81,7 +81,7 @@ namespace ModIO
         {
             Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
             {
-                CacheManager.SaveModProfiles(modProfiles);
+                CacheClient.SaveModProfiles(modProfiles);
 
                 if(onSuccess != null)
                 {
@@ -114,7 +114,7 @@ namespace ModIO
             bool isDone = false;
 
             // - Attempt load from cache -
-            CacheManager.LoadGameProfile((r) => ModManager.OnRequestSuccess(r, request, out isDone));
+            CacheClient.LoadGameProfile((r) => ModManager.OnRequestSuccess(r, request, out isDone));
 
             while(!isDone) { yield return null; }
 
@@ -129,7 +129,7 @@ namespace ModIO
 
                 if(request.error == null)
                 {
-                    CacheManager.SaveGameProfile(request.response);
+                    CacheClient.SaveGameProfile(request.response);
                 }
             }
         }
@@ -140,7 +140,7 @@ namespace ModIO
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            CacheManager.LoadModProfile(modId,
+            CacheClient.LoadModProfile(modId,
                                         (cachedProfile) =>
             {
                 if(cachedProfile != null)
@@ -152,7 +152,7 @@ namespace ModIO
                     // - Fetch from Server -
                     Action<ModProfile> onGetMod = (profile) =>
                     {
-                        CacheManager.SaveModProfile(profile);
+                        CacheClient.SaveModProfile(profile);
                         if(onSuccess != null) { onSuccess(profile); }
                     };
 
@@ -403,7 +403,7 @@ namespace ModIO
                 }
 
                 // - Save changed to cache -
-                CacheManager.SaveModProfiles(updatedProfiles);
+                CacheClient.SaveModProfiles(updatedProfiles);
             }
 
             // --- Process Removed ---
@@ -411,7 +411,7 @@ namespace ModIO
             {
                 foreach(int modId in removedIds)
                 {
-                    CacheManager.UncacheMod(modId);
+                    CacheClient.UncacheMod(modId);
                 }
 
                 // TODO(@jackson): Remove from local array
@@ -596,7 +596,7 @@ namespace ModIO
 
         public static IEnumerable<ModProfile> GetAllModProfiles()
         {
-            // return CacheManager.LoadAllModProfiles();
+            // return CacheClient.LoadAllModProfiles();
             return new List<ModProfile>();
         }
 
@@ -712,7 +712,7 @@ namespace ModIO
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
         {
-            CacheManager.LoadModLogo(profile.id, version,
+            CacheClient.LoadModLogo(profile.id, version,
                                      (logoTexture) =>
             {
                 if(logoTexture != null)
@@ -725,7 +725,7 @@ namespace ModIO
                     download.sourceURL = profile.logoLocator.GetVersionURL(version);
                     download.OnCompleted += (d) =>
                     {
-                        CacheManager.SaveModLogo(profile.id, version, download.texture);
+                        CacheClient.SaveModLogo(profile.id, version, download.texture);
                         onSuccess(download.texture);
                     };
                     download.OnFailed += (d,e) => onError(e);
@@ -749,6 +749,39 @@ namespace ModIO
             {
                 yield return null;
             }
+        }
+
+
+        public static void GetModGalleryImage(ModProfile profile,
+                                              string imageFileName,
+                                              ModGalleryImageVersion version,
+                                              Action<Texture2D> onSuccess,
+                                              Action<WebRequestError> onError)
+        {
+            CacheClient.LoadModGalleryImage(profile.id,
+                                            imageFileName,
+                                            version,
+                                            (cachedImageTexture) =>
+            {
+                if(cachedImageTexture != null)
+                {
+                    if(onSuccess != null) { onSuccess(cachedImageTexture); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    var download = new TextureDownload();
+                    download.sourceURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
+                    download.OnCompleted += (d) =>
+                    {
+                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, download.texture);
+                        if(onSuccess != null) { onSuccess(download.texture); }
+                    };
+                    download.OnFailed += (d,e) => onError(e);
+
+                    DownloadManager.StartDownload(download);
+                }
+            });
         }
 
 
@@ -991,7 +1024,6 @@ namespace ModIO
             ModManager.GetModProfile(modId,
                                      submitChanges,
                                      modSubmissionFailed);
-
         }
 
         private static void SubmitModProfileComponents(ModProfile profile,
@@ -1256,14 +1288,14 @@ namespace ModIO
                                     result => onSuccess(APIMessage.CreateFromMessageObject(result)),
                                     onError);
         }
-
-        public delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
+        // ---------[ FETCH ALL RESULTS ]---------
+        private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
                                                     Action<ResponseArray<T>> onSuccess,
                                                     Action<WebRequestError> onError);
 
-        public static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
-                                                      Action<List<T>> onSuccess,
-                                                      Action<WebRequestError> onError)
+        private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
+                                                       Action<List<T>> onSuccess,
+                                                       Action<WebRequestError> onError)
         {
             var pagination = new PaginationParameters()
             {
@@ -1328,11 +1360,11 @@ namespace ModIO
 
         // public static void InitializeUsingDirectory(string cacheDirectory)
         // {
-        //     CacheManager.cacheDirectory = cacheDirectory;
+        //     CacheClient.cacheDirectory = cacheDirectory;
 
-        //     if (!Directory.Exists(CacheManager.cacheDirectory))
+        //     if (!Directory.Exists(CacheClient.cacheDirectory))
         //     {
-        //         Directory.CreateDirectory(CacheManager.cacheDirectory);
+        //         Directory.CreateDirectory(CacheClient.cacheDirectory);
         //     }
 
         //     if(File.Exists(cacheDirectory + "manifest.data"))
@@ -1341,7 +1373,7 @@ namespace ModIO
         //         try
         //         {
         //             Manifest m = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestFilePath));
-        //             CacheManager._lastUpdate = m.lastUpdateTimeStamp;
+        //             CacheClient._lastUpdate = m.lastUpdateTimeStamp;
         //         }
         //         catch(Exception e)
         //         {

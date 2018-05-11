@@ -118,13 +118,13 @@ namespace ModIO
                     {
                         this.textureCache[imageFileName] = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
-                        CacheManager.GetModGalleryImage(baseProfile,
-                                                        imageFileName,
-                                                        IMAGE_PREVIEW_VERSION,
-                                                        (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
-                                                        null);
+                        ModManager.GetModGalleryImage(baseProfile,
+                                                      imageFileName,
+                                                      IMAGE_PREVIEW_VERSION,
+                                                      (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
+                                                      null);
                     }
-                    
+
                 }
             }
 
@@ -277,12 +277,12 @@ namespace ModIO
             else if(profile != null)
             {
                 this.textureCache.Add(imageFileName, UISettings.Instance.DownloadingPlaceholderImages.modLogo);
-                
-                CacheManager.GetModGalleryImage(profile,
-                                                imageFileName,
-                                                IMAGE_PREVIEW_VERSION,
-                                                (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
-                                                null);
+
+                ModManager.GetModGalleryImage(profile,
+                                              imageFileName,
+                                              IMAGE_PREVIEW_VERSION,
+                                              (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
+                                              null);
                 return this.textureCache[imageFileName];
             }
 

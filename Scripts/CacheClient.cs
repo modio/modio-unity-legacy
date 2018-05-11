@@ -12,16 +12,7 @@ using ModIO.API;
 
 namespace ModIO
 {
-    // TODO(@jackson): Remove after writing own store/load code
-    [System.Serializable]
-    public struct ResourceLocationMapping
-    {
-        public string[] urls;
-        public string[] filePaths;
-    }
-
-    // TODO(@jackson): -> CacheClient
-    public static class CacheManager
+    public static class CacheClient
     {
         // ---------[ MEMBERS ]---------
         private static string _cacheDirectory = null;
@@ -29,7 +20,7 @@ namespace ModIO
         // ---------[ INITIALIZATION ]---------
         // TODO(@jackson): Sort Initialization interface/timing
         // public static void Initialize()
-        static CacheManager()
+        static CacheClient()
         {
             string dir;
             #pragma warning disable 0162
@@ -66,12 +57,12 @@ namespace ModIO
                 return false;
             }
 
-            CacheManager._cacheDirectory = directory;
+            CacheClient._cacheDirectory = directory;
             return true;
         }
         public static string GetCacheDirectory()
         {
-            return CacheManager._cacheDirectory;
+            return CacheClient._cacheDirectory;
         }
 
         // ---------[ BASIC FILE I/O ]---------
@@ -191,17 +182,17 @@ namespace ModIO
 
         // ---------[ USER MANAGEMENT ]---------
         public static string userFilePath
-        { get { return CacheManager._cacheDirectory + "user.data"; } }
+        { get { return CacheClient._cacheDirectory + "user.data"; } }
 
         public static void StoreAuthenticatedUser(AuthenticatedUser user)
         {
-            CacheManager.WriteJsonObjectFile(userFilePath, user);
+            CacheClient.WriteJsonObjectFile(userFilePath, user);
         }
 
         public static AuthenticatedUser LoadAuthenticatedUser()
         {
             AuthenticatedUser user
-            = CacheManager.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+            = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
             return user;
         }
 
@@ -222,23 +213,23 @@ namespace ModIO
 
         // ---------[ GAME PROFILE ]---------
         public static string gameProfileFilePath
-        { get { return CacheManager._cacheDirectory + "game_profile.data"; } }
+        { get { return CacheClient._cacheDirectory + "game_profile.data"; } }
 
         public static void LoadGameProfile(Action<GameProfile> callback)
         {
-            GameProfile profile = CacheManager.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
+            GameProfile profile = CacheClient.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
             callback(profile);
         }
 
         public static void SaveGameProfile(GameProfile profile)
         {
-            CacheManager.WriteJsonObjectFile(gameProfileFilePath, profile);
+            CacheClient.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
         // ---------[ MOD PROFILES ]---------
         public static string GenerateModProfileFilePath(int modId)
         {
-            return (CacheManager._cacheDirectory
+            return (CacheClient._cacheDirectory
                     + "mod_profiles/"
                     + modId + ".data");
         }
@@ -247,13 +238,13 @@ namespace ModIO
                                           Action<ModProfile> callback)
         {
             string profileFilePath = GenerateModProfileFilePath(modId);
-            ModProfile profile = CacheManager.ReadJsonObjectFile<ModProfile>(profileFilePath);
+            ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(profileFilePath);
             callback(profile);
         }
 
         public static IEnumerable<ModProfile> LoadAllModProfiles()
         {
-            string profileDirectory = CacheManager._cacheDirectory + "mod_profiles/";
+            string profileDirectory = CacheClient._cacheDirectory + "mod_profiles/";
 
             if(Directory.Exists(profileDirectory))
             {
@@ -275,7 +266,7 @@ namespace ModIO
 
                 foreach(string filePath in profilePaths)
                 {
-                    ModProfile profile = CacheManager.ReadJsonObjectFile<ModProfile>(filePath);
+                    ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(filePath);
                     if(profile != null)
                     {
                         yield return profile;
@@ -289,7 +280,7 @@ namespace ModIO
             Debug.Assert(profile.id > 0,
                          "[mod.io] Cannot cache a mod without a mod id");
 
-            CacheManager.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id),
+            CacheClient.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id),
                                              profile);
         }
 
@@ -297,14 +288,14 @@ namespace ModIO
         {
             foreach(ModProfile profile in modProfiles)
             {
-                CacheManager.SaveModProfile(profile);
+                CacheClient.SaveModProfile(profile);
             }
         }
 
         // ---------[ IMAGE MANAGEMENT ]---------
         public static string GenerateModLogoDirectoryPath(int modId)
         {
-            return(CacheManager._cacheDirectory
+            return(CacheClient._cacheDirectory
                     + "mod_logos/"
                     + modId + "/");
         }
@@ -334,135 +325,49 @@ namespace ModIO
         public static void LoadModLogo(int modId, LogoVersion version,
                                        Action<Texture2D> callback)
         {
-            string logoFilePath = CacheManager.GenerateModLogoFilePath(modId, version);
-            Texture2D logoTexture = CacheManager.ReadImageFile(logoFilePath);
+            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, version);
+            Texture2D logoTexture = CacheClient.ReadImageFile(logoFilePath);
             callback(logoTexture);
         }
 
         public static void SaveModLogo(int modId, LogoVersion version,
                                        Texture2D logoTexture)
         {
-            string logoFilePath = CacheManager.GenerateModLogoFilePath(modId, version);
-            CacheManager.WriteImageFile(logoFilePath, logoTexture);
+            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, version);
+            CacheClient.WriteImageFile(logoFilePath, logoTexture);
         }
 
-        public static void GetModGalleryImage(ModProfile profile,
-                                              string imageFileName,
-                                              ModGalleryImageVersion version,
-                                              Action<Texture2D> onSuccess,
-                                              Action<WebRequestError> onError)
+        public static void LoadModGalleryImage(int modId,
+                                               string imageFileName,
+                                               ModGalleryImageVersion version,
+                                               Action<Texture2D> callback)
         {
-            int modId = profile.id;
+            string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
+                                                                               imageFileName,
+                                                                               version);
+            Texture2D imageTexture = CacheClient.ReadImageFile(imageFilePath);
 
-            // - Attempt load from cache -
-            string imageFilePath = CacheManager.GenerateModGalleryImageFilePath(modId,
-                                                                                imageFileName,
-                                                                                version);
-            Texture2D imageTexture = CacheManager.ReadImageFile(imageFilePath);
-
-            if(imageTexture != null)
-            {
-                onSuccess(imageTexture);
-            }
-            else
-            {
-                // - Fetch from Server -
-                // GetModProfile(modId)
-                DownloadAndSaveImageAsPNG(profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version),
-                                          imageFilePath,
-                                          onSuccess,
-                                          onError);
-            }
+            callback(imageTexture);
         }
 
-        // ---------[ FILE DOWNLOADING ]---------
-        public static void DownloadAndSaveImageAsPNG(string serverURL,
-                                                     string destinationFilePath,
-                                                     Action<Texture2D> onSuccess,
-                                                     Action<WebRequestError> onError)
+        public static void SaveModGalleryImage(int modId,
+                                               string imageFileName,
+                                               ModGalleryImageVersion version,
+                                               Texture2D imageTexture)
         {
-            var download = new TextureDownload();
-
-            download.sourceURL = serverURL;
-            download.OnCompleted += (d) =>
-            {
-                CacheManager.WriteImageFile(destinationFilePath,
-                                            download.texture);
-                onSuccess(download.texture);
-            };
-            download.OnFailed += (d, e) =>
-            {
-                onError(e);
-            };
-
-            DownloadManager.StartDownload(download);
+            string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
+                                                                               imageFileName,
+                                                                               version);
+            CacheClient.WriteImageFile(imageFilePath, imageTexture);
         }
 
         // ---------[ UNCACHING ]---------
         public static void UncacheMod(int modId)
         {
-            CacheManager.DeleteFile(GenerateModProfileFilePath(modId));
-            CacheManager.DeleteDirectory(GenerateModLogoDirectoryPath(modId));
-            CacheManager.DeleteDirectory(GenerateModGalleryImageDirectoryPath(modId));
+            CacheClient.DeleteFile(GenerateModProfileFilePath(modId));
+            CacheClient.DeleteDirectory(GenerateModLogoDirectoryPath(modId));
+            CacheClient.DeleteDirectory(GenerateModGalleryImageDirectoryPath(modId));
             // TODO(@jackson): Remove Binary
-        }
-
-
-        // ---------[ FETCH ALL RESULTS ]---------
-        private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
-                                                    Action<ResponseArray<T>> onSuccess,
-                                                    Action<WebRequestError> onError);
-
-        private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
-                                                       Action<List<T>> onSuccess,
-                                                       Action<WebRequestError> onError)
-        {
-            var pagination = new PaginationParameters()
-            {
-                limit = PaginationParameters.LIMIT_MAX,
-                offset = 0,
-            };
-
-            var results = new List<T>();
-
-            query(pagination,
-                  (r) => FetchQueryResultsRecursively(query,
-                                                      r,
-                                                      pagination,
-                                                      results,
-                                                      onSuccess,
-                                                      onError),
-                  onError);
-        }
-
-        private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
-                                                            ResponseArray<T> queryResult,
-                                                            PaginationParameters pagination,
-                                                            List<T> culmativeResults,
-                                                            Action<List<T>> onSuccess,
-                                                            Action<WebRequestError> onError)
-        {
-            Debug.Assert(pagination.limit > 0);
-
-            culmativeResults.AddRange(queryResult.Items);
-
-            if(queryResult.Count < queryResult.Limit)
-            {
-                onSuccess(culmativeResults);
-            }
-            else
-            {
-                pagination.offset += pagination.limit;
-
-                query(pagination,
-                      (r) => FetchQueryResultsRecursively(query,
-                                                          queryResult,
-                                                          pagination,
-                                                          culmativeResults,
-                                                          onSuccess,
-                                                          onError),
-                      onError);
-            }
         }
     }
 }
