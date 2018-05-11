@@ -76,93 +76,33 @@ namespace ModIO
         }
 
         // TODO(@jackson): Defend everything
-        private static void FetchAndRebuildEntireCache()
+        private static void FetchAndRebuildEntireCache(Action onSuccess,
+                                                       Action<WebRequestError> onError)
         {
             Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
             {
-                ApplyModProfilesToCache(modProfiles);
+                CacheManager.SaveModProfiles(modProfiles);
 
-                manifest.lastUpdateTimeStamp = ServerTimeStamp.Now;
-                WriteManifestToDisk();
-
-                foreach(var modProfile in modProfiles)
+                if(onSuccess != null)
                 {
-                    int modId = modProfile.id;
-                    FetchAllResultsForQuery<TeamMemberObject>((p,s,e) => Client.GetAllModTeamMembers(modId, RequestFilter.None, p,s,e),
-                                                              (r) => ApplyTeamMemberObjectsToCache(modId, r),
-                                                              Client.LogError);
+                    onSuccess();
                 }
             };
 
             FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
-                                               onModProfilesReceived,
-                                               Client.LogError);
+                                                onModProfilesReceived,
+                                                onError);
+
+            // TODO(@jackson): Other bits
         }
-
-        private static void ApplyModProfilesToCache(List<ModProfile> modProfiles)
-        {
-            // TODO(@jackson): Implement mod is unavailable
-            // TODO(@jackson): Check for modfile change
-
-            var addedMods = new List<ModProfile>();
-            var updatedMods = new List<ModProfile>();
-            foreach(ModProfile modProfile in modProfiles)
-            {
-                ModProfile profile;
-                if(modCache.TryGetValue(modProfile.id, out profile))
-                {
-                    updatedMods.Add(profile);
-                }
-                else
-                {
-                    profile = new ModProfile();
-                    addedMods.Add(profile);
-                }
-
-                StoreModData(profile);
-            }
-
-            if(OnModAdded != null)
-            {
-                foreach(ModProfile profile in addedMods)
-                {
-                    OnModAdded(profile);
-                }
-            }
-
-            if(OnModUpdated != null)
-            {
-                foreach(ModProfile profile in updatedMods)
-                {
-                    OnModUpdated(profile.id);
-                }
-            }
-        }
-
-        private static void ApplyTeamMemberObjectsToCache(int modId, List<TeamMemberObject> teamMemberObjects)
-        {
-            // TODO(@jackson): Reimplement in CacheManager
-
-            // Action<ModProfile> onGetProfile = (p) =>
-            // {
-            //     p.ApplyTeamMemberObjectValues(teamMemberObjects.ToArray());
-            //     StoreModData(profile);
-            // };
-
-            // CacheManager.GetModProfile(modId,
-            //                            onGetProfile);
-
-            // TODO(@jackson): Notify
-        }
-
 
         // ---------[ COROUTINE HELPERS ]---------
-        private static void OnSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
+        private static void OnRequestSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
         {
             request.response = response;
             isDone = true;
         }
-        private static void OnError<T>(WebRequestError error, ClientRequest<T> request, out bool isDone)
+        private static void OnRequestError<T>(WebRequestError error, ClientRequest<T> request, out bool isDone)
         {
             request.error = error;
             isDone = true;
@@ -174,7 +114,7 @@ namespace ModIO
             bool isDone = false;
 
             // - Attempt load from cache -
-            CacheManager.LoadGameProfile((r) => ModManager.OnSuccess(r, request, out isDone));
+            CacheManager.LoadGameProfile((r) => ModManager.OnRequestSuccess(r, request, out isDone));
 
             while(!isDone) { yield return null; }
 
@@ -182,8 +122,8 @@ namespace ModIO
             {
                 isDone = false;
 
-                API.Client.GetGame((r) => ModManager.OnSuccess(r, request, out isDone),
-                                   (e) => ModManager.OnError(e, request, out isDone));
+                API.Client.GetGame((r) => ModManager.OnRequestSuccess(r, request, out isDone),
+                                   (e) => ModManager.OnRequestError(e, request, out isDone));
 
                 while(!isDone) { yield return null; }
 
@@ -275,8 +215,8 @@ namespace ModIO
 
                 API.Client.GetAllModEvents(modEventFilter,
                                            modEventPagination,
-                                           (r) => ModManager.OnSuccess(r, modEventRequest, out isDone),
-                                           (e) => ModManager.OnError(e, modEventRequest, out isDone));
+                                           (r) => ModManager.OnRequestSuccess(r, modEventRequest, out isDone),
+                                           (e) => ModManager.OnRequestError(e, modEventRequest, out isDone));
 
                 while(!isDone) { yield return null; }
 
@@ -380,8 +320,8 @@ namespace ModIO
 
                     API.Client.GetAllMods(modsFilter,
                                           modsPagination,
-                                          (r) => ModManager.OnSuccess(r, modRequest, out isDone),
-                                          (e) => ModManager.OnError(e, modRequest, out isDone));
+                                          (r) => ModManager.OnRequestSuccess(r, modRequest, out isDone),
+                                          (e) => ModManager.OnRequestError(e, modRequest, out isDone));
 
                     while(!isDone) { yield return null; }
 
@@ -773,8 +713,8 @@ namespace ModIO
             bool isDone = false;
 
             ModManager.GetModLogo(profile, version,
-                                  (r) => ModManager.OnSuccess(r, logoRequest, out isDone),
-                                  (e) => ModManager.OnError(e, logoRequest, out isDone));
+                                  (r) => ModManager.OnRequestSuccess(r, logoRequest, out isDone),
+                                  (e) => ModManager.OnRequestError(e, logoRequest, out isDone));
 
             while(!isDone)
             {
@@ -1264,7 +1204,7 @@ namespace ModIO
         //                                     Action<WebRequestError> onError)
         // {
         //     Client.AddModTeamMember(modId, teamMember.AsAddModTeamMemberParameters(),
-        //                             result => OnSuccessWrapper(result, onSuccess),
+        //                             result => OnRequestSuccessWrapper(result, onSuccess),
         //                             onError);
         // }
 
@@ -1349,7 +1289,7 @@ namespace ModIO
         //                                         Action<WebRequestError> onError)
         // {
         //     Client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
-        //                                    result => OnSuccessWrapper(result, onSuccess),
+        //                                    result => OnRequestSuccessWrapper(result, onSuccess),
         //                                    onError);
         // }
     }

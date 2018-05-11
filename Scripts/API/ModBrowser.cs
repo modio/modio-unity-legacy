@@ -93,18 +93,6 @@ namespace ModIO
 
         protected virtual void OnDisable() {}
 
-        // ---------[ COROUTINE HELPERS ]---------
-        private static void OnSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
-        {
-            request.response = response;
-            isDone = true;
-        }
-        private static void OnError<T>(WebRequestError error, ClientRequest<T> request, out bool isDone)
-        {
-            request.error = error;
-            isDone = true;
-        }
-
         // ---------[ UPDATES ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 2f;
         private Coroutine updatedRoutine = null;
