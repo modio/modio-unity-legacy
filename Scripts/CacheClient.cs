@@ -477,6 +477,63 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(filePath, modTeam);
         }
 
+        // ---------[ USERS ]---------
+        public static string GenerateUserProfileFilePath(int userId)
+        {
+            return(CacheClient.GetCacheDirectory()
+                   + "users/"
+                   + userId + ".data");
+        }
+
+        public static void LoadUserProfile(int userId,
+                                           Action<UserProfileStub> callback)
+        {
+            string filePath = CacheClient.GenerateUserProfileFilePath(userId);
+            var userProfile = CacheClient.ReadJsonObjectFile<UserProfile>(filePath);
+            callback(userProfile);
+        }
+
+        public static IEnumerable<UserProfileStub> IterateAllUserProfiles()
+        {
+            string profileDirectory = CacheClient.GetCacheDirectory() + "users/";
+
+            if(Directory.Exists(profileDirectory))
+            {
+                string[] userFiles;
+                try
+                {
+                    userFiles = Directory.GetFiles(profileDirectory);
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to read user profile directory."
+                                          + "\nDirectory: " + profileDirectory + "\n");
+
+                    Utility.LogExceptionAsWarning(warningInfo, e);
+
+                    userFiles = new string[0];
+                }
+
+                foreach(string profileFilePath in userFiles)
+                {
+                    var profile = CacheClient.ReadJsonObjectFile<UserProfileStub>(profileFilePath);
+                    if(profile != null)
+                    {
+                        yield return profile;
+                    }
+                }
+            }
+        }
+
+        public static void SaveUserProfile(UserProfileStub userProfile)
+        {
+            Debug.Assert(userProfile.id > 0,
+                         "[mod.io] Cannot cache a user profile without a user id");
+
+            string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
+            CacheClient.WriteJsonObjectFile(filePath, userProfile);
+        }
+
         // ---------[ UNCACHING ]---------
         public static void DeleteMod(int modId)
         {

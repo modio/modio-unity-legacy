@@ -1086,6 +1086,7 @@ namespace ModIO
 
 
         // ---------[ USER ENDPOINTS ]---------
+        // TODO(@jackson): Fix up?
         // Get Resource Owner
         public enum ResourceType
         {
