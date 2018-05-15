@@ -215,6 +215,7 @@ namespace ModIO
             }
         }
 
+
         // ---------[ USER MANAGEMENT ]---------
         public static string userFilePath
         { get { return CacheClient._cacheDirectory + "user.data"; } }
@@ -231,7 +232,7 @@ namespace ModIO
             callback(user);
         }
 
-        public static void ClearAuthenticatedUser()
+        public static void DeleteAuthenticatedUser()
         {
             try
             {
@@ -245,6 +246,7 @@ namespace ModIO
                 Utility.LogExceptionAsWarning(warningInfo, e);
             }
         }
+
 
         // ---------[ GAME PROFILE ]---------
         public static string gameProfileFilePath
@@ -326,6 +328,12 @@ namespace ModIO
             }
         }
 
+        public static void DeleteMod(int modId)
+        {
+            string modDir = CacheClient.GenerateModDirectoryPath(modId);
+            CacheClient.DeleteDirectory(modDir);
+        }
+
         // ---------[ MODFILES ]---------
         public static string GenerateModfileFilePath(int modId, int modfileId)
         {
@@ -377,6 +385,12 @@ namespace ModIO
 
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
             CacheClient.WriteBinaryFile(filePath, modBinary);
+        }
+
+        public static void DeleteModfileAndBinaryZip(int modId, int modfileId)
+        {
+            CacheClient.DeleteFile(CacheClient.GenerateModfileFilePath(modId, modfileId));
+            CacheClient.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId));
         }
 
         // ---------[ MOD MEDIA ]---------
@@ -477,6 +491,11 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(filePath, modTeam);
         }
 
+        public static void DeleteModTeam(int modId)
+        {
+            CacheClient.DeleteFile(CacheClient.GenerateModTeamFilePath(modId));
+        }
+
         // ---------[ USERS ]---------
         public static string GenerateUserProfileFilePath(int userId)
         {
@@ -534,11 +553,9 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(filePath, userProfile);
         }
 
-        // ---------[ UNCACHING ]---------
-        public static void DeleteMod(int modId)
+        public static void DeleteUserProfile(int userId)
         {
-            string modDir = CacheClient.GenerateModDirectoryPath(modId);
-            CacheClient.DeleteDirectory(modDir);
+            CacheClient.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
         }
     }
 }
