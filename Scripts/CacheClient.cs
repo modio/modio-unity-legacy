@@ -379,7 +379,7 @@ namespace ModIO
             CacheClient.WriteBinaryFile(filePath, modBinary);
         }
 
-        // ---------[ IMAGE MANAGEMENT ]---------
+        // ---------[ MOD MEDIA ]---------
         public static string GenerateModLogoDirectoryPath(int modId)
         {
             return(CacheClient.GenerateModDirectoryPath(modId)
@@ -450,6 +450,31 @@ namespace ModIO
                                                                                imageFileName,
                                                                                version);
             CacheClient.WriteImageFile(imageFilePath, imageTexture);
+        }
+
+        // ---------[ MOD TEAM ]---------
+        public static string GenerateModTeamFilePath(int modId)
+        {
+            return(CacheClient.GenerateModDirectoryPath(modId)
+                   + "team.data");
+        }
+
+        public static void LoadModTeam(int modId,
+                                       Action<List<ModTeamMember>> callback)
+        {
+            string filePath = CacheClient.GenerateModTeamFilePath(modId);
+            var modTeam = CacheClient.ReadJsonObjectFile<List<ModTeamMember>>(filePath);
+            callback(modTeam);
+        }
+
+        public static void SaveModTeam(int modId,
+                                       List<ModTeamMember> modTeam)
+        {
+            Debug.Assert(modId > 0,
+                         "[mod.io] Cannot cache a mod team without a mod id");
+
+            string filePath = CacheClient.GenerateModTeamFilePath(modId);
+            CacheClient.WriteJsonObjectFile(filePath, modTeam);
         }
 
         // ---------[ UNCACHING ]---------

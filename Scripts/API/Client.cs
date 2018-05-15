@@ -995,7 +995,7 @@ namespace ModIO
         // Get All Mod Team Members
         public static void GetAllModTeamMembers(int modId,
                                                 RequestFilter filter, PaginationParameters pagination,
-                                                Action<ResponseArray<TeamMemberObject>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<ResponseArray<ModTeamMember>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
 
