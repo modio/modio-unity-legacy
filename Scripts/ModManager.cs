@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 // NOTE(@jackson): Had a weird bug where Initialize authenticated with a user.id of 0?
 // TODO(@jackson): UISettings
-// TODO(@jackson): ModManager...
+// TODO(@jackson): ErrorWrapper to handle specific error codes
 namespace ModIO
 {
     public delegate void GameProfileEventHandler(GameProfile profile);
@@ -61,40 +61,6 @@ namespace ModIO
         private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
         private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
         private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
-
-        // --------- [ INITIALIZATION ]---------
-        public static event GameProfileEventHandler gameProfileUpdated;
-
-        public static void AuthorizeClientUsingCachedUser()
-        {
-            AuthenticatedUser authUser = CacheClient.LoadAuthenticatedUser();
-
-            if(authUser != null)
-            {
-                API.Client.SetUserAuthorizationToken(authUser.oAuthToken);
-            }
-        }
-
-        // TODO(@jackson): Defend everything
-        private static void FetchAndRebuildEntireCache(Action onSuccess,
-                                                       Action<WebRequestError> onError)
-        {
-            Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
-            {
-                CacheClient.SaveModProfiles(modProfiles);
-
-                if(onSuccess != null)
-                {
-                    onSuccess();
-                }
-            };
-
-            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
-                                                           onModProfilesReceived,
-                                                           onError);
-
-            // TODO(@jackson): Other bits
-        }
 
         // ---------[ COROUTINE HELPERS ]---------
         private static void OnRequestSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
@@ -161,6 +127,26 @@ namespace ModIO
                                   onError);
                 }
             });
+        }
+
+        // TODO(@jackson): Defend everything
+        private static void FetchAndRebuildEntireCache(Action onSuccess,
+                                                       Action<WebRequestError> onError)
+        {
+            Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
+            {
+                CacheClient.SaveModProfiles(modProfiles);
+
+                if(onSuccess != null)
+                {
+                    onSuccess();
+                }
+            };
+
+            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
+                                                           onModProfilesReceived,
+                                                           onError);
+            // TODO(@jackson): Other bits
         }
 
         // ---------[ UPDATES ]---------
@@ -334,7 +320,6 @@ namespace ModIO
                     CacheClient.UncacheMod(modId);
                 }
 
-                // TODO(@jackson): Remove from local array
                 // TODO(@jackson): Compare with subscriptions
 
                 if(ModManager.modsUnavailable != null)

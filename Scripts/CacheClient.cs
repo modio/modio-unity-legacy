@@ -184,16 +184,16 @@ namespace ModIO
         public static string userFilePath
         { get { return CacheClient._cacheDirectory + "user.data"; } }
 
-        public static void StoreAuthenticatedUser(AuthenticatedUser user)
+        public static void SaveAuthenticatedUser(AuthenticatedUser user)
         {
             CacheClient.WriteJsonObjectFile(userFilePath, user);
         }
 
-        public static AuthenticatedUser LoadAuthenticatedUser()
+        public static void LoadAuthenticatedUser(Action<AuthenticatedUser> callback)
         {
             AuthenticatedUser user
             = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
-            return user;
+            callback(user);
         }
 
         public static void ClearAuthenticatedUser()

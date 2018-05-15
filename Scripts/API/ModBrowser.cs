@@ -46,9 +46,16 @@ namespace ModIO
         protected virtual void Start()
         {
             API.Client.SetGameDetails(gameId, gameKey);
-            ModManager.AuthorizeClientUsingCachedUser();
+            CacheClient.LoadAuthenticatedUser((au) =>
+            {
+                if(au != null)
+                {
+                    authUser = au;
+                    API.Client.SetUserAuthorizationToken(au.oAuthToken);
+                }
 
-            StartCoroutine(InitializationCoroutine(OnInitialized));
+                StartCoroutine(InitializationCoroutine(OnInitialized));
+            });
         }
 
         protected virtual IEnumerator InitializationCoroutine(Action onInitializedCallback)
