@@ -7,29 +7,29 @@ namespace ModIO
 {
     public class TextureDownload
     {
-        public event Action<Texture2D> downloadSucceeded;
-        public event Action<WebRequestError> downloadFailed;
+        public event Action<Texture2D> succeeded;
+        public event Action<WebRequestError> failed;
 
-        internal void NotifyDownloadSucceeded(Texture2D texture)
+        internal void NotifySucceeded(Texture2D texture)
         {
-            if(downloadSucceeded != null)
+            if(succeeded != null)
             {
-                downloadSucceeded(texture);
+                succeeded(texture);
             }
         }
-        internal void NotifyDownloadFailed(WebRequestError error)
+        internal void NotifyFailed(WebRequestError error)
         {
             #if DEBUG
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                   && downloadFailed != APIClient.LogError)
+                   && failed != APIClient.LogError)
                 {
                     APIClient.LogError(error);
                 }
             #endif
 
-            if(downloadFailed != null)
+            if(failed != null)
             {
-                downloadFailed(error);
+                failed(error);
             }
         }
     }
@@ -51,6 +51,23 @@ namespace ModIO
             return download;
         }
 
+        public static TextureDownload DownloadModGalleryImage(ModProfile profile,
+                                                              string imageFileName,
+                                                              ModGalleryImageVersion version)
+        {
+            string imageURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
+
+            UnityWebRequest webRequest = UnityWebRequest.Get(imageURL);
+            webRequest.downloadHandler = new DownloadHandlerTexture(true);
+
+            TextureDownload download = new TextureDownload();
+
+            var operation = webRequest.SendWebRequest();
+            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(download, operation);
+
+            return download;
+        }
+
         private static void OnImageDownloadCompleted(TextureDownload request,
                                                      UnityWebRequestAsyncOperation operation)
         {
@@ -59,7 +76,7 @@ namespace ModIO
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
                 WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
-                request.NotifyDownloadFailed(error);
+                request.NotifyFailed(error);
             }
             else
             {
@@ -77,7 +94,7 @@ namespace ModIO
                 #endif
 
                 Texture2D imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
-                request.NotifyDownloadSucceeded(imageTexture);
+                request.NotifySucceeded(imageTexture);
             }
         }
     }

@@ -331,16 +331,52 @@ namespace ModIO
                 {
                     var textureDownload = DownloadClient.DownloadModLogo(profile, version);
 
-                    textureDownload.downloadSucceeded += (texture) =>
+                    textureDownload.succeeded += (texture) =>
                     {
                         CacheClient.SaveModLogo(profile.id, version, texture);
-                        onSuccess(texture);
                     };
 
-                    textureDownload.downloadFailed += onError;
+                    textureDownload.succeeded += onSuccess;
+                    textureDownload.failed += onError;
                 }
             });
         }
+
+        public static void GetModGalleryImage(ModProfile profile,
+                                              string imageFileName,
+                                              ModGalleryImageVersion version,
+                                              Action<Texture2D> onSuccess,
+                                              Action<WebRequestError> onError)
+        {
+            CacheClient.LoadModGalleryImage(profile.id,
+                                            imageFileName,
+                                            version,
+                                            (cachedImageTexture) =>
+            {
+                if(cachedImageTexture != null)
+                {
+                    if(onSuccess != null) { onSuccess(cachedImageTexture); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    var download = DownloadClient.DownloadModGalleryImage(profile,
+                                                                          imageFileName,
+                                                                          version);
+
+                    download.succeeded += (texture) =>
+                    {
+                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, texture);
+                    };
+
+                    download.succeeded += onSuccess;
+                    download.failed += onError;
+                }
+            });
+        }
+
+
+
 
 
         // ---------------------------[ OLD OLD OLD OLD OLD !!! ]------------------------
@@ -683,38 +719,6 @@ namespace ModIO
             }
         }
 
-
-        public static void GetModGalleryImage(ModProfile profile,
-                                              string imageFileName,
-                                              ModGalleryImageVersion version,
-                                              Action<Texture2D> onSuccess,
-                                              Action<WebRequestError> onError)
-        {
-            CacheClient.LoadModGalleryImage(profile.id,
-                                            imageFileName,
-                                            version,
-                                            (cachedImageTexture) =>
-            {
-                if(cachedImageTexture != null)
-                {
-                    if(onSuccess != null) { onSuccess(cachedImageTexture); }
-                }
-                else
-                {
-                    // // - Fetch from Server -
-                    // var download = new TextureDownload();
-                    // download.sourceURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
-                    // download.OnCompleted += (d) =>
-                    // {
-                    //     CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, download.texture);
-                    //     if(onSuccess != null) { onSuccess(download.texture); }
-                    // };
-                    // download.OnFailed += (d,e) => onError(e);
-
-                    // DownloadManager.StartDownload(download);
-                }
-            });
-        }
 
 
         public static Texture2D FindSavedImageMatchingServerURL(string serverURL)
