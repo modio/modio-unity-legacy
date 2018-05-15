@@ -156,19 +156,19 @@ namespace ModIO
         {
             bool isDone = false;
 
-            ModManager.GetAndApplyAllModEvents(fromTimeStamp, untilTimeStamp,
-                                               (r) => ModManager.OnRequestSuccess(r, request, out isDone),
-                                               (e) => ModManager.OnRequestError(e, request, out isDone));
+            ModManager.FetchAndApplyAllModEvents(fromTimeStamp, untilTimeStamp,
+                                                 (r) => ModManager.OnRequestSuccess(r, request, out isDone),
+                                                 (e) => ModManager.OnRequestError(e, request, out isDone));
 
             while(!isDone) { yield return null; }
         }
 
-        public static void GetAndApplyAllModEvents(int fromTimeStamp,
-                                                   int untilTimeStamp,
-                                                   Action<List<ModEvent>> onSuccess,
-                                                   Action<WebRequestError> onError)
+        public static void FetchAndApplyAllModEvents(int fromTimeStamp,
+                                                     int untilTimeStamp,
+                                                     Action<List<ModEvent>> onSuccess,
+                                                     Action<WebRequestError> onError)
         {
-            ModManager.GetAllModEvents(fromTimeStamp, untilTimeStamp,
+            ModManager.FetchAllModEvents(fromTimeStamp, untilTimeStamp,
             (modEvents) =>
             {
                 ApplyModEventsToCache(modEvents);
@@ -178,10 +178,10 @@ namespace ModIO
             onError);
         }
 
-        public static void GetAllModEvents(int fromTimeStamp,
-                                           int untilTimeStamp,
-                                           Action<List<ModEvent>> onSuccess,
-                                           Action<WebRequestError> onError)
+        public static void FetchAllModEvents(int fromTimeStamp,
+                                             int untilTimeStamp,
+                                             Action<List<ModEvent>> onSuccess,
+                                             Action<WebRequestError> onError)
         {
             // - Filter & Pagination -
             RequestFilter modEventFilter = new RequestFilter();

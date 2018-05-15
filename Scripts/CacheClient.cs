@@ -112,27 +112,62 @@ namespace ModIO
             }
         }
 
+        public static byte[] LoadBinaryFile(string filePath)
+        {
+            byte[] fileData = null;
+
+            if(File.Exists(filePath))
+            {
+                try
+                {
+                    fileData = File.ReadAllBytes(filePath);
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to read binary file."
+                                          + "\nFile: " + filePath + "\n");
+
+                    Utility.LogExceptionAsWarning(warningInfo, e);
+
+                    fileData = null;
+                }
+            }
+
+            return fileData;
+        }
+
+        public static void WriteBinaryFile(string filePath,
+                                           byte[] data)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                File.WriteAllBytes(filePath, data);
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to write binary file."
+                                      + "\nFile: " + filePath + "\n");
+
+                Utility.LogExceptionAsWarning(warningInfo, e);
+            }
+        }
+
         public static Texture2D ReadImageFile(string filePath)
         {
             Texture2D texture = null;
 
             if(File.Exists(filePath))
             {
-                try
+                byte[] imageData = CacheClient.LoadBinaryFile(filePath);
+
+                if(imageData != null)
                 {
                     texture = new Texture2D(0,0);
-                    texture.LoadImage(File.ReadAllBytes(filePath));
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read image file."
-                                          + "\nFile: " + filePath + "\n");
-
-                    Utility.LogExceptionAsWarning(warningInfo, e);
-
-                    texture = null;
+                    texture.LoadImage(imageData);
                 }
             }
+
             return texture;
         }
 
@@ -144,18 +179,8 @@ namespace ModIO
                          + "\n" + filePath
                          + " is an invalid file path.");
 
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllBytes(filePath, texture.EncodeToPNG());
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to write image file."
-                                      + "\nFile: " + filePath + "\n");
-
-                Utility.LogExceptionAsWarning(warningInfo, e);
-            }
+            CacheClient.WriteBinaryFile(filePath,
+                                        texture.EncodeToPNG());
         }
 
         public static void DeleteFile(string filePath)
@@ -301,6 +326,59 @@ namespace ModIO
             }
         }
 
+        // ---------[ MODFILES ]---------
+        public static string GenerateModfileFilePath(int modId, int modfileId)
+        {
+            return(CacheClient.GenerateModDirectoryPath(modId)
+                   + "builds/"
+                   + modfileId + ".data");
+        }
+        public static string GenerateModBinaryZipFilePath(int modId, int modfileId)
+        {
+            return(CacheClient.GenerateModDirectoryPath(modId)
+                   + "builds/"
+                   + modfileId + ".zip");
+        }
+
+        public static void LoadModfile(int modId, int modfileId,
+                                       Action<ModfileStub> callback)
+        {
+            string modfileFilePath = GenerateModfileFilePath(modId, modfileId);
+            var modfile = CacheClient.ReadJsonObjectFile<ModfileStub>(modfileFilePath);
+            callback(modfile);
+        }
+
+        public static void SaveModfile(ModfileStub modfile)
+        {
+            Debug.Assert(modfile.modId > 0,
+                         "[mod.io] Cannot cache a modfile without a mod id");
+            Debug.Assert(modfile.id > 0,
+                         "[mod.io] Cannot cache a modfile without a modfile id");
+
+            CacheClient.WriteJsonObjectFile(GenerateModfileFilePath(modfile.modId, modfile.id),
+                                            modfile);
+        }
+
+        public static void LoadModBinaryZip(int modId, int modfileId,
+                                            Action<byte[]> callback)
+        {
+            string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
+            byte[] zipData = CacheClient.LoadBinaryFile(filePath);
+            callback(zipData);
+        }
+
+        public static void SaveModBinaryZip(int modId, int modfileId,
+                                            byte[] modBinary)
+        {
+            Debug.Assert(modId > 0,
+                         "[mod.io] Cannot cache a mod binary without a mod id");
+            Debug.Assert(modfileId > 0,
+                         "[mod.io] Cannot cache a mod binary without a modfile id");
+
+            string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
+            CacheClient.WriteBinaryFile(filePath, modBinary);
+        }
+
         // ---------[ IMAGE MANAGEMENT ]---------
         public static string GenerateModLogoDirectoryPath(int modId)
         {
@@ -340,6 +418,9 @@ namespace ModIO
         public static void SaveModLogo(int modId, LogoVersion version,
                                        Texture2D logoTexture)
         {
+            Debug.Assert(modId > 0,
+                         "[mod.io] Cannot cache a mod logo without a mod id");
+
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, version);
             CacheClient.WriteImageFile(logoFilePath, logoTexture);
         }
@@ -362,6 +443,9 @@ namespace ModIO
                                                ModGalleryImageVersion version,
                                                Texture2D imageTexture)
         {
+            Debug.Assert(modId > 0,
+                         "[mod.io] Cannot cache a mod image without a mod id");
+
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                version);
