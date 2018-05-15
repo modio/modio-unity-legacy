@@ -186,23 +186,4 @@ namespace ModIO
             return true;
         }
     }
-
-    public class TextureDownload : Download
-    {
-        public Texture2D texture = null;
-
-        protected override void ModifyWebRequest(UnityWebRequest webRequest)
-        {
-            // true = Texture is accessible from script
-            DownloadHandlerTexture downloadHandler = new DownloadHandlerTexture(true);
-            webRequest.downloadHandler = downloadHandler;
-        }
-
-        protected override void OnFinalize_Succeeded(DownloadHandler handler)
-        {
-            DownloadHandlerTexture textureHandler = handler as DownloadHandlerTexture;
-
-            texture = textureHandler.texture;
-        }
-    }
 }

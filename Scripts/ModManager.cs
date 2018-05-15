@@ -36,31 +36,9 @@ namespace ModIO
     }
 
     // TODO(@jackson): -> RequestManager?
-    public class ModManager
+    public static class ModManager
     {
-        // ---------[ INNER CLASSES ]---------
-        [System.Serializable]
-        private class ManifestData
-        {
-            public int lastUpdateTimeStamp = ServerTimeStamp.Now;
-            public List<ModEvent> unresolvedEvents = new List<ModEvent>();
-            public GameProfile gameProfile = new GameProfile();
-            public List<string> serializedImageCache = new List<string>();
-        }
-
-        // ---------[ EVENTS ]---------
-        public static event ModProfilesEventHandler modsAvailable;
-        public static event ModProfilesEventHandler modsEdited;
-        public static event ModfileStubsEventHandler modReleasesUpdated;
-        public static event ModIdsEventHandler modsUnavailable;
-
-        // ---------[ VARIABLES ]---------
-        private static ManifestData manifest = null;
-        private static AuthenticatedUser authUser = null;
-
-        private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
-        private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
-        private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
+        // ---------[ MEMBERS ]---------
 
         // ---------[ COROUTINE HELPERS ]---------
         private static void OnRequestSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
@@ -149,8 +127,13 @@ namespace ModIO
             // TODO(@jackson): Other bits
         }
 
-        // ---------[ UPDATES ]---------
-        public static IEnumerable RequestAndApplyAllModEventsToCache(int fromTimeStamp,
+        // ---------[ EVENTS ]---------
+        public static event ModProfilesEventHandler     modsAvailable;
+        public static event ModProfilesEventHandler     modsEdited;
+        public static event ModfileStubsEventHandler    modReleasesUpdated;
+        public static event ModIdsEventHandler          modsUnavailable;
+
+        public static IEnumerator RequestAndApplyAllModEventsToCache(int fromTimeStamp,
                                                                      int untilTimeStamp,
                                                                      ClientRequest<List<ModEvent>> request)
         {
@@ -328,6 +311,57 @@ namespace ModIO
                 }
             }
         }
+
+        // ---------[ IMAGE MANAGEMENT ]---------
+        // TODO(@jackson): Look at reconfiguring params
+        public static void GetModLogo(ModProfile profile, LogoVersion version,
+                                      Action<Texture2D> onSuccess,
+                                      Action<WebRequestError> onError)
+        {
+            Debug.Assert(onSuccess != null);
+
+            CacheClient.LoadModLogo(profile.id, version,
+                                    (logoTexture) =>
+            {
+                if(logoTexture != null)
+                {
+                    onSuccess(logoTexture);
+                }
+                else
+                {
+                    var textureDownload = DownloadClient.DownloadModLogo(profile, version);
+
+                    textureDownload.downloadSucceeded += (texture) =>
+                    {
+                        CacheClient.SaveModLogo(profile.id, version, texture);
+                        onSuccess(texture);
+                    };
+
+                    textureDownload.downloadFailed += onError;
+                }
+            });
+        }
+
+
+        // ---------------------------[ OLD OLD OLD OLD OLD !!! ]------------------------
+        // TODO(@jackson): Remove/Update all this
+        // ---------[ INNER CLASSES ]---------
+        [System.Serializable]
+        private class ManifestData
+        {
+            public int lastUpdateTimeStamp = ServerTimeStamp.Now;
+            public List<ModEvent> unresolvedEvents = new List<ModEvent>();
+            public GameProfile gameProfile = new GameProfile();
+            public List<string> serializedImageCache = new List<string>();
+        }
+
+        // ---------[ VARIABLES ]---------
+        private static ManifestData manifest = null;
+        private static AuthenticatedUser authUser = null;
+
+        private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
+        private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
+        private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
 
         private static void UpdateUserSubscriptions(List<ModProfile> userSubscriptions)
         {
@@ -633,34 +667,6 @@ namespace ModIO
             return GetModDirectory(modId) + @"/logo/" + version.ToString() + ".png";
         }
 
-        // TODO(@jackson): Look at reconfiguring params
-        public static void GetModLogo(ModProfile profile, LogoVersion version,
-                                      Action<Texture2D> onSuccess,
-                                      Action<WebRequestError> onError)
-        {
-            CacheClient.LoadModLogo(profile.id, version,
-                                     (logoTexture) =>
-            {
-                if(logoTexture != null)
-                {
-                    onSuccess(logoTexture);
-                }
-                else
-                {
-                    var download = new TextureDownload();
-                    download.sourceURL = profile.logoLocator.GetVersionURL(version);
-                    download.OnCompleted += (d) =>
-                    {
-                        CacheClient.SaveModLogo(profile.id, version, download.texture);
-                        onSuccess(download.texture);
-                    };
-                    download.OnFailed += (d,e) => onError(e);
-
-                    DownloadManager.StartDownload(download);
-                }
-            });
-        }
-
         public static IEnumerator RequestModLogo(ModProfile profile,
                                                  LogoVersion version,
                                                  ClientRequest<Texture2D> logoRequest)
@@ -695,17 +701,17 @@ namespace ModIO
                 }
                 else
                 {
-                    // - Fetch from Server -
-                    var download = new TextureDownload();
-                    download.sourceURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
-                    download.OnCompleted += (d) =>
-                    {
-                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, download.texture);
-                        if(onSuccess != null) { onSuccess(download.texture); }
-                    };
-                    download.OnFailed += (d,e) => onError(e);
+                    // // - Fetch from Server -
+                    // var download = new TextureDownload();
+                    // download.sourceURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
+                    // download.OnCompleted += (d) =>
+                    // {
+                    //     CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, download.texture);
+                    //     if(onSuccess != null) { onSuccess(download.texture); }
+                    // };
+                    // download.OnFailed += (d,e) => onError(e);
 
-                    DownloadManager.StartDownload(download);
+                    // DownloadManager.StartDownload(download);
                 }
             });
         }
@@ -741,14 +747,14 @@ namespace ModIO
 
             serverToLocalImageURLMap[serverURL] = downloadFilePath;
 
-            download.sourceURL = serverURL;
-            download.OnCompleted += (d) =>
-            {
-                File.WriteAllBytes(downloadFilePath, download.texture.EncodeToPNG());
-                manifest.serializedImageCache.Add(serverURL + "*" + downloadFilePath);
-                WriteManifestToDisk();
-            };
-            DownloadManager.StartDownload(download);
+            // download.sourceURL = serverURL;
+            // download.OnCompleted += (d) =>
+            // {
+            //     File.WriteAllBytes(downloadFilePath, download.texture.EncodeToPNG());
+            //     manifest.serializedImageCache.Add(serverURL + "*" + downloadFilePath);
+            //     WriteManifestToDisk();
+            // };
+            // DownloadManager.StartDownload(download);
 
             return download;
         }
@@ -785,17 +791,17 @@ namespace ModIO
             {
                 string logoURL = profile.logoLocator.GetVersionURL(version);
                 string filePath = GenerateModLogoFilePath(profile.id, version);
-                var download = DownloadAndSaveImageAsPNG(logoURL,
-                                                         filePath,
-                                                         UISettings.Instance.DownloadingPlaceholderImages.modLogo);
+                // var download = DownloadAndSaveImageAsPNG(logoURL,
+                //                                          filePath,
+                //                                          UISettings.Instance.DownloadingPlaceholderImages.modLogo);
 
-                download.OnCompleted += (d) =>
-                {
-                    if(OnModLogoUpdated != null)
-                    {
-                        OnModLogoUpdated(profile.id, version, download.texture);
-                    }
-                };
+                // download.OnCompleted += (d) =>
+                // {
+                //     if(OnModLogoUpdated != null)
+                //     {
+                //         OnModLogoUpdated(profile.id, version, download.texture);
+                //     }
+                // };
             }
         }
 

@@ -82,6 +82,9 @@ namespace ModIO
                 this.gameProfile = null;
             }
 
+            // --- Load Mod Profiles ---
+            this.modProfileCache = (new List<ModProfile>(CacheClient.AllModProfiles())).ToArray();
+
             // --- Post Initialization ---
             this._isInitialized = true;
 
@@ -137,7 +140,6 @@ namespace ModIO
                                                                            request);
 
                 this.lastCacheUpdate = updateStartTimeStamp;
-
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }

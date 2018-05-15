@@ -279,7 +279,7 @@ namespace ModIO
             callback(profile);
         }
 
-        public static IEnumerable<ModProfile> IterateAllModProfiles()
+        public static IEnumerable<ModProfile> AllModProfiles()
         {
             string profileDirectory = CacheClient._cacheDirectory + "mods/";
 
@@ -302,7 +302,8 @@ namespace ModIO
 
                 foreach(string modDirectory in modDirectories)
                 {
-                    ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(modDirectories + "profile.data");
+                    ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(modDirectory + "/profile.data");
+
                     if(profile != null)
                     {
                         yield return profile;
