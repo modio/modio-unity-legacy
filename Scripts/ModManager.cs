@@ -1013,7 +1013,15 @@ namespace ModIO
                     if(addedImageFilePaths.Count > 0)
                     {
                         string galleryZipLocation = Application.temporaryCachePath + "/modio/imageGallery_" + DateTime.Now.ToFileTime() + ".zip";
-                        ZipUtil.Zip(galleryZipLocation, addedImageFilePaths.ToArray());
+
+                        using(var zip = new Ionic.Zip.ZipFile())
+                        {
+                            foreach(string imageFilePath in addedImageFilePaths)
+                            {
+                                zip.AddFile(imageFilePath);
+                            }
+                            zip.Save(galleryZipLocation);
+                        }
 
                         var imageGalleryUpload = BinaryUpload.Create("images.zip",
                                                                      File.ReadAllBytes(galleryZipLocation));
@@ -1120,7 +1128,12 @@ namespace ModIO
         {
             string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + DateTime.Now.ToFileTime() + ".zip";
 
-            ZipUtil.Zip(binaryZipLocation, unzippedBinaryLocation);
+            using(var zip = new Ionic.Zip.ZipFile())
+            {
+                zip.AddFile(unzippedBinaryLocation);
+                zip.Save(binaryZipLocation);
+            }
+
 
             UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setPrimary, onSuccess, onError);
         }
