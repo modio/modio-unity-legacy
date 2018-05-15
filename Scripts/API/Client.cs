@@ -57,11 +57,12 @@ namespace ModIO
             "Authorization",
         };
 
-        // ---------[ INITIALIZATION ]---------
+        // ---------[ MEMBERS ]---------
         private static int _gameId = GlobalSettings.GAME_ID;
         private static string _gameKey = GlobalSettings.GAME_APIKEY;
         private static string _userToken = null;
 
+        // ---------[ INITIALIZATION ]---------
         public static void SetGameDetails(int id, string apiKey)
         {
             Debug.Assert(id > 0 && !String.IsNullOrEmpty(apiKey),

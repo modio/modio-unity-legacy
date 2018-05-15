@@ -317,7 +317,7 @@ namespace ModIO
             {
                 foreach(int modId in removedIds)
                 {
-                    CacheClient.UncacheMod(modId);
+                    CacheClient.DeleteMod(modId);
                 }
 
                 // TODO(@jackson): Compare with subscriptions

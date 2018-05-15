@@ -60,10 +60,20 @@ namespace ModIO
             CacheClient._cacheDirectory = directory;
             return true;
         }
+
+        // ---------[ GET DIRECTORIES ]---------
         public static string GetCacheDirectory()
         {
             return CacheClient._cacheDirectory;
         }
+
+        public static string GenerateModDirectoryPath(int modId)
+        {
+            return(CacheClient._cacheDirectory
+                   + "mods/"
+                   + modId.ToString() + "/");
+        }
+
 
         // ---------[ BASIC FILE I/O ]---------
         public static T ReadJsonObjectFile<T>(string filePath)
@@ -226,12 +236,12 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
+
         // ---------[ MOD PROFILES ]---------
         public static string GenerateModProfileFilePath(int modId)
         {
-            return (CacheClient._cacheDirectory
-                    + "mod_profiles/"
-                    + modId + ".data");
+            return (CacheClient.GenerateModDirectoryPath(modId)
+                    + "profile.data");
         }
 
         public static void LoadModProfile(int modId,
@@ -242,17 +252,16 @@ namespace ModIO
             callback(profile);
         }
 
-        public static IEnumerable<ModProfile> LoadAllModProfiles()
+        public static IEnumerable<ModProfile> IterateAllModProfiles()
         {
-            string profileDirectory = CacheClient._cacheDirectory + "mod_profiles/";
+            string profileDirectory = CacheClient._cacheDirectory + "mods/";
 
             if(Directory.Exists(profileDirectory))
             {
-                string[] profilePaths;
+                string[] modDirectories;
                 try
                 {
-                    profilePaths = Directory.GetFiles(profileDirectory,
-                                                      "*.data");
+                    modDirectories = Directory.GetDirectories(profileDirectory);
                 }
                 catch(Exception e)
                 {
@@ -261,12 +270,12 @@ namespace ModIO
 
                     Utility.LogExceptionAsWarning(warningInfo, e);
 
-                    profilePaths = new string[0];
+                    modDirectories = new string[0];
                 }
 
-                foreach(string filePath in profilePaths)
+                foreach(string modDirectory in modDirectories)
                 {
-                    ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(filePath);
+                    ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(modDirectories + "profile.data");
                     if(profile != null)
                     {
                         yield return profile;
@@ -295,9 +304,8 @@ namespace ModIO
         // ---------[ IMAGE MANAGEMENT ]---------
         public static string GenerateModLogoDirectoryPath(int modId)
         {
-            return(CacheClient._cacheDirectory
-                    + "mod_logos/"
-                    + modId + "/");
+            return(CacheClient.GenerateModDirectoryPath(modId)
+                   + "logo/");
         }
         public static string GenerateModLogoFilePath(int modId, LogoVersion version)
         {
@@ -312,8 +320,8 @@ namespace ModIO
                    + modId + "/");
         }
         public static string GenerateModGalleryImageFilePath(int modId,
-                                                             string imageFileName,
-                                                             ModGalleryImageVersion version)
+                                                              string imageFileName,
+                                                              ModGalleryImageVersion version)
         {
             return(GenerateModGalleryImageDirectoryPath(modId)
                    + version.ToString() + "/"
@@ -321,7 +329,6 @@ namespace ModIO
                    ".png");
         }
 
-        // TODO(@jackson): Look at reconfiguring params
         public static void LoadModLogo(int modId, LogoVersion version,
                                        Action<Texture2D> callback)
         {
@@ -362,12 +369,10 @@ namespace ModIO
         }
 
         // ---------[ UNCACHING ]---------
-        public static void UncacheMod(int modId)
+        public static void DeleteMod(int modId)
         {
-            CacheClient.DeleteFile(GenerateModProfileFilePath(modId));
-            CacheClient.DeleteDirectory(GenerateModLogoDirectoryPath(modId));
-            CacheClient.DeleteDirectory(GenerateModGalleryImageDirectoryPath(modId));
-            // TODO(@jackson): Remove Binary
+            string modDir = CacheClient.GenerateModDirectoryPath(modId);
+            CacheClient.DeleteDirectory(modDir);
         }
     }
 }
