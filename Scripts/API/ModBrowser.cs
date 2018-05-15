@@ -45,13 +45,13 @@ namespace ModIO
 
         protected virtual void Start()
         {
-            API.Client.SetGameDetails(gameId, gameKey);
+            APIClient.SetGameDetails(gameId, gameKey);
             CacheClient.LoadAuthenticatedUser((au) =>
             {
                 if(au != null)
                 {
                     authUser = au;
-                    API.Client.SetUserAuthorizationToken(au.oAuthToken);
+                    APIClient.SetUserAuthorizationToken(au.oAuthToken);
                 }
 
                 StartCoroutine(InitializationCoroutine(OnInitialized));
@@ -78,7 +78,7 @@ namespace ModIO
             }
             else
             {
-                API.Client.LogError(gameRequest.error);
+                APIClient.LogError(gameRequest.error);
                 this.gameProfile = null;
             }
 

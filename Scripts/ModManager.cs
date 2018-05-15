@@ -5,11 +5,11 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
-using ModIO.API;
-
 using UnityEngine;
 
 using Newtonsoft.Json;
+
+using ModIO.API;
 
 // NOTE(@jackson): Had a weird bug where Initialize authenticated with a user.id of 0?
 // TODO(@jackson): UISettings
@@ -88,7 +88,7 @@ namespace ModIO
             {
                 isDone = false;
 
-                API.Client.GetGame((r) => ModManager.OnRequestSuccess(r, request, out isDone),
+                APIClient.GetGame((r) => ModManager.OnRequestSuccess(r, request, out isDone),
                                    (e) => ModManager.OnRequestError(e, request, out isDone));
 
                 while(!isDone) { yield return null; }
@@ -122,7 +122,7 @@ namespace ModIO
                         if(onSuccess != null) { onSuccess(profile); }
                     };
 
-                    Client.GetMod(modId,
+                    APIClient.GetMod(modId,
                                   onGetMod,
                                   onError);
                 }
@@ -143,7 +143,7 @@ namespace ModIO
                 }
             };
 
-            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(RequestFilter.None, p, s, e),
+            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(RequestFilter.None, p, s, e),
                                                            onModProfilesReceived,
                                                            onError);
             // TODO(@jackson): Other bits
@@ -184,10 +184,10 @@ namespace ModIO
                                            Action<WebRequestError> onError)
         {
             // - Filter & Pagination -
-            API.RequestFilter modEventFilter = new API.RequestFilter();
-            modEventFilter.sortFieldName = API.GetAllModEventsFilterFields.dateAdded;
-            modEventFilter.fieldFilters[API.GetAllModEventsFilterFields.dateAdded]
-            = new API.RangeFilter<int>()
+            RequestFilter modEventFilter = new RequestFilter();
+            modEventFilter.sortFieldName = GetAllModEventsFilterFields.dateAdded;
+            modEventFilter.fieldFilters[GetAllModEventsFilterFields.dateAdded]
+            = new RangeFilter<int>()
             {
                 min = fromTimeStamp,
                 isMinInclusive = false,
@@ -196,7 +196,7 @@ namespace ModIO
             };
 
             // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => API.Client.GetAllModEvents(modEventFilter, p, s, e),
+            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
                                                          onSuccess,
                                                          onError);
         }
@@ -246,9 +246,9 @@ namespace ModIO
             if(modsToFetch.Count > 0)
             {
                 // - Filter & Pagination -
-                API.RequestFilter modsFilter = new API.RequestFilter();
-                modsFilter.fieldFilters[API.GetAllModsFilterFields.id]
-                = new API.InArrayFilter<int>()
+                RequestFilter modsFilter = new RequestFilter();
+                modsFilter.fieldFilters[GetAllModsFilterFields.id]
+                = new InArrayFilter<int>()
                 {
                     filterArray = modsToFetch.ToArray(),
                 };
@@ -307,7 +307,7 @@ namespace ModIO
                     }
                 };
 
-                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => Client.GetAllMods(modsFilter, p, s, e),
+                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modsFilter, p, s, e),
                                                                onGetMods,
                                                                null);
             }
@@ -386,16 +386,16 @@ namespace ModIO
                                                Action<APIMessage> onSuccess,
                                                Action<WebRequestError> onError)
         {
-            Client.RequestSecurityCode(emailAddress,
-                                       result => onSuccess(APIMessage.CreateFromMessageObject(result)),
-                                       onError);
+            APIClient.RequestSecurityCode(emailAddress,
+                                          onSuccess,
+                                          onError);
         }
 
         public static void RequestOAuthToken(string securityCode,
                                              Action<string> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            Client.RequestOAuthToken(securityCode,
+            APIClient.RequestOAuthToken(securityCode,
                                         onSuccess,
                                         onError);
         }
@@ -417,18 +417,18 @@ namespace ModIO
                 userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
                      = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
 
-                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e)=>Client.GetUserSubscriptions(userSubscriptionFilter,
+                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e)=>APIClient.GetUserSubscriptions(userSubscriptionFilter,
                                                                                                     p, s, e),
                 UpdateUserSubscriptions,
-                                                    Client.LogError);
+                                                    APIClient.LogError);
             };
 
-            API.Client.SetUserAuthorizationToken(userOAuthToken);
+            APIClient.SetUserAuthorizationToken(userOAuthToken);
 
-            Client.GetAuthenticatedUser(onGetUser,
+            APIClient.GetAuthenticatedUser(onGetUser,
                                         (e) =>
                                         {
-                                            API.Client.ClearUserAuthorizationToken();
+                                            APIClient.ClearUserAuthorizationToken();
                                             onError(e);
                                         });
         }
@@ -438,7 +438,7 @@ namespace ModIO
             authUser = null;
             DeleteUserDataFromDisk();
 
-            API.Client.ClearUserAuthorizationToken();
+            APIClient.ClearUserAuthorizationToken();
 
             if(userLoggedOut != null)
             {
@@ -450,11 +450,11 @@ namespace ModIO
                                           Action<APIMessage> onSuccess,
                                           Action<WebRequestError> onError)
         {
-            Client.SubscribeToMod(modId,
+            APIClient.SubscribeToMod(modId,
                                   (message) =>
                                   {
                                     authUser.subscribedModIDs.Add(modId);
-                                    onSuccess(APIMessage.CreateFromMessageObject(message));
+                                    onSuccess(message);
                                   },
                                   onError);
         }
@@ -463,11 +463,11 @@ namespace ModIO
                                               Action<APIMessage> onSuccess,
                                               Action<WebRequestError> onError)
         {
-            Client.UnsubscribeFromMod(modId,
+            APIClient.UnsubscribeFromMod(modId,
                                       (message) =>
                                       {
                                         authUser.subscribedModIDs.Remove(modId);
-                                        onSuccess(APIMessage.CreateFromMessageObject(message));
+                                        onSuccess(message);
                                       },
                                       onError);
         }
@@ -594,7 +594,7 @@ namespace ModIO
                     onSuccess(m);
                 };
 
-                Client.GetModfile(modId, modfileId,
+                APIClient.GetModfile(modId, modfileId,
                                   writeModfileToDisk,
                                   onError);
             }
@@ -615,7 +615,7 @@ namespace ModIO
                 DownloadManager.QueueDownload(download);
             };
 
-            Client.GetModfile(modId, modfileId,
+            APIClient.GetModfile(modId, modfileId,
                               queueBinaryDownload,
                               download.MarkAsFailed);
 
@@ -833,7 +833,7 @@ namespace ModIO
             parameters.name = modEdits.name.value;
             parameters.summary = modEdits.summary.value;
             parameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url),
-                                                  File.ReadAllBytes(modEdits.logoLocator.value.url));
+                                                      File.ReadAllBytes(modEdits.logoLocator.value.url));
             if(modEdits.visibility.isDirty)
             {
                 parameters.visible = (int)modEdits.visibility.value;
@@ -871,7 +871,7 @@ namespace ModIO
             remainingModEdits.sketchfabURLs = modEdits.sketchfabURLs;
             remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
 
-            Client.AddMod(parameters,
+            APIClient.AddMod(parameters,
                           result => SubmitModProfileComponents(result,
                                                                remainingModEdits,
                                                                modSubmissionSucceeded,
@@ -931,7 +931,7 @@ namespace ModIO
                         parameters.metadata_blob = modEdits.metadataBlob.value;
                     }
 
-                    Client.EditMod(modId, parameters,
+                    APIClient.EditMod(modId, parameters,
                                    (p) => SubmitModProfileComponents(profile, modEdits,
                                                                      modSubmissionSucceeded,
                                                                      modSubmissionFailed),
@@ -959,7 +959,7 @@ namespace ModIO
         {
             List<Action> submissionActions = new List<Action>();
             int nextActionIndex = 0;
-            Action<MessageObject> doNextSubmissionAction = (m) =>
+            Action<APIMessage> doNextSubmissionAction = (m) =>
             {
                 if(nextActionIndex < submissionActions.Count)
                 {
@@ -1060,7 +1060,7 @@ namespace ModIO
                 {
                     submissionActions.Add(() =>
                     {
-                        Client.AddModMedia(profile.id,
+                        APIClient.AddModMedia(profile.id,
                                            addMediaParameters,
                                            doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -1069,7 +1069,7 @@ namespace ModIO
                 {
                     submissionActions.Add(() =>
                     {
-                        Client.DeleteModMedia(profile.id,
+                        APIClient.DeleteModMedia(profile.id,
                                               deleteMediaParameters,
                                               doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -1097,7 +1097,7 @@ namespace ModIO
                     {
                         var parameters = new AddModTagsParameters();
                         parameters.tags = addedTags.ToArray();
-                        Client.AddModTags(profile.id, parameters,
+                        APIClient.AddModTags(profile.id, parameters,
                                           doNextSubmissionAction, modSubmissionFailed);
                     });
                 }
@@ -1107,7 +1107,7 @@ namespace ModIO
                     {
                         var parameters = new DeleteModTagsParameters();
                         parameters.tags = removedTags.ToArray();
-                        Client.DeleteModTags(profile.id, parameters,
+                        APIClient.DeleteModTags(profile.id, parameters,
                                              doNextSubmissionAction, modSubmissionFailed);
                     });
                 }
@@ -1120,12 +1120,12 @@ namespace ModIO
             // - Team Members -
 
             // - Get Updated Profile -
-            submissionActions.Add(() => Client.GetMod(profile.id,
+            submissionActions.Add(() => APIClient.GetMod(profile.id,
                                                       modSubmissionSucceeded,
                                                       modSubmissionFailed));
 
             // - Start submission chain -
-            doNextSubmissionAction(new MessageObject());
+            doNextSubmissionAction(new APIMessage());
         }
 
         // TODO(@jackson): Convert onError to string!
@@ -1153,7 +1153,7 @@ namespace ModIO
             string buildFilename = Path.GetFileName(binaryZipLocation);
             byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
 
-            AddModfileParameters parameters = new AddModfileParameters();
+            var parameters = new AddModfileParameters();
             parameters.filedata = BinaryUpload.Create(buildFilename, buildZipData);
             if(modfileValues.version.isDirty)
             {
@@ -1170,7 +1170,7 @@ namespace ModIO
 
             // TODO(@jackson): parameters.filehash
 
-            Client.AddModfile(modId,
+            APIClient.AddModfile(modId,
                               parameters,
                               onSuccess,
                               onError);
@@ -1181,16 +1181,16 @@ namespace ModIO
                                              Action<APIMessage> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            Client.AddModRating(modId, new AddModRatingParameters(1),
-                                result => onSuccess(APIMessage.CreateFromMessageObject(result)),
-                                onError);
+            APIClient.AddModRating(modId, new AddModRatingParameters(1),
+                                   onSuccess,
+                                   onError);
         }
 
         // public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
         //                                     Action<APIMessage> onSuccess,
         //                                     Action<WebRequestError> onError)
         // {
-        //     Client.AddModTeamMember(modId, teamMember.AsAddModTeamMemberParameters(),
+        //     APIClient.AddModTeamMember(modId, teamMember.AsAddModTeamMemberParameters(),
         //                             result => OnRequestSuccessWrapper(result, onSuccess),
         //                             onError);
         // }
@@ -1201,18 +1201,18 @@ namespace ModIO
         {
             // TODO(@jackson): Remvoe Mod Locally
 
-            Client.DeleteMod(modId,
-                             result => onSuccess(APIMessage.CreateFromMessageObject(result)),
-                             onError);
+            APIClient.DeleteMod(modId,
+                                onSuccess,
+                                onError);
         }
 
         public static void DeleteModComment(int modId, int commentId,
                                             Action<APIMessage> onSuccess,
                                             Action<WebRequestError> onError)
         {
-            Client.DeleteModComment(modId, commentId,
-                                    result => onSuccess(APIMessage.CreateFromMessageObject(result)),
-                                    onError);
+            APIClient.DeleteModComment(modId, commentId,
+                                       onSuccess,
+                                       onError);
         }
         // ---------[ FETCH ALL RESULTS ]---------
         private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
@@ -1275,7 +1275,7 @@ namespace ModIO
         //                                         Action<TeamMember[]> onSuccess,
         //                                         Action<WebRequestError> onError)
         // {
-        //     Client.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
+        //     APIClient.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
         //                                    result => OnRequestSuccessWrapper(result, onSuccess),
         //                                    onError);
         // }

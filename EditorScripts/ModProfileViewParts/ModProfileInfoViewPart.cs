@@ -60,7 +60,7 @@ namespace ModIO
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
-                                      API.Client.LogError);
+                                      APIClient.LogError);
             }
             else
             {
@@ -336,7 +336,7 @@ namespace ModIO
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
-                                      API.Client.LogError);
+                                      APIClient.LogError);
             }
         }
 

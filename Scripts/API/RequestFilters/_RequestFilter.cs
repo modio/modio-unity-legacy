@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ModIO.API
+namespace ModIO
 {
     public class RequestFilter
     {

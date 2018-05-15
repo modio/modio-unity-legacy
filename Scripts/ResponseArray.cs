@@ -56,7 +56,7 @@ namespace ModIO
                 return _items[index];
             }
         }
-        
+
         // ---------[ IENUMERABLE INTERFACE ]---------
         public IEnumerator<T> GetEnumerator()
         {

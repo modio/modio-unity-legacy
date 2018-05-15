@@ -7,7 +7,7 @@ using System;
 // "False" (note the capitalization). Until fixed,
 // an int or string filter is recommended.
 
-namespace ModIO.API
+namespace ModIO
 {
     // ------[ INTERFACE ]------
     public interface IRequestFieldFilter

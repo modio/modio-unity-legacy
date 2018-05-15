@@ -1,30 +1,21 @@
-﻿using SerializeField = UnityEngine.SerializeField;
+using Newtonsoft.Json;
 
 namespace ModIO
 {
     [System.Serializable]
-    public class APIMessage
+    public struct APIMessage
     {
-        // ---------[ SERIALIZED MEMBERS ]---------
-        [SerializeField] private int _responseCode;
-        [SerializeField] private string _content;
+        /// <summary>
+        /// <a href="https://docs.mod.io/#response-codes">HTTP status code</a> of response.
+        /// </summary>
+        [JsonProperty("code")]
+        public int code;
 
-        // ---------[ FIELDS ]---------
-        public int responseCode { get { return this._responseCode; } }
-        public string content   { get { return this._content; } }
-
-        // ---------[ API OBJECT INTERFACE ]---------
-        public void ApplyMessageObjectValues(API.MessageObject apiObject)
-        {
-            this._responseCode = apiObject.code;
-            this._content = apiObject.message;
-        }
-
-        public static APIMessage CreateFromMessageObject(API.MessageObject apiObject)
-        {
-            var retVal = new APIMessage();
-            retVal.ApplyMessageObjectValues(apiObject);
-            return retVal;
-        }
+        /// <summary>
+        /// The server response to your request. Responses will vary depending on the
+        /// endpoint, but the object structure will persist.
+        /// </summary>
+        [JsonProperty("message")]
+        public string message;
     }
 }

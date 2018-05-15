@@ -109,7 +109,7 @@ namespace ModIO
 
                 ModManager.GetModProfile(modIdProperty.intValue,
                                          onGetProfile,
-                                         API.Client.LogError);
+                                         APIClient.LogError);
             }
 
             scrollPos = Vector2.zero;
