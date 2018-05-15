@@ -312,7 +312,7 @@ namespace ModIO
             }
         }
 
-        // ---------[ IMAGE MANAGEMENT ]---------
+        // ---------[ MOD IMAGES ]---------
         // TODO(@jackson): Look at reconfiguring params
         public static void GetModLogo(ModProfile profile, LogoVersion version,
                                       Action<Texture2D> onSuccess,
@@ -374,6 +374,28 @@ namespace ModIO
                 }
             });
         }
+
+        // ---------[ MODFILES ]---------
+        public static ModBinaryDownload GetCurrentModBinary(ModProfile profile)
+        {
+            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
+                                                                          profile.currentRelease.id);
+            ModBinaryDownload download;
+
+            if(File.Exists(zipFilePath))
+            {
+                download = new ModBinaryDownload();
+                download.isDone = true;
+                download.filePath = zipFilePath;
+            }
+            else
+            {
+                download = DownloadClient.DownloadModBinary(profile.currentRelease);
+            }
+
+            return download;
+        }
+
 
 
 
@@ -640,56 +662,6 @@ namespace ModIO
                 }
             }
             return null;
-        }
-
-        // ---------[ MODFILE & BINARY MANAGEMENT ]---------
-        public static void LoadOrDownloadModfile(int modId, int modfileId,
-                                                 Action<Modfile> onSuccess,
-                                                 Action<WebRequestError> onError)
-        {
-            string modfileFilePath = (GetModDirectory(modId) + "modfile_"
-                                      + modfileId.ToString() + ".data");
-            if(File.Exists(modfileFilePath))
-            {
-                // Load ModProfile from Disk
-                Modfile modfile = JsonConvert.DeserializeObject<Modfile>(File.ReadAllText(modfileFilePath));
-                onSuccess(modfile);
-            }
-            else
-            {
-                Action<Modfile> writeModfileToDisk = (m) =>
-                {
-                    File.WriteAllText(modfileFilePath,
-                                      JsonConvert.SerializeObject(m));
-                    onSuccess(m);
-                };
-
-                APIClient.GetModfile(modId, modfileId,
-                                  writeModfileToDisk,
-                                  onError);
-            }
-        }
-
-        public static FileDownload StartBinaryDownload(int modId, int modfileId)
-        {
-            string binaryFilePath = (GetModDirectory(modId) + "binary_"
-                                     + modfileId.ToString() + ".zip");
-
-            FileDownload download = new FileDownload();
-            Action<Modfile> queueBinaryDownload = (m) =>
-            {
-                download.sourceURL = m.downloadLocator.binaryURL;
-                download.fileURL = binaryFilePath;
-                download.EnableFilehashVerification(m.fileHash.md5);
-
-                DownloadManager.QueueDownload(download);
-            };
-
-            APIClient.GetModfile(modId, modfileId,
-                              queueBinaryDownload,
-                              download.MarkAsFailed);
-
-            return download;
         }
 
         // ---------[ IMAGE MANAGEMENT ]---------
