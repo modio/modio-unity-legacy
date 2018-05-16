@@ -6,72 +6,12 @@ using UnityEngine.Networking;
 
 namespace ModIO
 {
-    public class TextureDownload
-    {
-        public event Action<Texture2D> succeeded;
-        public event Action<WebRequestError> failed;
-
-        internal void NotifySucceeded(Texture2D texture)
-        {
-            if(succeeded != null)
-            {
-                succeeded(texture);
-            }
-        }
-        internal void NotifyFailed(WebRequestError error)
-        {
-            #if DEBUG
-                if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                   && failed != APIClient.LogError)
-                {
-                    APIClient.LogError(error);
-                }
-            #endif
-
-            if(failed != null)
-            {
-                failed(error);
-            }
-        }
-    }
-
-    public class ModBinaryDownload
-    {
-        public event Action succeeded;
-        public event Action<WebRequestError> failed;
-
-        public bool isDone;
-        public string filePath;
-
-        internal void NotifySucceeded()
-        {
-            if(succeeded != null)
-            {
-                succeeded();
-            }
-        }
-        internal void NotifyFailed(WebRequestError error)
-        {
-            #if DEBUG
-                if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                   && failed != APIClient.LogError)
-                {
-                    APIClient.LogError(error);
-                }
-            #endif
-
-            if(failed != null)
-            {
-                failed(error);
-            }
-        }
-    }
-
     public static class DownloadClient
     {
-        public static TextureDownload DownloadModLogo(ModProfile profile, LogoVersion version)
+        // ---------[ IMAGE DOWNLOADS ]---------
+        public static ImageDownload DownloadModLogo(ModProfile profile, LogoVersion version)
         {
-            TextureDownload download = new TextureDownload();
+            ImageDownload download = new ImageDownload();
 
             string logoURL = profile.logoLocator.GetVersionURL(version);
 
@@ -84,11 +24,11 @@ namespace ModIO
             return download;
         }
 
-        public static TextureDownload DownloadModGalleryImage(ModProfile profile,
+        public static ImageDownload DownloadModGalleryImage(ModProfile profile,
                                                               string imageFileName,
                                                               ModGalleryImageVersion version)
         {
-            TextureDownload download = new TextureDownload();
+            ImageDownload download = new ImageDownload();
 
             string imageURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
 
@@ -102,7 +42,7 @@ namespace ModIO
         }
 
         private static void OnImageDownloadCompleted(UnityWebRequestAsyncOperation operation,
-                                                     TextureDownload download)
+                                                     ImageDownload download)
         {
             UnityWebRequest webRequest = operation.webRequest;
 
@@ -131,6 +71,7 @@ namespace ModIO
             }
         }
 
+        // ---------[ BINARY DOWNLOADS ]---------
         public static ModBinaryDownload DownloadModBinary(ModfileStub modfile)
         {
             ModBinaryDownload download = new ModBinaryDownload();
@@ -173,7 +114,6 @@ namespace ModIO
             operation.completed += (o) => DownloadClient.OnModBinaryDownloadCompleted(operation,
                                                                                  download,
                                                                                  filePath);
-
         }
 
         private static void OnModBinaryDownloadCompleted(UnityWebRequestAsyncOperation operation,

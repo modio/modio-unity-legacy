@@ -707,7 +707,7 @@ namespace ModIO
 
         // TODO(@jackson): Defend
         // TODO(@jackson): Record whether completed (lest placeholder be accepted)
-        public static TextureDownload DownloadAndSaveImageAsPNG(string serverURL,
+        public static ImageDownload DownloadAndSaveImageAsPNG(string serverURL,
                                                                 string downloadFilePath,
                                                                 Texture2D placeholderTexture)
         {
@@ -716,7 +716,7 @@ namespace ModIO
                                        + "\n\'{0}\' appears to be in a different format.",
                                        downloadFilePath));
 
-            var download = new TextureDownload();
+            var download = new ImageDownload();
 
             Directory.CreateDirectory(Path.GetDirectoryName(downloadFilePath));
             File.WriteAllBytes(downloadFilePath, placeholderTexture.EncodeToPNG());
