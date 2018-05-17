@@ -5,7 +5,7 @@ namespace ModIO
 {
     public interface IModProfileViewPart
     {
-        void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile profile);
+        void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile profile, UserProfile user);
         void OnDisable();
         void OnGUI();
         void OnUpdate();

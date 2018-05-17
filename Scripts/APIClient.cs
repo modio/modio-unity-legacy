@@ -58,54 +58,31 @@ namespace ModIO
         };
 
         // ---------[ MEMBERS ]---------
-        private static int _gameId = GlobalSettings.GAME_ID;
-        private static string _gameKey = GlobalSettings.GAME_APIKEY;
-        private static string _userToken = null;
-
-        // ---------[ INITIALIZATION ]---------
-        public static void SetGameDetails(int id, string apiKey)
-        {
-            Debug.Assert(id > 0 && !String.IsNullOrEmpty(apiKey),
-                         "[mod.io] Please provide a valid game id and api key."
-                         + " Provided you have created a game profile on mod.io,"
-                         + " these details can be found at https://mod.io/apikey/widget");
-
-            APIClient._gameId = id;
-            APIClient._gameKey = apiKey;
-        }
-
-        public static void SetUserAuthorizationToken(string oAuthToken)
-        {
-            APIClient._userToken = oAuthToken;
-        }
-
-        public static void ClearUserAuthorizationToken()
-        {
-            APIClient._userToken = null;
-        }
+        public static int gameId = GlobalSettings.GAME_ID;
+        public static string gameAPIKey = GlobalSettings.GAME_APIKEY;
+        public static string userAuthorizationToken = null;
 
         // ---------[ DEBUG ASSERTS ]---------
         private static bool AssertAuthorizationDetails(bool isUserTokenRequired)
         {
             #if DEBUG
-            if(APIClient._gameId <= 0
-               || String.IsNullOrEmpty(APIClient._gameKey))
+            if(APIClient.gameId <= 0
+               || String.IsNullOrEmpty(APIClient.gameAPIKey))
             {
                 Debug.LogError("[mod.io] No API requests can be excuted without a"
                                + " valid Game Id and Game API Key. These need to be"
                                + " saved in ModIO.GlobalSettings or"
-                               + " set via ModIO.APIClient.SetGameDetails() before"
+                               + " set directly on the ModIO.APIClient before"
                                + " any requests can be sent to the API.");
                 return false;
             }
 
             if(isUserTokenRequired
-               && String.IsNullOrEmpty(APIClient._userToken))
+               && String.IsNullOrEmpty(APIClient.userAuthorizationToken))
             {
                 Debug.LogError("[mod.io] API request to modification or User-specific"
                                + " endpoints cannot be made without first setting the"
-                               + " User Authorization Token via ModIO.APIClient."
-                               + "SetUserAuthorizationToken().");
+                               + " User Authorization Token on the ModIO.APIClient.");
                 return false;
             }
             #endif
@@ -131,16 +108,16 @@ namespace ModIO
                                + "&_limit=" + pagination.limit
                                + "&_offset=" + pagination.offset);
 
-            if(APIClient._userToken == null)
+            if(APIClient.userAuthorizationToken == null)
             {
-                queryURL += "&api_key=" + APIClient._gameKey;
+                queryURL += "&api_key=" + APIClient.gameAPIKey;
             }
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
 
-            if(APIClient._userToken != null)
+            if(APIClient.userAuthorizationToken != null)
             {
-                webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient._userToken);
+                webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
             }
 
             #if DEBUG
@@ -191,7 +168,7 @@ namespace ModIO
                                      + "&_offset=" + pagination.offset);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient._userToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -245,7 +222,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient._userToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -314,7 +291,7 @@ namespace ModIO
 
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient._userToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -388,7 +365,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient._userToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -528,18 +505,18 @@ namespace ModIO
             string endpointURL = API_URL + "/oauth/emailrequest";
             StringValueParameter[] valueFields = new StringValueParameter[]
             {
-                StringValueParameter.Create("api_key", APIClient._gameKey),
+                StringValueParameter.Create("api_key", APIClient.gameAPIKey),
                 StringValueParameter.Create("email", emailAddress),
             };
 
-            string oldToken = APIClient._userToken;
-            APIClient._userToken = "NONE";
+            string oldToken = APIClient.userAuthorizationToken;
+            APIClient.userAuthorizationToken = "NONE";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
                                                                     valueFields,
                                                                     null);
 
-            APIClient._userToken = oldToken;
+            APIClient.userAuthorizationToken = oldToken;
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -551,18 +528,18 @@ namespace ModIO
             string endpointURL = API_URL + "/oauth/emailexchange";
             StringValueParameter[] valueFields = new StringValueParameter[]
             {
-                StringValueParameter.Create("api_key", APIClient._gameKey),
+                StringValueParameter.Create("api_key", APIClient.gameAPIKey),
                 StringValueParameter.Create("security_code", securityCode),
             };
 
-            string oldToken = APIClient._userToken;
-            APIClient._userToken = "NONE";
+            string oldToken = APIClient.userAuthorizationToken;
+            APIClient.userAuthorizationToken = "NONE";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
                                                                     valueFields,
                                                                     null);
 
-            APIClient._userToken = oldToken;
+            APIClient.userAuthorizationToken = oldToken;
 
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
             {
@@ -1000,8 +977,8 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              filter.GenerateFilterString(),
-                                                              pagination);
+                                                                 filter.GenerateFilterString(),
+                                                                 pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }

@@ -24,7 +24,7 @@ namespace ModIO
         // ---------[ FIELDS ]---------
         // --- Key Data ---
         public int gameId = GlobalSettings.GAME_ID;
-        public string gameKey = GlobalSettings.GAME_APIKEY;
+        public string gameAPIKey = GlobalSettings.GAME_APIKEY;
         public bool isAutomaticUpdateEnabled = false;
 
         // --- Caching ---
@@ -33,7 +33,7 @@ namespace ModIO
 
         // ---- Non Serialized ---
         [HideInInspector]
-        public AuthenticatedUser authUser = null;
+        public UserProfile userProfile = null;
         [HideInInspector]
         public int lastCacheUpdate = -1;
 
@@ -45,17 +45,27 @@ namespace ModIO
 
         protected virtual void Start()
         {
-            APIClient.SetGameDetails(gameId, gameKey);
-            CacheClient.LoadAuthenticatedUser((au) =>
-            {
-                if(au != null)
-                {
-                    authUser = au;
-                    APIClient.SetUserAuthorizationToken(au.oAuthToken);
-                }
+            APIClient.gameId = this.gameId;
+            APIClient.gameAPIKey = this.gameAPIKey;
 
+            string userToken = CacheClient.LoadAuthenticatedUserOAuthToken();
+
+            if(!String.IsNullOrEmpty(userToken))
+            {
+                APIClient.userAuthorizationToken = userToken;
+
+                ModManager.GetAuthenticatedUserProfile((userProfile) =>
+                {
+                    this.userProfile = userProfile;
+
+                    StartCoroutine(InitializationCoroutine(OnInitialized));
+                },
+                (e) => { StartCoroutine(InitializationCoroutine(OnInitialized)); });
+            }
+            else
+            {
                 StartCoroutine(InitializationCoroutine(OnInitialized));
-            });
+            }
         }
 
         protected virtual IEnumerator InitializationCoroutine(Action onInitializedCallback)

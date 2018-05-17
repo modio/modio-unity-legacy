@@ -22,6 +22,7 @@ namespace ModIO
         // ------[ WINDOW FIELDS ]---------
         private static bool isAwaitingServerResponse = false;
         // - Login -
+        private UserProfile user;
         private bool isInputtingEmail;
         private string emailAddressInput;
         private string securityCodeInput;
@@ -39,6 +40,19 @@ namespace ModIO
 
             buildProfile = new EditableModfile();
             buildProfile.version.value = "0.0.0";
+
+            string authToken = CacheClient.LoadAuthenticatedUserOAuthToken();
+            if(!String.IsNullOrEmpty(authToken))
+            {
+                APIClient.userAuthorizationToken = authToken;
+
+                ModManager.GetAuthenticatedUserProfile((userProfile) =>
+                {
+                    this.user = userProfile;
+                    Repaint();
+                },
+                null);
+            }
         }
 
         protected virtual void OnDisable() {}
@@ -46,7 +60,7 @@ namespace ModIO
         // ---------[ GUI ]---------
         protected virtual void OnGUI()
         {
-            if(ModManager.GetAuthenticatedUser() == null)
+            if(this.user == null)
             {
                 LayoutLoginPrompt();
             }
@@ -145,17 +159,15 @@ namespace ModIO
         protected virtual void LayoutSubmissionFields()
         {
             // - Account Header -
-            string username = ModManager.GetAuthenticatedUser().profile.username;
-
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField("Logged in as:  " + username);
+                EditorGUILayout.LabelField("Logged in as:  " + this.user.username);
                 GUILayout.FlexibleSpace();
                 if(GUILayout.Button("Log Out"))
                 {
                     EditorApplication.delayCall += () =>
                     {
-                        if(EditorDialogs.ConfirmLogOut(username))
+                        if(EditorDialogs.ConfirmLogOut(this.user.username))
                         {
                             ModManager.LogUserOut();
 

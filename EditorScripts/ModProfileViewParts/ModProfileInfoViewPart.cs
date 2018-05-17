@@ -36,7 +36,7 @@ namespace ModIO
         private bool isTagsExpanded;
 
         // ------[ INITIALIZATION ]------
-        public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile)
+        public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile, UserProfile user)
         {
             this.editableProfileProperty = serializedEditableModProfile;
             this.profile = baseProfile;

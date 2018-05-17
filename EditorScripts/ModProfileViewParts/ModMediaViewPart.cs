@@ -86,7 +86,7 @@ namespace ModIO
 
 
         // ------[ INITIALIZATION ]------
-        public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile)
+        public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile, UserProfile user)
         {
             this.profile = baseProfile;
             this.youtubeURLsProp = serializedEditableModProfile.FindPropertyRelative("youtubeURLs");

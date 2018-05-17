@@ -1,5 +1,7 @@
 ﻿#if UNITY_EDITOR
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using UnityEditor;
@@ -16,7 +18,7 @@ namespace ModIO
         // ------[ NESTED CLASSES ]------
         protected class LoadingProfileViewPart : IModProfileViewPart
         {
-            public void OnEnable(SerializedProperty editableProfileProperty, ModProfile baseProfile) {}
+            public void OnEnable(SerializedProperty editableProfileProperty, ModProfile baseProfile, UserProfile user) {}
             public void OnDisable(){}
             public void OnUpdate(){}
             public bool IsRepaintRequired() { return false; }
@@ -34,6 +36,7 @@ namespace ModIO
 
         // ------[ EDITOR CACHING ]------
         private ModProfile profile;
+        private UserProfile user;
 
         // ------[ VIEW INFORMATION ]------
         private IModProfileViewPart[] profileViewParts;
@@ -55,38 +58,53 @@ namespace ModIO
             // Profile Initialization
             if(modIdProperty.intValue == ScriptableModProfile.UNINITIALIZED_MOD_ID)
             {
-                if(ModManager.GetAuthenticatedUser() != null)
+                this.profile = null;
+
+                string userAuthToken = CacheClient.LoadAuthenticatedUserOAuthToken();
+
+                if(!String.IsNullOrEmpty(userAuthToken))
                 {
-                    // TODO(@jackson): Reimplement
-                    System.Func<ModProfile, bool> userIsTeamMember = (p) => true;
-                    // System.Func<ModProfile, bool> userIsTeamMember = (p) =>
-                    // {
-                    //     foreach(var teamMember in p.teamMembers)
-                    //     {
-                    //         if(teamMember.userId == ModManager.GetAuthenticatedUser().profile.id
-                    //            && (int)teamMember.permissionLevel >= (int)TeamMemberPermissionLevel.Creator)
-                    //         {
-                    //             return true;
-                    //         }
-                    //     }
-                    //     return false;
-                    // };
+                    APIClient.userAuthorizationToken = userAuthToken;
 
-                    profile = null;
-
-                    modInitializationOptionIndex = 0;
-                    modList = CacheClient.AllModProfiles().Where(userIsTeamMember).ToArray();
-                    modOptions = new string[modList.Length];
-                    for(int i = 0; i < modList.Length; ++i)
+                    ModManager.GetAuthenticatedUserProfile((userProfile) =>
                     {
-                        ModProfile mod = modList[i];
-                        modOptions[i] = mod.name;
-                    }
+                        this.user = userProfile;
+
+                        // - Find User Mods -
+                        Action<List<ModTeamMember>> onGetModTeam = (modTeam) =>
+                        {
+                            System.Func<ModProfile, bool> userIsTeamMember = (p) =>
+                            {
+                                foreach(var teamMember in modTeam)
+                                {
+                                    if(teamMember.user.id == this.user.id
+                                       && (int)teamMember.accessLevel >= (int)ModTeamMemberAccessLevel.Administrator)
+                                    {
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            };
+
+                            modInitializationOptionIndex = 0;
+                            modList = CacheClient.AllModProfiles().Where(userIsTeamMember).ToArray();
+                            modOptions = new string[modList.Length];
+                            for(int i = 0; i < modList.Length; ++i)
+                            {
+                                ModProfile mod = modList[i];
+                                modOptions[i] = mod.name;
+                            }
+                        };
+
+                        ModManager.GetModTeam(modIdProperty.intValue,
+                                              onGetModTeam,
+                                              APIClient.LogError);
+                    },
+                    APIClient.LogError);
+
                 }
-                else
-                {
-                    modList = new ModProfile[0];
-                }
+
+                modInitializationOptionIndex = -1;
             }
             else
             {
@@ -103,7 +121,7 @@ namespace ModIO
 
                     foreach(IModProfileViewPart viewPart in profileViewParts)
                     {
-                        viewPart.OnEnable(editableModProfileProperty, p);
+                        viewPart.OnEnable(editableModProfileProperty, p, this.user);
                     };
                 };
 

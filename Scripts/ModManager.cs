@@ -18,7 +18,7 @@ namespace ModIO
 {
     public delegate void GameProfileEventHandler(GameProfile profile);
     public delegate void ModProfileEventHandler(ModProfile modProfile);
-    public delegate void AuthenticatedUserEventHandler(AuthenticatedUser user);
+    public delegate void AuthenticatedUserEventHandler(UserProfile user);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
     public delegate void ModLogoUpdatedEventHandler(int modId, LogoVersion version, Texture2D texture);
@@ -50,6 +50,29 @@ namespace ModIO
         {
             request.error = error;
             isDone = true;
+        }
+
+        // ---------[ AUTHENTICATED USER ]---------
+        public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
+                                                       Action<WebRequestError> onError)
+        {
+            UserProfile cachedProfile = CacheClient.LoadAuthenticatedUserProfile();
+
+            if(cachedProfile != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedProfile); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<UserProfile> onGetUser = (profile) =>
+                {
+                    CacheClient.SaveAuthenticatedUserProfile(profile);
+                    if(onSuccess != null) { onSuccess(profile); }
+                };
+
+                APIClient.GetAuthenticatedUser(onGetUser, onError);
+            }
         }
 
         // ---------[ GAME PROFILE ]---------
@@ -166,7 +189,7 @@ namespace ModIO
                                              Action<List<ModEvent>> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            // - Filter & Pagination -
+            // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.dateAdded;
             modEventFilter.fieldFilters[GetAllModEventsFilterFields.dateAdded]
@@ -468,6 +491,32 @@ namespace ModIO
             }
         }
 
+        // ---------[ MOD TEAMS ]---------
+        public static void GetModTeam(int modId,
+                                      Action<List<ModTeamMember>> onSuccess,
+                                      Action<WebRequestError> onError)
+        {
+            List<ModTeamMember> cachedModTeam = CacheClient.LoadModTeam(modId);
+
+            if(cachedModTeam != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedModTeam); }
+            }
+            else
+            {
+                // - Get All Team Members -
+                Action<List<ModTeamMember>> onGetModTeam = (modTeam) =>
+                {
+                    CacheClient.SaveModTeam(modId, modTeam);
+                    if(onSuccess != null) { onSuccess(modTeam); }
+                };
+
+                ModManager.FetchAllResultsForQuery<ModTeamMember>((p,s,e) => APIClient.GetAllModTeamMembers(modId, RequestFilter.None,
+                                                                                                            p, s, e),
+                                                                  onGetModTeam,
+                                                                  onError);
+            }
+        }
 
 
 
@@ -487,7 +536,7 @@ namespace ModIO
 
         // ---------[ VARIABLES ]---------
         private static ManifestData manifest = null;
-        private static AuthenticatedUser authUser = null;
+        private static UserProfile authUser = null;
 
         private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
         private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
@@ -498,12 +547,12 @@ namespace ModIO
             if(authUser == null) { return; }
 
             List<int> addedMods = new List<int>();
-            List<int> removedMods = authUser.subscribedModIDs;
-            authUser.subscribedModIDs = new List<int>(userSubscriptions.Count);
+            List<int> removedMods = new List<int>(); //authUser.subscribedModIDs;
+            // authUser.subscribedModIDs = new List<int>(userSubscriptions.Count);
 
             foreach(ModProfile modProfile in userSubscriptions)
             {
-                authUser.subscribedModIDs.Add(modProfile.id);
+                // authUser.subscribedModIDs.Add(modProfile.id);
 
                 if(removedMods.Contains(modProfile.id))
                 {
@@ -541,10 +590,6 @@ namespace ModIO
         public static event ModIDEventHandler OnModSubscriptionAdded;
         public static event ModIDEventHandler OnModSubscriptionRemoved;
 
-        public static AuthenticatedUser GetAuthenticatedUser()
-        {
-            return authUser;
-        }
 
         public static void RequestSecurityCode(string emailAddress,
                                                Action<APIMessage> onSuccess,
@@ -565,14 +610,14 @@ namespace ModIO
         }
 
         public static void TryLogUserIn(string userOAuthToken,
-                                        Action<AuthenticatedUser> onSuccess,
+                                        Action<UserProfile> onSuccess,
                                         Action<WebRequestError> onError)
         {
             Action<UserProfile> onGetUser = (userProfile) =>
             {
-                authUser = new AuthenticatedUser();
-                authUser.oAuthToken = userOAuthToken;
-                authUser.profile = userProfile;
+                authUser = new UserProfile();
+                // authUser.oAuthToken = userOAuthToken;
+                // authUser.profile = userProfile;
                 WriteUserDataToDisk();
 
                 onSuccess(authUser);
@@ -587,27 +632,27 @@ namespace ModIO
                                                     APIClient.LogError);
             };
 
-            APIClient.SetUserAuthorizationToken(userOAuthToken);
+            // APIClient.SetUserAuthorizationToken(userOAuthToken);
 
-            APIClient.GetAuthenticatedUser(onGetUser,
-                                        (e) =>
-                                        {
-                                            APIClient.ClearUserAuthorizationToken();
-                                            onError(e);
-                                        });
+            // APIClient.GetAuthenticatedUser(onGetUser,
+            //                             (e) =>
+            //                             {
+            //                                 APIClient.ClearUserAuthorizationToken();
+            //                                 onError(e);
+            //                             });
         }
 
         public static void LogUserOut()
         {
-            authUser = null;
-            DeleteUserDataFromDisk();
+            // authUser = null;
+            // DeleteUserDataFromDisk();
 
-            APIClient.ClearUserAuthorizationToken();
+            // APIClient.ClearUserAuthorizationToken();
 
-            if(userLoggedOut != null)
-            {
-                userLoggedOut();
-            }
+            // if(userLoggedOut != null)
+            // {
+            //     userLoggedOut();
+            // }
         }
 
         public static void SubscribeToMod(int modId,
@@ -617,7 +662,7 @@ namespace ModIO
             APIClient.SubscribeToMod(modId,
                                   (message) =>
                                   {
-                                    authUser.subscribedModIDs.Add(modId);
+                                    // authUser.subscribedModIDs.Add(modId);
                                     onSuccess(message);
                                   },
                                   onError);
@@ -630,7 +675,7 @@ namespace ModIO
             APIClient.UnsubscribeFromMod(modId,
                                       (message) =>
                                       {
-                                        authUser.subscribedModIDs.Remove(modId);
+                                        // authUser.subscribedModIDs.Remove(modId);
                                         onSuccess(message);
                                       },
                                       onError);
@@ -638,10 +683,10 @@ namespace ModIO
 
         public static bool IsSubscribedToMod(int modId)
         {
-            foreach(int subscribedModID in authUser.subscribedModIDs)
-            {
-                if(subscribedModID == modId) { return true; }
-            }
+            // foreach(int subscribedModID in authUser.subscribedModIDs)
+            // {
+            //     if(subscribedModID == modId) { return true; }
+            // }
             return false;
         }
 

@@ -223,19 +223,90 @@ namespace ModIO
 
 
         // ---------[ USER MANAGEMENT ]---------
+        [Serializable]
+        private class AuthenticatedUser
+        {
+            public string oAuthToken;
+            public UserProfile profile;
+            public List<int> subscribedModIds;
+        }
+
         public static string userFilePath
         { get { return CacheClient._cacheDirectory + "user.data"; } }
 
-        public static void SaveAuthenticatedUser(AuthenticatedUser user)
+        public static void SaveAuthenticatedUserOAuthToken(string oAuthToken)
         {
-            CacheClient.WriteJsonObjectFile(userFilePath, user);
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au == null)
+            {
+                au = new AuthenticatedUser();
+            }
+
+            au.oAuthToken = oAuthToken;
+
+            CacheClient.WriteJsonObjectFile(userFilePath, au);
         }
 
-        public static void LoadAuthenticatedUser(Action<AuthenticatedUser> callback)
+        public static string LoadAuthenticatedUserOAuthToken()
         {
-            AuthenticatedUser user
-            = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
-            callback(user);
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au != null)
+            {
+                return au.oAuthToken;
+            }
+            return null;
+        }
+
+        public static void SaveAuthenticatedUserProfile(UserProfile userProfile)
+        {
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au == null)
+            {
+                au = new AuthenticatedUser();
+            }
+
+            au.profile = userProfile;
+
+            CacheClient.WriteJsonObjectFile(userFilePath, au);
+        }
+
+        public static UserProfile LoadAuthenticatedUserProfile()
+        {
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au != null)
+            {
+                return au.profile;
+            }
+            return null;
+        }
+
+        public static void SaveAuthenticatedUserSubscriptions(List<int> subscribedModIds)
+        {
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au == null)
+            {
+                au = new AuthenticatedUser();
+            }
+
+            au.subscribedModIds = subscribedModIds;
+
+            CacheClient.WriteJsonObjectFile(userFilePath, au);
+        }
+
+        public static List<int> LoadAuthenticatedUserSubscriptions()
+        {
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au != null)
+            {
+                return au.subscribedModIds;
+            }
+            return null;
         }
 
         public static void DeleteAuthenticatedUser()
@@ -478,12 +549,11 @@ namespace ModIO
                    + "team.data");
         }
 
-        public static void LoadModTeam(int modId,
-                                       Action<List<ModTeamMember>> callback)
+        public static List<ModTeamMember> LoadModTeam(int modId)
         {
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
             var modTeam = CacheClient.ReadJsonObjectFile<List<ModTeamMember>>(filePath);
-            callback(modTeam);
+            return modTeam;
         }
 
         public static void SaveModTeam(int modId,
