@@ -74,6 +74,12 @@ namespace ModIO
                    + modId.ToString() + "/");
         }
 
+        public static string GenerateModBuildsDirectoryPath(int modId)
+        {
+            return(CacheClient.GenerateModDirectoryPath(modId)
+                   + "builds/");
+        }
+
 
         // ---------[ BASIC FILE I/O ]---------
         public static T ReadJsonObjectFile<T>(string filePath)
@@ -338,14 +344,12 @@ namespace ModIO
         // ---------[ MODFILES ]---------
         public static string GenerateModfileFilePath(int modId, int modfileId)
         {
-            return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "builds/"
+            return(CacheClient.GenerateModBuildsDirectoryPath(modId)
                    + modfileId + ".data");
         }
         public static string GenerateModBinaryZipFilePath(int modId, int modfileId)
         {
-            return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "builds/"
+            return(CacheClient.GenerateModBuildsDirectoryPath(modId)
                    + modfileId + ".zip");
         }
 

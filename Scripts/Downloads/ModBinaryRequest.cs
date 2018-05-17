@@ -7,7 +7,8 @@ namespace ModIO
         public event Action<ModBinaryRequest> succeeded;
         public event Action<ModBinaryRequest> failed;
 
-        public string filePath;
+        public Modfile modfile;
+        public string binaryFilePath;
         public bool isDone;
 
         public WebRequestError error;

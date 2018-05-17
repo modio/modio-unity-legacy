@@ -74,11 +74,13 @@ namespace ModIO
         }
 
         // ---------[ BINARY DOWNLOADS ]---------
-        public static ModBinaryRequest DownloadModBinary(int modId, int modfileId)
+        public static ModBinaryRequest DownloadModBinary(int modId, int modfileId,
+                                                         string downloadFilePath)
         {
             ModBinaryRequest request = new ModBinaryRequest();
 
             request.isDone = false;
+            request.binaryFilePath = downloadFilePath;
 
             // - Acquire Download URL -
             APIClient.GetModfile(modId, modfileId,
@@ -90,11 +92,9 @@ namespace ModIO
 
         private static void OnGetModfile(Modfile modfile, ModBinaryRequest request)
         {
-            CacheClient.SaveModfile(modfile);
+            string tempFilePath = request.binaryFilePath + ".download";
 
-            string filePath = CacheClient.GenerateModBinaryZipFilePath(modfile.modId, modfile.id);
-            string tempFilePath = filePath + ".download";
-
+            request.modfile = modfile;
             request.webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
 
             try
@@ -116,17 +116,14 @@ namespace ModIO
 
             var operation = request.webRequest.SendWebRequest();
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(operation,
-                                                                                     request,
-                                                                                     filePath);
+                                                                                     request);
         }
 
         private static void OnModBinaryRequestCompleted(UnityWebRequestAsyncOperation operation,
-                                                        ModBinaryRequest request,
-                                                        string filePath)
+                                                        ModBinaryRequest request)
         {
             UnityWebRequest webRequest = operation.webRequest;
             request.isDone = true;
-            request.filePath = null;
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
@@ -143,30 +140,28 @@ namespace ModIO
                     Debug.Log("DOWNLOAD SUCEEDED"
                               + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
                               + "\nURL: " + webRequest.url
-                              + "\nFilePath: " + filePath);
+                              + "\nFilePath: " + request.binaryFilePath);
                 }
                 #endif
 
                 try
                 {
-                    if(File.Exists(filePath))
+                    if(File.Exists(request.binaryFilePath))
                     {
-                        File.Delete(filePath);
+                        File.Delete(request.binaryFilePath);
                     }
 
-                    File.Move(filePath + ".download", filePath);
+                    File.Move(request.binaryFilePath + ".download", request.binaryFilePath);
                 }
                 catch(Exception e)
                 {
                     string warningInfo = ("[mod.io] Failed to save mod binary."
-                                          + "\nFile: " + filePath + "\n");
+                                          + "\nFile: " + request.binaryFilePath + "\n");
 
                     Utility.LogExceptionAsWarning(warningInfo, e);
 
                     request.NotifyFailed();
                 }
-
-                request.filePath = filePath;
 
                 request.NotifySucceeded();
             }

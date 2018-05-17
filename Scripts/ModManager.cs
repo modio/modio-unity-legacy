@@ -413,15 +413,33 @@ namespace ModIO
             {
                 request = new ModBinaryRequest();
                 request.isDone = true;
-                request.filePath = zipFilePath;
+                request.binaryFilePath = zipFilePath;
             }
             else
             {
                 request = DownloadClient.DownloadModBinary(profile.id,
-                                                           profile.currentRelease.id);
+                                                           profile.currentRelease.id,
+                                                           CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.currentRelease.id));
+
+                request.succeeded += (r) => CacheClient.SaveModfile(r.modfile);
             }
 
             return request;
+        }
+
+        public static void ClearNonCurrentBuilds(ModProfile profile)
+        {
+            string buildDir = CacheClient.GenerateModBuildsDirectoryPath(profile.id);
+            string[] buildFilePaths = Directory.GetFiles(buildDir, "*.*");
+
+            foreach(string buildFile in buildFilePaths)
+            {
+                if(Path.GetFileNameWithoutExtension(buildFile)
+                   != profile.currentRelease.id.ToString())
+                {
+                    CacheClient.DeleteFile(buildFile);
+                }
+            }
         }
 
 
