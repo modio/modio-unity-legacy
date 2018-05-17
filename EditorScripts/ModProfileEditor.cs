@@ -75,7 +75,7 @@ namespace ModIO
                     profile = null;
 
                     modInitializationOptionIndex = 0;
-                    modList = ModManager.GetAllModProfiles().Where(userIsTeamMember).ToArray();
+                    modList = CacheClient.AllModProfiles().Where(userIsTeamMember).ToArray();
                     modOptions = new string[modList.Length];
                     for(int i = 0; i < modList.Length; ++i)
                     {

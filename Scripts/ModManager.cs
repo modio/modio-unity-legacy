@@ -427,7 +427,7 @@ namespace ModIO
             return request;
         }
 
-        public static void ClearNonCurrentBuilds(ModProfile profile)
+        public static void DeleteAllNonCurrentBuilds(ModProfile profile)
         {
             string buildDir = CacheClient.GenerateModBuildsDirectoryPath(profile.id);
             string[] buildFilePaths = Directory.GetFiles(buildDir, "*.*");
@@ -646,57 +646,9 @@ namespace ModIO
         }
 
         // ---------[ MOD MANAGEMENT ]---------
-        public static event ModProfileEventHandler OnModAdded;
-        public static event ModIDEventHandler OnModRemoved;
-        public static event ModIDEventHandler OnModUpdated;
-        public static event ModfileEventHandler OnModfileChanged;
-
-        private static Dictionary<int, ModProfile> modCache = new Dictionary<int, ModProfile>();
-
         public static string GetModDirectory(int modId)
         {
             return cacheDirectory + "mods/" + modId + "/";
-        }
-
-        // TODO(@jackson): Pass other components
-        private static void StoreModData(ModProfile modProfile)
-        {
-            // - Cache -
-            modCache[modProfile.id] = modProfile;
-
-            // - Write to disk -
-            string modDir = GetModDirectory(modProfile.id);
-            Directory.CreateDirectory(modDir);
-            File.WriteAllText(modDir + "mod_profile.data", JsonConvert.SerializeObject(modProfile));
-            // File.WriteAllText(modDir + "mod_logo.data", JsonConvert.SerializeObject(modProfile.logo.AsImageSet()));
-        }
-
-        private static void StoreModDatas(ModProfile[] modArray)
-        {
-            foreach(ModProfile mod in modArray)
-            {
-                StoreModData(mod);
-            }
-        }
-        private static void UncacheMod(int modId)
-        {
-            string modDir = GetModDirectory(modId);
-            Directory.Delete(modDir, true);
-        }
-
-        public static IEnumerable<ModProfile> GetAllModProfiles()
-        {
-            // return CacheClient.LoadAllModProfiles();
-            return new List<ModProfile>();
-        }
-
-        public static void DeleteAllDownloadedBinaries(int modId)
-        {
-            string[] binaryFilePaths = Directory.GetFiles(GetModDirectory(modId), "modfile_*.zip");
-            foreach(string binaryFilePath in binaryFilePaths)
-            {
-                File.Delete(binaryFilePath);
-            }
         }
 
         public static ModBinaryStatus GetBinaryStatus(ModProfile profile)
