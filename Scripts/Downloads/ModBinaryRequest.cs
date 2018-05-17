@@ -1,19 +1,22 @@
 using System;
 
-using Texture2D = UnityEngine.Texture2D;
-
 namespace ModIO
 {
-    public class ImageDownload
+    public class ModBinaryRequest
     {
-        public event Action<Texture2D> succeeded;
+        public event Action succeeded;
         public event Action<WebRequestError> failed;
 
-        internal void NotifySucceeded(Texture2D texture)
+        public string filePath;
+        public bool isDone;
+
+        public UnityEngine.Networking.UnityWebRequest webRequest;
+
+        internal void NotifySucceeded()
         {
             if(succeeded != null)
             {
-                succeeded(texture);
+                succeeded();
             }
         }
 

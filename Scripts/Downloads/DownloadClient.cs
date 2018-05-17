@@ -9,9 +9,9 @@ namespace ModIO
     public static class DownloadClient
     {
         // ---------[ IMAGE DOWNLOADS ]---------
-        public static ImageDownload DownloadModLogo(ModProfile profile, LogoVersion version)
+        public static ImageRequest DownloadModLogo(ModProfile profile, LogoVersion version)
         {
-            ImageDownload download = new ImageDownload();
+            ImageRequest request = new ImageRequest();
 
             string logoURL = profile.logoLocator.GetVersionURL(version);
 
@@ -19,16 +19,16 @@ namespace ModIO
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, download);
+            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
 
-            return download;
+            return request;
         }
 
-        public static ImageDownload DownloadModGalleryImage(ModProfile profile,
-                                                              string imageFileName,
-                                                              ModGalleryImageVersion version)
+        public static ImageRequest DownloadModGalleryImage(ModProfile profile,
+                                                            string imageFileName,
+                                                            ModGalleryImageVersion version)
         {
-            ImageDownload download = new ImageDownload();
+            ImageRequest request = new ImageRequest();
 
             string imageURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
 
@@ -36,20 +36,20 @@ namespace ModIO
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, download);
+            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
 
-            return download;
+            return request;
         }
 
         private static void OnImageDownloadCompleted(UnityWebRequestAsyncOperation operation,
-                                                     ImageDownload download)
+                                                     ImageRequest request)
         {
             UnityWebRequest webRequest = operation.webRequest;
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
                 WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
-                download.NotifyFailed(error);
+                request.NotifyFailed(error);
             }
             else
             {
@@ -67,67 +67,70 @@ namespace ModIO
                 #endif
 
                 Texture2D imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
-                download.NotifySucceeded(imageTexture);
+                request.NotifySucceeded(imageTexture);
             }
         }
 
         // ---------[ BINARY DOWNLOADS ]---------
-        public static ModBinaryDownload DownloadModBinary(ModfileStub modfile)
+        public static ModBinaryRequest DownloadModBinary(int modId, int modfileId)
         {
-            ModBinaryDownload download = new ModBinaryDownload();
+            ModBinaryRequest request = new ModBinaryRequest();
 
-            download.isDone = false;
+            request.isDone = false;
 
             // - Acquire Download URL -
-            APIClient.GetModfile(modfile.modId, modfile.id,
-                                 (mf) => DownloadClient.OnGetModfile(mf, download),
-                                 download.NotifyFailed);
+            APIClient.GetModfile(modId, modfileId,
+                                 (mf) => DownloadClient.OnGetModfile(mf, request),
+                                 request.NotifyFailed);
 
-            return download;
+            return request;
         }
 
-        private static void OnGetModfile(Modfile modfile, ModBinaryDownload download)
+        private static void OnGetModfile(Modfile modfile, ModBinaryRequest request)
         {
+            CacheClient.SaveModfile(modfile);
+
             string filePath = CacheClient.GenerateModBinaryZipFilePath(modfile.modId, modfile.id);
             string tempFilePath = filePath + ".download";
 
-            UnityWebRequest webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
+            request.webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
 
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                webRequest.downloadHandler = new DownloadHandlerFile(tempFilePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
+                request.webRequest.downloadHandler = new DownloadHandlerFile(tempFilePath);
             }
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to create download file on disk."
-                      + "\nFile: " + filePath + "\n");
+                      + "\nFile: " + tempFilePath + "\n");
 
                 Utility.LogExceptionAsWarning(warningInfo, e);
 
-                download.NotifyFailed(new WebRequestError());
+                request.NotifyFailed(new WebRequestError());
 
                 return;
             }
 
-            var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnModBinaryDownloadCompleted(operation,
-                                                                                 download,
-                                                                                 filePath);
+            var operation = request.webRequest.SendWebRequest();
+            operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(operation,
+                                                                                     request,
+                                                                                     filePath);
         }
 
-        private static void OnModBinaryDownloadCompleted(UnityWebRequestAsyncOperation operation,
-                                                         ModBinaryDownload download,
-                                                         string filePath)
+        private static void OnModBinaryRequestCompleted(UnityWebRequestAsyncOperation operation,
+                                                        ModBinaryRequest request,
+                                                        string filePath)
         {
             UnityWebRequest webRequest = operation.webRequest;
-            download.isDone = true;
-            download.filePath = filePath;
+            request.isDone = true;
+            request.filePath = null;
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
                 WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
-                download.NotifyFailed(error);
+
+                request.NotifyFailed(error);
             }
             else
             {
@@ -144,6 +147,11 @@ namespace ModIO
 
                 try
                 {
+                    if(File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+
                     File.Move(filePath + ".download", filePath);
                 }
                 catch(Exception e)
@@ -153,11 +161,12 @@ namespace ModIO
 
                     Utility.LogExceptionAsWarning(warningInfo, e);
 
-                    download.NotifyFailed(new WebRequestError());
+                    request.NotifyFailed(new WebRequestError());
                 }
 
-                download.NotifySucceeded();
-                download.isDone = true;
+                request.filePath = filePath;
+
+                request.NotifySucceeded();
             }
         }
     }

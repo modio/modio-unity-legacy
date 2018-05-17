@@ -350,14 +350,14 @@ namespace ModIO
         }
 
         public static void LoadModfile(int modId, int modfileId,
-                                       Action<ModfileStub> callback)
+                                       Action<Modfile> callback)
         {
             string modfileFilePath = GenerateModfileFilePath(modId, modfileId);
-            var modfile = CacheClient.ReadJsonObjectFile<ModfileStub>(modfileFilePath);
+            var modfile = CacheClient.ReadJsonObjectFile<Modfile>(modfileFilePath);
             callback(modfile);
         }
 
-        public static void SaveModfile(ModfileStub modfile)
+        public static void SaveModfile(Modfile modfile)
         {
             Debug.Assert(modfile.modId > 0,
                          "[mod.io] Cannot cache a modfile without a mod id");

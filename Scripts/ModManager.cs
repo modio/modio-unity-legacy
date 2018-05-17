@@ -101,8 +101,8 @@ namespace ModIO
                     };
 
                     APIClient.GetMod(modId,
-                                  onGetMod,
-                                  onError);
+                                     onGetMod,
+                                     onError);
                 }
             });
         }
@@ -376,24 +376,52 @@ namespace ModIO
         }
 
         // ---------[ MODFILES ]---------
-        public static ModBinaryDownload GetCurrentModBinary(ModProfile profile)
+        public static void GetModfile(int modId, int modfileId,
+                                      Action<Modfile> onSuccess,
+                                      Action<WebRequestError> onError)
+        {
+            CacheClient.LoadModfile(modId, modfileId,
+                                    (cachedModfile) =>
+            {
+                if(cachedModfile != null)
+                {
+                    if(onSuccess != null) { onSuccess(cachedModfile); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<Modfile> onGetModfile = (modfile) =>
+                    {
+                        CacheClient.SaveModfile(modfile);
+                        if(onSuccess != null) { onSuccess(modfile); }
+                    };
+
+                    APIClient.GetModfile(modId, modfileId,
+                                         onGetModfile,
+                                         onError);
+                }
+            });
+        }
+
+        public static ModBinaryRequest GetCurrentModBinary(ModProfile profile)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
                                                                           profile.currentRelease.id);
-            ModBinaryDownload download;
+            ModBinaryRequest request;
 
             if(File.Exists(zipFilePath))
             {
-                download = new ModBinaryDownload();
-                download.isDone = true;
-                download.filePath = zipFilePath;
+                request = new ModBinaryRequest();
+                request.isDone = true;
+                request.filePath = zipFilePath;
             }
             else
             {
-                download = DownloadClient.DownloadModBinary(profile.currentRelease);
+                request = DownloadClient.DownloadModBinary(profile.id,
+                                                           profile.currentRelease.id);
             }
 
-            return download;
+            return request;
         }
 
 
@@ -707,7 +735,7 @@ namespace ModIO
 
         // TODO(@jackson): Defend
         // TODO(@jackson): Record whether completed (lest placeholder be accepted)
-        public static ImageDownload DownloadAndSaveImageAsPNG(string serverURL,
+        public static ImageRequest DownloadAndSaveImageAsPNG(string serverURL,
                                                                 string downloadFilePath,
                                                                 Texture2D placeholderTexture)
         {
@@ -716,7 +744,7 @@ namespace ModIO
                                        + "\n\'{0}\' appears to be in a different format.",
                                        downloadFilePath));
 
-            var download = new ImageDownload();
+            var download = new ImageRequest();
 
             Directory.CreateDirectory(Path.GetDirectoryName(downloadFilePath));
             File.WriteAllBytes(downloadFilePath, placeholderTexture.EncodeToPNG());
