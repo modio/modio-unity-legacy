@@ -331,13 +331,13 @@ namespace ModIO
                 {
                     var textureDownload = DownloadClient.DownloadModLogo(profile, version);
 
-                    textureDownload.succeeded += (texture) =>
+                    textureDownload.succeeded += (d) =>
                     {
-                        CacheClient.SaveModLogo(profile.id, version, texture);
+                        CacheClient.SaveModLogo(profile.id, version, d.imageTexture);
                     };
 
-                    textureDownload.succeeded += onSuccess;
-                    textureDownload.failed += onError;
+                    textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
+                    textureDownload.failed += (d) => onError(d.error);
                 }
             });
         }
@@ -364,13 +364,13 @@ namespace ModIO
                                                                           imageFileName,
                                                                           version);
 
-                    download.succeeded += (texture) =>
+                    download.succeeded += (d) =>
                     {
-                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, texture);
+                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, d.imageTexture);
                     };
 
-                    download.succeeded += onSuccess;
-                    download.failed += onError;
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+                    download.failed += (d) => onError(d.error);
                 }
             });
         }

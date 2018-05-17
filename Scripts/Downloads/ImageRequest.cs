@@ -6,22 +6,28 @@ namespace ModIO
 {
     public class ImageRequest
     {
-        public event Action<Texture2D> succeeded;
-        public event Action<WebRequestError> failed;
+        public event Action<ImageRequest> succeeded;
+        public event Action<ImageRequest> failed;
 
-        internal void NotifySucceeded(Texture2D texture)
+        public Texture2D imageTexture;
+        public string filePath;
+        public bool isDone;
+
+        public WebRequestError error;
+
+        internal void NotifySucceeded()
         {
             if(succeeded != null)
             {
-                succeeded(texture);
+                succeeded(this);
             }
         }
 
-        internal void NotifyFailed(WebRequestError error)
+        internal void NotifyFailed()
         {
             #if DEBUG
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                   && failed != APIClient.LogError)
+                   && error != null)
                 {
                     APIClient.LogError(error);
                 }
@@ -29,7 +35,7 @@ namespace ModIO
 
             if(failed != null)
             {
-                failed(error);
+                failed(this);
             }
         }
     }

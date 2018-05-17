@@ -4,11 +4,13 @@ namespace ModIO
 {
     public class ModBinaryRequest
     {
-        public event Action succeeded;
-        public event Action<WebRequestError> failed;
+        public event Action<ModBinaryRequest> succeeded;
+        public event Action<ModBinaryRequest> failed;
 
         public string filePath;
         public bool isDone;
+
+        public WebRequestError error;
 
         public UnityEngine.Networking.UnityWebRequest webRequest;
 
@@ -16,15 +18,15 @@ namespace ModIO
         {
             if(succeeded != null)
             {
-                succeeded();
+                succeeded(this);
             }
         }
 
-        internal void NotifyFailed(WebRequestError error)
+        internal void NotifyFailed()
         {
             #if DEBUG
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                   && failed != APIClient.LogError)
+                   && error != null)
                 {
                     APIClient.LogError(error);
                 }
@@ -32,7 +34,7 @@ namespace ModIO
 
             if(failed != null)
             {
-                failed(error);
+                failed(this);
             }
         }
     }

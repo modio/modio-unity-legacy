@@ -12,6 +12,7 @@ namespace ModIO
         public static ImageRequest DownloadModLogo(ModProfile profile, LogoVersion version)
         {
             ImageRequest request = new ImageRequest();
+            request.isDone = false;
 
             string logoURL = profile.logoLocator.GetVersionURL(version);
 
@@ -25,8 +26,8 @@ namespace ModIO
         }
 
         public static ImageRequest DownloadModGalleryImage(ModProfile profile,
-                                                            string imageFileName,
-                                                            ModGalleryImageVersion version)
+                                                           string imageFileName,
+                                                           ModGalleryImageVersion version)
         {
             ImageRequest request = new ImageRequest();
 
@@ -45,11 +46,12 @@ namespace ModIO
                                                      ImageRequest request)
         {
             UnityWebRequest webRequest = operation.webRequest;
+            request.isDone = true;
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
-                WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
-                request.NotifyFailed(error);
+                request.error = WebRequestError.GenerateFromWebRequest(webRequest);
+                request.NotifyFailed();
             }
             else
             {
@@ -66,8 +68,8 @@ namespace ModIO
                 }
                 #endif
 
-                Texture2D imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
-                request.NotifySucceeded(imageTexture);
+                request.imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
+                request.NotifySucceeded();
             }
         }
 
@@ -81,7 +83,7 @@ namespace ModIO
             // - Acquire Download URL -
             APIClient.GetModfile(modId, modfileId,
                                  (mf) => DownloadClient.OnGetModfile(mf, request),
-                                 request.NotifyFailed);
+                                 (e) => { request.error = e; request.NotifyFailed(); });
 
             return request;
         }
@@ -107,7 +109,7 @@ namespace ModIO
 
                 Utility.LogExceptionAsWarning(warningInfo, e);
 
-                request.NotifyFailed(new WebRequestError());
+                request.NotifyFailed();
 
                 return;
             }
@@ -128,9 +130,9 @@ namespace ModIO
 
             if(webRequest.isNetworkError || webRequest.isHttpError)
             {
-                WebRequestError error = WebRequestError.GenerateFromWebRequest(webRequest);
+                request.error = WebRequestError.GenerateFromWebRequest(webRequest);
 
-                request.NotifyFailed(error);
+                request.NotifyFailed();
             }
             else
             {
@@ -161,7 +163,7 @@ namespace ModIO
 
                     Utility.LogExceptionAsWarning(warningInfo, e);
 
-                    request.NotifyFailed(new WebRequestError());
+                    request.NotifyFailed();
                 }
 
                 request.filePath = filePath;
