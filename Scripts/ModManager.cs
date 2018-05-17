@@ -442,6 +442,32 @@ namespace ModIO
             }
         }
 
+        // TODO(@jackson): Add Hash check
+        public static void UnzipModBinaryToLocation(ModfileStub modfile,
+                                                    string unzipLocation)
+        {
+            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modfile.modId, modfile.id);
+
+            if(File.Exists(zipFilePath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(unzipLocation);
+
+                    using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
+                    {
+                        zip.ExtractAll(unzipLocation);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Utility.LogExceptionAsWarning("[mod.io] Unable to extract binary to given location."
+                                                  + "\nLocation: " + unzipLocation,
+                                                  e);
+                }
+            }
+        }
+
 
 
 
