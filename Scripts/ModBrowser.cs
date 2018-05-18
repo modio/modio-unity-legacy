@@ -48,7 +48,7 @@ namespace ModIO
             APIClient.gameId = this.gameId;
             APIClient.gameAPIKey = this.gameAPIKey;
 
-            string userToken = CacheClient.LoadAuthenticatedUserOAuthToken();
+            string userToken = CacheClient.LoadAuthenticatedUserToken();
 
             if(!String.IsNullOrEmpty(userToken))
             {

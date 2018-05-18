@@ -1,4 +1,6 @@
-﻿using System;
+﻿// #define LOG_ERRORS_IN_FULL
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -436,6 +438,19 @@ namespace ModIO
             {
                 #if DEBUG
                     WebRequestError errorInfo = WebRequestError.GenerateFromWebRequest(webRequest);
+
+                    #if LOG_ERRORS_IN_FULL
+                    if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+                    {
+                        var responseTimeStamp = ServerTimeStamp.Now;
+                        Debug.Log(webRequest.method.ToUpper() + " REQUEST FAILED"
+                                  + "\nResponse received at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
+                                  + " [" + responseTimeStamp + "]"
+                                  + "\nURL: " + webRequest.url
+                                  + "\nResponse: " + webRequest.downloadHandler.text
+                                  + "\n");
+                    }
+                    #endif
 
                     if(GlobalSettings.LOG_ALL_WEBREQUESTS
                        && errorCallback != APIClient.LogError)

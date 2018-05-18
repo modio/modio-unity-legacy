@@ -25,7 +25,7 @@ namespace ModIO
 
             public void OnGUI()
             {
-                EditorGUILayout.HelpBox("Load Mod Profile. Please wait...",
+                EditorGUILayout.HelpBox("Loading Mod Profile. Please wait...",
                                         MessageType.Info);
             }
         }
@@ -43,6 +43,7 @@ namespace ModIO
         protected Vector2 scrollPos;
         protected bool isRepaintRequired;
         // Profile Initialization
+        private bool isModListLoading;
         private int modInitializationOptionIndex;
         private ModProfile[] modList;
         private string[] modOptions;
@@ -54,17 +55,31 @@ namespace ModIO
             serializedObject.Update();
             modIdProperty = serializedObject.FindProperty("modId");
             editableModProfileProperty = serializedObject.FindProperty("editableModProfile");
+            isModListLoading = false;
+            profileViewParts = new IModProfileViewPart[]
+            {
+                new LoadingProfileViewPart()
+            };
 
             // Profile Initialization
             if(modIdProperty.intValue == ScriptableModProfile.UNINITIALIZED_MOD_ID)
             {
                 this.profile = null;
 
-                string userAuthToken = CacheClient.LoadAuthenticatedUserOAuthToken();
+                string userAuthToken = CacheClient.LoadAuthenticatedUserToken();
 
                 if(!String.IsNullOrEmpty(userAuthToken))
                 {
                     APIClient.userAuthorizationToken = userAuthToken;
+
+                    this.isModListLoading = true;
+                    this.modOptions = new string[]{ "Loading..." };
+
+                    Action<WebRequestError> onError = (e) =>
+                    {
+                        APIClient.LogError(e);
+                        isModListLoading = false;
+                    };
 
                     ModManager.GetAuthenticatedUserProfile((userProfile) =>
                     {
@@ -94,26 +109,27 @@ namespace ModIO
                                 ModProfile mod = modList[i];
                                 modOptions[i] = mod.name;
                             }
+
+                            isModListLoading = false;
                         };
 
                         ModManager.GetModTeam(modIdProperty.intValue,
                                               onGetModTeam,
-                                              APIClient.LogError);
+                                              onError);
                     },
-                    APIClient.LogError);
-
+                    onError);
+                }
+                else
+                {
+                    this.modOptions = new string[0];
                 }
 
-                modInitializationOptionIndex = -1;
+                modInitializationOptionIndex = 0;
             }
             else
             {
                 // Initialize View
                 profile = null;
-                profileViewParts = new IModProfileViewPart[]
-                {
-                    new LoadingProfileViewPart()
-                };
 
                 System.Action<ModProfile> onGetProfile = (p) =>
                 {
@@ -134,6 +150,7 @@ namespace ModIO
 
             // Events
             EditorApplication.update += OnUpdate;
+            LoginWindow.userLoggedIn += OnUserLogin;
         }
 
         protected virtual void OnDisable()
@@ -144,6 +161,14 @@ namespace ModIO
             }
 
             EditorApplication.update -= OnUpdate;
+            LoginWindow.userLoggedIn -= OnUserLogin;
+        }
+
+        protected virtual void OnUserLogin(UserProfile userProfile)
+        {
+            this.user = userProfile;
+            this.OnDisable();
+            this.OnEnable();
         }
 
         protected virtual IModProfileViewPart[] CreateProfileViewParts()
@@ -208,24 +233,36 @@ namespace ModIO
 
             EditorGUILayout.LabelField("Load Existing Profile");
 
-            if(modList.Length > 0)
+            if(user == null)
             {
-                modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
-                if(GUILayout.Button("Load"))
+                EditorGUILayout.HelpBox("Log in required to load existing mods",
+                                        MessageType.Info);
+                if(GUILayout.Button("Log In to mod.io"))
                 {
-                    ModProfile profile = modList[modInitializationOptionIndex];
-                    EditorApplication.delayCall += () =>
+                    LoginWindow.GetWindow<LoginWindow>("Login to mod.io");
+                }
+            }
+            else if(modOptions.Length > 0)
+            {
+                using(new EditorGUI.DisabledScope(isModListLoading))
+                {
+                    modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
+                    if(GUILayout.Button("Load"))
                     {
-                        ScriptableModProfile smp = this.target as ScriptableModProfile;
-                        Undo.RecordObject(smp, "Initialize Mod Profile");
+                        ModProfile profile = modList[modInitializationOptionIndex];
+                        EditorApplication.delayCall += () =>
+                        {
+                            ScriptableModProfile smp = this.target as ScriptableModProfile;
+                            Undo.RecordObject(smp, "Initialize Mod Profile");
 
-                        smp.modId = profile.id;
-                        smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
+                            smp.modId = profile.id;
+                            smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
 
-                        OnDisable();
-                        OnEnable();
-                        isRepaintRequired = true;
-                    };
+                            OnDisable();
+                            OnEnable();
+                            isRepaintRequired = true;
+                        };
+                    }
                 }
             }
             else

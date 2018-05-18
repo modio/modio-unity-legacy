@@ -609,39 +609,6 @@ namespace ModIO
                                         onError);
         }
 
-        public static void TryLogUserIn(string userOAuthToken,
-                                        Action<UserProfile> onSuccess,
-                                        Action<WebRequestError> onError)
-        {
-            Action<UserProfile> onGetUser = (userProfile) =>
-            {
-                authUser = new UserProfile();
-                // authUser.oAuthToken = userOAuthToken;
-                // authUser.profile = userProfile;
-                WriteUserDataToDisk();
-
-                onSuccess(authUser);
-
-                var userSubscriptionFilter = new RequestFilter();
-                userSubscriptionFilter.fieldFilters[GetUserSubscriptionsFilterFields.gameId]
-                     = new EqualToFilter<int>() { filterValue = GlobalSettings.GAME_ID };
-
-                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e)=>APIClient.GetUserSubscriptions(userSubscriptionFilter,
-                                                                                                    p, s, e),
-                UpdateUserSubscriptions,
-                                                    APIClient.LogError);
-            };
-
-            // APIClient.SetUserAuthorizationToken(userOAuthToken);
-
-            // APIClient.GetAuthenticatedUser(onGetUser,
-            //                             (e) =>
-            //                             {
-            //                                 APIClient.ClearUserAuthorizationToken();
-            //                                 onError(e);
-            //                             });
-        }
-
         public static void LogUserOut()
         {
             // authUser = null;

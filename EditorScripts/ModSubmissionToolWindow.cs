@@ -41,7 +41,7 @@ namespace ModIO
             buildProfile = new EditableModfile();
             buildProfile.version.value = "0.0.0";
 
-            string authToken = CacheClient.LoadAuthenticatedUserOAuthToken();
+            string authToken = CacheClient.LoadAuthenticatedUserToken();
             if(!String.IsNullOrEmpty(authToken))
             {
                 APIClient.userAuthorizationToken = authToken;
@@ -53,132 +53,63 @@ namespace ModIO
                 },
                 null);
             }
+
+            LoginWindow.userLoggedIn += OnUserLogin;
         }
 
-        protected virtual void OnDisable() {}
+        protected virtual void OnDisable()
+        {
+            LoginWindow.userLoggedIn -= OnUserLogin;
+        }
+
+        protected virtual void OnUserLogin(UserProfile userProfile)
+        {
+            this.OnDisable();
+            this.OnEnable();
+        }
 
         // ---------[ GUI ]---------
         protected virtual void OnGUI()
         {
-            if(this.user == null)
-            {
-                LayoutLoginPrompt();
-            }
-            else
-            {
-                LayoutSubmissionFields();
-            }
+            LayoutSubmissionFields();
         }
 
         // ------[ LOGIN PROMPT ]------
-        protected virtual void LayoutLoginPrompt()
-        {
-            // TODO(@jackson): Find a way to reselect the inputfield
-            EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
-
-            using (new EditorGUI.DisabledScope(isAwaitingServerResponse))
-            {
-                EditorGUILayout.BeginHorizontal();
-                {
-                    using (new EditorGUI.DisabledScope(isInputtingEmail))
-                    {
-                        if(GUILayout.Button("Email"))
-                        {
-                            isInputtingEmail = true;
-                        }
-                    }
-                    using (new EditorGUI.DisabledScope(!isInputtingEmail))
-                    {
-                        if(GUILayout.Button("Security Code"))
-                        {
-                            isInputtingEmail = false;
-                        }
-                    }
-                }
-                EditorGUILayout.EndHorizontal();
-
-
-                if(isInputtingEmail)
-                {
-                    emailAddressInput = EditorGUILayout.TextField("Email Address", emailAddressInput);
-                }
-                else
-                {
-                    securityCodeInput = EditorGUILayout.TextField("Security Code", securityCodeInput);
-                }
-
-                EditorGUILayout.BeginHorizontal();
-                {
-                    GUI.SetNextControlName("SubmitButton");
-                    if(GUILayout.Button("Submit"))
-                    {
-                        isAwaitingServerResponse = true;
-                        GUI.FocusControl("SubmitButton");
-
-                        Action endRequestSendingAndInputEmail = () =>
-                        {
-                            isAwaitingServerResponse = false;
-                            isInputtingEmail = true;
-                            Repaint();
-                        };
-
-                        Action endRequestSendingAndInputCode = () =>
-                        {
-                            isAwaitingServerResponse = false;
-                            isInputtingEmail = false;
-                            Repaint();
-                        };
-
-                        if(isInputtingEmail)
-                        {
-                            securityCodeInput = "";
-
-                            ModManager.RequestSecurityCode(emailAddressInput,
-                                                           m => endRequestSendingAndInputCode(),
-                                                           e => endRequestSendingAndInputEmail());
-                        }
-                        else
-                        {
-                            Action<string> onTokenReceived = (token) =>
-                            {
-                                ModManager.TryLogUserIn(token,
-                                                        (u) => { isAwaitingServerResponse = false; Repaint(); },
-                                                        e => endRequestSendingAndInputCode());
-                            };
-
-                            ModManager.RequestOAuthToken(securityCodeInput,
-                                                         onTokenReceived,
-                                                         e => endRequestSendingAndInputCode());
-                        }
-                    }
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-        }
-
         protected virtual void LayoutSubmissionFields()
         {
             // - Account Header -
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField("Logged in as:  " + this.user.username);
-                GUILayout.FlexibleSpace();
-                if(GUILayout.Button("Log Out"))
+                if(user != null)
                 {
-                    EditorApplication.delayCall += () =>
+                    EditorGUILayout.LabelField("Not logged in to mod.io");
+                    GUILayout.FlexibleSpace();
+                    if(GUILayout.Button("Log In"))
                     {
-                        if(EditorDialogs.ConfirmLogOut(this.user.username))
+                        LoginWindow.GetWindow<LoginWindow>("Login to mod.io");
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("Logged in as:  " + this.user.username);
+                    GUILayout.FlexibleSpace();
+                    if(GUILayout.Button("Log Out"))
+                    {
+                        EditorApplication.delayCall += () =>
                         {
-                            ModManager.LogUserOut();
+                            if(EditorDialogs.ConfirmLogOut(this.user.username))
+                            {
+                                ModManager.LogUserOut();
 
-                            isInputtingEmail = true;
-                            emailAddressInput = "";
-                            securityCodeInput = "";
-                            isAwaitingServerResponse = false;
+                                isInputtingEmail = true;
+                                emailAddressInput = "";
+                                securityCodeInput = "";
+                                isAwaitingServerResponse = false;
 
-                            Repaint();
-                        }
-                    };
+                                Repaint();
+                            }
+                        };
+                    }
                 }
             }
             EditorGUILayout.EndHorizontal();

@@ -20,7 +20,7 @@ namespace ModIO
         /// </summary>
         [JsonProperty("message")]
         public string message;
-        
+
         // TODO(@jackson): Add Hyperlink
         /// <summary>
         /// Optional Validation errors object.
@@ -31,7 +31,7 @@ namespace ModIO
         /// See errors documentation for more information.
         /// </remarks>
         [JsonProperty("errors")]
-        public System.Collections.Generic.IDictionary<string, string> fieldValidationFailures;
+        public System.Collections.Generic.IDictionary<string, string> fieldValidationMessages;
 
         public string method;
         public string url;
@@ -42,7 +42,7 @@ namespace ModIO
         public static WebRequestError GenerateFromWebRequest(UnityEngine.Networking.UnityWebRequest webRequest)
         {
             UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
-            
+
             WebRequestError.APIWrapper errorWrapper;
 
             bool didParse = Utility.TryParseJsonString(webRequest.downloadHandler.text,
@@ -80,11 +80,11 @@ namespace ModIO
                                   + "\nMessage: " + this.message
                                   + "\n");
 
-            if(this.fieldValidationFailures != null
-               && this.fieldValidationFailures.Count > 0)
+            if(this.fieldValidationMessages != null
+               && this.fieldValidationMessages.Count > 0)
             {
-                debugString += "Field Validation Failures:\n";
-                foreach(var kvp in fieldValidationFailures)
+                debugString += "Field Validation Messages:\n";
+                foreach(var kvp in fieldValidationMessages)
                 {
                     debugString += " [" + kvp.Key + "] " + kvp.Value + "\n";
                 }

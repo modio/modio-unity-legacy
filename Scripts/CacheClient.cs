@@ -234,7 +234,7 @@ namespace ModIO
         public static string userFilePath
         { get { return CacheClient._cacheDirectory + "user.data"; } }
 
-        public static void SaveAuthenticatedUserOAuthToken(string oAuthToken)
+        public static void SaveAuthenticatedUserToken(string oAuthToken)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
 
@@ -248,7 +248,7 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(userFilePath, au);
         }
 
-        public static string LoadAuthenticatedUserOAuthToken()
+        public static string LoadAuthenticatedUserToken()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
 
