@@ -23,6 +23,7 @@ namespace ModIO
 
         // ------[ EDITOR CACHING ]------
         private SerializedProperty editableProfileProperty;
+        private GameProfile gameProfile;
         private ModProfile profile;
         private bool isUndoEnabled = false;
         private bool isRepaintRequired = false;
@@ -43,6 +44,10 @@ namespace ModIO
             this.isUndoEnabled = (baseProfile != null);
 
             isTagsExpanded = false;
+
+            // - Game Profile -
+            ModManager.GetGameProfile((g) => { this.gameProfile = g; isRepaintRequired = true; },
+                                      null);
 
             // - Configure Properties -
             logoProperty = editableProfileProperty.FindPropertyRelative("logoLocator");
@@ -342,7 +347,7 @@ namespace ModIO
 
         protected virtual void LayoutTagsField()
         {
-            using(new EditorGUI.DisabledScope(ModManager.GetGameProfile() == null))
+            using(new EditorGUI.DisabledScope(this.gameProfile == null))
             {
                 EditorGUILayout.BeginHorizontal();
                     this.isTagsExpanded = EditorGUILayout.Foldout(this.isTagsExpanded, "Tags", true);
@@ -352,14 +357,14 @@ namespace ModIO
 
                 if(this.isTagsExpanded)
                 {
-                    if(ModManager.GetGameProfile() == null)
+                    if(this.gameProfile == null)
                     {
                         EditorGUILayout.HelpBox("The Game's Profile is not yet loaded, and thus tags cannot be displayed. Please wait...", MessageType.Warning);
                     }
-                    else if(ModManager.GetGameProfile().taggingOptions.Length == 0)
+                    else if(this.gameProfile.taggingOptions.Length == 0)
                     {
                         EditorGUILayout.HelpBox("The developers of "
-                                                + ModManager.GetGameProfile().name
+                                                + this.gameProfile.name
                                                 + " have not designated any tagging options",
                                                 MessageType.Info);
                     }
@@ -370,7 +375,7 @@ namespace ModIO
                         bool isDirty = false;
 
                         ++EditorGUI.indentLevel;
-                            foreach(ModTagCategory tagCategory in ModManager.GetGameProfile().taggingOptions)
+                            foreach(ModTagCategory tagCategory in this.gameProfile.taggingOptions)
                             {
                                 if(!tagCategory.isHidden)
                                 {

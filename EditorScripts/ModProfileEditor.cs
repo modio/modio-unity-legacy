@@ -10,8 +10,7 @@ using UnityEngine;
 namespace ModIO
 {
     // NOTE(@jackson): Could do with a beauty-pass
-    // NOTE(@jackson): Present a login prompt for load (or force login)?
-    // TODO(@jackson): Reload on user log
+    // TODO(@jackson): Needs to still allow editing if loading fails
     [CustomEditor(typeof(ScriptableModProfile))]
     public class ModProfileEditor : Editor
     {

@@ -45,12 +45,11 @@ namespace ModIO
 
             WebRequestError.APIWrapper errorWrapper;
 
-            bool didParse = Utility.TryParseJsonString(webRequest.downloadHandler.text,
-                                                       out errorWrapper);
+            Utility.TryParseJsonString(webRequest.downloadHandler.text, out errorWrapper);
 
             WebRequestError error;
 
-            if(didParse
+            if(errorWrapper != null
                && errorWrapper.error != null)
             {
                 error = errorWrapper.error;

@@ -329,10 +329,9 @@ namespace ModIO
         public static string gameProfileFilePath
         { get { return CacheClient._cacheDirectory + "game_profile.data"; } }
 
-        public static void LoadGameProfile(Action<GameProfile> callback)
+        public static GameProfile LoadGameProfile()
         {
-            GameProfile profile = CacheClient.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
-            callback(profile);
+            return CacheClient.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
         }
 
         public static void SaveGameProfile(GameProfile profile)

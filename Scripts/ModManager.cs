@@ -78,16 +78,14 @@ namespace ModIO
         // ---------[ GAME PROFILE ]---------
         public static IEnumerator RequestGameProfile(ClientRequest<GameProfile> request)
         {
-            bool isDone = false;
 
             // - Attempt load from cache -
-            CacheClient.LoadGameProfile((r) => ModManager.OnRequestSuccess(r, request, out isDone));
-
-            while(!isDone) { yield return null; }
+            GameProfile cachedProfile = CacheClient.LoadGameProfile();
+            request.response = cachedProfile;
 
             if(request.response == null)
             {
-                isDone = false;
+                bool isDone = false;
 
                 APIClient.GetGame((r) => ModManager.OnRequestSuccess(r, request, out isDone),
                                    (e) => ModManager.OnRequestError(e, request, out isDone));
@@ -100,6 +98,29 @@ namespace ModIO
                 }
             }
         }
+
+        public static void GetGameProfile(Action<GameProfile> onSuccess,
+                                          Action<WebRequestError> onError)
+        {
+            GameProfile cachedProfile = CacheClient.LoadGameProfile();
+
+            if(cachedProfile != null)
+            {
+                onSuccess(cachedProfile);
+            }
+            else
+            {
+                Action<GameProfile> onGetProfile = (profile) =>
+                {
+                    CacheClient.SaveGameProfile(profile);
+                    if(onSuccess != null) { onSuccess(profile); }
+                };
+
+                APIClient.GetGame(onGetProfile,
+                                  onError);
+            }
+        }
+
 
         // ---------[ MOD PROFILES ]---------
         // TODO(@jackson): Implement GetModProfiles
@@ -818,11 +839,6 @@ namespace ModIO
         }
 
         // ---------[ MISC ]------------
-        public static GameProfile GetGameProfile()
-        {
-            return manifest.gameProfile;
-        }
-
         private static void WriteManifestToDisk()
         {
             File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
