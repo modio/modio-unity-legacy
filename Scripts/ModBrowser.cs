@@ -114,7 +114,7 @@ namespace ModIO
         protected virtual void OnDisable() {}
 
         // ---------[ UPDATES ]---------
-        private const float AUTOMATIC_UPDATE_INTERVAL = 2f;
+        private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
         private Coroutine updatedRoutine = null;
 
         protected virtual void Update()
@@ -153,6 +153,8 @@ namespace ModIO
                 {
                     this.lastCacheUpdate = updateStartTimeStamp;
                 }
+
+                // TOOD(@jackson): Add User Events
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }

@@ -425,13 +425,18 @@ namespace ModIO
                 {
                     onSuccess(logoTexture);
                 }
-                else
+
+                var versionInfo = CacheClient.LoadModLogoVersionInfo(profile.id);
+
+                if(logoTexture == null
+                   || versionInfo[size] != profile.logoLocator.GetFileName())
                 {
                     var textureDownload = DownloadClient.DownloadModLogo(profile, size);
 
                     textureDownload.succeeded += (d) =>
                     {
-                        CacheClient.SaveModLogo(profile.id, size, d.imageTexture);
+                        CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
+                                                size, d.imageTexture);
                     };
 
                     textureDownload.succeeded += (d) => onSuccess(d.imageTexture);

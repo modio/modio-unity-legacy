@@ -479,6 +479,11 @@ namespace ModIO
             return (GenerateModLogoDirectoryPath(modId)
                     + size.ToString() + ".png");
         }
+        public static string GenerateModLogoVersionInfoFilePath(int modId)
+        {
+            return(CacheClient.GenerateModLogoDirectoryPath(modId)
+                   + "versionInfo.data");
+        }
 
         public static string GenerateModGalleryImageDirectoryPath(int modId)
         {
@@ -504,13 +509,33 @@ namespace ModIO
             callback(logoTexture);
         }
 
-        public static void SaveModLogo(int modId, LogoSize size, Texture2D logoTexture)
+        public static Dictionary<LogoSize, string> LoadModLogoVersionInfo(int modId)
+        {
+            return CacheClient.ReadJsonObjectFile<Dictionary<LogoSize, string>>(CacheClient.GenerateModLogoVersionInfoFilePath(modId));
+        }
+
+        public static void SaveModLogo(int modId, string fileName,
+                                       LogoSize size, Texture2D logoTexture)
         {
             Debug.Assert(modId > 0,
                          "[mod.io] Cannot cache a mod logo without a mod id");
+            Debug.Assert(!String.IsNullOrEmpty(fileName),
+                         "[mod.io] Cannot cache a mod logo without file name as it"
+                         + " is used for versioning purposes");
 
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
             CacheClient.WriteImageFile(logoFilePath, logoTexture);
+
+            // - Version Info -
+            var versionInfo = CacheClient.LoadModLogoVersionInfo(modId);
+            if(versionInfo == null)
+            {
+                versionInfo = new Dictionary<LogoSize, string>();
+            }
+
+            versionInfo[size] = fileName;
+            CacheClient.WriteJsonObjectFile(GenerateModLogoVersionInfoFilePath(modId),
+                                            versionInfo);
         }
 
         public static void LoadModGalleryImage(int modId,
