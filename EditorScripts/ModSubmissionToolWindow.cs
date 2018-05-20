@@ -99,7 +99,8 @@ namespace ModIO
                         {
                             if(EditorDialogs.ConfirmLogOut(this.user.username))
                             {
-                                ModManager.LogUserOut();
+                                APIClient.userAuthorizationToken = null;
+                                CacheClient.DeleteAuthenticatedUser();
 
                                 isInputtingEmail = true;
                                 emailAddressInput = "";

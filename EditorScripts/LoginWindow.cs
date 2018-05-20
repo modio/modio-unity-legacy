@@ -101,9 +101,9 @@ namespace ModIO
                         {
                             securityCodeInput = "";
 
-                            ModManager.RequestSecurityCode(emailAddressInput,
-                                                           m => endRequestSendingAndInputCode(m.message, MessageType.Info),
-                                                           e => endRequestSendingAndInputEmail(ConvertErrorToHelpString(e), MessageType.Error));
+                            APIClient.RequestSecurityCode(emailAddressInput,
+                                                          m => endRequestSendingAndInputCode(m.message, MessageType.Info),
+                                                          e => endRequestSendingAndInputEmail(ConvertErrorToHelpString(e), MessageType.Error));
                         }
                         else
                         {

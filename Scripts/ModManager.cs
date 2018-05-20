@@ -229,6 +229,7 @@ namespace ModIO
         }
 
         // TODO(@jackson): Check updates against ModProfile dateUpdated
+        // TODO(@jackson): Return Profiles as lists?
         public static void ApplyModEventsToCache(IEnumerable<ModEvent> modEvents)
         {
             List<int> addedIds = new List<int>();
@@ -356,6 +357,59 @@ namespace ModIO
             }
         }
 
+        public static void FetchAllUserEvents(int fromTimeStamp,
+                                              int untilTimeStamp,
+                                              Action<List<UserEvent>> onSuccess,
+                                              Action<WebRequestError> onError)
+        {
+            // - Filter -
+            RequestFilter userEventFilter = new RequestFilter();
+            userEventFilter.sortFieldName = GetUserEventsFilterFields.dateAdded;
+            userEventFilter.fieldFilters[GetUserEventsFilterFields.dateAdded]
+            = new RangeFilter<int>()
+            {
+                min = fromTimeStamp,
+                isMinInclusive = false,
+                max = untilTimeStamp,
+                isMaxInclusive = true,
+            };
+
+            // - Get All Events -
+            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
+                                                          onSuccess,
+                                                          onError);
+        }
+
+        public static void ApplyUserEventsToCache(IEnumerable<UserEvent> userEvents)
+        {
+            List<int> subscriptionsAdded = new List<int>();
+            List<int> subscriptionsRemoved = new List<int>();
+
+            foreach(UserEvent ue in userEvents)
+            {
+                switch(ue.eventType)
+                {
+                    case UserEventType.ModSubscribed:
+                    {
+                        subscriptionsAdded.Add(ue.modId);
+                    }
+                    break;
+                    case UserEventType.ModUnsubscribed:
+                    {
+                        subscriptionsRemoved.Add(ue.modId);
+                    }
+                    break;
+                }
+            }
+
+            List<int> subscriptions = CacheClient.LoadAuthenticatedUserSubscriptions();
+
+            subscriptions.RemoveAll(s => subscriptionsRemoved.Contains(s));
+            subscriptions.AddRange(subscriptionsAdded);
+
+            CacheClient.SaveAuthenticatedUserSubscriptions(subscriptions);
+        }
+
         // ---------[ MOD IMAGES ]---------
         // TODO(@jackson): Look at reconfiguring params
         public static void GetModLogo(ModProfile profile, LogoVersion version,
@@ -417,6 +471,22 @@ namespace ModIO
                     download.failed += (d) => onError(d.error);
                 }
             });
+        }
+
+        public static IEnumerator RequestModLogo(ModProfile profile,
+                                                 LogoVersion version,
+                                                 ClientRequest<Texture2D> logoRequest)
+        {
+            bool isDone = false;
+
+            ModManager.GetModLogo(profile, version,
+                                  (r) => ModManager.OnRequestSuccess(r, logoRequest, out isDone),
+                                  (e) => ModManager.OnRequestError(e, logoRequest, out isDone));
+
+            while(!isDone)
+            {
+                yield return null;
+            }
         }
 
         // ---------[ MODFILES ]---------
@@ -543,7 +613,13 @@ namespace ModIO
 
 
 
+
+
+
         // ---------------------------[ OLD OLD OLD OLD OLD !!! ]------------------------
+
+
+
         // TODO(@jackson): Remove/Update all this
         // ---------[ INNER CLASSES ]---------
         [System.Serializable]
@@ -563,120 +639,6 @@ namespace ModIO
         private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
         private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
 
-        private static void UpdateUserSubscriptions(List<ModProfile> userSubscriptions)
-        {
-            if(authUser == null) { return; }
-
-            List<int> addedMods = new List<int>();
-            List<int> removedMods = new List<int>(); //authUser.subscribedModIDs;
-            // authUser.subscribedModIDs = new List<int>(userSubscriptions.Count);
-
-            foreach(ModProfile modProfile in userSubscriptions)
-            {
-                // authUser.subscribedModIDs.Add(modProfile.id);
-
-                if(removedMods.Contains(modProfile.id))
-                {
-                    removedMods.Remove(modProfile.id);
-                }
-                else
-                {
-                    addedMods.Add(modProfile.id);
-                }
-            }
-
-            WriteUserDataToDisk();
-
-            // - Notify -
-            if(OnModSubscriptionAdded != null)
-            {
-                foreach(int modId in addedMods)
-                {
-                    OnModSubscriptionAdded(modId);
-                }
-            }
-            if(OnModSubscriptionRemoved != null)
-            {
-                foreach(int modId in removedMods)
-                {
-                    OnModSubscriptionRemoved(modId);
-                }
-            }
-        }
-
-        // ---------[ USER MANAGEMENT ]---------
-        // NOTE(@jackson): There is "userLoggedIn" event as the only time a
-        //  user can be authenticated is via 'TryAuthenticateUser'.
-        public static event Action userLoggedOut;
-        public static event ModIDEventHandler OnModSubscriptionAdded;
-        public static event ModIDEventHandler OnModSubscriptionRemoved;
-
-
-        public static void RequestSecurityCode(string emailAddress,
-                                               Action<APIMessage> onSuccess,
-                                               Action<WebRequestError> onError)
-        {
-            APIClient.RequestSecurityCode(emailAddress,
-                                          onSuccess,
-                                          onError);
-        }
-
-        public static void RequestOAuthToken(string securityCode,
-                                             Action<string> onSuccess,
-                                             Action<WebRequestError> onError)
-        {
-            APIClient.RequestOAuthToken(securityCode,
-                                        onSuccess,
-                                        onError);
-        }
-
-        public static void LogUserOut()
-        {
-            // authUser = null;
-            // DeleteUserDataFromDisk();
-
-            // APIClient.ClearUserAuthorizationToken();
-
-            // if(userLoggedOut != null)
-            // {
-            //     userLoggedOut();
-            // }
-        }
-
-        public static void SubscribeToMod(int modId,
-                                          Action<APIMessage> onSuccess,
-                                          Action<WebRequestError> onError)
-        {
-            APIClient.SubscribeToMod(modId,
-                                  (message) =>
-                                  {
-                                    // authUser.subscribedModIDs.Add(modId);
-                                    onSuccess(message);
-                                  },
-                                  onError);
-        }
-
-        public static void UnsubscribeFromMod(int modId,
-                                              Action<APIMessage> onSuccess,
-                                              Action<WebRequestError> onError)
-        {
-            APIClient.UnsubscribeFromMod(modId,
-                                      (message) =>
-                                      {
-                                        // authUser.subscribedModIDs.Remove(modId);
-                                        onSuccess(message);
-                                      },
-                                      onError);
-        }
-
-        public static bool IsSubscribedToMod(int modId)
-        {
-            // foreach(int subscribedModID in authUser.subscribedModIDs)
-            // {
-            //     if(subscribedModID == modId) { return true; }
-            // }
-            return false;
-        }
 
         // ---------[ MOD MANAGEMENT ]---------
         public static string GetModDirectory(int modId)
@@ -727,28 +689,6 @@ namespace ModIO
 
         private static Dictionary<string, string> serverToLocalImageURLMap;
 
-        public static string GenerateModLogoFilePath(int modId, LogoVersion version)
-        {
-            return GetModDirectory(modId) + @"/logo/" + version.ToString() + ".png";
-        }
-
-        public static IEnumerator RequestModLogo(ModProfile profile,
-                                                 LogoVersion version,
-                                                 ClientRequest<Texture2D> logoRequest)
-        {
-            bool isDone = false;
-
-            ModManager.GetModLogo(profile, version,
-                                  (r) => ModManager.OnRequestSuccess(r, logoRequest, out isDone),
-                                  (e) => ModManager.OnRequestError(e, logoRequest, out isDone));
-
-            while(!isDone)
-            {
-                yield return null;
-            }
-        }
-
-
 
         public static Texture2D FindSavedImageMatchingServerURL(string serverURL)
         {
@@ -792,66 +732,10 @@ namespace ModIO
             return download;
         }
 
-        // TODO(@jackson): param -> ids?
-        // TODO(@jackson): defend
-        // TODO(@jackson): Add preload function?
-        public static void DownloadMissingModLogos(ModProfile[] modProfiles,
-                                                   LogoVersion version)
-        {
-            var missingLogoProfiles = new List<ModProfile>(modProfiles);
-
-            // Check which logos are missing
-            foreach(ModProfile profile in modProfiles)
-            {
-                string serverURL = profile.logoLocator.GetVersionURL(version);
-                string filePath;
-                if(serverToLocalImageURLMap.TryGetValue(serverURL,
-                                                        out filePath))
-                {
-                    if(File.Exists(filePath))
-                    {
-                        missingLogoProfiles.Remove(profile);
-                    }
-                    else
-                    {
-                        serverToLocalImageURLMap.Remove(serverURL);
-                    }
-                }
-            }
-
-            // Download
-            foreach(ModProfile profile in missingLogoProfiles)
-            {
-                string logoURL = profile.logoLocator.GetVersionURL(version);
-                string filePath = GenerateModLogoFilePath(profile.id, version);
-                // var download = DownloadAndSaveImageAsPNG(logoURL,
-                //                                          filePath,
-                //                                          UISettings.Instance.DownloadingPlaceholderImages.modLogo);
-
-                // download.OnCompleted += (d) =>
-                // {
-                //     if(OnModLogoUpdated != null)
-                //     {
-                //         OnModLogoUpdated(profile.id, version, download.texture);
-                //     }
-                // };
-            }
-        }
-
         // ---------[ MISC ]------------
         private static void WriteManifestToDisk()
         {
             File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
-        }
-
-        private static void WriteUserDataToDisk()
-        {
-            File.WriteAllText(userdataPath, JsonConvert.SerializeObject(authUser));
-        }
-
-        private static void DeleteUserDataFromDisk()
-        {
-            File.Delete(userdataPath);
         }
 
         // TODO(@jackson): Add MKVPs, Mod Dependencies

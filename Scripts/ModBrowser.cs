@@ -149,7 +149,10 @@ namespace ModIO
                                                                            updateStartTimeStamp,
                                                                            request);
 
-                this.lastCacheUpdate = updateStartTimeStamp;
+                if(request.error == null)
+                {
+                    this.lastCacheUpdate = updateStartTimeStamp;
+                }
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }

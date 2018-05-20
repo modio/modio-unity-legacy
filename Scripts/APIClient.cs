@@ -395,9 +395,12 @@ namespace ModIO
                 }
 
                 string formFields = "";
-                foreach(StringValueParameter kvp in valueFields)
+                if(valueFields != null)
                 {
-                    formFields += "\n" + kvp.key + "=" + kvp.value;
+                    foreach(StringValueParameter kvp in valueFields)
+                    {
+                        formFields += "\n" + kvp.key + "=" + kvp.value;
+                    }
                 }
                 // foreach(KeyValuePair<string, Request.BinaryData> kvp in dataFields)
                 // {
@@ -661,7 +664,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      null);
+                                                                         null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -754,7 +757,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      parameters.stringValues.ToArray());
+                                                                         parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -779,7 +782,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/subscribe";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      null);
+                                                                         null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -846,7 +849,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/tags";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      parameters.stringValues.ToArray());
+                                                                         parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -884,7 +887,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      parameters.stringValues.ToArray());
+                                                                         parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -938,7 +941,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/metadatakvp";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      parameters.stringValues.ToArray());
+                                                                         parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -977,7 +980,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      parameters.stringValues.ToArray());
+                                                                         parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1029,7 +1032,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team/" + teamMemberId;
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      null);
+                                                                         null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1071,7 +1074,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments/" + commentId;
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
-                                                                      null);
+                                                                         null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
