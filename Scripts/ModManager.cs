@@ -21,8 +21,8 @@ namespace ModIO
     public delegate void AuthenticatedUserEventHandler(UserProfile user);
     public delegate void ModIDEventHandler(int modId);
     public delegate void ModfileEventHandler(int modId, Modfile newModfile);
-    public delegate void ModLogoUpdatedEventHandler(int modId, LogoVersion version, Texture2D texture);
-    public delegate void ModGalleryImageUpdatedEventHandler(int modId, string imageFileName, ModGalleryImageVersion version, Texture2D texture);
+    public delegate void ModLogoUpdatedEventHandler(int modId, LogoSize size, Texture2D texture);
+    public delegate void ModGalleryImageUpdatedEventHandler(int modId, string imageFileName, ModGalleryImageSize size, Texture2D texture);
 
     public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
     public delegate void ModIdsEventHandler(IEnumerable<int> modIds);
@@ -412,13 +412,13 @@ namespace ModIO
 
         // ---------[ MOD IMAGES ]---------
         // TODO(@jackson): Look at reconfiguring params
-        public static void GetModLogo(ModProfile profile, LogoVersion version,
+        public static void GetModLogo(ModProfile profile, LogoSize size,
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
         {
             Debug.Assert(onSuccess != null);
 
-            CacheClient.LoadModLogo(profile.id, version,
+            CacheClient.LoadModLogo(profile.id, size,
                                     (logoTexture) =>
             {
                 if(logoTexture != null)
@@ -427,11 +427,11 @@ namespace ModIO
                 }
                 else
                 {
-                    var textureDownload = DownloadClient.DownloadModLogo(profile, version);
+                    var textureDownload = DownloadClient.DownloadModLogo(profile, size);
 
                     textureDownload.succeeded += (d) =>
                     {
-                        CacheClient.SaveModLogo(profile.id, version, d.imageTexture);
+                        CacheClient.SaveModLogo(profile.id, size, d.imageTexture);
                     };
 
                     textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
@@ -442,13 +442,13 @@ namespace ModIO
 
         public static void GetModGalleryImage(ModProfile profile,
                                               string imageFileName,
-                                              ModGalleryImageVersion version,
+                                              ModGalleryImageSize size,
                                               Action<Texture2D> onSuccess,
                                               Action<WebRequestError> onError)
         {
             CacheClient.LoadModGalleryImage(profile.id,
                                             imageFileName,
-                                            version,
+                                            size,
                                             (cachedImageTexture) =>
             {
                 if(cachedImageTexture != null)
@@ -460,11 +460,11 @@ namespace ModIO
                     // - Fetch from Server -
                     var download = DownloadClient.DownloadModGalleryImage(profile,
                                                                           imageFileName,
-                                                                          version);
+                                                                          size);
 
                     download.succeeded += (d) =>
                     {
-                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, version, d.imageTexture);
+                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, size, d.imageTexture);
                     };
 
                     download.succeeded += (d) => onSuccess(d.imageTexture);
@@ -474,12 +474,12 @@ namespace ModIO
         }
 
         public static IEnumerator RequestModLogo(ModProfile profile,
-                                                 LogoVersion version,
+                                                 LogoSize size,
                                                  ClientRequest<Texture2D> logoRequest)
         {
             bool isDone = false;
 
-            ModManager.GetModLogo(profile, version,
+            ModManager.GetModLogo(profile, size,
                                   (r) => ModManager.OnRequestSuccess(r, logoRequest, out isDone),
                                   (e) => ModManager.OnRequestError(e, logoRequest, out isDone));
 
@@ -681,55 +681,6 @@ namespace ModIO
                 }
             }
             return null;
-        }
-
-        // ---------[ IMAGE MANAGEMENT ]---------
-        public static event ModLogoUpdatedEventHandler OnModLogoUpdated;
-        public static event ModGalleryImageUpdatedEventHandler OnModGalleryImageUpdated;
-
-        private static Dictionary<string, string> serverToLocalImageURLMap;
-
-
-        public static Texture2D FindSavedImageMatchingServerURL(string serverURL)
-        {
-            string filePath;
-            Texture2D imageTexture;
-            if(serverToLocalImageURLMap.TryGetValue(serverURL, out filePath)
-               && Utility.TryLoadTextureFromFile(filePath, out imageTexture))
-            {
-                return imageTexture;
-            }
-            return null;
-        }
-
-        // TODO(@jackson): Defend
-        // TODO(@jackson): Record whether completed (lest placeholder be accepted)
-        public static ImageRequest DownloadAndSaveImageAsPNG(string serverURL,
-                                                                string downloadFilePath,
-                                                                Texture2D placeholderTexture)
-        {
-            Debug.Assert(Path.GetExtension(downloadFilePath).Equals(".png"),
-                         String.Format("[mod.io] Images can only be saved in PNG format."
-                                       + "\n\'{0}\' appears to be in a different format.",
-                                       downloadFilePath));
-
-            var download = new ImageRequest();
-
-            Directory.CreateDirectory(Path.GetDirectoryName(downloadFilePath));
-            File.WriteAllBytes(downloadFilePath, placeholderTexture.EncodeToPNG());
-
-            serverToLocalImageURLMap[serverURL] = downloadFilePath;
-
-            // download.sourceURL = serverURL;
-            // download.OnCompleted += (d) =>
-            // {
-            //     File.WriteAllBytes(downloadFilePath, download.texture.EncodeToPNG());
-            //     manifest.serializedImageCache.Add(serverURL + "*" + downloadFilePath);
-            //     WriteManifestToDisk();
-            // };
-            // DownloadManager.StartDownload(download);
-
-            return download;
         }
 
         // ---------[ MISC ]------------
@@ -1101,10 +1052,7 @@ namespace ModIO
 
             // TODO(@jackson): parameters.filehash
 
-            APIClient.AddModfile(modId,
-                              parameters,
-                              onSuccess,
-                              onError);
+            APIClient.AddModfile(modId, parameters, onSuccess, onError);
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---

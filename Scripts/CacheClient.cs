@@ -474,10 +474,10 @@ namespace ModIO
             return(CacheClient.GenerateModDirectoryPath(modId)
                    + "logo/");
         }
-        public static string GenerateModLogoFilePath(int modId, LogoVersion version)
+        public static string GenerateModLogoFilePath(int modId, LogoSize size)
         {
             return (GenerateModLogoDirectoryPath(modId)
-                    + version.ToString() + ".png");
+                    + size.ToString() + ".png");
         }
 
         public static string GenerateModGalleryImageDirectoryPath(int modId)
@@ -488,40 +488,39 @@ namespace ModIO
         }
         public static string GenerateModGalleryImageFilePath(int modId,
                                                               string imageFileName,
-                                                              ModGalleryImageVersion version)
+                                                              ModGalleryImageSize size)
         {
             return(GenerateModGalleryImageDirectoryPath(modId)
-                   + version.ToString() + "/"
+                   + size.ToString() + "/"
                    + Path.GetFileNameWithoutExtension(imageFileName) +
                    ".png");
         }
 
-        public static void LoadModLogo(int modId, LogoVersion version,
+        public static void LoadModLogo(int modId, LogoSize size,
                                        Action<Texture2D> callback)
         {
-            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, version);
+            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
             Texture2D logoTexture = CacheClient.ReadImageFile(logoFilePath);
             callback(logoTexture);
         }
 
-        public static void SaveModLogo(int modId, LogoVersion version,
-                                       Texture2D logoTexture)
+        public static void SaveModLogo(int modId, LogoSize size, Texture2D logoTexture)
         {
             Debug.Assert(modId > 0,
                          "[mod.io] Cannot cache a mod logo without a mod id");
 
-            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, version);
+            string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
             CacheClient.WriteImageFile(logoFilePath, logoTexture);
         }
 
         public static void LoadModGalleryImage(int modId,
                                                string imageFileName,
-                                               ModGalleryImageVersion version,
+                                               ModGalleryImageSize size,
                                                Action<Texture2D> callback)
         {
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
-                                                                               version);
+                                                                               size);
             Texture2D imageTexture = CacheClient.ReadImageFile(imageFilePath);
 
             callback(imageTexture);
@@ -529,7 +528,7 @@ namespace ModIO
 
         public static void SaveModGalleryImage(int modId,
                                                string imageFileName,
-                                               ModGalleryImageVersion version,
+                                               ModGalleryImageSize size,
                                                Texture2D imageTexture)
         {
             Debug.Assert(modId > 0,
@@ -537,7 +536,7 @@ namespace ModIO
 
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
-                                                                               version);
+                                                                               size);
             CacheClient.WriteImageFile(imageFilePath, imageTexture);
         }
 

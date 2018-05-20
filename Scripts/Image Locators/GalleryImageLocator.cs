@@ -5,7 +5,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     [System.Serializable]
-    public class GalleryImageLocator : IMultiVersionImageLocator<ModGalleryImageVersion>
+    public class GalleryImageLocator : IMultiSizeImageLocator<ModGalleryImageSize>
     {
         // ---------[ FIELDS ]---------
         ///<summary>Image filename including extension.</summary>
@@ -14,7 +14,7 @@ namespace ModIO
 
         ///<summary>URL to the full-sized image.</summary>
         [JsonProperty("original")]
-        public string fullSize;
+        public string original;
 
         ///<summary>URL to the image thumbnail.</summary>
         [JsonProperty("thumb_320x180")]
@@ -22,23 +22,23 @@ namespace ModIO
 
         // ---------[ INTERFACE IMPLEMENTATION ]---------
         public string GetFileName() { return this.fileName; }
-        public string GetURL()      { return this.fullSize; }
+        public string GetURL()      { return this.original; }
 
-        public string GetVersionURL(ModGalleryImageVersion version)
+        public string GetSizeURL(ModGalleryImageSize size)
         {
-            switch(version)
+            switch(size)
             {
-                case ModGalleryImageVersion.FullSize:
+                case ModGalleryImageSize.Original:
                 {
-                    return this.fullSize;
+                    return this.original;
                 }
-                case ModGalleryImageVersion.Thumbnail_320x180:
+                case ModGalleryImageSize.Thumbnail_320x180:
                 {
                     return this.thumbnail_320x180;
                 }
                 default:
                 {
-                    Debug.LogError("[mod.io] Unrecognized ModGalleryImageVersion");
+                    Debug.LogError("[mod.io] Unrecognized ModGalleryImageSize");
                     return string.Empty;
                 }
             }

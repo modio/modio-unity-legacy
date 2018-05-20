@@ -5,7 +5,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     [System.Serializable]
-    public class AvatarImageLocator : IMultiVersionImageLocator<UserAvatarVersion>
+    public class AvatarImageLocator : IMultiSizeImageLocator<UserAvatarSize>
     {
         /// <summary>Avatar filename including extension.</summary>
         [JsonProperty("filename")]
@@ -13,7 +13,7 @@ namespace ModIO
 
         /// <summary>URL to the full-sized avatar.</summary>
         [JsonProperty("original")]
-        public string fullSize;
+        public string original;
 
         /// <summary>URL to the small avatar thumbnail.</summary>
         [JsonProperty("thumb_50x50")]
@@ -25,27 +25,27 @@ namespace ModIO
 
         // ---------[ INTERFACE IMPLEMENTATION ]---------
         public string GetFileName() { return this.fileName; }
-        public string GetURL()      { return this.fullSize; }
+        public string GetURL()      { return this.original; }
 
-        public string GetVersionURL(UserAvatarVersion version)
+        public string GetSizeURL(UserAvatarSize size)
         {
-            switch(version)
+            switch(size)
             {
-                case UserAvatarVersion.FullSize:
+                case UserAvatarSize.Original:
                 {
-                    return this.fullSize;
+                    return this.original;
                 }
-                case UserAvatarVersion.Thumbnail_50x50:
+                case UserAvatarSize.Thumbnail_50x50:
                 {
                     return this.thumbnail_50x50;
                 }
-                case UserAvatarVersion.Thumbnail_100x100:
+                case UserAvatarSize.Thumbnail_100x100:
                 {
                     return this.thumbnail_100x100;
                 }
                 default:
                 {
-                    Debug.LogError("[mod.io] Unrecognized UserAvatarVersion");
+                    Debug.LogError("[mod.io] Unrecognized UserAvatarSize");
                     return string.Empty;
                 }
             }

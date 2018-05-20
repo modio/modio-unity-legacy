@@ -4,16 +4,16 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    public enum IconVersion
+    public enum IconSize
     {
-        FullSize = 0,
+        Original = 0,
         Thumbnail_64x64,
         Thumbnail_128x128,
         Thumbnail_256x256,
     }
 
     [System.Serializable]
-    public class IconImageLocator : IMultiVersionImageLocator<IconVersion>
+    public class IconImageLocator : IMultiSizeImageLocator<IconSize>
     {
         // ---------[ FIELDS ]---------
         ///<summary>Icon filename including extension.</summary>
@@ -22,7 +22,7 @@ namespace ModIO
 
         ///<summary>URL to the full-sized icon.</summary>
         [JsonProperty("original")]
-        public string fullSize;
+        public string original;
 
         ///<summary>URL to the small icon thumbnail.</summary>
         [JsonProperty("thumb_64x64")]
@@ -38,31 +38,31 @@ namespace ModIO
 
         // ---------[ INTERFACE IMPLEMENTATION ]---------
         public string GetFileName() { return this.fileName; }
-        public string GetURL()      { return this.fullSize; }
+        public string GetURL()      { return this.original; }
 
-        public string GetVersionURL(IconVersion version)
+        public string GetSizeURL(IconSize size)
         {
-            switch(version)
+            switch(size)
             {
-                case IconVersion.FullSize:
+                case IconSize.Original:
                 {
-                    return this.fullSize;
+                    return this.original;
                 }
-                case IconVersion.Thumbnail_64x64:
+                case IconSize.Thumbnail_64x64:
                 {
                     return this.thumbnail_64x64;
                 }
-                case IconVersion.Thumbnail_128x128:
+                case IconSize.Thumbnail_128x128:
                 {
                     return this.thumbnail_128x128;
                 }
-                case IconVersion.Thumbnail_256x256:
+                case IconSize.Thumbnail_256x256:
                 {
                     return this.thumbnail_256x256;
                 }
                 default:
                 {
-                    Debug.LogError("[mod.io] Unrecognized IconVersion");
+                    Debug.LogError("[mod.io] Unrecognized IconSize");
                     return string.Empty;
                 }
             }

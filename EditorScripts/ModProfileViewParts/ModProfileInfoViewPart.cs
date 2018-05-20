@@ -17,7 +17,7 @@ namespace ModIO
     public class ModProfileInfoViewPart : IModProfileViewPart
     {
         // ------[ CONSTANTS ]------
-        private const LogoVersion LOGO_PREVIEW_VERSION = LogoVersion.Thumbnail_320x180;
+        private const LogoSize LOGO_PREVIEW_SIZE = LogoSize.Thumbnail_320x180;
         private const float LOGO_PREVIEW_WIDTH = 320;
         private const float LOGO_PREVIEW_HEIGHT = 180;
 
@@ -60,10 +60,10 @@ namespace ModIO
             }
             else if(profile != null)
             {
-                logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
+                logoLocation = profile.logoLocator.GetSizeURL(LOGO_PREVIEW_SIZE);
                 logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
-                ModManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
+                ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
                                       APIClient.LogError);
             }
@@ -72,24 +72,18 @@ namespace ModIO
                 logoLocation = string.Empty;
                 logoTexture = null;
             }
-
-            // - Handle Updates -
-            ModManager.OnModLogoUpdated += OnModLogoUpdated;
         }
 
-        public void OnDisable()
-        {
-            ModManager.OnModLogoUpdated -= OnModLogoUpdated;
-        }
+        public void OnDisable() { }
 
         // ------[ UPDATE ]------
         public void OnUpdate() {}
 
-        private void OnModLogoUpdated(int modId, LogoVersion version, Texture2D texture)
+        private void OnModLogoUpdated(int modId, LogoSize version, Texture2D texture)
         {
             if(profile != null
                && profile.id == modId
-               && version == LOGO_PREVIEW_VERSION
+               && version == LOGO_PREVIEW_SIZE
                && logoProperty.FindPropertyRelative("isDirty").boolValue == false)
             {
                 logoTexture = texture;
@@ -336,10 +330,10 @@ namespace ModIO
                 logoProperty.FindPropertyRelative("value.fileName").stringValue = profile.logoLocator.GetFileName();
                 logoProperty.FindPropertyRelative("isDirty").boolValue = false;
 
-                logoLocation = profile.logoLocator.GetVersionURL(LOGO_PREVIEW_VERSION);
+                logoLocation = profile.logoLocator.GetSizeURL(LOGO_PREVIEW_SIZE);
                 logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
-                ModManager.GetModLogo(profile, LOGO_PREVIEW_VERSION,
+                ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
                                       APIClient.LogError);
             }

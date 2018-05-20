@@ -9,12 +9,12 @@ namespace ModIO
     public static class DownloadClient
     {
         // ---------[ IMAGE DOWNLOADS ]---------
-        public static ImageRequest DownloadModLogo(ModProfile profile, LogoVersion version)
+        public static ImageRequest DownloadModLogo(ModProfile profile, LogoSize size)
         {
             ImageRequest request = new ImageRequest();
             request.isDone = false;
 
-            string logoURL = profile.logoLocator.GetVersionURL(version);
+            string logoURL = profile.logoLocator.GetSizeURL(size);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(logoURL);
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
@@ -27,11 +27,11 @@ namespace ModIO
 
         public static ImageRequest DownloadModGalleryImage(ModProfile profile,
                                                            string imageFileName,
-                                                           ModGalleryImageVersion version)
+                                                           ModGalleryImageSize size)
         {
             ImageRequest request = new ImageRequest();
 
-            string imageURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetVersionURL(version);
+            string imageURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetSizeURL(size);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(imageURL);
             webRequest.downloadHandler = new DownloadHandlerTexture(true);

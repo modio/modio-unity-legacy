@@ -6,8 +6,8 @@ namespace ModIO
         string GetURL();
     }
 
-    public interface IMultiVersionImageLocator<E> : IImageLocator
+    public interface IMultiSizeImageLocator<E> : IImageLocator
     {
-        string GetVersionURL(E version);
+        string GetSizeURL(E size);
     }
 }

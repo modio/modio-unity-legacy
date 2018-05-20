@@ -2,9 +2,9 @@ using SerializeField = UnityEngine.SerializeField;
 
 namespace ModIO
 {
-    public enum UserAvatarVersion
+    public enum UserAvatarSize
     {
-        FullSize = 0,
+        Original = 0,
         Thumbnail_50x50,
         Thumbnail_100x100,
     }

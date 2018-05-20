@@ -1,8 +1,8 @@
 namespace ModIO
 {
-    public enum ModGalleryImageVersion
+    public enum ModGalleryImageSize
     {
-        FullSize = 0,
+        Original = 0,
         Thumbnail_320x180,
     }
 }

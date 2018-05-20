@@ -4,16 +4,16 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    public enum LogoVersion
+    public enum LogoSize
     {
-        FullSize = 0,
+        Original = 0,
         Thumbnail_320x180,
         Thumbnail_640x360,
         Thumbnail_1280x720,
     }
 
     [System.Serializable]
-    public class LogoImageLocator : IMultiVersionImageLocator<LogoVersion>
+    public class LogoImageLocator : IMultiSizeImageLocator<LogoSize>
     {
         // ---------[ FIELDS ]---------
         /// <summary> Logo filename including extension. </summmary>
@@ -22,7 +22,7 @@ namespace ModIO
 
         /// <summary> URL to the full-sized logo. </summmary>
         [JsonProperty("original")]
-        public string fullSize;
+        public string original;
 
         /// <summary> URL to the small logo thumbnail. </summmary>
         [JsonProperty("thumb_320x180")]
@@ -38,30 +38,30 @@ namespace ModIO
 
         // ---------[ INTERFACE IMPLEMENTATION ]---------
         public string GetFileName() { return this.fileName; }
-        public string GetURL()      { return this.fullSize; }
-        public string GetVersionURL(LogoVersion version)
+        public string GetURL()      { return this.original; }
+        public string GetSizeURL(LogoSize size)
         {
-            switch(version)
+            switch(size)
             {
-                case LogoVersion.FullSize:
+                case LogoSize.Original:
                 {
-                    return this.fullSize;
+                    return this.original;
                 }
-                case LogoVersion.Thumbnail_320x180:
+                case LogoSize.Thumbnail_320x180:
                 {
                     return this.thumbnail_320x180;
                 }
-                case LogoVersion.Thumbnail_640x360:
+                case LogoSize.Thumbnail_640x360:
                 {
                     return this.thumbnail_640x360;
                 }
-                case LogoVersion.Thumbnail_1280x720:
+                case LogoSize.Thumbnail_1280x720:
                 {
                     return this.thumbnail_1280x720;
                 }
                 default:
                 {
-                    Debug.LogError("[mod.io] Unrecognized LogoVersion");
+                    Debug.LogError("[mod.io] Unrecognized LogoSize");
                     return string.Empty;
                 }
             }

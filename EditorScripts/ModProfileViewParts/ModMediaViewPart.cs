@@ -13,7 +13,7 @@ namespace ModIO
     public class ModMediaViewPart : IModProfileViewPart
     {
         // ------[ CONSTANTS ]------
-        private const ModGalleryImageVersion IMAGE_PREVIEW_VERSION = ModGalleryImageVersion.Thumbnail_320x180;
+        private const ModGalleryImageSize IMAGE_PREVIEW_SIZE = ModGalleryImageSize.Thumbnail_320x180;
 
         // ------[ EDITOR CACHING ]------
         private bool isRepaintRequired = false;
@@ -120,21 +120,17 @@ namespace ModIO
 
                         ModManager.GetModGalleryImage(baseProfile,
                                                       imageFileName,
-                                                      IMAGE_PREVIEW_VERSION,
+                                                      IMAGE_PREVIEW_SIZE,
                                                       (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
                                                       null);
                     }
 
                 }
             }
-
-            // - Handle Updates -
-            ModManager.OnModGalleryImageUpdated += OnModGalleryImageUpdated;
         }
 
         public void OnDisable()
         {
-            ModManager.OnModGalleryImageUpdated -= OnModGalleryImageUpdated;
         }
 
         // ------[ UPDATES ]------
@@ -142,12 +138,12 @@ namespace ModIO
 
         protected virtual void OnModGalleryImageUpdated(int modId,
                                                         string imageFileName,
-                                                        ModGalleryImageVersion version,
+                                                        ModGalleryImageSize size,
                                                         Texture2D texture)
         {
             if(profile != null
                && profile.id == modId
-               && version == IMAGE_PREVIEW_VERSION
+               && size == IMAGE_PREVIEW_SIZE
                && textureCache.ContainsKey(imageFileName))
             {
                 textureCache[imageFileName] = texture;
@@ -280,7 +276,7 @@ namespace ModIO
 
                 ModManager.GetModGalleryImage(profile,
                                               imageFileName,
-                                              IMAGE_PREVIEW_VERSION,
+                                              IMAGE_PREVIEW_SIZE,
                                               (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
                                               null);
                 return this.textureCache[imageFileName];
