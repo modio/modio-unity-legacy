@@ -200,7 +200,6 @@ namespace ModIO
 
                 fieldProperty.FindPropertyRelative("isDirty").boolValue = true;
             }
-
         }
 
         protected virtual void LayoutSummaryField()
@@ -246,8 +245,6 @@ namespace ModIO
                 editableProfileProperty.FindPropertyRelative("metadataBlob.isDirty").boolValue = false;
             }
         }
-
-
 
         // ---------[ SUPER JANKY ]---------
         protected virtual void LayoutNameIDField()

@@ -202,8 +202,15 @@ namespace ModIO
                     {
                         CacheClient.SaveModProfile(modProfile);
                         this.profile = modProfile;
+
+                        ScriptableModProfile smp = this.target as ScriptableModProfile;
+                        Undo.RecordObject(smp, "Update Mod Profile");
+                        smp.editableModProfile.ApplyBaseProfileChanges(profile);
+
                         isProfileSyncing = false;
-                        Repaint();
+
+                        this.OnDisable();
+                        this.OnEnable();
                     },
                     (e) =>
                     {
