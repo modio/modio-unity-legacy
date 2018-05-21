@@ -1180,8 +1180,8 @@ namespace ModIO
             string endpointURL = API_URL + "/me/events";
 
             UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
-                                                                   filter.GenerateFilterString(),
-                                                                   pagination);
+                                                                      filter.GenerateFilterString(),
+                                                                      pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1198,13 +1198,13 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get User Mods
-        public static void GetUserMods(PaginationParameters pagination,
+        public static void GetUserMods(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/mods";
 
             UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
-                                                                      "",
+                                                                      filter.GenerateFilterString(),
                                                                       pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
@@ -1216,8 +1216,8 @@ namespace ModIO
             string endpointURL = API_URL + "/me/files";
 
             UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
-                                                                   "",
-                                                                   pagination);
+                                                                      "",
+                                                                      pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }

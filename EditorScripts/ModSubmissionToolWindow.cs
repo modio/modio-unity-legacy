@@ -80,7 +80,7 @@ namespace ModIO
             // - Account Header -
             EditorGUILayout.BeginHorizontal();
             {
-                if(user != null)
+                if(this.user == null)
                 {
                     EditorGUILayout.LabelField("Not logged in to mod.io");
                     GUILayout.FlexibleSpace();

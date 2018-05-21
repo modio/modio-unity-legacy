@@ -1,6 +1,6 @@
 namespace ModIO.API
 {
-    public static class GetAllModsFilterFields
+    public static class GetUserModFilterFields
     {
         // (integer) Unique id of the mod.
         public const string id = "id";
@@ -27,7 +27,7 @@ namespace ModIO.API
         // (string)  Detailed description of the mod which allows HTML.
         public const string description = "description";
         // (string)  Official homepage of the mod.
-        public const string homepage = "homepage";
+        public const string homepageUrl = "homepage_url";
         // (integer) Unique id of the file that is the current active release.
         public const string modfile = "modfile";
         // (string)  Metadata stored by the game developer.

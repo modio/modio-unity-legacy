@@ -39,6 +39,7 @@ namespace ModIO
 
         // ------[ VIEW INFORMATION ]------
         private IModProfileViewPart[] profileViewParts;
+        private bool isProfileSyncing;
         protected Vector2 scrollPos;
         protected bool isRepaintRequired;
         // Profile Initialization
@@ -85,23 +86,10 @@ namespace ModIO
                         this.user = userProfile;
 
                         // - Find User Mods -
-                        Action<List<ModTeamMember>> onGetModTeam = (modTeam) =>
+                        Action<List<ModProfile>> onGetUserMods = (profiles) =>
                         {
-                            System.Func<ModProfile, bool> userIsTeamMember = (p) =>
-                            {
-                                foreach(var teamMember in modTeam)
-                                {
-                                    if(teamMember.user.id == this.user.id
-                                       && (int)teamMember.accessLevel >= (int)ModTeamMemberAccessLevel.Administrator)
-                                    {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            };
-
                             modInitializationOptionIndex = 0;
-                            modList = CacheClient.AllModProfiles().Where(userIsTeamMember).ToArray();
+                            modList = profiles.ToArray();
                             modOptions = new string[modList.Length];
                             for(int i = 0; i < modList.Length; ++i)
                             {
@@ -112,9 +100,7 @@ namespace ModIO
                             isModListLoading = false;
                         };
 
-                        ModManager.GetModTeam(modIdProperty.intValue,
-                                              onGetModTeam,
-                                              onError);
+                        ModManager.GetAuthenticatedUserMods(onGetUserMods, onError);
                     },
                     onError);
                 }
@@ -146,6 +132,7 @@ namespace ModIO
             }
 
             scrollPos = Vector2.zero;
+            isProfileSyncing = false;
 
             // Events
             EditorApplication.update += OnUpdate;
@@ -189,11 +176,41 @@ namespace ModIO
             else
             {
                 serializedObject.Update();
-                foreach(IModProfileViewPart viewPart in profileViewParts)
+
+                bool isProfileSyncRequested = false;
+
+                using(new EditorGUI.DisabledScope(modIdProperty.intValue > 0))
                 {
-                    viewPart.OnGUI();
+                    isProfileSyncRequested = GUILayout.Button("Pull Server Updates");
+                    EditorGUILayout.Space();
                 }
-                serializedObject.ApplyModifiedProperties();
+
+                using(new EditorGUI.DisabledScope(isProfileSyncing))
+                {
+                    foreach(IModProfileViewPart viewPart in profileViewParts)
+                    {
+                        viewPart.OnGUI();
+                    }
+                    serializedObject.ApplyModifiedProperties();
+                }
+
+                if(isProfileSyncRequested)
+                {
+                    isProfileSyncing = true;
+                    APIClient.GetMod(modIdProperty.intValue,
+                    (modProfile) =>
+                    {
+                        CacheClient.SaveModProfile(modProfile);
+                        this.profile = modProfile;
+                        isProfileSyncing = false;
+                        Repaint();
+                    },
+                    (e) =>
+                    {
+                        isProfileSyncing = false;
+                        Debug.LogWarning(e.ToUnityDebugString());
+                    });
+                }
             }
 
             isRepaintRequired = false;

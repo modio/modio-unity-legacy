@@ -75,6 +75,44 @@ namespace ModIO
             }
         }
 
+        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            List<int> cachedModIds = CacheClient.LoadAuthenticatedUserMods();
+
+            if(cachedModIds != null)
+            {
+                ModManager.GetModProfiles(cachedModIds,
+                                          onSuccess,
+                                          onError);
+            }
+            else
+            {
+                RequestFilter userModsFilter = new RequestFilter();
+                userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
+                = new EqualToFilter<int>() { filterValue = APIClient.gameId };
+
+                Action<List<ModProfile>> onGetMods = (modProfiles) =>
+                {
+                    CacheClient.SaveModProfiles(modProfiles);
+
+                    List<int> modIds = new List<int>(modProfiles.Count);
+                    foreach(ModProfile profile in modProfiles)
+                    {
+                        modIds.Add(profile.id);
+                    }
+                    CacheClient.SaveAuthenticatedUserMods(modIds);
+
+                    if(onSuccess != null) { onSuccess(modProfiles); }
+                };
+
+                // - Get All Events -
+                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetUserMods(userModsFilter, p, s, e),
+                                                               onGetMods,
+                                                               onError);
+            }
+        }
+
         // ---------[ GAME PROFILE ]---------
         public static IEnumerator RequestGameProfile(ClientRequest<GameProfile> request)
         {
@@ -149,6 +187,53 @@ namespace ModIO
                                      onError);
                 }
             });
+        }
+
+        public static void GetModProfiles(IEnumerable<int> modIds,
+                                          Action<List<ModProfile>> onSuccess,
+                                          Action<WebRequestError> onError)
+        {
+            List<int> missingModIds = new List<int>(modIds);
+            List<ModProfile> modProfiles = new List<ModProfile>(missingModIds.Count);
+
+            foreach(ModProfile profile in CacheClient.AllModProfiles())
+            {
+                if(missingModIds.Contains(profile.id))
+                {
+                    missingModIds.Remove(profile.id);
+                    modProfiles.Add(profile);
+                }
+            }
+
+            if(missingModIds.Count == 0)
+            {
+                if(onSuccess != null) { onSuccess(modProfiles); }
+            }
+            else
+            {
+                // - Filter -
+                RequestFilter modFilter = new RequestFilter();
+                modFilter.sortFieldName = GetAllModsFilterFields.id;
+                modFilter.fieldFilters[GetAllModsFilterFields.id]
+                = new InArrayFilter<int>()
+                {
+                    filterArray = missingModIds.ToArray()
+                };
+
+                Action<List<ModProfile>> onGetMods = (profiles) =>
+                {
+                    modProfiles.AddRange(profiles);
+
+                    CacheClient.SaveModProfiles(profiles);
+
+                    if(onSuccess != null) { onSuccess(modProfiles); }
+                };
+
+                // - Get All Events -
+                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modFilter, p, s, e),
+                                                               onGetMods,
+                                                               onError);
+            }
         }
 
         // TODO(@jackson): Defend everything
@@ -615,85 +700,7 @@ namespace ModIO
         }
 
 
-
-
-
-
-
-
-        // ---------------------------[ OLD OLD OLD OLD OLD !!! ]------------------------
-
-
-
-        // TODO(@jackson): Remove/Update all this
-        // ---------[ INNER CLASSES ]---------
-        [System.Serializable]
-        private class ManifestData
-        {
-            public int lastUpdateTimeStamp = ServerTimeStamp.Now;
-            public List<ModEvent> unresolvedEvents = new List<ModEvent>();
-            public GameProfile gameProfile = new GameProfile();
-            public List<string> serializedImageCache = new List<string>();
-        }
-
-        // ---------[ VARIABLES ]---------
-        private static ManifestData manifest = null;
-        private static UserProfile authUser = null;
-
-        private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
-        private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
-        private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
-
-
-        // ---------[ MOD MANAGEMENT ]---------
-        public static string GetModDirectory(int modId)
-        {
-            return cacheDirectory + "mods/" + modId + "/";
-        }
-
-        public static ModBinaryStatus GetBinaryStatus(ModProfile profile)
-        {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
-            {
-                return ModBinaryStatus.UpToDate;
-            }
-            else
-            {
-                string[] modfileURLs = Directory.GetFiles(GetModDirectory(profile.id), "modfile_*.zip");
-                if(modfileURLs.Length > 0)
-                {
-                    return ModBinaryStatus.RequiresUpdate;
-                }
-                else
-                {
-                    return ModBinaryStatus.Missing;
-                }
-            }
-        }
-
-        public static string GetBinaryPath(ModProfile profile)
-        {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
-            {
-                return GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip";
-            }
-            else
-            {
-                string[] modfileURLs = Directory.GetFiles(GetModDirectory(profile.id), "modfile_*.zip");
-                if(modfileURLs.Length > 0)
-                {
-                    return modfileURLs[0];
-                }
-            }
-            return null;
-        }
-
-        // ---------[ MISC ]------------
-        private static void WriteManifestToDisk()
-        {
-            File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
-        }
-
+        // ---------[ UPLOADING ]---------
         // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitNewMod(EditableModProfile modEdits,
                                         Action<ModProfile> modSubmissionSucceeded,
@@ -752,6 +759,7 @@ namespace ModIO
                                                                modSubmissionFailed),
                           modSubmissionFailed);
         }
+
         // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitModChanges(int modId,
                                             EditableModProfile modEdits,
@@ -1010,6 +1018,83 @@ namespace ModIO
             doNextSubmissionAction(new APIMessage());
         }
 
+
+
+
+
+
+        // ---------------------------[ OLD OLD OLD OLD OLD !!! ]------------------------
+
+
+
+        // TODO(@jackson): Remove/Update all this
+        // ---------[ INNER CLASSES ]---------
+        [System.Serializable]
+        private class ManifestData
+        {
+            public int lastUpdateTimeStamp = ServerTimeStamp.Now;
+            public List<ModEvent> unresolvedEvents = new List<ModEvent>();
+            public GameProfile gameProfile = new GameProfile();
+            public List<string> serializedImageCache = new List<string>();
+        }
+
+        // ---------[ VARIABLES ]---------
+        private static ManifestData manifest = null;
+        private static UserProfile authUser = null;
+
+        private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
+        private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
+        private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
+
+
+        // ---------[ MOD MANAGEMENT ]---------
+        public static string GetModDirectory(int modId)
+        {
+            return cacheDirectory + "mods/" + modId + "/";
+        }
+
+        public static ModBinaryStatus GetBinaryStatus(ModProfile profile)
+        {
+            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
+            {
+                return ModBinaryStatus.UpToDate;
+            }
+            else
+            {
+                string[] modfileURLs = Directory.GetFiles(GetModDirectory(profile.id), "modfile_*.zip");
+                if(modfileURLs.Length > 0)
+                {
+                    return ModBinaryStatus.RequiresUpdate;
+                }
+                else
+                {
+                    return ModBinaryStatus.Missing;
+                }
+            }
+        }
+
+        public static string GetBinaryPath(ModProfile profile)
+        {
+            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
+            {
+                return GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip";
+            }
+            else
+            {
+                string[] modfileURLs = Directory.GetFiles(GetModDirectory(profile.id), "modfile_*.zip");
+                if(modfileURLs.Length > 0)
+                {
+                    return modfileURLs[0];
+                }
+            }
+            return null;
+        }
+
+        // ---------[ MISC ]------------
+        private static void WriteManifestToDisk()
+        {
+            File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
+        }
         // TODO(@jackson): Convert onError to string!
         public static void UploadModBinary_Unzipped(int modId,
                                                     EditableModfile modfileValues,

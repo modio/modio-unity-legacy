@@ -222,12 +222,13 @@ namespace ModIO
         }
 
 
-        // ---------[ USER MANAGEMENT ]---------
+        // ---------[ AUTHENTICATED USER ]---------
         [Serializable]
         private class AuthenticatedUser
         {
             public string oAuthToken;
             public UserProfile profile;
+            public List<int> modIds;
             public List<int> subscribedModIds;
         }
 
@@ -306,6 +307,33 @@ namespace ModIO
             {
                 return au.subscribedModIds;
             }
+            return null;
+        }
+
+        public static void SaveAuthenticatedUserMods(List<int> modIds)
+        {
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au == null)
+            {
+                au = new AuthenticatedUser();
+            }
+
+            au.modIds = modIds;
+
+            CacheClient.WriteJsonObjectFile(userFilePath, au);
+
+        }
+
+        public static List<int> LoadAuthenticatedUserMods()
+        {
+            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+
+            if(au != null)
+            {
+                return au.modIds;
+            }
+
             return null;
         }
 
