@@ -419,15 +419,25 @@ namespace ModIO
                         }
                     }
 
-                    string newSelectedTag = string.Empty;
+                    string newSelectedTag = oldSelectedTag;
                     foreach(string tag in tagCategory.tags)
                     {
                         bool isSelected = (tag == oldSelectedTag);
-                        isSelected = EditorGUILayout.Toggle(tag, isSelected, EditorStyles.radioButton);
 
-                        if(isSelected)
+                        using (var check = new EditorGUI.ChangeCheckScope())
                         {
-                            newSelectedTag = tag;
+                            isSelected = EditorGUILayout.Toggle(tag, isSelected, EditorStyles.radioButton);
+                            if (check.changed)
+                            {
+                                if(isSelected)
+                                {
+                                    newSelectedTag = tag;
+                                }
+                                else
+                                {
+                                    newSelectedTag = string.Empty;
+                                }
+                            }
                         }
                     }
 
