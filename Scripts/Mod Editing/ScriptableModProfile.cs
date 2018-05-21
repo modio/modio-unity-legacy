@@ -17,7 +17,14 @@ namespace ModIO
         {
             ScriptableModProfile asset = ScriptableObject.CreateInstance<ScriptableModProfile>();
 
-            AssetDatabase.CreateAsset(asset, "Assets/NewModProfile.asset");
+            int profileCount
+            = System.IO.Directory.GetFiles(Application.dataPath, "NewModProfile*.asset").Length;
+
+            string fileNameAddition = (profileCount > 0
+                                       ? " (" + profileCount.ToString() + ")"
+                                       : "");
+
+            AssetDatabase.CreateAsset(asset, "Assets/NewModProfile" + fileNameAddition + ".asset");
             AssetDatabase.SaveAssets();
 
             EditorUtility.FocusProjectWindow();

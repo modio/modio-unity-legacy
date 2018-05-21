@@ -179,7 +179,7 @@ namespace ModIO
 
                 bool isProfileSyncRequested = false;
 
-                using(new EditorGUI.DisabledScope(modIdProperty.intValue > 0))
+                using(new EditorGUI.DisabledScope(modIdProperty.intValue == 0))
                 {
                     isProfileSyncRequested = GUILayout.Button("Pull Server Updates");
                     EditorGUILayout.Space();
@@ -273,6 +273,18 @@ namespace ModIO
 
                             smp.modId = profile.id;
                             smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
+
+                            string smpFilePath = AssetDatabase.GetAssetPath(smp);
+                            string smpDir = System.IO.Path.GetDirectoryName(smpFilePath);
+
+                            int profileCount
+                            = System.IO.Directory.GetFiles(smpDir, profile.name + "*.asset").Length;
+
+                            string fileNameAddition = (profileCount > 0
+                                                       ? " (" + profileCount.ToString() + ")"
+                                                       : "");
+
+                            AssetDatabase.RenameAsset(smpFilePath, profile.name + fileNameAddition + ".asset");
 
                             OnDisable();
                             OnEnable();
