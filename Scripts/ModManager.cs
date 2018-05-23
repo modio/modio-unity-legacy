@@ -11,28 +11,15 @@ using Newtonsoft.Json;
 
 using ModIO.API;
 
-// NOTE(@jackson): Had a weird bug where Initialize authenticated with a user.id of 0?
-// TODO(@jackson): UISettings
 // TODO(@jackson): ErrorWrapper to handle specific error codes
 namespace ModIO
 {
-    public delegate void GameProfileEventHandler(GameProfile profile);
-    public delegate void ModProfileEventHandler(ModProfile modProfile);
-    public delegate void AuthenticatedUserEventHandler(UserProfile user);
-    public delegate void ModIDEventHandler(int modId);
-    public delegate void ModfileEventHandler(int modId, Modfile newModfile);
-    public delegate void ModLogoUpdatedEventHandler(int modId, LogoSize size, Texture2D texture);
-    public delegate void ModGalleryImageUpdatedEventHandler(int modId, string imageFileName, ModGalleryImageSize size, Texture2D texture);
-
     public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
     public delegate void ModIdsEventHandler(IEnumerable<int> modIds);
     public delegate void ModfileStubsEventHandler(IEnumerable<ModfileStub> modfiles);
 
-    // TODO(@jackson): -> RequestManager?
     public static class ModManager
     {
-        // ---------[ MEMBERS ]---------
-
         // ---------[ COROUTINE HELPERS ]---------
         private static void OnRequestSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
         {
@@ -109,7 +96,6 @@ namespace ModIO
         // ---------[ GAME PROFILE ]---------
         public static IEnumerator RequestGameProfile(ClientRequest<GameProfile> request)
         {
-
             // - Attempt load from cache -
             GameProfile cachedProfile = CacheClient.LoadGameProfile();
             request.response = cachedProfile;

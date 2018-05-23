@@ -294,7 +294,7 @@ namespace ModIO
                 {
                     Texture2D newLogoTexture;
 
-                    // TODO(@jackson): Add other file-types
+                    // TODO(@jackson): Add other file-types (OpenFilePanelWithFilter)
                     string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
                     if (path.Length != 0
                         && Utility.TryLoadTextureFromFile(path, out newLogoTexture))
