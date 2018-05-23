@@ -8,9 +8,10 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// TODO(@jackson): Implement client-side error-checking in submission
+// TODO(@jackson): Add folder upload support
 namespace ModIO
 {
-    // TODO(@jackson): Implement client-side error-checking in submission
     public class ModSubmissionToolWindow : EditorWindow
     {
         [MenuItem("mod.io/Mod Submission Tool")]
@@ -19,8 +20,12 @@ namespace ModIO
             GetWindow<ModSubmissionToolWindow>("Submit Mod");
         }
 
-        // ------[ WINDOW FIELDS ]---------
+        // ---------[ CONSTANTS ]---------
+        private readonly string[] modBinaryFileExtensionFilters = { "All Files", "" };
+
+        // ---------[ WINDOW FIELDS ]---------
         private static bool isAwaitingServerResponse = false;
+
         // - Login -
         private UserProfile user;
         private bool isInputtingEmail;
@@ -151,8 +156,10 @@ namespace ModIO
                 {
                     EditorApplication.delayCall += () =>
                     {
-                        // TODO(@jackson): Allow folders?
-                        string path = EditorUtility.OpenFilePanel("Set Build Location", "", "unity3d");
+                        string path = EditorUtility.OpenFilePanelWithFilters("Set Build Location",
+                                                                             "",
+                                                                             modBinaryFileExtensionFilters);
+
                         if (path.Length != 0)
                         {
                             buildFilePath = path;

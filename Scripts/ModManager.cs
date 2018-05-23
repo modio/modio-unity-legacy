@@ -1018,8 +1018,78 @@ namespace ModIO
             doNextSubmissionAction(new APIMessage());
         }
 
+        // TODO(@jackson): Convert onError to string!
+        public static void UploadModBinary_Unzipped(int modId,
+                                                    EditableModfile modfileValues,
+                                                    string unzippedBinaryLocation,
+                                                    bool setPrimary,
+                                                    Action<Modfile> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + DateTime.Now.ToFileTime() + ".zip";
+            bool zipSucceeded = false;
 
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
 
+                using(var zip = new Ionic.Zip.ZipFile())
+                {
+                    zip.AddFile(unzippedBinaryLocation);
+                    zip.Save(binaryZipLocation);
+                }
+
+                zipSucceeded = true;
+            }
+            catch(Exception e)
+            {
+                string warning = "[mod.io] Unable to zip mod binary prior to uploading.\n";
+                Utility.LogExceptionAsWarning(warning, e);
+            }
+
+            if(zipSucceeded)
+            {
+                UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setPrimary, onSuccess, onError);
+            }
+        }
+
+        public static void UploadModBinary_Zipped(int modId,
+                                                  EditableModfile modfileValues,
+                                                  string binaryZipLocation,
+                                                  bool setPrimary,
+                                                  Action<Modfile> onSuccess,
+                                                  Action<WebRequestError> onError)
+        {
+            string buildFilename = Path.GetFileName(binaryZipLocation);
+            byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
+
+            var parameters = new AddModfileParameters();
+            parameters.filedata = BinaryUpload.Create(buildFilename, buildZipData);
+            if(modfileValues.version.isDirty)
+            {
+                parameters.version = modfileValues.version.value;
+            }
+            if(modfileValues.changelog.isDirty)
+            {
+                parameters.changelog = modfileValues.changelog.value;
+            }
+            if(modfileValues.metadataBlob.isDirty)
+            {
+                parameters.metadata_blob = modfileValues.metadataBlob.value;
+            }
+
+            // - Generate Hash -
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                using (var stream = System.IO.File.OpenRead(binaryZipLocation))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    parameters.filehash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+
+            APIClient.AddModfile(modId, parameters, onSuccess, onError);
+        }
 
 
 
@@ -1094,55 +1164,6 @@ namespace ModIO
         private static void WriteManifestToDisk()
         {
             File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
-        }
-        // TODO(@jackson): Convert onError to string!
-        public static void UploadModBinary_Unzipped(int modId,
-                                                    EditableModfile modfileValues,
-                                                    string unzippedBinaryLocation,
-                                                    bool setPrimary,
-                                                    Action<Modfile> onSuccess,
-                                                    Action<WebRequestError> onError)
-        {
-            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + DateTime.Now.ToFileTime() + ".zip";
-
-            using(var zip = new Ionic.Zip.ZipFile())
-            {
-                zip.AddFile(unzippedBinaryLocation);
-                zip.Save(binaryZipLocation);
-            }
-
-
-            UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setPrimary, onSuccess, onError);
-        }
-
-        public static void UploadModBinary_Zipped(int modId,
-                                                  EditableModfile modfileValues,
-                                                  string binaryZipLocation,
-                                                  bool setPrimary,
-                                                  Action<Modfile> onSuccess,
-                                                  Action<WebRequestError> onError)
-        {
-            string buildFilename = Path.GetFileName(binaryZipLocation);
-            byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
-
-            var parameters = new AddModfileParameters();
-            parameters.filedata = BinaryUpload.Create(buildFilename, buildZipData);
-            if(modfileValues.version.isDirty)
-            {
-                parameters.version = modfileValues.version.value;
-            }
-            if(modfileValues.changelog.isDirty)
-            {
-                parameters.changelog = modfileValues.changelog.value;
-            }
-            if(modfileValues.metadataBlob.isDirty)
-            {
-                parameters.metadata_blob = modfileValues.metadataBlob.value;
-            }
-
-            // TODO(@jackson): parameters.filehash
-
-            APIClient.AddModfile(modId, parameters, onSuccess, onError);
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
