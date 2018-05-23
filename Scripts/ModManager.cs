@@ -392,7 +392,7 @@ namespace ModIO
                             if((idIndex = modfileChangedIds.IndexOf(profile.id)) >= 0)
                             {
                                 modfileChangedIds.RemoveAt(idIndex);
-                                modfileChangedStubs.Add(profile.currentRelease);
+                                modfileChangedStubs.Add(profile.activeBuild);
                             }
                         }
                     }
@@ -607,10 +607,10 @@ namespace ModIO
             });
         }
 
-        public static ModBinaryRequest GetCurrentModBinary(ModProfile profile)
+        public static ModBinaryRequest GetActiveModBinary(ModProfile profile)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
-                                                                          profile.currentRelease.id);
+                                                                          profile.activeBuild.id);
             ModBinaryRequest request;
 
             if(File.Exists(zipFilePath))
@@ -622,8 +622,8 @@ namespace ModIO
             else
             {
                 request = DownloadClient.DownloadModBinary(profile.id,
-                                                           profile.currentRelease.id,
-                                                           CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.currentRelease.id));
+                                                           profile.activeBuild.id,
+                                                           CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id));
 
                 request.succeeded += (r) => CacheClient.SaveModfile(r.modfile);
             }
@@ -631,7 +631,7 @@ namespace ModIO
             return request;
         }
 
-        public static void DeleteAllNonCurrentBuilds(ModProfile profile)
+        public static void DeleteInactiveBuilds(ModProfile profile)
         {
             string buildDir = CacheClient.GenerateModBuildsDirectoryPath(profile.id);
             string[] buildFilePaths = Directory.GetFiles(buildDir, "*.*");
@@ -639,7 +639,7 @@ namespace ModIO
             foreach(string buildFile in buildFilePaths)
             {
                 if(Path.GetFileNameWithoutExtension(buildFile)
-                   != profile.currentRelease.id.ToString())
+                   != profile.activeBuild.id.ToString())
                 {
                     CacheClient.DeleteFile(buildFile);
                 }
@@ -1125,7 +1125,7 @@ namespace ModIO
 
         public static ModBinaryStatus GetBinaryStatus(ModProfile profile)
         {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
+            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.activeBuild.id + ".zip"))
             {
                 return ModBinaryStatus.UpToDate;
             }
@@ -1145,9 +1145,9 @@ namespace ModIO
 
         public static string GetBinaryPath(ModProfile profile)
         {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip"))
+            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.activeBuild.id + ".zip"))
             {
-                return GetModDirectory(profile.id) + "modfile_" + profile.currentRelease.id + ".zip";
+                return GetModDirectory(profile.id) + "modfile_" + profile.activeBuild.id + ".zip";
             }
             else
             {
@@ -1158,12 +1158,6 @@ namespace ModIO
                 }
             }
             return null;
-        }
-
-        // ---------[ MISC ]------------
-        private static void WriteManifestToDisk()
-        {
-            File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
         }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
@@ -1271,30 +1265,3 @@ namespace ModIO
         // }
     }
 }
-
-
-
-        // public static void InitializeUsingDirectory(string cacheDirectory)
-        // {
-        //     CacheClient.cacheDirectory = cacheDirectory;
-
-        //     if (!Directory.Exists(CacheClient.cacheDirectory))
-        //     {
-        //         Directory.CreateDirectory(CacheClient.cacheDirectory);
-        //     }
-
-        //     if(File.Exists(cacheDirectory + "manifest.data"))
-        //     {
-        //         string manifestFilePath = cacheDirectory + "manifest.data";
-        //         try
-        //         {
-        //             Manifest m = JsonConvert.DeserializeObject<Manifest>(File.ReadAllText(manifestFilePath));
-        //             CacheClient._lastUpdate = m.lastUpdateTimeStamp;
-        //         }
-        //         catch(Exception e)
-        //         {
-        //             Debug.LogWarning("[mod.io] Failed to read cache manifest from " + cacheDirectory
-        //                              + "\n" + e.Message);
-        //         }
-        //     }
-        // }

@@ -25,7 +25,7 @@ namespace ModIO
         /// <summary>Unique modfile id.</summary>
         [JsonProperty("id")]
         public int id;
-        
+
         /// <summary>Unique mod id.</summary>
         [JsonProperty("mod_id")]
         public int modId;

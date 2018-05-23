@@ -97,7 +97,7 @@ namespace ModIO
 
         /// <summary> Contains modfile data. </summary>
         [JsonProperty("modfile")]
-        public ModfileStub currentRelease;
+        public ModfileStub activeBuild;
 
         /// <summary> Contains mod media data. </summary>
         [JsonProperty("media")]
@@ -106,11 +106,11 @@ namespace ModIO
         /// <summary> Contains ratings summary. </summary>
         [JsonProperty("rating_summary")]
         public RatingSummary ratingSummary;
-        
+
         /// <summary> Contains key-value metadata. </summary>
         [JsonProperty("metadata_kvp")]
         public MetadataKVP[] metadataKVP;
-        
+
         /// <summary> Contains mod tag data. </summary>
         [JsonProperty("tags")]
         public ModTag[] tags;

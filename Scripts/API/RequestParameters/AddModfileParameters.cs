@@ -28,7 +28,7 @@ namespace ModIO.API
             }
         }
         // Default value is true. Label this upload as the current release, this will change the modfile field on the parent mod to the id of this file after upload.
-        public bool active
+        public bool isActive
         {
             set
             {
