@@ -29,7 +29,7 @@ namespace ModIO
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS
                    && error != null)
                 {
-                    APIClient.LogError(error);
+                    WebRequestError.LogAsWarning(error);
                 }
             #endif
 

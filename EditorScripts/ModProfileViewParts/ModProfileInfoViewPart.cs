@@ -65,7 +65,7 @@ namespace ModIO
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
-                                      APIClient.LogError);
+                                      WebRequestError.LogAsWarning);
             }
             else
             {
@@ -321,7 +321,7 @@ namespace ModIO
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
-                                      APIClient.LogError);
+                                      WebRequestError.LogAsWarning);
             }
         }
 

@@ -81,7 +81,7 @@ namespace ModIO
 
                     Action<WebRequestError> onError = (e) =>
                     {
-                        APIClient.LogError(e);
+                        WebRequestError.LogAsWarning(e);
                         isModListLoading = false;
                     };
 

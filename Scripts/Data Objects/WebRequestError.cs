@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 
+using Debug = UnityEngine.Debug;
+
 namespace ModIO
 {
     [System.Serializable]
@@ -87,6 +89,11 @@ namespace ModIO
             }
 
             return debugString;
+        }
+
+        public static void LogAsWarning(WebRequestError error)
+        {
+            Debug.LogWarning(error.ToUnityDebugString());
         }
     }
 }

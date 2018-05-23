@@ -92,13 +92,6 @@ namespace ModIO
             return true;
         }
 
-        // ---------[ DEFAULT SUCCESS/ERROR FUNCTIONS ]---------
-        // TODO(@jackson): Remove
-        public static void LogError(WebRequestError error)
-        {
-            Debug.LogWarning(error.ToUnityDebugString());
-        }
-
         // ---------[ REQUEST HANDLING ]---------
         public static UnityWebRequest GenerateQuery(string endpointURL,
                                                     string filterString,
@@ -457,9 +450,9 @@ namespace ModIO
                     #endif
 
                     if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                       && errorCallback != APIClient.LogError)
+                       && errorCallback != WebRequestError.LogAsWarning)
                     {
-                        APIClient.LogError(errorInfo);
+                        WebRequestError.LogAsWarning(errorInfo);
                     }
 
                     if(errorCallback != null)

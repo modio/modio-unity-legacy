@@ -88,7 +88,7 @@ namespace ModIO
             }
             else
             {
-                APIClient.LogError(gameRequest.error);
+                WebRequestError.LogAsWarning(gameRequest.error);
                 this.gameProfile = null;
             }
 
