@@ -202,6 +202,7 @@ namespace ModIO
         private void LayoutGalleryImageProperty(SerializedProperty elementProperty)
         {
             bool doBrowse = false;
+            bool doClear = false;
             string imageFileName = elementProperty.FindPropertyRelative("fileName").stringValue;
             string imageSource = elementProperty.FindPropertyRelative("url").stringValue;
 
@@ -209,6 +210,7 @@ namespace ModIO
             EditorGUILayout.BeginHorizontal();
                 doBrowse |= EditorGUILayoutExtensions.BrowseButton(imageSource,
                                                                    new GUIContent("Location"));
+                doClear = EditorGUILayoutExtensions.ClearButton();
             EditorGUILayout.EndHorizontal();
 
             // - Draw Texture -
@@ -249,6 +251,14 @@ namespace ModIO
                         textureCache.Add(fileName, newTexture);
                     }
                 };
+            }
+            if(doClear)
+            {
+                elementProperty.FindPropertyRelative("url").stringValue = string.Empty;
+                elementProperty.FindPropertyRelative("fileName").stringValue = string.Empty;
+
+                galleryImagesProp.FindPropertyRelative("isDirty").boolValue = true;
+                galleryImagesProp.serializedObject.ApplyModifiedProperties();
             }
         }
 

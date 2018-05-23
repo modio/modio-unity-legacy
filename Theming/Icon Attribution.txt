@@ -1,4 +1,8 @@
 :: Attribution for externally sourced icons under the Creative Commons License ::
 
-[ icon-undo.png ]
+[ editor_icon-undo.png ]
 Undo by RareSloth from the Noun Project
+
+[ editor_icon-clear.png ]
+clear by Icons Bazaar from the Noun Project
+URL: https://thenounproject.com/term/clear/596058

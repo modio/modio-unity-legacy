@@ -141,20 +141,26 @@ namespace ModIO
             // - Build Profile -
             using(new EditorGUI.DisabledScope(profile == null))
             {
-                if(EditorGUILayoutExtensions.BrowseButton(buildFilePath, new GUIContent("Modfile")))
-                {
-                    EditorApplication.delayCall += () =>
+                EditorGUILayout.BeginHorizontal();
+                    if(EditorGUILayoutExtensions.BrowseButton(buildFilePath, new GUIContent("Modfile")))
                     {
-                        string path = EditorUtility.OpenFilePanelWithFilters("Set Build Location",
-                                                                             "",
-                                                                             modBinaryFileExtensionFilters);
-
-                        if (path.Length != 0)
+                        EditorApplication.delayCall += () =>
                         {
-                            buildFilePath = path;
-                        }
-                    };
-                }
+                            string path = EditorUtility.OpenFilePanelWithFilters("Set Build Location",
+                                                                                 "",
+                                                                                 modBinaryFileExtensionFilters);
+
+                            if (path.Length != 0)
+                            {
+                                buildFilePath = path;
+                            }
+                        };
+                    }
+                    if(EditorGUILayoutExtensions.ClearButton())
+                    {
+                        buildFilePath = string.Empty;
+                    }
+                EditorGUILayout.EndHorizontal();
 
                 // - Build Profile -
                 using(new EditorGUI.DisabledScope(!System.IO.File.Exists(buildFilePath)))

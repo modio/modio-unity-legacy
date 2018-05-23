@@ -57,8 +57,5 @@ namespace ModIO
 
         // Default loading textures
         public PlaceholderImages DownloadingPlaceholderImages;
-
-        // Default editor textures
-        public Texture2D EditorTexture_UndoButton;
     }
 }

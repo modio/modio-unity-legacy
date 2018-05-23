@@ -90,7 +90,6 @@ namespace ModIO
             }
         }
 
-        // TODO(@jackson): Add a clear button
         public static bool BrowseButton(string path, GUIContent label)
         {
             bool doBrowse = false;
@@ -124,7 +123,16 @@ namespace ModIO
         {
             using (new EditorGUI.DisabledScope(!isEnabled))
             {
-                return GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton,
+                return GUILayout.Button(EditorIcons.UndoButton,
+                                        GUI.skin.label,
+                                        buttonLayout);
+            }
+        }
+        public static bool ClearButton(bool isEnabled = true)
+        {
+            using (new EditorGUI.DisabledScope(!isEnabled))
+            {
+                return GUILayout.Button(EditorIcons.ClearButton,
                                         GUI.skin.label,
                                         buttonLayout);
             }
