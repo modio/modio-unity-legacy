@@ -10,7 +10,6 @@ using UnityEngine;
 namespace ModIO
 {
     // NOTE(@jackson): Could do with a beauty-pass
-    // TODO(@jackson): Needs to still allow editing if loading fails
     [CustomEditor(typeof(ScriptableModProfile))]
     public class ModProfileEditor : Editor
     {

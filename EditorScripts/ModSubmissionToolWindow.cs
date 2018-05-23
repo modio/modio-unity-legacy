@@ -8,8 +8,6 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// TODO(@jackson): Implement client-side error-checking in submission
-// TODO(@jackson): Add folder upload support
 namespace ModIO
 {
     public class ModSubmissionToolWindow : EditorWindow
@@ -31,12 +29,16 @@ namespace ModIO
         private ScriptableModProfile profile;
         private string buildFilePath;
         private EditableModfile buildProfile;
+        private string uploadSucceededMessage;
+        private string uploadFailedMessage;
 
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
         {
             buildProfile = new EditableModfile();
             buildProfile.version.value = "0.0.0";
+            uploadSucceededMessage = null;
+            uploadFailedMessage = null;
 
             string authToken = CacheClient.LoadAuthenticatedUserToken();
             if(!String.IsNullOrEmpty(authToken))
@@ -112,7 +114,17 @@ namespace ModIO
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             // - Submission Section -
-            if(profile == null)
+            if(!String.IsNullOrEmpty(uploadSucceededMessage))
+            {
+                EditorGUILayout.HelpBox(uploadSucceededMessage,
+                                        MessageType.Info);
+            }
+            else if(!String.IsNullOrEmpty(uploadFailedMessage))
+            {
+                EditorGUILayout.HelpBox(uploadFailedMessage,
+                                        MessageType.Error);
+            }
+            else if(profile == null)
             {
                 EditorGUILayout.HelpBox("Please select a mod profile as a the upload target.",
                                         MessageType.Info);
@@ -214,7 +226,10 @@ namespace ModIO
 
             Action<WebRequestError> onSubmissionFailed = (e) =>
             {
-                // TODO(@jackson): Dialog Window?
+                EditorUtility.DisplayDialog("Upload Failed",
+                                            "Failed to update the mod profile on the server.\n"
+                                            + e.message,
+                                            "Close");
                 isAwaitingServerResponse = false;
             };
 
@@ -247,7 +262,10 @@ namespace ModIO
             {
                 Action<WebRequestError> onSubmissionFailed = (e) =>
                 {
-                    // TODO(@jackson): Dialog Window?
+                    EditorUtility.DisplayDialog("Upload Failed",
+                                                "Failed to upload the mod build to the server.\n"
+                                                + e.message,
+                                                "Close");
                     isAwaitingServerResponse = false;
                 };
 
