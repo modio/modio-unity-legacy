@@ -26,11 +26,7 @@ namespace ModIO
         // ---------[ WINDOW FIELDS ]---------
         private static bool isAwaitingServerResponse = false;
 
-        // - Login -
         private UserProfile user;
-        private bool isInputtingEmail;
-        private string emailAddressInput;
-        private string securityCodeInput;
         // - Submission -
         private ScriptableModProfile profile;
         private string buildFilePath;
@@ -39,10 +35,6 @@ namespace ModIO
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
         {
-            isInputtingEmail = true;
-            emailAddressInput = "";
-            securityCodeInput = "";
-
             buildProfile = new EditableModfile();
             buildProfile.version.value = "0.0.0";
 
@@ -107,9 +99,6 @@ namespace ModIO
                                 APIClient.userAuthorizationToken = null;
                                 CacheClient.DeleteAuthenticatedUser();
 
-                                isInputtingEmail = true;
-                                emailAddressInput = "";
-                                securityCodeInput = "";
                                 isAwaitingServerResponse = false;
 
                                 Repaint();

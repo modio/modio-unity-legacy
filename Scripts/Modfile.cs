@@ -36,7 +36,11 @@ namespace ModIO
 
         /// <summary>Size of the file in bytes.</summary>
         [JsonProperty("filesize")]
-        public int filesize;
+        public int fileSize;
+
+        /// <summary>Contains filehash data.</summary>
+        [JsonProperty("filehash")]
+        public FileHash fileHash;
 
         /// <summary>Release version this file represents.</summary>
         [JsonProperty("version")]
@@ -72,10 +76,6 @@ namespace ModIO
         /// <summary>VirusTotal proprietary hash to view the scan results.</summary>
         [JsonProperty("virustotal_hash")]
         public string virusScanHash;
-
-        /// <summary>Contains filehash data.</summary>
-        [JsonProperty("filehash")]
-        public FileHash fileHash;
 
         /// <summary>Filename including extension.</summary>
         [JsonProperty("filename")]

@@ -77,19 +77,8 @@ namespace ModIO
         public void OnDisable() { }
 
         // ------[ UPDATE ]------
+        // TODO(@jackson): Readd logo updated check
         public void OnUpdate() {}
-
-        private void OnModLogoUpdated(int modId, LogoSize version, Texture2D texture)
-        {
-            if(profile != null
-               && profile.id == modId
-               && version == LOGO_PREVIEW_SIZE
-               && logoProperty.FindPropertyRelative("isDirty").boolValue == false)
-            {
-                logoTexture = texture;
-                isRepaintRequired = true;
-            }
-        }
 
         // ------[ GUI ]------
         public virtual void OnGUI()

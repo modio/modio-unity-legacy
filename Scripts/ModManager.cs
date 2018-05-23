@@ -28,13 +28,6 @@ namespace ModIO
     public delegate void ModIdsEventHandler(IEnumerable<int> modIds);
     public delegate void ModfileStubsEventHandler(IEnumerable<ModfileStub> modfiles);
 
-    public enum ModBinaryStatus
-    {
-        Missing,
-        RequiresUpdate,
-        UpToDate
-    }
-
     // TODO(@jackson): -> RequestManager?
     public static class ModManager
     {
@@ -607,6 +600,66 @@ namespace ModIO
             });
         }
 
+        public static void GetDownloadedBinaryStatus(ModfileStub modfile,
+                                                     Action<ModBinaryStatus> callback)
+        {
+            string binaryFilePath = CacheClient.GenerateModBinaryZipFilePath(modfile.modId, modfile.id);
+            ModBinaryStatus status;
+
+            if(File.Exists(binaryFilePath))
+            {
+                try
+                {
+                    if((new FileInfo(binaryFilePath)).Length != modfile.fileSize)
+                    {
+                        status = ModBinaryStatus.Error_FileSizeMismatch;
+                    }
+                    else
+                    {
+                        using (var md5 = System.Security.Cryptography.MD5.Create())
+                        {
+                            using (var stream = System.IO.File.OpenRead(binaryFilePath))
+                            {
+                                var hash = md5.ComputeHash(stream);
+                                string hashString = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                                bool isValidHash = (hashString == modfile.fileHash.md5);
+
+                                Debug.Log("Hash Validation = [" + isValidHash + "]"
+                                          + "\nExpected Hash: " + modfile.fileHash.md5
+                                          + "\nDownload Hash: " + hashString);
+
+                                if(isValidHash)
+                                {
+                                    status = ModBinaryStatus.CompleteAndVerified;
+                                }
+                                else
+                                {
+                                    status = ModBinaryStatus.Error_HashCheckFailed;
+                                }
+                            }
+                        }
+                    }
+                }
+                #pragma warning disable 0168
+
+                catch(Exception e)
+                {
+                    status = ModBinaryStatus.Error_UnableToReadFile;
+                }
+                #pragma warning restore 0168
+            }
+            else if(File.Exists(binaryFilePath + ".download"))
+            {
+                status = ModBinaryStatus.PartiallyDownloaded;
+            }
+            else
+            {
+                status = ModBinaryStatus.Missing;
+            }
+
+            if(callback != null) { callback(status); }
+        }
+
         public static ModBinaryRequest GetActiveModBinary(ModProfile profile)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
@@ -646,7 +699,6 @@ namespace ModIO
             }
         }
 
-        // TODO(@jackson): Add Hash check
         public static void UnzipModBinaryToLocation(ModfileStub modfile,
                                                     string unzipLocation)
         {
@@ -1093,72 +1145,17 @@ namespace ModIO
 
 
 
+
+
+
         // ---------------------------[ OLD OLD OLD OLD OLD !!! ]------------------------
 
 
 
-        // TODO(@jackson): Remove/Update all this
-        // ---------[ INNER CLASSES ]---------
-        [System.Serializable]
-        private class ManifestData
-        {
-            public int lastUpdateTimeStamp = ServerTimeStamp.Now;
-            public List<ModEvent> unresolvedEvents = new List<ModEvent>();
-            public GameProfile gameProfile = new GameProfile();
-            public List<string> serializedImageCache = new List<string>();
-        }
-
-        // ---------[ VARIABLES ]---------
-        private static ManifestData manifest = null;
-        private static UserProfile authUser = null;
 
         private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
         private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
         private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
-
-
-        // ---------[ MOD MANAGEMENT ]---------
-        public static string GetModDirectory(int modId)
-        {
-            return cacheDirectory + "mods/" + modId + "/";
-        }
-
-        public static ModBinaryStatus GetBinaryStatus(ModProfile profile)
-        {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.activeBuild.id + ".zip"))
-            {
-                return ModBinaryStatus.UpToDate;
-            }
-            else
-            {
-                string[] modfileURLs = Directory.GetFiles(GetModDirectory(profile.id), "modfile_*.zip");
-                if(modfileURLs.Length > 0)
-                {
-                    return ModBinaryStatus.RequiresUpdate;
-                }
-                else
-                {
-                    return ModBinaryStatus.Missing;
-                }
-            }
-        }
-
-        public static string GetBinaryPath(ModProfile profile)
-        {
-            if(File.Exists(GetModDirectory(profile.id) + "modfile_" + profile.activeBuild.id + ".zip"))
-            {
-                return GetModDirectory(profile.id) + "modfile_" + profile.activeBuild.id + ".zip";
-            }
-            else
-            {
-                string[] modfileURLs = Directory.GetFiles(GetModDirectory(profile.id), "modfile_*.zip");
-                if(modfileURLs.Length > 0)
-                {
-                    return modfileURLs[0];
-                }
-            }
-            return null;
-        }
 
         // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
         public static void AddPositiveRating(int modId,
