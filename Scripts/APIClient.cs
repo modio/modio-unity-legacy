@@ -527,6 +527,9 @@ namespace ModIO
                 StringValueParameter.Create("email", emailAddress),
             };
 
+            // NOTE(@jackson): APIClient post requests _always_ require
+            // the userAuthorizationToken to be set, and so we just use
+            // a dummy value here.
             string oldToken = APIClient.userAuthorizationToken;
             APIClient.userAuthorizationToken = "NONE";
 
@@ -539,6 +542,9 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
+        [System.Serializable]
+        private struct AccessTokenObject { public string access_token; }
+
         public static void RequestOAuthToken(string securityCode,
                                              Action<string> successCallback,
                                              Action<WebRequestError> errorCallback)
@@ -550,12 +556,15 @@ namespace ModIO
                 StringValueParameter.Create("security_code", securityCode),
             };
 
+            // NOTE(@jackson): APIClient post requests _always_ require
+            // the userAuthorizationToken to be set, and so we just use
+            // a dummy value here.
             string oldToken = APIClient.userAuthorizationToken;
             APIClient.userAuthorizationToken = "NONE";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                    valueFields,
-                                                                    null);
+                                                                       valueFields,
+                                                                       null);
 
             APIClient.userAuthorizationToken = oldToken;
 
@@ -717,7 +726,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/files/" + modfileId;
 
             UnityWebRequest webRequest = APIClient.GeneratePutRequest(endpointURL,
-                                                                   parameters.stringValues.ToArray());
+                                                                      parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -951,7 +960,7 @@ namespace ModIO
         // Get All Mod Dependencies
         public static void GetAllModDependencies(int modId,
                                                  RequestFilter filter, PaginationParameters pagination,
-                                                 Action<ResponseArray<ModDependenciesObject>> successCallback, Action<WebRequestError> errorCallback)
+                                                 Action<ResponseArray<ModDependency>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/dependencies";
 
@@ -1040,10 +1049,9 @@ namespace ModIO
 
         // ---------[ COMMENT ENDPOINTS ]---------
         // Get All Mod Comments
-        // NOTE(@jackson): Untested
         public static void GetAllModComments(int modId,
                                              RequestFilter filter, PaginationParameters pagination,
-                                             Action<ResponseArray<CommentObject>> successCallback, Action<WebRequestError> errorCallback)
+                                             Action<ResponseArray<ModComment>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments";
 
@@ -1054,9 +1062,8 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
         // Get Mod Comment
-        // NOTE(@jackson): Untested
         public static void GetModComment(int modId, int commentId,
-                                         Action<CommentObject> successCallback, Action<WebRequestError> errorCallback)
+                                         Action<ModComment> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/comments/" + commentId;
 
@@ -1081,16 +1088,8 @@ namespace ModIO
 
 
         // ---------[ USER ENDPOINTS ]---------
-        // TODO(@jackson): Fix up?
         // Get Resource Owner
-        public enum ResourceType
-        {
-            Games,
-            Mods,
-            Files,
-            Tags
-        }
-        public static void GetResourceOwner(ResourceType resourceType, int resourceID,
+        public static void GetResourceOwner(APIResourceType resourceType, int resourceID,
                                             Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/general/owner";

@@ -1,15 +1,7 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using UnityEngine;
 
-using Newtonsoft.Json;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
@@ -32,134 +24,6 @@ namespace ModIO
             return urlRegex.IsMatch(toCheck);
         }
 
-        public static string GetMD5ForFile(string path)
-        {
-            Debug.Assert(System.IO.File.Exists(path));
-            return GetMD5ForData(System.IO.File.ReadAllBytes(path));
-        }
-
-        public static string GetMD5ForData(byte[] data)
-        {
-            string hashString = "";
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-            {
-                hashString = BitConverter.ToString(md5.ComputeHash(data)).Replace("-", "").ToLowerInvariant();
-            }
-            return hashString;
-        }
-
-        public static bool TryParseJsonFile<T>(string filePath,
-                                               out T targetObject)
-        {
-            try
-            {
-                targetObject = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath));
-            }
-            #pragma warning disable CS0168
-            catch(Exception e)
-            {
-                targetObject = default(T);
-                return false;
-            }
-            #pragma warning restore CS0168
-
-            return true;
-        }
-
-        public static bool TryParseJsonString<T>(string jsonObject,
-                                                 out T targetObject)
-        {
-            try
-            {
-                targetObject = JsonConvert.DeserializeObject<T>(jsonObject);
-            }
-            #pragma warning disable CS0168
-            catch(Exception e)
-            {
-                targetObject = default(T);
-                return false;
-            }
-            #pragma warning restore CS0168
-
-            return true;
-        }
-
-        public static bool TryReadAllFileBytes(string filePath,
-                                               out byte[] data)
-        {
-            bool retVal = false;
-            try
-            {
-                data = File.ReadAllBytes(filePath);
-                retVal = true;
-            }
-            #pragma warning disable CS0168
-            catch(Exception e)
-            {
-                data = null;
-                retVal = false;
-            }
-            #pragma warning restore CS0168
-            return retVal;
-        }
-
-        public static bool TryLoadTextureFromFile(string filePath,
-                                                  out Texture2D texture)
-        {
-            bool retVal;
-            try
-            {
-                texture = new Texture2D(0, 0);
-                texture.LoadImage(File.ReadAllBytes(filePath));
-                retVal = true;
-            }
-            #pragma warning disable CS0168
-            catch(Exception e)
-            {
-                texture = null;
-                retVal = false;
-            }
-            #pragma warning restore CS0168
-            return retVal;
-        }
-
-        public static bool TryWriteTextureToPNG(string filePath,
-                                                Texture2D texture)
-        {
-            bool retVal = true;
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllBytes(filePath, texture.EncodeToPNG());
-            }
-            #pragma warning disable CS0168
-            catch(Exception e)
-            {
-                retVal = false;
-            }
-            #pragma warning restore CS0168
-            return retVal;
-        }
-
-        public static T[] CollectionToArray<T>(ICollection<T> collection)
-        {
-            T[] array = new T[collection.Count];
-            collection.CopyTo(array, 0);
-            return array;
-        }
-
-        public static T[] SafeCopyArrayOrZero<T>(T[] array)
-        {
-            if(array == null)
-            {
-                return new T[0];
-            }
-
-            var retVal = new T[array.Length];
-            Array.Copy(array, retVal, array.Length);
-            return retVal;
-        }
-        
         public static void SafeMapArraysOrZero<T1, T2>(T1[] sourceArray,
                                                        Func<T1, T2> mapElementDelegate,
                                                        out T2[] destinationArray)
@@ -177,17 +41,16 @@ namespace ModIO
             }
         }
 
-        public static void LogExceptionAsWarning(string warningPrefix,
-                                                 Exception e)
+        public static string GenerateExceptionDebugString(Exception e)
         {
-            var debugString = new System.Text.StringBuilder(warningPrefix);
+            var debugString = new System.Text.StringBuilder();
 
             Exception baseException = e.GetBaseException();
             debugString.Append(baseException.GetType().Name + ": " + baseException.Message + "\n");
 
             var stackTrace = new System.Diagnostics.StackTrace(baseException, true);
 
-            int frameCount = Mathf.Min(stackTrace.FrameCount, 6);
+            int frameCount = Math.Min(stackTrace.FrameCount, 6);
             for(int i = 0; i < frameCount; ++i)
             {
                 var stackFrame = stackTrace.GetFrame(i);
@@ -212,140 +75,7 @@ namespace ModIO
                                    + "\n");
             }
 
-            Debug.LogWarning(debugString.ToString());
+            return debugString.ToString();
         }
     }
-
-    #if UNITY_EDITOR
-    public static class EditorUtilityExtensions
-    {
-        public static string[] GetSerializedPropertyStringArray(SerializedProperty arrayProperty)
-        {
-            Debug.Assert(arrayProperty.isArray);
-            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
-            
-            var retVal = new string[arrayProperty.arraySize];
-            for(int i = 0;
-                i < arrayProperty.arraySize;
-                ++i)
-            {
-                retVal[i] = arrayProperty.GetArrayElementAtIndex(i).stringValue;
-            }
-            return retVal;
-        }
-
-        public static void SetSerializedPropertyStringArray(SerializedProperty arrayProperty,
-                                                            string[] value)
-        {
-            Debug.Assert(arrayProperty.isArray);
-            Debug.Assert(arrayProperty.arrayElementType.Equals("string"));
-
-            arrayProperty.arraySize = value.Length;
-            for(int i = 0;
-                i < value.Length;
-                ++i)
-            {
-                arrayProperty.GetArrayElementAtIndex(i).stringValue = value[i];
-            }
-        }
-    }
-
-    public static class EditorGUIExtensions
-    {
-        public static string MultilineTextField(Rect position, string content)
-        {
-            bool wasWordWrapEnabled = GUI.skin.textField.wordWrap;
-            
-            GUI.skin.textField.wordWrap = true;
-
-            string retVal = EditorGUI.TextField(position, content);
-
-            GUI.skin.textField.wordWrap = wasWordWrapEnabled;
-
-            return retVal;
-        }
-
-    }
-
-    public static class EditorGUILayoutExtensions
-    {
-        public static void ArrayPropertyField(SerializedProperty arrayProperty,
-                                              string arrayLabel,
-                                              ref bool isExpanded)
-        {
-            CustomLayoutArrayPropertyField(arrayProperty, arrayLabel, ref isExpanded,
-                                           (p) => EditorGUILayout.PropertyField(p));
-        }
-
-        public static void CustomLayoutArrayPropertyField(SerializedProperty arrayProperty,
-                                                          string arrayLabel,
-                                                          ref bool isExpanded,
-                                                          Action<SerializedProperty> customLayoutFunction)
-        {
-            isExpanded = EditorGUILayout.Foldout(isExpanded, arrayLabel, true);
-
-            if(isExpanded)
-            {
-                EditorGUI.indentLevel += 3;
-         
-                EditorGUILayout.PropertyField(arrayProperty.FindPropertyRelative("Array.size"),
-                                              new GUIContent("Size"));
-
-                for (int i = 0; i < arrayProperty.arraySize; ++i)
-                {
-                    SerializedProperty prop = arrayProperty.FindPropertyRelative("Array.data[" + i + "]");
-                    customLayoutFunction(prop);
-                }
-
-                EditorGUI.indentLevel -= 3;
-            }
-        }
-
-        // TODO(@jackson): Add a clear button
-        public static bool BrowseButton(string path, GUIContent label)
-        {
-            bool doBrowse = false;
-
-            if(String.IsNullOrEmpty(path))
-            {
-                path = "Browse...";
-            }
-
-            EditorGUILayout.BeginHorizontal();
-                if(label != null && label != GUIContent.none)
-                {
-                    EditorGUILayout.PrefixLabel(label);
-                }
-
-                if(Event.current.type == EventType.Layout)
-                {
-                    EditorGUILayout.TextField(path, "");
-                }
-                else
-                {
-                    doBrowse = GUILayout.Button(path, GUI.skin.textField);
-                }
-            EditorGUILayout.EndHorizontal();
-
-            return doBrowse;
-        }
-
-        private static GUILayoutOption[] buttonLayout = new GUILayoutOption[]{ GUILayout.Width(EditorGUIUtility.singleLineHeight), GUILayout.Height(EditorGUIUtility.singleLineHeight) };
-        public static bool UndoButton(bool isEnabled = true)
-        {
-            using (new EditorGUI.DisabledScope(!isEnabled))
-            {
-                return GUILayout.Button(UISettings.Instance.EditorTexture_UndoButton,
-                                        GUI.skin.label,
-                                        buttonLayout);
-            }
-        }
-
-        public static string MultilineTextField(string content)
-        {
-            Rect controlRect = EditorGUILayout.GetControlRect(false, 130.0f, null);
-            return EditorGUIExtensions.MultilineTextField(controlRect, content);
-        }
-    }
-    #endif
 }

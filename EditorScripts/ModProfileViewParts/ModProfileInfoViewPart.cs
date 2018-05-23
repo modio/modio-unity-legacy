@@ -56,7 +56,7 @@ namespace ModIO
             if(logoProperty.FindPropertyRelative("isDirty").boolValue == true)
             {
                 logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
-                Utility.TryLoadTextureFromFile(logoLocation, out logoTexture);
+                logoTexture = CacheClient.ReadImageFile(logoLocation);
             }
             else if(profile != null)
             {
@@ -292,12 +292,12 @@ namespace ModIO
             {
                 EditorApplication.delayCall += () =>
                 {
-                    Texture2D newLogoTexture;
 
                     // TODO(@jackson): Add other file-types (OpenFilePanelWithFilter)
                     string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
-                    if (path.Length != 0
-                        && Utility.TryLoadTextureFromFile(path, out newLogoTexture))
+                    Texture2D newLogoTexture = CacheClient.ReadImageFile(path);
+
+                    if(newLogoTexture)
                     {
                         logoProperty.FindPropertyRelative("value.url").stringValue = path;
                         logoProperty.FindPropertyRelative("value.fileName").stringValue = Path.GetFileName(path);

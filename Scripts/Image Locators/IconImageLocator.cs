@@ -4,14 +4,6 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    public enum IconSize
-    {
-        Original = 0,
-        Thumbnail_64x64,
-        Thumbnail_128x128,
-        Thumbnail_256x256,
-    }
-
     [System.Serializable]
     public class IconImageLocator : IMultiSizeImageLocator<IconSize>
     {

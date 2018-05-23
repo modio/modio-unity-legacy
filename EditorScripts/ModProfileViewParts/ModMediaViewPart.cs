@@ -107,10 +107,13 @@ namespace ModIO
                 string imageURL = GetGalleryImageSource(i);
                 Texture2D imageTexture = null;
 
+                // TODO(@jackson): Fix this up methinks
                 if(!String.IsNullOrEmpty(imageFileName)
                    && !String.IsNullOrEmpty(imageURL))
                 {
-                    if(Utility.TryLoadTextureFromFile(imageURL, out imageTexture))
+                    Texture2D texture = CacheClient.ReadImageFile(imageURL);
+
+                    if(texture != null)
                     {
                         this.textureCache[imageFileName] = imageTexture;
                     }
@@ -228,12 +231,12 @@ namespace ModIO
             {
                 EditorApplication.delayCall += () =>
                 {
-                    Texture2D newTexture;
 
                     // TODO(@jackson): Add other file-types
                     string path = EditorUtility.OpenFilePanel("Select Gallery Image", "", "png");
-                    if (path.Length != 0
-                        && Utility.TryLoadTextureFromFile(path, out newTexture))
+                    Texture2D newTexture = CacheClient.ReadImageFile(path);
+
+                    if(newTexture != null)
                     {
                         string fileName = GenerateUniqueFileName(path);
 
@@ -264,7 +267,7 @@ namespace ModIO
                 return texture;
             }
             // - Load -
-            else if(Utility.TryLoadTextureFromFile(imageSource, out texture))
+            else if((texture = CacheClient.ReadImageFile(imageSource)) != null)
             {
                 this.textureCache.Add(imageFileName, texture);
                 return texture;

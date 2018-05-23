@@ -703,9 +703,10 @@ namespace ModIO
                 }
                 catch(Exception e)
                 {
-                    Utility.LogExceptionAsWarning("[mod.io] Unable to extract binary to given location."
-                                                  + "\nLocation: " + unzipLocation,
-                                                  e);
+                    Debug.LogError("[mod.io] Unable to extract binary to given location."
+                                   + "\nLocation: " + unzipLocation + "\n\n"
+                                   + Utility.GenerateExceptionDebugString(e));
+                    return;
                 }
             }
         }
@@ -1081,8 +1082,9 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                string warning = "[mod.io] Unable to zip mod binary prior to uploading.\n";
-                Utility.LogExceptionAsWarning(warning, e);
+                Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
+                               + Utility.GenerateExceptionDebugString(e));
+                return;
             }
 
             if(zipSucceeded)

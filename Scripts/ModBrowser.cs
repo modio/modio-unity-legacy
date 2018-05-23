@@ -14,7 +14,7 @@ namespace ModIO
 
     public class ModBrowser : MonoBehaviour
     {
-        // ---------[ INNER CLASSES ]---------
+        // ---------[ NESTED CLASSES ]---------
         [System.Serializable]
         private class ManifestData
         {

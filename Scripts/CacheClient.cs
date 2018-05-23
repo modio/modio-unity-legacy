@@ -50,9 +50,10 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to set cache directory."
-                                      + "\nDirectory: " + directory + "\n");
+                                      + "\nDirectory: " + directory + "\n\n");
 
-                Utility.LogExceptionAsWarning(warningInfo, e);
+                Debug.LogError(warningInfo
+                               + Utility.GenerateExceptionDebugString(e));
 
                 return false;
             }
@@ -93,9 +94,10 @@ namespace ModIO
                 catch(Exception e)
                 {
                     string warningInfo = ("[mod.io] Failed to read json object from file."
-                                          + "\nFile: " + filePath + "\n");
+                                          + "\nFile: " + filePath + "\n\n");
 
-                    Utility.LogExceptionAsWarning(warningInfo, e);
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
                 }
             }
             return default(T);
@@ -112,9 +114,10 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to write json object to file."
-                                      + "\nFile: " + filePath + "\n");
+                                      + "\nFile: " + filePath + "\n\n");
 
-                Utility.LogExceptionAsWarning(warningInfo, e);
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
             }
         }
 
@@ -131,9 +134,10 @@ namespace ModIO
                 catch(Exception e)
                 {
                     string warningInfo = ("[mod.io] Failed to read binary file."
-                                          + "\nFile: " + filePath + "\n");
+                                          + "\nFile: " + filePath + "\n\n");
 
-                    Utility.LogExceptionAsWarning(warningInfo, e);
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
 
                     fileData = null;
                 }
@@ -153,9 +157,10 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to write binary file."
-                                      + "\nFile: " + filePath + "\n");
+                                      + "\nFile: " + filePath + "\n\n");
 
-                Utility.LogExceptionAsWarning(warningInfo, e);
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
             }
         }
 
@@ -177,8 +182,8 @@ namespace ModIO
             return texture;
         }
 
-        public static void WriteImageFile(string filePath,
-                                          Texture2D texture)
+        public static void WritePNGFile(string filePath,
+                                        Texture2D texture)
         {
             Debug.Assert(Path.GetExtension(filePath).Equals(".png"),
                          "[mod.io] Images can only be saved in PNG format."
@@ -198,8 +203,10 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to delete file."
-                                      + "\nFile: " + filePath + "\n");
-                Utility.LogExceptionAsWarning(warningInfo, e);
+                                      + "\nFile: " + filePath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
             }
         }
 
@@ -215,9 +222,10 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to delete directory."
-                                      + "\nDirectory: " + directoryPath + "\n");
+                                      + "\nDirectory: " + directoryPath + "\n\n");
 
-                Utility.LogExceptionAsWarning(warningInfo, e);
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
             }
         }
 
@@ -260,6 +268,7 @@ namespace ModIO
             return null;
         }
 
+        // TODO(@jackson): Just use standard profile dir
         public static void SaveAuthenticatedUserProfile(UserProfile userProfile)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -346,9 +355,10 @@ namespace ModIO
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to delete user data save file."
-                                      + "\nFile: " + userFilePath + "\n");
+                                      + "\nFile: " + userFilePath + "\n\n");
 
-                Utility.LogExceptionAsWarning(warningInfo, e);
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
             }
         }
 
@@ -397,9 +407,10 @@ namespace ModIO
                 catch(Exception e)
                 {
                     string warningInfo = ("[mod.io] Failed to read mod profile directory."
-                                          + "\nDirectory: " + profileDirectory + "\n");
+                                          + "\nDirectory: " + profileDirectory + "\n\n");
 
-                    Utility.LogExceptionAsWarning(warningInfo, e);
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
 
                     modDirectories = new string[0];
                 }
@@ -552,7 +563,7 @@ namespace ModIO
                          + " is used for versioning purposes");
 
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            CacheClient.WriteImageFile(logoFilePath, logoTexture);
+            CacheClient.WritePNGFile(logoFilePath, logoTexture);
 
             // - Version Info -
             var versionInfo = CacheClient.LoadModLogoVersionInfo(modId);
@@ -590,7 +601,7 @@ namespace ModIO
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
-            CacheClient.WriteImageFile(imageFilePath, imageTexture);
+            CacheClient.WritePNGFile(imageFilePath, imageTexture);
         }
 
         // ---------[ MOD TEAM ]---------
@@ -652,9 +663,10 @@ namespace ModIO
                 catch(Exception e)
                 {
                     string warningInfo = ("[mod.io] Failed to read user profile directory."
-                                          + "\nDirectory: " + profileDirectory + "\n");
+                                          + "\nDirectory: " + profileDirectory + "\n\n");
 
-                    Utility.LogExceptionAsWarning(warningInfo, e);
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
 
                     userFiles = new string[0];
                 }
