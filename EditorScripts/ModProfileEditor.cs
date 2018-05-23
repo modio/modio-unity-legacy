@@ -42,11 +42,15 @@ namespace ModIO
         private bool isProfileSyncing;
         protected Vector2 scrollPos;
         protected bool isRepaintRequired;
+
         // Profile Initialization
         private bool isModListLoading;
         private int modInitializationOptionIndex;
         private ModProfile[] modList;
         private string[] modOptions;
+
+        // Profile Load Fail
+        private string profileGetErrorMessage;
 
         // ------[ INITIALIZATION ]------
         protected virtual void OnEnable()
@@ -118,17 +122,36 @@ namespace ModIO
 
                 System.Action<ModProfile> onGetProfile = (p) =>
                 {
+                    profile = p;
+
                     profileViewParts = CreateProfileViewParts();
 
                     foreach(IModProfileViewPart viewPart in profileViewParts)
                     {
                         viewPart.OnEnable(editableModProfileProperty, p, this.user);
                     };
+
+                    profileGetErrorMessage = string.Empty;
+                };
+
+                System.Action<WebRequestError> onGetProfileError = (e) =>
+                {
+                    profile = null;
+
+                    profileViewParts = CreateProfileViewParts();
+
+                    foreach(IModProfileViewPart viewPart in profileViewParts)
+                    {
+                        viewPart.OnEnable(editableModProfileProperty, null, this.user);
+                    };
+
+                    profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
+                                              + e.message);
                 };
 
                 ModManager.GetModProfile(modIdProperty.intValue,
                                          onGetProfile,
-                                         APIClient.LogError);
+                                         onGetProfileError);
             }
 
             scrollPos = Vector2.zero;
@@ -179,14 +202,32 @@ namespace ModIO
 
                 bool isProfileSyncRequested = false;
 
-                using(new EditorGUI.DisabledScope(modIdProperty.intValue == 0))
+                if(!String.IsNullOrEmpty(profileGetErrorMessage))
                 {
-                    isProfileSyncRequested = GUILayout.Button("Pull Server Updates");
-                    EditorGUILayout.Space();
+                    EditorGUILayout.HelpBox(profileGetErrorMessage, MessageType.Warning);
                 }
 
                 using(new EditorGUI.DisabledScope(isProfileSyncing))
                 {
+                    if(profileViewParts != null
+                       && profileViewParts.Length > 0)
+                    {
+                        using(new EditorGUI.DisabledScope(modIdProperty.intValue == 0))
+                        {
+                            string syncButtonText;
+                            if(profile == null)
+                            {
+                                syncButtonText = "Retry Fetching Server Data";
+                            }
+                            else
+                            {
+                                syncButtonText = "Pull Server Data Updates";
+                            }
+                            isProfileSyncRequested = GUILayout.Button(syncButtonText);
+                            EditorGUILayout.Space();
+                        }
+                    }
+
                     foreach(IModProfileViewPart viewPart in profileViewParts)
                     {
                         viewPart.OnGUI();
@@ -208,6 +249,7 @@ namespace ModIO
                         smp.editableModProfile.ApplyBaseProfileChanges(profile);
 
                         isProfileSyncing = false;
+                        profileGetErrorMessage = null;
 
                         this.OnDisable();
                         this.OnEnable();
@@ -215,7 +257,8 @@ namespace ModIO
                     (e) =>
                     {
                         isProfileSyncing = false;
-                        Debug.LogWarning(e.ToUnityDebugString());
+                        profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
+                                                  + e.message);
                     });
                 }
             }

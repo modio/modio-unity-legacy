@@ -93,6 +93,7 @@ namespace ModIO
         }
 
         // ---------[ DEFAULT SUCCESS/ERROR FUNCTIONS ]---------
+        // TODO(@jackson): Remove
         public static void LogError(WebRequestError error)
         {
             Debug.LogWarning(error.ToUnityDebugString());
