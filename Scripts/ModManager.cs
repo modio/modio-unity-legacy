@@ -1143,59 +1143,7 @@ namespace ModIO
             APIClient.AddModfile(modId, parameters, onSuccess, onError);
         }
 
-
-
-
-
-
-        // ---------------------------[ OLD OLD OLD OLD OLD !!! ]------------------------
-
-
-
-
-        private static string cacheDirectory    { get { return CacheClient.GetCacheDirectory(); } }
-        private static string manifestPath      { get { return cacheDirectory + "manifest.data"; } }
-        private static string userdataPath      { get { return cacheDirectory + "user.data"; } }
-
-        // --- TEMPORARY PASS-THROUGH FUNCTIONS ---
-        public static void AddPositiveRating(int modId,
-                                             Action<APIMessage> onSuccess,
-                                             Action<WebRequestError> onError)
-        {
-            APIClient.AddModRating(modId, new AddModRatingParameters(1),
-                                   onSuccess,
-                                   onError);
-        }
-
-        // public static void AddModTeamMember(int modId, UnsubmittedTeamMember teamMember,
-        //                                     Action<APIMessage> onSuccess,
-        //                                     Action<WebRequestError> onError)
-        // {
-        //     APIClient.AddModTeamMember(modId, teamMember.AsAddModTeamMemberParameters(),
-        //                             result => OnRequestSuccessWrapper(result, onSuccess),
-        //                             onError);
-        // }
-
-        public static void DeleteModFromServer(int modId,
-                                               Action<APIMessage> onSuccess,
-                                               Action<WebRequestError> onError)
-        {
-            // TODO(@jackson): Remvoe Mod Locally
-
-            APIClient.DeleteMod(modId,
-                                onSuccess,
-                                onError);
-        }
-
-        public static void DeleteModComment(int modId, int commentId,
-                                            Action<APIMessage> onSuccess,
-                                            Action<WebRequestError> onError)
-        {
-            APIClient.DeleteModComment(modId, commentId,
-                                       onSuccess,
-                                       onError);
-        }
-        // ---------[ FETCH ALL RESULTS ]---------
+        // ---------[ FETCH ALL RESULTS HELPER ]---------
         private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
                                                     Action<ResponseArray<T>> onSuccess,
                                                     Action<WebRequestError> onError);
@@ -1251,14 +1199,5 @@ namespace ModIO
                       onError);
             }
         }
-
-        // public static void GetAllModTeamMembers(int modId,
-        //                                         Action<TeamMember[]> onSuccess,
-        //                                         Action<WebRequestError> onError)
-        // {
-        //     APIClient.GetAllModTeamMembers(modId, GetAllModTeamMembersFilter.None,
-        //                                    result => OnRequestSuccessWrapper(result, onSuccess),
-        //                                    onError);
-        // }
     }
 }
