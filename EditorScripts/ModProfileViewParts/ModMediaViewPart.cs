@@ -300,49 +300,28 @@ namespace ModIO
         }
 
         // - Misc Functionality -
-        // TODO(@jackson): Reimplement
-        private void ResetModMedia() {}
-        // {
-        //     // - YouTube -
-        //     initialDataProp = editableProfileProperty.FindPropertyRelative("_initialData.media.youtube");
-        //     currentDataProp = editableProfileProperty.FindPropertyRelative("_data.media.youtube");
+        private void ResetModMedia()
+        {
+            EditorUtilityExtensions.SetSerializedPropertyStringArray(youtubeURLsProp.FindPropertyRelative("value"),
+                                                                     profile.media.youtubeURLs);
+            youtubeURLsProp.FindPropertyRelative("isDirty").boolValue = false;
 
-        //     currentDataProp.arraySize = initialDataProp.arraySize;
+            EditorUtilityExtensions.SetSerializedPropertyStringArray(sketchfabURLsProp.FindPropertyRelative("value"),
+                                                                     profile.media.sketchfabURLs);
+            sketchfabURLsProp.FindPropertyRelative("isDirty").boolValue = false;
 
-        //     for(int i = 0; i < initialDataProp.arraySize; ++i)
-        //     {
-        //         currentDataProp.GetArrayElementAtIndex(i).stringValue
-        //             = initialDataProp.GetArrayElementAtIndex(i).stringValue;
-        //     }
+            // - Images -
+            SerializedProperty galleryImagesArray = galleryImagesProp.FindPropertyRelative("value");
 
-        //     // - SketchFab -
-        //     initialDataProp = editableProfileProperty.FindPropertyRelative("_initialData.media.sketchfab");
-        //     currentDataProp = editableProfileProperty.FindPropertyRelative("_data.media.sketchfab");
+            galleryImagesArray.arraySize = profile.media.galleryImageLocators.Length;
+            for(int i = 0; i < profile.media.galleryImageLocators.Length; ++i)
+            {
+                galleryImagesArray.GetArrayElementAtIndex(i).FindPropertyRelative("fileName").stringValue = profile.media.galleryImageLocators[i].GetFileName();
+                galleryImagesArray.GetArrayElementAtIndex(i).FindPropertyRelative("url").stringValue = profile.media.galleryImageLocators[i].GetURL();
+            }
 
-        //     currentDataProp.arraySize = initialDataProp.arraySize;
-
-        //     for(int i = 0; i < initialDataProp.arraySize; ++i)
-        //     {
-        //         currentDataProp.GetArrayElementAtIndex(i).stringValue
-        //             = initialDataProp.GetArrayElementAtIndex(i).stringValue;
-        //     }
-
-        //     // - Image Gallery -
-        //     initialDataProp = editableProfileProperty.FindPropertyRelative("_initialData.media.images");
-        //     currentDataProp = editableProfileProperty.FindPropertyRelative("_data.media.images");
-
-        //     currentDataProp.arraySize = initialDataProp.arraySize;
-
-        //     for(int i = 0; i < initialDataProp.arraySize; ++i)
-        //     {
-        //         currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("filename").stringValue
-        //             = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("filename").stringValue;
-        //         currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("original").stringValue
-        //             = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("original").stringValue;
-        //         currentDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue
-        //             = initialDataProp.GetArrayElementAtIndex(i).FindPropertyRelative("thumb_320x180").stringValue;
-        //     }
-        // }
+            galleryImagesProp.FindPropertyRelative("isDirty").boolValue = false;
+        }
     }
 }
 
