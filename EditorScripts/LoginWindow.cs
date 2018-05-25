@@ -38,7 +38,6 @@ namespace ModIO
 
         protected virtual void OnGUI()
         {
-            // TODO(@jackson): Find a way to reselect the inputfield
             EditorGUILayout.LabelField("LOG IN TO/REGISTER YOUR MOD.IO ACCOUNT");
 
             using (new EditorGUI.DisabledScope(isAwaitingServerResponse || isLoggedIn))
@@ -73,11 +72,10 @@ namespace ModIO
 
                 EditorGUILayout.BeginHorizontal();
                 {
-                    GUI.SetNextControlName("SubmitButton");
                     if(GUILayout.Button("Submit"))
                     {
                         isAwaitingServerResponse = true;
-                        GUI.FocusControl("SubmitButton");
+                        GUIUtility.keyboardControl = 0;
 
                         Action<string, MessageType> endRequestSendingAndInputEmail = (m, t) =>
                         {

@@ -100,6 +100,8 @@ namespace ModIO
                             {
                                 if(EditorDialogs.ConfirmLogOut(this.user.username))
                                 {
+                                    this.user = null;
+
                                     APIClient.userAuthorizationToken = null;
                                     CacheClient.DeleteAuthenticatedUser();
 
