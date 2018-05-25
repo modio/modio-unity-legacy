@@ -483,26 +483,17 @@ namespace ModIO
 
                 if(successCallback != null)
                 {
-                    // TODO(@jackson): Handle as a T == null?
-                    if(webRequest.responseCode == 204)
+                    // NOTE(@jackson): 204s no longer need to be handled separately as
+                    // Json.Net handles empty strings without throwing
+                    try
                     {
-                        // if(typeof(T) == typeof(APIMessage))
-                        // {
-                        //     APIMessage response = new APIMessage();
-                        //     response.code = 204;
-                        //     response.message = "Succeeded";
-                        //     successCallback((T)(object)response);
-                        // }
-                        // else
-                        // {
-                            successCallback(default(T));
-                        // }
-                    }
-                    else
-                    {
-                        // TODO(@jackson): Add error handling (where FromJson fails)
                         T response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
                         successCallback(response);
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.LogWarning("[mod.io] Failed to convert response into data reprsentation"
+                                         + Utility.GenerateExceptionDebugString(e));
                     }
                 }
             }
