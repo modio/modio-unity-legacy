@@ -608,7 +608,6 @@ namespace ModIO
                     Debug.LogError("[mod.io] Unable to extract binary to given location."
                                    + "\nLocation: " + unzipLocation + "\n\n"
                                    + Utility.GenerateExceptionDebugString(e));
-                    return;
                 }
             }
         }
@@ -642,7 +641,6 @@ namespace ModIO
 
 
         // ---------[ UPLOADING ]---------
-        // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitNewMod(EditableModProfile modEdits,
                                         Action<ModProfile> modSubmissionSucceeded,
                                         Action<WebRequestError> modSubmissionFailed)
@@ -701,7 +699,6 @@ namespace ModIO
                           modSubmissionFailed);
         }
 
-        // TODO(@jackson): Add MKVPs, Mod Dependencies
         public static void SubmitModChanges(int modId,
                                             EditableModProfile modEdits,
                                             Action<ModProfile> modSubmissionSucceeded,
@@ -1020,7 +1017,6 @@ namespace ModIO
             doNextSubmissionAction(new APIMessage());
         }
 
-        // TODO(@jackson): Convert onError to string!
         public static void UploadModBinary_Unzipped(int modId,
                                                     EditableModfile modfileValues,
                                                     string unzippedBinaryLocation,
@@ -1047,7 +1043,9 @@ namespace ModIO
             {
                 Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
                                + Utility.GenerateExceptionDebugString(e));
-                return;
+
+                // TODO(@jackson): Create universal error format
+                onError(new WebRequestError());
             }
 
             if(zipSucceeded)
