@@ -53,7 +53,6 @@ namespace ModIO
 
             return retVal;
         }
-
     }
 
     public static class EditorGUILayoutExtensions
@@ -75,7 +74,7 @@ namespace ModIO
 
             if(isExpanded)
             {
-                EditorGUI.indentLevel += 3;
+                EditorGUI.indentLevel += 1;
 
                 EditorGUILayout.PropertyField(arrayProperty.FindPropertyRelative("Array.size"),
                                               new GUIContent("Size"));
@@ -86,7 +85,7 @@ namespace ModIO
                     customLayoutFunction(prop);
                 }
 
-                EditorGUI.indentLevel -= 3;
+                EditorGUI.indentLevel -= 1;
             }
         }
 

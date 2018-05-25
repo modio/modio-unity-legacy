@@ -207,24 +207,26 @@ namespace ModIO
             // - Browse Field -
             EditorGUILayout.BeginHorizontal();
                 doBrowse |= EditorGUILayoutExtensions.BrowseButton(imageSource,
-                                                                   new GUIContent("Location"));
+                                                                   new GUIContent("Image"));
                 doClear = EditorGUILayoutExtensions.ClearButton();
             EditorGUILayout.EndHorizontal();
 
             // - Draw Texture -
-            Texture2D imageTexture = GetOrLoadOrDownloadGalleryImageTexture(imageFileName,
-                                                                            imageSource);
+            Texture2D imageTexture = GetGalleryImageTexture(imageFileName, imageSource);
 
             if(imageTexture != null)
             {
-                // TODO(@jackson): Make full-width
+                EditorGUI.indentLevel += 2;
+                EditorGUILayout.LabelField("File Name", imageFileName);
                 Rect imageRect = EditorGUILayout.GetControlRect(false, 180.0f, null);
-                EditorGUI.DrawPreviewTexture(new Rect((imageRect.width - 320.0f) * 0.5f,
+                imageRect = EditorGUI.IndentedRect(imageRect);
+                EditorGUI.DrawPreviewTexture(new Rect(imageRect.x,
                                                       imageRect.y,
                                                       320.0f,
                                                       imageRect.height),
                                              imageTexture, null, ScaleMode.ScaleAndCrop);
                 doBrowse |= GUI.Button(imageRect, "", GUI.skin.label);
+                EditorGUI.indentLevel -= 2;
             }
 
             if(doBrowse)
@@ -260,8 +262,8 @@ namespace ModIO
             }
         }
 
-        private Texture2D GetOrLoadOrDownloadGalleryImageTexture(string imageFileName,
-                                                                 string imageSource)
+        private Texture2D GetGalleryImageTexture(string imageFileName,
+                                                 string imageSource)
         {
             if(String.IsNullOrEmpty(imageFileName))
             {
