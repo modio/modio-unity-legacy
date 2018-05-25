@@ -1,5 +1,4 @@
 ﻿#if UNITY_EDITOR
-// #define ENABLE_MOD_STOCK
 
 using System;
 using System.Collections.Generic;
@@ -118,7 +117,6 @@ namespace ModIO
             LayoutHomepageField();
             LayoutSummaryField();
             LayoutDescriptionField();
-            LayoutStockField();
             LayoutMetadataBlobField();
             LayoutMetadataKVPField();
         }
@@ -528,28 +526,6 @@ namespace ModIO
                 EditorGUILayout.PropertyField(kvpProperty.FindPropertyRelative("key"), GUIContent.none);
                 EditorGUILayout.PropertyField(kvpProperty.FindPropertyRelative("value"), GUIContent.none);
             EditorGUILayout.EndHorizontal();
-        }
-
-        protected virtual void LayoutStockField()
-        {
-            #if ENABLE_MOD_STOCK
-            EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Stock");
-
-                EditorGUILayout.PropertyField(editableProfileProperty.FindPropertyRelative("stock.value"),
-                                              GUIContent.none);//, GUILayout.Width(40));
-
-                // TODO(@jackson): Change to checkbox
-                EditorGUILayout.LabelField("0 = Unlimited", GUILayout.Width(80));
-                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
-            EditorGUILayout.EndHorizontal();
-
-            if(isUndoRequested)
-            {
-                editableProfileProperty.FindPropertyRelative("stock.value").intValue = profile.stock;
-                editableProfileProperty.FindPropertyRelative("stock.isDirty").boolValue = false;
-            }
-            #endif
         }
     }
 }
