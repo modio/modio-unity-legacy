@@ -29,7 +29,7 @@ namespace ModIO
         [System.Serializable]
         private class ManifestData
         {
-            public int lastCacheUpdate;
+            public int lastCacheUpdate = -1;
         }
 
         // ---------[ FIELDS ]---------

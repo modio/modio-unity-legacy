@@ -8,7 +8,28 @@ namespace ModIO
         public EditableStringField changelog      = new EditableStringField();
         public EditableStringField metadataBlob   = new EditableStringField();
 
-        // TODO(@jackson):
-        // public static EditableModfile CreateFromModfile(Modfile modfile)
+        // ---------[ VALUE DUPLICATION ]---------
+        public static EditableModfile CreateFromModfile(ModfileStub modfile)
+        {
+            EditableModfile newModfile = new EditableModfile();
+            newModfile.ApplyBaseModfileChanges(modfile);
+            return newModfile;
+        }
+
+        public void ApplyBaseModfileChanges(ModfileStub modfile)
+        {
+            if(!this.version.isDirty)
+            {
+                this.version.value = modfile.version;
+            }
+            if(!this.changelog.isDirty)
+            {
+                this.changelog.value = modfile.changelog;
+            }
+            if(!this.metadataBlob.isDirty)
+            {
+                this.metadataBlob.value = modfile.metadataBlob;
+            }
+        }
     }
 }

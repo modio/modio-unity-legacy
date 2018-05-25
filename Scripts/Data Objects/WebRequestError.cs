@@ -23,7 +23,6 @@ namespace ModIO
         [JsonProperty("message")]
         public string message;
 
-        // TODO(@jackson): Add Hyperlink
         /// <summary>
         /// Optional Validation errors object.
         /// This field is only supplied if the response is

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq; // TODO(@jackson): Remove
+using System.Linq;
 
 namespace ModIO
 {
@@ -32,7 +32,7 @@ namespace ModIO
         public EditableStringArrayField sketchfabURLs =             new EditableStringArrayField();
         public EditableImageLocatorArrayField galleryImageLocators =new EditableImageLocatorArrayField();
 
-        // ---------[ INITIALIZATION ]---------
+        // ---------[ VALUE DUPLICATION ]---------
         public static EditableModProfile CreateFromProfile(ModProfile profile)
         {
             EditableModProfile retVal = new EditableModProfile();
