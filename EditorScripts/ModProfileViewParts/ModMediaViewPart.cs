@@ -105,29 +105,27 @@ namespace ModIO
             {
                 string imageFileName = GetGalleryImageFileName(i);
                 string imageURL = GetGalleryImageSource(i);
-                Texture2D imageTexture = null;
 
-                // TODO(@jackson): Fix this up methinks
                 if(!String.IsNullOrEmpty(imageFileName)
                    && !String.IsNullOrEmpty(imageURL))
                 {
+                    this.textureCache[imageFileName] = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+
                     Texture2D texture = CacheClient.ReadImageFile(imageURL);
 
                     if(texture != null)
                     {
-                        this.textureCache[imageFileName] = imageTexture;
+                        this.textureCache[imageFileName] = texture;
                     }
                     else
                     {
-                        this.textureCache[imageFileName] = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
 
                         ModManager.GetModGalleryImage(baseProfile,
                                                       imageFileName,
                                                       IMAGE_PREVIEW_SIZE,
                                                       (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
-                                                      null);
+                                                      WebRequestError.LogAsWarning);
                     }
-
                 }
             }
         }

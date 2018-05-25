@@ -951,21 +951,32 @@ namespace ModIO
                     // - Create Images.Zip -
                     if(addedImageFilePaths.Count > 0)
                     {
-                        string galleryZipLocation = Application.temporaryCachePath + "/modio/imageGallery_" + DateTime.Now.ToFileTime() + ".zip";
+                        string galleryZipLocation
+                        = Application.temporaryCachePath + "/modio/imageGallery_" + DateTime.Now.ToFileTime() + ".zip";
 
-                        using(var zip = new Ionic.Zip.ZipFile())
+                        try
                         {
-                            foreach(string imageFilePath in addedImageFilePaths)
+                            Directory.CreateDirectory(Path.GetDirectoryName(galleryZipLocation));
+
+                            using(var zip = new Ionic.Zip.ZipFile())
                             {
-                                zip.AddFile(imageFilePath);
+                                foreach(string imageFilePath in addedImageFilePaths)
+                                {
+                                    zip.AddFile(imageFilePath);
+                                }
+                                zip.Save(galleryZipLocation);
                             }
-                            zip.Save(galleryZipLocation);
+
+                            var imageGalleryUpload = BinaryUpload.Create("images.zip",
+                                                                         File.ReadAllBytes(galleryZipLocation));
+
+                            addMediaParameters.images = imageGalleryUpload;
                         }
-
-                        var imageGalleryUpload = BinaryUpload.Create("images.zip",
-                                                                     File.ReadAllBytes(galleryZipLocation));
-
-                        addMediaParameters.images = imageGalleryUpload;
+                        catch(Exception e)
+                        {
+                            Debug.LogError("[mod.io] Unable to zip image gallery prior to uploading.\n\n"
+                                           + Utility.GenerateExceptionDebugString(e));
+                        }
                     }
 
                     var removedImageFileNames = new List<string>();
