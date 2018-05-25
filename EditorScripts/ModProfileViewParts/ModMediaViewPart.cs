@@ -14,6 +14,7 @@ namespace ModIO
     {
         // ------[ CONSTANTS ]------
         private const ModGalleryImageSize IMAGE_PREVIEW_SIZE = ModGalleryImageSize.Thumbnail_320x180;
+        private static readonly string[] IMAGE_FILE_FILTER = new string[] { "JPEG Image Format", "jpeg,jpg", "PNG Image Format", "png", "GIF Image Format", "gif" };
 
         // ------[ EDITOR CACHING ]------
         private bool isRepaintRequired = false;
@@ -233,9 +234,9 @@ namespace ModIO
             {
                 EditorApplication.delayCall += () =>
                 {
-
-                    // TODO(@jackson): Add other file-types
-                    string path = EditorUtility.OpenFilePanel("Select Gallery Image", "", "png");
+                    string path = EditorUtility.OpenFilePanelWithFilters("Select Gallery Image",
+                                                                         "",
+                                                                         ModMediaViewPart.IMAGE_FILE_FILTER);
                     Texture2D newTexture = CacheClient.ReadImageFile(path);
 
                     if(newTexture != null)

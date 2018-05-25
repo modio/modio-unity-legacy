@@ -9,12 +9,6 @@ namespace ModIO
 {
     public class LoginWindow : EditorWindow
     {
-        [MenuItem("mod.io/Login")]
-        public static void ShowWindow()
-        {
-            GetWindow<LoginWindow>("Login to mod.io");
-        }
-
         // ---------[ MEMBERS ]---------
         public static event Action<UserProfile> userLoggedIn;
         private static bool isAwaitingServerResponse = false;

@@ -148,7 +148,7 @@ namespace ModIO
                 EditorGUILayout.Space();
 
 
-                // TODO(@jackson): Support mods that haven't been downloaded
+                // TODO(@jackson): Support mods that haven't been downloaded?
                 profile = EditorGUILayout.ObjectField("Mod Profile",
                                                       profile,
                                                       typeof(ScriptableModProfile),
@@ -221,8 +221,6 @@ namespace ModIO
             }
         }
 
-        // TODO(@jackson): Check hash of build for potential match
-        // TODO(@jackson): Check profile errors
         protected virtual void UploadToServer()
         {
             isAwaitingServerResponse = true;

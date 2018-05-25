@@ -20,6 +20,7 @@ namespace ModIO
         private const LogoSize LOGO_PREVIEW_SIZE = LogoSize.Thumbnail_320x180;
         private const float LOGO_PREVIEW_WIDTH = 320;
         private const float LOGO_PREVIEW_HEIGHT = 180;
+        private static readonly string[] IMAGE_FILE_FILTER = new string[] { "JPEG Image Format", "jpeg,jpg", "PNG Image Format", "png", "GIF Image Format", "gif" };
 
         // ------[ EDITOR CACHING ]------
         private SerializedProperty editableProfileProperty;
@@ -293,8 +294,9 @@ namespace ModIO
                 EditorApplication.delayCall += () =>
                 {
 
-                    // TODO(@jackson): Add other file-types (OpenFilePanelWithFilter)
-                    string path = EditorUtility.OpenFilePanel("Select Mod Logo", "", "png");
+                    string path = EditorUtility.OpenFilePanelWithFilters("Select Mod Logo",
+                                                                         "",
+                                                                         IMAGE_FILE_FILTER);
                     Texture2D newLogoTexture = CacheClient.ReadImageFile(path);
 
                     if(newLogoTexture)
