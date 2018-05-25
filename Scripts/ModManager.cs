@@ -12,24 +12,8 @@ using ModIO.API;
 
 namespace ModIO
 {
-    public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
-    public delegate void ModIdsEventHandler(IEnumerable<int> modIds);
-    public delegate void ModfileStubsEventHandler(IEnumerable<ModfileStub> modfiles);
-
     public static class ModManager
     {
-        // ---------[ COROUTINE HELPERS ]---------
-        private static void OnRequestSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
-        {
-            request.response = response;
-            isDone = true;
-        }
-        private static void OnRequestError<T>(WebRequestError error, ClientRequest<T> request, out bool isDone)
-        {
-            request.error = error;
-            isDone = true;
-        }
-
         // ---------[ AUTHENTICATED USER ]---------
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
@@ -92,28 +76,6 @@ namespace ModIO
         }
 
         // ---------[ GAME PROFILE ]---------
-        public static IEnumerator RequestGameProfile(ClientRequest<GameProfile> request)
-        {
-            // - Attempt load from cache -
-            GameProfile cachedProfile = CacheClient.LoadGameProfile();
-            request.response = cachedProfile;
-
-            if(request.response == null)
-            {
-                bool isDone = false;
-
-                APIClient.GetGame((r) => ModManager.OnRequestSuccess(r, request, out isDone),
-                                   (e) => ModManager.OnRequestError(e, request, out isDone));
-
-                while(!isDone) { yield return null; }
-
-                if(request.error == null)
-                {
-                    CacheClient.SaveGameProfile(request.response);
-                }
-            }
-        }
-
         public static void GetGameProfile(Action<GameProfile> onSuccess,
                                           Action<WebRequestError> onError)
         {
@@ -229,39 +191,6 @@ namespace ModIO
         }
 
         // ---------[ EVENTS ]---------
-        public static event ModProfilesEventHandler     modsAvailable;
-        public static event ModProfilesEventHandler     modsEdited;
-        public static event ModfileStubsEventHandler    modReleasesUpdated;
-        public static event ModIdsEventHandler          modsUnavailable;
-
-        public static IEnumerator RequestAndApplyAllModEventsToCache(int fromTimeStamp,
-                                                                     int untilTimeStamp,
-                                                                     ClientRequest<List<ModEvent>> request)
-        {
-            bool isDone = false;
-
-            ModManager.FetchAndApplyAllModEvents(fromTimeStamp, untilTimeStamp,
-                                                 (r) => ModManager.OnRequestSuccess(r, request, out isDone),
-                                                 (e) => ModManager.OnRequestError(e, request, out isDone));
-
-            while(!isDone) { yield return null; }
-        }
-
-        public static void FetchAndApplyAllModEvents(int fromTimeStamp,
-                                                     int untilTimeStamp,
-                                                     Action<List<ModEvent>> onSuccess,
-                                                     Action<WebRequestError> onError)
-        {
-            ModManager.FetchAllModEvents(fromTimeStamp, untilTimeStamp,
-            (modEvents) =>
-            {
-                ApplyModEventsToCache(modEvents);
-
-                if(onSuccess != null) { onSuccess(modEvents); }
-            },
-            onError);
-        }
-
         public static void FetchAllModEvents(int fromTimeStamp,
                                              int untilTimeStamp,
                                              Action<List<ModEvent>> onSuccess,
@@ -285,9 +214,13 @@ namespace ModIO
                                                          onError);
         }
 
-        // TODO(@jackson): Check updates against ModProfile dateUpdated
-        // TODO(@jackson): Return Profiles as lists?
-        public static void ApplyModEventsToCache(IEnumerable<ModEvent> modEvents)
+        public static void ApplyModEventsToCache(IEnumerable<ModEvent> modEvents,
+                                                 Action<List<ModProfile>> profilesAvailableCallback = null,
+                                                 Action<List<ModProfile>> profilesEditedCallback = null,
+                                                 Action<List<int>> profilesUnavailableCallback = null,
+                                                 Action<List<ModfileStub>> profileBuildsUpdatedCallback = null,
+                                                 Action onSuccess = null,
+                                                 Action<WebRequestError> onError = null)
         {
             List<int> addedIds = new List<int>();
             List<int> editedIds = new List<int>();
@@ -373,22 +306,22 @@ namespace ModIO
                     CacheClient.SaveModProfiles(updatedProfiles);
 
                     // --- Notifications ---
-                    if(ModManager.modsAvailable != null
+                    if(profilesAvailableCallback != null
                        && addedProfiles.Count > 0)
                     {
-                        ModManager.modsAvailable(addedProfiles);
+                        profilesAvailableCallback(addedProfiles);
                     }
 
-                    if(ModManager.modsEdited != null
+                    if(profilesEditedCallback != null
                        && editedProfiles.Count > 0)
                     {
-                        ModManager.modsEdited(editedProfiles);
+                        profilesEditedCallback(editedProfiles);
                     }
 
-                    if(ModManager.modReleasesUpdated != null
+                    if(profileBuildsUpdatedCallback != null
                        && modfileChangedStubs.Count > 0)
                     {
-                        ModManager.modReleasesUpdated(modfileChangedStubs);
+                        profileBuildsUpdatedCallback(modfileChangedStubs);
                     }
                 };
 
@@ -400,16 +333,15 @@ namespace ModIO
             // --- Process Removed ---
             if(removedIds.Count > 0)
             {
+                // TODO(@jackson): Compare with subscriptions
                 foreach(int modId in removedIds)
                 {
                     CacheClient.DeleteMod(modId);
                 }
 
-                // TODO(@jackson): Compare with subscriptions
-
-                if(ModManager.modsUnavailable != null)
+                if(profilesUnavailableCallback != null)
                 {
-                    ModManager.modsUnavailable(removedIds);
+                    profilesUnavailableCallback(removedIds);
                 }
             }
         }
@@ -527,22 +459,6 @@ namespace ModIO
 
                 download.succeeded += (d) => onSuccess(d.imageTexture);
                 download.failed += (d) => onError(d.error);
-            }
-        }
-
-        public static IEnumerator RequestModLogo(ModProfile profile,
-                                                 LogoSize size,
-                                                 ClientRequest<Texture2D> logoRequest)
-        {
-            bool isDone = false;
-
-            ModManager.GetModLogo(profile, size,
-                                  (r) => ModManager.OnRequestSuccess(r, logoRequest, out isDone),
-                                  (e) => ModManager.OnRequestError(e, logoRequest, out isDone));
-
-            while(!isDone)
-            {
-                yield return null;
             }
         }
 

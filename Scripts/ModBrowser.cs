@@ -6,6 +6,10 @@ using System.Collections.Generic;
 
 namespace ModIO
 {
+    public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
+    public delegate void ModIdsEventHandler(IEnumerable<int> modIds);
+    public delegate void ModfileStubsEventHandler(IEnumerable<ModfileStub> modfiles);
+
     public class ClientRequest<T>
     {
         public T response = default(T);
@@ -15,6 +19,12 @@ namespace ModIO
     // TODO(@jackson): ErrorWrapper to handle specific error codes?
     public class ModBrowser : MonoBehaviour
     {
+        // ---------[ EVENTS ]---------
+        public event ModProfilesEventHandler     modsAvailable;
+        public event ModProfilesEventHandler     modsEdited;
+        public event ModfileStubsEventHandler    modReleasesUpdated;
+        public event ModIdsEventHandler          modsUnavailable;
+
         // ---------[ NESTED CLASSES ]---------
         [System.Serializable]
         private class ManifestData
@@ -40,6 +50,18 @@ namespace ModIO
 
         // --- File Paths ---
         public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
+
+        // ---------[ COROUTINE HELPERS ]---------
+        private static void OnRequestSuccess<T>(T response, ClientRequest<T> request, out bool isDone)
+        {
+            request.response = response;
+            isDone = true;
+        }
+        private static void OnRequestError<T>(WebRequestError error, ClientRequest<T> request, out bool isDone)
+        {
+            request.error = error;
+            isDone = true;
+        }
 
         // ---------[ INITIALIZATION ]---------
         protected bool _isInitialized = false;
@@ -79,9 +101,13 @@ namespace ModIO
             }
 
             // --- Load Game Profile ---
+            bool isDone = false;
             ClientRequest<GameProfile> gameRequest = new ClientRequest<GameProfile>();
 
-            yield return ModManager.RequestGameProfile(gameRequest);
+            ModManager.GetGameProfile((r) => ModBrowser.OnRequestSuccess(r, gameRequest, out isDone),
+                                      (e) => ModBrowser.OnRequestError(e, gameRequest, out isDone));
+
+            while(!isDone) { yield return null; }
 
             if(gameRequest.error == null)
             {
@@ -144,18 +170,68 @@ namespace ModIO
             {
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
-                var request = new ClientRequest<List<ModEvent>>();
+                bool isDone = false;
 
-                yield return ModManager.RequestAndApplyAllModEventsToCache(this.lastCacheUpdate,
-                                                                           updateStartTimeStamp,
-                                                                           request);
+                var eventRequest = new ClientRequest<List<ModEvent>>();
+                ModManager.FetchAllModEvents(this.lastCacheUpdate, updateStartTimeStamp,
+                                             (r) => ModBrowser.OnRequestSuccess(r, eventRequest, out isDone),
+                                             (e) => ModBrowser.OnRequestError(e, eventRequest, out isDone));
+                while(!isDone) { yield return null; }
 
-                if(request.error == null)
+                if(eventRequest.response != null)
                 {
-                    this.lastCacheUpdate = updateStartTimeStamp;
+                    isDone = false;
+
+                    // - Callbacks -
+                    Action<List<ModProfile>> onAvailable = (profiles) =>
+                    {
+                        if(this.modsAvailable != null)
+                        {
+                            this.modsAvailable(profiles);
+                        }
+                    };
+                    Action<List<ModProfile>> onEdited = (profiles) =>
+                    {
+                        if(this.modsEdited != null)
+                        {
+                            this.modsEdited(profiles);
+                        }
+                    };
+                    Action<List<ModfileStub>> onReleasesUpdated = (modfiles) =>
+                    {
+                        if(this.modReleasesUpdated != null)
+                        {
+                            this.modReleasesUpdated(modfiles);
+                        }
+                    };
+                    Action<List<int>> onUnavailable = (ids) =>
+                    {
+                        if(this.modsUnavailable != null)
+                        {
+                            this.modsUnavailable(ids);
+                        }
+                    };
+                    Action onSuccess = () =>
+                    {
+                        this.lastCacheUpdate = updateStartTimeStamp;
+                        isDone = true;
+                    };
+                    Action<WebRequestError> onError = (error) =>
+                    {
+                        WebRequestError.LogAsWarning(error);
+                        isDone = true;
+                    };
+
+                    ModManager.ApplyModEventsToCache(eventRequest.response,
+                                                     onAvailable, onEdited,
+                                                     onUnavailable, onReleasesUpdated,
+                                                     onSuccess,
+                                                     onError);
+
+                    while(!isDone) { yield return null; }
                 }
 
-                // TOOD(@jackson): Add User Events
+                // TODO(@jackson): Add User Events
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }
