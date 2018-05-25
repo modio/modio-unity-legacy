@@ -120,7 +120,6 @@ namespace ModIO
                     }
                     else
                     {
-
                         ModManager.GetModGalleryImage(baseProfile,
                                                       imageFileName,
                                                       IMAGE_PREVIEW_SIZE,

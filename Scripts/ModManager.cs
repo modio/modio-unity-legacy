@@ -1,6 +1,4 @@
-﻿// #define DO_NOT_LOAD_CACHE
-
-using System;
+﻿using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,8 +10,6 @@ using Newtonsoft.Json;
 
 using ModIO.API;
 
-// TODO(@jackson): ErrorWrapper to handle specific error codes
-// TODO(@jackson): Load images into a existing texture
 namespace ModIO
 {
     public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
@@ -142,7 +138,6 @@ namespace ModIO
 
 
         // ---------[ MOD PROFILES ]---------
-        // TODO(@jackson): Implement GetModProfiles
         public static void GetModProfile(int modId,
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
@@ -215,8 +210,7 @@ namespace ModIO
             }
         }
 
-        // TODO(@jackson): Defend everything
-        private static void FetchAndRebuildEntireCache(Action onSuccess,
+        public static void FetchAndCacheAllModProfiles(Action onSuccess,
                                                        Action<WebRequestError> onError)
         {
             Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
@@ -232,7 +226,6 @@ namespace ModIO
             ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(RequestFilter.None, p, s, e),
                                                            onModProfilesReceived,
                                                            onError);
-            // TODO(@jackson): Other bits
         }
 
         // ---------[ EVENTS ]---------

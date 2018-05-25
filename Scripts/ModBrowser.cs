@@ -12,6 +12,7 @@ namespace ModIO
         public WebRequestError error = null;
     }
 
+    // TODO(@jackson): ErrorWrapper to handle specific error codes?
     public class ModBrowser : MonoBehaviour
     {
         // ---------[ NESTED CLASSES ]---------
