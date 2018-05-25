@@ -95,7 +95,7 @@ namespace ModIO
 
         /// <summary> Contains key-value metadata. </summary>
         [JsonProperty("metadata_kvp")]
-        public MetadataKVP[] metadataKVP;
+        public MetadataKVP[] metadataKVPs;
 
         /// <summary> Contains mod tag data. </summary>
         [JsonProperty("tags")]

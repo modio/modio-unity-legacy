@@ -198,7 +198,8 @@ namespace ModIO
         }
 
         // - Image Locator Layouting -
-        private void LayoutGalleryImageProperty(SerializedProperty elementProperty)
+        private void LayoutGalleryImageProperty(int elementIndex,
+                                                SerializedProperty elementProperty)
         {
             bool doBrowse = false;
             bool doClear = false;
@@ -208,7 +209,7 @@ namespace ModIO
             // - Browse Field -
             EditorGUILayout.BeginHorizontal();
                 doBrowse |= EditorGUILayoutExtensions.BrowseButton(imageSource,
-                                                                   new GUIContent("Image"));
+                                                                   new GUIContent("Image " + elementIndex));
                 doClear = EditorGUILayoutExtensions.ClearButton();
             EditorGUILayout.EndHorizontal();
 

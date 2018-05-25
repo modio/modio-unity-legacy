@@ -1,9 +1,10 @@
 ﻿#if UNITY_EDITOR
 // #define ENABLE_MOD_STOCK
 
+using System;
 using System.Collections.Generic;
-using Path = System.IO.Path;
-using System.Linq; // TODO(@jackson): Remove
+using System.IO;
+using System.Linq;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,8 +13,6 @@ using UnityEditor.SceneManagement;
 
 namespace ModIO
 {
-    // TODO(@jackson): Force repaint on Callbacks
-    // TODO(@jackson): Use cache originalModLogo and use Unity built in image inspector?
     public class ModProfileInfoViewPart : IModProfileViewPart
     {
         // ------[ CONSTANTS ]------
@@ -33,9 +32,11 @@ namespace ModIO
         private SerializedProperty logoProperty;
         private Texture2D logoTexture;
         private string logoLocation;
+        private DateTime lastLogoWriteTime;
 
         // - Tags -
         private bool isTagsExpanded;
+        private bool isKVPsExpanded;
 
         // ------[ INITIALIZATION ]------
         public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile, UserProfile user)
@@ -45,6 +46,7 @@ namespace ModIO
             this.isUndoEnabled = (baseProfile != null);
 
             isTagsExpanded = false;
+            isKVPsExpanded = false;
 
             // - Game Profile -
             ModManager.GetGameProfile((g) => { this.gameProfile = g; isRepaintRequired = true; },
@@ -58,6 +60,10 @@ namespace ModIO
             {
                 logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
                 logoTexture = CacheClient.ReadImageFile(logoLocation);
+                if(logoTexture != null)
+                {
+                    lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
+                }
             }
             else if(profile != null)
             {
@@ -78,8 +84,26 @@ namespace ModIO
         public void OnDisable() { }
 
         // ------[ UPDATE ]------
-        // TODO(@jackson): Readd logo updated check
-        public void OnUpdate() {}
+        public void OnUpdate()
+        {
+            if(File.Exists(logoLocation))
+            {
+                try
+                {
+                    FileInfo imageInfo = new FileInfo(logoLocation);
+                    if(lastLogoWriteTime < imageInfo.LastWriteTime)
+                    {
+                        logoTexture = CacheClient.ReadImageFile(logoLocation);
+                        lastLogoWriteTime = imageInfo.LastWriteTime;
+                    }
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning("[mod.io] Unable to read updates to the logo image file.\n\n"
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+        }
 
         // ------[ GUI ]------
         public virtual void OnGUI()
@@ -95,10 +119,8 @@ namespace ModIO
             LayoutSummaryField();
             LayoutDescriptionField();
             LayoutStockField();
-            LayoutMetadataField();
-
-            // LayoutModDependenciesField();
-            // LayoutMetadataKVPField();
+            LayoutMetadataBlobField();
+            LayoutMetadataKVPField();
         }
 
         public virtual bool IsRepaintRequired()
@@ -221,7 +243,7 @@ namespace ModIO
             }
         }
 
-        protected virtual void LayoutMetadataField()
+        protected virtual void LayoutMetadataBlobField()
         {
             bool isUndoRequested;
             LayoutEditablePropertyTextArea("Metadata",
@@ -275,7 +297,6 @@ namespace ModIO
             // - Draw Texture -
             if(logoTexture != null)
             {
-                //TODO(@jackson): Make full-width
                 Rect logoRect = EditorGUILayout.GetControlRect(false,
                                                                LOGO_PREVIEW_HEIGHT,
                                                                null);
@@ -293,7 +314,6 @@ namespace ModIO
             {
                 EditorApplication.delayCall += () =>
                 {
-
                     string path = EditorUtility.OpenFilePanelWithFilters("Select Mod Logo",
                                                                          "",
                                                                          IMAGE_FILE_FILTER);
@@ -308,6 +328,7 @@ namespace ModIO
 
                         logoTexture = newLogoTexture;
                         logoLocation = path;
+                        lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
                     }
                 };
             }
@@ -465,6 +486,48 @@ namespace ModIO
                 }
             EditorGUILayout.EndVertical();
             // EditorGUILayout.EndHorizontal();
+        }
+
+        protected virtual void LayoutMetadataKVPField()
+        {
+            SerializedProperty mkvpsProp = editableProfileProperty.FindPropertyRelative("metadataKVPs.value");
+
+            EditorGUILayout.BeginHorizontal();
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.BeginVertical();
+                    EditorGUILayoutExtensions.CustomLayoutArrayPropertyField(mkvpsProp,
+                                                                             "Metadata KVPs",
+                                                                             ref isKVPsExpanded,
+                                                                             LayoutMetadataKVPEntryField);
+                EditorGUILayout.EndVertical();
+
+                bool isDirty = EditorGUI.EndChangeCheck();
+                bool isUndoRequested = EditorGUILayoutExtensions.UndoButton(isUndoEnabled);
+            EditorGUILayout.EndHorizontal();
+
+            editableProfileProperty.FindPropertyRelative("metadataKVPs.isDirty").boolValue |= isDirty;
+
+            if(isUndoRequested)
+            {
+                mkvpsProp.arraySize = profile.metadataKVPs.Length;
+                for(int i = 0; i < profile.metadataKVPs.Length; ++i)
+                {
+                    mkvpsProp.GetArrayElementAtIndex(i).FindPropertyRelative("key").stringValue = profile.metadataKVPs[i].key;
+                    mkvpsProp.GetArrayElementAtIndex(i).FindPropertyRelative("value").stringValue = profile.metadataKVPs[i].value;
+                }
+
+                editableProfileProperty.FindPropertyRelative("metadataKVPs.isDirty").boolValue = false;
+            }
+        }
+
+        protected virtual void LayoutMetadataKVPEntryField(int elementIndex,
+                                                           SerializedProperty kvpProperty)
+        {
+            EditorGUILayout.PrefixLabel("Key Value Pair " + elementIndex.ToString());
+            EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PropertyField(kvpProperty.FindPropertyRelative("key"), GUIContent.none);
+                EditorGUILayout.PropertyField(kvpProperty.FindPropertyRelative("value"), GUIContent.none);
+            EditorGUILayout.EndHorizontal();
         }
 
         protected virtual void LayoutStockField()

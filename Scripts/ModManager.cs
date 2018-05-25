@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 
@@ -12,6 +13,7 @@ using Newtonsoft.Json;
 using ModIO.API;
 
 // TODO(@jackson): ErrorWrapper to handle specific error codes
+// TODO(@jackson): Load images into a existing texture
 namespace ModIO
 {
     public delegate void ModProfilesEventHandler(IEnumerable<ModProfile> modProfiles);
@@ -1019,28 +1021,17 @@ namespace ModIO
             // - Tags -
             if(modEdits.tags.isDirty)
             {
+                var removedTags = new List<string>(profile.tagNames);
+                foreach(string tag in modEdits.tags.value)
+                {
+                    removedTags.Remove(tag);
+                }
                 var addedTags = new List<string>(modEdits.tags.value);
                 foreach(string tag in profile.tagNames)
                 {
                     addedTags.Remove(tag);
                 }
 
-                var removedTags = new List<string>(profile.tagNames);
-                foreach(string tag in modEdits.tags.value)
-                {
-                    removedTags.Remove(tag);
-                }
-
-                if(addedTags.Count > 0)
-                {
-                    submissionActions.Add(() =>
-                    {
-                        var parameters = new AddModTagsParameters();
-                        parameters.tags = addedTags.ToArray();
-                        APIClient.AddModTags(profile.id, parameters,
-                                          doNextSubmissionAction, modSubmissionFailed);
-                    });
-                }
                 if(removedTags.Count > 0)
                 {
                     submissionActions.Add(() =>
@@ -1051,13 +1042,74 @@ namespace ModIO
                                              doNextSubmissionAction, modSubmissionFailed);
                     });
                 }
+                if(addedTags.Count > 0)
+                {
+                    submissionActions.Add(() =>
+                    {
+                        var parameters = new AddModTagsParameters();
+                        parameters.tags = addedTags.ToArray();
+                        APIClient.AddModTags(profile.id, parameters,
+                                          doNextSubmissionAction, modSubmissionFailed);
+                    });
+                }
             }
 
             // - Metadata KVP -
+            if(modEdits.metadataKVPs.isDirty)
+            {
+                var removedKVPs = MetadataKVP.ArrayToDictionary(profile.metadataKVPs);
+                var addedKVPs = MetadataKVP.ArrayToDictionary(modEdits.metadataKVPs.value);
 
-            // - Mod Dependencies -
+                foreach(MetadataKVP kvp in modEdits.metadataKVPs.value)
+                {
+                    string profileValue;
 
-            // - Team Members -
+                    // if edited kvp is exact match it's not removed
+                    if(removedKVPs.TryGetValue(kvp.key, out profileValue)
+                        && profileValue == kvp.value)
+                    {
+                        removedKVPs.Remove(kvp.key);
+                    }
+                }
+
+                foreach(MetadataKVP kvp in profile.metadataKVPs)
+                {
+                    string editValue;
+
+                    // if profile kvp is exact match it's not new
+                    if(addedKVPs.TryGetValue(kvp.key, out editValue)
+                        && editValue == kvp.value)
+                    {
+                        addedKVPs.Remove(kvp.key);
+                    }
+                }
+
+                if(removedKVPs.Count > 0)
+                {
+                    submissionActions.Add(() =>
+                    {
+                        var parameters = new DeleteModKVPMetadataParameters();
+                        parameters.metadataKeys = removedKVPs.Keys.ToArray();
+                        APIClient.DeleteModKVPMetadata(profile.id, parameters,
+                                                       doNextSubmissionAction,
+                                                       modSubmissionFailed);
+                    });
+                }
+
+                if(addedKVPs.Count > 0)
+                {
+                    string[] addedKVPStrings = AddModKVPMetadataParameters.ConvertMetadataKVPsToAPIStrings(MetadataKVP.DictionaryToArray(addedKVPs));
+
+                    submissionActions.Add(() =>
+                    {
+                        var parameters = new AddModKVPMetadataParameters();
+                        parameters.metadata = addedKVPStrings;
+                        APIClient.AddModKVPMetadata(profile.id, parameters,
+                                                    doNextSubmissionAction,
+                                                    modSubmissionFailed);
+                    });
+                }
+            }
 
             // - Get Updated Profile -
             submissionActions.Add(() => APIClient.GetMod(profile.id,

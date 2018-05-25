@@ -12,6 +12,8 @@ namespace ModIO
         public class EditableModStatusField : EditableField<ModStatus> {}
         [Serializable]
         public class EditableModVisibilityField : EditableField<ModVisibility> {}
+        [Serializable]
+        public class EditableKVPArrayField : EditableArrayField<MetadataKVP> {}
 
         // ---------[ FIELDS ]---------
         public EditableModStatusField status =                      new EditableModStatusField();
@@ -21,9 +23,9 @@ namespace ModIO
         public EditableStringField summary =                        new EditableStringField();
         public EditableStringField description =                    new EditableStringField();
         public EditableStringField homepageURL =                    new EditableStringField();
-        public EditableStringField metadataBlob =                   new EditableStringField();
         public EditableStringArrayField tags =                      new EditableStringArrayField();
-        // TODO(@jackson): KVPs
+        public EditableStringField metadataBlob =                   new EditableStringField();
+        public EditableKVPArrayField metadataKVPs =                 new EditableKVPArrayField();
         // - Mod Media -
         public EditableImageLocatorField logoLocator =              new EditableImageLocatorField();
         public EditableStringArrayField youtubeURLs =               new EditableStringArrayField();
@@ -34,26 +36,7 @@ namespace ModIO
         public static EditableModProfile CreateFromProfile(ModProfile profile)
         {
             EditableModProfile retVal = new EditableModProfile();
-            retVal.status.value = profile.status;
-            retVal.visibility.value = profile.visibility;
-            retVal.name.value = profile.name;
-            retVal.nameId.value = profile.nameId;
-            retVal.summary.value = profile.summary;
-            retVal.description.value = profile.description;
-            retVal.homepageURL.value = profile.homepageURL;
-            retVal.metadataBlob.value = profile.metadataBlob;
-            retVal.tags.value = profile.tagNames.ToArray();
-
-            // - Media -
-            retVal.logoLocator.value = ImageLocatorData.CreateFromImageLocator(profile.logoLocator);
-
-            retVal.youtubeURLs.value = profile.media.youtubeURLs;
-            retVal.sketchfabURLs.value = profile.media.sketchfabURLs;
-
-            Utility.SafeMapArraysOrZero(profile.media.galleryImageLocators,
-                                        (l) => { return ImageLocatorData.CreateFromImageLocator(l); },
-                                        out retVal.galleryImageLocators.value);
-
+            retVal.ApplyBaseProfileChanges(profile);
             return retVal;
         }
 
@@ -90,6 +73,10 @@ namespace ModIO
             if(!this.metadataBlob.isDirty)
             {
                 this.metadataBlob.value = profile.metadataBlob;
+            }
+            if(!this.metadataBlob.isDirty)
+            {
+                this.metadataKVPs.value = profile.metadataKVPs;
             }
             if(!this.tags.isDirty)
             {

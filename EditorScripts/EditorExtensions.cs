@@ -62,13 +62,13 @@ namespace ModIO
                                               ref bool isExpanded)
         {
             CustomLayoutArrayPropertyField(arrayProperty, arrayLabel, ref isExpanded,
-                                           (p) => EditorGUILayout.PropertyField(p));
+                                           (i, p) => EditorGUILayout.PropertyField(p));
         }
 
         public static void CustomLayoutArrayPropertyField(SerializedProperty arrayProperty,
                                                           string arrayLabel,
                                                           ref bool isExpanded,
-                                                          Action<SerializedProperty> customLayoutFunction)
+                                                          Action<int, SerializedProperty> customLayoutFunction)
         {
             isExpanded = EditorGUILayout.Foldout(isExpanded, arrayLabel, true);
 
@@ -82,7 +82,7 @@ namespace ModIO
                 for (int i = 0; i < arrayProperty.arraySize; ++i)
                 {
                     SerializedProperty prop = arrayProperty.FindPropertyRelative("Array.data[" + i + "]");
-                    customLayoutFunction(prop);
+                    customLayoutFunction(i, prop);
                 }
 
                 EditorGUI.indentLevel -= 1;
