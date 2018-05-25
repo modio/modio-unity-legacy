@@ -147,27 +147,25 @@ namespace ModIO
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            CacheClient.LoadModProfile(modId,
-                                        (cachedProfile) =>
-            {
-                if(cachedProfile != null)
-                {
-                    if(onSuccess != null) { onSuccess(cachedProfile); }
-                }
-                else
-                {
-                    // - Fetch from Server -
-                    Action<ModProfile> onGetMod = (profile) =>
-                    {
-                        CacheClient.SaveModProfile(profile);
-                        if(onSuccess != null) { onSuccess(profile); }
-                    };
+            var cachedProfile = CacheClient.LoadModProfile(modId);
 
-                    APIClient.GetMod(modId,
-                                     onGetMod,
-                                     onError);
-                }
-            });
+            if(cachedProfile != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedProfile); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<ModProfile> onGetMod = (profile) =>
+                {
+                    CacheClient.SaveModProfile(profile);
+                    if(onSuccess != null) { onSuccess(profile); }
+                };
+
+                APIClient.GetMod(modId,
+                                 onGetMod,
+                                 onError);
+            }
         }
 
         public static void GetModProfiles(IEnumerable<int> modIds,
@@ -484,31 +482,28 @@ namespace ModIO
         {
             Debug.Assert(onSuccess != null);
 
-            CacheClient.LoadModLogo(profile.id, size,
-                                    (logoTexture) =>
+            var logoTexture = CacheClient.LoadModLogo(profile.id, size);
+            if(logoTexture != null)
             {
-                if(logoTexture != null)
+                onSuccess(logoTexture);
+            }
+
+            var versionInfo = CacheClient.LoadModLogoVersionInfo(profile.id);
+
+            if(logoTexture == null
+               || versionInfo[size] != profile.logoLocator.GetFileName())
+            {
+                var textureDownload = DownloadClient.DownloadModLogo(profile, size);
+
+                textureDownload.succeeded += (d) =>
                 {
-                    onSuccess(logoTexture);
-                }
+                    CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
+                                            size, d.imageTexture);
+                };
 
-                var versionInfo = CacheClient.LoadModLogoVersionInfo(profile.id);
-
-                if(logoTexture == null
-                   || versionInfo[size] != profile.logoLocator.GetFileName())
-                {
-                    var textureDownload = DownloadClient.DownloadModLogo(profile, size);
-
-                    textureDownload.succeeded += (d) =>
-                    {
-                        CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
-                                                size, d.imageTexture);
-                    };
-
-                    textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
-                    textureDownload.failed += (d) => onError(d.error);
-                }
-            });
+                textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
+                textureDownload.failed += (d) => onError(d.error);
+            }
         }
 
         public static void GetModGalleryImage(ModProfile profile,
@@ -517,31 +512,29 @@ namespace ModIO
                                               Action<Texture2D> onSuccess,
                                               Action<WebRequestError> onError)
         {
-            CacheClient.LoadModGalleryImage(profile.id,
-                                            imageFileName,
-                                            size,
-                                            (cachedImageTexture) =>
+            var cachedImageTexture = CacheClient.LoadModGalleryImage(profile.id,
+                                                                     imageFileName,
+                                                                     size);
+
+            if(cachedImageTexture != null)
             {
-                if(cachedImageTexture != null)
-                {
-                    if(onSuccess != null) { onSuccess(cachedImageTexture); }
-                }
-                else
-                {
-                    // - Fetch from Server -
-                    var download = DownloadClient.DownloadModGalleryImage(profile,
-                                                                          imageFileName,
-                                                                          size);
+                if(onSuccess != null) { onSuccess(cachedImageTexture); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                var download = DownloadClient.DownloadModGalleryImage(profile,
+                                                                      imageFileName,
+                                                                      size);
 
-                    download.succeeded += (d) =>
-                    {
-                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, size, d.imageTexture);
-                    };
+                download.succeeded += (d) =>
+                {
+                    CacheClient.SaveModGalleryImage(profile.id, imageFileName, size, d.imageTexture);
+                };
 
-                    download.succeeded += (d) => onSuccess(d.imageTexture);
-                    download.failed += (d) => onError(d.error);
-                }
-            });
+                download.succeeded += (d) => onSuccess(d.imageTexture);
+                download.failed += (d) => onError(d.error);
+            }
         }
 
         public static IEnumerator RequestModLogo(ModProfile profile,
@@ -565,27 +558,25 @@ namespace ModIO
                                       Action<Modfile> onSuccess,
                                       Action<WebRequestError> onError)
         {
-            CacheClient.LoadModfile(modId, modfileId,
-                                    (cachedModfile) =>
-            {
-                if(cachedModfile != null)
-                {
-                    if(onSuccess != null) { onSuccess(cachedModfile); }
-                }
-                else
-                {
-                    // - Fetch from Server -
-                    Action<Modfile> onGetModfile = (modfile) =>
-                    {
-                        CacheClient.SaveModfile(modfile);
-                        if(onSuccess != null) { onSuccess(modfile); }
-                    };
+            var cachedModfile = CacheClient.LoadModfile(modId, modfileId);
 
-                    APIClient.GetModfile(modId, modfileId,
-                                         onGetModfile,
-                                         onError);
-                }
-            });
+            if(cachedModfile != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedModfile); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<Modfile> onGetModfile = (modfile) =>
+                {
+                    CacheClient.SaveModfile(modfile);
+                    if(onSuccess != null) { onSuccess(modfile); }
+                };
+
+                APIClient.GetModfile(modId, modfileId,
+                                     onGetModfile,
+                                     onError);
+            }
         }
 
         public static void GetDownloadedBinaryStatus(ModfileStub modfile,

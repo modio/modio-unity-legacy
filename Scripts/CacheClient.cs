@@ -18,8 +18,6 @@ namespace ModIO
         private static string _cacheDirectory = null;
 
         // ---------[ INITIALIZATION ]---------
-        // TODO(@jackson): Sort Initialization interface/timing
-        // public static void Initialize()
         static CacheClient()
         {
             string dir;
@@ -235,7 +233,7 @@ namespace ModIO
         private class AuthenticatedUser
         {
             public string oAuthToken;
-            public UserProfile profile;
+            public int userId;
             public List<int> modIds;
             public List<int> subscribedModIds;
         }
@@ -268,9 +266,10 @@ namespace ModIO
             return null;
         }
 
-        // TODO(@jackson): Just use standard profile dir
         public static void SaveAuthenticatedUserProfile(UserProfile userProfile)
         {
+            CacheClient.SaveUserProfile(userProfile);
+
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
 
             if(au == null)
@@ -278,7 +277,7 @@ namespace ModIO
                 au = new AuthenticatedUser();
             }
 
-            au.profile = userProfile;
+            au.userId = userProfile.id;
 
             CacheClient.WriteJsonObjectFile(userFilePath, au);
         }
@@ -287,9 +286,10 @@ namespace ModIO
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
 
-            if(au != null)
+            if(au != null
+               && au.userId > 0)
             {
-                return au.profile;
+                return LoadUserProfile(au.userId);
             }
             return null;
         }
@@ -385,12 +385,11 @@ namespace ModIO
                     + "profile.data");
         }
 
-        public static void LoadModProfile(int modId,
-                                          Action<ModProfile> callback)
+        public static ModProfile LoadModProfile(int modId)
         {
             string profileFilePath = GenerateModProfileFilePath(modId);
             ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(profileFilePath);
-            callback(profile);
+            return(profile);
         }
 
         public static IEnumerable<ModProfile> AllModProfiles()
@@ -462,12 +461,11 @@ namespace ModIO
                    + modfileId + ".zip");
         }
 
-        public static void LoadModfile(int modId, int modfileId,
-                                       Action<Modfile> callback)
+        public static Modfile LoadModfile(int modId, int modfileId)
         {
             string modfileFilePath = GenerateModfileFilePath(modId, modfileId);
             var modfile = CacheClient.ReadJsonObjectFile<Modfile>(modfileFilePath);
-            callback(modfile);
+            return modfile;
         }
 
         public static void SaveModfile(Modfile modfile)
@@ -481,12 +479,11 @@ namespace ModIO
                                             modfile);
         }
 
-        public static void LoadModBinaryZip(int modId, int modfileId,
-                                            Action<byte[]> callback)
+        public static byte[] LoadModBinaryZip(int modId, int modfileId)
         {
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
             byte[] zipData = CacheClient.LoadBinaryFile(filePath);
-            callback(zipData);
+            return zipData;
         }
 
         public static void SaveModBinaryZip(int modId, int modfileId,
@@ -540,12 +537,11 @@ namespace ModIO
                    ".png");
         }
 
-        public static void LoadModLogo(int modId, LogoSize size,
-                                       Action<Texture2D> callback)
+        public static Texture2D LoadModLogo(int modId, LogoSize size)
         {
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
             Texture2D logoTexture = CacheClient.ReadImageFile(logoFilePath);
-            callback(logoTexture);
+            return(logoTexture);
         }
 
         public static Dictionary<LogoSize, string> LoadModLogoVersionInfo(int modId)
@@ -577,17 +573,16 @@ namespace ModIO
                                             versionInfo);
         }
 
-        public static void LoadModGalleryImage(int modId,
-                                               string imageFileName,
-                                               ModGalleryImageSize size,
-                                               Action<Texture2D> callback)
+        public static Texture2D LoadModGalleryImage(int modId,
+                                                    string imageFileName,
+                                                    ModGalleryImageSize size)
         {
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
             Texture2D imageTexture = CacheClient.ReadImageFile(imageFilePath);
 
-            callback(imageTexture);
+            return(imageTexture);
         }
 
         public static void SaveModGalleryImage(int modId,
@@ -641,12 +636,11 @@ namespace ModIO
                    + userId + ".data");
         }
 
-        public static void LoadUserProfile(int userId,
-                                           Action<UserProfileStub> callback)
+        public static UserProfile LoadUserProfile(int userId)
         {
             string filePath = CacheClient.GenerateUserProfileFilePath(userId);
             var userProfile = CacheClient.ReadJsonObjectFile<UserProfile>(filePath);
-            callback(userProfile);
+            return(userProfile);
         }
 
         public static IEnumerable<UserProfileStub> IterateAllUserProfiles()
@@ -682,7 +676,7 @@ namespace ModIO
             }
         }
 
-        public static void SaveUserProfile(UserProfileStub userProfile)
+        public static void SaveUserProfile(UserProfile userProfile)
         {
             Debug.Assert(userProfile.id > 0,
                          "[mod.io] Cannot cache a user profile without a user id");
