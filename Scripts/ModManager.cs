@@ -1044,8 +1044,15 @@ namespace ModIO
                 Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
                                + Utility.GenerateExceptionDebugString(e));
 
-                // TODO(@jackson): Create universal error format
-                onError(new WebRequestError());
+                WebRequestError error = new WebRequestError()
+                {
+                    message = "Unable to zip mod binary prior to uploading",
+                    url = binaryZipLocation,
+                    timeStamp = ServerTimeStamp.Now,
+                    responseCode = 0,
+                };
+
+                onError(error);
             }
 
             if(zipSucceeded)
