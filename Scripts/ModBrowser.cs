@@ -24,6 +24,7 @@ namespace ModIO
         public event ModProfilesEventHandler     modsEdited;
         public event ModfileStubsEventHandler    modReleasesUpdated;
         public event ModIdsEventHandler          modsUnavailable;
+        public event ModIdsEventHandler          modsDeleted;
 
         // ---------[ NESTED CLASSES ]---------
         [System.Serializable]
@@ -211,6 +212,13 @@ namespace ModIO
                             this.modsUnavailable(ids);
                         }
                     };
+                    Action<List<int>> onDeleted = (ids) =>
+                    {
+                        if(this.modsDeleted != null)
+                        {
+                            this.modsDeleted(ids);
+                        }
+                    };
                     Action onSuccess = () =>
                     {
                         this.lastCacheUpdate = updateStartTimeStamp;
@@ -224,7 +232,8 @@ namespace ModIO
 
                     ModManager.ApplyModEventsToCache(eventRequest.response,
                                                      onAvailable, onEdited,
-                                                     onUnavailable, onReleasesUpdated,
+                                                     onUnavailable, onDeleted,
+                                                     onReleasesUpdated,
                                                      onSuccess,
                                                      onError);
 

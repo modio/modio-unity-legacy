@@ -218,6 +218,7 @@ namespace ModIO
                                                  Action<List<ModProfile>> profilesAvailableCallback = null,
                                                  Action<List<ModProfile>> profilesEditedCallback = null,
                                                  Action<List<int>> profilesUnavailableCallback = null,
+                                                 Action<List<int>> profilesDeletedCallback = null,
                                                  Action<List<ModfileStub>> profileBuildsUpdatedCallback = null,
                                                  Action onSuccess = null,
                                                  Action<WebRequestError> onError = null)
@@ -226,6 +227,7 @@ namespace ModIO
             List<int> editedIds = new List<int>();
             List<int> modfileChangedIds = new List<int>();
             List<int> removedIds = new List<int>();
+            List<int> deletedIds = new List<int>();
 
             // Sort by event type
             foreach(ModEvent modEvent in modEvents)
@@ -250,6 +252,11 @@ namespace ModIO
                     case ModEventType.ModUnavailable:
                     {
                         removedIds.Add(modEvent.modId);
+                    }
+                    break;
+                    case ModEventType.ModDeleted:
+                    {
+                        deletedIds.Add(modEvent.modId);
                     }
                     break;
                 }
@@ -342,6 +349,20 @@ namespace ModIO
                 if(profilesUnavailableCallback != null)
                 {
                     profilesUnavailableCallback(removedIds);
+                }
+            }
+
+            if(deletedIds.Count > 0)
+            {
+                // TODO(@jackson): Check install state
+                foreach(int modId in deletedIds)
+                {
+                    CacheClient.DeleteMod(modId);
+                }
+
+                if(profilesDeletedCallback != null)
+                {
+                    profilesDeletedCallback(deletedIds);
                 }
             }
         }
