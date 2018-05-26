@@ -501,9 +501,9 @@ namespace ModIO
 
 
         // ---------[ AUTHENTICATION ]---------
-        public static void RequestSecurityCode(string emailAddress,
-                                               Action<APIMessage> successCallback,
-                                               Action<WebRequestError> errorCallback)
+        public static void SendSecurityCode(string emailAddress,
+                                            Action<APIMessage> successCallback,
+                                            Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/oauth/emailrequest";
             StringValueParameter[] valueFields = new StringValueParameter[]
@@ -530,9 +530,9 @@ namespace ModIO
         [System.Serializable]
         private struct AccessTokenObject { public string access_token; }
 
-        public static void RequestOAuthToken(string securityCode,
-                                             Action<string> successCallback,
-                                             Action<WebRequestError> errorCallback)
+        public static void GetOAuthToken(string securityCode,
+                                         Action<string> successCallback,
+                                         Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/oauth/emailexchange";
             StringValueParameter[] valueFields = new StringValueParameter[]

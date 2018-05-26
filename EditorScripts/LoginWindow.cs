@@ -93,9 +93,9 @@ namespace ModIO
                         {
                             securityCodeInput = "";
 
-                            APIClient.RequestSecurityCode(emailAddressInput,
-                                                          m => endRequestSendingAndInputCode(m.message, MessageType.Info),
-                                                          e => endRequestSendingAndInputEmail(ConvertErrorToHelpString(e), MessageType.Error));
+                            APIClient.SendSecurityCode(emailAddressInput,
+                                                       m => endRequestSendingAndInputCode(m.message, MessageType.Info),
+                                                       e => endRequestSendingAndInputEmail(ConvertErrorToHelpString(e), MessageType.Error));
                         }
                         else
                         {
@@ -125,9 +125,9 @@ namespace ModIO
                                                                e => endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error));
                             };
 
-                            APIClient.RequestOAuthToken(securityCodeInput,
-                                                        onTokenReceived,
-                                                        e => endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error));
+                            APIClient.GetOAuthToken(securityCodeInput,
+                                                    onTokenReceived,
+                                                    e => endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error));
                         }
                     }
                 }
