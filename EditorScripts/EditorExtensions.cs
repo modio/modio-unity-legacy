@@ -122,7 +122,7 @@ namespace ModIO
         {
             using (new EditorGUI.DisabledScope(!isEnabled))
             {
-                return GUILayout.Button(EditorIcons.UndoButton,
+                return GUILayout.Button(EditorImages.UndoButton,
                                         GUI.skin.label,
                                         buttonLayout);
             }
@@ -131,7 +131,7 @@ namespace ModIO
         {
             using (new EditorGUI.DisabledScope(!isEnabled))
             {
-                return GUILayout.Button(EditorIcons.ClearButton,
+                return GUILayout.Button(EditorImages.ClearButton,
                                         GUI.skin.label,
                                         buttonLayout);
             }

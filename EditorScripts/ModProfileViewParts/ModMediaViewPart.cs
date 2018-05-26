@@ -110,7 +110,7 @@ namespace ModIO
                 if(!String.IsNullOrEmpty(imageFileName)
                    && !String.IsNullOrEmpty(imageURL))
                 {
-                    this.textureCache[imageFileName] = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+                    this.textureCache[imageFileName] = ApplicationImages.LoadingPlaceholder;
 
                     Texture2D texture = CacheClient.ReadImageFile(imageURL);
 
@@ -286,7 +286,7 @@ namespace ModIO
             // - LoadOrDownload -
             else if(profile != null)
             {
-                this.textureCache.Add(imageFileName, UISettings.Instance.DownloadingPlaceholderImages.modLogo);
+                this.textureCache.Add(imageFileName, ApplicationImages.LoadingPlaceholder);
 
                 ModManager.GetModGalleryImage(profile,
                                               imageFileName,

@@ -67,7 +67,7 @@ namespace ModIO
             else if(profile != null)
             {
                 logoLocation = profile.logoLocator.GetSizeURL(LOGO_PREVIEW_SIZE);
-                logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+                logoTexture = ApplicationImages.LoadingPlaceholder;
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
@@ -338,7 +338,7 @@ namespace ModIO
                 logoProperty.FindPropertyRelative("isDirty").boolValue = false;
 
                 logoLocation = profile.logoLocator.GetSizeURL(LOGO_PREVIEW_SIZE);
-                logoTexture = UISettings.Instance.DownloadingPlaceholderImages.modLogo;
+                logoTexture = ApplicationImages.LoadingPlaceholder;
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
