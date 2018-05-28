@@ -2,6 +2,7 @@
 
 [ editor_icon-undo.png ]
 Undo by RareSloth from the Noun Project
+https://thenounproject.com/term/undo/218993
 
 [ editor_icon-clear.png ]
 clear by Icons Bazaar from the Noun Project
