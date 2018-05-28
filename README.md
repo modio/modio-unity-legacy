@@ -2,8 +2,12 @@
 Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
 ## Getting started
-
 If you are a game developer, first step is to add mod support to your Unity game. Once mod support is up and running, [create your games profile](https://mod.io/games/add) on mod.io, to get an API key and access to all [functionality mod.io offers](https://mod.io/setup). Our [getting started guide](https://apps.mod.io/guides/getting-started) is a good place to start if you are completely new to mod.io.
+
+## Dependencies
+The [mod.io](https://mod.io) Unity Plugin requires the functionality of two other open-source Unity plugins to run. These needs to be installed along-side the mod.io plugin under 'Assets/Plugins' in order to function correctly:
+* Json.Net for improved Json serialization. ([GitHub Repo](https://github.com/SaladLab/Json.Net.Unity3D) || [Unity Asset Store Page](https://assetstore.unity.com/packages/tools/input-management/json-net-for-unity-11347))
+* DotNetZip for Unity to zip and unzip transmitted files. ([GitHub Repo](https://github.com/r2d2rigo/dotnetzip-for-unity) - Copy the 'Binaries/Release' folder from the repository)
 
 ## Contributions Welcome
 Our Unity plugin is public and open source. Game developers are welcome to utilize it directly, to add support for mods in their games, or fork it for their games customized use. Want to make changes to our plugin? Submit a pull request with your recommended changes to be reviewed.
