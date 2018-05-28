@@ -11,4 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d3943110a9be405f9e80ab9b284574a, type: 3}
   m_Name: ApplicationImages [mod.io]
   m_EditorClassIdentifier: 
-  loadingPlaceholder: {fileID: 0}
+  loadingPlaceholder: {fileID: 2800000, guid: 4e384c613233c46069608efcd5635029, type: 3}
