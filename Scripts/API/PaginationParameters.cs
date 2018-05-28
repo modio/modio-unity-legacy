@@ -2,15 +2,18 @@ namespace ModIO.API
 {
     public class PaginationParameters
     {
+        // ---------[ CONSTANTS ]---------
         public const int LIMIT_MAX = 100;
 
-        public static readonly PaginationParameters Default = new PaginationParameters()
-        {
-            limit = LIMIT_MAX,
-            offset = 0,
-        };
-
+        // ---------[ FIELDS ]---------
+        /// <summary>
+        /// Maximum number of results returned.
+        /// </summary>
         public int limit;
+
+        /// <summary>
+        /// Number of results skipped over.
+        /// </summary>
         public int offset;
     }
 }

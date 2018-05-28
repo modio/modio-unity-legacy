@@ -57,12 +57,14 @@ namespace ModIO
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
             "Authorization",
+            "Accept-Language",
         };
 
         // ---------[ MEMBERS ]---------
         public static int gameId = GlobalSettings.GAME_ID;
         public static string gameAPIKey = GlobalSettings.GAME_APIKEY;
         public static string userAuthorizationToken = null;
+        public static string languageCode = "en";
 
         // ---------[ DEBUG ASSERTS ]---------
         private static bool AssertAuthorizationDetails(bool isUserTokenRequired)
@@ -99,10 +101,20 @@ namespace ModIO
         {
             APIClient.AssertAuthorizationDetails(false);
 
+            string paginationString;
+            if(pagination == null)
+            {
+                paginationString = string.Empty;
+            }
+            else
+            {
+                paginationString = ("&_limit=" + pagination.limit
+                                    + "&_offset" + pagination.offset);
+            }
+
             string queryURL = (endpointURL
                                + "?" + filterString
-                               + "&_limit=" + pagination.limit
-                               + "&_offset=" + pagination.offset);
+                               + paginationString);
 
             if(APIClient.userAuthorizationToken == null)
             {
@@ -110,11 +122,11 @@ namespace ModIO
             }
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
-
             if(APIClient.userAuthorizationToken != null)
             {
                 webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
             }
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -158,13 +170,24 @@ namespace ModIO
         {
             APIClient.AssertAuthorizationDetails(true);
 
+            string paginationString;
+            if(pagination == null)
+            {
+                paginationString = string.Empty;
+            }
+            else
+            {
+                paginationString = ("&_limit=" + pagination.limit
+                                    + "&_offset" + pagination.offset);
+            }
+
             string constructedURL = (endpointURL
                                      + "?" + filterString
-                                     + "&_limit=" + pagination.limit
-                                     + "&_offset=" + pagination.offset);
+                                     + paginationString);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -219,6 +242,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
             webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -288,6 +312,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -362,6 +387,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
             webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
@@ -583,8 +609,8 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              PaginationParameters.Default);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -623,7 +649,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                               "",
-                                                              PaginationParameters.Default);
+                                                              null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -647,7 +673,7 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId;
 
             UnityWebRequest webRequest = APIClient.GeneratePutRequest(endpointURL,
-                                                                   parameters.stringValues.ToArray());
+                                                                      parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -686,7 +712,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                               "",
-                                                              PaginationParameters.Default);
+                                                              null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -818,7 +844,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                               "",
-                                                              PaginationParameters.Default);
+                                                              null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1054,7 +1080,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                               "",
-                                                              PaginationParameters.Default);
+                                                              null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1110,7 +1136,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
                                                               "",
-                                                              PaginationParameters.Default);
+                                                              null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1140,7 +1166,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
                                                                    "",
-                                                                   PaginationParameters.Default);
+                                                                   null);
 
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
@@ -1177,7 +1203,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
                                                                    "",
-                                                                   PaginationParameters.Default);
+                                                                   null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
