@@ -362,7 +362,7 @@ namespace ModIO
                     {
                         EditorGUILayout.HelpBox("The Game's Profile is not yet loaded, and thus tags cannot be displayed. Please wait...", MessageType.Warning);
                     }
-                    else if(this.gameProfile.taggingOptions.Length == 0)
+                    else if(this.gameProfile.tagCategories.Length == 0)
                     {
                         EditorGUILayout.HelpBox("The developers of "
                                                 + this.gameProfile.name
@@ -376,7 +376,7 @@ namespace ModIO
                         bool isDirty = false;
 
                         ++EditorGUI.indentLevel;
-                            foreach(ModTagCategory tagCategory in this.gameProfile.taggingOptions)
+                            foreach(ModTagCategory tagCategory in this.gameProfile.tagCategories)
                             {
                                 if(!tagCategory.isHidden)
                                 {

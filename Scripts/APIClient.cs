@@ -589,7 +589,12 @@ namespace ModIO
 
 
         // ---------[ GAME ENDPOINTS ]---------
-        // Get All Games
+        /// <summary>
+        /// Get all games. Successful request will return an <see cref="ModIO.API.ResponseArray"/>
+        /// filled with <see cref="ModIO.GameProfile">.
+        /// We recommended reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a>
+        /// to return only the records you want.
+        /// </summary>
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<GameProfile>> successCallback,
                                        Action<WebRequestError> errorCallback)
@@ -597,13 +602,15 @@ namespace ModIO
             string endpointURL = API_URL + "/games";
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              filter.GenerateFilterString(),
-                                                              pagination);
+                                                                 filter.GenerateFilterString(),
+                                                                 pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Get GameProfile
+        /// <summary>
+        /// Get a game. Successful request will return a single Game Object.
+        /// </summary>
         public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
@@ -615,14 +622,21 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Edit GameProfile
+        /// <summary>
+        /// Update details for a game. If you want to update the icon, logo or header fields you
+        /// need to use the <see cref="ModIO.APIClient.AddGameMedia"> endpoint. Successful request
+        /// will return updated Game Object.
+        /// </summary>
+        /// <remark>
+        /// You can also edit your games profile on the mod.io website. This is the recommended approach.
+        /// </remark>
         public static void EditGame(EditGameParameters parameters,
                                     Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID;
 
             UnityWebRequest webRequest = APIClient.GeneratePutRequest(endpointURL,
-                                                                   parameters.stringValues.ToArray());
+                                                                      parameters.stringValues.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }

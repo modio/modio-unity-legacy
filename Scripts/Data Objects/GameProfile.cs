@@ -21,6 +21,38 @@ namespace ModIO
         public GameStatus status;
 
         /// <summary>
+        /// Name of the game.
+        /// </summary>
+        [JsonProperty("name")]
+        public string name;
+
+        /// <summary>
+        /// Subdomain for the game on mod.io.
+        /// </summary>
+        [JsonProperty("name_id")]
+        public string nameId;
+
+        /// <summary>
+        /// Summary of the game.
+        /// </summary>
+        [JsonProperty("summary")]
+        public string summary;
+
+        /// <summary>
+        /// A guide about creating and uploading mods for this game to mod.io (applicable if
+        /// modSubmissionPermission = GameModSubmissionPermission.ToolOnly).
+        /// </summary>
+        [JsonProperty("instructions")]
+        public string instructions;
+
+        /// <summary>
+        /// Link to a mod.io guide, your modding wiki or a page where modders can learn how to make
+        /// and submit mods to your games profile.
+        /// </summary>
+        [JsonProperty("instructions_url")]
+        public string instructionsURL;
+
+        /// <summary>
         /// Contains user data.
         /// </summary>
         [JsonProperty("submitted_by")]
@@ -43,6 +75,12 @@ namespace ModIO
         /// </summary>
         [JsonProperty("date_live")]
         public int dateLive;
+
+        /// <summary>
+        /// Word used to describe user-generated content (mods, items, addons etc).
+        /// </summary>
+        [JsonProperty("ugc_name")]
+        public string ugcName;
 
         /// <summary>
         /// Presentation style used on the mod.io website:
@@ -81,10 +119,11 @@ namespace ModIO
         public GameAPIPermissions apiPermissions;
 
         /// <summary>
-        /// Word used to describe user-generated content (mods, items, addons etc).
+        /// Allow developers to select if they flag their mods as containing mature content:
         /// </summary>
-        [JsonProperty("ugc_name")]
-        public string ugcName;
+        [JsonProperty("maturity_options")]
+        public GameModContentPermission contentPermission;
+
 
         /// <summary>
         /// Contains icon data.
@@ -105,36 +144,6 @@ namespace ModIO
         public HeaderImageLocator headerImageLocator;
 
         /// <summary>
-        /// Name of the game.
-        /// </summary>
-        [JsonProperty("name")]
-        public string name;
-
-        /// <summary>
-        /// Subdomain for the game on mod.io.
-        /// </summary>
-        [JsonProperty("name_id")]
-        public string nameId;
-
-        /// <summary>
-        /// Summary of the game.
-        /// </summary>
-        [JsonProperty("summary")]
-        public string summary;
-
-        /// <summary>
-        /// A guide about creating and uploading mods for this game to mod.io (applicable if submissionOption = 0).
-        /// </summary>
-        [JsonProperty("instructions")]
-        public string instructions;
-
-        /// <summary>
-        /// Link to a mod.io guide, your modding wiki or a page where modders can learn how to make and submit mods to your games profile.
-        /// </summary>
-        [JsonProperty("instructions_url")]
-        public string instructionsURL;
-
-        /// <summary>
         /// URL to the game's mod.io page.
         /// </summary>
         [JsonProperty("profile_url")]
@@ -144,7 +153,7 @@ namespace ModIO
         /// Groups of tags configured by the game developer, that mods can select.
         /// </summary>
         [JsonProperty("tag_options")]
-        public ModTagCategory[] taggingOptions;
+        public ModTagCategory[] tagCategories;
 
     }
 }
