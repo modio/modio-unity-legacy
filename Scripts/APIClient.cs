@@ -647,7 +647,7 @@ namespace ModIO
         /// <summary>
         /// Get all mods for the corresponding game. Successful request will return a
         /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModProfile"/>. We recommended
-        /// reading the <a href="https://docs.mod.io/#filtering"> filtering documentation</a> to
+        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
         /// return only the records you want.
         /// </summary>
         public static void GetAllMods(RequestFilter filter, PaginationParameters pagination,
@@ -742,7 +742,20 @@ namespace ModIO
 
 
         // ---------[ MODFILE ENDPOINTS ]---------
-        // Get All Modfiles
+        /// <summary>
+        /// Get all files that are published for the corresponding mod. Successful request will
+        /// return a <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.Modfile"/>. We
+        /// recommended reading the <a href="https://docs.mod.io/#filtering">filtering documentation
+        /// </a> to return only the records you want.
+        /// </summary>
+        /// <remark>
+        /// If the game requires mod downloads to be initiated via the API, the
+        /// <see cref="ModIO.ModfileLocator.binaryURL"/> returned will contain a verification hash.
+        /// This hash must be supplied to get the modfile, and will expire at the time contained in
+        /// <see cref="ModIO.ModfileLocator.dateExpires"/>. Saving and reusing the
+        /// <see cref="ModIO.ModfileLocator.binaryURL"/> won't work in this situation given its
+        /// dynamic nature.
+        /// </remark>
         public static void GetAllModfiles(int modId,
                                           RequestFilter filter, PaginationParameters pagination,
                                           Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
@@ -755,7 +768,17 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get Modfile
+
+        /// <summary>
+        /// Get a file. Successful request will return a single <see cref="ModIO.Modfile"/>.
+        /// <remark>
+        /// If the game requires mod downloads to be initiated via the API, the
+        /// <see cref="ModIO.ModfileLocator.binaryURL"/> returned will contain a verification hash.
+        /// This hash must be supplied to get the modfile, and will expire at the time contained in
+        /// <see cref="ModIO.ModfileLocator.dateExpires"/>. Saving and reusing the
+        /// <see cref="ModIO.ModfileLocator.binaryURL"/> won't work in this situation given its
+        /// dynamic nature.
+        /// </remark>
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -767,7 +790,13 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Modfile
+
+        /// <summary>
+        /// Upload a file for the corresponding mod. Successful request will return the newly
+        /// created <see cref="ModIO.Modfile"/>. Ensure that the release you are uploading is stable
+        /// and free from any critical issues. Files are scanned upon upload, any users who upload
+        /// malicious files will have their accounts closed promptly.
+        /// </summary>
         public static void AddModfile(int modId,
                                       AddModfileParameters parameters,
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
@@ -780,7 +809,12 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Edit Modfile
+
+        /// <summary>
+        /// Edit the details of a published file. If you want to update fields other than the
+        /// changelog, version and active status, you should add a new file instead. Successful
+        /// request will return updated <see cref="ModIO.Modfile"/>.
+        /// </summary>
         public static void EditModfile(int modId, int modfileId,
                                        EditModfileParameters parameters,
                                        Action<Modfile> successCallback, Action<WebRequestError> errorCallback)

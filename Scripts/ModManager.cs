@@ -1093,7 +1093,7 @@ namespace ModIO
             byte[] buildZipData = File.ReadAllBytes(binaryZipLocation);
 
             var parameters = new AddModfileParameters();
-            parameters.filedata = BinaryUpload.Create(buildFilename, buildZipData);
+            parameters.zippedBinaryData = BinaryUpload.Create(buildFilename, buildZipData);
             if(modfileValues.version.isDirty)
             {
                 parameters.version = modfileValues.version.value;
@@ -1104,7 +1104,7 @@ namespace ModIO
             }
             if(modfileValues.metadataBlob.isDirty)
             {
-                parameters.metadata_blob = modfileValues.metadataBlob.value;
+                parameters.metadataBlob = modfileValues.metadataBlob.value;
             }
 
             // - Generate Hash -
@@ -1113,7 +1113,7 @@ namespace ModIO
                 using (var stream = System.IO.File.OpenRead(binaryZipLocation))
                 {
                     var hash = md5.ComputeHash(stream);
-                    parameters.filehash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                    parameters.fileHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                 }
             }
 

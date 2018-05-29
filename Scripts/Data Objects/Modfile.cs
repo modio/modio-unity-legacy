@@ -18,6 +18,10 @@ namespace ModIO
         [JsonProperty("date_added")]
         public int dateAdded;
 
+        /// <summary>Filename including extension.</summary>
+        [JsonProperty("filename")]
+        public string fileName;
+
         /// <summary>Size of the file in bytes.</summary>
         [JsonProperty("filesize")]
         public int fileSize;
@@ -60,10 +64,6 @@ namespace ModIO
         /// <summary>VirusTotal proprietary hash to view the scan results.</summary>
         [JsonProperty("virustotal_hash")]
         public string virusScanHash;
-
-        /// <summary>Filename including extension.</summary>
-        [JsonProperty("filename")]
-        public string fileName;
 
         /// <summary>Contains download data.</summary>
         [JsonProperty("download")]

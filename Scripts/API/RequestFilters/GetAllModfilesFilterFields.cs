@@ -15,11 +15,11 @@ namespace ModIO.API
         // (integer) Was a virus detected:
         public const string virusPositive = "virus_positive";
         // (integer) Size of the file in bytes.
-        public const string filesize = "filesize";
+        public const string fileSize = "filesize";
         // (string)  MD5 hash of the file.
-        public const string filehash = "filehash";
+        public const string fileHash = "filehash";
         // (string)  Filename including extension.
-        public const string filename = "filename";
+        public const string fileName = "filename";
         // (string)  Release version this file represents.
         public const string version = "version";
         // (string)  Changelog for the file.
