@@ -11,13 +11,15 @@ namespace ModIO.API
         // (integer) Visibility of the mod (only game admins can filter by this field, see status and visibility for details):
         public const string visible = "visible";
         // (integer) Unique id of the user who has ownership of the mod.
-        public const string submittedBy = "submitted_by";
+        public const string submittedByUserId = "submitted_by";
         // (integer) Unix timestamp of date mod was registered.
         public const string dateAdded = "date_added";
         // (integer) Unix timestamp of date mod was updated.
         public const string dateUpdated = "date_updated";
         // (integer) Unix timestamp of date mod was set live.
         public const string dateLive = "date_live";
+        // (integer) Maturity option(s) set by the mod developer:
+        public const string contentWarnings = "maturity_option";
         // (string)  Name of the mod.
         public const string name = "name";
         // (string)  Path for the mod on mod.io. For example: https://gamename.mod.io/mod-name-id-here
@@ -27,9 +29,9 @@ namespace ModIO.API
         // (string)  Detailed description of the mod which allows HTML.
         public const string description = "description";
         // (string)  Official homepage of the mod.
-        public const string homepage = "homepage";
+        public const string homepageURL = "homepage_url";
         // (integer) Unique id of the file that is the current active release.
-        public const string modfile = "modfile";
+        public const string modfileId = "modfile";
         // (string)  Metadata stored by the game developer.
         public const string metadataBlob = "metadata_blob";
         // (string)  Colon-separated values representing the key-value pairs you want to filter the results by. If you supply more than one key-pair, separate the pairs by a comma. Will only filter by an exact key-pair match.

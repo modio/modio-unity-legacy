@@ -18,7 +18,8 @@ namespace ModIO
 
         /// <summary>
         /// Status of the mod.
-        /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
+        /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
+        /// Documentation</a>
         /// </summary>
         /// <remark>
         /// This field is controlled by the game team, rather than the mod team.
@@ -28,7 +29,8 @@ namespace ModIO
 
         /// <summary>
         /// Visibility of the mod.
-        /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility Documentation</a>
+        /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
+        /// Documentation</a>
         /// </summary>
         /// <remark>
         /// This field is controlled by the mod team.
@@ -52,6 +54,13 @@ namespace ModIO
         [JsonProperty("date_live")]
         public int dateLive;
 
+        /// <summary>
+        /// Maturity options flagged by the mod developer, this is only relevant if the parent game
+        /// allows mods to be labelled as mature.
+        /// </summary>
+        [JsonProperty("maturity_option")]
+        public ModContentWarnings contentWarnings;
+
         /// <summary> Contains logo data. </summary>
         [JsonProperty("logo")]
         public LogoImageLocator logoLocator;
@@ -64,7 +73,8 @@ namespace ModIO
         [JsonProperty("name")]
         public string name;
 
-        /// <summary> Path for the mod on mod.io.
+        /// <summary>
+        /// Path for the mod on mod.io.
         /// For example: https://gamename.mod.io/mod-name-id-here
         /// </summary>
         [JsonProperty("name_id")]
@@ -78,9 +88,8 @@ namespace ModIO
         [JsonProperty("description")]
         public string description;
 
-        /// <summary> Metadata stored by the game developer.
-        /// Metadata can also be stored as searchable key value pairs,
-        /// and to individual mod files.
+        /// <summary>
+        /// Metadata stored by the game developer.
         /// </summary>
         [JsonProperty("metadata_blob")]
         public string metadataBlob;

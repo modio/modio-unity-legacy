@@ -591,9 +591,9 @@ namespace ModIO
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>
         /// Get all games. Successful request will return an <see cref="ModIO.API.ResponseArray"/>
-        /// filled with <see cref="ModIO.GameProfile">.
-        /// We recommended reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a>
-        /// to return only the records you want.
+        /// of <see cref="ModIO.GameProfile"/>. We recommended reading the
+        /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
+        /// records you want.
         /// </summary>
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<GameProfile>> successCallback,
@@ -609,7 +609,7 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a game. Successful request will return a single Game Object.
+        /// Get a game. Successful request will return a single <see cref="ModIO.GameProfile"/>.
         /// </summary>
         public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -624,11 +624,12 @@ namespace ModIO
 
         /// <summary>
         /// Update details for a game. If you want to update the icon, logo or header fields you
-        /// need to use the <see cref="ModIO.APIClient.AddGameMedia"> endpoint. Successful request
-        /// will return updated Game Object.
+        /// need to use the <see cref="ModIO.APIClient.AddGameMedia"/> endpoint. Successful request
+        /// will return updated <see cref="ModIO.GameProfile"/>.
         /// </summary>
         /// <remark>
-        /// You can also edit your games profile on the mod.io website. This is the recommended approach.
+        /// You can also edit your games profile on the mod.io website. This is the recommended
+        /// approach.
         /// </remark>
         public static void EditGame(EditGameParameters parameters,
                                     Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -643,7 +644,12 @@ namespace ModIO
 
 
         // ---------[ MOD ENDPOINTS ]---------
-        // Get All Mods
+        /// <summary>
+        /// Get all mods for the corresponding game. Successful request will return a
+        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModProfile"/>. We recommended
+        /// reading the <a href="https://docs.mod.io/#filtering"> filtering documentation</a> to
+        /// return only the records you want.
+        /// </summary>
         public static void GetAllMods(RequestFilter filter, PaginationParameters pagination,
                                       Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -655,7 +661,10 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get Mod
+
+        /// <summary>
+        /// Get a mod. Successful request will return a single <see cref="ModIO.ModProfile"/>.
+        /// </summary>
         public static void GetMod(int modId,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -667,7 +676,19 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Mod
+
+        /// <summary>
+        /// Add a mod. Successful request will return the newly created
+        /// <see cref="ModIO.ModProfile"/>. By publishing your mod on mod.io, you are agreeing to
+        /// the mod.io distribution agreement.
+        /// </summary>
+        /// <remark>
+        /// By default new mods are <see cref="ModIO.ModStatus.NotAccepted"/> and
+        /// <see cref="ModIO.ModVisibility.Public"/>. They can only be
+        /// <see cref="ModIO.ModStatus.Accepted"/> and made available via the API once a
+        /// <see cref="ModIO.Modfile"/> has been uploaded. Media, Metadata Key Value Pairs and
+        /// Dependencies can also be added after a mod profile is created.
+        /// </remark>
         public static void AddMod(AddModParameters parameters,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -679,7 +700,13 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Edit Mod
+
+        /// <summary>
+        /// Edit details for a mod. If you want to update the logo or media associated with this
+        /// mod, you need to use <see cref="ModIO.APIClient.AddModMedia"/>. The same applies to
+        /// Mod Files, Metadata Key Value Pairs and Dependencies which are all managed via other
+        /// endpoints. Successful request will return the updated <see cref="ModIO.ModProfile"/>.
+        /// </summary>
         public static void EditMod(int modId,
                                    EditModParameters parameters,
                                    Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -691,7 +718,17 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod
+
+        /// <summary>
+        /// Delete a mod profile. Successful request will return 204 No Content and create a
+        /// <see cref="ModIO.ModEvent"/> with the type
+        /// <see cref="ModIO.ModEventType.ModUnavailable"/>.
+        /// </summary>
+        /// <remark>
+        /// This will close the mod profile which means it cannot be viewed or retrieved via API
+        /// requests but will still exist in-case you choose to restore it at a later date. A mod
+        /// can be permanently deleted via the website interface.
+        /// </remark>
         public static void DeleteMod(int modId,
                                      Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {

@@ -677,11 +677,11 @@ namespace ModIO
                                                       File.ReadAllBytes(modEdits.logoLocator.value.url));
             if(modEdits.visibility.isDirty)
             {
-                parameters.visible = (int)modEdits.visibility.value;
+                parameters.visibility = modEdits.visibility.value;
             }
             if(modEdits.nameId.isDirty)
             {
-                parameters.name_id = modEdits.nameId.value;
+                parameters.nameId = modEdits.nameId.value;
             }
             if(modEdits.description.isDirty)
             {
@@ -689,15 +689,15 @@ namespace ModIO
             }
             if(modEdits.homepageURL.isDirty)
             {
-                parameters.name_id = modEdits.homepageURL.value;
+                parameters.nameId = modEdits.homepageURL.value;
             }
             if(modEdits.metadataBlob.isDirty)
             {
-                parameters.metadata_blob = modEdits.metadataBlob.value;
+                parameters.metadataBlob = modEdits.metadataBlob.value;
             }
             if(modEdits.nameId.isDirty)
             {
-                parameters.name_id = modEdits.nameId.value;
+                parameters.nameId = modEdits.nameId.value;
             }
             if(modEdits.tags.isDirty)
             {
@@ -741,11 +741,11 @@ namespace ModIO
                     var parameters = new EditModParameters();
                     if(modEdits.status.isDirty)
                     {
-                        parameters.status = (int)modEdits.status.value;
+                        parameters.status = modEdits.status.value;
                     }
                     if(modEdits.visibility.isDirty)
                     {
-                        parameters.visible = (int)modEdits.visibility.value;
+                        parameters.visibility = modEdits.visibility.value;
                     }
                     if(modEdits.name.isDirty)
                     {
@@ -753,7 +753,7 @@ namespace ModIO
                     }
                     if(modEdits.nameId.isDirty)
                     {
-                        parameters.name_id = modEdits.nameId.value;
+                        parameters.nameId = modEdits.nameId.value;
                     }
                     if(modEdits.summary.isDirty)
                     {
@@ -765,11 +765,11 @@ namespace ModIO
                     }
                     if(modEdits.homepageURL.isDirty)
                     {
-                        parameters.homepage = modEdits.homepageURL.value;
+                        parameters.homepageURL = modEdits.homepageURL.value;
                     }
                     if(modEdits.metadataBlob.isDirty)
                     {
-                        parameters.metadata_blob = modEdits.metadataBlob.value;
+                        parameters.metadataBlob = modEdits.metadataBlob.value;
                     }
 
                     APIClient.EditMod(modId, parameters,
