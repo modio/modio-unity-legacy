@@ -926,7 +926,13 @@ namespace ModIO
 
 
         // ---------[ EVENT ENDPOINTS ]---------
-        // Get Mod Events
+        /// <summary>
+        /// Get the event log for a mod, showing changes made sorted by latest event first.
+        /// Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
+        /// <see cref="ModIO.ModEvent"/>. We recommended reading the
+        /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
+        /// records you want.
+        /// </summary>
         public static void GetModEvents(int modId,
                                         RequestFilter filter, PaginationParameters pagination,
                                         Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
@@ -939,7 +945,16 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get All Mod Events
+
+        /// <summary>Get all mods events for the corresponding game sorted by latest event first.
+        /// Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
+        /// <see cref="ModIO.ModEvent"/>.
+        /// <remark>
+        /// We recommend you poll this endpoint to keep mods up-to-date. If polling this endpoint
+        /// for updates you should store the id or date_updated of the latest event, and on
+        /// subsequent requests use that information in the filter, to return only newer events to
+        /// process.
+        /// </remark>
         public static void GetAllModEvents(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
