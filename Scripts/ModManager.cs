@@ -956,7 +956,7 @@ namespace ModIO
                     submissionActions.Add(() =>
                     {
                         var parameters = new DeleteModTagsParameters();
-                        parameters.tags = removedTags.ToArray();
+                        parameters.tagNames = removedTags.ToArray();
                         APIClient.DeleteModTags(profile.id, parameters,
                                              doNextSubmissionAction, modSubmissionFailed);
                     });
@@ -966,7 +966,7 @@ namespace ModIO
                     submissionActions.Add(() =>
                     {
                         var parameters = new AddModTagsParameters();
-                        parameters.tags = addedTags.ToArray();
+                        parameters.tagNames = addedTags.ToArray();
                         APIClient.AddModTags(profile.id, parameters,
                                           doNextSubmissionAction, modSubmissionFailed);
                     });

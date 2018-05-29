@@ -969,7 +969,10 @@ namespace ModIO
 
 
         // ---------[ TAG ENDPOINTS ]---------
-        // Get All Game Tag Options
+        /// <summary>
+        /// Get all tags for the corresponding game, that can be applied to any of its mods.
+        /// Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
+        /// <see cref="ModIO.ModTagCategory"/>.
         public static void GetAllGameTagOptions(Action<ResponseArray<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/tags";
@@ -981,7 +984,21 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Add Game Tag Option
+        /// <summary>
+        /// Add tags which mods can apply to their profiles. Successful request will return an
+        /// <see cref="ModIO.APIMessage"/>. Tagging is a critical feature that powers the searching
+        /// and filtering of mods for your game, as well as allowing you to control how mods are
+        /// installed and played. For example you might enforce mods to be a particular type (map,
+        /// model, script, save, effects, blueprint), which dictates how you install it. You may use
+        /// tags to specify what the mod replaces (building, prop, car, boat, character). Or perhaps
+        /// the tags describe the theme of the mod (fun, scenic, realism). The implementation is up
+        /// to you, but the more detail you support the better filtering and searching becomes. If
+        /// you need to store more advanced information, you can also use
+        /// <see cref="ModIO.ModProfile.metadataKVPs"/>.
+        /// </summary>
+        /// <remark>
+        /// You can also manage tags via the mod.io web interface. This is the recommended approach.
+        /// </remark>
         public static void AddGameTagOption(AddGameTagOptionParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -994,7 +1011,14 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Delete Game Tag Option
+        /// <summary>
+        /// Delete an entire group of tags or individual tags. Successful request will return
+        /// 204 No Content.
+        /// </summary>
+        /// <remark>
+        /// You can also manage tags by editing your games profile via the mod.io web interface.
+        /// This is the recommended approach.
+        /// </remark>
         public static void DeleteGameTagOption(DeleteGameTagOptionParameters parameters,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1006,10 +1030,15 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Get All Mod Tags
-        public static void GetAllModTags(int modId,
-                                         RequestFilter filter, PaginationParameters pagination,
-                                         Action<ResponseArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
+        /// <summary>
+        /// Get all tags for the corresponding mod. Successful request will return a
+        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModTag"/>. We recommended
+        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
+        /// return only the records you want.
+        /// </summary>
+        public static void GetModTags(int modId,
+                                      RequestFilter filter, PaginationParameters pagination,
+                                      Action<ResponseArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/tags";
 
@@ -1019,7 +1048,12 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Mod Tags
+
+        /// <summary>
+        /// Add tags to a mod's profile. You can only add tags allowed by the parent game, which are
+        /// listed under <see cref="ModIO.GameProfile.tagCategories"/>. Successful request will
+        /// return an <see cref="ModIO.APIMessage"/>.
+        /// </summary>
         public static void AddModTags(int modId, AddModTagsParameters parameters,
                                       Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1031,7 +1065,11 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod Tags
+
+        /// <summary>
+        /// Delete tags from a mod's profile. Deleting tags is identical to adding tags except the
+        /// request method is DELETE instead of POST. Successful request will return 204 No Content.
+        /// </summary>
         public static void DeleteModTags(int modId,
                                          DeleteModTagsParameters parameters,
                                          Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)

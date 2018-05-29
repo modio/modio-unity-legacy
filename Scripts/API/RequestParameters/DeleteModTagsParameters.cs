@@ -4,19 +4,9 @@ namespace ModIO.API
     {
         // ---------[ FIELDS ]---------
         // An array of tags to delete.
-        public string[] tags
+        public string[] tagNames
         {
-            set
-            {
-                this.SetStringArrayValue("tags[]", value);
-            }
-        }
-
-        // ---------[ CONSTRUCTOR ]---------
-        public DeleteModTagsParameters() {}
-        public DeleteModTagsParameters(string[] tagsValue)
-        {
-            this.tags = tagsValue;
+            set { this.SetStringArrayValue("tags[]", value); }
         }
     }
 }

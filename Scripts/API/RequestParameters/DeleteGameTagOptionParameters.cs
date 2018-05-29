@@ -11,7 +11,9 @@ namespace ModIO.API
                 this.SetStringValue("name", value);
             }
         }
-        // Array of strings representing the tag options to delete. An empty array will delete the entire group. For example:
+
+        // Array of strings representing the tag options to delete. An empty array will delete the
+        // entire group.
         public string[] tags
         {
             set

@@ -34,7 +34,8 @@ namespace ModIO
         public int dateAdded;
 
         /// <summary>
-        /// Type of event was 'MODFILE_CHANGED', 'MOD_AVAILABLE', 'MOD_UNAVAILABLE', 'MOD_EDITED', 'MOD_DELETED'.
+        /// Type of event was 'MODFILE_CHANGED', 'MOD_AVAILABLE', 'MOD_UNAVAILABLE', 'MOD_EDITED',
+        /// 'MOD_DELETED'.
         /// </summary>
         [JsonProperty("mod_event_type")]
         public ModEventType eventType;
