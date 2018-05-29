@@ -829,7 +829,13 @@ namespace ModIO
 
 
         // ---------[ MEDIA ENDPOINTS ]---------
-        // Add GameProfile Media
+        /// <summary>
+        /// Upload new media to a game. Successful request will return an
+        /// <see cref="ModIO.APIMessage"/>.
+        /// <remark>
+        /// You can also add media to your games profile on the mod.io website. This is the
+        /// recommended approach.
+        /// </remark>
         public static void AddGameMedia(AddGameMediaParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -841,7 +847,11 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Mod Media
+
+        /// <summary>
+        /// This endpoint is very flexible and will add any images posted to the mods gallery
+        /// regardless of their body name providing they are a valid image. Successful request will
+        /// return an <see cref="ModIO.APIMessage"/>.
         public static void AddModMedia(int modId,
                                        AddModMediaParameters parameters,
                                        Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -854,17 +864,21 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod Media
+
+        /// <summary>
+        /// Delete images, sketchfab or youtube links from a mod profile. Successful request will
+        /// return 204 No Content.
+        /// </summary>
         public static void DeleteModMedia(int modId,
                                           DeleteModMediaParameters parameters,
-                                          Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                          Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/media";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
                                                                          parameters.stringValues.ToArray());
 
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+            APIClient.SendRequest<string>(webRequest, (o) => successCallback(), errorCallback);
         }
 
 

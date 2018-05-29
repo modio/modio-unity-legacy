@@ -890,7 +890,7 @@ namespace ModIO
                             var imageGalleryUpload = BinaryUpload.Create("images.zip",
                                                                          File.ReadAllBytes(galleryZipLocation));
 
-                            addMediaParameters.images = imageGalleryUpload;
+                            addMediaParameters.galleryImages = imageGalleryUpload;
                         }
                         catch(Exception e)
                         {
@@ -921,8 +921,8 @@ namespace ModIO
                     submissionActions.Add(() =>
                     {
                         APIClient.AddModMedia(profile.id,
-                                           addMediaParameters,
-                                           doNextSubmissionAction, modSubmissionFailed);
+                                              addMediaParameters,
+                                              doNextSubmissionAction, modSubmissionFailed);
                     });
                 }
                 if(deleteMediaParameters.stringValues.Count > 0)
@@ -930,8 +930,9 @@ namespace ModIO
                     submissionActions.Add(() =>
                     {
                         APIClient.DeleteModMedia(profile.id,
-                                              deleteMediaParameters,
-                                              doNextSubmissionAction, modSubmissionFailed);
+                                                 deleteMediaParameters,
+                                                 () => doNextSubmissionAction(null),
+                                                 modSubmissionFailed);
                     });
                 }
             }
