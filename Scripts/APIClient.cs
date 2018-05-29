@@ -878,13 +878,22 @@ namespace ModIO
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
                                                                          parameters.stringValues.ToArray());
 
-            APIClient.SendRequest<string>(webRequest, (o) => successCallback(), errorCallback);
+            APIClient.SendRequest<object>(webRequest, (o) => successCallback(), errorCallback);
         }
 
 
         // ---------[ SUBSCRIBE ENDPOINTS ]---------
+        /// <summary>
+        /// Subscribe the authenticated user to a corresponding mod. No body parameters are required
+        /// for this action. Successful request will return the <see cref="ModIO.ModProfile"/> of
+        /// the newly subscribed mod.
+        /// </summary>
+        /// <remark>
+        /// Users can subscribe to mods via the mod.io web interface. Thus we recommend you poll
+        /// <see cref="ModIO.APIClient.GetUserEvents"/> to keep a user's mods collection up to date.
+        /// </remark>
         public static void SubscribeToMod(int modId,
-                                          Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                          Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/subscribe";
 
@@ -895,15 +904,24 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
+
+        /// <summary>
+        /// Unsubscribe the authenticated user from the corresponding mod. No body parameters are
+        /// required for this action. Successful request will return 204 No Content.
+        /// </summary>
+        /// <remark>
+        /// Users can unsubscribe from mods via the mod.io web interface. Thus we recommend you poll
+        /// <see cref="ModIO.APIClient.GetUserEvents"/> to keep a user's mods collection up to date.
+        /// </remark>
         public static void UnsubscribeFromMod(int modId,
-                                              Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                              Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/subscribe";
 
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
                                                                          null);
 
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+            APIClient.SendRequest<object>(webRequest, (o) => successCallback(), errorCallback);
         }
 
 
