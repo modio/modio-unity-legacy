@@ -1084,7 +1084,14 @@ namespace ModIO
 
 
         // ---------[ RATING ENDPOINTS ]---------
-        // Add Mod Rating
+        /// <summary>
+        /// Submit a positive or negative rating for a mod. Each user can supply only one rating for
+        /// a mod, subsequent ratings will override the old value. Successful request will return an
+        /// <see cref="ModIO.APIMessage"/>.
+        /// <remark>
+        /// You can order mods by their rating, and view their rating in the
+        /// <see cref="ModIO.ModProfile"/>.
+        /// </remark>
         public static void AddModRating(int modId, AddModRatingParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1099,7 +1106,13 @@ namespace ModIO
 
 
         // ---------[ METADATA ENDPOINTS ]---------
-        // Get All Mod KVP Metadata
+        /// <summary>
+        /// Get all metadata stored by the game developer for this mod as searchable key value
+        /// pairs. Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
+        /// <see cref="ModIO.MetadataKVP"/>.
+        /// <remark>
+        /// Metadata can also be stored to <see cref="ModIO.ModProfile.metadataBlob"/>.
+        /// </remark>
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
                                                 Action<ResponseArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
@@ -1112,7 +1125,21 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Mod KVP Metadata
+
+        /// <summary>
+        /// Add metadata for this mod as searchable key value pairs. Metadata is useful to define
+        /// how a mod works, or other information you need to display and manage the mod. Successful
+        /// request will return an <see cref="ModIO.APIMessage"/>.
+        /// </summary>
+        /// <example>
+        /// A mod might change gravity and the rate of fire of weapons, you could define these
+        /// properties as key value pairs.
+        /// </example>
+        /// <remark>
+        /// We recommend the mod upload tool you create defines and submits metadata behind the
+        /// scenes, because if these settings affect gameplay, invalid information may cause
+        /// problems.
+        /// </remark>
         public static void AddModKVPMetadata(int modId, AddModKVPMetadataParameters parameters,
                                              Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1124,7 +1151,11 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod KVP Metadata
+
+        /// <summary>
+        /// Delete key value pairs metadata defined for this mod. Successful request will return
+        /// 204 No Content.
+        /// </summary>
         public static void DeleteModKVPMetadata(int modId, DeleteModKVPMetadataParameters parameters,
                                                 Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {

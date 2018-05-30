@@ -4,14 +4,9 @@ namespace ModIO.API
     {
         // ---------[ FIELDS ]---------
         /// <summary>
-        /// [REQUIRED] Array containing one or more key value pairs to
-        /// delete where the the key and value are separated by a
-        /// colon ':'.
+        /// [REQUIRED] Array containing one or more metadata keys to be removed from the
+        /// <see cref="ModIO.ModProfile"/>.
         /// </summary>
-        /// <remark>
-        /// If an array value contains only the key and no colon ':',
-        /// all metadata with that key will be removed.
-        /// </remark>
         public string[] metadataKeys
         {
             set
