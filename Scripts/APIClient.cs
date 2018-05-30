@@ -1208,7 +1208,12 @@ namespace ModIO
 
 
         // ---------[ TEAM ENDPOINTS ]---------
-        // Get All Mod Team Members
+        /// <summary>
+        /// Get all users that are part of a mod team. Successful request will return a
+        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModTeamMember"/>. We
+        /// recommend reading the <a href="https://docs.mod.io/#filtering">filtering documentation
+        /// </a> to return only the records you want.
+        /// </summary>
         public static void GetAllModTeamMembers(int modId,
                                                 RequestFilter filter, PaginationParameters pagination,
                                                 Action<ResponseArray<ModTeamMember>> successCallback, Action<WebRequestError> errorCallback)
@@ -1221,20 +1226,28 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Mod Team Member
+
+        /// <summary>
+        /// Add a user to a mod team. Successful request will return an
+        /// <see cref="ModIO.APIMessage"/> and fire a
+        /// <see cref="ModIO.ModEventType.ModTeamChanged"/> <see cref="ModIO.ModEvent"/>.
+        /// </summary>
         public static void AddModTeamMember(int modId, AddModTeamMemberParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + GlobalSettings.GAME_ID + "/mods/" + modId + "/team";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                    parameters.stringValues.ToArray(),
-                                                                    parameters.binaryData.ToArray());
+                                                                       parameters.stringValues.ToArray(),
+                                                                       parameters.binaryData.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Update Mod Team Member
-        // NOTE(@jackson): Untested
+
+        /// <summary>
+        /// Update a mod team members details. Successful request will return an
+        /// <see cref="ModIO.APIMessage"/>.
+        /// </summary>
         public static void UpdateModTeamMember(int modId, int teamMemberId,
                                                UpdateModTeamMemberParameters parameters,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1246,7 +1259,11 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod Team Member
+
+        /// <summary>
+        /// Delete a user from a mod team. This will revoke their access rights if they are not the
+        /// original creator of the resource. Successful request will return 204 No Content and fire
+        /// a <see cref="ModIO.ModEventType.ModTeamChanged"/> <see cref="ModIO.ModEvent"/>.
         public static void DeleteModTeamMember(int modId, int teamMemberId,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {

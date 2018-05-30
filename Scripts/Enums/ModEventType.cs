@@ -8,5 +8,6 @@ namespace ModIO
         ModEdited,
         ModfileChanged,
         ModDeleted,
+        ModTeamChanged,
     }
 }

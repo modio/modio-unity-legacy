@@ -9,10 +9,10 @@ namespace ModIO.API
         // (string)  Username of the user.
         public const string username = "username";
         // (integer) Level of permission the user has:
-        public const string level = "level";
+        public const string accessLevel = "level";
         // (integer) Unix timestamp of the date the user was added to the team.
         public const string dateAdded = "date_added";
         // (string)  Custom title given to the user in this team.
-        public const string position = "position";
+        public const string title = "position";
     }
 }
