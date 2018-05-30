@@ -1317,7 +1317,14 @@ namespace ModIO
 
 
         // ---------[ USER ENDPOINTS ]---------
-        // Get Resource Owner
+        /// <summary>
+        /// Get the user that is the original submitter of a resource. Successful request will
+        /// return a single <see cref="ModIO.UserProfile"/>.
+        /// </summary>
+        /// <remark>
+        /// Mods and games can be managed by teams of users, for the most accurate information you
+        /// should use the Team endpoints.
+        /// </remark>
         public static void GetResourceOwner(APIResourceType resourceType, int resourceID,
                                             Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1334,7 +1341,13 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get All Users
+
+        /// <summary>
+        /// Get all users registered on mod.io. Successful request will return a
+        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.UserProfile"/>. We recommend
+        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
+        /// return only the records you want.
+        /// </summary>
         public static void GetAllUsers(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1346,7 +1359,10 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get User
+
+        /// <summary>
+        /// Get a user. Successful request will return a single <see cref="ModIO.UserProfile"/>.
+        /// </summary>
         public static void GetUser(int userID,
                                    Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1377,31 +1393,43 @@ namespace ModIO
 
 
         // ---------[ ME ENDPOINTS ]---------
-        // Get Authenticated User
+        /// <summary>
+        /// Get the authenticated user details. Successful request will return a single
+        /// <see cref="ModIO.UserProfile"/>.
+        /// </summary>
         public static void GetAuthenticatedUser(Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me";
 
-            UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
-                                                                   "",
-                                                                   null);
-
+            UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL, "", null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get User Subscriptions
+
+        /// <summary>
+        /// Get all mod's the authenticated user is subscribed to. Successful request will return a
+        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModProfile"/>. We recommend
+        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
+        /// return only the records you want.
+        /// </summary>
         public static void GetUserSubscriptions(RequestFilter filter, PaginationParameters pagination,
                                                 Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/subscribed";
 
             UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
-                                                                   filter.GenerateFilterString(),
-                                                                   pagination);
+                                                                      filter.GenerateFilterString(),
+                                                                      pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get User Events
+
+        /// <summary>
+        /// Get events that have been fired specific to the user. Successful request will return a
+        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.UserEvent"/>. We recommend
+        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
+        /// return only the records you want.
+        /// </summary>
         public static void GetUserEvents(RequestFilter filter, PaginationParameters pagination,
                                          Action<ResponseArray<UserEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1414,18 +1442,27 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // Get User Games
+        /// <summary>
+        /// Get all games the authenticated user added or is a team member of. Successful request
+        /// will return a <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.GameProfile"/>.
+        /// We recommend reading the <a href="https://docs.mod.io/#filtering">filtering
+        /// documentation</a> to return only the records you want.
+        /// </summary>
         public static void GetUserGames(Action<ResponseArray<GameProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/games";
 
-            UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
-                                                                   "",
-                                                                   null);
+            UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL, "", null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get User Mods
+
+        /// <summary>
+        /// Get all mods the authenticated user added or is a team member of. Successful request
+        /// will return a <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModProfile"/>.
+        /// We recommended reading the <a href="https://docs.mod.io/#filtering">filtering
+        /// documentation</a> to return only the records you want.
+        /// </summary>
         public static void GetUserMods(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1437,14 +1474,20 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get User Files
-        public static void GetUserModfiles(PaginationParameters pagination,
+
+        /// <summary>
+        /// Get all modfiles the authenticated user uploaded. Successful request will return a
+        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.Modfile"/>. We recommend
+        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
+        /// return only the records you want.
+        /// </summary>
+        public static void GetUserModfiles(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/files";
 
             UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
-                                                                      "",
+                                                                      filter.GenerateFilterString(),
                                                                       pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);

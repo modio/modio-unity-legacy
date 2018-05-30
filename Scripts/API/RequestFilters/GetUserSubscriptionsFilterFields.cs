@@ -7,7 +7,7 @@ namespace ModIO.API
         // (integer) Unique id of the parent game.
         public const string gameId = "game_id";
         // (integer) Unique id of the user who has ownership of the mod.
-        public const string submittedBy = "submitted_by";
+        public const string submittedByUserId = "submitted_by";
         // (integer) Unix timestamp of date mod was registered.
         public const string dateAdded = "date_added";
         // (integer) Unix timestamp of date mod was updated.
@@ -23,11 +23,11 @@ namespace ModIO.API
         // (string)  Detailed description of the mod which allows HTML.
         public const string description = "description";
         // (string)  Official homepage of the mod.
-        public const string homepage = "homepage";
+        public const string homepageURL = "homepage_url";
         // (string)  Metadata stored by the game developer.
         public const string metadataBlob = "metadata_blob";
         // (string)  Comma-separated values representing the tags you want to filter the results by. Only tags that are supported by the parent game can be applied. To determine what tags are eligible, see the tags values within tag_options column on the parent Game Object.
-        public const string tags = "tags";
+        public const string tagNames = "tags";
         // (string)  Sort results by most downloads using _sort filter parameter, value should be downloads for descending or -downloads for ascending results.
         public const string downloads = "downloads";
         // (string)  Sort results by popularity using _sort filter, value should be popular for descending or -popular for ascending results.

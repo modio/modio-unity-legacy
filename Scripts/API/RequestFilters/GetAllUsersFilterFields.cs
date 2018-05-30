@@ -13,6 +13,6 @@ namespace ModIO.API
         // (string)  Timezone of the user, format is country/city.
         public const string timezone = "timezone";
         // (string)  2-character representation of language.
-        public const string language = "language";
+        public const string languageCode = "language";
     }
 }
