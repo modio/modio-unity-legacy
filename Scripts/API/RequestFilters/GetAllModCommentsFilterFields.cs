@@ -7,7 +7,7 @@ namespace ModIO.API
         // (integer) Unique id of the mod.
         public const string modId = "mod_id";
         // (integer) Unique id of the user who posted the comment.
-        public const string submittedBy = "submitted_by";
+        public const string submittedByUserId = "submitted_by";
         // (integer) Unix timestamp of date comment was posted.
         public const string dateAdded = "date_added";
         // (integer) Id of the parent comment this comment is replying to (can be 0 if the comment is not a reply).
