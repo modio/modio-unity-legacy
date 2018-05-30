@@ -1,119 +1,10 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using UnityEngine;
+
+using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    [Serializable]
-    public struct TimeStamp : IComparable<TimeStamp>, IEquatable<TimeStamp>
-    {
-        // --- CONSTS ---
-        private static readonly DateTime UNIX_EPOCH = new DateTime(1970,1,1,0,0,0,0,System.DateTimeKind.Utc);
-
-        // --- CREATION FUNCTIONS ---
-        public static TimeStamp GenerateFromLocalDateTime(DateTime localDateTime)
-        {
-            Debug.Assert(localDateTime.Kind == DateTimeKind.Utc,
-                         "Provided DateTime is not Local. Please use TimeStamp.GenerateFromUTCDateTime() instead");
-
-            return GenerateFromUTCDateTime(localDateTime.ToUniversalTime());
-        }
-
-        public static TimeStamp GenerateFromUTCDateTime(DateTime utcDateTime)
-        {
-            Debug.Assert(utcDateTime.Kind == DateTimeKind.Utc,
-                         "Provided DateTime is not UTC. Consider using TimeStamp.Now() instead of DateTime.Now() or by converting a local time to UTC using the DateTime.ToUniversalTime() method");
-
-            TimeStamp modDT = new TimeStamp();
-            modDT.serverTimeStamp = (int)utcDateTime.Subtract(UNIX_EPOCH).TotalSeconds;
-            return modDT;
-        }
-
-        public static TimeStamp GenerateFromServerTimeStamp(int timeStamp)
-        {
-            TimeStamp modDT = new TimeStamp();
-            modDT.serverTimeStamp = timeStamp;
-            return modDT;
-        }
-
-        public static TimeStamp Now()
-        {
-            return GenerateFromUTCDateTime(DateTime.UtcNow);
-        }
-
-        // --- VARIABLES ---
-        [SerializeField]
-        private int serverTimeStamp;
-
-        // --- ACCESSORS ---
-        public DateTime AsLocalDateTime()
-        {
-            DateTime dateTime = UNIX_EPOCH.AddSeconds(serverTimeStamp).ToLocalTime();
-            return dateTime;
-        }
-
-        public DateTime AsUTCDateTime()
-        {
-            DateTime dateTime = UNIX_EPOCH.AddSeconds(serverTimeStamp);
-            return dateTime;
-        }
-
-        public int AsServerTimeStamp()
-        {
-            return serverTimeStamp;
-        }
-
-        // --- INTERFACES ---
-        public int CompareTo(TimeStamp other)
-        {
-        	return serverTimeStamp.CompareTo(other.serverTimeStamp);
-        }
-
-        public bool Equals(TimeStamp other)
-        {
-        	return this.serverTimeStamp == other.serverTimeStamp;
-        }
-
-        // --- OPERATOR OVERLOADS ---
-        public static bool operator == (TimeStamp a, TimeStamp b)
-        {
-            return a.serverTimeStamp == b.serverTimeStamp;
-        }
-        public static bool operator != (TimeStamp a, TimeStamp b)
-        {
-            return a.serverTimeStamp != b.serverTimeStamp;
-        }
-        public static bool operator > (TimeStamp a, TimeStamp b)
-        {
-            return a.serverTimeStamp > b.serverTimeStamp;
-        }
-        public static bool operator >= (TimeStamp a, TimeStamp b)
-        {
-            return a.serverTimeStamp >= b.serverTimeStamp;
-        }
-        public static bool operator < (TimeStamp a, TimeStamp b)
-        {
-            return a.serverTimeStamp < b.serverTimeStamp;
-        }
-        public static bool operator <= (TimeStamp a, TimeStamp b)
-        {
-            return a.serverTimeStamp <= b.serverTimeStamp;
-        }
-
-        public override bool Equals(object o)
-        {
-            if(o == null) { return false; }
-
-            TimeStamp other = (TimeStamp)o;
-            return this.Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return serverTimeStamp;
-        }
-    }
-
     public static class Utility
     {
         // Author: @jon-hanna of StackOverflow (https://stackoverflow.com/users/400547/jon-hanna)
@@ -125,12 +16,66 @@ namespace ModIO
 
         public static bool IsURL(string toCheck)
         {
-            // URL Regex adapted from https://regex.wtf/url-matching-regex-javascript/ 
+            // URL Regex adapted from https://regex.wtf/url-matching-regex-javascript/
             string protocol = "^(http(s)?(://))?(www.)?";
             string domain = "[a-zA-Z0-9-_.]+";
             Regex urlRegex = new Regex(protocol + domain, RegexOptions.IgnoreCase);
 
             return urlRegex.IsMatch(toCheck);
+        }
+
+        public static void SafeMapArraysOrZero<T1, T2>(T1[] sourceArray,
+                                                       Func<T1, T2> mapElementDelegate,
+                                                       out T2[] destinationArray)
+        {
+            if(sourceArray == null) { destinationArray = new T2[0]; }
+            else
+            {
+                destinationArray = new T2[sourceArray.Length];
+                for(int i = 0;
+                    i < sourceArray.Length;
+                    ++i)
+                {
+                    destinationArray[i] = mapElementDelegate(sourceArray[i]);
+                }
+            }
+        }
+
+        public static string GenerateExceptionDebugString(Exception e)
+        {
+            var debugString = new System.Text.StringBuilder();
+
+            Exception baseException = e.GetBaseException();
+            debugString.Append(baseException.GetType().Name + ": " + baseException.Message + "\n");
+
+            var stackTrace = new System.Diagnostics.StackTrace(baseException, true);
+
+            int frameCount = Math.Min(stackTrace.FrameCount, 6);
+            for(int i = 0; i < frameCount; ++i)
+            {
+                var stackFrame = stackTrace.GetFrame(i);
+                var method = stackFrame.GetMethod();
+
+                debugString.Append(method.ReflectedType
+                                   + "." + method.Name + "(");
+
+                var methodsParameters = method.GetParameters();
+                foreach(var parameter in methodsParameters)
+                {
+                    debugString.Append(parameter.ParameterType.Name + " "
+                                       + parameter.Name + ", ");
+                }
+                if(methodsParameters.Length > 0)
+                {
+                    debugString.Length -= 2;
+                }
+
+                debugString.Append(") @ " + stackFrame.GetFileName()
+                                   + ":" + stackFrame.GetFileLineNumber()
+                                   + "\n");
+            }
+
+            return debugString.ToString();
         }
     }
 }
