@@ -1,6 +1,4 @@
-﻿// #define LOG_ERRORS_IN_FULL
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -439,90 +437,68 @@ namespace ModIO
             return webRequest;
         }
 
-        public static void SendRequest<T_APIObj>(UnityWebRequest webRequest,
-                                                 Action<T_APIObj> successCallback,
-                                                 Action<WebRequestError> errorCallback)
+        public static void SendRequest(UnityWebRequest webRequest,
+                                       Action successCallback,
+                                       Action<WebRequestError> errorCallback)
         {
             // - Start Request -
             UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
             requestOperation.completed += (operation) =>
             {
-                APIClient.ProcessWebResponse<T_APIObj>(webRequest,
-                                                    successCallback,
-                                                    errorCallback);
-            };
-        }
-
-        public static void ProcessWebResponse<T>(UnityWebRequest webRequest,
-                                                 System.Action<T> successCallback,
-                                                 System.Action<WebRequestError> errorCallback)
-        {
-            if(webRequest.isNetworkError || webRequest.isHttpError)
-            {
-                #if DEBUG
-                    WebRequestError errorInfo = WebRequestError.GenerateFromWebRequest(webRequest);
-
-                    #if LOG_ERRORS_IN_FULL
-                    if(GlobalSettings.LOG_ALL_WEBREQUESTS)
-                    {
-                        var responseTimeStamp = ServerTimeStamp.Now;
-                        Debug.Log(webRequest.method.ToUpper() + " REQUEST FAILED"
-                                  + "\nResponse received at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                                  + " [" + responseTimeStamp + "]"
-                                  + "\nURL: " + webRequest.url
-                                  + "\nResponse: " + webRequest.downloadHandler.text
-                                  + "\n");
-                    }
-                    #endif
-
-                    if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                       && errorCallback != WebRequestError.LogAsWarning)
-                    {
-                        WebRequestError.LogAsWarning(errorInfo);
-                    }
-
-                    if(errorCallback != null)
-                    {
-                        errorCallback(errorInfo);
-                    }
-                #else
-                    if(errorCallback != null)
-                    {
-                        errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
-                    }
-                #endif
-            }
-            else
-            {
                 #if DEBUG
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
-                    Debug.Log(String.Format("{0} REQUEST SUCEEDED\nResponse received at: {1} [{2}]\nURL: {3}\nResponse: {4}\n",
-                                            webRequest.method.ToUpper(),
-                                            ServerTimeStamp.ToLocalDateTime(responseTimeStamp),
-                                            responseTimeStamp,
-                                            webRequest.url,
-                                            webRequest.downloadHandler.text));
+                    Debug.Log(webRequest.method.ToUpper() + " REQUEST RESPONSE"
+                              + "\nResponse received at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
+                              + " [" + responseTimeStamp + "]"
+                              + "\nURL: " + webRequest.url
+                              + "\nResponse Code: " + webRequest.responseCode
+                              + "\nResponse Error: " + webRequest.error
+                              + "\nResponse: " + webRequest.downloadHandler.text
+                              + "\n");
                 }
                 #endif
 
+                if(webRequest.isNetworkError || webRequest.isHttpError)
+                {
+                    if(errorCallback != null)
+                    {
+                        errorCallback(WebRequestError.GenerateFromWebRequest(webRequest));
+                    }
+                }
+                else
+                {
+                    if(successCallback != null) { successCallback(); }
+                }
+            };
+        }
+
+        public static void SendRequest<T>(UnityWebRequest webRequest,
+                                          Action<T> successCallback,
+                                          Action<WebRequestError> errorCallback)
+        {
+            Action processResponse = () =>
+            {
                 if(successCallback != null)
                 {
-                    // NOTE(@jackson): 204s no longer need to be handled separately as
-                    // Json.Net handles empty strings without throwing
                     try
                     {
-                        T response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
+                        T response = default(T);
+                        response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
                         successCallback(response);
                     }
                     catch(Exception e)
                     {
-                        Debug.LogWarning("[mod.io] Failed to convert response into data reprsentation"
-                                         + Utility.GenerateExceptionDebugString(e));
+                        Debug.LogError("[mod.io] Failed to convert response into " + typeof(T).ToString() + " representation\n\n"
+                                       + Utility.GenerateExceptionDebugString(e));
                     }
                 }
-            }
+            };
+
+            APIClient.SendRequest(webRequest,
+                                  processResponse,
+                                  errorCallback);
         }
 
 
@@ -545,8 +521,8 @@ namespace ModIO
             APIClient.userAuthorizationToken = "NONE";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                    valueFields,
-                                                                    null);
+                                                                       valueFields,
+                                                                       null);
 
             APIClient.userAuthorizationToken = oldToken;
 
@@ -878,7 +854,7 @@ namespace ModIO
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
                                                                          parameters.stringValues.ToArray());
 
-            APIClient.SendRequest<object>(webRequest, (o) => successCallback(), errorCallback);
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
 
@@ -921,7 +897,7 @@ namespace ModIO
             UnityWebRequest webRequest = APIClient.GenerateDeleteRequest(endpointURL,
                                                                          null);
 
-            APIClient.SendRequest<object>(webRequest, (o) => successCallback(), errorCallback);
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
 
