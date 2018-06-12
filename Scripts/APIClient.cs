@@ -603,10 +603,10 @@ namespace ModIO
         /// need to use the <see cref="ModIO.APIClient.AddGameMedia"/> endpoint. Successful request
         /// will return updated <see cref="ModIO.GameProfile"/>.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// You can also edit your games profile on the mod.io website. This is the recommended
         /// approach.
-        /// </remark>
+        /// </remarks>
         public static void EditGame(EditGameParameters parameters,
                                     Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -658,13 +658,13 @@ namespace ModIO
         /// <see cref="ModIO.ModProfile"/>. By publishing your mod on mod.io, you are agreeing to
         /// the mod.io distribution agreement.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// By default new mods are <see cref="ModIO.ModStatus.NotAccepted"/> and
         /// <see cref="ModIO.ModVisibility.Public"/>. They can only be
         /// <see cref="ModIO.ModStatus.Accepted"/> and made available via the API once a
         /// <see cref="ModIO.Modfile"/> has been uploaded. Media, Metadata Key Value Pairs and
         /// Dependencies can also be added after a mod profile is created.
-        /// </remark>
+        /// </remarks>
         public static void AddMod(AddModParameters parameters,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -700,11 +700,11 @@ namespace ModIO
         /// <see cref="ModIO.ModEvent"/> with the type
         /// <see cref="ModIO.ModEventType.ModUnavailable"/>.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// This will close the mod profile which means it cannot be viewed or retrieved via API
         /// requests but will still exist in-case you choose to restore it at a later date. A mod
         /// can be permanently deleted via the website interface.
-        /// </remark>
+        /// </remarks>
         public static void DeleteMod(int modId,
                                      Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -724,14 +724,14 @@ namespace ModIO
         /// recommended reading the <a href="https://docs.mod.io/#filtering">filtering documentation
         /// </a> to return only the records you want.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// If the game requires mod downloads to be initiated via the API, the
         /// <see cref="ModIO.ModfileLocator.binaryURL"/> returned will contain a verification hash.
         /// This hash must be supplied to get the modfile, and will expire at the time contained in
         /// <see cref="ModIO.ModfileLocator.dateExpires"/>. Saving and reusing the
         /// <see cref="ModIO.ModfileLocator.binaryURL"/> won't work in this situation given its
         /// dynamic nature.
-        /// </remark>
+        /// </remarks>
         public static void GetAllModfiles(int modId,
                                           RequestFilter filter, PaginationParameters pagination,
                                           Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
@@ -747,14 +747,14 @@ namespace ModIO
 
         /// <summary>
         /// Get a file. Successful request will return a single <see cref="ModIO.Modfile"/>.
-        /// <remark>
+        /// <remarks>
         /// If the game requires mod downloads to be initiated via the API, the
         /// <see cref="ModIO.ModfileLocator.binaryURL"/> returned will contain a verification hash.
         /// This hash must be supplied to get the modfile, and will expire at the time contained in
         /// <see cref="ModIO.ModfileLocator.dateExpires"/>. Saving and reusing the
         /// <see cref="ModIO.ModfileLocator.binaryURL"/> won't work in this situation given its
         /// dynamic nature.
-        /// </remark>
+        /// </remarks>
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -808,10 +808,10 @@ namespace ModIO
         /// <summary>
         /// Upload new media to a game. Successful request will return an
         /// <see cref="ModIO.APIMessage"/>.
-        /// <remark>
+        /// <remarks>
         /// You can also add media to your games profile on the mod.io website. This is the
         /// recommended approach.
-        /// </remark>
+        /// </remarks>
         public static void AddGameMedia(AddGameMediaParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -864,10 +864,10 @@ namespace ModIO
         /// for this action. Successful request will return the <see cref="ModIO.ModProfile"/> of
         /// the newly subscribed mod.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// Users can subscribe to mods via the mod.io web interface. Thus we recommend you poll
         /// <see cref="ModIO.APIClient.GetUserEvents"/> to keep a user's mods collection up to date.
-        /// </remark>
+        /// </remarks>
         public static void SubscribeToMod(int modId,
                                           Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -885,10 +885,10 @@ namespace ModIO
         /// Unsubscribe the authenticated user from the corresponding mod. No body parameters are
         /// required for this action. Successful request will return 204 No Content.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// Users can unsubscribe from mods via the mod.io web interface. Thus we recommend you poll
         /// <see cref="ModIO.APIClient.GetUserEvents"/> to keep a user's mods collection up to date.
-        /// </remark>
+        /// </remarks>
         public static void UnsubscribeFromMod(int modId,
                                               Action successCallback, Action<WebRequestError> errorCallback)
         {
@@ -925,12 +925,12 @@ namespace ModIO
         /// <summary>Get all mods events for the corresponding game sorted by latest event first.
         /// Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
         /// <see cref="ModIO.ModEvent"/>.
-        /// <remark>
+        /// <remarks>
         /// We recommend you poll this endpoint to keep mods up-to-date. If polling this endpoint
         /// for updates you should store the id or date_updated of the latest event, and on
         /// subsequent requests use that information in the filter, to return only newer events to
         /// process.
-        /// </remark>
+        /// </remarks>
         public static void GetAllModEvents(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -972,9 +972,9 @@ namespace ModIO
         /// you need to store more advanced information, you can also use
         /// <see cref="ModIO.ModProfile.metadataKVPs"/>.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// You can also manage tags via the mod.io web interface. This is the recommended approach.
-        /// </remark>
+        /// </remarks>
         public static void AddGameTagOption(AddGameTagOptionParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -991,10 +991,10 @@ namespace ModIO
         /// Delete an entire group of tags or individual tags. Successful request will return
         /// 204 No Content.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// You can also manage tags by editing your games profile via the mod.io web interface.
         /// This is the recommended approach.
-        /// </remark>
+        /// </remarks>
         public static void DeleteGameTagOption(DeleteGameTagOptionParameters parameters,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1064,10 +1064,10 @@ namespace ModIO
         /// Submit a positive or negative rating for a mod. Each user can supply only one rating for
         /// a mod, subsequent ratings will override the old value. Successful request will return an
         /// <see cref="ModIO.APIMessage"/>.
-        /// <remark>
+        /// <remarks>
         /// You can order mods by their rating, and view their rating in the
         /// <see cref="ModIO.ModProfile"/>.
-        /// </remark>
+        /// </remarks>
         public static void AddModRating(int modId, AddModRatingParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1086,9 +1086,9 @@ namespace ModIO
         /// Get all metadata stored by the game developer for this mod as searchable key value
         /// pairs. Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
         /// <see cref="ModIO.MetadataKVP"/>.
-        /// <remark>
+        /// <remarks>
         /// Metadata can also be stored to <see cref="ModIO.ModProfile.metadataBlob"/>.
-        /// </remark>
+        /// </remarks>
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
                                                 Action<ResponseArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
@@ -1111,11 +1111,11 @@ namespace ModIO
         /// A mod might change gravity and the rate of fire of weapons, you could define these
         /// properties as key value pairs.
         /// </example>
-        /// <remark>
+        /// <remarks>
         /// We recommend the mod upload tool you create defines and submits metadata behind the
         /// scenes, because if these settings affect gameplay, invalid information may cause
         /// problems.
-        /// </remark>
+        /// </remarks>
         public static void AddModKVPMetadata(int modId, AddModKVPMetadataParameters parameters,
                                              Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1297,10 +1297,10 @@ namespace ModIO
         /// Get the user that is the original submitter of a resource. Successful request will
         /// return a single <see cref="ModIO.UserProfile"/>.
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// Mods and games can be managed by teams of users, for the most accurate information you
         /// should use the Team endpoints.
-        /// </remark>
+        /// </remarks>
         public static void GetResourceOwner(APIResourceType resourceType, int resourceID,
                                             Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {

@@ -21,9 +21,9 @@ namespace ModIO
         /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
         /// Documentation</a>
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// This field is controlled by the game team, rather than the mod team.
-        /// </remark>
+        /// </remarks>
         [JsonProperty("status")]
         public ModStatus status;
 
@@ -32,9 +32,9 @@ namespace ModIO
         /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
         /// Documentation</a>
         /// </summary>
-        /// <remark>
+        /// <remarks>
         /// This field is controlled by the mod team.
-        /// </remark>
+        /// </remarks>
         [JsonProperty("visible")]
         public ModVisibility visibility;
 
