@@ -71,7 +71,7 @@ namespace ModIO
             if(APIClient.gameId <= 0
                || String.IsNullOrEmpty(APIClient.gameAPIKey))
             {
-                Debug.LogError("[mod.io] No API requests can be excuted without a"
+                Debug.LogError("[mod.io] No API requests can be executed without a"
                                + " valid Game Id and Game API Key. These need to be"
                                + " saved in ModIO.GlobalSettings or"
                                + " set directly on the ModIO.APIClient before"
@@ -671,8 +671,8 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                    parameters.stringValues.ToArray(),
-                                                                    parameters.binaryData.ToArray());
+                                                                       parameters.stringValues.ToArray(),
+                                                                       parameters.binaryData.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }

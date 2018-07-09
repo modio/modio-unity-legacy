@@ -229,6 +229,31 @@ namespace ModIO
             List<int> removedIds = new List<int>();
             List<int> deletedIds = new List<int>();
 
+            bool isAddedDone = false;
+            bool isEditedDone = false;
+            bool isModfilesDone = false;
+            bool isRemovedDone = false;
+            bool isDeletedDone = false;
+            bool wasFinalized = false;
+
+            Action attemptFinalize = () =>
+            {
+                if(isAddedDone
+                   && isEditedDone
+                   && isModfilesDone
+                   && isRemovedDone
+                   && isDeletedDone
+                   && !wasFinalized)
+                {
+                    wasFinalized = true;
+
+                    if(onSuccess != null)
+                    {
+                        onSuccess();
+                    }
+                }
+            };
+
             // Sort by event type
             foreach(ModEvent modEvent in modEvents)
             {
@@ -330,11 +355,19 @@ namespace ModIO
                     {
                         profileBuildsUpdatedCallback(modfileChangedStubs);
                     }
+
+                    isAddedDone = isEditedDone = isModfilesDone = true;
+
+                    attemptFinalize();
                 };
 
                 ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(modsFilter, p, s, e),
                                                                onGetMods,
-                                                               null);
+                                                               onError);
+            }
+            else
+            {
+                isAddedDone = isEditedDone = isModfilesDone = true;
             }
 
             // --- Process Removed ---
@@ -351,6 +384,7 @@ namespace ModIO
                     profilesUnavailableCallback(removedIds);
                 }
             }
+            isRemovedDone = true;
 
             if(deletedIds.Count > 0)
             {
@@ -365,6 +399,9 @@ namespace ModIO
                     profilesDeletedCallback(deletedIds);
                 }
             }
+            isDeletedDone = true;
+
+            attemptFinalize();
         }
 
         public static void FetchAllUserEvents(int fromTimeStamp,
