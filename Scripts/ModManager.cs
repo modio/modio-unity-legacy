@@ -452,12 +452,17 @@ namespace ModIO
             }
         }
 
+        // TODO(@jackson): Take ModMediaCollection instead of profile
         public static void GetModGalleryImage(ModProfile profile,
                                               string imageFileName,
                                               ModGalleryImageSize size,
                                               Action<Texture2D> onSuccess,
                                               Action<WebRequestError> onError)
         {
+            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
+            Debug.Assert(profile.media != null, "[mod.io] The given profile has no media information");
+            Debug.Assert(!String.IsNullOrEmpty(imageFileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
+
             var cachedImageTexture = CacheClient.LoadModGalleryImage(profile.id,
                                                                      imageFileName,
                                                                      size);
@@ -468,18 +473,29 @@ namespace ModIO
             }
             else
             {
-                // - Fetch from Server -
-                var download = DownloadClient.DownloadModGalleryImage(profile,
-                                                                      imageFileName,
-                                                                      size);
-
-                download.succeeded += (d) =>
+                if(profile.media.GetGalleryImageWithFileName(imageFileName) != null)
                 {
-                    CacheClient.SaveModGalleryImage(profile.id, imageFileName, size, d.imageTexture);
-                };
+                    // - Fetch from Server -
+                    var download = DownloadClient.DownloadModGalleryImage(profile,
+                                                                          imageFileName,
+                                                                          size);
 
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
+                    download.succeeded += (d) =>
+                    {
+                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, size, d.imageTexture);
+                    };
+
+                    download.succeeded += (d) => onSuccess(d.imageTexture);
+                    download.failed += (d) => onError(d.error);
+                }
+                else
+                {
+                    if(onError != null)
+                    {
+                        WebRequestError error = WebRequestError.GenerateLocal("Unable to find mod gallery image locator for the file name \'"+ imageFileName + "\' in the mod profile \'" + profile.name + "\'[" + profile.id + "]");
+                        onError(error);
+                    }
+                }
             }
         }
 
@@ -569,6 +585,9 @@ namespace ModIO
             if(callback != null) { callback(status); }
         }
 
+        // NOTE(@jackson): A ModBinaryRequest that is found in the cache will never trigger the
+        // succeeded event, and so (until this is fixed) it's important to check isDone to see if
+        // the ModBinaryRequest has been located locally.
         public static ModBinaryRequest GetActiveModBinary(ModProfile profile)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
@@ -666,8 +685,26 @@ namespace ModIO
                                         Action<ModProfile> modSubmissionSucceeded,
                                         Action<WebRequestError> modSubmissionFailed)
         {
-            Debug.Assert(modEdits.name.isDirty && modEdits.summary.isDirty);
-            Debug.Assert(File.Exists(modEdits.logoLocator.value.url));
+            // - Client-Side error-checking -
+            WebRequestError error = null;
+            if(String.IsNullOrEmpty(modEdits.name.value))
+            {
+                error = WebRequestError.GenerateLocal("Mod Profile needs to be named before it can be uploaded");
+            }
+            else if(String.IsNullOrEmpty(modEdits.summary.value))
+            {
+                error = WebRequestError.GenerateLocal("Mod Profile needs to be given a summary before it can be uploaded");
+            }
+            else if(!File.Exists(modEdits.logoLocator.value.url))
+            {
+                error = WebRequestError.GenerateLocal("Mod Profile needs to be assigned a logo before it can be uploaded");
+            }
+
+            if(error != null)
+            {
+                modSubmissionFailed(error);
+                return;
+            }
 
             // - Initial Mod Submission -
             var parameters = new AddModParameters();
@@ -713,11 +750,11 @@ namespace ModIO
             remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
 
             APIClient.AddMod(parameters,
-                          result => SubmitModProfileComponents(result,
-                                                               remainingModEdits,
-                                                               modSubmissionSucceeded,
-                                                               modSubmissionFailed),
-                          modSubmissionFailed);
+                             result => SubmitModProfileComponents(result,
+                                                                  remainingModEdits,
+                                                                  modSubmissionSucceeded,
+                                                                  modSubmissionFailed),
+                             modSubmissionFailed);
         }
 
         public static void SubmitModChanges(int modId,
@@ -1066,15 +1103,18 @@ namespace ModIO
                 Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
                                + Utility.GenerateExceptionDebugString(e));
 
-                WebRequestError error = new WebRequestError()
+                if(onError != null)
                 {
-                    message = "Unable to zip mod binary prior to uploading",
-                    url = binaryZipLocation,
-                    timeStamp = ServerTimeStamp.Now,
-                    responseCode = 0,
-                };
+                    WebRequestError error = new WebRequestError()
+                    {
+                        message = "Unable to zip mod binary prior to uploading",
+                        url = binaryZipLocation,
+                        timeStamp = ServerTimeStamp.Now,
+                        responseCode = 0,
+                    };
 
-                onError(error);
+                    onError(error);
+                }
             }
 
             if(zipSucceeded)
