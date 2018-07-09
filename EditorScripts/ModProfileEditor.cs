@@ -34,6 +34,7 @@ namespace ModIO
 
         // ------[ EDITOR CACHING ]------
         private ModProfile profile;
+        private int initializedProfileId;
         private UserProfile user;
 
         // ------[ VIEW INFORMATION ]------
@@ -57,6 +58,7 @@ namespace ModIO
             // Grab Serialized Properties
             serializedObject.Update();
             modIdProperty = serializedObject.FindProperty("modId");
+            initializedProfileId = modIdProperty.intValue;
             editableModProfileProperty = serializedObject.FindProperty("editableModProfile");
             isModListLoading = false;
             profileViewParts = new IModProfileViewPart[]
@@ -119,21 +121,7 @@ namespace ModIO
                 // Initialize View
                 profile = null;
 
-                System.Action<ModProfile> onGetProfile = (p) =>
-                {
-                    profile = p;
-
-                    profileViewParts = CreateProfileViewParts();
-
-                    foreach(IModProfileViewPart viewPart in profileViewParts)
-                    {
-                        viewPart.OnEnable(editableModProfileProperty, p, this.user);
-                    };
-
-                    profileGetErrorMessage = string.Empty;
-                };
-
-                System.Action<WebRequestError> onGetProfileError = (e) =>
+                if(modIdProperty.intValue == 0)
                 {
                     profile = null;
 
@@ -143,14 +131,44 @@ namespace ModIO
                     {
                         viewPart.OnEnable(editableModProfileProperty, null, this.user);
                     };
+                }
+                else
+                {
+                    System.Action<ModProfile> onGetProfile = (p) =>
+                    {
+                        profile = p;
 
-                    profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
-                                              + e.message);
-                };
+                        profileViewParts = CreateProfileViewParts();
 
-                ModManager.GetModProfile(modIdProperty.intValue,
-                                         onGetProfile,
-                                         onGetProfileError);
+                        foreach(IModProfileViewPart viewPart in profileViewParts)
+                        {
+                            viewPart.OnEnable(editableModProfileProperty, p, this.user);
+                        };
+
+                        profileGetErrorMessage = string.Empty;
+                    };
+
+                    System.Action<WebRequestError> onGetProfileError = (e) =>
+                    {
+                        profile = null;
+
+                        profileViewParts = CreateProfileViewParts();
+
+                        foreach(IModProfileViewPart viewPart in profileViewParts)
+                        {
+                            viewPart.OnEnable(editableModProfileProperty, null, this.user);
+                        };
+
+                        profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
+                                                  + e.message);
+                    };
+
+                    ModManager.GetModProfile(modIdProperty.intValue,
+                                             onGetProfile,
+                                             onGetProfileError);
+
+                }
+
             }
 
             scrollPos = Vector2.zero;
@@ -191,7 +209,7 @@ namespace ModIO
         // ------[ GUI ]------
         public override void OnInspectorGUI()
         {
-            if(serializedObject.FindProperty("modId").intValue < 0)
+            if(serializedObject.FindProperty("modId").intValue == ScriptableModProfile.UNINITIALIZED_MOD_ID)
             {
                 LayoutProfileInitialization();
             }
@@ -352,6 +370,12 @@ namespace ModIO
         // ------[ UPDATE ]------
         public virtual void OnUpdate()
         {
+            if(modIdProperty.intValue != initializedProfileId)
+            {
+                this.OnDisable();
+                this.OnEnable();
+            }
+
             foreach(IModProfileViewPart viewPart in profileViewParts)
             {
                 viewPart.OnUpdate();
