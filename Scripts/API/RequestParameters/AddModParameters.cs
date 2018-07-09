@@ -74,7 +74,7 @@ namespace ModIO.API
         // tags values within tag_options column on the parent Game Object.
         public string[] tags
         {
-            set { this.SetStringArrayValue("tags", value); }
+            set { this.SetStringArrayValue("tags[]", value); }
         }
     }
 }
