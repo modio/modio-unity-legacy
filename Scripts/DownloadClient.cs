@@ -11,6 +11,8 @@ namespace ModIO
         // ---------[ IMAGE DOWNLOADS ]---------
         public static ImageRequest DownloadModLogo(ModProfile profile, LogoSize size)
         {
+            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
+
             ImageRequest request = new ImageRequest();
             request.isDone = false;
 
@@ -25,19 +27,37 @@ namespace ModIO
             return request;
         }
 
+        // TODO(@jackson): Take ModMediaCollection instead of profile
         public static ImageRequest DownloadModGalleryImage(ModProfile profile,
                                                            string imageFileName,
                                                            ModGalleryImageSize size)
         {
-            ImageRequest request = new ImageRequest();
+            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
+            Debug.Assert(profile.media != null, "[mod.io] The given profile has no media information");
+            Debug.Assert(!String.IsNullOrEmpty(imageFileName),
+                         "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
 
-            string imageURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetSizeURL(size);
+            ImageRequest request = null;
+            GalleryImageLocator locator = profile.media.GetGalleryImageWithFileName(imageFileName);
 
-            UnityWebRequest webRequest = UnityWebRequest.Get(imageURL);
-            webRequest.downloadHandler = new DownloadHandlerTexture(true);
+            if(locator != null)
+            {
+                string imageURL = locator.GetSizeURL(size);
 
-            var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+                UnityWebRequest webRequest = UnityWebRequest.Get(imageURL);
+                webRequest.downloadHandler = new DownloadHandlerTexture(true);
+
+                request = new ImageRequest();
+
+                var operation = webRequest.SendWebRequest();
+                operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+            }
+            else
+            {
+                Debug.LogWarning("[mod.io] Unable to find mod gallery image with the file name \'"
+                                 + imageFileName + "\' for the mod profile \'" + profile.name +
+                                 "\'[" + profile.id + "]");
+            }
 
             return request;
         }
