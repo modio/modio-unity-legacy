@@ -233,7 +233,19 @@ namespace ModIO
                                             "Failed to update the mod profile on the server.\n"
                                             + e.message,
                                             "Close");
+
+                uploadFailedMessage = e.message;
+                if(e.fieldValidationMessages != null
+                   && e.fieldValidationMessages.Count > 0)
+                {
+                    foreach(var kvp in e.fieldValidationMessages)
+                    {
+                        uploadFailedMessage += "\n [" + kvp.Key + "]: " + kvp.Value;
+                    }
+                }
+
                 isAwaitingServerResponse = false;
+                Repaint();
             };
 
             if(profile.modId > 0)
@@ -254,6 +266,8 @@ namespace ModIO
         private void ModProfileSubmissionSucceeded(ModProfile updatedProfile,
                                                    string profileFilePath)
         {
+            uploadFailedMessage = null;
+
             // Update ScriptableModProfile
             profile.modId = updatedProfile.id;
             profile.editableModProfile = EditableModProfile.CreateFromProfile(updatedProfile);
@@ -269,7 +283,20 @@ namespace ModIO
                                                 "Failed to upload the mod build to the server.\n"
                                                 + e.message,
                                                 "Close");
+
+                    uploadFailedMessage = e.message;
+                    if(e.fieldValidationMessages != null
+                       && e.fieldValidationMessages.Count > 0)
+                    {
+                        foreach(var kvp in e.fieldValidationMessages)
+                        {
+                            uploadFailedMessage += "\n [" + kvp.Key + "]: " + kvp.Value;
+                        }
+                    }
+
                     isAwaitingServerResponse = false;
+                    Repaint();
+
                 };
 
                 ModManager.UploadModBinary_Unzipped(profile.modId,
@@ -293,6 +320,7 @@ namespace ModIO
                                         + "\nView the changes here: " + modProfileURL,
                                         "Close");
             isAwaitingServerResponse = false;
+            Repaint();
         }
     }
 }
