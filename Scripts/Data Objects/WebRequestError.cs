@@ -66,6 +66,20 @@ namespace ModIO
             return error;
         }
 
+        public static WebRequestError GenerateLocal(string errorMessage)
+        {
+            WebRequestError error = new WebRequestError()
+            {
+                method = "LOCAL",
+                url = "null",
+                timeStamp = ServerTimeStamp.Now,
+                responseCode = 0,
+                message = errorMessage,
+            };
+
+            return error;
+        }
+
         // ---------[ HELPER FUNCTIONS ]---------
         public string ToUnityDebugString()
         {
