@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 
+// #define UPLOAD_MOD_BINARY_AS_DIRECTORY
+
 using System;
 using System.Collections.Generic;
 
@@ -162,9 +164,15 @@ namespace ModIO
                         {
                             EditorApplication.delayCall += () =>
                             {
+                                #if UPLOAD_MOD_BINARY_AS_DIRECTORY
+                                string path = EditorUtility.OpenFolderPanel("Set Build Location",
+                                                                            "",
+                                                                            "ModBinary");
+                                #else
                                 string path = EditorUtility.OpenFilePanelWithFilters("Set Build Location",
                                                                                      "",
                                                                                      modBinaryFileExtensionFilters);
+                                #endif
 
                                 if (path.Length != 0)
                                 {
@@ -179,7 +187,11 @@ namespace ModIO
                     EditorGUILayout.EndHorizontal();
 
                     // - Build Profile -
+                    #if UPLOAD_MOD_BINARY_AS_DIRECTORY
+                    using(new EditorGUI.DisabledScope(!System.IO.Directory.Exists(buildFilePath)))
+                    #else
                     using(new EditorGUI.DisabledScope(!System.IO.File.Exists(buildFilePath)))
+                    #endif
                     {
                         // - Version -
                         EditorGUI.BeginChangeCheck();
@@ -275,7 +287,11 @@ namespace ModIO
             AssetDatabase.SaveAssets();
 
             // Upload Build
+            #if UPLOAD_MOD_BINARY_AS_DIRECTORY
+            if(System.IO.Directory.Exists(buildFilePath))
+            #else
             if(System.IO.File.Exists(buildFilePath))
+            #endif
             {
                 Action<WebRequestError> onSubmissionFailed = (e) =>
                 {
@@ -299,6 +315,15 @@ namespace ModIO
 
                 };
 
+                #if UPLOAD_MOD_BINARY_AS_DIRECTORY
+                ModManager.UploadModBinaryDirectory(profile.modId,
+                                                    buildProfile,
+                                                    buildFilePath,
+                                                    true,
+                                                    mf => NotifySubmissionSucceeded(updatedProfile.name,
+                                                                                    updatedProfile.profileURL),
+                                                    onSubmissionFailed);
+                #else
                 ModManager.UploadModBinary_Unzipped(profile.modId,
                                                     buildProfile,
                                                     buildFilePath,
@@ -306,6 +331,7 @@ namespace ModIO
                                                     mf => NotifySubmissionSucceeded(updatedProfile.name,
                                                                                     updatedProfile.profileURL),
                                                     onSubmissionFailed);
+                #endif
             }
             else
             {
