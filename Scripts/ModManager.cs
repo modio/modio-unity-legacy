@@ -1113,14 +1113,84 @@ namespace ModIO
             doNextSubmissionAction(new APIMessage());
         }
 
-        public static void UploadModBinary_Unzipped(int modId,
+        public static void UploadModBinaryDirectory(int modId,
                                                     EditableModfile modfileValues,
-                                                    string unzippedBinaryLocation,
-                                                    bool setPrimary,
+                                                    string binaryDirectory,
+                                                    bool setActiveBuild,
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + System.IO.Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + DateTime.Now.ToFileTime() + ".zip";
+            if(!Directory.Exists(binaryDirectory))
+            {
+                if(onError != null)
+                {
+                    onError(WebRequestError.GenerateLocal("Mod Binary directory [" + binaryDirectory + "] doesn't exist"));
+                }
+                return;
+            }
+
+            // - Zip Directory -
+            if(binaryDirectory[binaryDirectory.Length - 1] == '/')
+            {
+                binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
+            }
+
+            string folderName = binaryDirectory.Substring(binaryDirectory.LastIndexOf('/') + 1);
+            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + folderName + "_" + DateTime.Now.ToFileTime() + ".zip";
+            bool zipSucceeded = false;
+            int binaryDirectoryPathLength = binaryDirectory.Length + 1;
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(binaryZipLocation));
+
+                using(var zip = new Ionic.Zip.ZipFile())
+                {
+                    foreach(string filePath in Directory.GetFiles(binaryDirectory, "*.*", SearchOption.AllDirectories))
+                    {
+                        string relativeFilePath = filePath.Substring(binaryDirectoryPathLength);
+                        string relativeDirectory = Path.GetDirectoryName(relativeFilePath);
+
+                        zip.AddFile(filePath, relativeDirectory);
+                        zip.Save(binaryZipLocation);
+                    }
+                }
+
+                zipSucceeded = true;
+            }
+            catch(Exception e)
+            {
+                Debug.LogError("[mod.io] Unable to zip mod binary prior to uploading.\n\n"
+                               + Utility.GenerateExceptionDebugString(e));
+
+                if(onError != null)
+                {
+                    WebRequestError error = new WebRequestError()
+                    {
+                        message = "Unable to zip mod binary prior to uploading",
+                        url = binaryZipLocation,
+                        timeStamp = ServerTimeStamp.Now,
+                        responseCode = 0,
+                    };
+
+                    onError(error);
+                }
+            }
+
+            if(zipSucceeded)
+            {
+                UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
+            }
+        }
+
+        public static void UploadModBinary_Unzipped(int modId,
+                                                    EditableModfile modfileValues,
+                                                    string unzippedBinaryLocation,
+                                                    bool setActiveBuild,
+                                                    Action<Modfile> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip";
             bool zipSucceeded = false;
 
             try
@@ -1129,7 +1199,7 @@ namespace ModIO
 
                 using(var zip = new Ionic.Zip.ZipFile())
                 {
-                    zip.AddFile(unzippedBinaryLocation);
+                    zip.AddFile(unzippedBinaryLocation, "");
                     zip.Save(binaryZipLocation);
                 }
 
@@ -1156,14 +1226,14 @@ namespace ModIO
 
             if(zipSucceeded)
             {
-                UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setPrimary, onSuccess, onError);
+                UploadModBinary_Zipped(modId, modfileValues, binaryZipLocation, setActiveBuild, onSuccess, onError);
             }
         }
 
         public static void UploadModBinary_Zipped(int modId,
                                                   EditableModfile modfileValues,
                                                   string binaryZipLocation,
-                                                  bool setPrimary,
+                                                  bool setActiveBuild,
                                                   Action<Modfile> onSuccess,
                                                   Action<WebRequestError> onError)
         {
@@ -1184,6 +1254,8 @@ namespace ModIO
             {
                 parameters.metadataBlob = modfileValues.metadataBlob.value;
             }
+
+            parameters.isActiveBuild = setActiveBuild;
 
             // - Generate Hash -
             using (var md5 = System.Security.Cryptography.MD5.Create())
