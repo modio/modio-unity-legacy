@@ -8,15 +8,21 @@ namespace ModIO
     public class GalleryImageLocator : IMultiSizeImageLocator<ModGalleryImageSize>
     {
         // ---------[ FIELDS ]---------
-        ///<summary>Image filename including extension.</summary>
+        /// <summary>
+        /// Image filename including extension.
+        /// </summary>
         [JsonProperty("filename")]
         public string fileName;
 
-        ///<summary>URL to the full-sized image.</summary>
+        /// <summary>
+        /// URL to the full-sized image.
+        /// </summary>
         [JsonProperty("original")]
         public string original;
 
-        ///<summary>URL to the image thumbnail.</summary>
+        /// <summary>
+        /// URL to the image thumbnail.
+        /// </summary>
         [JsonProperty("thumb_320x180")]
         public string thumbnail_320x180;
 

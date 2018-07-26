@@ -37,6 +37,12 @@ namespace ModIO
             TrySetCacheDirectory(dir);
         }
 
+
+        /// <summary>
+        /// Attempts to set the directory used for the cache by the cache client
+        /// </summary>
+        /// <param name="directory"> The absolute or relative directory to use. (Created if non-existent) </param>
+        /// <returns> True if successful </returns>
         public static bool TrySetCacheDirectory(string directory)
         {
             try

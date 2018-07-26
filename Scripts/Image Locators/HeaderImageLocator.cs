@@ -6,11 +6,15 @@ namespace ModIO
     public class HeaderImageLocator : IImageLocator
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Header image filename including extension.</summary>
+        /// <summary>
+        /// Header image filename including extension.
+        /// </summary>
         [JsonProperty("filename")]
         public string fileName;
 
-        /// <summary>URL to the full-sized header image.</summary>
+        /// <summary>
+        /// URL to the full-sized header image.
+        /// </summary>
         [JsonProperty("original")]
         public string url;
 

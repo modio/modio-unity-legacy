@@ -26,11 +26,10 @@ namespace ModIO.API
 
         // ---------[ HELPER FUNCTIONS ]---------
         /// <summary>
-        /// Takes an array of <see cref="ModIO.MetadataKVP"/> and produces an array of API
+        /// Takes an array of [[ModIO.MetadataKVP]] and produces an array of API
         /// recognized strings to be assigned to
-        /// <see cref="ModIO.AddModKVPMetadataParameters.metadata"/>
+        /// [[ModIO.AddModKVPMetadataParameters.metadata]]
         /// </summary>
-        /// <
         public static string[] ConvertMetadataKVPsToAPIStrings(MetadataKVP[] kvps)
         {
             string[] apiStrings = new string[kvps.Length];

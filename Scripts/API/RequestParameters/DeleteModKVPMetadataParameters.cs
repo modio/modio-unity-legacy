@@ -5,7 +5,7 @@ namespace ModIO.API
         // ---------[ FIELDS ]---------
         /// <summary>
         /// [REQUIRED] Array containing one or more metadata keys to be removed from the
-        /// <see cref="ModIO.ModProfile"/>.
+        /// [[ModIO.ModProfile]].
         /// </summary>
         public string[] metadataKeys
         {

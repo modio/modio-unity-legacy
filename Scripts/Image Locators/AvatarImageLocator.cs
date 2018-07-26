@@ -7,19 +7,27 @@ namespace ModIO
     [System.Serializable]
     public class AvatarImageLocator : IMultiSizeImageLocator<UserAvatarSize>
     {
-        /// <summary>Avatar filename including extension.</summary>
+        /// <summary>
+        /// Avatar filename including extension.
+        /// </summary>
         [JsonProperty("filename")]
         public string fileName;
 
-        /// <summary>URL to the full-sized avatar.</summary>
+        /// <summary>
+        /// URL to the full-sized avatar.
+        /// </summary>
         [JsonProperty("original")]
         public string original;
 
-        /// <summary>URL to the small avatar thumbnail.</summary>
+        /// <summary>
+        /// URL to the small avatar thumbnail.
+        /// </summary>
         [JsonProperty("thumb_50x50")]
         public string thumbnail_50x50;
 
-        /// <summary>URL to the medium avatar thumbnail.</summary>
+        /// <summary>
+        /// URL to the medium avatar thumbnail.
+        /// </summary>
         [JsonProperty("thumb_100x100")]
         public string thumbnail_100x100;
 

@@ -7,7 +7,7 @@ namespace ModIO
     [System.Serializable]
     public class GameProfile
     {
-        /// ---------[ FIELDS ]---------
+        // ---------[ FIELDS ]---------
         /// <summary>
         /// Unique game id.
         /// </summary>

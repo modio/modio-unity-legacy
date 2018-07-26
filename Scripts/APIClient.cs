@@ -16,6 +16,9 @@ namespace ModIO
     public static class APIClient
     {
         // ---------[ CONSTANTS ]---------
+        /// <summary>
+        /// Denotes the version of the mod.io web API that this class is compatible with
+        /// </summary>
         public const string API_VERSION = "v1";
 
         #if DEBUG
@@ -566,8 +569,8 @@ namespace ModIO
 
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>
-        /// Get all games. Successful request will return an <see cref="ModIO.API.ResponseArray"/>
-        /// of <see cref="ModIO.GameProfile"/>. We recommended reading the
+        /// Get all games. Successful request will return an [[ModIO.API.ResponseArray]]
+        /// of [[ModIO.GameProfile]]. We recommended reading the
         /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
         /// records you want.
         /// </summary>
@@ -585,7 +588,7 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a game. Successful request will return a single <see cref="ModIO.GameProfile"/>.
+        /// Get a game. Successful request will return a single [[ModIO.GameProfile]].
         /// </summary>
         public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -600,8 +603,8 @@ namespace ModIO
 
         /// <summary>
         /// Update details for a game. If you want to update the icon, logo or header fields you
-        /// need to use the <see cref="ModIO.APIClient.AddGameMedia"/> endpoint. Successful request
-        /// will return updated <see cref="ModIO.GameProfile"/>.
+        /// need to use the [[ModIO.APIClient.AddGameMedia]] endpoint. Successful request
+        /// will return updated [[ModIO.GameProfile]].
         /// </summary>
         /// <remarks>
         /// You can also edit your games profile on the mod.io website. This is the recommended
@@ -622,7 +625,7 @@ namespace ModIO
         // ---------[ MOD ENDPOINTS ]---------
         /// <summary>
         /// Get all mods for the corresponding game. Successful request will return a
-        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModProfile"/>. We recommended
+        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]]. We recommended
         /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
         /// return only the records you want.
         /// </summary>
@@ -639,7 +642,7 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a mod. Successful request will return a single <see cref="ModIO.ModProfile"/>.
+        /// Get a mod. Successful request will return a single [[ModIO.ModProfile]].
         /// </summary>
         public static void GetMod(int modId,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -655,14 +658,14 @@ namespace ModIO
 
         /// <summary>
         /// Add a mod. Successful request will return the newly created
-        /// <see cref="ModIO.ModProfile"/>. By publishing your mod on mod.io, you are agreeing to
+        /// [[ModIO.ModProfile]]. By publishing your mod on mod.io, you are agreeing to
         /// the mod.io distribution agreement.
         /// </summary>
         /// <remarks>
-        /// By default new mods are <see cref="ModIO.ModStatus.NotAccepted"/> and
-        /// <see cref="ModIO.ModVisibility.Public"/>. They can only be
-        /// <see cref="ModIO.ModStatus.Accepted"/> and made available via the API once a
-        /// <see cref="ModIO.Modfile"/> has been uploaded. Media, Metadata Key Value Pairs and
+        /// By default new mods are [[ModIO.ModStatus.NotAccepted]] and
+        /// [[ModIO.ModVisibility.Public]]. They can only be
+        /// [[ModIO.ModStatus.Accepted]] and made available via the API once a
+        /// [[ModIO.Modfile]] has been uploaded. Media, Metadata Key Value Pairs and
         /// Dependencies can also be added after a mod profile is created.
         /// </remarks>
         public static void AddMod(AddModParameters parameters,
@@ -679,9 +682,9 @@ namespace ModIO
 
         /// <summary>
         /// Edit details for a mod. If you want to update the logo or media associated with this
-        /// mod, you need to use <see cref="ModIO.APIClient.AddModMedia"/>. The same applies to
+        /// mod, you need to use [[ModIO.APIClient.AddModMedia]]. The same applies to
         /// Mod Files, Metadata Key Value Pairs and Dependencies which are all managed via other
-        /// endpoints. Successful request will return the updated <see cref="ModIO.ModProfile"/>.
+        /// endpoints. Successful request will return the updated [[ModIO.ModProfile]].
         /// </summary>
         public static void EditMod(int modId,
                                    EditModParameters parameters,
@@ -697,8 +700,8 @@ namespace ModIO
 
         /// <summary>
         /// Delete a mod profile. Successful request will return 204 No Content and create a
-        /// <see cref="ModIO.ModEvent"/> with the type
-        /// <see cref="ModIO.ModEventType.ModUnavailable"/>.
+        /// [[ModIO.ModEvent]] with the type
+        /// [[ModIO.ModEventType.ModUnavailable]].
         /// </summary>
         /// <remarks>
         /// This will close the mod profile which means it cannot be viewed or retrieved via API
@@ -720,16 +723,16 @@ namespace ModIO
         // ---------[ MODFILE ENDPOINTS ]---------
         /// <summary>
         /// Get all files that are published for the corresponding mod. Successful request will
-        /// return a <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.Modfile"/>. We
+        /// return a [[ModIO.API.ResponseArray]] of [[ModIO.Modfile]]. We
         /// recommended reading the <a href="https://docs.mod.io/#filtering">filtering documentation
         /// </a> to return only the records you want.
         /// </summary>
         /// <remarks>
         /// If the game requires mod downloads to be initiated via the API, the
-        /// <see cref="ModIO.ModfileLocator.binaryURL"/> returned will contain a verification hash.
+        /// [[ModIO.ModfileLocator.binaryURL]] returned will contain a verification hash.
         /// This hash must be supplied to get the modfile, and will expire at the time contained in
-        /// <see cref="ModIO.ModfileLocator.dateExpires"/>. Saving and reusing the
-        /// <see cref="ModIO.ModfileLocator.binaryURL"/> won't work in this situation given its
+        /// [[ModIO.ModfileLocator.dateExpires]]. Saving and reusing the
+        /// [[ModIO.ModfileLocator.binaryURL]] won't work in this situation given its
         /// dynamic nature.
         /// </remarks>
         public static void GetAllModfiles(int modId,
@@ -746,13 +749,13 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a file. Successful request will return a single <see cref="ModIO.Modfile"/>.
+        /// Get a file. Successful request will return a single [[ModIO.Modfile]].
         /// <remarks>
         /// If the game requires mod downloads to be initiated via the API, the
-        /// <see cref="ModIO.ModfileLocator.binaryURL"/> returned will contain a verification hash.
+        /// [[ModIO.ModfileLocator.binaryURL]] returned will contain a verification hash.
         /// This hash must be supplied to get the modfile, and will expire at the time contained in
-        /// <see cref="ModIO.ModfileLocator.dateExpires"/>. Saving and reusing the
-        /// <see cref="ModIO.ModfileLocator.binaryURL"/> won't work in this situation given its
+        /// [[ModIO.ModfileLocator.dateExpires]]. Saving and reusing the
+        /// [[ModIO.ModfileLocator.binaryURL]] won't work in this situation given its
         /// dynamic nature.
         /// </remarks>
         public static void GetModfile(int modId, int modfileId,
@@ -769,7 +772,7 @@ namespace ModIO
 
         /// <summary>
         /// Upload a file for the corresponding mod. Successful request will return the newly
-        /// created <see cref="ModIO.Modfile"/>. Ensure that the release you are uploading is stable
+        /// created [[ModIO.Modfile]]. Ensure that the release you are uploading is stable
         /// and free from any critical issues. Files are scanned upon upload, any users who upload
         /// malicious files will have their accounts closed promptly.
         /// </summary>
@@ -789,7 +792,7 @@ namespace ModIO
         /// <summary>
         /// Edit the details of a published file. If you want to update fields other than the
         /// changelog, version and active status, you should add a new file instead. Successful
-        /// request will return updated <see cref="ModIO.Modfile"/>.
+        /// request will return updated [[ModIO.Modfile]].
         /// </summary>
         public static void EditModfile(int modId, int modfileId,
                                        EditModfileParameters parameters,
@@ -807,7 +810,7 @@ namespace ModIO
         // ---------[ MEDIA ENDPOINTS ]---------
         /// <summary>
         /// Upload new media to a game. Successful request will return an
-        /// <see cref="ModIO.APIMessage"/>.
+        /// [[ModIO.APIMessage]].
         /// <remarks>
         /// You can also add media to your games profile on the mod.io website. This is the
         /// recommended approach.
@@ -827,7 +830,7 @@ namespace ModIO
         /// <summary>
         /// This endpoint is very flexible and will add any images posted to the mods gallery
         /// regardless of their body name providing they are a valid image. Successful request will
-        /// return an <see cref="ModIO.APIMessage"/>.
+        /// return an [[ModIO.APIMessage]].
         public static void AddModMedia(int modId,
                                        AddModMediaParameters parameters,
                                        Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -861,12 +864,12 @@ namespace ModIO
         // ---------[ SUBSCRIBE ENDPOINTS ]---------
         /// <summary>
         /// Subscribe the authenticated user to a corresponding mod. No body parameters are required
-        /// for this action. Successful request will return the <see cref="ModIO.ModProfile"/> of
+        /// for this action. Successful request will return the [[ModIO.ModProfile]] of
         /// the newly subscribed mod.
         /// </summary>
         /// <remarks>
         /// Users can subscribe to mods via the mod.io web interface. Thus we recommend you poll
-        /// <see cref="ModIO.APIClient.GetUserEvents"/> to keep a user's mods collection up to date.
+        /// [[ModIO.APIClient.GetUserEvents]] to keep a user's mods collection up to date.
         /// </remarks>
         public static void SubscribeToMod(int modId,
                                           Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -887,7 +890,7 @@ namespace ModIO
         /// </summary>
         /// <remarks>
         /// Users can unsubscribe from mods via the mod.io web interface. Thus we recommend you poll
-        /// <see cref="ModIO.APIClient.GetUserEvents"/> to keep a user's mods collection up to date.
+        /// [[ModIO.APIClient.GetUserEvents]] to keep a user's mods collection up to date.
         /// </remarks>
         public static void UnsubscribeFromMod(int modId,
                                               Action successCallback, Action<WebRequestError> errorCallback)
@@ -904,8 +907,8 @@ namespace ModIO
         // ---------[ EVENT ENDPOINTS ]---------
         /// <summary>
         /// Get the event log for a mod, showing changes made sorted by latest event first.
-        /// Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
-        /// <see cref="ModIO.ModEvent"/>. We recommended reading the
+        /// Successful request will return a [[ModIO.API.ResponseArray]] of
+        /// [[ModIO.ModEvent]]. We recommended reading the
         /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
         /// records you want.
         /// </summary>
@@ -923,8 +926,8 @@ namespace ModIO
         }
 
         /// <summary>Get all mods events for the corresponding game sorted by latest event first.
-        /// Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
-        /// <see cref="ModIO.ModEvent"/>.
+        /// Successful request will return a [[ModIO.API.ResponseArray]] of
+        /// [[ModIO.ModEvent]].
         /// <remarks>
         /// We recommend you poll this endpoint to keep mods up-to-date. If polling this endpoint
         /// for updates you should store the id or date_updated of the latest event, and on
@@ -947,8 +950,8 @@ namespace ModIO
         // ---------[ TAG ENDPOINTS ]---------
         /// <summary>
         /// Get all tags for the corresponding game, that can be applied to any of its mods.
-        /// Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
-        /// <see cref="ModIO.ModTagCategory"/>.
+        /// Successful request will return a [[ModIO.API.ResponseArray]] of
+        /// [[ModIO.ModTagCategory]].
         public static void GetAllGameTagOptions(Action<ResponseArray<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/tags";
@@ -962,7 +965,7 @@ namespace ModIO
 
         /// <summary>
         /// Add tags which mods can apply to their profiles. Successful request will return an
-        /// <see cref="ModIO.APIMessage"/>. Tagging is a critical feature that powers the searching
+        /// [[ModIO.APIMessage]]. Tagging is a critical feature that powers the searching
         /// and filtering of mods for your game, as well as allowing you to control how mods are
         /// installed and played. For example you might enforce mods to be a particular type (map,
         /// model, script, save, effects, blueprint), which dictates how you install it. You may use
@@ -970,7 +973,7 @@ namespace ModIO
         /// the tags describe the theme of the mod (fun, scenic, realism). The implementation is up
         /// to you, but the more detail you support the better filtering and searching becomes. If
         /// you need to store more advanced information, you can also use
-        /// <see cref="ModIO.ModProfile.metadataKVPs"/>.
+        /// [[ModIO.ModProfile.metadataKVPs]].
         /// </summary>
         /// <remarks>
         /// You can also manage tags via the mod.io web interface. This is the recommended approach.
@@ -1008,7 +1011,7 @@ namespace ModIO
 
         /// <summary>
         /// Get all tags for the corresponding mod. Successful request will return a
-        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModTag"/>. We recommended
+        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModTag]]. We recommended
         /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
         /// return only the records you want.
         /// </summary>
@@ -1027,8 +1030,8 @@ namespace ModIO
 
         /// <summary>
         /// Add tags to a mod's profile. You can only add tags allowed by the parent game, which are
-        /// listed under <see cref="ModIO.GameProfile.tagCategories"/>. Successful request will
-        /// return an <see cref="ModIO.APIMessage"/>.
+        /// listed under [[ModIO.GameProfile.tagCategories]]. Successful request will
+        /// return an [[ModIO.APIMessage]].
         /// </summary>
         public static void AddModTags(int modId, AddModTagsParameters parameters,
                                       Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1063,10 +1066,10 @@ namespace ModIO
         /// <summary>
         /// Submit a positive or negative rating for a mod. Each user can supply only one rating for
         /// a mod, subsequent ratings will override the old value. Successful request will return an
-        /// <see cref="ModIO.APIMessage"/>.
+        /// [[ModIO.APIMessage]].
         /// <remarks>
         /// You can order mods by their rating, and view their rating in the
-        /// <see cref="ModIO.ModProfile"/>.
+        /// [[ModIO.ModProfile]].
         /// </remarks>
         public static void AddModRating(int modId, AddModRatingParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1084,10 +1087,10 @@ namespace ModIO
         // ---------[ METADATA ENDPOINTS ]---------
         /// <summary>
         /// Get all metadata stored by the game developer for this mod as searchable key value
-        /// pairs. Successful request will return a <see cref="ModIO.API.ResponseArray"/> of
-        /// <see cref="ModIO.MetadataKVP"/>.
+        /// pairs. Successful request will return a [[ModIO.API.ResponseArray]] of
+        /// [[ModIO.MetadataKVP]].
         /// <remarks>
-        /// Metadata can also be stored to <see cref="ModIO.ModProfile.metadataBlob"/>.
+        /// Metadata can also be stored to [[ModIO.ModProfile.metadataBlob]].
         /// </remarks>
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
@@ -1105,7 +1108,7 @@ namespace ModIO
         /// <summary>
         /// Add metadata for this mod as searchable key value pairs. Metadata is useful to define
         /// how a mod works, or other information you need to display and manage the mod. Successful
-        /// request will return an <see cref="ModIO.APIMessage"/>.
+        /// request will return an [[ModIO.APIMessage]].
         /// </summary>
         /// <example>
         /// A mod might change gravity and the rate of fire of weapons, you could define these
@@ -1186,7 +1189,7 @@ namespace ModIO
         // ---------[ TEAM ENDPOINTS ]---------
         /// <summary>
         /// Get all users that are part of a mod team. Successful request will return a
-        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModTeamMember"/>. We
+        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModTeamMember]]. We
         /// recommend reading the <a href="https://docs.mod.io/#filtering">filtering documentation
         /// </a> to return only the records you want.
         /// </summary>
@@ -1205,8 +1208,8 @@ namespace ModIO
 
         /// <summary>
         /// Add a user to a mod team. Successful request will return an
-        /// <see cref="ModIO.APIMessage"/> and fire a
-        /// <see cref="ModIO.ModEventType.ModTeamChanged"/> <see cref="ModIO.ModEvent"/>.
+        /// [[ModIO.APIMessage]] and fire a
+        /// [[ModIO.ModEventType.ModTeamChanged]] [[ModIO.ModEvent]].
         /// </summary>
         public static void AddModTeamMember(int modId, AddModTeamMemberParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1222,7 +1225,7 @@ namespace ModIO
 
         /// <summary>
         /// Update a mod team members details. Successful request will return an
-        /// <see cref="ModIO.APIMessage"/>.
+        /// [[ModIO.APIMessage]].
         /// </summary>
         public static void UpdateModTeamMember(int modId, int teamMemberId,
                                                UpdateModTeamMemberParameters parameters,
@@ -1239,7 +1242,7 @@ namespace ModIO
         /// <summary>
         /// Delete a user from a mod team. This will revoke their access rights if they are not the
         /// original creator of the resource. Successful request will return 204 No Content and fire
-        /// a <see cref="ModIO.ModEventType.ModTeamChanged"/> <see cref="ModIO.ModEvent"/>.
+        /// a [[ModIO.ModEventType.ModTeamChanged]] [[ModIO.ModEvent]].
         public static void DeleteModTeamMember(int modId, int teamMemberId,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1295,7 +1298,7 @@ namespace ModIO
         // ---------[ USER ENDPOINTS ]---------
         /// <summary>
         /// Get the user that is the original submitter of a resource. Successful request will
-        /// return a single <see cref="ModIO.UserProfile"/>.
+        /// return a single [[ModIO.UserProfile]].
         /// </summary>
         /// <remarks>
         /// Mods and games can be managed by teams of users, for the most accurate information you
@@ -1320,7 +1323,7 @@ namespace ModIO
 
         /// <summary>
         /// Get all users registered on mod.io. Successful request will return a
-        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.UserProfile"/>. We recommend
+        /// [[ModIO.API.ResponseArray]] of [[ModIO.UserProfile]]. We recommend
         /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
         /// return only the records you want.
         /// </summary>
@@ -1337,7 +1340,7 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a user. Successful request will return a single <see cref="ModIO.UserProfile"/>.
+        /// Get a user. Successful request will return a single [[ModIO.UserProfile]].
         /// </summary>
         public static void GetUser(int userID,
                                    Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -1371,7 +1374,7 @@ namespace ModIO
         // ---------[ ME ENDPOINTS ]---------
         /// <summary>
         /// Get the authenticated user details. Successful request will return a single
-        /// <see cref="ModIO.UserProfile"/>.
+        /// [[ModIO.UserProfile]].
         /// </summary>
         public static void GetAuthenticatedUser(Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1384,7 +1387,7 @@ namespace ModIO
 
         /// <summary>
         /// Get all mod's the authenticated user is subscribed to. Successful request will return a
-        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModProfile"/>. We recommend
+        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]]. We recommend
         /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
         /// return only the records you want.
         /// </summary>
@@ -1402,7 +1405,7 @@ namespace ModIO
 
         /// <summary>
         /// Get events that have been fired specific to the user. Successful request will return a
-        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.UserEvent"/>. We recommend
+        /// [[ModIO.API.ResponseArray]] of [[ModIO.UserEvent]]. We recommend
         /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
         /// return only the records you want.
         /// </summary>
@@ -1420,7 +1423,7 @@ namespace ModIO
 
         /// <summary>
         /// Get all games the authenticated user added or is a team member of. Successful request
-        /// will return a <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.GameProfile"/>.
+        /// will return a [[ModIO.API.ResponseArray]] of [[ModIO.GameProfile]].
         /// We recommend reading the <a href="https://docs.mod.io/#filtering">filtering
         /// documentation</a> to return only the records you want.
         /// </summary>
@@ -1435,7 +1438,7 @@ namespace ModIO
 
         /// <summary>
         /// Get all mods the authenticated user added or is a team member of. Successful request
-        /// will return a <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.ModProfile"/>.
+        /// will return a [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]].
         /// We recommended reading the <a href="https://docs.mod.io/#filtering">filtering
         /// documentation</a> to return only the records you want.
         /// </summary>
@@ -1453,10 +1456,11 @@ namespace ModIO
 
         /// <summary>
         /// Get all modfiles the authenticated user uploaded. Successful request will return a
-        /// <see cref="ModIO.API.ResponseArray"/> of <see cref="ModIO.Modfile"/>. We recommend
+        /// [[ModIO.API.ResponseArray]] of [[ModIO.Modfile]]. We recommend
         /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
         /// return only the records you want.
         /// </summary>
+        /// <param name="filter">The filter to be applied to the request</param>
         public static void GetUserModfiles(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
