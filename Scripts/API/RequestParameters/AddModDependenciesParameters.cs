@@ -11,11 +11,5 @@ namespace ModIO.API
                 this.SetStringArrayValue("dependencies[]", value);
             }
         }
-
-        // ---------[ CONSTRUCTOR ]---------
-        public AddModDependenciesParameters(int[] dependenciesValue)
-        {
-            this.dependencies = dependenciesValue;
-        }
     }
 }
