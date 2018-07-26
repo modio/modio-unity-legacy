@@ -4,20 +4,29 @@ using System.Linq;
 
 namespace ModIO
 {
+    // ---------[ SERIALIZABLE EDITABLE CLASSES ]---------
+    [Serializable]
+    public class EditableModStatusField : EditableField<ModStatus> {}
+    [Serializable]
+    public class EditableModVisibilityField : EditableField<ModVisibility> {}
+    [Serializable]
+    public class EditableKVPArrayField : EditableArrayField<MetadataKVP> {}
+
     [Serializable]
     public class EditableModProfile
     {
-        // ---------[ SERIALIZABLE EDITABLE CLASSES ]---------
-        [Serializable]
-        public class EditableModStatusField : EditableField<ModStatus> {}
-        [Serializable]
-        public class EditableModVisibilityField : EditableField<ModVisibility> {}
-        [Serializable]
-        public class EditableKVPArrayField : EditableArrayField<MetadataKVP> {}
+        /// @cond
+        [Obsolete]
+        public class EditableModStatusField : ModIO.EditableModStatusField {}
+        [Obsolete]
+        public class EditableModVisibilityField : ModIO.EditableModVisibilityField {}
+        [Obsolete]
+        public class EditableKVPArrayField : ModIO.EditableKVPArrayField {}
+        /// @endcond
 
         // ---------[ FIELDS ]---------
-        public EditableModStatusField status =                      new EditableModStatusField();
-        public EditableModVisibilityField visibility =              new EditableModVisibilityField();
+        public ModIO.EditableModStatusField status =                new ModIO.EditableModStatusField();
+        public ModIO.EditableModVisibilityField visibility =        new ModIO.EditableModVisibilityField();
         public EditableStringField name =                           new EditableStringField();
         public EditableStringField nameId =                         new EditableStringField();
         public EditableStringField summary =                        new EditableStringField();
@@ -25,7 +34,7 @@ namespace ModIO
         public EditableStringField homepageURL =                    new EditableStringField();
         public EditableStringArrayField tags =                      new EditableStringArrayField();
         public EditableStringField metadataBlob =                   new EditableStringField();
-        public EditableKVPArrayField metadataKVPs =                 new EditableKVPArrayField();
+        public ModIO.EditableKVPArrayField metadataKVPs =           new ModIO.EditableKVPArrayField();
         // - Mod Media -
         public EditableImageLocatorField logoLocator =              new EditableImageLocatorField();
         public EditableStringArrayField youtubeURLs =               new EditableStringArrayField();

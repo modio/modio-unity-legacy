@@ -1,18 +1,25 @@
+using System;
+
 namespace ModIO
 {
-    [System.Serializable]
+    // ---------[ SERIALIZABLE EDIT FIELDS ]------
+    [Serializable]
+    public class EditableResourceTypeField : EditableField<ReportedResourceType> {}
+
+    [Serializable]
     public class EditableReport
     {
-        // ---------[ SERIALIZABLE EDIT FIELDS ]------
-        [System.Serializable]
-        public class EditableResourceTypeField : EditableField<ReportedResourceType> {}
+        /// @cond
+        [Obsolete]
+        public class EditableResourceTypeField : ModIO.EditableResourceTypeField {}
+        /// @endcond
 
         // ---------[ FIELDS ]---------
-        public EditableResourceTypeField resourceType=  new EditableResourceTypeField();
-        public EditableIntField resourceId =            new EditableIntField();
-        public EditableBoolField isDMCA =               new EditableBoolField();
-        public EditableStringField name =               new EditableStringField();
-        public EditableStringField summary =            new EditableStringField();
+        public ModIO.EditableResourceTypeField resourceType =   new ModIO.EditableResourceTypeField();
+        public EditableIntField resourceId =                    new EditableIntField();
+        public EditableBoolField isDMCA =                       new EditableBoolField();
+        public EditableStringField name =                       new EditableStringField();
+        public EditableStringField summary =                    new EditableStringField();
 
         public static string ResourceTypeToAPIString(ReportedResourceType resourceType)
         {
