@@ -13,23 +13,41 @@ using ModIO.API;
 
 namespace ModIO
 {
+    /// <summary>
+    /// This class provides a native wrapper for each of the endpoints available via the mod.io web
+    /// API.
+    /// </summary>
     public static class APIClient
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>
-        /// Denotes the version of the mod.io web API that this class is compatible with
+        /// Denotes which version of the mod.io web API that this class is compatible with.
         /// </summary>
+        /// <remarks>
+        /// This value forms part of the web API URL and should not be changed.
+        /// </remarks>
         public const string API_VERSION = "v1";
 
+        /// <summary>
+        /// The base URL for the web API
+        /// </summary>
         #if DEBUG
-        public static readonly string API_URL = (GlobalSettings.USE_TEST_SERVER ? "https://api.test.mod.io/" : "https://api.mod.io/") + API_VERSION;
+        public static readonly string API_URL = (GlobalSettings.USE_TEST_SERVER
+                                                 ? "https://api.test.mod.io/"
+                                                 : "https://api.mod.io/") + API_VERSION;
         #else
         public const string API_URL = "https://api.mod.io/" + API_VERSION;
         #endif
 
+        /// <summary>
+        /// Collection of the HTTP request header keys used by Unity
+        /// </summary>
+        /// <remarks>
+        /// Used almost exclusively for debugging requests.
+        /// </remarks>
         public static readonly string[] UNITY_REQUEST_HEADER_KEYS = new string[]
         {
-            // RESERVED
+            // - UNIVERSAL -
             "accept-charset",
             "access-control-request-headers",
             "access-control-request-method",
@@ -48,13 +66,19 @@ namespace ModIO
             "transfer-encoding",
             "upgrade",
             "via",
-            // UNITY
+            // - UNITY -
             "accept-encoding",
             "Content-Type",
             "content-length",
             "x-unity-version",
             "user-agent",
         };
+        /// <summary>
+        /// Collection of the HTTP request header keys used by mod.io
+        /// </summary>
+        /// <remarks>
+        /// Used almost exclusively for debugging requests.
+        /// </remarks>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
             "Authorization",
@@ -62,15 +86,46 @@ namespace ModIO
         };
 
         // ---------[ MEMBERS ]---------
+        /// <summary>
+        /// Game ID that the APIClient should use when contacting the API
+        /// </summary>
         public static int gameId = GlobalSettings.GAME_ID;
+
+        /// <summary>
+        /// Game API that the APIClient should use when contacting the API
+        /// </summary>
         public static string gameAPIKey = GlobalSettings.GAME_APIKEY;
+
+        /// <summary>
+        /// The user's OAuthToken that the APIClient should include when contacting the API
+        /// </summary>
         public static string userAuthorizationToken = null;
+
+        /// <summary>
+        /// The language code that designates requested language for the API response messages
+        /// </summary>
+        /// <remarks>
+        /// Currently supported languages and codes are listed in the mod.io documentation under
+        /// <a href="https://docs.mod.io/#localization">Localization</a>.
+        /// </remarks>
         public static string languageCode = "en";
 
         // ---------[ DEBUG ASSERTS ]---------
-        private static bool AssertAuthorizationDetails(bool isUserTokenRequired)
+        /// <summary>
+        /// Asserts that the required authorization data for making API requests is set.
+        /// </summary>
+        /// <remarks>
+        /// Only asserts that the values have been set, but **does not check the correctness** of
+        /// those values.
+        /// </remarks>
+        /// <param name="isUserTokenRequired">
+        /// Whether to assert that [[ModIO.APIClient.userAuthorizationToken]] is set.
+        /// </param>
+        /// <returns>
+        /// True if the authorization details for an API request have been set.
+        /// </returns>
+        public static bool AssertAuthorizationDetails(bool isUserTokenRequired)
         {
-            #if DEBUG
             if(APIClient.gameId <= 0
                || String.IsNullOrEmpty(APIClient.gameAPIKey))
             {
@@ -96,6 +151,17 @@ namespace ModIO
         }
 
         // ---------[ REQUEST HANDLING ]---------
+        /// <summary>
+        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> for a mod.io API endpoint request that requires no user authentication
+        /// </summary>
+        /// <param name="endpointURL">Endpoint URL for the request</param>
+        /// <param name="filterString">Filter string to be appended to the endpoint URL</param>
+        /// <param name="pagination">Pagination data for the request</param>
+        /// <returns>
+        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> initialized with the data for sending the API request
+        /// </returns>
         public static UnityWebRequest GenerateQuery(string endpointURL,
                                                     string filterString,
                                                     PaginationParameters pagination)
@@ -165,6 +231,17 @@ namespace ModIO
             return webRequest;
         }
 
+        /// <summary>
+        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> for a mod.io API endpoint 'GET' request
+        /// </summary>
+        /// <param name="endpointURL">Endpoint URL for the request</param>
+        /// <param name="filterString">Filter string to be appended to the endpoint URL</param>
+        /// <param name="pagination">Pagination data for the request</param>
+        /// <returns>
+        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> initialized with the data for sending the API request
+        /// </returns>
         public static UnityWebRequest GenerateGetRequest(string endpointURL,
                                                          string filterString,
                                                          PaginationParameters pagination)
@@ -226,6 +303,16 @@ namespace ModIO
             return webRequest;
         }
 
+        /// <summary>
+        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> for a mod.io API endpoint 'PUT' request
+        /// </summary>
+        /// <param name="endpointURL">Endpoint URL for the request</param>
+        /// <param name="valueFields">The string values to be submitted with the PUT request</param>
+        /// <returns>
+        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> initialized with the data for sending the API request
+        /// </returns>
         public static UnityWebRequest GeneratePutRequest(string endpointURL,
                                                          StringValueParameter[] valueFields)
         {
@@ -288,6 +375,17 @@ namespace ModIO
             return webRequest;
         }
 
+        /// <summary>
+        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> for a mod.io API endpoint 'POST' request
+        /// </summary>
+        /// <param name="endpointURL">Endpoint URL for the request</param>
+        /// <param name="valueFields">The string values to be submitted with the POST request</param>
+        /// <param name="dataFields">The binary data to be submitted with the POST request</param>
+        /// <returns>
+        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> initialized with the data for sending the API request
+        /// </returns>
         public static UnityWebRequest GeneratePostRequest(string endpointURL,
                                                           StringValueParameter[] valueFields,
                                                           BinaryDataParameter[] dataFields)
@@ -371,6 +469,16 @@ namespace ModIO
             return webRequest;
         }
 
+        /// <summary>
+        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> for a mod.io API endpoint 'DELETE' request
+        /// </summary>
+        /// <param name="endpointURL">Endpoint URL for the request</param>
+        /// <param name="valueFields">The string values to be submitted with the DELETE request</param>
+        /// <returns>
+        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
+        /// UnityWebRequest</a> initialized with the data for sending the API request
+        /// </returns>
         public static UnityWebRequest GenerateDeleteRequest(string endpointURL,
                                                             StringValueParameter[] valueFields)
         {
@@ -440,6 +548,14 @@ namespace ModIO
             return webRequest;
         }
 
+        /// <summary>
+        /// Sends the request and attaches the callbacks to the
+        /// <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequestAsyncOperation.html">
+        /// UnityWebRequestAsyncOperation</a> that is created.
+        /// </summary>
+        /// <param name="webRequest">The request to send and attach the callback functions to</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void SendRequest(UnityWebRequest webRequest,
                                        Action successCallback,
                                        Action<WebRequestError> errorCallback)
@@ -477,6 +593,15 @@ namespace ModIO
             };
         }
 
+        /// <summary>
+        /// Sends the request and attaches the callbacks to the
+        /// <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequestAsyncOperation.html">
+        /// UnityWebRequestAsyncOperation</a> that is created, and attempts to parse the response.
+        /// </summary>
+        /// <param name="webRequest">The request to send and attach the callback functions to</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
+        /// <remarks>See also: [[ModIO.APIClient.SendRequest]]</remarks>
         public static void SendRequest<T>(UnityWebRequest webRequest,
                                           Action<T> successCallback,
                                           Action<WebRequestError> errorCallback)
@@ -495,6 +620,8 @@ namespace ModIO
                     {
                         Debug.LogError("[mod.io] Failed to convert response into " + typeof(T).ToString() + " representation\n\n"
                                        + Utility.GenerateExceptionDebugString(e));
+
+                        // TODO(@jackson): Error!
                     }
                 }
             };
