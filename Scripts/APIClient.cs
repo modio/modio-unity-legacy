@@ -632,6 +632,17 @@ namespace ModIO
 
 
         // ---------[ AUTHENTICATION ]---------
+        /// <summary>
+        /// Requests a login code be sent to the user's email address.
+        /// </summary>
+        /// <remarks>
+        /// For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
+        /// filtering documentation</a>.
+        /// See also: [[ModIO.APIClient.GetOAuthToken]]
+        /// </remarks>
+        /// <param name="emailAddress">The user's email address to receive the security code</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void SendSecurityCode(string emailAddress,
                                             Action<APIMessage> successCallback,
                                             Action<WebRequestError> errorCallback)
@@ -658,9 +669,23 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
+        /// <summary>
+        /// Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests
+        /// </summary>
         [System.Serializable]
         private struct AccessTokenObject { public string access_token; }
 
+        /// <summary>
+        /// Requests the user's application OAuthToken that matches the single use security code.
+        /// </summary>
+        /// <remarks>
+        /// For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
+        /// filtering documentation</a>.
+        /// See also: [[ModIO.APIClient.SendSecurityCode]]
+        /// </remarks>
+        /// <param name="securityCode">The security code sent to the user's email address.</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetOAuthToken(string securityCode,
                                          Action<string> successCallback,
                                          Action<WebRequestError> errorCallback)
@@ -695,11 +720,17 @@ namespace ModIO
 
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>
-        /// Get all games. Successful request will return an [[ModIO.API.ResponseArray]]
+        /// Fetchs all games profiles from the mod.io servers matching the filter and pagination
+        /// parameters.
+        /// </summary>
+        /// <remarks>
+        /// Successful request will return an [[ModIO.API.ResponseArray]]
         /// of [[ModIO.GameProfile]]. We recommended reading the
         /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
         /// records you want.
-        /// </summary>
+        /// </remarks>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<GameProfile>> successCallback,
                                        Action<WebRequestError> errorCallback)
@@ -714,8 +745,13 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a game. Successful request will return a single [[ModIO.GameProfile]].
+        /// Gets the game profile matching the value stored in [[ModIO.APIClient.gameId]].
         /// </summary>
+        /// <remarks>
+        /// Successful request will return a single [[ModIO.GameProfile]].
+        /// </remarks>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId;
@@ -728,14 +764,19 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Update details for a game. If you want to update the icon, logo or header fields you
-        /// need to use the [[ModIO.APIClient.AddGameMedia]] endpoint. Successful request
-        /// will return updated [[ModIO.GameProfile]].
+        /// Update the game profile for the game id stored in [[ModIO.APIClient.gameId]].
         /// </summary>
         /// <remarks>
-        /// You can also edit your games profile on the mod.io website. This is the recommended
-        /// approach.
+        /// <para>This function only supports the game profile fields listed in the
+        /// [[ModIO.API.EditGameParameters]] class.  To update the icon, logo or header fields use
+        /// [[ModIO.APIClient.AddGameMedia]]. A successful request will return updated
+        /// [[ModIO.GameProfile]].</para>
+        /// <para>**NOTE:** You can also edit a game profile directly using the on the mod.io
+        /// web interface. This is the recommended approach.</para>
         /// </remarks>
+        /// <param name="parameters">The updated values for the game profile</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void EditGame(EditGameParameters parameters,
                                     Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
