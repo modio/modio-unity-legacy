@@ -145,7 +145,6 @@ namespace ModIO
                                + " User Authorization Token on the ModIO.APIClient.");
                 return false;
             }
-            #endif
 
             return true;
         }
