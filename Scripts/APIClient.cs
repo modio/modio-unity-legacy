@@ -11,6 +11,10 @@ using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyn
 
 using ModIO.API;
 
+// TODO(@jackson): Add filter references
+// TODO(@jackson): Add SeeAlso: gameID and userAuthorizationToken where necessary
+// TODO(@jackson): Add See also: docs.mod.io ref
+// TODO(@jackson): search ")[", "][", and "[["
 namespace ModIO
 {
     /// <summary>
@@ -118,12 +122,8 @@ namespace ModIO
         /// Only asserts that the values have been set, but **does not check the correctness** of
         /// those values.
         /// </remarks>
-        /// <param name="isUserTokenRequired">
-        /// Whether to assert that [[ModIO.APIClient.userAuthorizationToken]] is set.
-        /// </param>
-        /// <returns>
-        /// True if the authorization details for an API request have been set.
-        /// </returns>
+        /// <param name="isUserTokenRequired">Whether to assert that [[ModIO.APIClient.userAuthorizationToken]] is set</param>
+        /// <returns>True if all the neccessary authorization details for an API request have been set</returns>
         public static bool AssertAuthorizationDetails(bool isUserTokenRequired)
         {
             if(APIClient.gameId <= 0
@@ -636,9 +636,9 @@ namespace ModIO
         /// Requests a login code be sent to the user's email address.
         /// </summary>
         /// <remarks>
-        /// For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
-        /// filtering documentation</a>.
-        /// See also: [[ModIO.APIClient.GetOAuthToken]]
+        /// <para>For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
+        /// filtering documentation</a>.</para>
+        /// <para>See also: [[ModIO.APIClient.GetOAuthToken]]</para>
         /// </remarks>
         /// <param name="emailAddress">The user's email address to receive the security code</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -679,9 +679,9 @@ namespace ModIO
         /// Requests the user's application OAuthToken that matches the single use security code.
         /// </summary>
         /// <remarks>
-        /// For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
-        /// filtering documentation</a>.
-        /// See also: [[ModIO.APIClient.SendSecurityCode]]
+        /// <para>For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
+        /// filtering documentation</a>.</para>
+        /// <para>See also: [[ModIO.APIClient.SendSecurityCode]]</para>
         /// </remarks>
         /// <param name="securityCode">The security code sent to the user's email address.</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -720,15 +720,16 @@ namespace ModIO
 
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>
-        /// Fetchs all games profiles from the mod.io servers matching the filter and pagination
+        /// Fetches all games profiles from the mod.io servers matching the filter and pagination
         /// parameters.
         /// </summary>
         /// <remarks>
-        /// Successful request will return an [[ModIO.API.ResponseArray]]
-        /// of [[ModIO.GameProfile]]. We recommended reading the
-        /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
-        /// records you want.
+        /// <para>Successful requests return an [[ModIO.API.ResponseArray]] of [[ModIO.GameProfile]].</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation
+        /// </a> for more comprehensive explanation of the filtering and pagination parameters.</para>
         /// </remarks>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
@@ -745,9 +746,10 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Gets the game profile matching the value stored in [[ModIO.APIClient.gameId]].
+        /// Gets the game profile matching the stored id.
         /// </summary>
         /// <remarks>
+        /// The profile returned will be the one with the id stored in [[ModIO.APIClient.gameId]].
         /// Successful request will return a single [[ModIO.GameProfile]].
         /// </remarks>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -771,8 +773,8 @@ namespace ModIO
         /// [[ModIO.API.EditGameParameters]] class.  To update the icon, logo or header fields use
         /// [[ModIO.APIClient.AddGameMedia]]. A successful request will return updated
         /// [[ModIO.GameProfile]].</para>
-        /// <para>**NOTE:** You can also edit a game profile directly using the on the mod.io
-        /// web interface. This is the recommended approach.</para>
+        /// <para>**NOTE:** You can also edit a game profile directly via the mod.io web interface.
+        /// This is the recommended approach.</para>
         /// </remarks>
         /// <param name="parameters">The updated values for the game profile</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -791,11 +793,19 @@ namespace ModIO
 
         // ---------[ MOD ENDPOINTS ]---------
         /// <summary>
-        /// Get all mods for the corresponding game. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]]. We recommended
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
+        /// Fetches all mods for the game id stored in [[ModIO.APIClient.gameId]] matching the
+        /// filtering and pagination parameters supplied.
         /// </summary>
+        /// <remarks>
+        /// <para>Successful request will the results of the query as a [[ModIO.API.ResponseArray]]
+        /// of [[ModIO.ModProfile]]</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// </remarks>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllMods(RequestFilter filter, PaginationParameters pagination,
                                       Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -809,8 +819,11 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a mod. Successful request will return a single [[ModIO.ModProfile]].
+        /// Fetches the [[ModIO.ModProfile]] for the mod with the given id.
         /// </summary>
+        /// <param name="modId">The id of the mod profile to retrieve</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetMod(int modId,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -824,17 +837,21 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Add a mod. Successful request will return the newly created
-        /// [[ModIO.ModProfile]]. By publishing your mod on mod.io, you are agreeing to
-        /// the mod.io distribution agreement.
+        /// Creates a new mod profile on the mod.io servers.
         /// </summary>
         /// <remarks>
-        /// By default new mods are [[ModIO.ModStatus.NotAccepted]] and
-        /// [[ModIO.ModVisibility.Public]]. They can only be
-        /// [[ModIO.ModStatus.Accepted]] and made available via the API once a
-        /// [[ModIO.Modfile]] has been uploaded. Media, Metadata Key Value Pairs and
-        /// Dependencies can also be added after a mod profile is created.
+        /// <para>The new mod profile is created as a mod belonging to the game id stored in
+        /// [[ModIO.APIClient.gameId]]. Successful requests will return the newly created
+        /// [[ModIO.ModProfile]].</para>
+        /// <para>By default new mods are [NotAccepted](ModIO.ModStatus.NotAccepted) and
+        /// [Public](ModIO.ModVisibility.Public). They can only be [accepted](ModIO.ModStatus.Accepted)
+        /// and made available via the API once a [Modfile](ModIO.Modfile) has been uploaded.
+        /// Media, Metadata Key Value Pairs and Dependencies can also be added after a mod profile
+        /// is created.</para>
         /// </remarks>
+        /// <param name="parameters">The values to be uploaded with to the new mod profile</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddMod(AddModParameters parameters,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -848,11 +865,19 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Edit details for a mod. If you want to update the logo or media associated with this
-        /// mod, you need to use [[ModIO.APIClient.AddModMedia]]. The same applies to
-        /// Mod Files, Metadata Key Value Pairs and Dependencies which are all managed via other
-        /// endpoints. Successful request will return the updated [[ModIO.ModProfile]].
+        /// Submits changes to an existing mod profile.
         /// </summary>
+        /// <remarks>
+        /// <para>This function is only able to update the parameters found in the
+        /// [EditModParameters](ModIO.API.EditModParameters) class. To update the logo or media
+        /// associated with a mod, use [[ModIO.APIClient.AddModMedia]]. The same applies to
+        /// Modfiles, Metadata Key Value Pairs and Dependencies which are all managed via other
+        /// endpoints. A successful request will return the updated [ModProfile](ModIO.ModProfile).</para>
+        /// </remarks>
+        /// <param name="modId">Id of the mod profile to update</param>
+        /// <param name="parameters">Altered values to submit in the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void EditMod(int modId,
                                    EditModParameters parameters,
                                    Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -866,15 +891,21 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Delete a mod profile. Successful request will return 204 No Content and create a
-        /// [[ModIO.ModEvent]] with the type
-        /// [[ModIO.ModEventType.ModUnavailable]].
+        /// Deletes a mod profile from the mod.io servers.
         /// </summary>
         /// <remarks>
-        /// This will close the mod profile which means it cannot be viewed or retrieved via API
-        /// requests but will still exist in-case you choose to restore it at a later date. A mod
-        /// can be permanently deleted via the website interface.
+        /// <para>Sets the status of a mod profile to [Deleted](ModIO.ModStatus.Deleted).
+        /// This will close the mod profile meaning it cannot be viewed or retrieved via API
+        /// requests but will still exist on the servers, allowing it to be restored at a later date.
+        /// A successful request will return an [APIMessage](ModIO.APIMessage) with a [code](ModIO.APIMessage.code)
+        /// of 204 create a [ModUnavailable](ModIO.ModEventType.ModUnavailable)
+        /// [ModEvent](ModIO.ModEvent).</para>
+        /// <para>**NOTE:** A mod may only be permanently removed from the mod.io servers via the
+        /// website interface.</para>
         /// </remarks>
+        /// <param name="modId">Id of the mod to be deleted</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteMod(int modId,
                                      Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -889,19 +920,24 @@ namespace ModIO
 
         // ---------[ MODFILE ENDPOINTS ]---------
         /// <summary>
-        /// Get all files that are published for the corresponding mod. Successful request will
-        /// return a [[ModIO.API.ResponseArray]] of [[ModIO.Modfile]]. We
-        /// recommended reading the <a href="https://docs.mod.io/#filtering">filtering documentation
-        /// </a> to return only the records you want.
+        /// Fetches the modfiles for a given mod.
         /// </summary>
         /// <remarks>
-        /// If the game requires mod downloads to be initiated via the API, the
-        /// [[ModIO.ModfileLocator.binaryURL]] returned will contain a verification hash.
-        /// This hash must be supplied to get the modfile, and will expire at the time contained in
-        /// [[ModIO.ModfileLocator.dateExpires]]. Saving and reusing the
-        /// [[ModIO.ModfileLocator.binaryURL]] won't work in this situation given its
-        /// dynamic nature.
+        /// <para>Returns all the modfiles associated matching the filter and pagination paramters
+        /// for the the given mod id. Successful request will return a
+        /// [ResponseArray](ModIO.API.ResponseArray) of [Modfiles](ModIO.Modfile).</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <para>**NOTE:** If the game requires mod downloads to be initiated via the API, the
+        /// [download url](ModIO.ModfileLocator.binaryURL) contained in the
+        /// [download locator](ModIO.Modfile.downloadLocator) will expire at the time indicated by
+        /// the value of `Modfile.downloadLocator.dateExpires` and is thus unwise to cache.</para>
         /// </remarks>
+        /// <param name="modId">Id of the mod to retrieve modfiles for</param>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllModfiles(int modId,
                                           RequestFilter filter, PaginationParameters pagination,
                                           Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
@@ -916,15 +952,20 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Get a file. Successful request will return a single [[ModIO.Modfile]].
+        /// Fetch the a modfile's data from the server.
+        /// </summary>
         /// <remarks>
-        /// If the game requires mod downloads to be initiated via the API, the
-        /// [[ModIO.ModfileLocator.binaryURL]] returned will contain a verification hash.
-        /// This hash must be supplied to get the modfile, and will expire at the time contained in
-        /// [[ModIO.ModfileLocator.dateExpires]]. Saving and reusing the
-        /// [[ModIO.ModfileLocator.binaryURL]] won't work in this situation given its
-        /// dynamic nature.
+        /// <para>Successful request will return a single [Modfile](ModIO.Modfile) matching the
+        /// given mod and modfile ids.</para>
+        /// <para>**NOTE:** If the game requires mod downloads to be initiated via the API, the
+        /// [download url](ModIO.ModfileLocator.binaryURL) contained in the
+        /// [download locator](ModIO.Modfile.downloadLocator) will expire at the time indicated by
+        /// the value of `Modfile.downloadLocator.dateExpires` and is thus unwise to cache.</para>
         /// </remarks>
+        /// <param name="modId">Id of the mod for the request modfile</param>
+        /// <param name="modfileId">Id of the requested modfile</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -938,11 +979,17 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Upload a file for the corresponding mod. Successful request will return the newly
-        /// created [[ModIO.Modfile]]. Ensure that the release you are uploading is stable
-        /// and free from any critical issues. Files are scanned upon upload, any users who upload
-        /// malicious files will have their accounts closed promptly.
+        /// Uploads a new modfile to the mod.io servers.
         /// </summary>
+        /// <remarks>
+        /// Successful requests will return the newly created [Modfile](ModIO.Modfile).
+        /// It is recommended that an upload tool check mods are stable and free from any critical
+        /// issues.
+        /// </remarks>
+        /// <param name="modId">Destination mod for the new modfile</param>
+        /// <param name="parameters">The values to be uploaded with to the new modfile</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddModfile(int modId,
                                       AddModfileParameters parameters,
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
@@ -957,10 +1004,19 @@ namespace ModIO
         }
 
         /// <summary>
-        /// Edit the details of a published file. If you want to update fields other than the
-        /// changelog, version and active status, you should add a new file instead. Successful
-        /// request will return updated [[ModIO.Modfile]].
+        /// Submits changes to an existing modfile.
         /// </summary>
+        /// <remarks>
+        /// <para>This function is only able to update the parameters found in the
+        /// [EditModfileParameters](ModIO.API.EditModfileParameters) class. To update a binary,
+        /// submitting a new modfile is necessary. A successful request will return the updated
+        /// [Modfile](ModIO.Modfile).</para>
+        /// </remarks>
+        /// <param name="modId">Mod that the modfile belongs to</param>
+        /// <param name="modfileId">Modfile that will receive the updated values</param>
+        /// <param name="parameters">The values to be updated</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void EditModfile(int modId, int modfileId,
                                        EditModfileParameters parameters,
                                        Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
@@ -975,13 +1031,16 @@ namespace ModIO
 
 
         // ---------[ MEDIA ENDPOINTS ]---------
-        /// <summary>
-        /// Upload new media to a game. Successful request will return an
-        /// [[ModIO.APIMessage]].
+        /// <summary>Upload new media to the game profile on the mod.io servers.</summary>
         /// <remarks>
-        /// You can also add media to your games profile on the mod.io website. This is the
-        /// recommended approach.
+        /// <para>The profile returned will be the one with the id stored in [[ModIO.APIClient.gameId]].
+        /// A successful request will return an [APIMessage](ModIO.APIMessage).</para>
+        /// <para>**NOTE:** You can also edit game media directly via the mod.io web interface.
+        /// This is the recommended approach.</para>
         /// </remarks>
+        /// <param name="parameters">The game media to be added</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddGameMedia(AddGameMediaParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -994,10 +1053,14 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// This endpoint is very flexible and will add any images posted to the mods gallery
-        /// regardless of their body name providing they are a valid image. Successful request will
-        /// return an [[ModIO.APIMessage]].
+        /// <summary>Adds media to the given mod on the mod.io servers.</summary>
+        /// <remarks>
+        /// A successful request will return an [[ModIO.APIMessage]].
+        /// </remarks>
+        /// <param name="modId">Mod to add the media to</param>
+        /// <param name="parameters">Media to be added</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddModMedia(int modId,
                                        AddModMediaParameters parameters,
                                        Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1011,10 +1074,16 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete images, sketchfab or youtube links from a mod profile. Successful request will
-        /// return 204 No Content.
-        /// </summary>
+        /// <summary>Deletes mod media from a mod on the mod.io servers.</summary>
+        /// <remarks>
+        /// Deletes images, sketchfab or youtube links from a mod profile as per the values provided.
+        /// A successful request will an [APIMessage](ModIO.APIMessage) with the code `204 No
+        /// Content`.
+        /// </remarks>
+        /// <param name="modId">Mod to remove the media from</param>
+        /// <param name="parameters">Values to be removed from the mod</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModMedia(int modId,
                                           DeleteModMediaParameters parameters,
                                           Action successCallback, Action<WebRequestError> errorCallback)
@@ -1029,15 +1098,18 @@ namespace ModIO
 
 
         // ---------[ SUBSCRIBE ENDPOINTS ]---------
-        /// <summary>
-        /// Subscribe the authenticated user to a corresponding mod. No body parameters are required
-        /// for this action. Successful request will return the [[ModIO.ModProfile]] of
-        /// the newly subscribed mod.
-        /// </summary>
+        /// <summary>Subscribes the authenticated user to a mod.</summary>
         /// <remarks>
-        /// Users can subscribe to mods via the mod.io web interface. Thus we recommend you poll
-        /// [[ModIO.APIClient.GetUserEvents]] to keep a user's mods collection up to date.
+        /// <para>A successful request will return the [ModProfile](ModIO.ModProfile) of the newly
+        /// subscribed mod.
+        /// As users can subscribe to mods via the mod.io web interface it is recommended that any
+        /// cached records are updated via [[ModIO.APIClient.GetUserEvents]].</para>
+        /// <para>See also: [[ModIO.APIClient.userAuthorizationToken]],
+        /// [[ModIO.APIClient.UnsubscribeFromMod]]</para>
         /// </remarks>
+        /// <param name="modId">Mod to be subscribed to</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void SubscribeToMod(int modId,
                                           Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1051,14 +1123,18 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Unsubscribe the authenticated user from the corresponding mod. No body parameters are
-        /// required for this action. Successful request will return 204 No Content.
-        /// </summary>
+        /// <summary>Unsubscribes the authenticated user from a mod.</summary>
         /// <remarks>
-        /// Users can unsubscribe from mods via the mod.io web interface. Thus we recommend you poll
-        /// [[ModIO.APIClient.GetUserEvents]] to keep a user's mods collection up to date.
+        /// <para>A successful request will return an [APIMessage](ModIO.APIMessage) with the code
+        /// `204 No Content`.
+        /// As users can unsubscribe from mods via the mod.io web interface it is recommended that
+        /// any cached records are updated via [[ModIO.APIClient.GetUserEvents]].</para>
+        /// <para>See also: [[ModIO.APIClient.userAuthorizationToken]],
+        /// [[ModIO.APIClient.SubscribeToMod]]</para>
         /// </remarks>
+        /// <param name="modId">Mod to be unsubscribed from</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void UnsubscribeFromMod(int modId,
                                               Action successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1072,13 +1148,18 @@ namespace ModIO
 
 
         // ---------[ EVENT ENDPOINTS ]---------
-        /// <summary>
-        /// Get the event log for a mod, showing changes made sorted by latest event first.
-        /// Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.ModEvent]]. We recommended reading the
-        /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
-        /// records you want.
-        /// </summary>
+        /// <summary>Fetches the update events for a given mod.</summary>
+        /// <remarks>
+        /// <para>A successful request will return a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [ModEvents](ModIO.ModEvent).</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// </remarks>
+        /// <param name="modId">Mod to fetch events for</param>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetModEvents(int modId,
                                         RequestFilter filter, PaginationParameters pagination,
                                         Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
@@ -1092,15 +1173,20 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>Get all mods events for the corresponding game sorted by latest event first.
-        /// Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.ModEvent]].
+        /// <summary>Fetches all the mod update events for the game profile</summary>
         /// <remarks>
-        /// We recommend you poll this endpoint to keep mods up-to-date. If polling this endpoint
-        /// for updates you should store the id or date_updated of the latest event, and on
-        /// subsequent requests use that information in the filter, to return only newer events to
-        /// process.
+        /// <para>Successful request will return a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [ModEvents](ModIO.ModEvent).</para>
+        /// <para>It is recommended that games and apps poll this endpoint as a method of ensuring
+        /// cached data is current. Consider caching the timestamp for the last request sent via
+        /// this endpoint to allow its application in this filter parameter in future calls,
+        /// return only unacquired updates.</para>
+        /// <para>See also: [[ModIO.API.GetModEventsFilterFields]]</para>
         /// </remarks>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllModEvents(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1115,36 +1201,36 @@ namespace ModIO
 
 
         // ---------[ TAG ENDPOINTS ]---------
-        /// <summary>
-        /// Get all tags for the corresponding game, that can be applied to any of its mods.
-        /// Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.ModTagCategory]].
+        /// <summary>Fetches the tag categories specified by the game profile.</summary>
+        /// <remarks>
+        /// <para>The response will be a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [ModTagCategories](ModIO.ModTagCategory) that define the tagging options for the mod
+        /// profiles belonging to the game matching the id stored in [[ModIO.APIClient.gameId]].</para>
+        /// <para>See also: [[ModIO.APIClient.gameId]]</para>
+        /// </remarks>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllGameTagOptions(Action<ResponseArray<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/tags";
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              null);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add tags which mods can apply to their profiles. Successful request will return an
-        /// [[ModIO.APIMessage]]. Tagging is a critical feature that powers the searching
-        /// and filtering of mods for your game, as well as allowing you to control how mods are
-        /// installed and played. For example you might enforce mods to be a particular type (map,
-        /// model, script, save, effects, blueprint), which dictates how you install it. You may use
-        /// tags to specify what the mod replaces (building, prop, car, boat, character). Or perhaps
-        /// the tags describe the theme of the mod (fun, scenic, realism). The implementation is up
-        /// to you, but the more detail you support the better filtering and searching becomes. If
-        /// you need to store more advanced information, you can also use
-        /// [[ModIO.ModProfile.metadataKVPs]].
-        /// </summary>
+        /// <summary>Adds mod tag categories to the game profile.</summary>
         /// <remarks>
-        /// You can also manage tags via the mod.io web interface. This is the recommended approach.
+        /// <para>A successful request will return an (APIMessage)[ModIO.APIMessage].</para>
+        /// <para>**NOTE:** You can also modify the mod tags available via the mod.io web interface.
+        /// This is the recommended approach.</para>
+        /// <para>See also: [[ModIO.APIClient.gameId]]</para>
         /// </remarks>
+        /// <param name="parameters">The mod tags and categories to add</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddGameTagOption(AddGameTagOptionParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1157,14 +1243,18 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete an entire group of tags or individual tags. Successful request will return
-        /// 204 No Content.
-        /// </summary>
+        /// <summary>Deletes mod tags from the game profile.</summary>
         /// <remarks>
-        /// You can also manage tags by editing your games profile via the mod.io web interface.
-        /// This is the recommended approach.
+        /// <para>This function can delete individual tags or entire categories.
+        /// Successful requests will return an (APIMessage)[ModIO.APIMessage] with a code of
+        /// `204 No Content`.</para>
+        /// <para>**NOTE:** You can also modify the mod tags available via the mod.io web interface.
+        /// This is the recommended approach.</para>
+        /// <para>See also: [[ModIO.APIClient.gameId]]</para>
         /// </remarks>
+        /// <param name="parameters">The mod tags and categories to remove</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteGameTagOption(DeleteGameTagOptionParameters parameters,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1176,12 +1266,20 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all tags for the corresponding mod. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModTag]]. We recommended
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the tags applied to the given mod.</summary>
+        /// <remarks>
+        /// <para>This is a filterable endpoint that returns all of the tags matching the filter and
+        /// pagination parameters. A successful request will return a
+        /// (ResponseArray)[ModIO.API.ResponseArray] of the (ModTags)[ModIO.ModTag] applied to the
+        /// given mod.</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// </remarks>
+        /// <param name="modId">Mod to fetch tags for</param>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetModTags(int modId,
                                       RequestFilter filter, PaginationParameters pagination,
                                       Action<ResponseArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
@@ -1195,11 +1293,17 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add tags to a mod's profile. You can only add tags allowed by the parent game, which are
-        /// listed under [[ModIO.GameProfile.tagCategories]]. Successful request will
-        /// return an [[ModIO.APIMessage]].
-        /// </summary>
+        /// <summary>Adds tags to the given mod.</summary>
+        /// <remarks>
+        /// <para>The tags added will be matched to the mod tag categories available in the game
+        /// profile whereby non-allowed tags will produce an error.
+        /// A successful request will return a confirmation [APIMessage](ModIO.APIMessage).</para>
+        /// <para>See also: [[ModIO.APIClient.GetAllGameTagOptions]]</para>
+        /// </remarks>
+        /// <param name="modId">Mod to add tags to</param>
+        /// <param name="parameters">Mod tags to be added</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddModTags(int modId, AddModTagsParameters parameters,
                                       Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1212,10 +1316,15 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete tags from a mod's profile. Deleting tags is identical to adding tags except the
-        /// request method is DELETE instead of POST. Successful request will return 204 No Content.
-        /// </summary>
+        /// <summary>Removes tags from the given mod.</param>
+        /// <remarks>
+        /// <para>A successful request will return a confirmation [APIMessage](ModIO.APIMessage)
+        /// with the code `204 No Content`.</para>
+        /// </remarks>
+        /// <param name="modId">Mod to remove tags from</param>
+        /// <param name="parameters">Mod tags to be removed</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModTags(int modId,
                                          DeleteModTagsParameters parameters,
                                          Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
