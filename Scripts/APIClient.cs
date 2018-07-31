@@ -15,6 +15,7 @@ using ModIO.API;
 // TODO(@jackson): Add SeeAlso: gameID and userAuthorizationToken where necessary
 // TODO(@jackson): Add See also: docs.mod.io ref
 // TODO(@jackson): search ")[", "][", and "[["
+// TODO(@jackson): Examples - https://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdexample
 namespace ModIO
 {
     /// <summary>
@@ -725,8 +726,8 @@ namespace ModIO
         /// </summary>
         /// <remarks>
         /// <para>Successful requests return an [[ModIO.API.ResponseArray]] of [[ModIO.GameProfile]].</para>
-        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation
-        /// </a> for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
         /// </remarks>
         /// <param name="filter">The filter parameters to be applied to the request</param>
         /// <param name="pagination">The pagination parameters to be applied to the request</param>
@@ -818,9 +819,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Fetches the [[ModIO.ModProfile]] for the mod with the given id.
-        /// </summary>
+        /// <summary>Fetches the [[ModIO.ModProfile]] for the mod with the given id.</summary>
         /// <param name="modId">The id of the mod profile to retrieve</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
@@ -1339,14 +1338,17 @@ namespace ModIO
 
 
         // ---------[ RATING ENDPOINTS ]---------
-        /// <summary>
-        /// Submit a positive or negative rating for a mod. Each user can supply only one rating for
-        /// a mod, subsequent ratings will override the old value. Successful request will return an
-        /// [[ModIO.APIMessage]].
+        /// <summary>Submits a user's rating for a mod.</summary>
         /// <remarks>
-        /// You can order mods by their rating, and view their rating in the
-        /// [[ModIO.ModProfile]].
+        /// <para>Each user can supply either one postiive or one negative rating for a mod.
+        /// Subsequent ratings will override any previous ratings. Successful request will return a
+        /// confirmation [APIMessage](ModIO.APIMessage).</para>
+        /// <para>See also: [[ModIO.ModProfile.ratingSummary]]</para>
         /// </remarks>
+        /// <param name="modId">Mod to submit the rating for</param>
+        /// <param name="parameters">Rating data to be submitted</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddModRating(int modId, AddModRatingParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1361,13 +1363,17 @@ namespace ModIO
 
 
         // ---------[ METADATA ENDPOINTS ]---------
-        /// <summary>
-        /// Get all metadata stored by the game developer for this mod as searchable key value
-        /// pairs. Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.MetadataKVP]].
+        /// <summary>Fetches all the KVP metadata for a mod.</summary>
         /// <remarks>
-        /// Metadata can also be stored to [[ModIO.ModProfile.metadataBlob]].
+        /// <para>Any key-value pair metadata that has been stored with a mod profile will be
+        /// retrieved by this function. A successful request will return a
+        /// [ResponseArray](ModIO.API.ResponseArray) of (MetadataKVPs)[[ModIO.MetadataKVP]].</para>
+        /// <para>See also: [[ModIO.ModProfile.metadataBlob]]</para>
         /// </remarks>
+        /// <param name="modId">Mod to retrieve metadata KVP for</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
                                                 Action<ResponseArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
@@ -1381,20 +1387,14 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add metadata for this mod as searchable key value pairs. Metadata is useful to define
-        /// how a mod works, or other information you need to display and manage the mod. Successful
-        /// request will return an [[ModIO.APIMessage]].
-        /// </summary>
-        /// <example>
-        /// A mod might change gravity and the rate of fire of weapons, you could define these
-        /// properties as key value pairs.
-        /// </example>
-        /// <remarks>
-        /// We recommend the mod upload tool you create defines and submits metadata behind the
-        /// scenes, because if these settings affect gameplay, invalid information may cause
-        /// problems.
-        /// </remarks>
+        /// <summary>Submit KVP Metadata to a mod.</summary>
+        /// <para>A successful request will return a confirmation [APIMessage](ModIO.APIMessage).
+        /// It is recommended that the mod upload tool developed defines and submits metadata behind
+        /// the scenes, to avoid incorrect values affecting gameplay.</para>
+        /// <param name="modId">Mod to submit tags from</param>
+        /// <param name="parameters">KVP data to add to the mod</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddModKVPMetadata(int modId, AddModKVPMetadataParameters parameters,
                                              Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1407,10 +1407,13 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete key value pairs metadata defined for this mod. Successful request will return
-        /// 204 No Content.
-        /// </summary>
+        /// <summary>Deletes KVP metadata from a mod.</summary>
+        /// <para>Calling this function submits the delete request to the servers and if successful
+        /// returns an [APIMessage](ModIO.APIMessage) with the code: `204 No Content`.</para>
+        /// <param name="modId">Mod to submit tags from</param>
+        /// <param name="parameters">KVP data to remove from the mod</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModKVPMetadata(int modId, DeleteModKVPMetadataParameters parameters,
                                                 Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1424,7 +1427,12 @@ namespace ModIO
 
 
         // ---------[ DEPENDENCIES ENDPOINTS ]---------
-        // Get All Mod Dependencies
+        /// <summary>Fetches all the dependencies for a mod.</summary>
+        /// <param name="modId">Mod to fetch dependencies for</param>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllModDependencies(int modId,
                                                  RequestFilter filter, PaginationParameters pagination,
                                                  Action<ResponseArray<ModDependency>> successCallback, Action<WebRequestError> errorCallback)
@@ -1437,7 +1445,12 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Mod Dependencies
+
+        /// <summary>Submits new dependencides for a mod.</summary>
+        /// <param name="modId">Mod to add dependencies to</param>
+        /// <param name="parameters">Dependency data to add</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddModDependencies(int modId, AddModDependenciesParameters parameters,
                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1449,7 +1462,12 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod Dependencies
+
+        /// <summary>Removes dependencides from a mod.</summary>
+        /// <param name="modId">Mod to add dependencies to</param>
+        /// <param name="parameters">Dependency data to remove</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModDependencies(int modId, DeleteModDependenciesParameters parameters,
                                                  Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1463,12 +1481,17 @@ namespace ModIO
 
 
         // ---------[ TEAM ENDPOINTS ]---------
-        /// <summary>
-        /// Get all users that are part of a mod team. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModTeamMember]]. We
-        /// recommend reading the <a href="https://docs.mod.io/#filtering">filtering documentation
-        /// </a> to return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the team members for a mod.</summary>
+        /// <para>Any users that are listed as team members for the given mod will be retrieved.
+        /// A successful request will return a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [ModTeamMembers](ModIO.ModTeamMembe).</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <param name="modId">Mod to team members for</param>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllModTeamMembers(int modId,
                                                 RequestFilter filter, PaginationParameters pagination,
                                                 Action<ResponseArray<ModTeamMember>> successCallback, Action<WebRequestError> errorCallback)
@@ -1482,11 +1505,14 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add a user to a mod team. Successful request will return an
-        /// [[ModIO.APIMessage]] and fire a
-        /// [[ModIO.ModEventType.ModTeamChanged]] [[ModIO.ModEvent]].
-        /// </summary>
+        /// <summary>Submits a new team member to a mod.</summary>
+        /// <para>Calling this function submits the data to the mod.io servers and if successful,
+        /// will generate a [ModTeamChanged](ModIO.ModEventType.ModTeamChanged)
+        /// [ModEvent](ModIO.ModEvent).</para>
+        /// <param name="modId">Mod to add the team member to</param>
+        /// <param name="parameters">The values to be uploaded with to the new mod profile</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void AddModTeamMember(int modId, AddModTeamMemberParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1499,10 +1525,14 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Update a mod team members details. Successful request will return an
-        /// [[ModIO.APIMessage]].
-        /// </summary>
+        /// <summary>Submits changes to a mod team member.</summary>
+        /// <para>Calling this function submits updates to the mod.io servers for the given team
+        /// member id and if successful returns a confirmation [APIMessage](ModIO.APIMessage).</para>
+        /// <param name="modId">Mod the team member belongs to</param>
+        /// <param name="teamMemberId">Team member to be updated</param>
+        /// <param name="parameters">The values to be updated in the team member profile</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void UpdateModTeamMember(int modId, int teamMemberId,
                                                UpdateModTeamMemberParameters parameters,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1515,10 +1545,14 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete a user from a mod team. This will revoke their access rights if they are not the
-        /// original creator of the resource. Successful request will return 204 No Content and fire
-        /// a [[ModIO.ModEventType.ModTeamChanged]] [[ModIO.ModEvent]].
+        /// <summary>Submits a delete request for a mod team member.</summary>
+        /// <para>A successful request will revoke a user's access rights to the mod, generate a
+        /// [ModTeamChanged](ModIO.ModEventType.ModTeamChanged) [ModEvent](ModIO.ModEvent), and
+        /// return an [APIMessage](ModIO.APIMessage) with the code: `204 No Content`.</para>
+        /// <param name="modId">Mod the team member belongs to</param>
+        /// <param name="teamMemberId">Team member to be deleted</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModTeamMember(int modId, int teamMemberId,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1532,7 +1566,12 @@ namespace ModIO
 
 
         // ---------[ COMMENT ENDPOINTS ]---------
-        // Get All Mod Comments
+        /// <summary>Fetches all the comments for a mod.</summary>
+        /// <param name="modId">Mod to fetch comments for</param>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllModComments(int modId,
                                              RequestFilter filter, PaginationParameters pagination,
                                              Action<ResponseArray<ModComment>> successCallback, Action<WebRequestError> errorCallback)
@@ -1545,20 +1584,30 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get Mod Comment
+
+        /// <summary>Fetches a mod comment by id.</summary>
+        /// <param name="modId">Mod the comment belongs to</param>
+        /// <param name="commentId">Comment to retrieve</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetModComment(int modId, int commentId,
                                          Action<ModComment> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/comments/" + commentId;
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              null);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod Comment
+
         // NOTE(@jackson): Untested
+        /// <summary>Submits a delete request for a mod comment.</summary>
+        /// <param name="modId">Mod the comment belongs to</param>
+        /// <param name="commentId">Comment to remove</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModComment(int modId, int commentId,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1572,14 +1621,14 @@ namespace ModIO
 
 
         // ---------[ USER ENDPOINTS ]---------
-        /// <summary>
-        /// Get the user that is the original submitter of a resource. Successful request will
-        /// return a single [[ModIO.UserProfile]].
-        /// </summary>
-        /// <remarks>
-        /// Mods and games can be managed by teams of users, for the most accurate information you
-        /// should use the Team endpoints.
-        /// </remarks>
+        /// <summary>Fetches the owner for a mod resource.</summary>
+        /// <para>A successful request returns the [UserProfile](ModIO.UserProfile) for the original
+        /// submitter of a resource. Because the mods and games can be managed by teams of users,
+        /// and the team endpoints are a more reliable source of information.</para>
+        /// <param name="resourceType">The type of resource to query</param>
+        /// <param name="resourceID">Resource to fetch the owner of</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetResourceOwner(APIResourceType resourceType, int resourceID,
                                             Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1597,12 +1646,16 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all users registered on mod.io. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.UserProfile]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetches all the user profiles on mod.io.</summary>
+        /// <para>A successful request will return a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [UserProfiles](ModIO.UserProfile) that match the filtering and pagination parameters
+        /// supplied.</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAllUsers(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1615,25 +1668,34 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get a user. Successful request will return a single [[ModIO.UserProfile]].
-        /// </summary>
-        public static void GetUser(int userID,
+        /// <summary>Fetches a user profile from the mod.io servers.</summary>
+        /// <para>A successful request will return the [UserProfile](ModIO.UserProfile) that matches
+        /// the given id.</para>
+        /// <param name="userId">Id of the user profile to retrieve</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
+        public static void GetUser(int userId,
                                    Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
-            string endpointURL = API_URL + "/users/" + userID;
+            string endpointURL = API_URL + "/users/" + userId;
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              null);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
 
         // ---------[ REPORT ENDPOINTS ]---------
-        // Submit Report
         // NOTE(@jackson): Untested
+        /// <summary>Submits a report against a mod/resource on mod.io.</summary>
+        /// <para>**NOTE:** Reports can also be <a href="https://mod.io/report/widget">submitted
+        /// online</a>. Additionally, the <a href="https://mod.io/terms/widget">mod.io terms of use</a>
+        /// contain details on which content is and isn't acceptable.</para>
+        /// <param name="parameters">Report data to submit</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void SubmitReport(SubmitReportParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1648,10 +1710,11 @@ namespace ModIO
 
 
         // ---------[ ME ENDPOINTS ]---------
-        /// <summary>
-        /// Get the authenticated user details. Successful request will return a single
-        /// [[ModIO.UserProfile]].
-        /// </summary>
+        /// <summary>Fetches the user profile for the authenticated user.</summary>
+        /// <para>A successful request will return the [UserProfile](ModIO.UserProfile) that matches
+        /// the token stored in [[ModIO.APIClient.userAuthorizationToken]].</para>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetAuthenticatedUser(Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me";
@@ -1661,12 +1724,17 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all mod's the authenticated user is subscribed to. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the subscriptions for the authenticated user.</summary>
+        /// <para>A successful request will return a [ResponseArray](ModIO.ResponseArray) of
+        /// [ModProfiles](ModIO.ModProfile) that the authenticated user is subscribed to and matches
+        /// the filter and pagination parameters.</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <para>See also: [[ModIO.APIClient.userAuthorizationToken]].</para>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetUserSubscriptions(RequestFilter filter, PaginationParameters pagination,
                                                 Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1679,12 +1747,17 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get events that have been fired specific to the user. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.UserEvent]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetch the update events for the authenticated user.</summary>
+        /// <para>A successful request returns a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [UserEvents](ModIO.UserEvent) that summarize the updates made to the authenticated user,
+        /// and that match the filter and pagination parameters.</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <para>See also: [[ModIO.APIClient.userAuthorizationToken]].</para>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetUserEvents(RequestFilter filter, PaginationParameters pagination,
                                          Action<ResponseArray<UserEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1697,12 +1770,13 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all games the authenticated user added or is a team member of. Successful request
-        /// will return a [[ModIO.API.ResponseArray]] of [[ModIO.GameProfile]].
-        /// We recommend reading the <a href="https://docs.mod.io/#filtering">filtering
-        /// documentation</a> to return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the games that the authenticated user is a team member of.</summary>
+        /// <para>A successful request returns a [ResponseArray](ModIO.API.ResponseArray) of all the
+        /// [GameProfiles](ModIO.GameProfile) that the authenticated user added to the mod.io
+        /// servers or is a team member of.</para>
+        /// <para>See also: [[ModIO.APIClient.userAuthorizationToken]].</para>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetUserGames(Action<ResponseArray<GameProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/games";
@@ -1712,12 +1786,17 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all mods the authenticated user added or is a team member of. Successful request
-        /// will return a [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]].
-        /// We recommended reading the <a href="https://docs.mod.io/#filtering">filtering
-        /// documentation</a> to return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the mods that the authenticated user is a team member of.</summary>
+        /// <para>A successful request returns a [ResponseArray](ModIO.API.ResponseArray) of all the
+        /// [ModProfiles](ModIO.ModProfile) that the authenticated user added to the mod.io
+        /// servers or is a team member of, and matches the filter and pagination parameters.</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <para>See also: [[ModIO.APIClient.userAuthorizationToken]].</para>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetUserMods(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1730,13 +1809,17 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all modfiles the authenticated user uploaded. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.Modfile]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
-        /// <param name="filter">The filter to be applied to the request</param>
+        /// <summary>Fetches the modfiles that the authenticated user uploaded.</summary>
+        /// <para>A successful request returns a [ResponseArray](ModIO.API.ResponseArray) of all the
+        /// [Modfiles](ModIO.Modfile) that the authenticated user uploaded to the mod.io
+        /// servers, and matches the filter and pagination parameters.</para>
+        /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
+        /// for more comprehensive explanation of the filtering and pagination parameters.</para>
+        /// <para>See also: [[ModIO.APIClient.userAuthorizationToken]].</para>
+        /// <param name="filter">The filter parameters to be applied to the request</param>
+        /// <param name="pagination">The pagination parameters to be applied to the request</param>
+        /// <param name="successCallback">Action to execute if the request succeeds</param>
+        /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetUserModfiles(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
