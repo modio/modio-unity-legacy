@@ -780,16 +780,14 @@ namespace ModIO
 
 
         // ---------[ MOD ENDPOINTS ]---------
-        /// <summary>
-        /// Fetches all mods for the game id stored in [[ModIO.APIClient.gameId]] matching the
-        /// filtering and pagination parameters supplied.
-        /// </summary>
-        /// <remarks>
-        /// <para>Successful request will the results of the query as a [[ModIO.API.ResponseArray]]
-        /// of [[ModIO.ModProfile]]</para>
+        /// <summary>Fetches all mod profiles from the mod.io servers.</summary>
+        /// <para>A successful request returns a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [ModProfiles](ModIO.ModProfile) that match the filtering and pagination parameters
+        /// supplied.</para>
+        /// <para>**NOTE:** As with all requests send via [APIClient](ModIO.APIClient), the results
+        /// of this query are limited to mods belonging to the game matching [[ModIO.APIClient.gameId]].</para>
         /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
         /// for more comprehensive explanation of the filtering and pagination parameters.</para>
-        /// </remarks>
         /// <param name="filter">The filter parameters to be applied to the request</param>
         /// <param name="pagination">The pagination parameters to be applied to the request</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -806,7 +804,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>Fetches the [[ModIO.ModProfile]] for the mod with the given id.</summary>
+        /// <summary>Fetches a mod profile from the mod.io servers.</summary>
         /// <param name="modId">The id of the mod profile to retrieve</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
@@ -822,10 +820,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Creates a new mod profile on the mod.io servers.
-        /// </summary>
-        /// <remarks>
+        /// <summary>Submits a new mod profile to the mod.io servers.</summary>
         /// <para>The new mod profile is created as a mod belonging to the game id stored in
         /// [[ModIO.APIClient.gameId]]. Successful requests will return the newly created
         /// [[ModIO.ModProfile]].</para>
@@ -834,7 +829,6 @@ namespace ModIO
         /// and made available via the API once a [Modfile](ModIO.Modfile) has been uploaded.
         /// Media, Metadata Key Value Pairs and Dependencies can also be added after a mod profile
         /// is created.</para>
-        /// </remarks>
         /// <param name="parameters">The values to be uploaded with to the new mod profile</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
@@ -850,16 +844,12 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Submits changes to an existing mod profile.
-        /// </summary>
-        /// <remarks>
+        /// <summary>Submits changes to an existing mod profile.</summary>
         /// <para>This function is only able to update the parameters found in the
         /// [EditModParameters](ModIO.API.EditModParameters) class. To update the logo or media
         /// associated with a mod, use [[ModIO.APIClient.AddModMedia]]. The same applies to
         /// Modfiles, Metadata Key Value Pairs and Dependencies which are all managed via other
         /// endpoints. A successful request will return the updated [ModProfile](ModIO.ModProfile).</para>
-        /// </remarks>
         /// <param name="modId">Id of the mod profile to update</param>
         /// <param name="parameters">Altered values to submit in the request</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -876,19 +866,15 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Deletes a mod profile from the mod.io servers.
-        /// </summary>
-        /// <remarks>
+        /// <summary>Deletes a mod profile from the mod.io servers.</summary>
         /// <para>Sets the status of a mod profile to [Deleted](ModIO.ModStatus.Deleted).
         /// This will close the mod profile meaning it cannot be viewed or retrieved via API
         /// requests but will still exist on the servers, allowing it to be restored at a later date.
-        /// A successful request will return an [APIMessage](ModIO.APIMessage) with a [code](ModIO.APIMessage.code)
-        /// of 204 create a [ModUnavailable](ModIO.ModEventType.ModUnavailable)
-        /// [ModEvent](ModIO.ModEvent).</para>
-        /// <para>**NOTE:** A mod may only be permanently removed from the mod.io servers via the
+        /// A successful request will generate a [ModUnavailable](ModIO.ModEventType.ModUnavailable)
+        /// [ModEvent](ModIO.ModEvent), and return a confirmation [APIMessage](ModIO.APIMessage)
+        /// with the code `204 No Content`. .</para>
+        /// <para>**NOTE:** A mod may be permanently removed from the mod.io servers via the
         /// website interface.</para>
-        /// </remarks>
         /// <param name="modId">Id of the mod to be deleted</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
@@ -905,20 +891,16 @@ namespace ModIO
 
 
         // ---------[ MODFILE ENDPOINTS ]---------
-        /// <summary>
-        /// Fetches the modfiles for a given mod.
-        /// </summary>
-        /// <remarks>
+        /// <summary>Fetches all modfiles for a given mod from the mod.io servers.</summary>
         /// <para>Returns all the modfiles associated matching the filter and pagination paramters
-        /// for the the given mod id. Successful request will return a
+        /// for the the given mod id. A successful request will return a
         /// [ResponseArray](ModIO.API.ResponseArray) of [Modfiles](ModIO.Modfile).</para>
         /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
         /// for more comprehensive explanation of the filtering and pagination parameters.</para>
         /// <para>**NOTE:** If the game requires mod downloads to be initiated via the API, the
-        /// [download url](ModIO.ModfileLocator.binaryURL) contained in the
+        /// address stored in [[ModIO.ModfileLocator.binaryURL]] contained in the
         /// [download locator](ModIO.Modfile.downloadLocator) will expire at the time indicated by
-        /// the value of `Modfile.downloadLocator.dateExpires` and is thus unwise to cache.</para>
-        /// </remarks>
+        /// the value of [[Modfile.downloadLocator.dateExpires]] and is thus unwise to cache.</para>
         /// <param name="modId">Id of the mod to retrieve modfiles for</param>
         /// <param name="filter">The filter parameters to be applied to the request</param>
         /// <param name="pagination">The pagination parameters to be applied to the request</param>
@@ -937,17 +919,13 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Fetch the a modfile's data from the server.
-        /// </summary>
-        /// <remarks>
+        /// <summary>Fetch the a modfile from the mod.io servers.</summary>
         /// <para>Successful request will return a single [Modfile](ModIO.Modfile) matching the
         /// given mod and modfile ids.</para>
         /// <para>**NOTE:** If the game requires mod downloads to be initiated via the API, the
         /// [download url](ModIO.ModfileLocator.binaryURL) contained in the
         /// [download locator](ModIO.Modfile.downloadLocator) will expire at the time indicated by
         /// the value of `Modfile.downloadLocator.dateExpires` and is thus unwise to cache.</para>
-        /// </remarks>
         /// <param name="modId">Id of the mod for the request modfile</param>
         /// <param name="modfileId">Id of the requested modfile</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -964,14 +942,10 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Uploads a new modfile to the mod.io servers.
-        /// </summary>
-        /// <remarks>
-        /// Successful requests will return the newly created [Modfile](ModIO.Modfile).
+        /// <summary>Submits a new modfile and binary to the mod.io servers.</summary>
+        /// <para>Successful requests will return the newly created [Modfile](ModIO.Modfile).
         /// It is recommended that an upload tool check mods are stable and free from any critical
-        /// issues.
-        /// </remarks>
+        /// issues.</para>
         /// <param name="modId">Destination mod for the new modfile</param>
         /// <param name="parameters">The values to be uploaded with to the new modfile</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -989,15 +963,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Submits changes to an existing modfile.
-        /// </summary>
-        /// <remarks>
+        /// <summary>Submits changes to an existing modfile.</summary>
         /// <para>This function is only able to update the parameters found in the
         /// [EditModfileParameters](ModIO.API.EditModfileParameters) class. To update a binary,
         /// submitting a new modfile is necessary. A successful request will return the updated
         /// [Modfile](ModIO.Modfile).</para>
-        /// </remarks>
         /// <param name="modId">Mod that the modfile belongs to</param>
         /// <param name="modfileId">Modfile that will receive the updated values</param>
         /// <param name="parameters">The values to be updated</param>
