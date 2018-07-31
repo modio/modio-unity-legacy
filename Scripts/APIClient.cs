@@ -635,15 +635,13 @@ namespace ModIO
 
 
         // ---------[ AUTHENTICATION ]---------
-        /// <summary>
-        /// Requests a login code be sent to the user's email address.
-        /// </summary>
-        /// <remarks>
-        /// <para>For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
-        /// filtering documentation</a>.</para>
+        /// <summary>Requests a login code be sent to an email address.</summary>
+        /// <para>This request is the first step of authenticating a user account for the game/app.</para>
+        /// <para>See [Authentication and Security](Authentication-And-Security#game-profile-api-key-and-id)
+        /// for more information, and the [mod.io docs](https://docs.mod.io/#authentication) for an
+        /// in-depth explanation of the authentication process.</para>
         /// <para>See also: [[ModIO.APIClient.GetOAuthToken]]</para>
-        /// </remarks>
-        /// <param name="emailAddress">The user's email address to receive the security code</param>
+        /// <param name="emailAddress">Email address for a new or existing account</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void SendSecurityCode(string emailAddress,
@@ -672,21 +670,18 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests
-        /// </summary>
+        /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
         [System.Serializable]
         private struct AccessTokenObject { public string access_token; }
 
-        /// <summary>
-        /// Requests the user's application OAuthToken that matches the single use security code.
-        /// </summary>
-        /// <remarks>
-        /// <para>For further information see the <a href="https://docs.mod.io/#authentication"> mod.io
-        /// filtering documentation</a>.</para>
+        /// <summary>Requests a user OAuthToken in exchange for a security code.</summary>
+        /// <para>This request is the second step of authenticating a user account for the game/app.</para>
+        /// <para>See [Authentication and Security](Authentication-And-Security#game-profile-api-key-and-id)
+        /// for more information, and the [mod.io docs](https://docs.mod.io/#authentication) for an
+        /// in-depth explanation of the authentication process.</para>
         /// <para>See also: [[ModIO.APIClient.SendSecurityCode]]</para>
         /// </remarks>
-        /// <param name="securityCode">The security code sent to the user's email address.</param>
+        /// <param name="securityCode">Security code sent to the user's email address</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetOAuthToken(string securityCode,
@@ -722,15 +717,12 @@ namespace ModIO
 
 
         // ---------[ GAME ENDPOINTS ]---------
-        /// <summary>
-        /// Fetches all games profiles from the mod.io servers matching the filter and pagination
-        /// parameters.
-        /// </summary>
-        /// <remarks>
-        /// <para>Successful requests return an [[ModIO.API.ResponseArray]] of [[ModIO.GameProfile]].</para>
+        /// <summary>Fetches all the game profiles from the mod.io servers.</summary>
+        /// <para>A successful request returns a [ResponseArray](ModIO.API.ResponseArray) of
+        /// [GameProfiles](ModIO.GameProfile) that match the filtering and pagination parameters
+        /// supplied.</para>
         /// <para>See the <a href="https://docs.mod.io/#filtering">mod.io filtering documentation</a>
         /// for more comprehensive explanation of the filtering and pagination parameters.</para>
-        /// </remarks>
         /// <param name="filter">The filter parameters to be applied to the request</param>
         /// <param name="pagination">The pagination parameters to be applied to the request</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
@@ -748,13 +740,9 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Gets the game profile matching the stored id.
-        /// </summary>
-        /// <remarks>
-        /// The profile returned will be the one with the id stored in [[ModIO.APIClient.gameId]].
-        /// Successful request will return a single [[ModIO.GameProfile]].
-        /// </remarks>
+        /// <summary>Fetches the game's/app's profile from the mod.io servers.</summary>
+        /// <para>A successful request will return the [GameProfile](ModIO.GameProfile) matching the
+        /// id stored in [[ModIO.APIClient.gameId]].</para>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -768,18 +756,15 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Update the game profile for the game id stored in [[ModIO.APIClient.gameId]].
-        /// </summary>
-        /// <remarks>
-        /// <para>This function only supports the game profile fields listed in the
-        /// [[ModIO.API.EditGameParameters]] class.  To update the icon, logo or header fields use
-        /// [[ModIO.APIClient.AddGameMedia]]. A successful request will return updated
-        /// [[ModIO.GameProfile]].</para>
+        /// <summary>Updates the game's profile on the mod.io servers.</summary>
+        /// <para>Updates the game profile for the game id stored in [[ModIO.APIClient.gameId]].
+        /// This function only supports the game profile fields listed in the
+        /// [EditGameParameters](ModIO.API.EditGameParameters) class. To update the icon, logo, or
+        /// header fields use [AddGameMedia](ModIO.APIClient.AddGameMedia). A successful request
+        /// will return the updated [GameProfile](ModIO.GameProfile).</para>
         /// <para>**NOTE:** You can also edit a game profile directly via the mod.io web interface.
         /// This is the recommended approach.</para>
-        /// </remarks>
-        /// <param name="parameters">The updated values for the game profile</param>
+        /// <param name="parameters">Updated values for the game profile</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void EditGame(EditGameParameters parameters,
