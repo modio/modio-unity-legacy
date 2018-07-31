@@ -18,24 +18,15 @@ using ModIO.API;
 // TODO(@jackson): Examples - https://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdexample
 namespace ModIO
 {
-    /// <summary>
-    /// This class provides a native wrapper for each of the endpoints available via the mod.io web
-    /// API.
-    /// </summary>
+    /// <summary>An interface for sending requests to the mod.io servers.</summary>
     public static class APIClient
     {
         // ---------[ CONSTANTS ]---------
-        /// <summary>
-        /// Denotes which version of the mod.io web API that this class is compatible with.
-        /// </summary>
-        /// <remarks>
-        /// This value forms part of the web API URL and should not be changed.
-        /// </remarks>
+        /// <summary>Denotes the version of the mod.io web API that this class is compatible with.</summary>
+        /// <para>This value forms part of the web API URL and should not be changed.</para>
         public const string API_VERSION = "v1";
 
-        /// <summary>
-        /// The base URL for the web API
-        /// </summary>
+        /// <summary>The base URL for the web API.</summary>
         #if DEBUG
         public static readonly string API_URL = (GlobalSettings.USE_TEST_SERVER
                                                  ? "https://api.test.mod.io/"
@@ -44,12 +35,8 @@ namespace ModIO
         public const string API_URL = "https://api.mod.io/" + API_VERSION;
         #endif
 
-        /// <summary>
-        /// Collection of the HTTP request header keys used by Unity
-        /// </summary>
-        /// <remarks>
-        /// Used almost exclusively for debugging requests.
-        /// </remarks>
+        /// <summary>Collection of the HTTP request header keys used by Unity.</summary>
+        /// <para>Used almost exclusively for debugging requests.</para>
         public static readonly string[] UNITY_REQUEST_HEADER_KEYS = new string[]
         {
             // - UNIVERSAL -
@@ -78,12 +65,9 @@ namespace ModIO
             "x-unity-version",
             "user-agent",
         };
-        /// <summary>
-        /// Collection of the HTTP request header keys used by mod.io
-        /// </summary>
-        /// <remarks>
-        /// Used almost exclusively for debugging requests.
-        /// </remarks>
+
+        /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
+        /// <para>Used almost exclusively for debugging requests.</para>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
             "Authorization",
@@ -91,28 +75,37 @@ namespace ModIO
         };
 
         // ---------[ MEMBERS ]---------
-        /// <summary>
-        /// Game ID that the APIClient should use when contacting the API
-        /// </summary>
+        /// <summary>Game ID that the APIClient should use when contacting the API.</summary>
+        /// <para>Game details can be found under the API Key Management page on both the
+        /// <a href="https://mod.io/apikey/">production server</a> and
+        /// <a href="https://test.mod.io/apikey/">test server</a>.</para>
+        /// <para>See [Authentication and Security](Authentication-And-Security#game-profile-api-key-and-id)
+        /// for more information.</para>
+        /// <para>See also: [[ModIO.APIClient.gameAPIKey]]</para>
         public static int gameId = GlobalSettings.GAME_ID;
 
-        /// <summary>
-        /// Game API that the APIClient should use when contacting the API
-        /// </summary>
+        /// <summary>Game API that the APIClient should use when contacting the API.</summary>
+        /// <para>Game details can be found under the API Key Management page on both the
+        /// <a href="https://mod.io/apikey/">production server</a> and
+        /// <a href="https://test.mod.io/apikey/">test server</a>.</para>
+        /// <para>See [Authentication and Security](Authentication-And-Security#game-profile-api-key-and-id)
+        /// for more information.</para>
+        /// <para>See also: [[ModIO.APIClient.gameId]]</para>
         public static string gameAPIKey = GlobalSettings.GAME_APIKEY;
 
-        /// <summary>
-        /// The user's OAuthToken that the APIClient should include when contacting the API
-        /// </summary>
+        /// <summary>User OAuthToken that the APIClient submits in requests.</summary>
+        /// <para>This value uniquely identifies the user and their access rights for a specific
+        /// game or app, and allows the authentication of the user's credentials in
+        /// update/submission requests to the mod.io servers and query the authenticated user's
+        /// details.</para>
+        /// <para>See [Authentication and Security](Authentication-And-Security#user-authentication)
+        /// for more information.</para>
+        /// <para>See also: [[ModIO.APIClient.SendSecurityCode]], [[ModIO.APIClient.GetOAuthToken]]</para>
         public static string userAuthorizationToken = null;
 
-        /// <summary>
-        /// The language code that designates requested language for the API response messages
-        /// </summary>
-        /// <remarks>
-        /// Currently supported languages and codes are listed in the mod.io documentation under
-        /// <a href="https://docs.mod.io/#localization">Localization</a>.
-        /// </remarks>
+        /// <summary>Requested language for the API response messages.</summary>
+        /// <para>Currently supported languages and the corresponding codes are listed in the mod.io
+        /// documentation under <a href="https://docs.mod.io/#localization">Localization</a>.</para>
         public static string languageCode = "en";
 
         // ---------[ DEBUG ASSERTS ]---------
