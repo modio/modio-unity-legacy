@@ -13,10 +13,15 @@ using ModIO.API;
 namespace ModIO
 {
     /// <summary>An interface for storing/loading data retrieved for the mod.io servers on disk.</summary>
+    /// <para>This class is the core interface for interacting with data saved to disk. It can be
+    /// used directly for manual, fine-grained control, or managed via [[ModIO.ModManager]] for a
+    /// hands-off, simpler approach.</para>
     public static class CacheClient
     {
         // ---------[ MEMBERS ]---------
         /// <summary>Directory for the cache.</summary>
+        /// <para>Access to this variable is achieved through
+        /// [[ModIO.CacheClient.TrySetCacheDirectory]] and [[ModIO.CacheClient.GetCacheDirectory]].</para>
         private static string _cacheDirectory = null;
 
         // ---------[ INITIALIZATION ]---------
@@ -41,6 +46,9 @@ namespace ModIO
 
 
         /// <summary>Attempts to set the cache directory.</summary>
+        /// <para>Calling this will create the directory specified if it does not exist.</para>
+        /// <param name="directory">The absolute or relative directory to use</param>
+        /// <returns>True if successful</returns>
         public static bool TrySetCacheDirectory(string directory)
         {
             try
@@ -72,6 +80,10 @@ namespace ModIO
         }
 
         /// <summary>Generates the path for a mod cache directory.</summary>
+        /// <para>This directory will be a sub-directory of the current
+        /// [cache directory](ModIO.CacheClient._cacheDirectory) and will contain all of the cached
+        /// data for the given mod.</para>
+        /// <param name="modId">Mod to generate the cache directory path for.</param>
         public static string GenerateModDirectoryPath(int modId)
         {
             return(CacheClient._cacheDirectory
@@ -80,6 +92,10 @@ namespace ModIO
         }
 
         /// <summary>Generates the path for a cached mod build directory.</summary>
+        /// <para>This directory will be a sub-directory of the current
+        /// [cache directory](ModIO.CacheClient._cacheDirectory) and will act as the target
+        /// directory for any downloaded mod binaries.</para>
+        /// <param name="modId">Mod to generate the binary directory path for.</param>
         public static string GenerateModBuildsDirectoryPath(int modId)
         {
             return(CacheClient.GenerateModDirectoryPath(modId)
