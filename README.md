@@ -1,4 +1,9 @@
-# mod.io Unity Engine Plugin
+<a href="https://mod.io"><img src="https://static.mod.io/v1/images/branding/modio-color-dark.svg" alt="mod.io" width="400"/></a>
+
+# Unity Engine Plugin
+![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
+[![Master docs](https://img.shields.io/badge/docs-master-green.svg)](https://github.com/DBolical/modioUNITY/wiki)
+
 Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
 ## Getting started
