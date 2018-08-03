@@ -132,7 +132,7 @@ namespace ModIO
             List<int> missingModIds = new List<int>(modIds);
             List<ModProfile> modProfiles = new List<ModProfile>(missingModIds.Count);
 
-            foreach(ModProfile profile in CacheClient.AllModProfiles())
+            foreach(ModProfile profile in CacheClient.IterateAllModProfiles())
             {
                 if(missingModIds.Contains(profile.id))
                 {
@@ -471,10 +471,10 @@ namespace ModIO
                 onSuccess(logoTexture);
             }
 
-            var versionInfo = CacheClient.LoadModLogoVersionInfo(profile.id);
+            var versionFilePaths = CacheClient.LoadModLogoFilePaths(profile.id);
 
             if(logoTexture == null
-               || versionInfo[size] != profile.logoLocator.GetFileName())
+               || versionFilePaths[size] != profile.logoLocator.GetFileName())
             {
                 var textureDownload = DownloadClient.DownloadModLogo(profile, size);
 
