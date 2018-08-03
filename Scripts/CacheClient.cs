@@ -110,6 +110,13 @@ namespace ModIO
 
         // ---------[ BASIC FILE I/O ]---------
         /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
+        /// <para>This function is a simple wrapper for reading text from a file and deserializing
+        /// it, but handles any exceptions, logging a debug warning if the read and/or
+        /// deserialization fails.</para>
+        /// <param name="filePath">Location of the file to be read.</param>
+        /// <returns>A new object containing the values parsed from the file. If the read or
+        /// deserialization fails, this function returns `null` for objects or the default value for
+        /// simple types.</returns>
         public static T ReadJsonObjectFile<T>(string filePath)
         {
             if(File.Exists(filePath))
@@ -131,6 +138,11 @@ namespace ModIO
         }
 
         /// <summary>Writes an object to a file in the JSON Object format.</summary>
+        /// <para>This function is a simple wrapper for serializing an object and writing text to a
+        /// file but handles any exceptions, logging a debug warning if the serialization and/or
+        /// write fails.</para>
+        /// <param name="filePath">Location of the file to be written. (Created if non-existent.)</param>
+        /// <param name="jsonObject">Object to serialize.</param>
         public static void WriteJsonObjectFile<T>(string filePath,
                                                   T jsonObject)
         {
@@ -150,6 +162,15 @@ namespace ModIO
         }
 
         /// <summary>Loads an entire binary file as a byte array.</summary>
+        /// <para>This function is a simple wrapper for
+        /// <a href="https://msdn.microsoft.com/en-us/library/system.io.file.readallbytes(v=vs.110).aspx">File.ReadAllBytes</a>,
+        /// but handles any exceptions, logging a debug warning if the read fails. It loads the
+        /// entire binary file synchronously, and as such blocks the thread until the read is
+        /// completed. Thus it is recommended that this function is only used for reading smaller
+        /// files.</para>
+        /// <param name="filePath">Location of the file to be read.</param>
+        /// <returns>The data read from the binary file. If the read failes, this function returns
+        /// `null`.</returns>
         public static byte[] LoadBinaryFile(string filePath)
         {
             byte[] fileData = null;
@@ -176,6 +197,14 @@ namespace ModIO
         }
 
         /// <summary>Writes an entire binary file.</summary>
+        /// <para>This function is a simple wrapper for
+        /// <a href="https://msdn.microsoft.com/en-us/library/system.io.file.writeallbytes(v=vs.110).aspx">File.WriteAllBytes</a>,
+        /// but handles any exceptions, logging a debug warning if the write fails. It writes the
+        /// entire binary file synchronously, and as such blocks the thread until the write is
+        /// completed. Thus it is recommended that this function is only used for writing smaller
+        /// files.</para>
+        /// <param name="filePath">Location of the file to be written. (Created if non-existent.)</param>
+        /// <param name="data">Data to write.</param>
         public static void WriteBinaryFile(string filePath,
                                            byte[] data)
         {
@@ -195,6 +224,13 @@ namespace ModIO
         }
 
         /// <summary>Loads the image data from a file into a new Texture.</summary>
+        /// <para>This function is a simple wrapper for reading image data from a file and creating
+        /// a texture for it, but handles any exceptions, logging a debug warning if the read fails.</para>
+        /// <param name="filePath">Location of the image file to load.</param>
+        /// <returns>A new
+        /// <a href="https://docs.unity3d.com/ScriptReference/Texture2D.html">Texture2D</a> object
+        /// containing the image data parsed from the file. If the read fails, this function returns
+        /// `null`.</returns>
         public static Texture2D ReadImageFile(string filePath)
         {
             Texture2D texture = null;
@@ -214,6 +250,10 @@ namespace ModIO
         }
 
         /// <summary>Writes a texture to a PNG file.</summary>
+        /// <para>This function is a simple wrapper for writing image data to a file, but handles
+        /// any exceptions, logging a debug warning if the read fails.</para>
+        /// <param name="filePath">Location of the file to be written. (Created if non-existent.)</param>
+        /// <param name="data">Texture containing the image data to be written.</param>
         public static void WritePNGFile(string filePath,
                                         Texture2D texture)
         {
