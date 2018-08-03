@@ -651,7 +651,7 @@ namespace ModIO
 
         public static void DeleteInactiveBuilds(ModProfile profile)
         {
-            string buildDir = CacheClient.GenerateModBuildsDirectoryPath(profile.id);
+            string buildDir = CacheClient.GenerateModBinariesDirectoryPath(profile.id);
             string[] buildFilePaths = Directory.GetFiles(buildDir, "*.*");
 
             foreach(string buildFile in buildFilePaths)
