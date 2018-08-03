@@ -13,24 +13,14 @@ using ModIO.API;
 
 namespace ModIO
 {
-    /// <summary>
-    /// This class provides a native wrapper for each of the endpoints available via the mod.io web
-    /// API.
-    /// </summary>
+    /// <summary>An interface for sending requests to the mod.io servers.</summary>
     public static class APIClient
     {
         // ---------[ CONSTANTS ]---------
-        /// <summary>
-        /// Denotes which version of the mod.io web API that this class is compatible with.
-        /// </summary>
-        /// <remarks>
-        /// This value forms part of the web API URL and should not be changed.
-        /// </remarks>
+        /// <summary>Denotes the version of the mod.io web API that this class is compatible with.</summary>
         public const string API_VERSION = "v1";
 
-        /// <summary>
-        /// The base URL for the web API
-        /// </summary>
+        /// <summary>The base URL for the web API.</summary>
         #if DEBUG
         public static readonly string API_URL = (GlobalSettings.USE_TEST_SERVER
                                                  ? "https://api.test.mod.io/"
@@ -39,12 +29,7 @@ namespace ModIO
         public const string API_URL = "https://api.mod.io/" + API_VERSION;
         #endif
 
-        /// <summary>
-        /// Collection of the HTTP request header keys used by Unity
-        /// </summary>
-        /// <remarks>
-        /// Used almost exclusively for debugging requests.
-        /// </remarks>
+        /// <summary>Collection of the HTTP request header keys used by Unity.</summary>
         public static readonly string[] UNITY_REQUEST_HEADER_KEYS = new string[]
         {
             // - UNIVERSAL -
@@ -73,12 +58,8 @@ namespace ModIO
             "x-unity-version",
             "user-agent",
         };
-        /// <summary>
-        /// Collection of the HTTP request header keys used by mod.io
-        /// </summary>
-        /// <remarks>
-        /// Used almost exclusively for debugging requests.
-        /// </remarks>
+
+        /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
             "Authorization",
@@ -86,44 +67,20 @@ namespace ModIO
         };
 
         // ---------[ MEMBERS ]---------
-        /// <summary>
-        /// Game ID that the APIClient should use when contacting the API
-        /// </summary>
+        /// <summary>Game ID that the APIClient should use when contacting the API.</summary>
         public static int gameId = GlobalSettings.GAME_ID;
 
-        /// <summary>
-        /// Game API that the APIClient should use when contacting the API
-        /// </summary>
+        /// <summary>Game API Key that the APIClient should use when contacting the API.</summary>
         public static string gameAPIKey = GlobalSettings.GAME_APIKEY;
 
-        /// <summary>
-        /// The user's OAuthToken that the APIClient should include when contacting the API
-        /// </summary>
+        /// <summary>User OAuthToken that the APIClient submits in requests.</summary>
         public static string userAuthorizationToken = null;
 
-        /// <summary>
-        /// The language code that designates requested language for the API response messages
-        /// </summary>
-        /// <remarks>
-        /// Currently supported languages and codes are listed in the mod.io documentation under
-        /// <a href="https://docs.mod.io/#localization">Localization</a>.
-        /// </remarks>
+        /// <summary>Requested language for the API response messages.</summary>
         public static string languageCode = "en";
 
         // ---------[ DEBUG ASSERTS ]---------
-        /// <summary>
-        /// Asserts that the required authorization data for making API requests is set.
-        /// </summary>
-        /// <remarks>
-        /// Only asserts that the values have been set, but **does not check the correctness** of
-        /// those values.
-        /// </remarks>
-        /// <param name="isUserTokenRequired">
-        /// Whether to assert that [[ModIO.APIClient.userAuthorizationToken]] is set.
-        /// </param>
-        /// <returns>
-        /// True if the authorization details for an API request have been set.
-        /// </returns>
+        /// <summary>Asserts that the required authorization data for making API requests is set.</summary>
         public static bool AssertAuthorizationDetails(bool isUserTokenRequired)
         {
             if(APIClient.gameId <= 0
@@ -150,17 +107,7 @@ namespace ModIO
         }
 
         // ---------[ REQUEST HANDLING ]---------
-        /// <summary>
-        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> for a mod.io API endpoint request that requires no user authentication
-        /// </summary>
-        /// <param name="endpointURL">Endpoint URL for the request</param>
-        /// <param name="filterString">Filter string to be appended to the endpoint URL</param>
-        /// <param name="pagination">Pagination data for the request</param>
-        /// <returns>
-        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> initialized with the data for sending the API request
-        /// </returns>
+        /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
                                                     string filterString,
                                                     PaginationParameters pagination)
@@ -230,17 +177,7 @@ namespace ModIO
             return webRequest;
         }
 
-        /// <summary>
-        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> for a mod.io API endpoint 'GET' request
-        /// </summary>
-        /// <param name="endpointURL">Endpoint URL for the request</param>
-        /// <param name="filterString">Filter string to be appended to the endpoint URL</param>
-        /// <param name="pagination">Pagination data for the request</param>
-        /// <returns>
-        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> initialized with the data for sending the API request
-        /// </returns>
+        /// <summary>Generates the object for a mod.io GET request.</summary>
         public static UnityWebRequest GenerateGetRequest(string endpointURL,
                                                          string filterString,
                                                          PaginationParameters pagination)
@@ -302,16 +239,7 @@ namespace ModIO
             return webRequest;
         }
 
-        /// <summary>
-        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> for a mod.io API endpoint 'PUT' request
-        /// </summary>
-        /// <param name="endpointURL">Endpoint URL for the request</param>
-        /// <param name="valueFields">The string values to be submitted with the PUT request</param>
-        /// <returns>
-        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> initialized with the data for sending the API request
-        /// </returns>
+        /// <summary>Generates the object for a mod.io PUT request.</summary>
         public static UnityWebRequest GeneratePutRequest(string endpointURL,
                                                          StringValueParameter[] valueFields)
         {
@@ -374,17 +302,7 @@ namespace ModIO
             return webRequest;
         }
 
-        /// <summary>
-        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> for a mod.io API endpoint 'POST' request
-        /// </summary>
-        /// <param name="endpointURL">Endpoint URL for the request</param>
-        /// <param name="valueFields">The string values to be submitted with the POST request</param>
-        /// <param name="dataFields">The binary data to be submitted with the POST request</param>
-        /// <returns>
-        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> initialized with the data for sending the API request
-        /// </returns>
+        /// <summary>Generates the object for a mod.io POST request.</summary>
         public static UnityWebRequest GeneratePostRequest(string endpointURL,
                                                           StringValueParameter[] valueFields,
                                                           BinaryDataParameter[] dataFields)
@@ -468,16 +386,7 @@ namespace ModIO
             return webRequest;
         }
 
-        /// <summary>
-        /// Generates a prefilled <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> for a mod.io API endpoint 'DELETE' request
-        /// </summary>
-        /// <param name="endpointURL">Endpoint URL for the request</param>
-        /// <param name="valueFields">The string values to be submitted with the DELETE request</param>
-        /// <returns>
-        /// A <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequest.html">
-        /// UnityWebRequest</a> initialized with the data for sending the API request
-        /// </returns>
+        /// <summary>Generates the object for a mod.io DELETE request.</summary>
         public static UnityWebRequest GenerateDeleteRequest(string endpointURL,
                                                             StringValueParameter[] valueFields)
         {
@@ -547,14 +456,7 @@ namespace ModIO
             return webRequest;
         }
 
-        /// <summary>
-        /// Sends the request and attaches the callbacks to the
-        /// <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequestAsyncOperation.html">
-        /// UnityWebRequestAsyncOperation</a> that is created.
-        /// </summary>
-        /// <param name="webRequest">The request to send and attach the callback functions to</param>
-        /// <param name="successCallback">Action to execute if the request succeeds</param>
-        /// <param name="errorCallback">Action to execute if the request returns an error</param>
+        /// <summary>A wrapper for sending a UnityWebRequest and attaching callbacks.</summary>
         public static void SendRequest(UnityWebRequest webRequest,
                                        Action successCallback,
                                        Action<WebRequestError> errorCallback)
@@ -592,15 +494,7 @@ namespace ModIO
             };
         }
 
-        /// <summary>
-        /// Sends the request and attaches the callbacks to the
-        /// <a href="https://docs.unity3d.com/2018.2/Documentation/ScriptReference/Networking.UnityWebRequestAsyncOperation.html">
-        /// UnityWebRequestAsyncOperation</a> that is created, and attempts to parse the response.
-        /// </summary>
-        /// <param name="webRequest">The request to send and attach the callback functions to</param>
-        /// <param name="successCallback">Action to execute if the request succeeds</param>
-        /// <param name="errorCallback">Action to execute if the request returns an error</param>
-        /// <remarks>See also: [[ModIO.APIClient.SendRequest]]</remarks>
+        /// <summary>A wrapper for sending a web request to mod.io and parsing the result.</summary>
         public static void SendRequest<T>(UnityWebRequest webRequest,
                                           Action<T> successCallback,
                                           Action<WebRequestError> errorCallback)
@@ -632,6 +526,7 @@ namespace ModIO
 
 
         // ---------[ AUTHENTICATION ]---------
+        /// <summary>Requests a login code be sent to an email address.</summary>
         public static void SendSecurityCode(string emailAddress,
                                             Action<APIMessage> successCallback,
                                             Action<WebRequestError> errorCallback)
@@ -658,9 +553,11 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
+        /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
         [System.Serializable]
         private struct AccessTokenObject { public string access_token; }
 
+        /// <summary>Requests a user OAuthToken in exchange for a security code.</summary>
         public static void GetOAuthToken(string securityCode,
                                          Action<string> successCallback,
                                          Action<WebRequestError> errorCallback)
@@ -694,12 +591,7 @@ namespace ModIO
 
 
         // ---------[ GAME ENDPOINTS ]---------
-        /// <summary>
-        /// Get all games. Successful request will return an [[ModIO.API.ResponseArray]]
-        /// of [[ModIO.GameProfile]]. We recommended reading the
-        /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
-        /// records you want.
-        /// </summary>
+        /// <summary>Fetches all the game profiles from the mod.io servers.</summary>
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<GameProfile>> successCallback,
                                        Action<WebRequestError> errorCallback)
@@ -713,9 +605,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get a game. Successful request will return a single [[ModIO.GameProfile]].
-        /// </summary>
+        /// <summary>Fetches the game's/app's profile from the mod.io servers.</summary>
         public static void GetGame(Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId;
@@ -727,15 +617,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Update details for a game. If you want to update the icon, logo or header fields you
-        /// need to use the [[ModIO.APIClient.AddGameMedia]] endpoint. Successful request
-        /// will return updated [[ModIO.GameProfile]].
-        /// </summary>
-        /// <remarks>
-        /// You can also edit your games profile on the mod.io website. This is the recommended
-        /// approach.
-        /// </remarks>
+        /// <summary>Updates the game's profile on the mod.io servers.</summary>
         public static void EditGame(EditGameParameters parameters,
                                     Action<GameProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -749,12 +631,7 @@ namespace ModIO
 
 
         // ---------[ MOD ENDPOINTS ]---------
-        /// <summary>
-        /// Get all mods for the corresponding game. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]]. We recommended
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetches all mod profiles from the mod.io servers.</summary>
         public static void GetAllMods(RequestFilter filter, PaginationParameters pagination,
                                       Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -767,9 +644,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get a mod. Successful request will return a single [[ModIO.ModProfile]].
-        /// </summary>
+        /// <summary>Fetches a mod profile from the mod.io servers.</summary>
         public static void GetMod(int modId,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -782,18 +657,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add a mod. Successful request will return the newly created
-        /// [[ModIO.ModProfile]]. By publishing your mod on mod.io, you are agreeing to
-        /// the mod.io distribution agreement.
-        /// </summary>
-        /// <remarks>
-        /// By default new mods are [[ModIO.ModStatus.NotAccepted]] and
-        /// [[ModIO.ModVisibility.Public]]. They can only be
-        /// [[ModIO.ModStatus.Accepted]] and made available via the API once a
-        /// [[ModIO.Modfile]] has been uploaded. Media, Metadata Key Value Pairs and
-        /// Dependencies can also be added after a mod profile is created.
-        /// </remarks>
+        /// <summary>Submits a new mod profile to the mod.io servers.</summary>
         public static void AddMod(AddModParameters parameters,
                                   Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -806,12 +670,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Edit details for a mod. If you want to update the logo or media associated with this
-        /// mod, you need to use [[ModIO.APIClient.AddModMedia]]. The same applies to
-        /// Mod Files, Metadata Key Value Pairs and Dependencies which are all managed via other
-        /// endpoints. Successful request will return the updated [[ModIO.ModProfile]].
-        /// </summary>
+        /// <summary>Submits changes to an existing mod profile.</summary>
         public static void EditMod(int modId,
                                    EditModParameters parameters,
                                    Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
@@ -824,16 +683,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete a mod profile. Successful request will return 204 No Content and create a
-        /// [[ModIO.ModEvent]] with the type
-        /// [[ModIO.ModEventType.ModUnavailable]].
-        /// </summary>
-        /// <remarks>
-        /// This will close the mod profile which means it cannot be viewed or retrieved via API
-        /// requests but will still exist in-case you choose to restore it at a later date. A mod
-        /// can be permanently deleted via the website interface.
-        /// </remarks>
+        /// <summary>Deletes a mod profile from the mod.io servers.</summary>
         public static void DeleteMod(int modId,
                                      Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -847,20 +697,7 @@ namespace ModIO
 
 
         // ---------[ MODFILE ENDPOINTS ]---------
-        /// <summary>
-        /// Get all files that are published for the corresponding mod. Successful request will
-        /// return a [[ModIO.API.ResponseArray]] of [[ModIO.Modfile]]. We
-        /// recommended reading the <a href="https://docs.mod.io/#filtering">filtering documentation
-        /// </a> to return only the records you want.
-        /// </summary>
-        /// <remarks>
-        /// If the game requires mod downloads to be initiated via the API, the
-        /// [[ModIO.ModfileLocator.binaryURL]] returned will contain a verification hash.
-        /// This hash must be supplied to get the modfile, and will expire at the time contained in
-        /// [[ModIO.ModfileLocator.dateExpires]]. Saving and reusing the
-        /// [[ModIO.ModfileLocator.binaryURL]] won't work in this situation given its
-        /// dynamic nature.
-        /// </remarks>
+        /// <summary>Fetches all modfiles for a given mod from the mod.io servers.</summary>
         public static void GetAllModfiles(int modId,
                                           RequestFilter filter, PaginationParameters pagination,
                                           Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
@@ -874,16 +711,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get a file. Successful request will return a single [[ModIO.Modfile]].
-        /// <remarks>
-        /// If the game requires mod downloads to be initiated via the API, the
-        /// [[ModIO.ModfileLocator.binaryURL]] returned will contain a verification hash.
-        /// This hash must be supplied to get the modfile, and will expire at the time contained in
-        /// [[ModIO.ModfileLocator.dateExpires]]. Saving and reusing the
-        /// [[ModIO.ModfileLocator.binaryURL]] won't work in this situation given its
-        /// dynamic nature.
-        /// </remarks>
+        /// <summary>Fetch the a modfile from the mod.io servers.</summary>
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -896,12 +724,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Upload a file for the corresponding mod. Successful request will return the newly
-        /// created [[ModIO.Modfile]]. Ensure that the release you are uploading is stable
-        /// and free from any critical issues. Files are scanned upon upload, any users who upload
-        /// malicious files will have their accounts closed promptly.
-        /// </summary>
+        /// <summary>Submits a new modfile and binary to the mod.io servers.</summary>
         public static void AddModfile(int modId,
                                       AddModfileParameters parameters,
                                       Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
@@ -915,11 +738,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Edit the details of a published file. If you want to update fields other than the
-        /// changelog, version and active status, you should add a new file instead. Successful
-        /// request will return updated [[ModIO.Modfile]].
-        /// </summary>
+        /// <summary>Submits changes to an existing modfile.</summary>
         public static void EditModfile(int modId, int modfileId,
                                        EditModfileParameters parameters,
                                        Action<Modfile> successCallback, Action<WebRequestError> errorCallback)
@@ -934,13 +753,7 @@ namespace ModIO
 
 
         // ---------[ MEDIA ENDPOINTS ]---------
-        /// <summary>
-        /// Upload new media to a game. Successful request will return an
-        /// [[ModIO.APIMessage]].
-        /// <remarks>
-        /// You can also add media to your games profile on the mod.io website. This is the
-        /// recommended approach.
-        /// </remarks>
+        /// <summary>Submit new game media to the mod.io servers.</summary>
         public static void AddGameMedia(AddGameMediaParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -953,10 +766,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// This endpoint is very flexible and will add any images posted to the mods gallery
-        /// regardless of their body name providing they are a valid image. Successful request will
-        /// return an [[ModIO.APIMessage]].
+        /// <summary>Submits new mod media to the mod.io servers.</summary>
         public static void AddModMedia(int modId,
                                        AddModMediaParameters parameters,
                                        Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -970,10 +780,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete images, sketchfab or youtube links from a mod profile. Successful request will
-        /// return 204 No Content.
-        /// </summary>
+        /// <summary>Deletes mod media from a mod on the mod.io servers.</summary>
         public static void DeleteModMedia(int modId,
                                           DeleteModMediaParameters parameters,
                                           Action successCallback, Action<WebRequestError> errorCallback)
@@ -988,15 +795,7 @@ namespace ModIO
 
 
         // ---------[ SUBSCRIBE ENDPOINTS ]---------
-        /// <summary>
-        /// Subscribe the authenticated user to a corresponding mod. No body parameters are required
-        /// for this action. Successful request will return the [[ModIO.ModProfile]] of
-        /// the newly subscribed mod.
-        /// </summary>
-        /// <remarks>
-        /// Users can subscribe to mods via the mod.io web interface. Thus we recommend you poll
-        /// [[ModIO.APIClient.GetUserEvents]] to keep a user's mods collection up to date.
-        /// </remarks>
+        /// <summary>Subscribes the authenticated user to a mod.</summary>
         public static void SubscribeToMod(int modId,
                                           Action<ModProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1010,14 +809,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Unsubscribe the authenticated user from the corresponding mod. No body parameters are
-        /// required for this action. Successful request will return 204 No Content.
-        /// </summary>
-        /// <remarks>
-        /// Users can unsubscribe from mods via the mod.io web interface. Thus we recommend you poll
-        /// [[ModIO.APIClient.GetUserEvents]] to keep a user's mods collection up to date.
-        /// </remarks>
+        /// <summary>Unsubscribes the authenticated user from a mod.</summary>
         public static void UnsubscribeFromMod(int modId,
                                               Action successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1031,13 +823,7 @@ namespace ModIO
 
 
         // ---------[ EVENT ENDPOINTS ]---------
-        /// <summary>
-        /// Get the event log for a mod, showing changes made sorted by latest event first.
-        /// Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.ModEvent]]. We recommended reading the
-        /// <a href="https://docs.mod.io/#filtering">filtering documentation</a> to return only the
-        /// records you want.
-        /// </summary>
+        /// <summary>Fetches the update events for a given mod.</summary>
         public static void GetModEvents(int modId,
                                         RequestFilter filter, PaginationParameters pagination,
                                         Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
@@ -1051,15 +837,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>Get all mods events for the corresponding game sorted by latest event first.
-        /// Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.ModEvent]].
-        /// <remarks>
-        /// We recommend you poll this endpoint to keep mods up-to-date. If polling this endpoint
-        /// for updates you should store the id or date_updated of the latest event, and on
-        /// subsequent requests use that information in the filter, to return only newer events to
-        /// process.
-        /// </remarks>
+        /// <summary>Fetches all the mod update events for the game profile</summary>
         public static void GetAllModEvents(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1074,36 +852,19 @@ namespace ModIO
 
 
         // ---------[ TAG ENDPOINTS ]---------
-        /// <summary>
-        /// Get all tags for the corresponding game, that can be applied to any of its mods.
-        /// Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.ModTagCategory]].
+        /// <summary>Fetches the tag categories specified by the game profile.</summary>
         public static void GetAllGameTagOptions(Action<ResponseArray<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/tags";
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              null);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add tags which mods can apply to their profiles. Successful request will return an
-        /// [[ModIO.APIMessage]]. Tagging is a critical feature that powers the searching
-        /// and filtering of mods for your game, as well as allowing you to control how mods are
-        /// installed and played. For example you might enforce mods to be a particular type (map,
-        /// model, script, save, effects, blueprint), which dictates how you install it. You may use
-        /// tags to specify what the mod replaces (building, prop, car, boat, character). Or perhaps
-        /// the tags describe the theme of the mod (fun, scenic, realism). The implementation is up
-        /// to you, but the more detail you support the better filtering and searching becomes. If
-        /// you need to store more advanced information, you can also use
-        /// [[ModIO.ModProfile.metadataKVPs]].
-        /// </summary>
-        /// <remarks>
-        /// You can also manage tags via the mod.io web interface. This is the recommended approach.
-        /// </remarks>
+        /// <summary>Submits new mod tag categories to the mod.io servers.</summary>
         public static void AddGameTagOption(AddGameTagOptionParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1116,14 +877,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete an entire group of tags or individual tags. Successful request will return
-        /// 204 No Content.
-        /// </summary>
-        /// <remarks>
-        /// You can also manage tags by editing your games profile via the mod.io web interface.
-        /// This is the recommended approach.
-        /// </remarks>
+        /// <summary>Removes mod tag options from the mod.io servers.</summary>
         public static void DeleteGameTagOption(DeleteGameTagOptionParameters parameters,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1135,12 +889,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all tags for the corresponding mod. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModTag]]. We recommended
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the tags applied to the given mod.</summary>
         public static void GetModTags(int modId,
                                       RequestFilter filter, PaginationParameters pagination,
                                       Action<ResponseArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
@@ -1154,11 +903,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add tags to a mod's profile. You can only add tags allowed by the parent game, which are
-        /// listed under [[ModIO.GameProfile.tagCategories]]. Successful request will
-        /// return an [[ModIO.APIMessage]].
-        /// </summary>
+        /// <summary>Submits new mod tags to the mod.io servers.</summary>
         public static void AddModTags(int modId, AddModTagsParameters parameters,
                                       Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1171,10 +916,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete tags from a mod's profile. Deleting tags is identical to adding tags except the
-        /// request method is DELETE instead of POST. Successful request will return 204 No Content.
-        /// </summary>
+        /// <summary>Removes tags from the given mod.</param>
         public static void DeleteModTags(int modId,
                                          DeleteModTagsParameters parameters,
                                          Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1189,14 +931,7 @@ namespace ModIO
 
 
         // ---------[ RATING ENDPOINTS ]---------
-        /// <summary>
-        /// Submit a positive or negative rating for a mod. Each user can supply only one rating for
-        /// a mod, subsequent ratings will override the old value. Successful request will return an
-        /// [[ModIO.APIMessage]].
-        /// <remarks>
-        /// You can order mods by their rating, and view their rating in the
-        /// [[ModIO.ModProfile]].
-        /// </remarks>
+        /// <summary>Submits a user's rating for a mod.</summary>
         public static void AddModRating(int modId, AddModRatingParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1211,13 +946,7 @@ namespace ModIO
 
 
         // ---------[ METADATA ENDPOINTS ]---------
-        /// <summary>
-        /// Get all metadata stored by the game developer for this mod as searchable key value
-        /// pairs. Successful request will return a [[ModIO.API.ResponseArray]] of
-        /// [[ModIO.MetadataKVP]].
-        /// <remarks>
-        /// Metadata can also be stored to [[ModIO.ModProfile.metadataBlob]].
-        /// </remarks>
+        /// <summary>Fetches all the KVP metadata for a mod.</summary>
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
                                                 Action<ResponseArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
@@ -1231,20 +960,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add metadata for this mod as searchable key value pairs. Metadata is useful to define
-        /// how a mod works, or other information you need to display and manage the mod. Successful
-        /// request will return an [[ModIO.APIMessage]].
-        /// </summary>
-        /// <example>
-        /// A mod might change gravity and the rate of fire of weapons, you could define these
-        /// properties as key value pairs.
-        /// </example>
-        /// <remarks>
-        /// We recommend the mod upload tool you create defines and submits metadata behind the
-        /// scenes, because if these settings affect gameplay, invalid information may cause
-        /// problems.
-        /// </remarks>
+        /// <summary>Submit KVP Metadata to a mod.</summary>
         public static void AddModKVPMetadata(int modId, AddModKVPMetadataParameters parameters,
                                              Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1257,10 +973,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete key value pairs metadata defined for this mod. Successful request will return
-        /// 204 No Content.
-        /// </summary>
+        /// <summary>Deletes KVP metadata from a mod.</summary>
         public static void DeleteModKVPMetadata(int modId, DeleteModKVPMetadataParameters parameters,
                                                 Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1274,7 +987,7 @@ namespace ModIO
 
 
         // ---------[ DEPENDENCIES ENDPOINTS ]---------
-        // Get All Mod Dependencies
+        /// <summary>Fetches all the dependencies for a mod.</summary>
         public static void GetAllModDependencies(int modId,
                                                  RequestFilter filter, PaginationParameters pagination,
                                                  Action<ResponseArray<ModDependency>> successCallback, Action<WebRequestError> errorCallback)
@@ -1287,7 +1000,8 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Add Mod Dependencies
+
+        /// <summary>Submits new dependencides for a mod.</summary>
         public static void AddModDependencies(int modId, AddModDependenciesParameters parameters,
                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1299,7 +1013,8 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod Dependencies
+
+        /// <summary>Removes dependencides from a mod.</summary>
         public static void DeleteModDependencies(int modId, DeleteModDependenciesParameters parameters,
                                                  Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1313,12 +1028,7 @@ namespace ModIO
 
 
         // ---------[ TEAM ENDPOINTS ]---------
-        /// <summary>
-        /// Get all users that are part of a mod team. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModTeamMember]]. We
-        /// recommend reading the <a href="https://docs.mod.io/#filtering">filtering documentation
-        /// </a> to return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the team members for a mod.</summary>
         public static void GetAllModTeamMembers(int modId,
                                                 RequestFilter filter, PaginationParameters pagination,
                                                 Action<ResponseArray<ModTeamMember>> successCallback, Action<WebRequestError> errorCallback)
@@ -1332,11 +1042,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Add a user to a mod team. Successful request will return an
-        /// [[ModIO.APIMessage]] and fire a
-        /// [[ModIO.ModEventType.ModTeamChanged]] [[ModIO.ModEvent]].
-        /// </summary>
+        /// <summary>Submits a new team member to a mod.</summary>
         public static void AddModTeamMember(int modId, AddModTeamMemberParameters parameters,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1349,10 +1055,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Update a mod team members details. Successful request will return an
-        /// [[ModIO.APIMessage]].
-        /// </summary>
+        /// <summary>Submits changes to a mod team member.</summary>
         public static void UpdateModTeamMember(int modId, int teamMemberId,
                                                UpdateModTeamMemberParameters parameters,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1365,10 +1068,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Delete a user from a mod team. This will revoke their access rights if they are not the
-        /// original creator of the resource. Successful request will return 204 No Content and fire
-        /// a [[ModIO.ModEventType.ModTeamChanged]] [[ModIO.ModEvent]].
+        /// <summary>Submits a delete request for a mod team member.</summary>
         public static void DeleteModTeamMember(int modId, int teamMemberId,
                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1382,7 +1082,7 @@ namespace ModIO
 
 
         // ---------[ COMMENT ENDPOINTS ]---------
-        // Get All Mod Comments
+        /// <summary>Fetches all the comments for a mod.</summary>
         public static void GetAllModComments(int modId,
                                              RequestFilter filter, PaginationParameters pagination,
                                              Action<ResponseArray<ModComment>> successCallback, Action<WebRequestError> errorCallback)
@@ -1395,20 +1095,22 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Get Mod Comment
+
+        /// <summary>Fetches a mod comment by id.</summary>
         public static void GetModComment(int modId, int commentId,
                                          Action<ModComment> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/comments/" + commentId;
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              null);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-        // Delete Mod Comment
+
         // NOTE(@jackson): Untested
+        /// <summary>Submits a delete request for a mod comment.</summary>
         public static void DeleteModComment(int modId, int commentId,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1422,14 +1124,7 @@ namespace ModIO
 
 
         // ---------[ USER ENDPOINTS ]---------
-        /// <summary>
-        /// Get the user that is the original submitter of a resource. Successful request will
-        /// return a single [[ModIO.UserProfile]].
-        /// </summary>
-        /// <remarks>
-        /// Mods and games can be managed by teams of users, for the most accurate information you
-        /// should use the Team endpoints.
-        /// </remarks>
+        /// <summary>Fetches the owner for a mod resource.</summary>
         public static void GetResourceOwner(APIResourceType resourceType, int resourceID,
                                             Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1447,12 +1142,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all users registered on mod.io. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.UserProfile]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetches all the user profiles on mod.io.</summary>
         public static void GetAllUsers(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1465,25 +1155,23 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get a user. Successful request will return a single [[ModIO.UserProfile]].
-        /// </summary>
-        public static void GetUser(int userID,
+        /// <summary>Fetches a user profile from the mod.io servers.</summary>
+        public static void GetUser(int userId,
                                    Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
-            string endpointURL = API_URL + "/users/" + userID;
+            string endpointURL = API_URL + "/users/" + userId;
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              null);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
 
         // ---------[ REPORT ENDPOINTS ]---------
-        // Submit Report
         // NOTE(@jackson): Untested
+        /// <summary>Submits a report against a mod/resource on mod.io.</summary>
         public static void SubmitReport(SubmitReportParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1498,10 +1186,7 @@ namespace ModIO
 
 
         // ---------[ ME ENDPOINTS ]---------
-        /// <summary>
-        /// Get the authenticated user details. Successful request will return a single
-        /// [[ModIO.UserProfile]].
-        /// </summary>
+        /// <summary>Fetches the user profile for the authenticated user.</summary>
         public static void GetAuthenticatedUser(Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me";
@@ -1511,12 +1196,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all mod's the authenticated user is subscribed to. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the subscriptions for the authenticated user.</summary>
         public static void GetUserSubscriptions(RequestFilter filter, PaginationParameters pagination,
                                                 Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1529,12 +1209,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get events that have been fired specific to the user. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.UserEvent]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
+        /// <summary>Fetch the update events for the authenticated user.</summary>
         public static void GetUserEvents(RequestFilter filter, PaginationParameters pagination,
                                          Action<ResponseArray<UserEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1547,12 +1222,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all games the authenticated user added or is a team member of. Successful request
-        /// will return a [[ModIO.API.ResponseArray]] of [[ModIO.GameProfile]].
-        /// We recommend reading the <a href="https://docs.mod.io/#filtering">filtering
-        /// documentation</a> to return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the games that the authenticated user is a team member of.</summary>
         public static void GetUserGames(Action<ResponseArray<GameProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/games";
@@ -1562,12 +1232,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all mods the authenticated user added or is a team member of. Successful request
-        /// will return a [[ModIO.API.ResponseArray]] of [[ModIO.ModProfile]].
-        /// We recommended reading the <a href="https://docs.mod.io/#filtering">filtering
-        /// documentation</a> to return only the records you want.
-        /// </summary>
+        /// <summary>Fetches the mods that the authenticated user is a team member of.</summary>
         public static void GetUserMods(RequestFilter filter, PaginationParameters pagination,
                                        Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
@@ -1580,13 +1245,7 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>
-        /// Get all modfiles the authenticated user uploaded. Successful request will return a
-        /// [[ModIO.API.ResponseArray]] of [[ModIO.Modfile]]. We recommend
-        /// reading the <a href="https://docs.mod.io/#filtering">filtering documentation</a> to
-        /// return only the records you want.
-        /// </summary>
-        /// <param name="filter">The filter to be applied to the request</param>
+        /// <summary>Fetches the modfiles that the authenticated user uploaded.</summary>
         public static void GetUserModfiles(RequestFilter filter, PaginationParameters pagination,
                                            Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
