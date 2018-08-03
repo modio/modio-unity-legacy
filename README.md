@@ -1,7 +1,7 @@
 <a href="https://mod.io"><img src="https://static.mod.io/v1/images/branding/modio-color-dark.svg" alt="mod.io" width="400"/></a>
 
 # Unity Engine Plugin
-![License](https://img.shields.io/badge/license-MIT-brightgreen.svg
+![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
 [![Master docs](https://img.shields.io/badge/docs-master-green.svg)](https://github.com/DBolical/modioUNITY/wiki)
 [![Unity 3D](https://img.shields.io/badge/Unity-2018.2-lightgrey.svg)](https://unity3d.com/)
 
