@@ -79,11 +79,16 @@ namespace ModIO
                    + modId.ToString() + "/");
         }
 
-        /// <summary>Generates the path for a cached mod build directory.</summary>
+        /// <summary>[Obsolete] Generates the path for a cached mod build directory.</summary>
+        [Obsolete("Use CacheClient.GenerateModBinariesDirectoryPath() instead.")]
         public static string GenerateModBuildsDirectoryPath(int modId)
+        { return CacheClient.GenerateModBinariesDirectoryPath(modId); }
+
+        /// <summary>Generates the path for a cached mod build directory.</summary>
+        public static string GenerateModBinariesDirectoryPath(int modId)
         {
             return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "builds/");
+                   + "binaries/");
         }
 
 
@@ -492,14 +497,14 @@ namespace ModIO
         /// <summary>Generates the file path for a modfile.</summary>
         public static string GenerateModfileFilePath(int modId, int modfileId)
         {
-            return(CacheClient.GenerateModBuildsDirectoryPath(modId)
+            return(CacheClient.GenerateModBinariesDirectoryPath(modId)
                    + modfileId + ".data");
         }
 
         /// <summary>Generates the file path for a mod binary.</summary>
         public static string GenerateModBinaryZipFilePath(int modId, int modfileId)
         {
-            return(CacheClient.GenerateModBuildsDirectoryPath(modId)
+            return(CacheClient.GenerateModBinariesDirectoryPath(modId)
                    + modfileId + ".zip");
         }
 
