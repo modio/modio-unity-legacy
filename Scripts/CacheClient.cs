@@ -267,6 +267,10 @@ namespace ModIO
         }
 
         /// <summary>Deletes a file.</summary>
+        /// <para>This function is a simple wrapper for
+        /// <a href="https://msdn.microsoft.com/en-us/library/system.io.file.delete(v=vs.110).aspx">File.Delete</a>,
+        /// but handles any exceptions, logging a debug warning if the delete fails.</para>
+        /// <param name="filePath">Location of the file to be deleted.</param>
         public static void DeleteFile(string filePath)
         {
             try
@@ -284,6 +288,10 @@ namespace ModIO
         }
 
         /// <summary>Deletes a directory.</summary>
+        /// <para>This function is a simple wrapper for
+        /// <a href="https://msdn.microsoft.com/en-us/library/system.io.directory.delete(v=vs.110).aspx">Directory.Delete</a>,
+        /// but handles any exceptions, logging a debug warning if the delete fails.</para>
+        /// <param name="directoryPath">Location of the directory to be deleted.</param>
         public static void DeleteDirectory(string directoryPath)
         {
             try
