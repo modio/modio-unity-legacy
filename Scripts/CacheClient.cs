@@ -263,7 +263,7 @@ namespace ModIO
         public static string userFilePath
         { get { return CacheClient._cacheDirectory + "user.data"; } }
 
-        /// <summary>Store the authenticated user token in the cache.</summary>
+        /// <summary>Stores the authenticated user token in the cache.</summary>
         public static void SaveAuthenticatedUserToken(string oAuthToken)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -278,7 +278,7 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(userFilePath, au);
         }
 
-        /// <summary>Retrieve the authenticated user token from the cache.</summary>
+        /// <summary>Retrieves the authenticated user token from the cache.</summary>
         public static string LoadAuthenticatedUserToken()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -290,7 +290,7 @@ namespace ModIO
             return null;
         }
 
-        /// <summary>Store the authenticated user's profile in the cache.</summary>
+        /// <summary>Stores the authenticated user's profile in the cache.</summary>
         public static void SaveAuthenticatedUserProfile(UserProfile userProfile)
         {
             CacheClient.SaveUserProfile(userProfile);
@@ -307,7 +307,7 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(userFilePath, au);
         }
 
-        /// <summary>Retrieve the authenticated user's profile from the cache.</summary>
+        /// <summary>Retrieves the authenticated user's profile from the cache.</summary>
         public static UserProfile LoadAuthenticatedUserProfile()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -320,7 +320,7 @@ namespace ModIO
             return null;
         }
 
-        /// <summary>Store the authenticated user's mod subscriptions in the cache.</summary>
+        /// <summary>Stores the authenticated user's mod subscriptions in the cache.</summary>
         public static void SaveAuthenticatedUserSubscriptions(List<int> subscribedModIds)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -335,7 +335,7 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(userFilePath, au);
         }
 
-        /// <summary>Retrieve the authenticated user's mod subscriptions from the cache.</summary>
+        /// <summary>Retrieves the authenticated user's mod subscriptions from the cache.</summary>
         public static List<int> LoadAuthenticatedUserSubscriptions()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -347,7 +347,7 @@ namespace ModIO
             return null;
         }
 
-        /// <summary>Store the authenticated user's mods in the cache.</summary>
+        /// <summary>Stores the authenticated user's mods in the cache.</summary>
         public static void SaveAuthenticatedUserMods(List<int> modIds)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -362,7 +362,7 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(userFilePath, au);
         }
 
-        /// <summary>Retrieve the authenticated user's mods from the cache.</summary>
+        /// <summary>Retrieves the authenticated user's mods from the cache.</summary>
         public static List<int> LoadAuthenticatedUserMods()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -375,7 +375,7 @@ namespace ModIO
             return null;
         }
 
-        /// <summary>Delete the authenticated user's data from the cache.</summary>
+        /// <summary>Deletes the authenticated user's data from the cache.</summary>
         public static void DeleteAuthenticatedUser()
         {
             try
@@ -398,13 +398,13 @@ namespace ModIO
         public static string gameProfileFilePath
         { get { return CacheClient._cacheDirectory + "game_profile.data"; } }
 
-        /// <summary>Store the game's profile in the cache.</summary>
+        /// <summary>Stores the game's profile in the cache.</summary>
         public static void SaveGameProfile(GameProfile profile)
         {
             CacheClient.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
-        /// <summary>Retrieve the game's profile from the cache.</summary>
+        /// <summary>Retrieves the game's profile from the cache.</summary>
         public static GameProfile LoadGameProfile()
         {
             return CacheClient.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
@@ -419,7 +419,7 @@ namespace ModIO
                     + "profile.data");
         }
 
-        /// <summary>Store a mod's profile in the cache.</summary>
+        /// <summary>Stores a mod's profile in the cache.</summary>
         public static void SaveModProfile(ModProfile profile)
         {
             Debug.Assert(profile.id > 0,
@@ -429,7 +429,7 @@ namespace ModIO
                                              profile);
         }
 
-        /// <summary>Retrieve a mod's profile from the cache.</summary>
+        /// <summary>Retrieves a mod's profile from the cache.</summary>
         public static ModProfile LoadModProfile(int modId)
         {
             string profileFilePath = GenerateModProfileFilePath(modId);
@@ -437,7 +437,7 @@ namespace ModIO
             return(profile);
         }
 
-        /// <summary>Store a collection of mod profiles in the cache.</summary>
+        /// <summary>Stores a collection of mod profiles in the cache.</summary>
         public static void SaveModProfiles(IEnumerable<ModProfile> modProfiles)
         {
             foreach(ModProfile profile in modProfiles)
@@ -446,12 +446,12 @@ namespace ModIO
             }
         }
 
-        /// <summary>[Obsolete] Iterate through all of the mod profiles in the cache.</summary>
+        /// <summary>[Obsolete] Iterates through all of the mod profiles in the cache.</summary>
         [Obsolete("Use CacheClient.IterateAllModProfiles() instead.")]
         public static IEnumerable<ModProfile> AllModProfiles()
         { return CacheClient.IterateAllModProfiles(); }
 
-        /// <summary>Iterate through all of the mod profiles in the cache.</summary>
+        /// <summary>Iterates through all of the mod profiles in the cache.</summary>
         public static IEnumerable<ModProfile> IterateAllModProfiles()
         {
             string profileDirectory = CacheClient._cacheDirectory + "mods/";
@@ -486,7 +486,7 @@ namespace ModIO
             }
         }
 
-        /// <summary>Delete all of a mod's data from the cache.</summary>
+        /// <summary>Deletes all of a mod's data from the cache.</summary>
         public static void DeleteMod(int modId)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
@@ -508,7 +508,7 @@ namespace ModIO
                    + modfileId + ".zip");
         }
 
-        /// <summary>Store a modfile in the cache.</summary>
+        /// <summary>Stores a modfile in the cache.</summary>
         public static void SaveModfile(Modfile modfile)
         {
             Debug.Assert(modfile.modId > 0,
@@ -520,7 +520,7 @@ namespace ModIO
                                             modfile);
         }
 
-        /// <summary>Retrieve a modfile from the cache.</summary>
+        /// <summary>Retrieves a modfile from the cache.</summary>
         public static Modfile LoadModfile(int modId, int modfileId)
         {
             string modfileFilePath = GenerateModfileFilePath(modId, modfileId);
@@ -528,7 +528,7 @@ namespace ModIO
             return modfile;
         }
 
-        /// <summary>Store a mod binary's ZipFile data in the cache.</summary>
+        /// <summary>Stores a mod binary's ZipFile data in the cache.</summary>
         public static void SaveModBinaryZip(int modId, int modfileId,
                                             byte[] modBinary)
         {
@@ -541,7 +541,7 @@ namespace ModIO
             CacheClient.WriteBinaryFile(filePath, modBinary);
         }
 
-        /// <summary>Retrieve a mod binary's ZipFile data from the cache.</summary>
+        /// <summary>Retrieves a mod binary's ZipFile data from the cache.</summary>
         public static byte[] LoadModBinaryZip(int modId, int modfileId)
         {
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
@@ -549,7 +549,7 @@ namespace ModIO
             return zipData;
         }
 
-        /// <summary>Delete a modfile and binary from the cache.</summary>
+        /// <summary>Deletes a modfile and binary from the cache.</summary>
         public static void DeleteModfileAndBinaryZip(int modId, int modfileId)
         {
             CacheClient.DeleteFile(CacheClient.GenerateModfileFilePath(modId, modfileId));
@@ -557,28 +557,28 @@ namespace ModIO
         }
 
         // ---------[ MOD MEDIA ]---------
-        /// <summary>Generate the directory path for a mod logo collection.</summary>
+        /// <summary>Generates the directory path for a mod logo collection.</summary>
         public static string GenerateModLogoCollectionDirectoryPath(int modId)
         {
             return(CacheClient.GenerateModDirectoryPath(modId)
                    + "logo/");
         }
 
-        /// <summary>Generate the file path for a mod logo.</summary>
+        /// <summary>Generates the file path for a mod logo.</summary>
         public static string GenerateModLogoFilePath(int modId, LogoSize size)
         {
             return (GenerateModLogoCollectionDirectoryPath(modId)
                     + size.ToString() + ".png");
         }
 
-        /// <summary>Generate the file path for a mod logo's cached version information.</summary>
+        /// <summary>Generates the file path for a mod logo's cached version information.</summary>
         public static string GenerateModLogoVersionInfoFilePath(int modId)
         {
             return(CacheClient.GenerateModLogoCollectionDirectoryPath(modId)
                    + "versionInfo.data");
         }
 
-        /// <summary>Generates the directory path for a mod gallery image collection.</summary>
+        /// <summary>Generatess the directory path for a mod gallery image collection.</summary>
         public static string GenerateModGalleryImageCollectionDirectoryPath(int modId)
         {
             return(Application.temporaryCachePath
@@ -586,7 +586,7 @@ namespace ModIO
                    + modId + "/");
         }
 
-        /// <summary>Generate the file path for a mod galley image.</summary>
+        /// <summary>Generates the file path for a mod galley image.</summary>
         public static string GenerateModGalleryImageFilePath(int modId,
                                                              string imageFileName,
                                                              ModGalleryImageSize size)
@@ -597,13 +597,13 @@ namespace ModIO
                    ".png");
         }
 
-        /// <summary>Retrieve the file paths for the mod logos in the cache.</summary>
+        /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
         public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
         {
             return CacheClient.ReadJsonObjectFile<Dictionary<LogoSize, string>>(CacheClient.GenerateModLogoVersionInfoFilePath(modId));
         }
 
-        /// <summary>Store a mod logo in the cache.</summary>
+        /// <summary>Stores a mod logo in the cache.</summary>
         public static void SaveModLogo(int modId, string fileName,
                                        LogoSize size, Texture2D logoTexture)
         {
@@ -628,7 +628,7 @@ namespace ModIO
                                             versionInfo);
         }
 
-        /// <summary>Retrieve a mod logo from the cache.</summary>
+        /// <summary>Retrieves a mod logo from the cache.</summary>
         public static Texture2D LoadModLogo(int modId, LogoSize size)
         {
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
@@ -636,7 +636,7 @@ namespace ModIO
             return(logoTexture);
         }
 
-        /// <summary>Store a mod gallery image in the cache.</summary>
+        /// <summary>Stores a mod gallery image in the cache.</summary>
         public static void SaveModGalleryImage(int modId,
                                                string imageFileName,
                                                ModGalleryImageSize size,
@@ -651,7 +651,7 @@ namespace ModIO
             CacheClient.WritePNGFile(imageFilePath, imageTexture);
         }
 
-        /// <summary>Retrieve a mod gallery image from the cache.</summary>
+        /// <summary>Retrieves a mod gallery image from the cache.</summary>
         public static Texture2D LoadModGalleryImage(int modId,
                                                     string imageFileName,
                                                     ModGalleryImageSize size)
@@ -665,14 +665,14 @@ namespace ModIO
         }
 
         // ---------[ MOD TEAM ]---------
-        /// <summary>Generate the file path for a mod team's data.</summary>
+        /// <summary>Generates the file path for a mod team's data.</summary>
         public static string GenerateModTeamFilePath(int modId)
         {
             return(CacheClient.GenerateModDirectoryPath(modId)
                    + "team.data");
         }
 
-        /// <summary>Store a mod team's data in the cache.</summary>
+        /// <summary>Stores a mod team's data in the cache.</summary>
         public static void SaveModTeam(int modId,
                                        List<ModTeamMember> modTeam)
         {
@@ -683,7 +683,7 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(filePath, modTeam);
         }
 
-        /// <summary>Retrieve a mod team's data from the cache.</summary>
+        /// <summary>Retrieves a mod team's data from the cache.</summary>
         public static List<ModTeamMember> LoadModTeam(int modId)
         {
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
@@ -691,14 +691,14 @@ namespace ModIO
             return modTeam;
         }
 
-        /// <summary>Delete a mod team's data from the cache.</summary>
+        /// <summary>Deletes a mod team's data from the cache.</summary>
         public static void DeleteModTeam(int modId)
         {
             CacheClient.DeleteFile(CacheClient.GenerateModTeamFilePath(modId));
         }
 
         // ---------[ USERS ]---------
-        /// <summary>Generate the file path for a user's profile.</summary>
+        /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserProfileFilePath(int userId)
         {
             return(CacheClient.GetCacheDirectory()
@@ -706,7 +706,7 @@ namespace ModIO
                    + userId + ".data");
         }
 
-        /// <summary>Store a user's profile in the cache.</summary>
+        /// <summary>Stores a user's profile in the cache.</summary>
         public static void SaveUserProfile(UserProfile userProfile)
         {
             Debug.Assert(userProfile.id > 0,
@@ -716,7 +716,7 @@ namespace ModIO
             CacheClient.WriteJsonObjectFile(filePath, userProfile);
         }
 
-        /// <summary>Retrieve a user's profile from the cache.</summary>
+        /// <summary>Retrieves a user's profile from the cache.</summary>
         public static UserProfile LoadUserProfile(int userId)
         {
             string filePath = CacheClient.GenerateUserProfileFilePath(userId);
@@ -724,7 +724,7 @@ namespace ModIO
             return(userProfile);
         }
 
-        /// <summary>Iterate through all the user profiles in the cache.</summary>
+        /// <summary>Iterates through all the user profiles in the cache.</summary>
         public static IEnumerable<UserProfileStub> IterateAllUserProfiles()
         {
             string profileDirectory = CacheClient.GetCacheDirectory() + "users/";
@@ -758,7 +758,7 @@ namespace ModIO
             }
         }
 
-        /// <summary>Delete a user's profile from the cache.</summary>
+        /// <summary>Deletes a user's profile from the cache.</summary>
         public static void DeleteUserProfile(int userId)
         {
             CacheClient.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
