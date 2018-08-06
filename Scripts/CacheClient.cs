@@ -324,10 +324,14 @@ namespace ModIO
         }
 
         /// <summary>File path for the authenticated user data.</summary>
+        /// <para>All of authented user's data, except the user's profile, will be stored in this
+        /// single data file under the cache directory.</para>
         public static string userFilePath
         { get { return CacheClient._cacheDirectory + "user.data"; } }
 
         /// <summary>Stores the authenticated user token in the cache.</summary>
+        /// <para>See also: [[ModIO.APIClient.GetOAuthToken]]</para>
+        /// <param name="oAuthToken">User Authentication Token to store</param>
         public static void SaveAuthenticatedUserToken(string oAuthToken)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -343,6 +347,7 @@ namespace ModIO
         }
 
         /// <summary>Retrieves the authenticated user token from the cache.</summary>
+        /// <returns>Stored User Authentication token</returns>
         public static string LoadAuthenticatedUserToken()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -355,6 +360,7 @@ namespace ModIO
         }
 
         /// <summary>Stores the authenticated user's profile in the cache.</summary>
+        /// <param name="userProfile">User profile retrieved via [[ModIO.APIClient.GetAuthenticatedUser]]</param>
         public static void SaveAuthenticatedUserProfile(UserProfile userProfile)
         {
             CacheClient.SaveUserProfile(userProfile);
@@ -372,6 +378,7 @@ namespace ModIO
         }
 
         /// <summary>Retrieves the authenticated user's profile from the cache.</summary>
+        /// <returns>Stored user profile</returns>
         public static UserProfile LoadAuthenticatedUserProfile()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -385,6 +392,8 @@ namespace ModIO
         }
 
         /// <summary>Stores the authenticated user's mod subscriptions in the cache.</summary>
+        /// <param name="subscribedModIds">Ids of the mods retrieved via
+        /// [[ModIO.APIClient.GetUserSubscriptions]]</param>
         public static void SaveAuthenticatedUserSubscriptions(List<int> subscribedModIds)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -400,6 +409,7 @@ namespace ModIO
         }
 
         /// <summary>Retrieves the authenticated user's mod subscriptions from the cache.</summary>
+        /// <returns>Ids of the mods the user is subscribed to</returns>
         public static List<int> LoadAuthenticatedUserSubscriptions()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -412,6 +422,8 @@ namespace ModIO
         }
 
         /// <summary>Stores the authenticated user's mods in the cache.</summary>
+        /// <param name="modIds">Ids of the mods retrieved via
+        /// [[ModIO.APIClient.GetUserMods]]</param>
         public static void SaveAuthenticatedUserMods(List<int> modIds)
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -427,6 +439,7 @@ namespace ModIO
         }
 
         /// <summary>Retrieves the authenticated user's mods from the cache.</summary>
+        /// <returns>Ids for the mods the user is a team member of</returns>
         public static List<int> LoadAuthenticatedUserMods()
         {
             AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
@@ -440,6 +453,9 @@ namespace ModIO
         }
 
         /// <summary>Deletes the authenticated user's data from the cache.</summary>
+        /// <para>This clears out all of the authentication data, the user's subscription data, and
+        /// the user's mods. The user's profile is kept cached along but can only be accessed via
+        /// [[ModIO.CacheClient.LoadUserProfile]].</para>
         public static void DeleteAuthenticatedUser()
         {
             try
@@ -463,12 +479,14 @@ namespace ModIO
         { get { return CacheClient._cacheDirectory + "game_profile.data"; } }
 
         /// <summary>Stores the game's profile in the cache.</summary>
+        /// <param name="profile">Game Profile to store</param>
         public static void SaveGameProfile(GameProfile profile)
         {
             CacheClient.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
         /// <summary>Retrieves the game's profile from the cache.</summary>
+        /// <returns>Game Profile stored via [[ModIO.CacheClient.SaveGameProfile]].</returns>
         public static GameProfile LoadGameProfile()
         {
             return CacheClient.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
@@ -477,6 +495,8 @@ namespace ModIO
 
         // ---------[ MOD PROFILES ]---------
         /// <summary>Generates the file path for a mod's profile data.</summary>
+        /// <param name="modId">Mod to generate the file path for</param>
+        /// <returns>Location of the file that contains the mod profile</returns>
         public static string GenerateModProfileFilePath(int modId)
         {
             return (CacheClient.GenerateModDirectoryPath(modId)
@@ -484,6 +504,8 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod's profile in the cache.</summary>
+        /// <para>See also: [[ModIO.CacheClient.LoadModProfile]]</para>
+        /// <param name="profile">Mod profile to store</param>
         public static void SaveModProfile(ModProfile profile)
         {
             Debug.Assert(profile.id > 0,
@@ -494,6 +516,9 @@ namespace ModIO
         }
 
         /// <summary>Retrieves a mod's profile from the cache.</summary>
+        /// <para>See also: [[ModIO.CacheClient.SaveModProfile]]</para>
+        /// <param name="modId">Mod profile to retrieve</param>
+        /// <returns>Mod profile stored in the cache for the given mod id.</returns>
         public static ModProfile LoadModProfile(int modId)
         {
             string profileFilePath = GenerateModProfileFilePath(modId);
@@ -502,6 +527,9 @@ namespace ModIO
         }
 
         /// <summary>Stores a collection of mod profiles in the cache.</summary>
+        /// <para>See also: [[ModIO.CacheClient.SaveModProfile]],
+        /// [[ModIO.CacheClient.IterateAllModProfiles]]</para>
+        /// <param name="modProfiles">Enumeration of mods to store</param>
         public static void SaveModProfiles(IEnumerable<ModProfile> modProfiles)
         {
             foreach(ModProfile profile in modProfiles)
@@ -511,11 +539,13 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Iterates through all of the mod profiles in the cache.</summary>
+        /// <para>Use [[ModIO.CacheClient.IterateAllModProfiles]] instead.</para>
         [Obsolete("Use CacheClient.IterateAllModProfiles() instead.")]
         public static IEnumerable<ModProfile> AllModProfiles()
         { return CacheClient.IterateAllModProfiles(); }
 
         /// <summary>Iterates through all of the mod profiles in the cache.</summary>
+        /// <returns>An enumeration of all the mod profiles currently stored in the cache.</returns>
         public static IEnumerable<ModProfile> IterateAllModProfiles()
         {
             string profileDirectory = CacheClient._cacheDirectory + "mods/";
@@ -551,6 +581,9 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of a mod's data from the cache.</summary>
+        /// <para>Removes all of the mod's cached data from the disk - the profile, binaries, and
+        /// any imagery.</para>
+        /// <param name="modId">Mod to delete the data for</param>
         public static void DeleteMod(int modId)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
