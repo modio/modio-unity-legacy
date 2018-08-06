@@ -30,9 +30,11 @@ namespace ModIO
         // ------[ FIELDS ]------
         public Texture2D undoButton;
         public Texture2D clearButton;
+        public Texture2D loadingPlaceholder;
 
         // ------[ STATIC ACCESSORS ]------
         public static Texture2D UndoButton { get { return Instance.undoButton; } }
         public static Texture2D ClearButton { get { return Instance.clearButton; } }
+        public static Texture2D LoadingPlaceholder { get { return Instance.loadingPlaceholder; } }
     }
 }
