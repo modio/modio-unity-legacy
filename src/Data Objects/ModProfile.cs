@@ -16,25 +16,17 @@ namespace ModIO
         [JsonProperty("game_id")]
         public int gameId;
 
-        /// <summary>
-        /// Status of the mod.
-        /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
-        /// Documentation</a>
-        /// </summary>
-        /// <remarks>
-        /// This field is controlled by the game team, rather than the mod team.
-        /// </remarks>
+        /// <summary>Status of the mod.</summary>
+        /// <para>This field is controlled by the game team, rather than the mod team.</para>
+        /// <para>See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
+        /// Documentation</a>.</para>
         [JsonProperty("status")]
         public ModStatus status;
 
-        /// <summary>
-        /// Visibility of the mod.
-        /// See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
-        /// Documentation</a>
-        /// </summary>
-        /// <remarks>
-        /// This field is controlled by the mod team.
-        /// </remarks>
+        /// <summary>Visibility of the mod.</summary>
+        /// <para>This field is controlled by the game team, rather than the mod team.</para>
+        /// <para>See: <a href="https://docs.mod.io/#status-amp-visibility">Status and Visibility
+        /// Documentation</a>.</para>
         [JsonProperty("visible")]
         public ModVisibility visibility;
 
