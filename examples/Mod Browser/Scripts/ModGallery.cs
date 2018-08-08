@@ -92,11 +92,6 @@ public class ModGallery : MonoBehaviour
             preview.onClick += OnPreviewClick;
             preview.UpdateDisplay();
 
-            Debug.Log("Creating preview: " + profile.name
-                      + " [" + previewPos.x
-                      + "," + previewPos.y + "]");
-
-
             ++previewX;
         }
 

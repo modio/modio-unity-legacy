@@ -230,6 +230,7 @@ public class ModBrowser : MonoBehaviour
                 };
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
+
                 gallery.Initialize();
             };
             Action<WebRequestError> onError = (error) =>
