@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222621853446336908}
   - component: {fileID: 114601082888226946}
   - component: {fileID: 114123091784908054}
+  - component: {fileID: 114386634814717684}
   m_Layer: 5
   m_Name: LoadingPlaceholder_320x180
   m_TagString: Untagged
@@ -59,6 +60,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 114398720663531850}
   secondsPerRotation: 1.4
+--- !u!114 &114386634814717684
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211250885151908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1254083943, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 0
+  m_AspectRatio: 1.7777778
 --- !u!114 &114398720663531850
 MonoBehaviour:
   m_ObjectHideFlags: 1

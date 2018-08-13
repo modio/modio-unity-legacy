@@ -38,7 +38,7 @@ GameObject:
   - component: {fileID: 224016864103520996}
   - component: {fileID: 114588616984490076}
   m_Layer: 5
-  m_Name: ModPreview
+  m_Name: BrowserGalleryItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -104,9 +104,9 @@ GameObject:
   m_Component:
   - component: {fileID: 224295814715757084}
   - component: {fileID: 222640956784164770}
-  - component: {fileID: 114966569125983372}
+  - component: {fileID: 114102106796273502}
   m_Layer: 5
-  m_Name: ModLogo
+  m_Name: LogoContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,6 +129,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114102106796273502
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1565510844044300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1254083943, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 1
+  m_AspectRatio: 1.7777778
 --- !u!114 &114312161494758810
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -285,12 +298,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a80c2f8d07104612b470c0d5bee7ba0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loadingPlaceholderPrefab: {fileID: 1211250885151908, guid: 2f40aeca2bf41497e9da178e556a22b6,
-    type: 2}
-  modLogoImage: {fileID: 114966569125983372}
-  modNameText: {fileID: 114312161494758810}
-  modTagsText: {fileID: 114718701353215800}
-  modDownloadCountText: {fileID: 114569290268804658}
   modProfile:
     id: 0
     gameId: 0
@@ -344,6 +351,13 @@ MonoBehaviour:
       displayText: 
     metadataKVPs: []
     tags: []
+  loadingPlaceholderPrefab: {fileID: 1211250885151908, guid: 2f40aeca2bf41497e9da178e556a22b6,
+    type: 2}
+  logoVersion: 1
+  modNameText: {fileID: 114312161494758810}
+  modTagsText: {fileID: 114718701353215800}
+  modDownloadCountText: {fileID: 114569290268804658}
+  modLogoContainer: {fileID: 224295814715757084}
 --- !u!114 &114718701353215800
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -377,33 +391,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: tags, tags, tags, tags...
---- !u!114 &114966569125983372
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1565510844044300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 1
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
 --- !u!222 &222279840891660862
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -462,11 +449,11 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 180, y: -20}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 518, y: -20}
   m_SizeDelta: {x: 320, y: 220}
-  m_Pivot: {x: 0.5, y: 1}
+  m_Pivot: {x: 0, y: 1}
 --- !u!224 &224056183264202230
 RectTransform:
   m_ObjectHideFlags: 1

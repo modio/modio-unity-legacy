@@ -30,7 +30,7 @@ public class ModBrowser : MonoBehaviour
     public int lastCacheUpdate = -1;
 
     // --- UI Components ---
-    public ModGallery gallery;
+    public ModBrowserView view;
 
     // public Texture2D loadingPlaceholder;
 
@@ -147,7 +147,7 @@ public class ModBrowser : MonoBehaviour
 
     protected virtual void OnInitialized()
     {
-        gallery.Initialize();
+        view.Initialize();
     }
 
     // ---------[ UPDATES ]---------
@@ -231,7 +231,7 @@ public class ModBrowser : MonoBehaviour
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
 
-                gallery.Initialize();
+                view.Initialize();
             };
             Action<WebRequestError> onError = (error) =>
             {

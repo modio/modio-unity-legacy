@@ -1,0 +1,21 @@
+:: Attribution for externally sourced icons under the Creative Commons License ::
+
+[ editor_icon-undo.png ]
+Undo by RareSloth from the Noun Project
+URL: https://thenounproject.com/term/undo/218993
+
+[ editor_icon-clear.png ]
+clear by Icons Bazaar from the Noun Project
+URL: https://thenounproject.com/term/clear/596058
+
+[ browser_icon-sort.png ]
+Sort by Saideep Karipalli from the Noun Project
+URL: https://thenounproject.com/term/sort/315651
+
+[ browser_icon-downloads.png]
+Download by Weltenraser from the Noun Project
+URL: https://thenounproject.com/term/download/1371547
+
+[ browser_icon-rating.png]
+rating by Adrien Coquet from the Noun Project
+URL: https://thenounproject.com/term/rating/1234316
