@@ -420,6 +420,34 @@ namespace ModIO
             CacheClient.SaveAuthenticatedUserSubscriptions(subscriptions);
         }
 
+        // ---------[ MOD STATS ]---------
+        /// <summary>Fetches mod statistics from either the cache or server.</summary>
+        public static void GetModStatistics(int modId,
+                                            Action<ModStatistics> onSuccess,
+                                            Action<WebRequestError> onError)
+        {
+            var cachedStats = CacheClient.LoadModStatistics(modId);
+
+            if(cachedStats != null
+               && cachedStats.dateExpires > ServerTimeStamp.Now)
+            {
+                if(onSuccess != null) { onSuccess(cachedStats); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<ModStatistics> onGetStats = (stats) =>
+                {
+                    CacheClient.SaveModStatistics(stats);
+                    if(onSuccess != null) { onSuccess(stats); }
+                };
+
+                APIClient.GetModStats(modId,
+                                      onGetStats,
+                                      onError);
+            }
+        }
+
         // ---------[ MOD IMAGES ]---------
         // TODO(@jackson): Look at reconfiguring params
         public static void GetModLogo(ModProfile profile, LogoSize size,
