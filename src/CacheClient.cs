@@ -493,6 +493,29 @@ namespace ModIO
             CacheClient.DeleteDirectory(modDir);
         }
 
+        // ---------[ MOD STATISTICS ]---------
+        public static string GenerateModStatisticsFilePath(int modId)
+        {
+            return(CacheClient.GenerateModDirectoryPath(modId)
+                   + "stats.data");
+        }
+
+        public static ModStatistics LoadModStatistics(int modId)
+        {
+            string statsFilePath = GenerateModStatisticsFilePath(modId);
+            ModStatistics stats = CacheClient.ReadJsonObjectFile<ModStatistics>(statsFilePath);
+            return(stats);
+        }
+
+        public static void SaveModStatistics(ModStatistics stats)
+        {
+            Debug.Assert(stats.modId > 0,
+                         "[mod.io] Cannot cache a mod without a mod id");
+
+            string statsFilePath = GenerateModStatisticsFilePath(stats.modId);
+            CacheClient.WriteJsonObjectFile(statsFilePath, stats);
+        }
+
         // ---------[ MODFILES ]---------
         /// <summary>Generates the file path for a modfile.</summary>
         public static string GenerateModfileFilePath(int modId, int modfileId)

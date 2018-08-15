@@ -98,10 +98,6 @@ namespace ModIO
         [JsonProperty("media")]
         public ModMediaCollection media;
 
-        /// <summary> Contains ratings summary. </summary>
-        [JsonProperty("rating_summary")]
-        public RatingSummary ratingSummary;
-
         /// <summary> Contains key-value metadata. </summary>
         [JsonProperty("metadata_kvp")]
         public MetadataKVP[] metadataKVPs;
