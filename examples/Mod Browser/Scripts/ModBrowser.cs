@@ -30,7 +30,7 @@ public class ModBrowser : MonoBehaviour
     public int lastCacheUpdate = -1;
 
     // --- UI Components ---
-    public ModBrowserView view;
+    public ModBrowserView activeView;
 
     // public Texture2D loadingPlaceholder;
 
@@ -76,6 +76,9 @@ public class ModBrowser : MonoBehaviour
 
     protected virtual void Start()
     {
+        // assert ui is prepared
+        activeView.gameObject.SetActive(true);
+
         // --- mod.io init ---
         #pragma warning disable 0162
         if(this.gameId <= 0)
@@ -147,7 +150,7 @@ public class ModBrowser : MonoBehaviour
 
     protected virtual void OnInitialized()
     {
-        view.Initialize();
+        activeView.Initialize();
     }
 
     // ---------[ UPDATES ]---------
@@ -231,7 +234,7 @@ public class ModBrowser : MonoBehaviour
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
 
-                view.Initialize();
+                activeView.Initialize();
             };
             Action<WebRequestError> onError = (error) =>
             {
@@ -258,6 +261,19 @@ public class ModBrowser : MonoBehaviour
 
             CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
         }
+    }
+
+    // ---------[ UI CONTROL ]---------
+    public void SetActiveView(ModBrowserView newActiveView)
+    {
+        if(newActiveView == this.activeView) { return; }
+
+        activeView.gameObject.SetActive(false);
+
+        newActiveView.gameObject.SetActive(true);
+        newActiveView.Initialize();
+
+        activeView = newActiveView;
     }
 
     // ---------[ EVENT HANDLING ]---------
