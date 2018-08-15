@@ -31,6 +31,7 @@ public class ModBrowser : MonoBehaviour
 
     // --- UI Components ---
     public ModBrowserView activeView;
+    public ModInspector inspector;
 
     // public Texture2D loadingPlaceholder;
 
@@ -139,19 +140,32 @@ public class ModBrowser : MonoBehaviour
         // // --- Load Game Profile ---
         // ModManager.GetGameProfile(this.OnGetGameProfile,
         //                           (e) => { WebRequestError.LogAsWarning(e); this.OnGetGameProfile(null); });
+
+
+        IEnumerator<ModProfile> it = CacheClient.IterateAllModProfiles().GetEnumerator();
+
+        if(it.MoveNext())
+        {
+            inspector.profile = it.Current;
+            inspector.UpdateUIComponents();
+
+            ModManager.GetModStatistics(inspector.profile.id,
+                                        (s) => { inspector.stats = s; inspector.UpdateUIComponents(); },
+                                        null);
+        }
     }
 
-    protected virtual void OnGetGameProfile(GameProfile game)
-    {
-        this._isInitialized = true;
+    // protected virtual void OnGetGameProfile(GameProfile game)
+    // {
+    //     this._isInitialized = true;
 
-        this.OnInitialized();
-    }
+    //     this.OnInitialized();
+    // }
 
-    protected virtual void OnInitialized()
-    {
-        activeView.Initialize();
-    }
+    // protected virtual void OnInitialized()
+    // {
+    //     activeView.Initialize();
+    // }
 
     // ---------[ UPDATES ]---------
     private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
@@ -509,5 +523,37 @@ public class ModBrowser : MonoBehaviour
         return Sprite.Create(texture,
                              new Rect(0.0f, 0.0f, texture.width, texture.height),
                              Vector2.zero);
+    }
+
+    public static string ConvertValueIntoShortText(int value)
+    {
+        if(value < 1000) // 0 - 999
+        {
+            return value.ToString();
+        }
+        else if(value < 100000) // 1.0K - 99.9K
+        {
+            // remove tens
+            float truncatedValue = (value / 100) / 10f;
+            return(truncatedValue.ToString() + "K");
+        }
+        else if(value < 10000000) // 100K - 999K
+        {
+            // remove hundreds
+            int truncatedValue = (value / 1000);
+            return(truncatedValue.ToString() + "K");
+        }
+        else if(value < 1000000000) // 1.0M - 99.9M
+        {
+            // remove tens of thousands
+            float truncatedValue = (value / 100000) / 10f;
+            return(truncatedValue.ToString() + "M");
+        }
+        else // 100M+
+        {
+            // remove hundreds of thousands
+            int truncatedValue = (value / 1000000);
+            return(truncatedValue.ToString() + "M");
+        }
     }
 }

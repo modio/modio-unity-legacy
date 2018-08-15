@@ -5,43 +5,60 @@ using UnityEngine.UI;
 
 using ModIO;
 
+// TODO(@jackson): Handle guest accounts
 public class ModInspector : MonoBehaviour
 {
-    public event Action downloadClicked;
-    public event Action installClicked;
-    public event Action subscribeClicked;
+    // ---------[ FIELDS ]---------
+    // ---[ UI COMPONENTS ]---
+    [Header("UI Components")]
+    // - Profile -
+    public Text modNameText;
+    public Transform creatorAvatarContainer;
+    public Text creatorUsernameText;
+    // public Text creatorLastOnlineText;
+    // public GameObject tagBadgePrefab;
+    public Transform tagContainer;
+    public Text descriptionText;
+    public Text versionText;
+    public Text fileSizeText;
+    public Text releaseDateText;
 
-    public Text title;
-    public Text author;
-    public Image logo;
-    public Button downloadButton;
-    public Text downloadButtonText;
-    public Button installButton;
-    public Text installButtonText;
-    public Button subscribeButton;
+    // - Stats -
+    public Text popularityRankText;
+    public Text downloadCountText;
+
+    // - Media -
+    public Transform mediaGalleryContainer;
+
+    // - Controls -
     public Text subscribeButtonText;
 
-    public void NotifyDownloadClicked()
-    {
-        if(this.downloadClicked != null)
-        {
-            this.downloadClicked();
-        }
-    }
+    // ---[ INSPECTOR DATA ]---
+    [Header("Data")]
+    public ModProfile profile;
+    public ModStatistics stats;
 
-    public void NotifyInstallClicked()
+    // ---------[ INITIALIZATION ]---------
+    public void UpdateUIComponents()
     {
-        if(this.installClicked != null)
-        {
-            this.installClicked();
-        }
-    }
+        // profile
+        modNameText.text = profile.name;
+        creatorUsernameText.text = profile.submittedBy.username;
+        // creatorLastOnlineText = profile.submittedBy.dateOnline;
+        descriptionText.text = profile.description;
+        versionText.text = profile.activeBuild.version;
+        fileSizeText.text = (profile.activeBuild.fileSize / 1024).ToString() + "MB";
+        releaseDateText.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString("MMMM dd, yyyy");
 
-    public void NotifySubscribeClicked()
-    {
-        if(this.subscribeClicked != null)
-        {
-            this.subscribeClicked();
-        }
+        // stats
+        popularityRankText.text = (ModBrowser.ConvertValueIntoShortText(stats.popularityRankPosition)
+                                   + " of "
+                                   + ModBrowser.ConvertValueIntoShortText(stats.popularityRankModCount));
+
+        downloadCountText.text = (ModBrowser.ConvertValueIntoShortText(stats.downloadCount));
+
+        // TODO(@jackson): media
+
+        // TODO(@jackson): tags
     }
 }

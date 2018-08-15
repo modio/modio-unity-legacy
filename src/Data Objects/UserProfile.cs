@@ -22,6 +22,10 @@ namespace ModIO
     [System.Serializable]
     public class UserProfile : UserProfileStub
     {
+        // ---------[ API LIMITS ]---------
+        /// <summary>Maximum length for the username supported.</summary>
+        public const int USERNAME_MAXLENGTH = 20;
+
         // ---------[ FIELDS ]---------
         /// <summary>Path for the user on mod.io.
         /// For example: https://mod.io/members/username-id-here
