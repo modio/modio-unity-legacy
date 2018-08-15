@@ -647,8 +647,8 @@ namespace ModIO
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId;
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              "",
-                                                              null);
+                                                                 "",
+                                                                 null);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -943,6 +943,31 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
+
+        // ---------[ STATS ENDPOINTS ]---------
+        /// <summary>Fetches the statistics for all mods.</summary>
+        public static void GetAllModStats(RequestFilter filter, PaginationParameters pagination,
+                                          Action<ResponseArray<ModStatistics>> successCallback, Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/stats";
+
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
+                                                                 filter.GenerateFilterString(),
+                                                                 pagination);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+
+        /// <summary>Fetches the statics for a mod.</summary>
+        public static void GetModStats(int modId,
+                                       Action<ModStatistics> successCallback, Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/stats";
+
+            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL, "", null);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
 
         // ---------[ TAG ENDPOINTS ]---------
         /// <summary>
