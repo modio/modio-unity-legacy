@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -13,6 +14,9 @@ public enum ViewLayoutStyle
 public class ModBrowserView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    // --- Events ---
+    public event Action<ModBrowserItem> onItemClicked;
+
     // --- Settings ---
     public GameObject browserItemPrefab;
     public Transform contentPane;
@@ -96,13 +100,13 @@ public class ModBrowserView : MonoBehaviour
         // clear existing items
         foreach(ModBrowserItem item in this.contentPane.GetComponentsInChildren<ModBrowserItem>())
         {
-            item.onClick -= OnItemClicked;
+            item.onClick -= NotifyItemClicked;
 
-            Object.Destroy(item.gameObject);
+            UnityEngine.Object.Destroy(item.gameObject);
         }
 
         // get mod profiles to display
-        // TODO(@jackson): pageSize = rows that fit * 1.5
+        // TODO(@jackson): pageSize = rows that fit +/- 0.25?
         int pageIndex = 0;
         profileIterator = CacheClient.IterateAllModProfiles().GetEnumerator();
 
@@ -120,10 +124,10 @@ public class ModBrowserView : MonoBehaviour
         {
             Debug.Log("Itemizing mod: " + modProfileCollection[i].name);
 
-            GameObject itemGO = Object.Instantiate(browserItemPrefab,
-                                                   new Vector3(),
-                                                   Quaternion.identity,
-                                                   contentPane);
+            GameObject itemGO = GameObject.Instantiate(browserItemPrefab,
+                                                       new Vector3(),
+                                                       Quaternion.identity,
+                                                       contentPane);
 
             RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
             Vector2 itemPos = CalculateItemPos(i);
@@ -133,7 +137,7 @@ public class ModBrowserView : MonoBehaviour
 
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
             item.modProfile = modProfileCollection[i];
-            item.onClick += OnItemClicked;
+            item.onClick += NotifyItemClicked;
             item.Initialize();
             item.UpdateDisplayObjects();
         }
@@ -167,9 +171,8 @@ public class ModBrowserView : MonoBehaviour
     }
 
     // ---------[ EVENTS ]---------
-    public void OnItemClicked(ModBrowserItem item)
+    private void NotifyItemClicked(ModBrowserItem item)
     {
-        item.modNameText.text = "CLICKED!";
+        if(onItemClicked != null) { onItemClicked(item); }
     }
-
 }

@@ -116,7 +116,7 @@ public class ModBrowserItem : MonoBehaviour
         }
     }
 
-    public void DoClick()
+    public void Clicked()
     {
         if(onClick != null)
         {

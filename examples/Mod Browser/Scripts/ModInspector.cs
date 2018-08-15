@@ -51,11 +51,19 @@ public class ModInspector : MonoBehaviour
         releaseDateText.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString("MMMM dd, yyyy");
 
         // stats
-        popularityRankText.text = (ModBrowser.ConvertValueIntoShortText(stats.popularityRankPosition)
-                                   + " of "
-                                   + ModBrowser.ConvertValueIntoShortText(stats.popularityRankModCount));
+        if(stats == null)
+        {
+            popularityRankText.text = "Loading...";
+            downloadCountText.text = "Loading...";
+        }
+        else
+        {
+            popularityRankText.text = (ModBrowser.ConvertValueIntoShortText(stats.popularityRankPosition)
+                                       + " of "
+                                       + ModBrowser.ConvertValueIntoShortText(stats.popularityRankModCount));
 
-        downloadCountText.text = (ModBrowser.ConvertValueIntoShortText(stats.downloadCount));
+            downloadCountText.text = (ModBrowser.ConvertValueIntoShortText(stats.downloadCount));
+        }
 
         // TODO(@jackson): media
 

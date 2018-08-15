@@ -54,6 +54,7 @@ GameObject:
   - component: {fileID: 224056183264202230}
   - component: {fileID: 222279840891660862}
   - component: {fileID: 114527285631188298}
+  - component: {fileID: 114661553799553994}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -242,7 +243,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114588616984490076}
-        m_MethodName: DoClick
+        m_MethodName: Clicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -343,12 +344,6 @@ MonoBehaviour:
       youtubeURLs: []
       sketchfabURLs: []
       galleryImageLocators: []
-    ratingSummary:
-      totalRatingCount: 0
-      positiveRatingCount: 0
-      negativeRatingCount: 0
-      weightedAggregate: 0
-      displayText: 
     metadataKVPs: []
     tags: []
   loadingPlaceholderPrefab: {fileID: 1211250885151908, guid: 2f40aeca2bf41497e9da178e556a22b6,
@@ -358,6 +353,20 @@ MonoBehaviour:
   modTagsText: {fileID: 114718701353215800}
   modDownloadCountText: {fileID: 114569290268804658}
   modLogoContainer: {fileID: 224295814715757084}
+--- !u!114 &114661553799553994
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1402090660721654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ecce075a4cb84fdca00460751110531, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
 --- !u!114 &114718701353215800
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -79,6 +79,7 @@ public class ModBrowser : MonoBehaviour
     {
         // assert ui is prepared
         activeView.gameObject.SetActive(true);
+        activeView.onItemClicked += OnBrowserItemClicked;
 
         // --- mod.io init ---
         #pragma warning disable 0162
@@ -140,19 +141,6 @@ public class ModBrowser : MonoBehaviour
         // // --- Load Game Profile ---
         // ModManager.GetGameProfile(this.OnGetGameProfile,
         //                           (e) => { WebRequestError.LogAsWarning(e); this.OnGetGameProfile(null); });
-
-
-        IEnumerator<ModProfile> it = CacheClient.IterateAllModProfiles().GetEnumerator();
-
-        if(it.MoveNext())
-        {
-            inspector.profile = it.Current;
-            inspector.UpdateUIComponents();
-
-            ModManager.GetModStatistics(inspector.profile.id,
-                                        (s) => { inspector.stats = s; inspector.UpdateUIComponents(); },
-                                        null);
-        }
     }
 
     // protected virtual void OnGetGameProfile(GameProfile game)
@@ -283,11 +271,26 @@ public class ModBrowser : MonoBehaviour
         if(newActiveView == this.activeView) { return; }
 
         activeView.gameObject.SetActive(false);
+        activeView.onItemClicked -= OnBrowserItemClicked;
 
         newActiveView.gameObject.SetActive(true);
         newActiveView.Initialize();
+        newActiveView.onItemClicked += OnBrowserItemClicked;
 
         activeView = newActiveView;
+    }
+
+    public void OnBrowserItemClicked(ModBrowserItem item)
+    {
+        inspector.profile = item.modProfile;
+        inspector.stats = null;
+        inspector.UpdateUIComponents();
+
+        ModManager.GetModStatistics(item.modProfile.id,
+                                    (s) => { inspector.stats = s; inspector.UpdateUIComponents(); },
+                                    null);
+
+        inspector.gameObject.SetActive(true);
     }
 
     // ---------[ EVENT HANDLING ]---------
