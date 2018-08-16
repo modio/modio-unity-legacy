@@ -44,15 +44,25 @@ namespace ModIO
         {
             UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
 
-            WebRequestError error;
-            WebRequestError.APIWrapper errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(webRequest.downloadHandler.text);
+            WebRequestError error = null;
 
-            if(errorWrapper != null
-               && errorWrapper.error != null)
+            try
             {
-                error = errorWrapper.error;
+                WebRequestError.APIWrapper errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(webRequest.downloadHandler.text);
+
+                if(errorWrapper != null
+                   && errorWrapper.error != null)
+                {
+                    error = errorWrapper.error;
+                }
             }
-            else
+            catch(System.Exception e)
+            {
+                Debug.LogError("[mod.io] The error response was unable to be parsed:\n"
+                               + webRequest.downloadHandler.text);
+            }
+
+            if(error == null)
             {
                 error = new WebRequestError();
                 error.message = webRequest.error;

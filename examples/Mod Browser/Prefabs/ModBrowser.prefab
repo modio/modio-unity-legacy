@@ -2603,7 +2603,6 @@ MonoBehaviour:
     type: 2}
   youTubeOverlayPrefab: {fileID: 1191625697154320, guid: 344b9ffd08cf049f0bf2f8770d4b13d9,
     type: 2}
-  mediaElementWidth: 640
   mediaElementHeight: 360
   logoSize: 2
   galleryImageSize: 1

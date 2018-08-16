@@ -83,12 +83,12 @@ namespace ModIO
         public static string ExtractYouTubeIdFromURL(string youTubeURL)
         {
             string yt_id = null;
+            string pattern = (@"(?:https?:\/\/|\/\/)?(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?![\w-])");
 
-            string pattern = @"#^(?:https?://|//)?(?:www\.|m\.)?(?:youtu\.be/|youtube\.com/(?:embed/|v/|watch\?v=|watch\?.+&v=))([\w-]{11})(?![\w-])#";
-            var idMatches = Regex.Matches(pattern, youTubeURL, RegexOptions.IgnoreCase);
-            if(idMatches.Count > 0)
+            var idMatch = Regex.Match(youTubeURL, pattern);
+            if(idMatch != null)
             {
-                yt_id = idMatches[0].Value;
+                yt_id = idMatch.Groups[1].Value;
             }
 
             return yt_id;

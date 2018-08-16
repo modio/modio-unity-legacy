@@ -64,6 +64,9 @@ namespace ModIO
 
         public static ImageRequest DownloadYouTubeThumbnail(string youTubeId)
         {
+            Debug.Assert(!String.IsNullOrEmpty(youTubeId),
+                         "[mod.io] YouTube video identifier cannot be empty");
+
             ImageRequest request = null;
 
             string thumbnailURL = (@"https://img.youtube.com/vi/"

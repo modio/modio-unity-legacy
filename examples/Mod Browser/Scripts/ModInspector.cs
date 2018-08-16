@@ -6,8 +6,12 @@ using UnityEngine.UI;
 using ModIO;
 
 // TODO(@jackson): Handle guest accounts
+// TODO(@jackson): Handle errors
 public class ModInspector : MonoBehaviour
 {
+    public const float YOUTUBE_THUMB_RATIO = 4f/3f;
+    public const float MODIO_THUMB_RATIO = 16f/9f;
+
     // ---------[ FIELDS ]---------
     // ---[ UI COMPONENTS ]---
     [Header("UI Components")]
@@ -39,7 +43,6 @@ public class ModInspector : MonoBehaviour
     public GameObject youTubeOverlayPrefab;
 
     // - Layouting -
-    public float mediaElementWidth;
     public float mediaElementHeight;
     public LogoSize logoSize;
     public ModGalleryImageSize galleryImageSize;
@@ -63,15 +66,19 @@ public class ModInspector : MonoBehaviour
         fileSizeText.text = (profile.activeBuild.fileSize / 1024).ToString() + "MB";
         releaseDateText.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString("MMMM dd, yyyy");
 
-        // media
+        // - MEDIA -
+        float modioWidth = mediaElementHeight * MODIO_THUMB_RATIO;
+        float youTubeWidth = mediaElementHeight * YOUTUBE_THUMB_RATIO;
+
+        // logo
         foreach(Transform t in mediaGalleryContainer)
         {
             GameObject.Destroy(t.gameObject);
         }
 
-        int mediaElementCount = 0;
+        float culmativeWidth = 0f;
 
-        GameObject logo_go = CreateMediaGalleryElement(mediaElementWidth,
+        GameObject logo_go = CreateMediaGalleryElement(modioWidth,
                                                        mediaElementHeight);
         logo_go.gameObject.name = "Mod Logo";
         logo_go.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, 0f);
@@ -80,42 +87,66 @@ public class ModInspector : MonoBehaviour
                               (t) => ReplaceLoadingPlaceholder(logo_go, t),
                               null);
 
-        ++mediaElementCount;
+        culmativeWidth += 20f + modioWidth;
 
-        // for(int i = 0; i < profile.media.youtubeURLs.Length; ++i)
-        // {
-        //     GameObject youtube_go = CreateMediaGalleryElement(mediaElementWidth,
-        //                                                       mediaElementHeight);
+        // youtube
+        if(profile.media.youtubeURLs != null)
+        {
+            for(int i = 0; i < profile.media.youtubeURLs.Length; ++i)
+            {
+                GameObject youtube_go = CreateMediaGalleryElement(youTubeWidth,
+                                                                  mediaElementHeight);
 
-        //     string youTubeURL = profile.media.youtubeURLs[i];
-        //     string youTubeId = Utility.ExtractYouTubeIdFromURL(youTubeURL);
-        //     youtube_go.gameObject.name = youTubeId;
+                string youTubeURL = profile.media.youtubeURLs[i];
+                string youTubeId = Utility.ExtractYouTubeIdFromURL(youTubeURL);
+                youtube_go.gameObject.name = "yt_" + youTubeId;
+                youtube_go.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f
+                                                                                        + culmativeWidth,
+                                                                                        0f);
 
-        //     GameObject overlay_go = GameObject.Instantiate(youTubeOverlayPrefab, youtube_go.transform) as GameObject;
-        //     overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = youTubeId;
-        // }
+                Action<string, GameObject, Texture2D> onGetThumbnail = (id, go, t) =>
+                {
+                    ReplaceLoadingPlaceholder(go, t);
 
-        if(profile.media != null && profile.media.galleryImageLocators != null)
+                    GameObject overlay_go = GameObject.Instantiate(youTubeOverlayPrefab, go.transform) as GameObject;
+                    overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = id;
+
+                    RectTransform overlayTransform = overlay_go.GetComponent<RectTransform>();
+                    overlayTransform.anchorMin = new Vector2(0f, 0f);
+                    overlayTransform.anchorMax = new Vector2(1f, 1f);
+                    overlayTransform.sizeDelta = new Vector2(0f, 0f);
+                };
+
+                ModManager.GetModYouTubeThumbnail(profile, i,
+                                                  (t) => onGetThumbnail(youTubeId, youtube_go, t),
+                                                  null);
+
+                culmativeWidth += 20f + youTubeWidth;
+            }
+        }
+
+        // images
+        if(profile.media.galleryImageLocators != null)
         {
             foreach(var imageLocator in profile.media.galleryImageLocators)
             {
-                GameObject image_go = CreateMediaGalleryElement(mediaElementWidth,
+                GameObject image_go = CreateMediaGalleryElement(modioWidth,
                                                                 mediaElementHeight);
 
                 image_go.gameObject.name = imageLocator.fileName;
-                image_go.GetComponent<RectTransform>().anchoredPosition = new Vector2(mediaElementCount * (20f + mediaElementWidth)
-                                                                                      + 20f,
+                image_go.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f
+                                                                                      + culmativeWidth,
                                                                                       0f);
 
                 ModManager.GetModGalleryImage(profile, imageLocator.fileName, galleryImageSize,
                                               (t) => ReplaceLoadingPlaceholder(image_go, t),
                                               null);
 
-                ++mediaElementCount;
+                culmativeWidth += 20f + modioWidth;
             }
         }
 
-        float galleryWidth = 20f + mediaElementCount * (20f + mediaElementWidth);
+        float galleryWidth = culmativeWidth + 20f;
         mediaGalleryContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(galleryWidth, 0f);
 
         // TODO(@jackson): tags
