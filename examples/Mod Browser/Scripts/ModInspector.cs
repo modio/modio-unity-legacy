@@ -50,7 +50,8 @@ public class ModInspector : MonoBehaviour
     public ModStatistics stats;
 
     // ---------[ INITIALIZATION ]---------
-    public void UpdateUIComponents()
+    // TODO(@jackson): Reset view (scrolling, etc)
+    public void UpdateProfileUIComponents()
     {
         // profile
         modNameText.text = profile.name;
@@ -62,35 +63,24 @@ public class ModInspector : MonoBehaviour
         fileSizeText.text = (profile.activeBuild.fileSize / 1024).ToString() + "MB";
         releaseDateText.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString("MMMM dd, yyyy");
 
-        // stats
-        if(stats == null)
-        {
-            popularityRankText.text = "Loading...";
-            downloadCountText.text = "Loading...";
-        }
-        else
-        {
-            popularityRankText.text = (ModBrowser.ConvertValueIntoShortText(stats.popularityRankPosition)
-                                       + " of "
-                                       + ModBrowser.ConvertValueIntoShortText(stats.popularityRankModCount));
-
-            downloadCountText.text = (ModBrowser.ConvertValueIntoShortText(stats.downloadCount));
-        }
-
         // media
         foreach(Transform t in mediaGalleryContainer)
         {
             GameObject.Destroy(t.gameObject);
         }
 
+        int mediaElementCount = 0;
+
         GameObject logo_go = CreateMediaGalleryElement(mediaElementWidth,
                                                        mediaElementHeight);
         logo_go.gameObject.name = "Mod Logo";
-        logo_go.GetComponent<RectTransform>().anchoredPosition = new Vector2(10f, 0f);
+        logo_go.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, 0f);
 
         ModManager.GetModLogo(profile, logoSize,
                               (t) => ReplaceLoadingPlaceholder(logo_go, t),
                               null);
+
+        ++mediaElementCount;
 
         // for(int i = 0; i < profile.media.youtubeURLs.Length; ++i)
         // {
@@ -105,16 +95,47 @@ public class ModInspector : MonoBehaviour
         //     overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = youTubeId;
         // }
 
-        // foreach(var imageLocator in profile.media.galleryImageLocators)
-        // {
-        //     GameObject image_go = CreateMediaGalleryElement(mediaElementWidth,
-        //                                                     mediaElementHeight);
+        if(profile.media != null && profile.media.galleryImageLocators != null)
+        {
+            foreach(var imageLocator in profile.media.galleryImageLocators)
+            {
+                GameObject image_go = CreateMediaGalleryElement(mediaElementWidth,
+                                                                mediaElementHeight);
 
-        //     image_go.gameObject.name = imageLocator.fileName;
-        // }
+                image_go.gameObject.name = imageLocator.fileName;
+                image_go.GetComponent<RectTransform>().anchoredPosition = new Vector2(mediaElementCount * (20f + mediaElementWidth)
+                                                                                      + 20f,
+                                                                                      0f);
 
+                ModManager.GetModGalleryImage(profile, imageLocator.fileName, galleryImageSize,
+                                              (t) => ReplaceLoadingPlaceholder(image_go, t),
+                                              null);
+
+                ++mediaElementCount;
+            }
+        }
+
+        float galleryWidth = 20f + mediaElementCount * (20f + mediaElementWidth);
+        mediaGalleryContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(galleryWidth, 0f);
 
         // TODO(@jackson): tags
+    }
+
+    public void UpdateStatisticsUIComponents()
+    {
+        if(stats == null)
+        {
+            popularityRankText.text = "Loading...";
+            downloadCountText.text = "Loading...";
+        }
+        else
+        {
+            popularityRankText.text = (ModBrowser.ConvertValueIntoShortText(stats.popularityRankPosition)
+                                       + " of "
+                                       + ModBrowser.ConvertValueIntoShortText(stats.popularityRankModCount));
+
+            downloadCountText.text = (ModBrowser.ConvertValueIntoShortText(stats.downloadCount));
+        }
     }
 
     private GameObject CreateMediaGalleryElement(float width, float height)
@@ -129,8 +150,6 @@ public class ModInspector : MonoBehaviour
         elementTransform.pivot = new Vector2(0f, 0.5f);
         elementTransform.sizeDelta = new Vector2(width, height);
 
-        Debug.Log("Element Width: " + elementTransform.rect.width);
-
         newElement.AddComponent<Image>();
 
         GameObject placeholder_go = UnityEngine.Object.Instantiate(loadingPlaceholderPrefab, elementTransform) as GameObject;
@@ -138,7 +157,6 @@ public class ModInspector : MonoBehaviour
         placeholderTransform.anchorMin = new Vector2(0f, 0f);
         placeholderTransform.anchorMax = new Vector2(1f, 1f);
         placeholderTransform.sizeDelta = new Vector2(0f, 0f);
-        // placeholderTransform.offsetMax = new Vector2(0f, 0f);
 
         return newElement;
     }
@@ -146,8 +164,11 @@ public class ModInspector : MonoBehaviour
     private void ReplaceLoadingPlaceholder(GameObject mediaElement,
                                            Texture2D texture)
     {
-        mediaElement.GetComponent<Image>().sprite = CreateSpriteWithTexture(texture);
-        GameObject.Destroy(mediaElement.transform.GetChild(0).gameObject);
+        if(mediaElement != null)
+        {
+            mediaElement.GetComponent<Image>().sprite = CreateSpriteWithTexture(texture);
+            GameObject.Destroy(mediaElement.transform.GetChild(0).gameObject);
+        }
     }
 
     public static Sprite CreateSpriteWithTexture(Texture2D texture)

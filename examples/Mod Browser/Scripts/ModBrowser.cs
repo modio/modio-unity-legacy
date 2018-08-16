@@ -284,13 +284,18 @@ public class ModBrowser : MonoBehaviour
     {
         inspector.profile = item.modProfile;
         inspector.stats = null;
-        inspector.UpdateUIComponents();
+        inspector.UpdateProfileUIComponents();
 
         ModManager.GetModStatistics(item.modProfile.id,
-                                    (s) => { inspector.stats = s; inspector.UpdateUIComponents(); },
+                                    (s) => { inspector.stats = s; inspector.UpdateStatisticsUIComponents(); },
                                     null);
 
         inspector.gameObject.SetActive(true);
+    }
+
+    public void CloseInspector()
+    {
+        inspector.gameObject.SetActive(false);
     }
 
     // ---------[ EVENT HANDLING ]---------
