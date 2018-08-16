@@ -601,12 +601,18 @@ namespace ModIO
                    + "versionInfo.data");
         }
 
-        /// <summary>Generatess the directory path for a mod gallery image collection.</summary>
+        /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
+        [Obsolete("Use CacheClient.GenerateModBinariesDirectoryPath() instead.")]
         public static string GenerateModGalleryImageCollectionDirectoryPath(int modId)
         {
-            return(Application.temporaryCachePath
-                   + "/mod_images/"
-                   + modId + "/");
+            return(GenerateModMediaDirectoryPath(modId));
+        }
+
+        /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
+        public static string GenerateModMediaDirectoryPath(int modId)
+        {
+            return(GenerateModDirectoryPath(modId)
+                   + "mod_media/");
         }
 
         /// <summary>Generates the file path for a mod galley image.</summary>
@@ -614,10 +620,19 @@ namespace ModIO
                                                              string imageFileName,
                                                              ModGalleryImageSize size)
         {
-            return(GenerateModGalleryImageCollectionDirectoryPath(modId)
-                   + size.ToString() + "/"
-                   + Path.GetFileNameWithoutExtension(imageFileName) +
-                   ".png");
+            return(GenerateModMediaDirectoryPath(modId)
+                   + "images_" + size.ToString() + "/"
+                   + Path.GetFileNameWithoutExtension(imageFileName)
+                   + ".png");
+        }
+
+        /// <summary>Generates the file path for a YouTube thumbnail.</summary>
+        public static string GenerateModYouTubeThumbnailFilePath(int modId,
+                                                                 string youTubeId)
+        {
+            return(GenerateModMediaDirectoryPath(modId)
+                   + "youTube/"
+                   + youTubeId + ".png");
         }
 
         /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
@@ -685,6 +700,31 @@ namespace ModIO
             Texture2D imageTexture = CacheClient.ReadImageFile(imageFilePath);
 
             return(imageTexture);
+        }
+
+        /// <summary>Stores a YouTube thumbnail in the cache.</summary>
+        public static void SaveModYouTubeThumbnail(int modId,
+                                                   string youTubeId,
+                                                   Texture2D thumbnail)
+        {
+            Debug.Assert(modId > 0,
+                         "[mod.io] Cannot cache a mod image without a mod id");
+
+            string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
+                                                                                       youTubeId);
+            CacheClient.WritePNGFile(thumbnailFilePath, thumbnail);
+        }
+
+        /// <summary>Retrieves a YouTube thumbnail from the cache.</summary>
+        public static Texture2D LoadModYouTubeThumbnail(int modId,
+                                                        string youTubeId)
+        {
+            string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
+                                                                                       youTubeId);
+
+            Texture2D thumbnailTexture = CacheClient.ReadImageFile(thumbnailFilePath);
+
+            return(thumbnailTexture);
         }
 
         // ---------[ MOD TEAM ]---------

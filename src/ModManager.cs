@@ -564,6 +564,40 @@ namespace ModIO
             }
         }
 
+        public static void GetModYouTubeThumbnail(ModProfile profile,
+                                                  int index,
+                                                  Action<Texture2D> onSuccess,
+                                                  Action<WebRequestError> onError)
+        {
+            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
+            Debug.Assert(profile.media != null, "[mod.io] The given profile has no media information");
+            Debug.Assert(index >= 0 && index < profile.media.youtubeURLs.Length,
+                         "[mod.io] index parameter is not valid for the youtubeURLs array length");
+
+            string youTubeURL = profile.media.youtubeURLs[index];
+            string youTubeId = Utility.ExtractYouTubeIdFromURL(youTubeURL);
+
+            var cachedYouTubeThumbnail = CacheClient.LoadModYouTubeThumbnail(profile.id,
+                                                                             youTubeId);
+
+            if(cachedYouTubeThumbnail != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedYouTubeThumbnail); }
+            }
+            else
+            {
+                var download = DownloadClient.DownloadYouTubeThumbnail(youTubeId);
+
+                download.succeeded += (d) =>
+                {
+                    CacheClient.SaveModYouTubeThumbnail(profile.id, youTubeId, d.imageTexture);
+                };
+
+                download.succeeded += (d) => onSuccess(d.imageTexture);
+                download.failed += (d) => onError(d.error);
+            }
+        }
+
         // ---------[ MODFILES ]---------
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> onSuccess,
