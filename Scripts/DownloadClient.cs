@@ -42,6 +42,25 @@ namespace ModIO
             return request;
         }
 
+        public static ImageRequest DownloadYouTubeThumbnail(string youTubeId)
+        {
+            ImageRequest request = null;
+
+            string thumbnailURL = (@"https://img.youtube.com/vi/"
+                                   + youTubeId
+                                   + @"/hqdefault.jpg");
+
+            UnityWebRequest webRequest = UnityWebRequest.Get(thumbnailURL);
+            webRequest.downloadHandler = new DownloadHandlerTexture(true);
+
+            request = new ImageRequest();
+
+            var operation = webRequest.SendWebRequest();
+            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+
+            return request;
+        }
+
         private static void OnImageDownloadCompleted(UnityWebRequestAsyncOperation operation,
                                                      ImageRequest request)
         {
