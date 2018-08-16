@@ -18,7 +18,8 @@ public class ModInspector : MonoBehaviour
     // public Text creatorLastOnlineText;
     // public GameObject tagBadgePrefab;
     public Transform tagContainer;
-    public Text descriptionText;
+    public Text summaryText;
+    // public Text descriptionText;
     public Text versionText;
     public Text fileSizeText;
     public Text releaseDateText;
@@ -45,7 +46,8 @@ public class ModInspector : MonoBehaviour
         modNameText.text = profile.name;
         creatorUsernameText.text = profile.submittedBy.username;
         // creatorLastOnlineText = profile.submittedBy.dateOnline;
-        descriptionText.text = profile.description;
+        summaryText.text = profile.summary;
+        // descriptionText.text = profile.description;
         versionText.text = profile.activeBuild.version;
         fileSizeText.text = (profile.activeBuild.fileSize / 1024).ToString() + "MB";
         releaseDateText.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString("MMMM dd, yyyy");
