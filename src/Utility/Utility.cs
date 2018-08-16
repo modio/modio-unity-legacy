@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-using Debug = UnityEngine.Debug;
-
 namespace ModIO
 {
     public static class Utility

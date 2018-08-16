@@ -521,13 +521,6 @@ public class ModBrowser : MonoBehaviour
     // }
 
     // ---------[ UTILITY ]---------
-    protected Sprite CreateSpriteFromTexture(Texture2D texture)
-    {
-        return Sprite.Create(texture,
-                             new Rect(0.0f, 0.0f, texture.width, texture.height),
-                             Vector2.zero);
-    }
-
     public static string ConvertValueIntoShortText(int value)
     {
         if(value < 1000) // 0 - 999

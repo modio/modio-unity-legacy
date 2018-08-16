@@ -38,7 +38,6 @@ public class ModBrowserItem : MonoBehaviour
         }
 
         _loadingPlaceholderInstance = UnityEngine.Object.Instantiate(loadingPlaceholderPrefab, modLogoContainer) as GameObject;
-        _loadingPlaceholderInstance.SetActive(true);
 
         GameObject modLogo_go = new GameObject("ModLogo");
         modLogo_go.AddComponent<CanvasRenderer>();

@@ -1297,7 +1297,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1538300077297428
 GameObject:
   m_ObjectHideFlags: 1
@@ -2599,6 +2599,14 @@ MonoBehaviour:
   downloadCountText: {fileID: 114605203014763020}
   mediaGalleryContainer: {fileID: 224187976688433658}
   subscribeButtonText: {fileID: 114176331521941204}
+  loadingPlaceholderPrefab: {fileID: 1211250885151908, guid: 2f40aeca2bf41497e9da178e556a22b6,
+    type: 2}
+  youTubeOverlayPrefab: {fileID: 1191625697154320, guid: 344b9ffd08cf049f0bf2f8770d4b13d9,
+    type: 2}
+  mediaElementWidth: 640
+  mediaElementHeight: 360
+  logoSize: 2
+  galleryImageSize: 1
   profile:
     id: 0
     gameId: 0
@@ -4733,7 +4741,7 @@ MonoBehaviour:
   m_Viewport: {fileID: 224025692590521972}
   m_HorizontalScrollbar: {fileID: 114634607846290644}
   m_VerticalScrollbar: {fileID: 0}
-  m_HorizontalScrollbarVisibility: 2
+  m_HorizontalScrollbarVisibility: 1
   m_VerticalScrollbarVisibility: 2
   m_HorizontalScrollbarSpacing: -3
   m_VerticalScrollbarSpacing: -3
