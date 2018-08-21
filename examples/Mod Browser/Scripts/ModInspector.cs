@@ -41,11 +41,14 @@ public class ModInspector : MonoBehaviour
     // - Prefabs -
     public GameObject loadingPlaceholderPrefab;
     public GameObject youTubeOverlayPrefab;
+    public GameObject tagBadgePrefab;
 
     // - Layouting -
     public float mediaElementHeight;
     public LogoSize logoSize;
     public ModGalleryImageSize galleryImageSize;
+    public float tagPadding;
+    public float tagSpacing;
 
     // ---[ INSPECTOR DATA ]---
     [Header("Data")]
@@ -149,7 +152,43 @@ public class ModInspector : MonoBehaviour
         float galleryWidth = culmativeWidth + 20f;
         mediaGalleryContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(galleryWidth, 0f);
 
-        // TODO(@jackson): tags
+        // tags
+        foreach(Transform t in tagContainer)
+        {
+            GameObject.Destroy(t.gameObject);
+        }
+
+        float tagContainerWidth = tagContainer.GetComponent<RectTransform>().rect.width;
+        // TODO(@jackson): Handle too many tags
+        // float tagContainerHeight = tagContainer.GetComponent<RectTransform>().rect.height;
+        float xPos = 0f;
+        float yPos = 0f;
+
+        foreach(string tagName in profile.tagNames)
+        {
+            GameObject tag_go = GameObject.Instantiate(tagBadgePrefab, tagContainer) as GameObject;
+            tag_go.name = "Tag: " + tagName;
+
+            Text tagText = tag_go.GetComponentInChildren<Text>();
+            tagText.text = tagName;
+
+            RectTransform tagTransform = tag_go.GetComponent<RectTransform>();
+            TextGenerator tagTextGen = new TextGenerator();
+            TextGenerationSettings tagGenSettings = tagText.GetGenerationSettings(tagText.rectTransform.rect.size);
+
+            float tagWidth = tagTextGen.GetPreferredWidth(tagName, tagGenSettings) + 2 * this.tagPadding;
+
+            if(xPos + tagWidth > tagContainerWidth)
+            {
+                yPos -= tagTransform.rect.height + this.tagSpacing;
+                xPos = 0f;
+            }
+
+            tagTransform.anchoredPosition = new Vector2(xPos, yPos);
+            tagTransform.sizeDelta = new Vector2(tagWidth, tagTransform.rect.height);
+
+            xPos += tagWidth + this.tagSpacing;
+        }
     }
 
     public void UpdateStatisticsUIComponents()

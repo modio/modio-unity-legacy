@@ -262,8 +262,8 @@ Transform:
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224175382895236050, guid: df954dfebde1c4fdda2233d14d2bf4cd,
     type: 2}
-  m_PrefabInternal: {fileID: 1208045062}
---- !u!1001 &1208045062
+  m_PrefabInternal: {fileID: 1617974758}
+--- !u!1001 &1617974758
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2

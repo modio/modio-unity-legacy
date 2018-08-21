@@ -114,7 +114,6 @@ public class ModBrowserView : MonoBehaviour
         while(pageIndex < TEST_pageSize
               && profileIterator.MoveNext())
         {
-            Debug.Log("Collected mod: " + profileIterator.Current.name);
             modProfileCollection.Add(profileIterator.Current);
             ++pageIndex;
         }
@@ -122,8 +121,6 @@ public class ModBrowserView : MonoBehaviour
         // create new items
         for(int i = 0; i < modProfileCollection.Count; ++i)
         {
-            Debug.Log("Itemizing mod: " + modProfileCollection[i].name);
-
             GameObject itemGO = GameObject.Instantiate(browserItemPrefab,
                                                        new Vector3(),
                                                        Quaternion.identity,
