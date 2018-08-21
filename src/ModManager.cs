@@ -779,6 +779,36 @@ namespace ModIO
         }
 
 
+        // ---------[ USER PROFILES ]---------
+        public static void GetUserAvatar(UserProfileStub profile,
+                                         UserAvatarSize size,
+                                         Action<Texture2D> onSuccess,
+                                         Action<WebRequestError> onError)
+        {
+            Debug.Assert(onSuccess != null);
+            Debug.Assert(profile != null, "[mod.io] User profile must not be null");
+
+            var cachedAvatarTexture = CacheClient.LoadUserAvatar(profile.id, size);
+            if(cachedAvatarTexture != null)
+            {
+                onSuccess(cachedAvatarTexture);
+            }
+            else
+            {
+                // - Fetch from Server -
+                var download = DownloadClient.DownloadUserAvatar(profile, size);
+
+                download.succeeded += (d) =>
+                {
+                    CacheClient.SaveUserAvatar(profile.id, size, d.imageTexture);
+                };
+
+                download.succeeded += (d) => onSuccess(d.imageTexture);
+                download.failed += (d) => onError(d.error);
+            }
+        }
+
+
         // ---------[ UPLOADING ]---------
         public static void SubmitNewMod(EditableModProfile modEdits,
                                         Action<ModProfile> modSubmissionSucceeded,

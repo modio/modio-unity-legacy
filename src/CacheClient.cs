@@ -765,8 +765,15 @@ namespace ModIO
         public static string GenerateUserProfileFilePath(int userId)
         {
             return(CacheClient.GetCacheDirectory()
-                   + "users/"
-                   + userId + ".data");
+                   + "users/" + userId + "/profile.data");
+        }
+
+        /// <summary>Generates the file path for a user's profile.</summary>
+        public static string GenerateUserAvatarFilePath(int userId, UserAvatarSize size)
+        {
+            return(CacheClient.GetCacheDirectory()
+                   + "users/" + userId + "/avatars/"
+                   + size.ToString() + ".png");
         }
 
         /// <summary>Stores a user's profile in the cache.</summary>
@@ -821,8 +828,27 @@ namespace ModIO
             }
         }
 
-        /// <summary>Deletes a user's profile from the cache.</summary>
-        public static void DeleteUserProfile(int userId)
+        /// <summary>Stores a user's avatar in the cache.</summary>
+        public static void SaveUserAvatar(int userId, UserAvatarSize size,
+                                          Texture2D avatarTexture)
+        {
+            Debug.Assert(userId > 0,
+                         "[mod.io] Cannot cache a user avatar without a user id");
+
+            string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
+            CacheClient.WritePNGFile(avatarFilePath, avatarTexture);
+        }
+
+        /// <summary>Retrieves a user's avatar from the cache.</summary>
+        public static Texture2D LoadUserAvatar(int userId, UserAvatarSize size)
+        {
+            string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
+            Texture2D avatarTexture = CacheClient.ReadImageFile(avatarFilePath);
+            return(avatarTexture);
+        }
+
+        /// <summary>Deletes a user's data from the cache.</summary>
+        public static void DeleteUserData(int userId)
         {
             CacheClient.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
         }
