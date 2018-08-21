@@ -42,6 +42,25 @@ namespace ModIO
             return request;
         }
 
+        public static ImageRequest DownloadUserAvatar(UserProfileStub profile,
+                                                      UserAvatarSize size)
+        {
+            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
+
+            ImageRequest request = new ImageRequest();
+            request.isDone = false;
+
+            string avatarURL = profile.avatarLocator.GetSizeURL(size);
+
+            UnityWebRequest webRequest = UnityWebRequest.Get(avatarURL);
+            webRequest.downloadHandler = new DownloadHandlerTexture(true);
+
+            var operation = webRequest.SendWebRequest();
+            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+
+            return request;
+        }
+
         public static ImageRequest DownloadYouTubeThumbnail(string youTubeId)
         {
             ImageRequest request = null;

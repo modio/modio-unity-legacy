@@ -702,6 +702,24 @@ namespace ModIO
                    + userId + ".data");
         }
 
+        /// <summary>Generates the file path for a user's profile.</summary>
+        public static string GenerateUserAvatarFilePath(int userId, UserAvatarSize size)
+        {
+            return(CacheClient.GetCacheDirectory()
+                   + "users/" + userId + "_avatar/"
+                   + size.ToString() + ".png");
+        }
+
+        /// <summary>Stores a user's profile in the cache.</summary>
+        public static void SaveUserProfile(UserProfile userProfile)
+        {
+            Debug.Assert(userProfile.id > 0,
+                         "[mod.io] Cannot cache a user profile without a user id");
+
+            string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
+            CacheClient.WriteJsonObjectFile(filePath, userProfile);
+        }
+
         public static UserProfile LoadUserProfile(int userId)
         {
             string filePath = CacheClient.GenerateUserProfileFilePath(userId);
@@ -742,18 +760,29 @@ namespace ModIO
             }
         }
 
-        public static void SaveUserProfile(UserProfile userProfile)
-        {
-            Debug.Assert(userProfile.id > 0,
-                         "[mod.io] Cannot cache a user profile without a user id");
-
-            string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
-            CacheClient.WriteJsonObjectFile(filePath, userProfile);
-        }
-
         public static void DeleteUserProfile(int userId)
         {
             CacheClient.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
         }
+
+        /// <summary>Stores a user's avatar in the cache.</summary>
+        public static void SaveUserAvatar(int userId, UserAvatarSize size,
+                                          Texture2D avatarTexture)
+        {
+            Debug.Assert(userId > 0,
+                         "[mod.io] Cannot cache a user avatar without a user id");
+
+            string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
+            CacheClient.WritePNGFile(avatarFilePath, avatarTexture);
+        }
+
+        /// <summary>Retrieves a user's avatar from the cache.</summary>
+        public static Texture2D LoadUserAvatar(int userId, UserAvatarSize size)
+        {
+            string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
+            Texture2D avatarTexture = CacheClient.ReadImageFile(avatarFilePath);
+            return(avatarTexture);
+        }
+
     }
 }
