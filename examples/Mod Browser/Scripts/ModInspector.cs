@@ -17,11 +17,15 @@ public class ModInspector : MonoBehaviour
     [Header("UI Components")]
     // - Profile -
     public Text modNameText;
-    public Transform creatorAvatarContainer;
+    public LogoSize logoSize;
+    public Image avatar;
+    public UserAvatarSize avatarSize;
     public Text creatorUsernameText;
     // public Text creatorLastOnlineText;
     // public GameObject tagBadgePrefab;
     public Transform tagContainer;
+    public float tagPadding;
+    public float tagSpacing;
     public Text summaryText;
     // public Text descriptionText;
     public Text versionText;
@@ -34,21 +38,19 @@ public class ModInspector : MonoBehaviour
 
     // - Media -
     public Transform mediaGalleryContainer;
+    public ModGalleryImageSize galleryImageSize;
+    public float mediaElementHeight;
 
     // - Controls -
     public Text subscribeButtonText;
 
     // - Prefabs -
-    public GameObject loadingPlaceholderPrefab;
+    public GameObject avatarLoadingPrefab;
+    public GameObject mediaLoadingPrefab;
     public GameObject youTubeOverlayPrefab;
     public GameObject tagBadgePrefab;
 
     // - Layouting -
-    public float mediaElementHeight;
-    public LogoSize logoSize;
-    public ModGalleryImageSize galleryImageSize;
-    public float tagPadding;
-    public float tagSpacing;
 
     // ---[ INSPECTOR DATA ]---
     [Header("Data")]
@@ -68,6 +70,18 @@ public class ModInspector : MonoBehaviour
         versionText.text = profile.activeBuild.version;
         fileSizeText.text = (profile.activeBuild.fileSize / 1024).ToString() + "MB";
         releaseDateText.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString("MMMM dd, yyyy");
+
+        // user avatar
+        GameObject avatarPlaceholder_go = UnityEngine.Object.Instantiate(avatarLoadingPrefab, avatar.transform) as GameObject;
+        RectTransform avatarPlaceholderTransform = avatarPlaceholder_go.GetComponent<RectTransform>();
+        avatarPlaceholderTransform.anchorMin = new Vector2(0f, 0f);
+        avatarPlaceholderTransform.anchorMax = new Vector2(1f, 1f);
+        avatarPlaceholderTransform.sizeDelta = new Vector2(0f, 0f);
+
+        ModManager.GetUserAvatar(profile.submittedBy,
+                                 avatarSize,
+                                 (t) => ReplaceLoadingPlaceholder(avatar.gameObject, t),
+                                 null);
 
         // - MEDIA -
         float modioWidth = mediaElementHeight * MODIO_THUMB_RATIO;
@@ -222,7 +236,7 @@ public class ModInspector : MonoBehaviour
 
         newElement.AddComponent<Image>();
 
-        GameObject placeholder_go = UnityEngine.Object.Instantiate(loadingPlaceholderPrefab, elementTransform) as GameObject;
+        GameObject placeholder_go = UnityEngine.Object.Instantiate(mediaLoadingPrefab, elementTransform) as GameObject;
         RectTransform placeholderTransform = placeholder_go.GetComponent<RectTransform>();
         placeholderTransform.anchorMin = new Vector2(0f, 0f);
         placeholderTransform.anchorMax = new Vector2(1f, 1f);
@@ -231,13 +245,13 @@ public class ModInspector : MonoBehaviour
         return newElement;
     }
 
-    private void ReplaceLoadingPlaceholder(GameObject mediaElement,
+    private void ReplaceLoadingPlaceholder(GameObject imageGameObject,
                                            Texture2D texture)
     {
-        if(mediaElement != null)
+        if(imageGameObject != null)
         {
-            mediaElement.GetComponent<Image>().sprite = ModBrowser.CreateSpriteWithTexture(texture);
-            GameObject.Destroy(mediaElement.transform.GetChild(0).gameObject);
+            imageGameObject.GetComponent<Image>().sprite = ModBrowser.CreateSpriteWithTexture(texture);
+            GameObject.Destroy(imageGameObject.transform.GetChild(0).gameObject);
         }
     }
 }
