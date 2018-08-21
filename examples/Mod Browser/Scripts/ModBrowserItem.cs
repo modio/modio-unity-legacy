@@ -16,6 +16,11 @@ public class ModBrowserItem : MonoBehaviour
     public Text modCreatorText;
 
     // - Stats -
+    public Image[] modRatingStarImages;
+    public Texture2D modRatingStarFilled;
+    public Texture2D modRatingStarHalfFilled;
+    public Texture2D modRatingStarUnfilled;
+    public Text modRatingCountText;
     public Text modDownloadCountText;
 
     // - Prefabs -
@@ -133,12 +138,50 @@ public class ModBrowserItem : MonoBehaviour
         if(modStatistics == null)
         {
             modDownloadCountText.gameObject.SetActive(false);
+
+            if(modRatingCountText != null)
+            {
+                modRatingCountText.gameObject.SetActive(false);
+            }
+
+            foreach(Image ratingStarImage in modRatingStarImages)
+            {
+                ratingStarImage.gameObject.SetActive(false);
+            }
         }
         else
         {
             modDownloadCountText.text = (ModBrowser.ConvertValueIntoShortText(modStatistics.downloadCount)
                                          + " downloads");
             modDownloadCountText.gameObject.SetActive(true);
+
+            if(modRatingCountText != null)
+            {
+                modRatingCountText.text = (ModBrowser.ConvertValueIntoShortText(modStatistics.ratingsTotalCount)
+                                           + " ratings");
+                modRatingCountText.gameObject.SetActive(true);
+            }
+
+            // float starRating = modStatistics.ratingsWeightedAggregate * 5f;
+            for(int starIndex = 0;
+                starIndex < 5;
+                ++starIndex)
+            {
+                modRatingStarImages[starIndex].gameObject.SetActive(true);
+
+                if(modStatistics.ratingsWeightedAggregate >= (1f + starIndex))
+                {
+                    modRatingStarImages[starIndex].sprite = ModBrowser.CreateSpriteWithTexture(modRatingStarFilled);
+                }
+                else if(modStatistics.ratingsWeightedAggregate >= (0.5f + starIndex))
+                {
+                    modRatingStarImages[starIndex].sprite = ModBrowser.CreateSpriteWithTexture(modRatingStarHalfFilled);
+                }
+                else
+                {
+                    modRatingStarImages[starIndex].sprite = ModBrowser.CreateSpriteWithTexture(modRatingStarUnfilled);
+                }
+            }
         }
     }
 

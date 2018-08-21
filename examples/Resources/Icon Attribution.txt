@@ -2,20 +2,32 @@
 
 [ editor_icon-undo.png ]
 Undo by RareSloth from the Noun Project
-URL: https://thenounproject.com/term/undo/218993
+https://thenounproject.com/icon/218993/
 
 [ editor_icon-clear.png ]
 clear by Icons Bazaar from the Noun Project
-URL: https://thenounproject.com/term/clear/596058
+https://thenounproject.com/icon/596058/
 
 [ browser_icon-sort.png ]
 Sort by Saideep Karipalli from the Noun Project
-URL: https://thenounproject.com/term/sort/315651
+https://thenounproject.com/icon/315651/
 
-[ browser_icon-downloads.png]
+[ browser_icon-downloads.png ]
 Download by Weltenraser from the Noun Project
-URL: https://thenounproject.com/term/download/1371547
+https://thenounproject.com/icon/1371547/
 
-[ browser_icon-rating.png]
-rating by Adrien Coquet from the Noun Project
-URL: https://thenounproject.com/term/rating/1234316
+[ browser_icon-star_unfilled.png ]
+Star by Renee Ramsey-Passmore from the Noun Project
+https://thenounproject.com/icon/12987/
+
+[ browser_icon-star_filled.png ]
+Star by Renee Ramsey-Passmore from the Noun Project
+https://thenounproject.com/icon/12988/
+
+[ browser_icon-list.png ]
+List by Icons fest from the Noun Project
+https://thenounproject.com/icon/637356/
+
+[ browser_icon-grid.png ]
+grid by David from the Noun Project
+https://thenounproject.com/icon/486324/

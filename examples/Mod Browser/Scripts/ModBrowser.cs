@@ -558,4 +558,11 @@ public class ModBrowser : MonoBehaviour
             return(truncatedValue.ToString() + "M");
         }
     }
+
+    public static Sprite CreateSpriteWithTexture(Texture2D texture)
+    {
+        return Sprite.Create(texture,
+                             new Rect(0.0f, 0.0f, texture.width, texture.height),
+                             Vector2.zero);
+    }
 }

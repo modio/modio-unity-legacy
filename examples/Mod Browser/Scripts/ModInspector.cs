@@ -236,15 +236,8 @@ public class ModInspector : MonoBehaviour
     {
         if(mediaElement != null)
         {
-            mediaElement.GetComponent<Image>().sprite = CreateSpriteWithTexture(texture);
+            mediaElement.GetComponent<Image>().sprite = ModBrowser.CreateSpriteWithTexture(texture);
             GameObject.Destroy(mediaElement.transform.GetChild(0).gameObject);
         }
-    }
-
-    public static Sprite CreateSpriteWithTexture(Texture2D texture)
-    {
-        return Sprite.Create(texture,
-                             new Rect(0.0f, 0.0f, texture.width, texture.height),
-                             Vector2.zero);
     }
 }
