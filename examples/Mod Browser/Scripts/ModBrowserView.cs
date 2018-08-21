@@ -136,7 +136,12 @@ public class ModBrowserView : MonoBehaviour
             item.modProfile = modProfileCollection[i];
             item.onClick += NotifyItemClicked;
             item.Initialize();
-            item.UpdateDisplayObjects();
+            item.UpdateProfileUIComponents();
+            item.UpdateStatisticsUIComponents();
+
+            ModManager.GetModStatistics(item.modProfile.id,
+                                        (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
+                                        null);
         }
 
         UpdateContentPaneSize();
