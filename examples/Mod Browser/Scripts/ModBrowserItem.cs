@@ -9,21 +9,34 @@ using ModIO;
 public class ModBrowserItem : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    // --- Core Data ---
-    public event Action<ModBrowserItem> onClick;
+    // ---[ UI COMPONENTS ]---
+    [Header("UI Components")]
+    // - Profile -
+    public Text modNameText;
+    public Text modCreatorText;
+
+    // - Stats -
+    public Text modDownloadCountText;
+
+    // - Prefabs -
+    public GameObject loadingPlaceholderPrefab;
+    public GameObject tagBadgePrefab;
+
+    // - Layouting -
+    public LogoSize logoVersion;
+    public Transform logoContainer;
+    public Transform tagContainer;
+    public float tagPadding;
+    public float tagSpacing;
+
+    // ---[ RUNTIME DATA ]---
+    [Header("Runtime Data")]
     public ModProfile modProfile;
 
-    // --- Display Data ---
-    public GameObject loadingPlaceholderPrefab;
-    public LogoSize logoVersion;
+    // - Events -
+    public event Action<ModBrowserItem> onClick;
 
-    // --- Scene Data ---
-    public Text modNameText;
-    public Text modTagsText;
-    public Text modDownloadCountText;
-    public Transform modLogoContainer;
-
-    // --- Run-Time Data ---
+    // - Caching -
     private GameObject _loadingPlaceholderInstance;
     private Image _modLogoImage;
 
@@ -32,18 +45,18 @@ public class ModBrowserItem : MonoBehaviour
     {
         _loadingPlaceholderInstance = null;
 
-        foreach(Transform logoChild in modLogoContainer)
+        foreach(Transform logoChild in logoContainer)
         {
             UnityEngine.Object.Destroy(logoChild.gameObject);
         }
 
-        _loadingPlaceholderInstance = UnityEngine.Object.Instantiate(loadingPlaceholderPrefab, modLogoContainer) as GameObject;
+        _loadingPlaceholderInstance = UnityEngine.Object.Instantiate(loadingPlaceholderPrefab, logoContainer) as GameObject;
 
         GameObject modLogo_go = new GameObject("ModLogo");
         modLogo_go.AddComponent<CanvasRenderer>();
 
         RectTransform logoTransfrom = modLogo_go.AddComponent<RectTransform>();
-        logoTransfrom.SetParent(modLogoContainer);
+        logoTransfrom.SetParent(logoContainer);
         logoTransfrom.anchorMin = new Vector2(0f, 0f);
         logoTransfrom.anchorMax = new Vector2(1f, 1f);
         logoTransfrom.offsetMin = new Vector2(0f, 0f);
@@ -61,32 +74,64 @@ public class ModBrowserItem : MonoBehaviour
         }
         else
         {
-            // set name
+            // profile
             modNameText.text = modProfile.name;
 
-            // set tags
-            StringBuilder tagsString = new StringBuilder();
-            foreach(string tag in modProfile.tagNames)
-            {
-                tagsString.Append(tag + ", ");
-            }
-            if(tagsString.Length > 0)
-            {
-                // Remove trailing ", "
-                tagsString.Length -= 2;
-            }
-            modTagsText.text = tagsString.ToString();
 
-            // set downloads
-            modDownloadCountText.text = "▼ #TODO#";
+            if(modCreatorText != null)
+            {
+                modCreatorText.text = modProfile.submittedBy.username;
+            }
 
-            // set logo image
+            // logo
             _loadingPlaceholderInstance.SetActive(true);
             _modLogoImage.gameObject.SetActive(false);
 
             ModManager.GetModLogo(modProfile, LogoSize.Thumbnail_320x180,
                                   ApplyModLogo,
                                   null);
+
+            // tags
+            foreach(Transform t in tagContainer)
+            {
+                GameObject.Destroy(t.gameObject);
+            }
+
+            float tagContainerWidth = tagContainer.GetComponent<RectTransform>().rect.width;
+            // TODO(@jackson): Handle too many tags
+            // float tagContainerHeight = tagContainer.GetComponent<RectTransform>().rect.height;
+            float xPos = 0f;
+            float yPos = 0f;
+
+            foreach(string tagName in modProfile.tagNames)
+            {
+                GameObject tag_go = GameObject.Instantiate(tagBadgePrefab, tagContainer) as GameObject;
+                tag_go.name = "Tag: " + tagName;
+
+                Text tagText = tag_go.GetComponentInChildren<Text>();
+                tagText.text = tagName;
+
+                RectTransform tagTransform = tag_go.GetComponent<RectTransform>();
+                TextGenerator tagTextGen = new TextGenerator();
+                TextGenerationSettings tagGenSettings = tagText.GetGenerationSettings(tagText.rectTransform.rect.size);
+
+                float tagWidth = tagTextGen.GetPreferredWidth(tagName, tagGenSettings) + 2 * this.tagPadding;
+
+                if(xPos + tagWidth > tagContainerWidth)
+                {
+                    yPos -= tagTransform.rect.height + this.tagSpacing;
+                    xPos = 0f;
+                }
+
+                tagTransform.anchoredPosition = new Vector2(xPos, yPos);
+                tagTransform.sizeDelta = new Vector2(tagWidth, tagTransform.rect.height);
+
+                xPos += tagWidth + this.tagSpacing;
+            }
+
+            // stats
+            modDownloadCountText.text = "▼ #TODO#";
+
         }
     }
 

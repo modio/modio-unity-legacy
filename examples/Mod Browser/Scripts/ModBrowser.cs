@@ -80,6 +80,7 @@ public class ModBrowser : MonoBehaviour
         // assert ui is prepared
         activeView.gameObject.SetActive(true);
         activeView.onItemClicked += OnBrowserItemClicked;
+        inspector.gameObject.SetActive(false);
 
         // --- mod.io init ---
         #pragma warning disable 0162

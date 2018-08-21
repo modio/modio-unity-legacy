@@ -2621,7 +2621,7 @@ MonoBehaviour:
         m_MethodName: SetActiveView
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgument: {fileID: 114687762202386414}
           m_ObjectArgumentAssemblyTypeName: ModBrowserView, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -3290,7 +3290,7 @@ MonoBehaviour:
         m_MethodName: SetActiveView
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgument: {fileID: 114794201436024314}
           m_ObjectArgumentAssemblyTypeName: ModBrowserView, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -4155,7 +4155,7 @@ MonoBehaviour:
     language: 
     profileURL: 
   lastCacheUpdate: -1
-  activeView: {fileID: 114687762202386414}
+  activeView: {fileID: 114794201436024314}
   inspector: {fileID: 114058456442351948}
 --- !u!114 &114440248715350646
 MonoBehaviour:
@@ -5641,7 +5641,7 @@ MonoBehaviour:
   contentPane: {fileID: 224479611370610278}
   layoutStyle: 0
   minColumnPadding: 10
-  rowPadding: 10
+  rowPadding: 6
   TEST_rowDisplayCount: 3
   TEST_pageSize: 20
   TEST_pageIndex: 0
