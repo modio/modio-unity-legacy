@@ -93,20 +93,16 @@ public class ModBrowserSearchBar : MonoBehaviour
 
         float badgeX = 0f;
         float badgeY = 0f;
-        float badgeWidth = 0f;
         float badgeHeight = filterBadgePrefab.GetComponent<RectTransform>().rect.height;
 
-        Text badgeText = filterBadgePrefab.GetComponentInChildren<Text>();
-        TextGenerator badgeTextGen = new TextGenerator();
-        TextGenerationSettings badgeGenSettings = badgeText.GetGenerationSettings(badgeText.rectTransform.rect.size);
-
+        ModBrowserFilterBadge badgePrefabScript = filterBadgePrefab.GetComponent<ModBrowserFilterBadge>();
 
         foreach(string filterValue in this.profileFilters)
         {
-            // calculate badge size and position
-            badgeWidth = badgeTextGen.GetPreferredWidth(filterValue, badgeGenSettings) + 2 * this.filterBadgePadding;
+            float filterBadgeWidth = badgePrefabScript.CalculateWidth(filterValue);
 
-            if(badgeX + badgeWidth > badgeContainerWidth)
+            // calculate badge size and position
+            if(badgeX + filterBadgeWidth > badgeContainerWidth)
             {
                 badgeY -= badgeHeight + this.filterBadgeSpacing;
                 badgeX = 0f;
@@ -122,16 +118,16 @@ public class ModBrowserSearchBar : MonoBehaviour
             // generate badge
             GameObject filterBadge = GameObject.Instantiate(filterBadgePrefab, filterBadgeContainer) as GameObject;
             filterBadge.name = "[FILTER] " + filterValue;
-            filterBadge.GetComponentInChildren<Text>().text = filterValue;
 
             RectTransform filterBadgeTransform = filterBadge.GetComponent<RectTransform>();
             filterBadgeTransform.anchoredPosition = new Vector2(badgeX, badgeY);
-            filterBadgeTransform.sizeDelta = new Vector2(badgeWidth, badgeHeight);
+            filterBadgeTransform.sizeDelta = new Vector2(filterBadgeWidth, badgeHeight);
 
-            badgeX += badgeWidth + this.filterBadgeSpacing;
+            var filterBadgeScript = filterBadge.GetComponent<ModBrowserFilterBadge>();
+            filterBadgeScript.textComponent.text = filterValue;
+            filterBadgeScript.buttonComponent.onClick.AddListener(() => OnBadgeClicked(filterValue));
 
-            // add listener
-            filterBadge.GetComponentInChildren<Button>().onClick.AddListener(() => OnBadgeClicked(filterValue));
+            badgeX += filterBadgeWidth + this.filterBadgeSpacing;
         }
     }
 
