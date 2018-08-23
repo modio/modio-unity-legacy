@@ -50,8 +50,8 @@ public class ModBrowser : MonoBehaviour
         activeView.onItemClicked += OnBrowserItemClicked;
 
         inspector.gameObject.SetActive(false);
-        searchBar.searchField.onValueChanged.AddListener(OnSearchFieldChanged);
-        searchBar.searchField.onEndEdit.AddListener(OnSearchFieldSubmit);
+
+        searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
 
         // --- mod.io init ---
         #pragma warning disable 0162
@@ -96,6 +96,7 @@ public class ModBrowser : MonoBehaviour
             this.Initialize(null);
         }
     }
+
     protected virtual void Initialize(UserProfile userProfile)
     {
         this.userProfile = userProfile;
@@ -274,37 +275,32 @@ public class ModBrowser : MonoBehaviour
         inspector.gameObject.SetActive(false);
     }
 
-    public void OnSearchFieldChanged(string newValue)
+    public void OnProfileFiltersUpdated(IEnumerable<string> filters)
     {
-        string newestChar = (newValue.Length > 0
-                             ? newValue[newValue.Length - 1].ToString()
-                             : "NULL");
-
-        Debug.Log("Newest character: " + newestChar);
-    }
-
-    public void OnSearchFieldSubmit(string searchValue)
-    {
-        if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        if(filters.Count() == 0)
         {
-            // titleSearch = searchValue;
-            searchValue = searchValue.ToUpper();
-
-            if(String.IsNullOrEmpty(titleSearch))
-            {
-                this.profileCollection = CacheClient.IterateAllModProfiles();
-            }
-            else
-            {
-                this.profileCollection = CacheClient.IterateAllModProfiles()
-                                            .Where(p => p.name.ToUpper().Contains(searchValue));
-            }
-
-            activeView.ReloadProfileCollection(this.profileCollection);
+            this.profileCollection = CacheClient.IterateAllModProfiles();
         }
+        else
+        {
+            Func<ModProfile, bool> profileMatchesFilters = (profile) =>
+            {
+                bool isMatch = true;
+
+                foreach(string filterString in filters)
+                {
+                    isMatch &= profile.name.ToUpper().Contains(filterString.ToUpper());
+                }
+
+                return isMatch;
+            };
+
+            this.profileCollection = CacheClient.IterateAllModProfiles()
+                                        .Where(profileMatchesFilters);
+        }
+
+        activeView.ReloadProfileCollection(this.profileCollection);
     }
-
-
 
     // ---------[ EVENT HANDLING ]---------
     // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)
