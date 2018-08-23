@@ -29,21 +29,37 @@ public class ModBrowserSearchBar : MonoBehaviour
         return;
     }
 
-    public void OnInputFieldSubmission(string filterValue)
+    public void OnInputFieldSubmission(string filterInput)
     {
         if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            // update data
-            this.profileFilters.Add(filterValue);
+            bool isFilterChanged = false;
 
-            // update ui
-            inputField.text = string.Empty;
-            UpdateFilterBadges();
-
-            // notify
-            if(profileFiltersUpdated != null)
+            // process input & update data
+            string[] filterValueItems = filterInput.Split(',');
+            foreach(var filterValueRaw in filterValueItems)
             {
-                profileFiltersUpdated(this.profileFilters);
+                string filterValue = filterValueRaw.Trim();
+
+                if(!this.profileFilters.Contains(filterValue))
+                {
+                    this.profileFilters.Add(filterValue);
+                    isFilterChanged = true;
+                }
+            }
+
+            // ui & notification
+            inputField.text = string.Empty;
+
+            if(isFilterChanged)
+            {
+                UpdateFilterBadges();
+
+                // notify
+                if(profileFiltersUpdated != null)
+                {
+                    profileFiltersUpdated(this.profileFilters);
+                }
             }
         }
     }
