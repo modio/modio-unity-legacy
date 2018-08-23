@@ -20,25 +20,21 @@ public class ModBrowserSearchBar : MonoBehaviour
 
     private void Start()
     {
-        inputField.onValueChanged.AddListener(OnSearchFieldChanged);
-        inputField.onEndEdit.AddListener(OnSearchFieldSubmit);
+        inputField.onValueChanged.AddListener(OnInputFieldChanged);
+        inputField.onEndEdit.AddListener(OnInputFieldSubmission);
     }
 
-    public void OnSearchFieldChanged(string newValue)
+    public void OnInputFieldChanged(string newValue)
     {
-        string newestChar = (newValue.Length > 0
-                             ? newValue[newValue.Length - 1].ToString()
-                             : "NULL");
-
-        Debug.Log("Newest character: " + newestChar);
+        return;
     }
 
-    public void OnSearchFieldSubmit(string searchValue)
+    public void OnInputFieldSubmission(string filterValue)
     {
         if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             // update data
-            this.profileFilters.Add(searchValue);
+            this.profileFilters.Add(filterValue);
 
             // update ui
             inputField.text = string.Empty;
@@ -49,6 +45,21 @@ public class ModBrowserSearchBar : MonoBehaviour
             {
                 profileFiltersUpdated(this.profileFilters);
             }
+        }
+    }
+
+    public void OnBadgeClicked(string filterValue)
+    {
+        // data
+        this.profileFilters.Remove(filterValue);
+
+        // ui
+        UpdateFilterBadges();
+
+        // notification
+        if(profileFiltersUpdated != null)
+        {
+            profileFiltersUpdated(this.profileFilters);
         }
     }
 
@@ -85,7 +96,7 @@ public class ModBrowserSearchBar : MonoBehaviour
                 badgeX = 0f;
 
                 // TODO(@jackson): Implement better handling
-                if((-badgeY + badgeHeight) > badgeContainerHeight)
+                if(-badgeY + badgeHeight > badgeContainerHeight)
                 {
                     // stop creating badges
                     return;
@@ -103,9 +114,9 @@ public class ModBrowserSearchBar : MonoBehaviour
 
             badgeX += badgeWidth + this.filterBadgeSpacing;
 
-            // TODO(@jackson): Add button press event
+            // add listener
+            filterBadge.GetComponentInChildren<Button>().onClick.AddListener(() => OnBadgeClicked(filterValue));
         }
-
     }
 
 }
