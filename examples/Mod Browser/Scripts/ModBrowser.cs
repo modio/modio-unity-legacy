@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using ModIO;
@@ -18,69 +20,38 @@ public class ModBrowser : MonoBehaviour
     public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
 
     // ---------[ FIELDS ]---------
+    // --- UI Components ---
+    [Header("UI Components")]
+    public ModBrowserView activeView;
+    public ModInspector inspector;
+    public ModBrowserSearchBar searchBar;
+
     // --- Key Data ---
+    [Header("Settings")]
     public int gameId = 0;
     public string gameAPIKey = string.Empty;
     public bool isAutomaticUpdateEnabled = false;
 
-    // --- Non Serialized ---
-    [HideInInspector]
+    // ---------[ RUNTIME DATA ]------
+    [Header("Runtime Data")]
     public UserProfile userProfile = null;
-    [HideInInspector]
     public int lastCacheUpdate = -1;
-
-    // --- UI Components ---
-    public ModBrowserView activeView;
-    public ModInspector inspector;
-
-    // public Texture2D loadingPlaceholder;
-
-    // public ModThumbnailContainer thumbnailContainer;
-    // public ModInspector inspector;
-    // public UnityEngine.UI.Button backButton;
-
-    // public LogoSize logoThumbnailVersion;
-    // public LogoSize logoInspectorVersion;
-
-    // public bool isInspecting;
-    // public ModProfile inspectedProfile;
-    // public ModBinaryRequest activeDownload;
-
+    public string titleSearch = string.Empty;
+    public IEnumerable<ModProfile> profileCollection = null;
 
     // ---------[ INITIALIZATION ]---------
     protected bool _isInitialized = false;
-
-    // protected virtual void OnEnable()
-    // {
-    //     // --- ui init ---
-    //     thumbnailContainer.thumbnailClicked += OnThumbClicked;
-    //     inspector.installClicked += OnInstallClicked;
-    //     inspector.subscribeClicked += OnSubscribeClicked;
-
-    //     isInspecting = false;
-    //     thumbnailContainer.gameObject.SetActive(true);
-    //     inspector.gameObject.SetActive(false);
-
-    //     foreach(var thumb in this.thumbnailContainer.modThumbnails)
-    //     {
-    //         thumb.gameObject.SetActive(false);
-    //     }
-    // }
-
-    // protected virtual void OnDisable()
-    // {
-    //     // --- ui de-init ---
-    //     inspector.subscribeClicked -= OnSubscribeClicked;
-    //     inspector.installClicked -= OnInstallClicked;
-    //     thumbnailContainer.thumbnailClicked -= OnThumbClicked;
-    // }
 
     protected virtual void Start()
     {
         // assert ui is prepared
         activeView.gameObject.SetActive(true);
+        activeView.Initialize();
         activeView.onItemClicked += OnBrowserItemClicked;
+
         inspector.gameObject.SetActive(false);
+        searchBar.searchField.onValueChanged.AddListener(OnSearchFieldChanged);
+        searchBar.searchField.onEndEdit.AddListener(OnSearchFieldSubmit);
 
         // --- mod.io init ---
         #pragma warning disable 0162
@@ -125,7 +96,6 @@ public class ModBrowser : MonoBehaviour
             this.Initialize(null);
         }
     }
-
     protected virtual void Initialize(UserProfile userProfile)
     {
         this.userProfile = userProfile;
@@ -142,6 +112,10 @@ public class ModBrowser : MonoBehaviour
         // // --- Load Game Profile ---
         // ModManager.GetGameProfile(this.OnGetGameProfile,
         //                           (e) => { WebRequestError.LogAsWarning(e); this.OnGetGameProfile(null); });
+
+        // --- Load Profiles ---
+        this.profileCollection = CacheClient.IterateAllModProfiles();
+        this.activeView.ReloadProfileCollection(this.profileCollection);
     }
 
     // protected virtual void OnGetGameProfile(GameProfile game)
@@ -276,6 +250,7 @@ public class ModBrowser : MonoBehaviour
 
         newActiveView.gameObject.SetActive(true);
         newActiveView.Initialize();
+        newActiveView.ReloadProfileCollection(this.profileCollection);
         newActiveView.onItemClicked += OnBrowserItemClicked;
 
         activeView = newActiveView;
@@ -298,6 +273,38 @@ public class ModBrowser : MonoBehaviour
     {
         inspector.gameObject.SetActive(false);
     }
+
+    public void OnSearchFieldChanged(string newValue)
+    {
+        string newestChar = (newValue.Length > 0
+                             ? newValue[newValue.Length - 1].ToString()
+                             : "NULL");
+
+        Debug.Log("Newest character: " + newestChar);
+    }
+
+    public void OnSearchFieldSubmit(string searchValue)
+    {
+        if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            // titleSearch = searchValue;
+            searchValue = searchValue.ToUpper();
+
+            if(String.IsNullOrEmpty(titleSearch))
+            {
+                this.profileCollection = CacheClient.IterateAllModProfiles();
+            }
+            else
+            {
+                this.profileCollection = CacheClient.IterateAllModProfiles()
+                                            .Where(p => p.name.ToUpper().Contains(searchValue));
+            }
+
+            activeView.ReloadProfileCollection(this.profileCollection);
+        }
+    }
+
+
 
     // ---------[ EVENT HANDLING ]---------
     // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)

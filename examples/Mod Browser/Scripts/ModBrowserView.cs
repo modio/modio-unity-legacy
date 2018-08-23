@@ -36,7 +36,7 @@ public class ModBrowserView : MonoBehaviour
     private int _columnCount = 0;
 
     // --- TEMP DATA ---
-    public IEnumerator<ModProfile> profileIterator;
+    public IEnumerator<ModProfile> profileEnumerator;
     public int TEST_rowDisplayCount;
     public int TEST_pageSize;
     public int TEST_pageIndex;
@@ -96,7 +96,11 @@ public class ModBrowserView : MonoBehaviour
             }
             break;
         }
+    }
 
+    /// <summary>Begins loading in the mod profiles</summary>
+    public void ReloadProfileCollection(IEnumerable<ModProfile> profileCollection)
+    {
         // clear existing items
         foreach(ModBrowserItem item in this.contentPane.GetComponentsInChildren<ModBrowserItem>())
         {
@@ -108,13 +112,13 @@ public class ModBrowserView : MonoBehaviour
         // get mod profiles to display
         // TODO(@jackson): pageSize = rows that fit +/- 0.25?
         int pageIndex = 0;
-        profileIterator = CacheClient.IterateAllModProfiles().GetEnumerator();
+        profileEnumerator = profileCollection.GetEnumerator();
 
         List<ModProfile> modProfileCollection = new List<ModProfile>(TEST_pageSize);
         while(pageIndex < TEST_pageSize
-              && profileIterator.MoveNext())
+              && profileEnumerator.MoveNext())
         {
-            modProfileCollection.Add(profileIterator.Current);
+            modProfileCollection.Add(profileEnumerator.Current);
             ++pageIndex;
         }
 
