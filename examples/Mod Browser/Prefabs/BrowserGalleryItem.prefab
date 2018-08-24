@@ -618,6 +618,7 @@ MonoBehaviour:
     type: 3}
   modRatingStarUnfilled: {fileID: 2800000, guid: c0084d8d885814fc1a2a613482c56c0d,
     type: 3}
+  modRatingCountText: {fileID: 0}
   modDownloadCountText: {fileID: 114569290268804658}
   loadingPlaceholderPrefab: {fileID: 1211250885151908, guid: 2f40aeca2bf41497e9da178e556a22b6,
     type: 2}

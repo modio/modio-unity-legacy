@@ -804,7 +804,11 @@ namespace ModIO
                 };
 
                 download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
+
+                if(onError != null)
+                {
+                    download.failed += (d) => onError(d.error);
+                }
             }
         }
 

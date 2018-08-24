@@ -275,28 +275,32 @@ public class ModBrowser : MonoBehaviour
         inspector.gameObject.SetActive(false);
     }
 
-    public void OnProfileFiltersUpdated(IEnumerable<string> filters)
+    public void OnProfileFiltersUpdated(string textFilter,
+                                        IEnumerable<string> tagFilters)
     {
-        if(filters.Count() == 0)
+        this.profileCollection = CacheClient.IterateAllModProfiles();
+
+        if(!String.IsNullOrEmpty(textFilter))
         {
-            this.profileCollection = CacheClient.IterateAllModProfiles();
+            this.profileCollection = this.profileCollection
+                                        .Where(p => p.name.ToUpper().Contains(textFilter.ToUpper()));
         }
-        else
+        if(tagFilters.Count() > 0)
         {
-            Func<ModProfile, bool> profileMatchesFilters = (profile) =>
+            Func<ModProfile, bool> profileContainsTags = (profile) =>
             {
                 bool isMatch = true;
 
-                foreach(string filterString in filters)
+                foreach(string filterTag in tagFilters)
                 {
-                    isMatch &= profile.name.ToUpper().Contains(filterString.ToUpper());
+                    isMatch &= profile.tagNames.Contains(filterTag);
                 }
 
                 return isMatch;
             };
 
-            this.profileCollection = CacheClient.IterateAllModProfiles()
-                                        .Where(profileMatchesFilters);
+            this.profileCollection = this.profileCollection
+                                        .Where(profileContainsTags);
         }
 
         activeView.ReloadProfileCollection(this.profileCollection);

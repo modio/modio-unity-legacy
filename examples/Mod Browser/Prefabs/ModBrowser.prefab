@@ -1656,7 +1656,7 @@ GameObject:
   - component: {fileID: 114723219780586792}
   - component: {fileID: 114794201436024314}
   m_Layer: 5
-  m_Name: GalleryView
+  m_Name: GridView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3989,7 +3989,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter text...
+  m_Text: Search
 --- !u!114 &114412666666737436
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5531,7 +5531,8 @@ MonoBehaviour:
   filterBadgeContainer: {fileID: 224268208027464820}
   filterBadgePadding: 8
   filterBadgeSpacing: 2
-  profileFilters: []
+  textFilter: 
+  tagFilters: []
 --- !u!114 &114723219780586792
 MonoBehaviour:
   m_ObjectHideFlags: 1
