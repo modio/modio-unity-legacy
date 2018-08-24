@@ -8,150 +8,99 @@ namespace ModIO
     public class GameProfile
     {
         // ---------[ FIELDS ]---------
-        /// <summary>
-        /// Unique game id.
-        /// </summary>
+        /// <summary>mod.io id of the game profile.</summary>
         [JsonProperty("id")]
         public int id;
 
-        /// <summary>
-        /// Status of the game (see status and visibility for details):
-        /// </summary>
+        /// <summary>Status of the game profile on mod.io.</summary>
         [JsonProperty("status")]
         public GameStatus status;
 
-        /// <summary>
-        /// Name of the game.
-        /// </summary>
+        /// <summary>Name of the game.</summary>
         [JsonProperty("name")]
         public string name;
 
-        /// <summary>
-        /// Subdomain for the game on mod.io.
-        /// </summary>
+        /// <summary>Unique name identifier on mod.io.</summary>
         [JsonProperty("name_id")]
         public string nameId;
 
-        /// <summary>
-        /// Summary of the game.
-        /// </summary>
+        /// <summary>A brief description of the game.</summary>
         [JsonProperty("summary")]
         public string summary;
 
-        /// <summary>
-        /// A guide about creating and uploading mods for this game to mod.io (applicable if
-        /// modSubmissionPermission = GameModSubmissionPermission.ToolOnly).
-        /// </summary>
+        /// <summary>The instructions for uploading mods presented on the mod.io website.</summary>
         [JsonProperty("instructions")]
         public string instructions;
 
-        /// <summary>
-        /// Link to a mod.io guide, your modding wiki or a page where modders can learn how to make
-        /// and submit mods to your games profile.
-        /// </summary>
+        /// <summary>Link to the instructions for uploading mods.</summary>
         [JsonProperty("instructions_url")]
         public string instructionsURL;
 
-        /// <summary>
-        /// Contains user data.
-        /// </summary>
+        /// <summary>User that submitted the game profile to mod.io.</summary>
         [JsonProperty("submitted_by")]
         public UserProfileStub submittedBy;
 
-        /// <summary>
-        /// Unix timestamp of date game was registered.
-        /// </summary>
+        /// <summary>Server time stamp for the creation of the game profile.</summary>
         [JsonProperty("date_added")]
         public int dateAdded;
 
-        /// <summary>
-        /// Unix timestamp of date game was updated.
-        /// </summary>
+        /// <summary>Server time stamp of last edit made to the game profile.</summary>
         [JsonProperty("date_updated")]
         public int dateUpdated;
 
-        /// <summary>
-        /// Unix timestamp of date game was set live.
-        /// </summary>
+        /// <summary>Server time stamp for the first time the game profile was made live.</summary>
         [JsonProperty("date_live")]
         public int dateLive;
 
-        /// <summary>
-        /// Word used to describe user-generated content (mods, items, addons etc).
-        /// </summary>
+        /// <summary>Word used to describe the user-generated content on mod.io.</summary>
         [JsonProperty("ugc_name")]
         public string ugcName;
 
-        /// <summary>
-        /// Presentation style used on the mod.io website:
-        /// </summary>
+        /// <summary>Default mod gallery presentation on the mod.io website.</summary>
         [JsonProperty("presentation_option")]
         public GameModGalleryPresentation modGalleryPresentation;
 
-        /// <summary>
-        /// Submission process modders must follow:
-        /// </summary>
+        /// <summary>Permissable method of mod uploading for this game to the mod.io website.</summary>
         [JsonProperty("submission_option")]
         public GameModSubmissionPermission modSubmissionPermission;
 
-        /// <summary>
-        /// Curation process used to approve mods:
-        /// </summary>
+        /// <summary>Curation process for uploaded mods.</summary>
         [JsonProperty("curation_option")]
         public GameModCuration modCuration;
 
-        /// <summary>
-        /// Community features enabled on the mod.io website:
-        /// </summary>
+        /// <summary>Community features enabled on the mod.io website.</summary>
         [JsonProperty("community_options")]
         public GameCommunityFeatures communityFeatures;
 
-        /// <summary>
-        /// Revenue capabilities mods can enable:
-        /// </summary>
+        /// <summary>Permissable revenue options for uploaded mods.</summary>
         [JsonProperty("revenue_options")]
         public GameModRevenuePermissions modRevenuePermissions;
 
-        /// <summary>
-        /// Level of API access allowed by this game:
-        /// </summary>
+        /// <summary>Permissions of queries made to endpoints belonging to this game.</summary>
         [JsonProperty("api_access_options")]
         public GameAPIPermissions apiPermissions;
 
-        /// <summary>
-        /// Allow developers to select if they flag their mods as containing mature content:
-        /// </summary>
+        /// <summary>Mod content that this game permits.</summary>
         [JsonProperty("maturity_options")]
         public GameModContentPermission contentPermission;
 
-
-        /// <summary>
-        /// Contains icon data.
-        /// </summary>
+        /// <summary>Icon locator for the game's website profile.</summary>
         [JsonProperty("icon")]
         public IconImageLocator iconLocator;
 
-        /// <summary>
-        /// Contains logo data.
-        /// </summary>
+        /// <summary>Logo logocator for the game's website profile.</summary>
         [JsonProperty("logo")]
         public LogoImageLocator logoLocator;
 
-        /// <summary>
-        /// Contains header data.
-        /// </summary>
+        /// <summary>Header image locator for the game's website profile.</summary>
         [JsonProperty("header")]
         public HeaderImageLocator headerImageLocator;
 
-        /// <summary>
-        /// URL to the game's mod.io page.
-        /// </summary>
+        /// <summary>URL for the game's website profile.</summary>
         [JsonProperty("profile_url")]
         public string profileURL;
 
-        /// <summary>
-        /// Groups of tags configured by the game developer, that mods can select.
-        /// </summary>
+        /// <summary>Tagging categories this game offers to mods.</summary>
         [JsonProperty("tag_options")]
         public ModTagCategory[] tagCategories;
 
