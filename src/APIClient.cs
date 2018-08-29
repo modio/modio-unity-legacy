@@ -594,7 +594,7 @@ namespace ModIO
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>Fetches all the game profiles from the mod.io servers.</summary>
         public static void GetAllGames(RequestFilter filter, PaginationParameters pagination,
-                                       Action<ResponseArray<GameProfile>> successCallback,
+                                       Action<APIResponseArray<GameProfile>> successCallback,
                                        Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games";
@@ -634,7 +634,7 @@ namespace ModIO
         // ---------[ MOD ENDPOINTS ]---------
         /// <summary>Fetches all mod profiles from the mod.io servers.</summary>
         public static void GetAllMods(RequestFilter filter, PaginationParameters pagination,
-                                      Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                      Action<APIResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods";
 
@@ -701,7 +701,7 @@ namespace ModIO
         /// <summary>Fetches all modfiles for a given mod from the mod.io servers.</summary>
         public static void GetAllModfiles(int modId,
                                           RequestFilter filter, PaginationParameters pagination,
-                                          Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
+                                          Action<APIResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/files";
 
@@ -827,7 +827,7 @@ namespace ModIO
         /// <summary>Fetches the update events for a given mod.</summary>
         public static void GetModEvents(int modId,
                                         RequestFilter filter, PaginationParameters pagination,
-                                        Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
+                                        Action<APIResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/events";
 
@@ -840,7 +840,7 @@ namespace ModIO
 
         /// <summary>Fetches all the mod update events for the game profile</summary>
         public static void GetAllModEvents(RequestFilter filter, PaginationParameters pagination,
-                                           Action<ResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
+                                           Action<APIResponseArray<ModEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/events";
 
@@ -855,7 +855,7 @@ namespace ModIO
         // ---------[ STATS ENDPOINTS ]---------
         /// <summary>Fetches the statistics for all mods.</summary>
         public static void GetAllModStats(RequestFilter filter, PaginationParameters pagination,
-                                          Action<ResponseArray<ModStatistics>> successCallback, Action<WebRequestError> errorCallback)
+                                          Action<APIResponseArray<ModStatistics>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/stats";
 
@@ -879,7 +879,7 @@ namespace ModIO
 
         // ---------[ TAG ENDPOINTS ]---------
         /// <summary>Fetches the tag categories specified by the game profile.</summary>
-        public static void GetAllGameTagOptions(Action<ResponseArray<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetAllGameTagOptions(Action<APIResponseArray<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/tags";
 
@@ -918,7 +918,7 @@ namespace ModIO
         /// <summary>Fetches the tags applied to the given mod.</summary>
         public static void GetModTags(int modId,
                                       RequestFilter filter, PaginationParameters pagination,
-                                      Action<ResponseArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
+                                      Action<APIResponseArray<ModTag>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/tags";
 
@@ -975,7 +975,7 @@ namespace ModIO
         /// <summary>Fetches all the KVP metadata for a mod.</summary>
         public static void GetAllModKVPMetadata(int modId,
                                                 PaginationParameters pagination,
-                                                Action<ResponseArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<APIResponseArray<MetadataKVP>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/metadatakvp";
 
@@ -1016,7 +1016,7 @@ namespace ModIO
         /// <summary>Fetches all the dependencies for a mod.</summary>
         public static void GetAllModDependencies(int modId,
                                                  RequestFilter filter, PaginationParameters pagination,
-                                                 Action<ResponseArray<ModDependency>> successCallback, Action<WebRequestError> errorCallback)
+                                                 Action<APIResponseArray<ModDependency>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/dependencies";
 
@@ -1057,7 +1057,7 @@ namespace ModIO
         /// <summary>Fetches the team members for a mod.</summary>
         public static void GetAllModTeamMembers(int modId,
                                                 RequestFilter filter, PaginationParameters pagination,
-                                                Action<ResponseArray<ModTeamMember>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<APIResponseArray<ModTeamMember>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/team";
 
@@ -1111,7 +1111,7 @@ namespace ModIO
         /// <summary>Fetches all the comments for a mod.</summary>
         public static void GetAllModComments(int modId,
                                              RequestFilter filter, PaginationParameters pagination,
-                                             Action<ResponseArray<ModComment>> successCallback, Action<WebRequestError> errorCallback)
+                                             Action<APIResponseArray<ModComment>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/games/" + APIClient.gameId + "/mods/" + modId + "/comments";
 
@@ -1170,7 +1170,7 @@ namespace ModIO
 
         /// <summary>Fetches all the user profiles on mod.io.</summary>
         public static void GetAllUsers(RequestFilter filter, PaginationParameters pagination,
-                                       Action<ResponseArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                       Action<APIResponseArray<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/users";
 
@@ -1224,7 +1224,7 @@ namespace ModIO
 
         /// <summary>Fetches the subscriptions for the authenticated user.</summary>
         public static void GetUserSubscriptions(RequestFilter filter, PaginationParameters pagination,
-                                                Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                                Action<APIResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/subscribed";
 
@@ -1237,7 +1237,7 @@ namespace ModIO
 
         /// <summary>Fetch the update events for the authenticated user.</summary>
         public static void GetUserEvents(RequestFilter filter, PaginationParameters pagination,
-                                         Action<ResponseArray<UserEvent>> successCallback, Action<WebRequestError> errorCallback)
+                                         Action<APIResponseArray<UserEvent>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/events";
 
@@ -1249,7 +1249,7 @@ namespace ModIO
         }
 
         /// <summary>Fetches the games that the authenticated user is a team member of.</summary>
-        public static void GetUserGames(Action<ResponseArray<GameProfile>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetUserGames(Action<APIResponseArray<GameProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/games";
 
@@ -1260,7 +1260,7 @@ namespace ModIO
 
         /// <summary>Fetches the mods that the authenticated user is a team member of.</summary>
         public static void GetUserMods(RequestFilter filter, PaginationParameters pagination,
-                                       Action<ResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
+                                       Action<APIResponseArray<ModProfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/mods";
 
@@ -1273,7 +1273,7 @@ namespace ModIO
 
         /// <summary>Fetches the modfiles that the authenticated user uploaded.</summary>
         public static void GetUserModfiles(RequestFilter filter, PaginationParameters pagination,
-                                           Action<ResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
+                                           Action<APIResponseArray<Modfile>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = API_URL + "/me/files";
 

@@ -1375,7 +1375,7 @@ namespace ModIO
 
         // ---------[ FETCH ALL RESULTS HELPER ]---------
         private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
-                                                    Action<ResponseArray<T>> onSuccess,
+                                                    Action<APIResponseArray<T>> onSuccess,
                                                     Action<WebRequestError> onError);
 
         private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
@@ -1401,7 +1401,7 @@ namespace ModIO
         }
 
         private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
-                                                            ResponseArray<T> queryResult,
+                                                            APIResponseArray<T> queryResult,
                                                             PaginationParameters pagination,
                                                             List<T> culmativeResults,
                                                             Action<List<T>> onSuccess,

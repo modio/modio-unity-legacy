@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
-namespace ModIO.API
+namespace ModIO
 {
     [System.Serializable] [JsonObject]
-    public class ResponseArray<T> : IEnumerable<T>
+    public class APIResponseArray<T> : IEnumerable<T>
     {
         // ---------[ FIELDS ]---------
         [JsonProperty("result_count")]
@@ -71,4 +71,10 @@ namespace ModIO.API
             return this.GetEnumerator();
         }
     }
+}
+
+namespace ModIO.API
+{
+    [System.Obsolete("Use ModIO.APIResponseArray instead.")]
+    public class ResponseArray<T> : APIResponseArray<T> {}
 }
