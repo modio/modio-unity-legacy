@@ -788,6 +788,13 @@ namespace ModIO
             Debug.Assert(onSuccess != null);
             Debug.Assert(profile != null, "[mod.io] User profile must not be null");
 
+            if(profile.avatarLocator == null
+               || String.IsNullOrEmpty(profile.avatarLocator.GetSizeURL(size)))
+            {
+                onSuccess(null);
+                return;
+            }
+
             var cachedAvatarTexture = CacheClient.LoadUserAvatar(profile.id, size);
             if(cachedAvatarTexture != null)
             {
