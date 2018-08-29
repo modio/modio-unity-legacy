@@ -450,8 +450,9 @@ namespace ModIO
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
                     Debug.Log(webRequest.method.ToUpper() + " REQUEST RESPONSE"
-                              + "\nResponse received at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                              + " [" + responseTimeStamp + "]"
+                              + "\nResponse received at: "
+                              + "[" + responseTimeStamp + "] "
+                              + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
                               + "\nURL: " + webRequest.url
                               + "\nResponse Code: " + webRequest.responseCode
                               + "\nResponse Error: " + webRequest.error
