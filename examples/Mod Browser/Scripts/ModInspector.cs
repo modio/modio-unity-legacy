@@ -13,7 +13,15 @@ public class ModInspector : MonoBehaviour
     public const float MODIO_THUMB_RATIO = 16f/9f;
 
     // ---------[ FIELDS ]---------
-    // ---[ UI COMPONENTS ]---
+    // ---[ SCENE COMPONENTS ]---
+    // - Prefabs -
+    [Header("Prefabs")]
+    public GameObject defaultAvatarPrefab;
+    public GameObject mediaLoadingPrefab;
+    public GameObject youTubeOverlayPrefab;
+    public GameObject tagBadgePrefab;
+
+
     [Header("UI Components")]
     // - Profile -
     public Text modNameText;
@@ -42,13 +50,7 @@ public class ModInspector : MonoBehaviour
     public float mediaElementHeight;
 
     // - Controls -
-    public Text subscribeButtonText;
-
-    // - Prefabs -
-    public GameObject avatarLoadingPrefab;
-    public GameObject mediaLoadingPrefab;
-    public GameObject youTubeOverlayPrefab;
-    public GameObject tagBadgePrefab;
+    public Button subscribeButton;
 
     // - Layouting -
 
@@ -57,10 +59,23 @@ public class ModInspector : MonoBehaviour
     public ModProfile profile;
     public ModStatistics stats;
 
+    // ---[ RUNTIME DATA ]---
+    [Header("Runtime Data")]
+    public GameObject defaultAvatarInstance;
+
     // ---------[ INITIALIZATION ]---------
     // TODO(@jackson): Reset view (scrolling, etc)
     public void UpdateProfileUIComponents()
     {
+        if(defaultAvatarInstance == null)
+        {
+            defaultAvatarInstance = UnityEngine.Object.Instantiate(defaultAvatarPrefab, avatar.transform) as GameObject;
+            RectTransform avatarTransform = defaultAvatarInstance.GetComponent<RectTransform>();
+            avatarTransform.anchorMin = new Vector2(0f, 0f);
+            avatarTransform.anchorMax = new Vector2(1f, 1f);
+            avatarTransform.sizeDelta = new Vector2(0f, 0f);
+        }
+
         // profile
         modNameText.text = profile.name;
         creatorUsernameText.text = profile.submittedBy.username;
@@ -72,15 +87,12 @@ public class ModInspector : MonoBehaviour
         releaseDateText.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString("MMMM dd, yyyy");
 
         // user avatar
-        GameObject avatarPlaceholder_go = UnityEngine.Object.Instantiate(avatarLoadingPrefab, avatar.transform) as GameObject;
-        RectTransform avatarPlaceholderTransform = avatarPlaceholder_go.GetComponent<RectTransform>();
-        avatarPlaceholderTransform.anchorMin = new Vector2(0f, 0f);
-        avatarPlaceholderTransform.anchorMax = new Vector2(1f, 1f);
-        avatarPlaceholderTransform.sizeDelta = new Vector2(0f, 0f);
+        avatar.GetComponent<Image>().enabled = false;
+        defaultAvatarInstance.gameObject.SetActive(true);
 
         ModManager.GetUserAvatar(profile.submittedBy,
                                  avatarSize,
-                                 (t) => ReplaceLoadingPlaceholder(avatar.gameObject, t),
+                                 LoadUserAvatar,
                                  null);
 
         // - MEDIA -
@@ -222,6 +234,32 @@ public class ModInspector : MonoBehaviour
         }
     }
 
+    public void SetSubscribedState(bool isModInCollection)
+    {
+        if(isModInCollection)
+        {
+            subscribeButton.onClick.AddListener(() => OnViewInCollectionClicked());
+            subscribeButton.GetComponentInChildren<Text>().text = "View In Collection";
+        }
+        else
+        {
+            subscribeButton.onClick.AddListener(() => OnSubscribeClicked());
+            subscribeButton.GetComponentInChildren<Text>().text = "Add To Collection";
+        }
+    }
+
+    public void LoadUserAvatar(Texture2D texture)
+    {
+        if(texture != null)
+        {
+            defaultAvatarInstance.gameObject.SetActive(false);
+
+            var avatarImage = avatar.GetComponent<Image>();
+            avatarImage.sprite = ModBrowser.CreateSpriteWithTexture(texture);
+            avatarImage.enabled = true;
+        }
+    }
+
     private GameObject CreateMediaGalleryElement(float width, float height)
     {
         GameObject newElement = new GameObject("Media Gallery Item");
@@ -251,7 +289,18 @@ public class ModInspector : MonoBehaviour
         if(imageGameObject != null)
         {
             imageGameObject.GetComponent<Image>().sprite = ModBrowser.CreateSpriteWithTexture(texture);
+            imageGameObject.GetComponent<Image>().enabled = true;
             GameObject.Destroy(imageGameObject.transform.GetChild(0).gameObject);
         }
+    }
+
+    private void OnSubscribeClicked()
+    {
+        SetSubscribedState(true);
+    }
+
+    private void OnViewInCollectionClicked()
+    {
+        SetSubscribedState(false);
     }
 }
