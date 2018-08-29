@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 using ModIO;
 
+// TODO(@jackson): Correct subscription loading
 public class ModBrowser : MonoBehaviour
 {
     // ---------[ NESTED CLASSES ]---------
@@ -18,6 +19,11 @@ public class ModBrowser : MonoBehaviour
 
     // ---------[ CONST & STATIC ]---------
     public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
+    public static readonly UserProfile GUEST_PROFILE = new UserProfile()
+    {
+        id = 0,
+        username = "Guest",
+    };
 
     // ---------[ FIELDS ]---------
     // --- UI Components ---
@@ -38,22 +44,12 @@ public class ModBrowser : MonoBehaviour
     public int lastCacheUpdate = -1;
     public string titleSearch = string.Empty;
     public IEnumerable<ModProfile> profileCollection = null;
+    public List<int> collectionModIds = new List<int>();
 
     // ---------[ INITIALIZATION ]---------
-    protected bool _isInitialized = false;
-
-    protected virtual void Start()
+    private void Start()
     {
-        // assert ui is prepared
-        activeView.gameObject.SetActive(true);
-        activeView.Initialize();
-        activeView.onItemClicked += OnBrowserItemClicked;
-
-        inspector.gameObject.SetActive(false);
-
-        searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
-
-        // --- mod.io init ---
+        // load APIClient vars
         #pragma warning disable 0162
         if(this.gameId <= 0)
         {
@@ -81,64 +77,79 @@ public class ModBrowser : MonoBehaviour
 
         APIClient.gameId = this.gameId;
         APIClient.gameAPIKey = this.gameAPIKey;
+        APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();;
 
-        string userToken = CacheClient.LoadAuthenticatedUserToken();
+        // assert ui is prepared
+        activeView.gameObject.SetActive(true);
+        activeView.Initialize();
+        activeView.onItemClicked += OnBrowserItemClicked;
 
-        if(!String.IsNullOrEmpty(userToken))
-        {
-            APIClient.userAuthorizationToken = userToken;
+        inspector.gameObject.SetActive(false);
 
-            ModManager.GetAuthenticatedUserProfile(this.Initialize,
-                                                   (e) => { this.Initialize(null); WebRequestError.LogAsWarning(e); });
-        }
-        else
-        {
-            this.Initialize(null);
-        }
-    }
+        searchBar.Initialize();
+        searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
 
-    protected virtual void Initialize(UserProfile userProfile)
-    {
-        this.userProfile = userProfile;
-
-        // --- Load Manifest ---
+        // load manifest
         ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
         if(manifest != null)
         {
             this.lastCacheUpdate = manifest.lastCacheUpdate;
         }
 
-        this.PollForServerUpdates();
-
-        // // --- Load Game Profile ---
-        // ModManager.GetGameProfile(this.OnGetGameProfile,
-        //                           (e) => { WebRequestError.LogAsWarning(e); this.OnGetGameProfile(null); });
-
-        // --- Load Profiles ---
+        // --- mod.io init ---
+        // load mods
         this.profileCollection = CacheClient.IterateAllModProfiles();
         this.activeView.ReloadProfileCollection(this.profileCollection);
+
+        // load user
+        this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
+        this.collectionModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
+
+        if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
+        {
+            // callbacks
+            Action<UserProfile> onGetUserProfile = (u) =>
+            {
+                this.userProfile = u;
+            };
+
+            Action<APIResponseArray<ModProfile>> onGetSubscriptions = (r) =>
+            {
+                this.collectionModIds = new List<int>(r.Count);
+                foreach(var modProfile in r)
+                {
+                    this.collectionModIds.Add(modProfile.id);
+                }
+            };
+
+            // requests
+            ModManager.GetAuthenticatedUserProfile(onGetUserProfile,
+                                                   null);
+
+            RequestFilter filter = new RequestFilter();
+            filter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+                                    new EqualToFilter<int>(){ filterValue = this.gameId });
+
+            APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
+        }
+        else
+        {
+            this.userProfile = ModBrowser.GUEST_PROFILE;
+
+            if(this.collectionModIds == null)
+            {
+                this.collectionModIds = new List<int>();
+            }
+        }
     }
-
-    // protected virtual void OnGetGameProfile(GameProfile game)
-    // {
-    //     this._isInitialized = true;
-
-    //     this.OnInitialized();
-    // }
-
-    // protected virtual void OnInitialized()
-    // {
-    //     activeView.Initialize();
-    // }
 
     // ---------[ UPDATES ]---------
     private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
     private bool isUpdateRunning = false;
 
-    protected virtual void Update()
+    private void Update()
     {
-        if(this._isInitialized
-           && this.isAutomaticUpdateEnabled)
+        if(this.isAutomaticUpdateEnabled)
         {
             if(!isUpdateRunning
                && (ServerTimeStamp.Now - this.lastCacheUpdate) >= AUTOMATIC_UPDATE_INTERVAL)
@@ -262,6 +273,7 @@ public class ModBrowser : MonoBehaviour
         inspector.profile = item.modProfile;
         inspector.stats = null;
         inspector.UpdateProfileUIComponents();
+        inspector.SetSubscribedState(collectionModIds.Contains(item.modProfile.id));
 
         ModManager.GetModStatistics(item.modProfile.id,
                                     (s) => { inspector.stats = s; inspector.UpdateStatisticsUIComponents(); },
@@ -305,6 +317,8 @@ public class ModBrowser : MonoBehaviour
 
         activeView.ReloadProfileCollection(this.profileCollection);
     }
+
+    // "Add To Collection" "View In Collection"
 
     // ---------[ EVENT HANDLING ]---------
     // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)

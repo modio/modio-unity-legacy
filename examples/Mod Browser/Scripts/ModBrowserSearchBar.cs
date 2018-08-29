@@ -61,7 +61,7 @@ public class ModBrowserSearchBar : MonoBehaviour
         return tagNames;
     }
 
-    private void Start()
+    public void Initialize()
     {
         inputField.onValueChanged.AddListener(OnInputFieldChanged);
         inputField.onEndEdit.AddListener(OnInputFieldSubmission);
