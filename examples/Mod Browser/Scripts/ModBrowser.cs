@@ -139,12 +139,6 @@ public class ModBrowser : MonoBehaviour
         APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();;
 
         // assert ui is prepared
-        collectionView.onItemClicked += OnBrowserItemClicked;
-        collectionView.InitializeLayoutMode();
-
-        browseView.onItemClicked += OnBrowserItemClicked;
-        browseView.InitializeLayoutMode();
-
         inspector.gameObject.SetActive(false);
 
         searchBar.Initialize();
@@ -158,12 +152,6 @@ public class ModBrowser : MonoBehaviour
         }
 
         // --- mod.io init ---
-        // load mods
-        ModBrowserView view = GetViewForMode(this.viewMode);
-        view.gameObject.SetActive(true);
-        view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
-        view.Refresh();
-
         // load user
         this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
         this.collectionModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
@@ -204,6 +192,22 @@ public class ModBrowser : MonoBehaviour
                 this.collectionModIds = new List<int>();
             }
         }
+
+        // intialize views
+        collectionView.onItemClicked += OnBrowserItemClicked;
+        collectionView.profileCollection = CacheClient.IterateAllModProfiles()
+                                                    .Where(p => collectionModIds.Contains(p.id));
+        collectionView.InitializeLayoutMode();
+        collectionView.gameObject.SetActive(false);
+
+        browseView.onItemClicked += OnBrowserItemClicked;
+        browseView.profileCollection = CacheClient.IterateAllModProfiles();
+        browseView.InitializeLayoutMode();
+        browseView.gameObject.SetActive(false);
+
+        ModBrowserView view = GetViewForMode(this.viewMode);
+        view.Refresh();
+        view.gameObject.SetActive(true);
     }
 
     // ---------[ UPDATES ]---------
@@ -333,27 +337,36 @@ public class ModBrowser : MonoBehaviour
 
         if(view.layoutMode == layout) { return; }
 
-        view.layoutMode = layout;
-        view.InitializeLayoutMode();
+        collectionView.layoutMode = layout;
+        collectionView.InitializeLayoutMode();
+        browseView.layoutMode = layout;
+        browseView.InitializeLayoutMode();
+
         view.Refresh();
     }
 
-    // public void SetActiveView(ModBrowserView newActiveView)
-    // {
-    //     if(newActiveView == this.activeView) { return; }
+    public void SetViewModeCollection()
+    {
+        this.viewMode = ModBrowserViewMode.Collection;
+        this.UpdateViewMode();
+    }
+    public void SetViewModeBrowse()
+    {
+        this.viewMode = ModBrowserViewMode.Browse;
+        this.UpdateViewMode();
+    }
 
-    //     activeView.gameObject.SetActive(false);
-    //     activeView.onItemClicked -= OnBrowserItemClicked;
+    public void UpdateViewMode()
+    {
+        ModBrowserView view = GetViewForMode(this.viewMode);
+        if(view.gameObject.activeSelf) { return; }
 
-    //     newActiveView.gameObject.SetActive(true);
-    //     newActiveView.onItemClicked += OnBrowserItemClicked;
-    //     newActiveView.profileCollection = ModBrowser.GetFilteredProfileCollection(this.modProfileFilter);
+        collectionView.gameObject.SetActive(false);
+        browseView.gameObject.SetActive(false);
 
-    //     newActiveView.InitializeLayoutMode();
-    //     newActiveView.Refresh();
-
-    //     activeView = newActiveView;
-    // }
+        view.Refresh();
+        view.gameObject.SetActive(true);
+    }
 
     public void OnBrowserItemClicked(ModBrowserItem item)
     {

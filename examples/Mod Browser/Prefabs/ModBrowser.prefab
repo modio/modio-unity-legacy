@@ -1455,7 +1455,7 @@ GameObject:
   - component: {fileID: 114562165336248812}
   - component: {fileID: 114195835507779204}
   m_Layer: 5
-  m_Name: BrowserView
+  m_Name: BrowseView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1944,7 +1944,7 @@ GameObject:
   - component: {fileID: 114658058395087560}
   - component: {fileID: 114063774369614978}
   m_Layer: 5
-  m_Name: ListButton
+  m_Name: TableButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2380,7 +2380,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Subscriptions
+  m_Text: Collection
 --- !u!114 &114025120460594470
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2686,7 +2686,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114433127020849870}
-        m_MethodName: SetViewModeTable
+        m_MethodName: SetViewLayoutTable
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3375,7 +3375,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114433127020849870}
-        m_MethodName: SetViewModeGrid
+        m_MethodName: SetViewLayoutGrid
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3834,7 +3834,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114048079312863288}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114433127020849870}
+        m_MethodName: SetViewModeBrowse
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114308087344831616
@@ -5443,7 +5454,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114557036043355948}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114433127020849870}
+        m_MethodName: SetViewModeCollection
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114682077521090928
