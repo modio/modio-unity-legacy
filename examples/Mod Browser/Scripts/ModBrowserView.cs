@@ -21,6 +21,9 @@ public class ModBrowserLayoutSettings
 public class ModBrowserView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    // - Events -
+    public event Action<ModBrowserItem> onItemClicked;
+
     // ---[ SCENE COMPONENTS ]---
     [Header("Settings")]
     public ModBrowserLayoutMode layoutMode;
@@ -42,9 +45,7 @@ public class ModBrowserView : MonoBehaviour
     public float columnPadding;
     public int columnCount;
 
-    public event Action<ModBrowserItem> onItemClicked;
-
-    // - Privates -
+    // ---------[ PRIVATES ]---------
     private IEnumerator<ModProfile> _profileEnumerator;
 
     // --- TEMP DATA ---

@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-
 using System;
 using System.Collections.Generic;
-
 using ModIO;
 
 public class ModBrowserSearchBar : MonoBehaviour
@@ -15,19 +13,24 @@ public class ModBrowserSearchBar : MonoBehaviour
         public string name;
     }
 
+    // ---------[ FIELDS ]---------
+    // - Events -
     public event Action<string, IEnumerable<string>> profileFiltersUpdated;
 
+    // ---[ SCENE COMPONENTS ]---
+    [Header("Settings")]
     public GameObject filterBadgePrefab;
-    public InputField inputField;
-    public RectTransform filterBadgeContainer;
-    // public Dropdown searchSuggestionDropdown;
-
     public float filterBadgePadding;
     public float filterBadgeSpacing;
 
+    [Header("UI Components")]
+    public InputField inputField;
+    public RectTransform filterBadgeContainer;
+
+    // ---[ RUNTIME DATA ]---
+    [Header("Runtime Data")]
     public string textFilter;
     public List<SimpleTag> tagFilters;
-
     public Dictionary<string, string[]> singleTagCategories;
     public Dictionary<string, string[]> multiTagCategories;
 
