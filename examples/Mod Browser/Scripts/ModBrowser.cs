@@ -26,20 +26,22 @@ public class ModBrowser : MonoBehaviour
     };
 
     // ---------[ FIELDS ]---------
-    // --- UI Components ---
-    [Header("UI Components")]
-    public ModBrowserView activeView;
-    public ModInspector inspector;
-    public ModBrowserSearchBar searchBar;
-
     // --- Key Data ---
     [Header("Settings")]
     public int gameId = 0;
     public string gameAPIKey = string.Empty;
     public bool isAutomaticUpdateEnabled = false;
 
+    // --- UI Components ---
+    [Header("UI Components")]
+    public ModBrowserView browseView;
+    public ModBrowserView collectionView;
+    public ModInspector inspector;
+    public ModBrowserSearchBar searchBar;
+
     // ---------[ RUNTIME DATA ]------
     [Header("Runtime Data")]
+    public ModBrowserView activeView = null;
     public UserProfile userProfile = null;
     public int lastCacheUpdate = -1;
     public string titleSearch = string.Empty;
@@ -81,7 +83,7 @@ public class ModBrowser : MonoBehaviour
 
         // assert ui is prepared
         activeView.gameObject.SetActive(true);
-        activeView.Initialize();
+        activeView.InitializeLayoutMode();
         activeView.onItemClicked += OnBrowserItemClicked;
 
         inspector.gameObject.SetActive(false);
@@ -99,7 +101,8 @@ public class ModBrowser : MonoBehaviour
         // --- mod.io init ---
         // load mods
         this.profileCollection = CacheClient.IterateAllModProfiles();
-        this.activeView.ReloadProfileCollection(this.profileCollection);
+        this.activeView.profileCollection = this.profileCollection;
+        this.activeView.Refresh();
 
         // load user
         this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
@@ -223,7 +226,8 @@ public class ModBrowser : MonoBehaviour
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
 
-                activeView.Initialize();
+                Debug.LogWarning("TODO(@jackson): CALL THE CORRECT FUNCTION HERE!");
+                activeView.InitializeLayoutMode();
             };
             Action<WebRequestError> onError = (error) =>
             {
@@ -253,6 +257,23 @@ public class ModBrowser : MonoBehaviour
     }
 
     // ---------[ UI CONTROL ]---------
+    public void SetViewModeGrid()
+    {
+        SetViewMode(ModBrowserLayoutMode.Grid);
+    }
+    public void SetViewModeTable()
+    {
+        SetViewMode(ModBrowserLayoutMode.Table);
+    }
+    public void SetViewMode(ModBrowserLayoutMode viewMode)
+    {
+        if(activeView.layoutMode == viewMode) { return; }
+
+        activeView.layoutMode = viewMode;
+        activeView.InitializeLayoutMode();
+        activeView.Refresh();
+    }
+
     public void SetActiveView(ModBrowserView newActiveView)
     {
         if(newActiveView == this.activeView) { return; }
@@ -261,9 +282,11 @@ public class ModBrowser : MonoBehaviour
         activeView.onItemClicked -= OnBrowserItemClicked;
 
         newActiveView.gameObject.SetActive(true);
-        newActiveView.Initialize();
-        newActiveView.ReloadProfileCollection(this.profileCollection);
         newActiveView.onItemClicked += OnBrowserItemClicked;
+        newActiveView.profileCollection = this.profileCollection;
+
+        newActiveView.InitializeLayoutMode();
+        newActiveView.Refresh();
 
         activeView = newActiveView;
     }
@@ -315,7 +338,8 @@ public class ModBrowser : MonoBehaviour
                                         .Where(profileContainsTags);
         }
 
-        activeView.ReloadProfileCollection(this.profileCollection);
+        activeView.profileCollection = this.profileCollection;
+        activeView.Refresh();
     }
 
     // "Add To Collection" "View In Collection"
