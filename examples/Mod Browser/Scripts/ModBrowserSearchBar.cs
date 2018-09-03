@@ -6,16 +6,9 @@ using ModIO;
 
 public class ModBrowserSearchBar : MonoBehaviour
 {
-    [System.Serializable]
-    public class SimpleTag
-    {
-        public string category;
-        public string name;
-    }
-
     // ---------[ FIELDS ]---------
     // - Events -
-    public event Action<string, IEnumerable<string>> profileFiltersUpdated;
+    public event Action<string, IEnumerable<SimpleModTag>> profileFiltersUpdated;
 
     // ---[ SCENE COMPONENTS ]---
     [Header("Settings")]
@@ -30,7 +23,7 @@ public class ModBrowserSearchBar : MonoBehaviour
     // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]
     public string textFilter;
-    public List<SimpleTag> tagFilters;
+    public List<SimpleModTag> tagFilters;
     public Dictionary<string, string[]> singleTagCategories;
     public Dictionary<string, string[]> multiTagCategories;
 
@@ -52,16 +45,6 @@ public class ModBrowserSearchBar : MonoBehaviour
         }
 
         return false;
-    }
-
-    private static IEnumerable<string> SimpleTagsAsTagNames(IEnumerable<SimpleTag> tags)
-    {
-        List<string> tagNames = new List<string>();
-        foreach(SimpleTag tag in tags)
-        {
-            tagNames.Add(tag.name);
-        }
-        return tagNames;
     }
 
     public void Initialize()
@@ -112,7 +95,7 @@ public class ModBrowserSearchBar : MonoBehaviour
             string[] tagParts = filterInput.Split(':');
             if(tagParts.Length == 2)
             {
-                SimpleTag inputTag = new SimpleTag()
+                SimpleModTag inputTag = new SimpleModTag()
                 {
                     category = tagParts[0].Trim(),
                     name = tagParts[1].Trim(),
@@ -122,7 +105,7 @@ public class ModBrowserSearchBar : MonoBehaviour
                                        multiTagCategories))
                 {
                     // check if already filtering
-                    foreach(SimpleTag tagFilter in tagFilters)
+                    foreach(SimpleModTag tagFilter in tagFilters)
                     {
                         if(tagFilter.category == inputTag.category
                            && tagFilter.name == inputTag.name)
@@ -180,7 +163,7 @@ public class ModBrowserSearchBar : MonoBehaviour
                 if(profileFiltersUpdated != null)
                 {
                     profileFiltersUpdated(this.textFilter,
-                                          SimpleTagsAsTagNames(tagFilters));
+                                          tagFilters);
                 }
             }
         }
@@ -198,11 +181,11 @@ public class ModBrowserSearchBar : MonoBehaviour
         if(profileFiltersUpdated != null)
         {
             profileFiltersUpdated(this.textFilter,
-                                  SimpleTagsAsTagNames(tagFilters));
+                                  tagFilters);
         }
     }
 
-    public void OnTagBadgeClicked(SimpleTag filterTag)
+    public void OnTagBadgeClicked(SimpleModTag filterTag)
     {
         // data
         this.tagFilters.Remove(filterTag);
@@ -214,7 +197,7 @@ public class ModBrowserSearchBar : MonoBehaviour
         if(profileFiltersUpdated != null)
         {
             profileFiltersUpdated(this.textFilter,
-                                  SimpleTagsAsTagNames(tagFilters));
+                                  tagFilters);
         }
     }
 
@@ -247,7 +230,7 @@ public class ModBrowserSearchBar : MonoBehaviour
         }
 
         // tag filters
-        foreach(SimpleTag tag in this.tagFilters)
+        foreach(SimpleModTag tag in this.tagFilters)
         {
             AddFilterBadge(tag.category + ": " + tag.name,
                            badgePrefabScript,

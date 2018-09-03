@@ -45,8 +45,8 @@ public class ModBrowser : MonoBehaviour
     public UserProfile userProfile = null;
     public int lastCacheUpdate = -1;
     public string titleSearch = string.Empty;
-    public IEnumerable<ModProfile> profileCollection = null;
     public List<int> collectionModIds = new List<int>();
+    public ModProfileFilter modProfileFilter = new ModProfileFilter();
 
     // ---------[ INITIALIZATION ]---------
     private void Start()
@@ -100,8 +100,7 @@ public class ModBrowser : MonoBehaviour
 
         // --- mod.io init ---
         // load mods
-        this.profileCollection = CacheClient.IterateAllModProfiles();
-        this.activeView.profileCollection = this.profileCollection;
+        this.activeView.profileCollection = CacheClient.IterateAllModProfiles();
         this.activeView.Refresh();
 
         // load user
@@ -283,7 +282,7 @@ public class ModBrowser : MonoBehaviour
 
         newActiveView.gameObject.SetActive(true);
         newActiveView.onItemClicked += OnBrowserItemClicked;
-        newActiveView.profileCollection = this.profileCollection;
+        newActiveView.profileCollection = ModBrowser.GetFilteredProfileCollection(this.modProfileFilter);
 
         newActiveView.InitializeLayoutMode();
         newActiveView.Refresh();
@@ -310,23 +309,35 @@ public class ModBrowser : MonoBehaviour
         inspector.gameObject.SetActive(false);
     }
 
+    // TODO(@jackson): Change parameter type
     public void OnProfileFiltersUpdated(string textFilter,
-                                        IEnumerable<string> tagFilters)
+                                        IEnumerable<SimpleModTag> tagFilters)
     {
-        this.profileCollection = CacheClient.IterateAllModProfiles();
+        this.modProfileFilter = new ModProfileFilter();
+        this.modProfileFilter.title = textFilter;
+        this.modProfileFilter.tags = tagFilters;
 
-        if(!String.IsNullOrEmpty(textFilter))
+        activeView.profileCollection = ModBrowser.GetFilteredProfileCollection(this.modProfileFilter);
+        activeView.Refresh();
+    }
+
+    // TODO(@jackson): Add browse/collection param
+    public static IEnumerable<ModProfile> GetFilteredProfileCollection(ModProfileFilter filter)
+    {
+        IEnumerable<ModProfile> profileCollection = CacheClient.IterateAllModProfiles();
+
+        if(!String.IsNullOrEmpty(filter.title))
         {
-            this.profileCollection = this.profileCollection
-                                        .Where(p => p.name.ToUpper().Contains(textFilter.ToUpper()));
+            profileCollection = profileCollection.Where(p => p.name.ToUpper().Contains(filter.title.ToUpper()));
         }
-        if(tagFilters.Count() > 0)
+        if(filter.tags.Count() > 0)
         {
             Func<ModProfile, bool> profileContainsTags = (profile) =>
             {
                 bool isMatch = true;
+                List<string> filterTagNames = new List<string>(SimpleModTag.EnumerateNames(filter.tags));
 
-                foreach(string filterTag in tagFilters)
+                foreach(string filterTag in filterTagNames)
                 {
                     isMatch &= profile.tagNames.Contains(filterTag);
                 }
@@ -334,12 +345,10 @@ public class ModBrowser : MonoBehaviour
                 return isMatch;
             };
 
-            this.profileCollection = this.profileCollection
-                                        .Where(profileContainsTags);
+            profileCollection = profileCollection.Where(profileContainsTags);
         }
 
-        activeView.profileCollection = this.profileCollection;
-        activeView.Refresh();
+        return profileCollection;
     }
 
     // "Add To Collection" "View In Collection"
