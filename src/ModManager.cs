@@ -687,7 +687,7 @@ namespace ModIO
         // NOTE(@jackson): A ModBinaryRequest that is found in the cache will never trigger the
         // succeeded event, and so (until this is fixed) it's important to check isDone to see if
         // the ModBinaryRequest has been located locally.
-        public static ModBinaryRequest GetActiveModBinary(ModProfile profile)
+        public static ModBinaryRequest RequestCurrentRelease(ModProfile profile)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
                                                                           profile.activeBuild.id);

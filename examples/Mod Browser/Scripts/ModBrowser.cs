@@ -47,6 +47,7 @@ public class ModBrowser : MonoBehaviour
     public string titleSearch = string.Empty;
     public List<int> collectionModIds = new List<int>();
     public ModProfileFilter modProfileFilter = new ModProfileFilter();
+    public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
 
     // ---------[ ACCESSORS ]---------
     public ModBrowserView GetViewForMode(ModBrowserViewMode mode)
@@ -417,6 +418,7 @@ public class ModBrowser : MonoBehaviour
             inspector.subscribeButtonText.text = "View In Collection";
 
             CacheClient.SaveAuthenticatedUserSubscriptions(collectionModIds);
+            OnSubscribedToMod(profile);
 
             if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
             {
@@ -431,9 +433,24 @@ public class ModBrowser : MonoBehaviour
                     Debug.Log("Failed to Subscribe");
                 };
 
-                APIClient.SubscribeToMod(profile.id,
-                                         onSubscribe, onError);
+                APIClient.SubscribeToMod(profile.id, onSubscribe, onError);
             }
+        }
+    }
+
+    public void OnSubscribedToMod(ModProfile profile)
+    {
+        ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
+
+        if(!request.isDone)
+        {
+            modDownloads.Add(request);
+
+            request.succeeded += (r) =>
+            {
+                Debug.Log(profile.name + " Downloaded!");
+                modDownloads.Remove(request);
+            };
         }
     }
 
