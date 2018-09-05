@@ -72,7 +72,7 @@ GameObject:
   - component: {fileID: 224073885177680098}
   - component: {fileID: 114980245420391558}
   m_Layer: 5
-  m_Name: BrowseTableItem
+  m_Name: ExplorerTableItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

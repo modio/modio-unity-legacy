@@ -35,8 +35,8 @@ public class ModBrowser : MonoBehaviour
 
     // --- UI Components ---
     [Header("UI Components")]
-    public ModBrowserView browseView;
-    public ModBrowserView collectionView;
+    public ExplorerView explorerView;
+    public CollectionView collectionView;
     public ModInspector inspector;
     public ModBrowserSearchBar searchBar;
 
@@ -50,7 +50,7 @@ public class ModBrowser : MonoBehaviour
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
 
     // ---------[ ACCESSORS ]---------
-    public ModBrowserView GetViewForMode(ModBrowserViewMode mode)
+    public IModBrowserView GetViewForMode(ModBrowserViewMode mode)
     {
         switch(mode)
         {
@@ -58,9 +58,9 @@ public class ModBrowser : MonoBehaviour
             {
                 return this.collectionView;
             }
-            case ModBrowserViewMode.Browse:
+            case ModBrowserViewMode.Explorer:
             {
-                return this.browseView;
+                return this.explorerView;
             }
         }
 
@@ -196,18 +196,18 @@ public class ModBrowser : MonoBehaviour
         }
 
         // intialize views
-        collectionView.onItemClicked += OnBrowserItemClicked;
+        // collectionView.onItemClicked += OnExplorerItemClicked;
+        collectionView.InitializeLayout();
         collectionView.profileCollection = CacheClient.IterateAllModProfiles()
                                                     .Where(p => collectionModIds.Contains(p.id));
-        collectionView.InitializeLayoutMode();
         collectionView.gameObject.SetActive(false);
 
-        browseView.onItemClicked += OnBrowserItemClicked;
-        browseView.profileCollection = CacheClient.IterateAllModProfiles();
-        browseView.InitializeLayoutMode();
-        browseView.gameObject.SetActive(false);
+        explorerView.onItemClicked += OnExplorerItemClicked;
+        explorerView.profileCollection = CacheClient.IterateAllModProfiles();
+        explorerView.InitializeLayout();
+        explorerView.gameObject.SetActive(false);
 
-        ModBrowserView view = GetViewForMode(this.viewMode);
+        IModBrowserView view = GetViewForMode(this.viewMode);
         view.Refresh();
         view.gameObject.SetActive(true);
     }
@@ -292,7 +292,7 @@ public class ModBrowser : MonoBehaviour
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
 
-                ModBrowserView view = GetViewForMode(this.viewMode);
+                IModBrowserView view = GetViewForMode(this.viewMode);
                 view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
                 view.Refresh();
             };
@@ -325,26 +325,23 @@ public class ModBrowser : MonoBehaviour
     }
 
     // ---------[ UI CONTROL ]---------
-    public void SetViewLayoutGrid()
+    public void SetExplorerViewLayoutGrid()
     {
-        SetViewLayout(ModBrowserLayoutMode.Grid);
+        SetExplorerViewLayout(ModBrowserLayoutMode.Grid);
     }
-    public void SetViewLayoutTable()
+    public void SetExplorerViewLayoutTable()
     {
-        SetViewLayout(ModBrowserLayoutMode.Table);
+        SetExplorerViewLayout(ModBrowserLayoutMode.Table);
     }
-    public void SetViewLayout(ModBrowserLayoutMode layout)
+    public void SetExplorerViewLayout(ModBrowserLayoutMode layout)
     {
-        ModBrowserView view = GetViewForMode(this.viewMode);
+        if(explorerView.layoutMode == layout) { return; }
 
-        if(view.layoutMode == layout) { return; }
-
-        collectionView.layoutMode = layout;
-        collectionView.InitializeLayoutMode();
-        browseView.layoutMode = layout;
-        browseView.InitializeLayoutMode();
-
-        view.Refresh();
+        // collectionView.layoutMode = layout;
+        // collectionView.InitializeLayout();
+        explorerView.layoutMode = layout;
+        explorerView.InitializeLayout();
+        explorerView.Refresh();
     }
 
     public void SetViewModeCollection()
@@ -354,23 +351,23 @@ public class ModBrowser : MonoBehaviour
     }
     public void SetViewModeBrowse()
     {
-        this.viewMode = ModBrowserViewMode.Browse;
+        this.viewMode = ModBrowserViewMode.Explorer;
         this.UpdateViewMode();
     }
 
     public void UpdateViewMode()
     {
-        ModBrowserView view = GetViewForMode(this.viewMode);
+        IModBrowserView view = GetViewForMode(this.viewMode);
         if(view.gameObject.activeSelf) { return; }
 
         collectionView.gameObject.SetActive(false);
-        browseView.gameObject.SetActive(false);
+        explorerView.gameObject.SetActive(false);
 
         view.Refresh();
         view.gameObject.SetActive(true);
     }
 
-    public void OnBrowserItemClicked(ModBrowserItem item)
+    public void OnExplorerItemClicked(ModBrowserItem item)
     {
         inspector.profile = item.modProfile;
         inspector.stats = null;
@@ -397,7 +394,7 @@ public class ModBrowser : MonoBehaviour
         this.modProfileFilter.title = textFilter;
         this.modProfileFilter.tags = tagFilters;
 
-        ModBrowserView view = GetViewForMode(this.viewMode);
+        IModBrowserView view = GetViewForMode(this.viewMode);
         view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
         view.Refresh();
     }

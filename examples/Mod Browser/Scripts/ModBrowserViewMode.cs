@@ -1,5 +1,5 @@
 public enum ModBrowserViewMode
 {
     Collection,
-    Browse,
+    Explorer,
 }

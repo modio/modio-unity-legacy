@@ -18,7 +18,7 @@ public class ModBrowserLayoutSettings
     public float rowPadding;
 }
 
-public class ModBrowserView : MonoBehaviour
+public class ExplorerView : MonoBehaviour, IModBrowserView
 {
     // ---------[ FIELDS ]---------
     // - Events -
@@ -26,6 +26,7 @@ public class ModBrowserView : MonoBehaviour
 
     // ---[ SCENE COMPONENTS ]---
     [Header("Settings")]
+    public GameObject itemPrefab;
     public ModBrowserLayoutMode layoutMode;
     public ModBrowserLayoutSettings gridSettings;
     public ModBrowserLayoutSettings tableSettings;
@@ -34,11 +35,9 @@ public class ModBrowserView : MonoBehaviour
     public RectTransform contentPane;
 
     // --- Events ---
-    public IEnumerable<ModProfile> profileCollection;
 
     // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]
-    public GameObject itemPrefab;
     public float itemHeight;
     public float rowPadding;
     public float itemWidth;
@@ -54,8 +53,10 @@ public class ModBrowserView : MonoBehaviour
     public int TEST_pageIndex;
 
 
-    // ---------[ INITIALIZATION ]---------
-    public void InitializeLayoutMode()
+    // ---------[ IMODBROWSERVIEW ]---------
+    public IEnumerable<ModProfile> profileCollection { get; set; }
+
+    public void InitializeLayout()
     {
         ModBrowserLayoutSettings layoutSettings = null;
         switch(this.layoutMode)
