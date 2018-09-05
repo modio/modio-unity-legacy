@@ -140,6 +140,7 @@ public class ModBrowser : MonoBehaviour
 
         // assert ui is prepared
         inspector.gameObject.SetActive(false);
+        inspector.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspector.profile));
 
         searchBar.Initialize();
         searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
@@ -400,7 +401,42 @@ public class ModBrowser : MonoBehaviour
         view.Refresh();
     }
 
-    // "Add To Collection" "View In Collection"
+    public void OnSubscribeButtonClicked(ModProfile profile)
+    {
+        Debug.Assert(profile != null);
+
+        if(collectionModIds.Contains(profile.id))
+        {
+            // "View In Collection"
+            CloseInspector();
+            SetViewModeCollection();
+        }
+        else
+        {
+            collectionModIds.Add(profile.id);
+            inspector.subscribeButtonText.text = "View In Collection";
+
+            CacheClient.SaveAuthenticatedUserSubscriptions(collectionModIds);
+
+            if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
+            {
+                Action<ModProfile> onSubscribe = (p) =>
+                {
+                    Debug.Log("Subscribed");
+                };
+
+                // TODO(@jackson): onError
+                Action<WebRequestError> onError = (e) =>
+                {
+                    Debug.Log("Failed to Subscribe");
+                };
+
+                APIClient.SubscribeToMod(profile.id,
+                                         onSubscribe, onError);
+            }
+        }
+    }
+
 
     // ---------[ EVENT HANDLING ]---------
     // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)

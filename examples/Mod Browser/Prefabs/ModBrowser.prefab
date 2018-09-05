@@ -2541,6 +2541,7 @@ MonoBehaviour:
   galleryImageSize: 1
   mediaElementHeight: 360
   subscribeButton: {fileID: 114452376816280404}
+  subscribeButtonText: {fileID: 114176331521941204}
   profile:
     id: 0
     gameId: 0
@@ -5603,13 +5604,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layoutMode: 0
   gridSettings:
-    itemPrefab: {fileID: 1237463850696814, guid: 3b371530f43064f2a8e2753ad2d50f35,
+    itemPrefab: {fileID: 1237463850696814, guid: 00b415e785a0a49bd96615bfd0a5d77d,
       type: 2}
     isSingleColumnLayout: 0
     minColumnPadding: 10
     rowPadding: 6
   tableSettings:
-    itemPrefab: {fileID: 1249528983107628, guid: daa542efbf05c4d2c8be3d058ed5ff22,
+    itemPrefab: {fileID: 1249528983107628, guid: 7cd0fe31e277649ec918b2f99beb25c3,
       type: 2}
     isSingleColumnLayout: 1
     minColumnPadding: 10

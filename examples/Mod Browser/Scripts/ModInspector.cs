@@ -51,6 +51,7 @@ public class ModInspector : MonoBehaviour
 
     // - Controls -
     public Button subscribeButton;
+    public Text subscribeButtonText;
 
     // - Layouting -
 
@@ -296,6 +297,8 @@ public class ModInspector : MonoBehaviour
 
     private void OnSubscribeClicked()
     {
+
+
         SetSubscribedState(true);
     }
 
