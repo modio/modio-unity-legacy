@@ -235,20 +235,6 @@ public class ModInspector : MonoBehaviour
         }
     }
 
-    public void SetSubscribedState(bool isModInCollection)
-    {
-        if(isModInCollection)
-        {
-            subscribeButton.onClick.AddListener(() => OnViewInCollectionClicked());
-            subscribeButton.GetComponentInChildren<Text>().text = "View In Collection";
-        }
-        else
-        {
-            subscribeButton.onClick.AddListener(() => OnSubscribeClicked());
-            subscribeButton.GetComponentInChildren<Text>().text = "Add To Collection";
-        }
-    }
-
     public void LoadUserAvatar(Texture2D texture)
     {
         if(texture != null)
@@ -293,17 +279,5 @@ public class ModInspector : MonoBehaviour
             imageGameObject.GetComponent<Image>().enabled = true;
             GameObject.Destroy(imageGameObject.transform.GetChild(0).gameObject);
         }
-    }
-
-    private void OnSubscribeClicked()
-    {
-
-
-        SetSubscribedState(true);
-    }
-
-    private void OnViewInCollectionClicked()
-    {
-        SetSubscribedState(false);
     }
 }

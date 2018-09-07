@@ -372,7 +372,15 @@ public class ModBrowser : MonoBehaviour
         inspector.profile = item.modProfile;
         inspector.stats = null;
         inspector.UpdateProfileUIComponents();
-        inspector.SetSubscribedState(collectionModIds.Contains(item.modProfile.id));
+
+        if(collectionModIds.Contains(item.modProfile.id))
+        {
+            inspector.subscribeButtonText.text = "View In Collection";
+        }
+        else
+        {
+            inspector.subscribeButtonText.text = "Add To Collection";
+        }
 
         ModManager.GetModStatistics(item.modProfile.id,
                                     (s) => { inspector.stats = s; inspector.UpdateStatisticsUIComponents(); },
