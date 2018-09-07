@@ -579,6 +579,12 @@ namespace ModIO
             CacheClient.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId));
         }
 
+        /// <summary>Deletes all modfiles and binaries from the cache.</summary>
+        public static void DeleteAllModfileAndBinaryData(int modId)
+        {
+            CacheClient.DeleteDirectory(CacheClient.GenerateModBinariesDirectoryPath(modId));
+        }
+
         // ---------[ MOD MEDIA ]---------
         /// <summary>Generates the directory path for a mod logo collection.</summary>
         public static string GenerateModLogoCollectionDirectoryPath(int modId)

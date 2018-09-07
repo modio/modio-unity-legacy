@@ -1,12 +1,18 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using ModIO;
 
+// TODO(@jackson): Set inspect on load
 public class CollectionView : MonoBehaviour, IModBrowserView
 {
     // ---------[ FIELDS ]---------
+    // ---[ EVENTS ]---
+    public event Action<ModProfile> onUnsubscribeClicked;
+
     // ---[ SCENE COMPONENTS ]---
     [Header("Settings")]
     public GameObject itemListing_prefab;
@@ -15,14 +21,20 @@ public class CollectionView : MonoBehaviour, IModBrowserView
     public RectTransform itemListingContainer;
     public Text itemInspector_modName;
     public RectTransform itemInspector_downloadContainer;
+    public Text itemInspector_downloadProgressText;
+    public RectTransform itemInspector_downloadProgressBar;
     public RectTransform itemInspector_buttonContainer;
+    public Button unsubscribeButton;
+    public Button enableButton;
 
     // // ---[ RUNTIME DATA ]---
     // [Header("Runtime Data")]
     // public ModProfile inspectedProfile;
 
+
     // ---[ PRIVATES ]---
     private float _itemHeight;
+    private UnityAction _unsubscribeAction;
 
     // ---------[ IMODBROWSERVIEW ]---------
     public IEnumerable<ModProfile> profileCollection { get; set; }
@@ -67,6 +79,20 @@ public class CollectionView : MonoBehaviour, IModBrowserView
 
     public void InspectProfile(ModProfile profile)
     {
+        if(_unsubscribeAction != null)
+        {
+            unsubscribeButton.onClick.RemoveListener(_unsubscribeAction);
+        }
+
+        _unsubscribeAction = () =>
+        {
+            if(onUnsubscribeClicked != null)
+            {
+                onUnsubscribeClicked(profile);
+            }
+        };
+        unsubscribeButton.onClick.AddListener(_unsubscribeAction);
+
         itemInspector_modName.text = profile.name;
 
         ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 using ModIO;
 
+// TODO(@jackson): Queue missed requests? (Unsub fail)
 // TODO(@jackson): Correct subscription loading
 public class ModBrowser : MonoBehaviour
 {
@@ -201,6 +202,7 @@ public class ModBrowser : MonoBehaviour
         collectionView.profileCollection = CacheClient.IterateAllModProfiles()
                                                     .Where(p => collectionModIds.Contains(p.id));
         collectionView.gameObject.SetActive(false);
+        collectionView.onUnsubscribeClicked += OnUnsubscribeButtonClicked;
 
         explorerView.onItemClicked += OnExplorerItemClicked;
         explorerView.profileCollection = CacheClient.IterateAllModProfiles();
@@ -419,32 +421,44 @@ public class ModBrowser : MonoBehaviour
         }
         else
         {
-            collectionModIds.Add(profile.id);
-            inspector.subscribeButtonText.text = "View In Collection";
-
-            CacheClient.SaveAuthenticatedUserSubscriptions(collectionModIds);
-            OnSubscribedToMod(profile);
-
             if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
             {
+                inspector.subscribeButton.interactable = false;
+
+                // TODO(@jackson): Protect from switch
                 Action<ModProfile> onSubscribe = (p) =>
                 {
-                    Debug.Log("Subscribed");
+                    inspector.subscribeButtonText.text = "View In Collection";
+                    inspector.subscribeButton.interactable = true;
+                    OnSubscribedToMod(p);
                 };
 
                 // TODO(@jackson): onError
                 Action<WebRequestError> onError = (e) =>
                 {
                     Debug.Log("Failed to Subscribe");
+                    inspector.subscribeButton.interactable = true;
                 };
 
                 APIClient.SubscribeToMod(profile.id, onSubscribe, onError);
+            }
+            else
+            {
+                inspector.subscribeButtonText.text = "View In Collection";
+                OnSubscribedToMod(profile);
             }
         }
     }
 
     public void OnSubscribedToMod(ModProfile profile)
     {
+        Debug.Assert(profile != null);
+
+        // update collection
+        collectionModIds.Add(profile.id);
+        CacheClient.SaveAuthenticatedUserSubscriptions(collectionModIds);
+
+        // begin download
         ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
 
         if(!request.isDone)
@@ -457,6 +471,48 @@ public class ModBrowser : MonoBehaviour
                 modDownloads.Remove(request);
             };
         }
+    }
+
+    public void OnUnsubscribeButtonClicked(ModProfile profile)
+    {
+        Debug.Assert(profile != null);
+
+        if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
+        {
+            collectionView.unsubscribeButton.interactable = false;
+
+            Action onUnsubscribe = () =>
+            {
+                OnUnsubscribedFromMod(profile);
+            };
+
+            // TODO(@jackson): onError
+            Action<WebRequestError> onError = (e) =>
+            {
+                Debug.Log("Failed to Unsubscribe");
+                collectionView.unsubscribeButton.interactable = true;
+            };
+
+            APIClient.UnsubscribeFromMod(profile.id, onUnsubscribe, onError);
+        }
+        else
+        {
+            OnUnsubscribedFromMod(profile);
+        }
+    }
+
+    public void OnUnsubscribedFromMod(ModProfile profile)
+    {
+        Debug.Assert(profile != null);
+
+        // update collection
+        collectionModIds.Remove(profile.id);
+        CacheClient.SaveAuthenticatedUserSubscriptions(collectionModIds);
+
+        // remove from disk
+        CacheClient.DeleteAllModfileAndBinaryData(profile.id);
+
+        collectionView.Refresh();
     }
 
 
