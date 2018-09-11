@@ -599,6 +599,9 @@ namespace ModIO
         }
 
         // ---------[ MODFILES ]---------
+        // TODO(@jackson): Add Profile Ids for when inProgressRequest hasn't yet got a modfile
+        public static List<ModBinaryRequest> downloadsInProgress = new List<ModBinaryRequest>();
+
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> onSuccess,
                                       Action<WebRequestError> onError)
@@ -689,6 +692,14 @@ namespace ModIO
         // the ModBinaryRequest has been located locally.
         public static ModBinaryRequest RequestCurrentRelease(ModProfile profile)
         {
+            foreach(ModBinaryRequest inProgressRequest in downloadsInProgress)
+            {
+                if(inProgressRequest.modfile.id == profile.activeBuild.id)
+                {
+                    return inProgressRequest;
+                }
+            }
+
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
                                                                           profile.activeBuild.id);
             ModBinaryRequest request;
@@ -704,8 +715,10 @@ namespace ModIO
                 request = DownloadClient.DownloadModBinary(profile.id,
                                                            profile.activeBuild.id,
                                                            CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id));
+                downloadsInProgress.Add(request);
 
                 request.succeeded += (r) => CacheClient.SaveModfile(r.modfile);
+                request.succeeded += (r) => downloadsInProgress.Remove(r);
             }
 
             return request;
