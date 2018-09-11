@@ -22,6 +22,22 @@ namespace ModIO
             return urlRegex.IsMatch(toCheck);
         }
 
+        public static bool IsEmail(string toCheck)
+        {
+            string scottsEmailRegex = @"^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,63}$";
+            Regex regex = new Regex(scottsEmailRegex, RegexOptions.IgnoreCase);
+
+            return regex.IsMatch(toCheck);
+        }
+
+        public static bool IsSecurityCode(string toCheck)
+        {
+            string securityCodeRegex = @"^[a-z0-9]{5}$";
+            Regex regex = new Regex(securityCodeRegex, RegexOptions.IgnoreCase);
+
+            return regex.IsMatch(toCheck);
+        }
+
         public static void SafeMapArraysOrZero<T1, T2>(T1[] sourceArray,
                                                        Func<T1, T2> mapElementDelegate,
                                                        out T2[] destinationArray)

@@ -40,6 +40,7 @@ public class ModBrowser : MonoBehaviour
     public CollectionView collectionView;
     public ModInspector inspector;
     public ModBrowserSearchBar searchBar;
+    public RectTransform loginDialog;
 
     // --- Runtime Data ---
     [Header("Runtime Data")]
@@ -146,6 +147,8 @@ public class ModBrowser : MonoBehaviour
 
         searchBar.Initialize();
         searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
+
+        loginDialog.gameObject.SetActive(false);
 
         // load manifest
         ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -394,6 +397,11 @@ public class ModBrowser : MonoBehaviour
     public void CloseInspector()
     {
         inspector.gameObject.SetActive(false);
+    }
+
+    public void CloseLoginDialog()
+    {
+        loginDialog.gameObject.SetActive(false);
     }
 
     // TODO(@jackson): Change parameter type
