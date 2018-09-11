@@ -31,7 +31,6 @@ public class CollectionView : MonoBehaviour, IModBrowserView
     // [Header("Runtime Data")]
     // public ModProfile inspectedProfile;
 
-
     // ---[ PRIVATES ]---
     private float _itemHeight;
     private UnityAction _unsubscribeAction;
@@ -105,6 +104,33 @@ public class CollectionView : MonoBehaviour, IModBrowserView
         {
             itemInspector_downloadContainer.gameObject.SetActive(true);
             itemInspector_buttonContainer.gameObject.SetActive(false);
+
+            StartCoroutine(UpdateProgressBar(request));
         }
+    }
+
+    public IEnumerator UpdateProgressBar(ModBinaryRequest request)
+    {
+        itemInspector_downloadProgressBar.sizeDelta = new Vector2(0f, 0f);
+        itemInspector_downloadProgressText.text = "Initializing";
+
+        RectTransform progressBarParent = itemInspector_downloadProgressBar.parent.GetComponent<RectTransform>();
+        while(!request.isDone)
+        {
+            if(request.webRequest != null)
+            {
+                float percentComplete = request.webRequest.downloadProgress;
+
+                float barWidth = percentComplete * progressBarParent.rect.width;
+                itemInspector_downloadProgressBar.sizeDelta = new Vector2(barWidth, 0f);
+
+                itemInspector_downloadProgressText.text = (percentComplete * 100f).ToString("0.0") + "%";
+            }
+
+            yield return null;
+        }
+
+        itemInspector_buttonContainer.gameObject.SetActive(true);
+        itemInspector_downloadContainer.gameObject.SetActive(false);
     }
 }
