@@ -262,8 +262,8 @@ Transform:
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224175382895236050, guid: df954dfebde1c4fdda2233d14d2bf4cd,
     type: 2}
-  m_PrefabInternal: {fileID: 1631760197}
---- !u!1001 &1631760197
+  m_PrefabInternal: {fileID: 1337012453}
+--- !u!1001 &1337012453
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -359,16 +359,6 @@ Prefab:
         type: 2}
       propertyPath: m_Pivot.y
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224138408662884148, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_SizeDelta.y
-      value: 860.625
-      objectReference: {fileID: 0}
-    - target: {fileID: 224561805451123704, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_SizeDelta.y
-      value: 860.625
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df954dfebde1c4fdda2233d14d2bf4cd, type: 2}
