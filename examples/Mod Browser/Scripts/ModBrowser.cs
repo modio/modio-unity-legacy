@@ -40,7 +40,7 @@ public class ModBrowser : MonoBehaviour
     public CollectionView collectionView;
     public ModInspector inspector;
     public ModBrowserSearchBar searchBar;
-    public RectTransform loginDialog;
+    public LoginDialog loginDialog;
 
     // --- Runtime Data ---
     [Header("Runtime Data")]
@@ -397,6 +397,12 @@ public class ModBrowser : MonoBehaviour
     public void CloseInspector()
     {
         inspector.gameObject.SetActive(false);
+    }
+
+    public void OpenLoginDialog()
+    {
+        loginDialog.gameObject.SetActive(true);
+        loginDialog.Initialize();
     }
 
     public void CloseLoginDialog()
