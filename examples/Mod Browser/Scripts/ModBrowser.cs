@@ -9,6 +9,7 @@ using ModIO;
 
 // TODO(@jackson): Queue missed requests? (Unsub fail)
 // TODO(@jackson): Correct subscription loading
+// TODO(@jackson): Add user events
 public class ModBrowser : MonoBehaviour
 {
     // ---------[ NESTED CLASSES ]---------
@@ -149,6 +150,8 @@ public class ModBrowser : MonoBehaviour
         searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
 
         loginDialog.gameObject.SetActive(false);
+        loginDialog.onUserOAuthTokenReceived += LogUserIn;
+        loginDialog.onUserOAuthTokenReceived += (t) => { CloseLoginDialog(); };
 
         // load manifest
         ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -329,6 +332,14 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
+    // ---------[ USER CONTROL ]---------
+    public void LogUserIn(string oAuthToken)
+    {
+        Debug.Assert(!String.IsNullOrEmpty(oAuthToken),
+                     "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
+
+        Debug.Log("LOGGING IN");
+    }
     // ---------[ UI CONTROL ]---------
     public void SetExplorerViewLayoutGrid()
     {

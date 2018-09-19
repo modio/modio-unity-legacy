@@ -63,7 +63,6 @@ public class LoginDialog : MonoBehaviour
             Debug.LogWarning(e.ToUnityDebugString());
 
             inputField.interactable = true;
-
             submitButton.interactable = true;
         };
 
@@ -76,7 +75,7 @@ public class LoginDialog : MonoBehaviour
                 inputField.text = string.Empty;
                 inputField.interactable = true;
 
-                submitButton.interactable = true;
+                submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
             };
 
             APIClient.SendSecurityCode(trimmedInput,
@@ -90,7 +89,7 @@ public class LoginDialog : MonoBehaviour
                 inputField.text = string.Empty;
                 inputField.interactable = true;
 
-                submitButton.interactable = true;
+                submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
 
                 if(onUserOAuthTokenReceived != null)
                 {
