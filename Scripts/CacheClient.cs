@@ -546,7 +546,7 @@ namespace ModIO
 
         /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
         [Obsolete("Use CacheClient.GenerateModMediaDirectoryPath() instead.")]
-        public static string GenerateModGalleryImageCollectionDirectoryPath(int modId)
+        public static string GenerateModGalleryImageDirectoryPath(int modId)
         {
             return(GenerateModMediaDirectoryPath(modId));
         }
