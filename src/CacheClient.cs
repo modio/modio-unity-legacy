@@ -290,6 +290,12 @@ namespace ModIO
             return null;
         }
 
+        /// <summary>Clears the authenticated user token from the cache.</summary>
+        public static void ClearAuthenticatedUserToken()
+        {
+            CacheClient.SaveAuthenticatedUserToken(string.Empty);
+        }
+
         /// <summary>Stores the authenticated user's profile in the cache.</summary>
         public static void SaveAuthenticatedUserProfile(UserProfile userProfile)
         {
@@ -320,6 +326,12 @@ namespace ModIO
             return null;
         }
 
+        /// <summary>Clears the authenticated user's profile from the cache.</summary>
+        public static void ClearAuthenticatedUserProfile()
+        {
+            CacheClient.SaveUserProfile(null);
+        }
+
         /// <summary>Stores the authenticated user's mod subscriptions in the cache.</summary>
         public static void SaveAuthenticatedUserSubscriptions(List<int> subscribedModIds)
         {
@@ -345,6 +357,12 @@ namespace ModIO
                 return au.subscribedModIds;
             }
             return null;
+        }
+
+        /// <summary>Clears the authenticated user's mod subscriptions from the cache.</summary>
+        public static void ClearAuthenticatedUserSubscriptions()
+        {
+            CacheClient.SaveAuthenticatedUserSubscriptions(null);
         }
 
         /// <summary>Stores the authenticated user's mods in the cache.</summary>
@@ -374,6 +392,13 @@ namespace ModIO
 
             return null;
         }
+
+        /// <summary>Clears the authenticated user's mods from the cache.</summary>
+        public static void ClearAuthenticatedUserMods()
+        {
+            CacheClient.SaveAuthenticatedUserMods(null);
+        }
+
 
         /// <summary>Deletes the authenticated user's data from the cache.</summary>
         public static void DeleteAuthenticatedUser()
