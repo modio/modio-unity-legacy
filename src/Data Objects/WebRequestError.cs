@@ -56,11 +56,13 @@ namespace ModIO
                     error = errorWrapper.error;
                 }
             }
+            #pragma warning disable 0168
             catch(System.Exception e)
             {
                 Debug.LogError("[mod.io] The error response was unable to be parsed:\n"
                                + webRequest.downloadHandler.text);
             }
+            #pragma warning restore 0168
 
             if(error == null)
             {
