@@ -11,6 +11,7 @@ using ModIO;
 // TODO(@jackson): Queue missed requests? (Unsub fail)
 // TODO(@jackson): Correct subscription loading
 // TODO(@jackson): Add user events
+// TODO(@jackson): Error handling on log in
 public class ModBrowser : MonoBehaviour
 {
     // ---------[ NESTED CLASSES ]---------
@@ -155,7 +156,9 @@ public class ModBrowser : MonoBehaviour
         loginDialog.onUserOAuthTokenReceived += LogUserIn;
         loginDialog.onUserOAuthTokenReceived += (t) => { CloseLoginDialog(); };
 
+        userDisplay.button.onClick.AddListener(OpenLoginDialog);
         userDisplay.profile = ModBrowser.GUEST_PROFILE;
+        userDisplay.UpdateUIComponents();
 
         // load manifest
         ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -166,6 +169,11 @@ public class ModBrowser : MonoBehaviour
 
         // load user
         this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
+        if(this.userProfile == null)
+        {
+            this.userProfile = ModBrowser.GUEST_PROFILE;
+        }
+
         this.collectionModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
 
         if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
@@ -173,11 +181,18 @@ public class ModBrowser : MonoBehaviour
             // callbacks
             Action<UserProfile> onGetUserProfile = (u) =>
             {
+                Debug.Log("DISPLAY USER");
+
                 this.userProfile = u;
+
                 this.userDisplay.profile = u;
                 this.userDisplay.UpdateUIComponents();
+
+                this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
+                this.userDisplay.button.onClick.AddListener(LogUserOut);
             };
 
+            // TODO(@jackson): DO BETTER
             Action<APIResponseArray<ModProfile>> onGetSubscriptions = (r) =>
             {
                 this.collectionModIds = new List<int>(r.Count);
@@ -196,18 +211,6 @@ public class ModBrowser : MonoBehaviour
                                     new EqualToFilter<int>(){ filterValue = this.gameId });
 
             APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
-        }
-        else
-        {
-            this.userProfile = ModBrowser.GUEST_PROFILE;
-
-            if(this.collectionModIds == null)
-            {
-                this.collectionModIds = new List<int>();
-            }
-
-            this.userDisplay.profile = ModBrowser.GUEST_PROFILE;
-            this.userDisplay.UpdateUIComponents();
         }
 
         // intialize views
@@ -345,6 +348,9 @@ public class ModBrowser : MonoBehaviour
     {
         Debug.Assert(!String.IsNullOrEmpty(oAuthToken),
                      "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
+
+        this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
+        this.userDisplay.button.onClick.AddListener(LogUserOut);
 
         StartCoroutine(UserLoginCoroutine(oAuthToken));
     }
@@ -484,6 +490,32 @@ public class ModBrowser : MonoBehaviour
                 modDownloads.Add(request);
             }
         }
+    }
+
+    public void LogUserOut()
+    {
+        // - clear current user -
+        APIClient.userAuthorizationToken = null;
+        CacheClient.DeleteAuthenticatedUser();
+
+        foreach(int modId in this.collectionModIds)
+        {
+            CacheClient.DeleteAllModfileAndBinaryData(modId);
+        }
+
+        // - set up guest account -
+        CacheClient.SaveAuthenticatedUserSubscriptions(this.collectionModIds);
+
+        this.userProfile = ModBrowser.GUEST_PROFILE;
+        this.collectionModIds = new List<int>(0);
+
+        this.userDisplay.profile = ModBrowser.GUEST_PROFILE;
+        this.userDisplay.UpdateUIComponents();
+
+        this.collectionView.Refresh();
+
+        this.userDisplay.button.onClick.RemoveListener(LogUserOut);
+        this.userDisplay.button.onClick.AddListener(OpenLoginDialog);
     }
 
     // ---------[ UI CONTROL ]---------

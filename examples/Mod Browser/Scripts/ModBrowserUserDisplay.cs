@@ -11,6 +11,7 @@ public class ModBrowserUserDisplay : MonoBehaviour
     [Header("UI Components")]
     public RectTransform avatarContainer;
     public Text usernameText;
+    public Button button;
 
     [Header("Runtime Data")]
     public UserProfile profile;
