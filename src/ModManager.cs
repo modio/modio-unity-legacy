@@ -190,6 +190,48 @@ namespace ModIO
                                                            onError);
         }
 
+
+        // ---------[ USER PROFILES ]---------
+        public static void GetUserAvatar(UserProfileStub profile,
+                                         UserAvatarSize size,
+                                         Action<Texture2D> onSuccess,
+                                         Action<WebRequestError> onError)
+        {
+            Debug.Assert(onSuccess != null);
+            Debug.Assert(profile != null, "[mod.io] User profile must not be null");
+
+            if(profile.avatarLocator == null
+               || String.IsNullOrEmpty(profile.avatarLocator.GetSizeURL(size)))
+            {
+                onSuccess(null);
+                return;
+            }
+
+            var cachedAvatarTexture = CacheClient.LoadUserAvatar(profile.id, size);
+            if(cachedAvatarTexture != null)
+            {
+                onSuccess(cachedAvatarTexture);
+            }
+            else
+            {
+                // - Fetch from Server -
+                var download = DownloadClient.DownloadUserAvatar(profile, size);
+
+                download.succeeded += (d) =>
+                {
+                    CacheClient.SaveUserAvatar(profile.id, size, d.imageTexture);
+                };
+
+                download.succeeded += (d) => onSuccess(d.imageTexture);
+
+                if(onError != null)
+                {
+                    download.failed += (d) => onError(d.error);
+                }
+            }
+        }
+
+
         // ---------[ EVENTS ]---------
         public static void FetchAllModEvents(int fromTimeStamp,
                                              int untilTimeStamp,
@@ -788,47 +830,6 @@ namespace ModIO
                                                                                                             p, s, e),
                                                                   onGetModTeam,
                                                                   onError);
-            }
-        }
-
-
-        // ---------[ USER PROFILES ]---------
-        public static void GetUserAvatar(UserProfileStub profile,
-                                         UserAvatarSize size,
-                                         Action<Texture2D> onSuccess,
-                                         Action<WebRequestError> onError)
-        {
-            Debug.Assert(onSuccess != null);
-            Debug.Assert(profile != null, "[mod.io] User profile must not be null");
-
-            if(profile.avatarLocator == null
-               || String.IsNullOrEmpty(profile.avatarLocator.GetSizeURL(size)))
-            {
-                onSuccess(null);
-                return;
-            }
-
-            var cachedAvatarTexture = CacheClient.LoadUserAvatar(profile.id, size);
-            if(cachedAvatarTexture != null)
-            {
-                onSuccess(cachedAvatarTexture);
-            }
-            else
-            {
-                // - Fetch from Server -
-                var download = DownloadClient.DownloadUserAvatar(profile, size);
-
-                download.succeeded += (d) =>
-                {
-                    CacheClient.SaveUserAvatar(profile.id, size, d.imageTexture);
-                };
-
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-
-                if(onError != null)
-                {
-                    download.failed += (d) => onError(d.error);
-                }
             }
         }
 

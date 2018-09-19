@@ -42,6 +42,7 @@ public class ModBrowser : MonoBehaviour
     public CollectionView collectionView;
     public ModInspector inspector;
     public ModBrowserSearchBar searchBar;
+    public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
 
     // --- Runtime Data ---
@@ -154,6 +155,8 @@ public class ModBrowser : MonoBehaviour
         loginDialog.onUserOAuthTokenReceived += LogUserIn;
         loginDialog.onUserOAuthTokenReceived += (t) => { CloseLoginDialog(); };
 
+        userDisplay.profile = ModBrowser.GUEST_PROFILE;
+
         // load manifest
         ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
         if(manifest != null)
@@ -161,7 +164,6 @@ public class ModBrowser : MonoBehaviour
             this.lastCacheUpdate = manifest.lastCacheUpdate;
         }
 
-        // --- mod.io init ---
         // load user
         this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
         this.collectionModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
@@ -172,6 +174,8 @@ public class ModBrowser : MonoBehaviour
             Action<UserProfile> onGetUserProfile = (u) =>
             {
                 this.userProfile = u;
+                this.userDisplay.profile = u;
+                this.userDisplay.UpdateUIComponents();
             };
 
             Action<APIResponseArray<ModProfile>> onGetSubscriptions = (r) =>
@@ -201,6 +205,9 @@ public class ModBrowser : MonoBehaviour
             {
                 this.collectionModIds = new List<int>();
             }
+
+            this.userDisplay.profile = ModBrowser.GUEST_PROFILE;
+            this.userDisplay.UpdateUIComponents();
         }
 
         // intialize views
@@ -339,20 +346,18 @@ public class ModBrowser : MonoBehaviour
         Debug.Assert(!String.IsNullOrEmpty(oAuthToken),
                      "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
 
-        Debug.Log("LOGGING IN");
         StartCoroutine(UserLoginCoroutine(oAuthToken));
     }
 
     private IEnumerator UserLoginCoroutine(string oAuthToken)
     {
         APIClient.userAuthorizationToken = oAuthToken;
+        CacheClient.SaveAuthenticatedUserToken(oAuthToken);
 
         bool isRequestDone = false;
         WebRequestError requestError = null;
 
         // - get the user profile -
-        Debug.Log("GETTING USER PROFILE");
-
         UserProfile requestProfile = null;
         APIClient.GetAuthenticatedUser((p) => { isRequestDone = true; requestProfile = p; },
                                        (e) => { isRequestDone = true; requestError = e; });
@@ -366,6 +371,8 @@ public class ModBrowser : MonoBehaviour
         }
 
         CacheClient.SaveAuthenticatedUserProfile(requestProfile);
+        userDisplay.profile = requestProfile;
+        userDisplay.UpdateUIComponents();
 
         // - prompt to merge current collection -
         // TODO(@jackson): Complete
