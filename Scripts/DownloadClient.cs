@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.Networking;
@@ -11,33 +12,40 @@ namespace ModIO
         // ---------[ IMAGE DOWNLOADS ]---------
         public static ImageRequest DownloadModLogo(ModProfile profile, LogoSize size)
         {
-            ImageRequest request = new ImageRequest();
-            request.isDone = false;
+            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
 
-            string logoURL = profile.logoLocator.GetSizeURL(size);
-
-            UnityWebRequest webRequest = UnityWebRequest.Get(logoURL);
-            webRequest.downloadHandler = new DownloadHandlerTexture(true);
-
-            var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
-
-            return request;
+            return DownloadImage(profile.logoLocator.GetSizeURL(size));
         }
 
+        // TODO(@jackson): Take ModMediaCollection instead of profile
         public static ImageRequest DownloadModGalleryImage(ModProfile profile,
                                                            string imageFileName,
                                                            ModGalleryImageSize size)
         {
-            ImageRequest request = new ImageRequest();
+            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
+            Debug.Assert(!String.IsNullOrEmpty(imageFileName),
+                         "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
 
-            string imageURL = profile.media.GetGalleryImageWithFileName(imageFileName).GetSizeURL(size);
+            ImageRequest request = null;
 
-            UnityWebRequest webRequest = UnityWebRequest.Get(imageURL);
-            webRequest.downloadHandler = new DownloadHandlerTexture(true);
-
-            var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+            if(profile.media == null)
+            {
+                Debug.LogWarning("[mod.io] The given mod profile has no media information");
+            }
+            else
+            {
+                GalleryImageLocator locator = profile.media.GetGalleryImageWithFileName(imageFileName);
+                if(locator == null)
+                {
+                    Debug.LogWarning("[mod.io] Unable to find mod gallery image with the file name \'"
+                                     + imageFileName + "\' for the mod profile \'" + profile.name +
+                                     "\'[" + profile.id + "]");
+                }
+                else
+                {
+                    request = DownloadImage(locator.GetSizeURL(size));
+                }
+            }
 
             return request;
         }
@@ -47,32 +55,69 @@ namespace ModIO
         {
             Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
 
-            ImageRequest request = new ImageRequest();
-            request.isDone = false;
+            ImageRequest request = null;
 
-            string avatarURL = profile.avatarLocator.GetSizeURL(size);
-
-            UnityWebRequest webRequest = UnityWebRequest.Get(avatarURL);
-            webRequest.downloadHandler = new DownloadHandlerTexture(true);
-
-            var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+            if(profile.avatarLocator == null
+               || String.IsNullOrEmpty(profile.avatarLocator.GetSizeURL(size)))
+            {
+                Debug.LogWarning("[mod.io] User Profile has no associated avatar information");
+            }
+            else
+            {
+                request = DownloadImage(profile.avatarLocator.GetSizeURL(size));
+            }
 
             return request;
         }
 
         public static ImageRequest DownloadYouTubeThumbnail(string youTubeId)
         {
+            Debug.Assert(!String.IsNullOrEmpty(youTubeId),
+                         "[mod.io] YouTube video identifier cannot be empty");
+
             ImageRequest request = null;
 
             string thumbnailURL = (@"https://img.youtube.com/vi/"
                                    + youTubeId
                                    + @"/hqdefault.jpg");
 
-            UnityWebRequest webRequest = UnityWebRequest.Get(thumbnailURL);
+            request = DownloadImage(thumbnailURL);
+
+            return request;
+        }
+
+        public static ImageRequest DownloadImage(string imageURL)
+        {
+
+            ImageRequest request = new ImageRequest();
+            request.isDone = false;
+
+            UnityWebRequest webRequest = UnityWebRequest.Get(imageURL);
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
-            request = new ImageRequest();
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            {
+                string requestHeaders = "";
+                List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
+                requestKeys.AddRange(APIClient.MODIO_REQUEST_HEADER_KEYS);
+
+                foreach(string headerKey in requestKeys)
+                {
+                    string headerValue = webRequest.GetRequestHeader(headerKey);
+                    if(headerValue != null)
+                    {
+                        requestHeaders += "\n" + headerKey + ": " + headerValue;
+                    }
+                }
+
+                Debug.Log("GENERATING DOWNLOAD REQUEST"
+                          + "\nURL: " + webRequest.url
+                          + "\nHeaders: " + requestHeaders
+                          + "\n"
+                          );
+            }
+            #endif
 
             var operation = webRequest.SendWebRequest();
             operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
@@ -132,8 +177,10 @@ namespace ModIO
         {
             string tempFilePath = request.binaryFilePath + ".download";
 
+            UnityWebRequest webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
+
             request.modfile = modfile;
-            request.webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
+            request.webRequest = webRequest;
 
             try
             {
@@ -152,6 +199,29 @@ namespace ModIO
 
                 return;
             }
+
+
+            #if DEBUG
+            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            {
+                string requestHeaders = "";
+                List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
+                requestKeys.AddRange(APIClient.MODIO_REQUEST_HEADER_KEYS);
+
+                foreach(string headerKey in requestKeys)
+                {
+                    string headerValue = webRequest.GetRequestHeader(headerKey);
+                    if(headerValue != null)
+                    {
+                        requestHeaders += "\n" + headerKey + ": " + headerValue;
+                    }
+                }
+
+                Debug.Log("GENERATING DOWNLOAD REQUEST"
+                          + "\nURL: " + webRequest.url
+                          + "\nHeaders: " + requestHeaders);
+            }
+            #endif
 
             var operation = request.webRequest.SendWebRequest();
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(operation,
