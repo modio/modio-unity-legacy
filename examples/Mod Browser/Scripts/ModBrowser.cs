@@ -2,8 +2,9 @@
 using UnityEngine.UI;
 
 using System;
-using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using ModIO;
 
@@ -339,7 +340,145 @@ public class ModBrowser : MonoBehaviour
                      "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
 
         Debug.Log("LOGGING IN");
+        StartCoroutine(UserLoginCoroutine(oAuthToken));
     }
+
+    private IEnumerator UserLoginCoroutine(string oAuthToken)
+    {
+        APIClient.userAuthorizationToken = oAuthToken;
+
+        bool isRequestDone = false;
+        WebRequestError requestError = null;
+
+        // - get the user profile -
+        Debug.Log("GETTING USER PROFILE");
+
+        UserProfile requestProfile = null;
+        APIClient.GetAuthenticatedUser((p) => { isRequestDone = true; requestProfile = p; },
+                                       (e) => { isRequestDone = true; requestError = e; });
+
+        while(!isRequestDone) { yield return null; }
+
+        if(requestError != null)
+        {
+            throw new System.NotImplementedException();
+            // return;
+        }
+
+        CacheClient.SaveAuthenticatedUserProfile(requestProfile);
+
+        // - prompt to merge current collection -
+        // TODO(@jackson): Complete
+        Debug.Log("MERGING USER SUBSCRIPTIONS");
+
+        foreach(int modId in collectionModIds)
+        {
+            // remove from disk
+            CacheClient.DeleteAllModfileAndBinaryData(modId);
+        }
+        collectionModIds = new List<int>(0);
+        CacheClient.ClearAuthenticatedUserSubscriptions();
+        collectionView.Refresh();
+
+        // - get the subscriptions -
+        Debug.Log("GETTING USER SUBSCRIPTIONS");
+
+        List<int> subscribedModIds = new List<int>();
+        bool allPagesReceived = false;
+
+        RequestFilter subscriptionFilter = new RequestFilter();
+        subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+                                            new EqualToFilter<int>() { filterValue = this.gameId });
+
+        APIPaginationParameters pagination = new APIPaginationParameters()
+        {
+            limit = APIPaginationParameters.LIMIT_MAX,
+            offset = 0,
+        };
+
+        APIResponseArray<ModProfile> responseArray = null;
+        while(!allPagesReceived)
+        {
+            isRequestDone = false;
+            requestError = null;
+            responseArray = null;
+
+            APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
+                                           (r) => { isRequestDone = true; responseArray = r; },
+                                           (e) => { isRequestDone = true; requestError = e; });
+
+            while(!isRequestDone)
+            {
+                yield return null;
+            }
+
+            if(requestError != null)
+            {
+                throw new System.NotImplementedException();
+                // return?
+            }
+
+            foreach(ModProfile profile in responseArray)
+            {
+                subscribedModIds.Add(profile.id);
+            }
+
+            allPagesReceived = (responseArray.Count < responseArray.Limit);
+
+            if(!allPagesReceived)
+            {
+                pagination.offset += pagination.limit;
+            }
+        }
+
+        collectionModIds = subscribedModIds;
+        CacheClient.SaveAuthenticatedUserSubscriptions(collectionModIds);
+
+        isRequestDone = false;
+        requestError = null;
+        List<ModProfile> subscriptionProfiles = null;
+
+        ModManager.GetModProfiles(collectionModIds,
+                                  (r) => { isRequestDone = true; subscriptionProfiles = r; },
+                                  (e) => { isRequestDone = true; requestError = e; });
+
+        while(!isRequestDone)
+        {
+            yield return null;
+        }
+
+        if(requestError != null)
+        {
+            throw new System.NotImplementedException();
+            // return?
+        }
+
+        collectionView.Refresh();
+
+        foreach(ModProfile profile in subscriptionProfiles)
+        {
+            // begin download
+            ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
+
+            if(!request.isDone)
+            {
+                request.succeeded += (r) =>
+                {
+                    Debug.Log(profile.name + " Downloaded!");
+                    modDownloads.Remove(request);
+                };
+
+                request.failed += (r) =>
+                {
+                    Debug.Log(profile.name + " Download Failed!");
+                    modDownloads.Remove(request);
+                };
+
+                modDownloads.Add(request);
+            }
+        }
+    }
+
     // ---------[ UI CONTROL ]---------
     public void SetExplorerViewLayoutGrid()
     {
@@ -539,7 +678,6 @@ public class ModBrowser : MonoBehaviour
 
         collectionView.Refresh();
     }
-
 
     // ---------[ EVENT HANDLING ]---------
     // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)

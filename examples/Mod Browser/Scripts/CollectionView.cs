@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using ModIO;
 
+// TODO(@jackson): Handle no mods in list inspection
 // TODO(@jackson): Set inspect on load
 public class CollectionView : MonoBehaviour, IModBrowserView
 {
