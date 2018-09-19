@@ -551,7 +551,7 @@ namespace ModIO
             return(GenerateModMediaDirectoryPath(modId));
         }
 
-        /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
+        /// <summary>Generates the directory path for the cached mod media.</summary>
         public static string GenerateModMediaDirectoryPath(int modId)
         {
             return(GenerateModDirectoryPath(modId)
