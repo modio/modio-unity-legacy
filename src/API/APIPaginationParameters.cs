@@ -1,6 +1,6 @@
-namespace ModIO.API
+namespace ModIO
 {
-    public class PaginationParameters
+    public class APIPaginationParameters
     {
         // ---------[ CONSTANTS ]---------
         public const int LIMIT_MAX = 100;

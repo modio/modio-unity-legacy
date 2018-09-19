@@ -1387,7 +1387,7 @@ namespace ModIO
         }
 
         // ---------[ FETCH ALL RESULTS HELPER ]---------
-        private delegate void GetAllObjectsQuery<T>(PaginationParameters pagination,
+        private delegate void GetAllObjectsQuery<T>(APIPaginationParameters pagination,
                                                     Action<APIResponseArray<T>> onSuccess,
                                                     Action<WebRequestError> onError);
 
@@ -1395,9 +1395,9 @@ namespace ModIO
                                                        Action<List<T>> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            var pagination = new PaginationParameters()
+            var pagination = new APIPaginationParameters()
             {
-                limit = PaginationParameters.LIMIT_MAX,
+                limit = APIPaginationParameters.LIMIT_MAX,
                 offset = 0,
             };
 
@@ -1415,7 +1415,7 @@ namespace ModIO
 
         private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
                                                             APIResponseArray<T> queryResult,
-                                                            PaginationParameters pagination,
+                                                            APIPaginationParameters pagination,
                                                             List<T> culmativeResults,
                                                             Action<List<T>> onSuccess,
                                                             Action<WebRequestError> onError)
