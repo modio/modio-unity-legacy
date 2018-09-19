@@ -6,7 +6,7 @@ using ModIO;
 
 public class LoginDialog : MonoBehaviour
 {
-    // public event Action<string> onUserOAuthTokenReceived;
+    public event Action<string> onUserOAuthTokenReceived;
 
     public InputField inputField;
     public Button submitButton;
@@ -32,8 +32,6 @@ public class LoginDialog : MonoBehaviour
 
     public void OnTextInputUpdated()
     {
-        Debug.Log("Text Updated");
-
         string trimmedInput = inputField.text.Trim().Replace(" ", "");
 
         if(Utility.IsEmail(trimmedInput))
@@ -57,17 +55,52 @@ public class LoginDialog : MonoBehaviour
     {
         string trimmedInput = inputField.text.Trim();
 
+        inputField.interactable = false;
+        submitButton.interactable = false;
+
+        Action<WebRequestError> onError = (e) =>
+        {
+            Debug.LogWarning(e.ToUnityDebugString());
+
+            inputField.interactable = true;
+
+            submitButton.interactable = true;
+        };
+
         if(Utility.IsEmail(trimmedInput))
         {
+            Action<APIMessage> onGetSecurityCode = (m) =>
+            {
+                Debug.Log(m.message);
+
+                inputField.text = string.Empty;
+                inputField.interactable = true;
+
+                submitButton.interactable = true;
+            };
+
             APIClient.SendSecurityCode(trimmedInput,
-                                       (m) => { Debug.Log(m.message); },
-                                       (e) => { Debug.Log(e.ToUnityDebugString()); });
+                                       onGetSecurityCode,
+                                       onError);
         }
         else if(Utility.IsSecurityCode(trimmedInput))
         {
+            Action<string> onOAuthTokenReceived = (t) =>
+            {
+                inputField.text = string.Empty;
+                inputField.interactable = true;
+
+                submitButton.interactable = true;
+
+                if(onUserOAuthTokenReceived != null)
+                {
+                    onUserOAuthTokenReceived(t);
+                }
+            };
+
             APIClient.GetOAuthToken(trimmedInput.ToUpper(),
-                                    (t) => { Debug.Log(t); },
-                                    (e) => { Debug.Log(e.ToUnityDebugString()); });
+                                    onOAuthTokenReceived,
+                                    onError);
         }
     }
 }
