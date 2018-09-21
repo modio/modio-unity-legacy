@@ -21,7 +21,7 @@ namespace ModIO
         public EditableStringField name =                           new EditableStringField();
         public EditableStringField nameId =                         new EditableStringField();
         public EditableStringField summary =                        new EditableStringField();
-        public EditableStringField description =                    new EditableStringField();
+        public EditableStringField description_HTML =               new EditableStringField();
         public EditableStringField homepageURL =                    new EditableStringField();
         public EditableStringArrayField tags =                      new EditableStringArrayField();
         public EditableStringField metadataBlob =                   new EditableStringField();
@@ -31,6 +31,10 @@ namespace ModIO
         public EditableStringArrayField youtubeURLs =               new EditableStringArrayField();
         public EditableStringArrayField sketchfabURLs =             new EditableStringArrayField();
         public EditableImageLocatorArrayField galleryImageLocators =new EditableImageLocatorArrayField();
+
+        [Obsolete("Use EditableModProfile.description_HTML instead")]
+        public EditableStringField description
+        { get { return this.description_HTML; } set { this.description_HTML = value; } }
 
         // ---------[ VALUE DUPLICATION ]---------
         public static EditableModProfile CreateFromProfile(ModProfile profile)
@@ -62,9 +66,9 @@ namespace ModIO
             {
                 this.summary.value = profile.summary;
             }
-            if(!this.description.isDirty)
+            if(!this.description_HTML.isDirty)
             {
-                this.description.value = profile.description;
+                this.description_HTML.value = profile.description_HTML;
             }
             if(!this.homepageURL.isDirty)
             {

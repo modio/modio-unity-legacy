@@ -42,9 +42,15 @@ namespace ModIO.API
 
         // Detailed description for your mod, which can include details such as 'About', 'Features',
         // 'Install Instructions', 'FAQ', etc. HTML supported and encouraged.
-        public string description
+        public string description_HTML
         {
             set { this.SetStringValue("description", value); }
+        }
+
+        [System.Obsolete("Use AddModParameters.description_HTML instead")]
+        public string description
+        {
+            set { this.description_HTML = value; }
         }
 
         // Official homepage for your mod. Must be a valid URL.
