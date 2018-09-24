@@ -6,7 +6,9 @@ using ModIO;
 
 public class LoginDialog : MonoBehaviour
 {
+    public event Action<APIMessage> onSecurityCodeSent;
     public event Action<string> onUserOAuthTokenReceived;
+    public event Action<WebRequestError> onAPIRequestError;
 
     public InputField inputField;
     public Button submitButton;
@@ -20,6 +22,31 @@ public class LoginDialog : MonoBehaviour
                 OnSubmitButtonClicked();
             }
         });
+
+
+        this.onSecurityCodeSent += (m) =>
+        {
+            inputField.text = string.Empty;
+            inputField.interactable = true;
+
+            submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
+        };
+
+        this.onUserOAuthTokenReceived += (t) =>
+        {
+            inputField.text = string.Empty;
+            inputField.interactable = true;
+
+            submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
+
+            Debug.Log("onUserOAuthTokenReceived");
+        };
+
+        this.onAPIRequestError += (e) =>
+        {
+            inputField.interactable = true;
+            submitButton.interactable = true;
+        };
     }
 
     public void Initialize()
@@ -58,48 +85,18 @@ public class LoginDialog : MonoBehaviour
         inputField.interactable = false;
         submitButton.interactable = false;
 
-        Action<WebRequestError> onError = (e) =>
-        {
-            Debug.LogWarning(e.ToUnityDebugString());
-
-            inputField.interactable = true;
-            submitButton.interactable = true;
-        };
-
         if(Utility.IsEmail(trimmedInput))
         {
-            Action<APIMessage> onGetSecurityCode = (m) =>
-            {
-                Debug.Log(m.message);
-
-                inputField.text = string.Empty;
-                inputField.interactable = true;
-
-                submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
-            };
-
             APIClient.SendSecurityCode(trimmedInput,
-                                       onGetSecurityCode,
-                                       onError);
+                                       (m) => onSecurityCodeSent(m),
+                                       (e) => onAPIRequestError(e));
         }
         else if(Utility.IsSecurityCode(trimmedInput))
         {
-            Action<string> onOAuthTokenReceived = (t) =>
-            {
-                inputField.text = string.Empty;
-                inputField.interactable = true;
-
-                submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
-
-                if(onUserOAuthTokenReceived != null)
-                {
-                    onUserOAuthTokenReceived(t);
-                }
-            };
 
             APIClient.GetOAuthToken(trimmedInput.ToUpper(),
-                                    onOAuthTokenReceived,
-                                    onError);
+                                    (s) => onUserOAuthTokenReceived(s),
+                                    (e) => onAPIRequestError(e));
         }
     }
 }

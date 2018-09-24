@@ -45,6 +45,7 @@ public class ModBrowser : MonoBehaviour
     public ModBrowserSearchBar searchBar;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
+    public MessageDialog messageDialog;
 
     // --- Runtime Data ---
     [Header("Runtime Data")]
@@ -153,8 +154,34 @@ public class ModBrowser : MonoBehaviour
         searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
 
         loginDialog.gameObject.SetActive(false);
-        loginDialog.onUserOAuthTokenReceived += LogUserIn;
-        loginDialog.onUserOAuthTokenReceived += (t) => { CloseLoginDialog(); };
+        loginDialog.onSecurityCodeSent += (m) =>
+        {
+            CloseLoginDialog();
+            OpenMessageDialog_OneButton("Security Code Requested",
+                                        m.message,
+                                        "Back",
+                                        () => { CloseMessageDialog(); OpenLoginDialog(); });
+        };
+        loginDialog.onUserOAuthTokenReceived += (t) =>
+        {
+            LogUserIn(t);
+            CloseLoginDialog();
+            OpenMessageDialog_OneButton("Login Successful",
+                                        string.Empty,
+                                        "Back",
+                                        () => { CloseMessageDialog(); });
+        };
+        loginDialog.onAPIRequestError += (e) =>
+        {
+            CloseLoginDialog();
+
+            OpenMessageDialog_OneButton("Authorization Failed",
+                                        e.message,
+                                        "Back",
+                                        () => { CloseMessageDialog(); OpenLoginDialog(); });
+        };
+
+        messageDialog.gameObject.SetActive(false);
 
         userDisplay.button.onClick.AddListener(OpenLoginDialog);
         userDisplay.profile = ModBrowser.GUEST_PROFILE;
@@ -597,6 +624,51 @@ public class ModBrowser : MonoBehaviour
     public void CloseLoginDialog()
     {
         loginDialog.gameObject.SetActive(false);
+    }
+
+    public void OpenMessageDialog_OneButton(string header, string content,
+                                            string buttonText, Action buttonCallback)
+    {
+        messageDialog.button01.GetComponentInChildren<Text>().text = buttonText;
+
+        messageDialog.button01.onClick.RemoveAllListeners();
+        messageDialog.button01.onClick.AddListener(() => buttonCallback());
+
+        messageDialog.button02.gameObject.SetActive(false);
+
+        OpenMessageDialog(header, content);
+    }
+
+    public void OpenMessageDialog_TwoButton(string header, string content,
+                                            string button01Text, Action button01Callback,
+                                            string button02Text, Action button02Callback)
+    {
+        messageDialog.button01.GetComponentInChildren<Text>().text = button01Text;
+
+        messageDialog.button01.onClick.RemoveAllListeners();
+        messageDialog.button01.onClick.AddListener(() => button01Callback());
+
+        messageDialog.button02.GetComponentInChildren<Text>().text = button02Text;
+
+        messageDialog.button02.onClick.RemoveAllListeners();
+        messageDialog.button02.onClick.AddListener(() => button02Callback());
+
+        messageDialog.button02.gameObject.SetActive(true);
+
+        OpenMessageDialog(header, content);
+    }
+
+    private void OpenMessageDialog(string header, string content)
+    {
+        messageDialog.header.text = header;
+        messageDialog.content.text = content;
+
+        messageDialog.gameObject.SetActive(true);
+    }
+
+    private void CloseMessageDialog()
+    {
+        messageDialog.gameObject.SetActive(false);
     }
 
     // TODO(@jackson): Change parameter type
