@@ -162,6 +162,8 @@ namespace ModIO
         {
             ModBinaryRequest request = new ModBinaryRequest();
 
+            request.modId = modId;
+            request.modfileId = modfileId;
             request.isDone = false;
             request.binaryFilePath = downloadFilePath;
 
@@ -179,7 +181,6 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
 
-            request.modfile = modfile;
             request.webRequest = webRequest;
 
             try

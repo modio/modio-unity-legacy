@@ -735,7 +735,7 @@ namespace ModIO
         {
             foreach(ModBinaryRequest inProgressRequest in downloadsInProgress)
             {
-                if(inProgressRequest.modfile.id == profile.activeBuild.id)
+                if(inProgressRequest.modfileId == profile.activeBuild.id)
                 {
                     return inProgressRequest;
                 }
@@ -758,7 +758,6 @@ namespace ModIO
                                                            CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id));
                 downloadsInProgress.Add(request);
 
-                request.succeeded += (r) => CacheClient.SaveModfile(r.modfile);
                 request.succeeded += (r) => downloadsInProgress.Remove(r);
             }
 
