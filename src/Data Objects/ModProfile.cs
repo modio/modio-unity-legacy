@@ -76,9 +76,19 @@ namespace ModIO
         [JsonProperty("summary")]
         public string summary;
 
-        /// <summary> Detailed description of the mod which allows HTML. </summary>
+        /// <summary>Detailed description of the mod which allows HTML.</summary>
         [JsonProperty("description")]
-        public string description;
+        public string description_HTML;
+
+        /// <summary>The description of the mod with the HTML formatting removed.</summary>
+        [JsonProperty("description_plaintext")]
+        public string description_text;
+
+        /// <summary>[Obsolete] Detailed description of the mod which allows HTML.</summary>
+        [System.Obsolete("Use ModProfile.description_HTML instead.")]
+        [JsonIgnore]
+        public string description
+        { get { return this.description_HTML; } set { this.description_HTML = value; } }
 
         /// <summary>
         /// Metadata stored by the game developer.

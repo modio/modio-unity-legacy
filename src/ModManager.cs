@@ -872,9 +872,9 @@ namespace ModIO
             {
                 parameters.nameId = modEdits.nameId.value;
             }
-            if(modEdits.description.isDirty)
+            if(modEdits.description_HTML.isDirty)
             {
-                parameters.description = modEdits.description.value;
+                parameters.description_HTML = modEdits.description_HTML.value;
             }
             if(modEdits.homepageURL.isDirty)
             {
@@ -923,7 +923,7 @@ namespace ModIO
                    || modEdits.name.isDirty
                    || modEdits.nameId.isDirty
                    || modEdits.summary.isDirty
-                   || modEdits.description.isDirty
+                   || modEdits.description_HTML.isDirty
                    || modEdits.homepageURL.isDirty
                    || modEdits.metadataBlob.isDirty)
                 {
@@ -948,9 +948,9 @@ namespace ModIO
                     {
                         parameters.summary = modEdits.summary.value;
                     }
-                    if(modEdits.description.isDirty)
+                    if(modEdits.description_HTML.isDirty)
                     {
-                        parameters.description = modEdits.description.value;
+                        parameters.description_HTML = modEdits.description_HTML.value;
                     }
                     if(modEdits.homepageURL.isDirty)
                     {

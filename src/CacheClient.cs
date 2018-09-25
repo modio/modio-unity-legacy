@@ -633,13 +633,13 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
-        [Obsolete("Use CacheClient.GenerateModBinariesDirectoryPath() instead.")]
-        public static string GenerateModGalleryImageCollectionDirectoryPath(int modId)
+        [Obsolete("Use CacheClient.GenerateModMediaDirectoryPath() instead.")]
+        public static string GenerateModGalleryImageDirectoryPath(int modId)
         {
             return(GenerateModMediaDirectoryPath(modId));
         }
 
-        /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
+        /// <summary>Generates the directory path for the cached mod media.</summary>
         public static string GenerateModMediaDirectoryPath(int modId)
         {
             return(GenerateModDirectoryPath(modId)
@@ -800,10 +800,16 @@ namespace ModIO
         }
 
         /// <summary>Generates the file path for a user's profile.</summary>
-        public static string GenerateUserAvatarFilePath(int userId, UserAvatarSize size)
+        public static string GenerateUserAvatarDirectoryPath(int userId)
         {
             return(CacheClient.GetCacheDirectory()
-                   + "users/" + userId + "/avatars/"
+                   + "users/" + userId + "_avatar/");
+        }
+
+        /// <summary>Generates the file path for a user's profile.</summary>
+        public static string GenerateUserAvatarFilePath(int userId, UserAvatarSize size)
+        {
+            return(CacheClient.GenerateUserAvatarDirectoryPath(userId)
                    + size.ToString() + ".png");
         }
 
@@ -823,6 +829,12 @@ namespace ModIO
             string filePath = CacheClient.GenerateUserProfileFilePath(userId);
             var userProfile = CacheClient.ReadJsonObjectFile<UserProfile>(filePath);
             return(userProfile);
+        }
+
+        /// <summary>Deletes a user's profile from the cache.</summary>
+        public static void DeleteUserProfile(int userId)
+        {
+            CacheClient.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
         }
 
         /// <summary>Iterates through all the user profiles in the cache.</summary>
@@ -878,10 +890,10 @@ namespace ModIO
             return(avatarTexture);
         }
 
-        /// <summary>Deletes a user's data from the cache.</summary>
-        public static void DeleteUserData(int userId)
+        /// <summary>Delete's a user's avatars from the cache.</summary>
+        public static void DeleteUserAvatar(int userId)
         {
-            CacheClient.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
+            CacheClient.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
         }
     }
 }

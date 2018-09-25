@@ -106,6 +106,48 @@ namespace ModIO
             return true;
         }
 
+        /// <summary>Generates a debug-friendly string of web request details.</summary>
+        public static string GenerateRequestDebugString(UnityWebRequest webRequest)
+        {
+            #pragma warning disable 0162
+            string requestHeaders = "";
+            List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
+            requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
+
+            foreach(string headerKey in requestKeys)
+            {
+                string headerValue = webRequest.GetRequestHeader(headerKey);
+                if(headerValue != null)
+                {
+                    if(headerKey == "Authorization"
+                       && headerValue.Length > 8) // Contains more than "Bearer "
+                    {
+                        requestHeaders += "\n" + headerKey + ": "
+                                + headerValue.Substring(0, 6);
+
+                        #if DEBUG
+                        if(GlobalSettings.INCLUDE_USEROAUTHTOKEN_IN_LOG)
+                        {
+                            requestHeaders += " " + APIClient.userAuthorizationToken;
+                        }
+                        else
+                        #endif
+                        {
+                            requestHeaders += " [OAUTH TOKEN]";
+                        }
+                    }
+                    else
+                    {
+                        requestHeaders += "\n" + headerKey + ": " + headerValue;
+                    }
+                }
+            }
+            #pragma warning restore 0162
+
+            return("\nEndpoint: " + webRequest.url
+                   + "\nHeaders: " + requestHeaders);
+        }
+
         // ---------[ REQUEST HANDLING ]---------
         /// <summary>Generates the object for a basic mod.io server request.</summary>
         public static UnityWebRequest GenerateQuery(string endpointURL,
@@ -144,33 +186,9 @@ namespace ModIO
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
-                string requestHeaders = "";
-                List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        if(headerKey == "Authorization"
-                           && headerValue.Length > 8) // Contains more than "Bearer "
-                        {
-                            requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
-                        }
-                        else
-                        {
-                            requestHeaders += "\n" + headerKey + ": " + headerValue;
-                        }
-                    }
-                }
-
-                Debug.Log("GENERATING QUERY"
-                          + "\nEndpoint: " + queryURL
-                          + "\nHeaders: " + requestHeaders
-                          + "\n"
-                          );
+                Debug.Log("GENERATED GET REQUEST"
+                          + APIClient.GenerateRequestDebugString(webRequest)
+                          + "\n");
             }
             #endif
 
@@ -206,33 +224,9 @@ namespace ModIO
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
-                string requestHeaders = "";
-                List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        if(headerKey == "Authorization"
-                           && headerValue.Length > 8) // Contains more than "Bearer "
-                        {
-                            requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
-                        }
-                        else
-                        {
-                            requestHeaders += "\n" + headerKey + ": " + headerValue;
-                        }
-                    }
-                }
-
-                Debug.Log("GENERATING GET REQUEST"
-                          + "\nEndpoint: " + constructedURL
-                          + "\nHeaders: " + requestHeaders
-                          + "\n"
-                          );
+                Debug.Log("GENERATED GET REQUEST"
+                          + APIClient.GenerateRequestDebugString(webRequest)
+                          + "\n");
             }
             #endif
 
@@ -262,40 +256,16 @@ namespace ModIO
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
-                string requestHeaders = "";
-                List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        if(headerKey == "Authorization"
-                           && headerValue.Length > 8) // Contains more than "Bearer "
-                        {
-                            requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
-                        }
-                        else
-                        {
-                            requestHeaders += "\n" + headerKey + ": " + headerValue;
-                        }
-                    }
-                }
-
                 string formFields = "";
                 foreach(StringValueParameter svf in valueFields)
                 {
                     formFields += "\n" + svf.key + "=" + svf.value;
                 }
 
-                Debug.Log("GENERATING PUT REQUEST"
-                          + "\nEndpoint: " + endpointURL
-                          + "\nHeaders: " + requestHeaders
+                Debug.Log("GENERATED PUT REQUEST"
+                          + APIClient.GenerateRequestDebugString(webRequest)
                           + "\nFields: " + formFields
-                          + "\n"
-                          );
+                          + "\n");
             }
             #endif
 
@@ -333,28 +303,6 @@ namespace ModIO
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
-                string requestHeaders = "";
-                List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        if(headerKey == "Authorization"
-                           && headerValue.Length > 8) // Contains more than "Bearer "
-                        {
-                            requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
-                        }
-                        else
-                        {
-                            requestHeaders += "\n" + headerKey + ": " + headerValue;
-                        }
-                    }
-                }
-
                 string formFields = "";
                 if(valueFields != null)
                 {
@@ -374,12 +322,10 @@ namespace ModIO
                     }
                 }
 
-                Debug.Log("GENERATING POST REQUEST"
-                          + "\nEndpoint: " + endpointURL
-                          + "\nHeaders: " + requestHeaders
+                Debug.Log("GENERATED POST REQUEST"
+                          + APIClient.GenerateRequestDebugString(webRequest)
                           + "\nFields: " + formFields
-                          + "\n"
-                          );
+                          + "\n");
             }
             #endif
 
@@ -409,28 +355,6 @@ namespace ModIO
             #if DEBUG
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
-                string requestHeaders = "";
-                List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        if(headerKey == "Authorization"
-                           && headerValue.Length > 8) // Contains more than "Bearer "
-                        {
-                            requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6) + " [OAUTH TOKEN]";
-                        }
-                        else
-                        {
-                            requestHeaders += "\n" + headerKey + ": " + headerValue;
-                        }
-                    }
-                }
-
                 string formFields = "";
                 if(valueFields != null)
                 {
@@ -439,17 +363,11 @@ namespace ModIO
                         formFields += "\n" + kvp.key + "=" + kvp.value;
                     }
                 }
-                // foreach(KeyValuePair<string, Request.BinaryData> kvp in dataFields)
-                // {
-                //     formFields += "\n" + kvp.Key + "= [BINARY DATA] " + kvp.Value.fileName + "\n";
-                // }
 
-                Debug.Log("GENERATING DELETE REQUEST"
-                          + "\nEndpoint: " + endpointURL
-                          + "\nHeaders: " + requestHeaders
+                Debug.Log("GENERATED PUT REQUEST"
+                          + APIClient.GenerateRequestDebugString(webRequest)
                           + "\nFields: " + formFields
-                          + "\n"
-                          );
+                          + "\n");
             }
             #endif
 

@@ -180,7 +180,6 @@ namespace ModIO
             string tempFilePath = request.binaryFilePath + ".download";
 
             UnityWebRequest webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
-
             request.webRequest = webRequest;
 
             try
@@ -220,9 +219,7 @@ namespace ModIO
 
                 Debug.Log("GENERATING DOWNLOAD REQUEST"
                           + "\nURL: " + webRequest.url
-                          + "\nHeaders: " + requestHeaders
-                          + "\n"
-                          );
+                          + "\nHeaders: " + requestHeaders);
             }
             #endif
 

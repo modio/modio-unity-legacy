@@ -230,14 +230,14 @@ namespace ModIO
         {
             bool isUndoRequested;
             LayoutEditablePropertyTextArea("Description",
-                                           editableProfileProperty.FindPropertyRelative("description"),
+                                           editableProfileProperty.FindPropertyRelative("description_HTML"),
                                            API.EditModParameters.DESCRIPTION_CHAR_LIMIT,
                                            out isUndoRequested);
 
             if(isUndoRequested)
             {
-                editableProfileProperty.FindPropertyRelative("description.value").stringValue = profile.description;
-                editableProfileProperty.FindPropertyRelative("description.isDirty").boolValue = false;
+                editableProfileProperty.FindPropertyRelative("description_HTML.value").stringValue = profile.description_HTML;
+                editableProfileProperty.FindPropertyRelative("description_HTML.isDirty").boolValue = false;
             }
         }
 
