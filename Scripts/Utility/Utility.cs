@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-using Debug = UnityEngine.Debug;
-
 namespace ModIO
 {
     public static class Utility
@@ -22,6 +20,22 @@ namespace ModIO
             Regex urlRegex = new Regex(protocol + domain, RegexOptions.IgnoreCase);
 
             return urlRegex.IsMatch(toCheck);
+        }
+
+        public static bool IsEmail(string toCheck)
+        {
+            string scottsEmailRegex = @"^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,63}$";
+            Regex regex = new Regex(scottsEmailRegex, RegexOptions.IgnoreCase);
+
+            return regex.IsMatch(toCheck);
+        }
+
+        public static bool IsSecurityCode(string toCheck)
+        {
+            string securityCodeRegex = @"^[a-z0-9]{5}$";
+            Regex regex = new Regex(securityCodeRegex, RegexOptions.IgnoreCase);
+
+            return regex.IsMatch(toCheck);
         }
 
         public static void SafeMapArraysOrZero<T1, T2>(T1[] sourceArray,
@@ -85,12 +99,12 @@ namespace ModIO
         public static string ExtractYouTubeIdFromURL(string youTubeURL)
         {
             string yt_id = null;
+            string pattern = (@"(?:https?:\/\/|\/\/)?(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?![\w-])");
 
-            string pattern = @"#^(?:https?://|//)?(?:www\.|m\.)?(?:youtu\.be/|youtube\.com/(?:embed/|v/|watch\?v=|watch\?.+&v=))([\w-]{11})(?![\w-])#";
-            var idMatches = Regex.Matches(pattern, youTubeURL, RegexOptions.IgnoreCase);
-            if(idMatches.Count > 0)
+            var idMatch = Regex.Match(youTubeURL, pattern);
+            if(idMatch != null)
             {
-                yt_id = idMatches[0].Value;
+                yt_id = idMatch.Groups[1].Value;
             }
 
             return yt_id;
