@@ -164,12 +164,25 @@ public class ModBrowser : MonoBehaviour
         };
         loginDialog.onUserOAuthTokenReceived += (t) =>
         {
-            LogUserIn(t);
+            Action clearLocalCollection = () =>
+            {
+                foreach(int modId in collectionModIds)
+                {
+                    // remove from disk
+                    CacheClient.DeleteAllModfileAndBinaryData(modId);
+                }
+                collectionModIds = new List<int>(0);
+                CacheClient.ClearAuthenticatedUserSubscriptions();
+                collectionView.Refresh();
+            };
+
             CloseLoginDialog();
-            OpenMessageDialog_OneButton("Login Successful",
-                                        string.Empty,
-                                        "Back",
-                                        () => { CloseMessageDialog(); });
+
+            OpenMessageDialog_TwoButton("Login Successful",
+                                        "Do you want to merge the local guest account mod collection"
+                                        + " with your mod collection on the servers?",
+                                        "Merge Collections", () => { CloseMessageDialog(); LogUserIn(t); },
+                                        "Replace Collection", () => { CloseMessageDialog(); clearLocalCollection(); LogUserIn(t); });
         };
         loginDialog.onAPIRequestError += (e) =>
         {
@@ -407,19 +420,6 @@ public class ModBrowser : MonoBehaviour
         userDisplay.profile = requestProfile;
         userDisplay.UpdateUIComponents();
 
-        // - prompt to merge current collection -
-        // TODO(@jackson): Complete
-        Debug.Log("MERGING USER SUBSCRIPTIONS");
-
-        foreach(int modId in collectionModIds)
-        {
-            // remove from disk
-            CacheClient.DeleteAllModfileAndBinaryData(modId);
-        }
-        collectionModIds = new List<int>(0);
-        CacheClient.ClearAuthenticatedUserSubscriptions();
-        collectionView.Refresh();
-
         // - get the subscriptions -
         Debug.Log("GETTING USER SUBSCRIPTIONS");
 
@@ -468,6 +468,19 @@ public class ModBrowser : MonoBehaviour
             if(!allPagesReceived)
             {
                 pagination.offset += pagination.limit;
+            }
+        }
+
+        foreach(int modId in collectionModIds)
+        {
+            if(!subscribedModIds.Contains(modId))
+            {
+                APIClient.SubscribeToMod(modId,
+                                         (p) => Debug.Log("[mod.io] Mod subscription merged: " + p.id + "-" + p.name),
+                                         (e) => Debug.Log("[mod.io] Mod subscription merge failed: " + modId + "\n"
+                                                          + e.ToUnityDebugString()));
+
+                subscribedModIds.Add(modId);
             }
         }
 
