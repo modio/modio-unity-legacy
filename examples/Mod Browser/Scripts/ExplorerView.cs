@@ -171,7 +171,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                                         null);
         }
 
-        ResizeContentPane();
+        ResizeContentPane(modProfileCollection.Count);
     }
 
     /// <summary>Calculates the lower-left anchor offset of an item.</summary>
@@ -186,17 +186,14 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         return pos;
     }
 
-    public void ResizeContentPane()
+    public void ResizeContentPane(int itemCount)
     {
-        int itemCount = this.contentPane.GetComponentsInChildren<ModBrowserItem>().Length;
         float rowCount = Mathf.Ceil((float)itemCount / (float)this.columnCount);
         float newHeight = (this.rowPadding * (rowCount + 1)
                            + this.itemHeight * (rowCount));
 
         RectTransform contentTransform = contentPane.GetComponent<RectTransform>();
-        Vector2 offsetMin = contentTransform.offsetMin;
-        offsetMin.y = -1 * newHeight;
-        contentTransform.offsetMin = offsetMin;
+        contentTransform.sizeDelta = new Vector2(0f, newHeight);
     }
 
     // ---------[ EVENTS ]---------
