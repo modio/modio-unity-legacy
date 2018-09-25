@@ -364,7 +364,7 @@ namespace ModIO
                     }
                 }
 
-                Debug.Log("GENERATED PUT REQUEST"
+                Debug.Log("GENERATED DELETE REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\nFields: " + formFields
                           + "\n");

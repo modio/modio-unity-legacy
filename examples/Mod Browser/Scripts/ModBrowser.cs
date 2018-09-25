@@ -417,7 +417,8 @@ public class ModBrowser : MonoBehaviour
         }
 
         CacheClient.SaveAuthenticatedUserProfile(requestProfile);
-        userDisplay.profile = requestProfile;
+        this.userProfile = requestProfile;
+        userDisplay.profile = this.userProfile;
         userDisplay.UpdateUIComponents();
 
         // - get the subscriptions -
@@ -761,9 +762,9 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-    public void OnUnsubscribeButtonClicked(ModProfile profile)
+    public void OnUnsubscribeButtonClicked(ModProfile modProfile)
     {
-        Debug.Assert(profile != null);
+        Debug.Assert(modProfile != null);
 
         if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
         {
@@ -771,7 +772,7 @@ public class ModBrowser : MonoBehaviour
 
             Action onUnsubscribe = () =>
             {
-                OnUnsubscribedFromMod(profile);
+                OnUnsubscribedFromMod(modProfile);
             };
 
             // TODO(@jackson): onError
@@ -781,24 +782,24 @@ public class ModBrowser : MonoBehaviour
                 collectionView.unsubscribeButton.interactable = true;
             };
 
-            APIClient.UnsubscribeFromMod(profile.id, onUnsubscribe, onError);
+            APIClient.UnsubscribeFromMod(modProfile.id, onUnsubscribe, onError);
         }
         else
         {
-            OnUnsubscribedFromMod(profile);
+            OnUnsubscribedFromMod(modProfile);
         }
     }
 
-    public void OnUnsubscribedFromMod(ModProfile profile)
+    public void OnUnsubscribedFromMod(ModProfile modProfile)
     {
-        Debug.Assert(profile != null);
+        Debug.Assert(modProfile != null);
 
         // update collection
-        collectionModIds.Remove(profile.id);
+        collectionModIds.Remove(modProfile.id);
         CacheClient.SaveAuthenticatedUserSubscriptions(collectionModIds);
 
         // remove from disk
-        CacheClient.DeleteAllModfileAndBinaryData(profile.id);
+        CacheClient.DeleteAllModfileAndBinaryData(modProfile.id);
 
         collectionView.Refresh();
     }
