@@ -351,9 +351,14 @@ public class ModBrowser : MonoBehaviour
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
 
-                IModBrowserView view = GetViewForMode(this.viewMode);
-                view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
-                view.Refresh();
+                #if DEBUG
+                if(Application.isPlaying)
+                #endif
+                {
+                    IModBrowserView view = GetViewForMode(this.viewMode);
+                    view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
+                    view.Refresh();
+                }
             };
 
             Action<WebRequestError> onError = (error) =>

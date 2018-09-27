@@ -130,7 +130,16 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         {
             item.onClick -= NotifyItemClicked;
 
-            UnityEngine.Object.Destroy(item.gameObject);
+            #if DEBUG
+            if(!Application.isPlaying)
+            {
+                UnityEngine.Object.DestroyImmediate(item.gameObject);
+            }
+            else
+            #endif
+            {
+                UnityEngine.Object.Destroy(item.gameObject);
+            }
         }
 
         // TODO(@jackson): pageSize = rows that fit +/- 0.25?
