@@ -40,6 +40,7 @@ public class ModBrowser : MonoBehaviour
     // --- UI Components ---
     [Header("UI Components")]
     public ExplorerView explorerView;
+    public ExplorerView_Scrolling explorerViewScrolling;
     public CollectionView collectionView;
     public ModInspector inspector;
     public ModBrowserSearchBar searchBar;
@@ -575,13 +576,13 @@ public class ModBrowser : MonoBehaviour
     }
     public void SetExplorerViewLayout(ModBrowserLayoutMode layout)
     {
-        if(explorerView.layoutMode == layout) { return; }
+        // if(explorerView.layoutMode == layout) { return; }
 
-        // collectionView.layoutMode = layout;
-        // collectionView.InitializeLayout();
-        explorerView.layoutMode = layout;
-        explorerView.InitializeLayout();
-        explorerView.Refresh();
+        // // collectionView.layoutMode = layout;
+        // // collectionView.InitializeLayout();
+        // explorerView.layoutMode = layout;
+        // explorerView.InitializeLayout();
+        // explorerView.Refresh();
     }
 
     public void SetViewModeCollection()
@@ -771,8 +772,12 @@ public class ModBrowser : MonoBehaviour
     {
         Debug.Assert(modProfile != null);
 
+        Debug.Log("UserProfile.id = " + userProfile.id
+                  + "\nModBrowser.GUEST_PROFILE.id = " + GUEST_PROFILE.id);
+
         if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
         {
+            Debug.Log("Unsubbing Account");
             collectionView.unsubscribeButton.interactable = false;
 
             Action onUnsubscribe = () =>
@@ -791,6 +796,7 @@ public class ModBrowser : MonoBehaviour
         }
         else
         {
+            Debug.Log("Unsubbing Guest");
             OnUnsubscribedFromMod(modProfile);
         }
     }

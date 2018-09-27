@@ -479,6 +479,12 @@ namespace ModIO
         /// <summary>Iterates through all of the mod profiles in the cache.</summary>
         public static IEnumerable<ModProfile> IterateAllModProfiles()
         {
+            return IterateAllModProfilesFromOffset(0);
+        }
+
+        /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
+        public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
+        {
             string profileDirectory = CacheClient._cacheDirectory + "mods/";
 
             if(Directory.Exists(profileDirectory))
@@ -499,15 +505,25 @@ namespace ModIO
                     modDirectories = new string[0];
                 }
 
-                foreach(string modDirectory in modDirectories)
+                int offsetDirCount = modDirectories.Length - offset;
+                if(offsetDirCount > 0)
                 {
-                    ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(modDirectory + "/profile.data");
+                    string[] offsetModDirectories = new string[offsetDirCount];
+                    Array.Copy(modDirectories, offset,
+                               offsetModDirectories, 0,
+                               offsetDirCount);
 
-                    if(profile != null)
+                    foreach(string modDirectory in offsetModDirectories)
                     {
-                        yield return profile;
+                        ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(modDirectory + "/profile.data");
+
+                        if(profile != null)
+                        {
+                            yield return profile;
+                        }
                     }
                 }
+
             }
         }
 

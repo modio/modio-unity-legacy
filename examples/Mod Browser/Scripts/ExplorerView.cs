@@ -1,22 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using ModIO;
 
-public enum ModBrowserLayoutMode
-{
-    Grid,
-    Table,
-}
-
-[Serializable]
-public class ModBrowserLayoutSettings
-{
-    public GameObject itemPrefab;
-    public bool isSingleColumnLayout;
-    public float minColumnPadding;
-    public float rowPadding;
-}
 
 public class ExplorerView : MonoBehaviour, IModBrowserView
 {
@@ -24,33 +11,30 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     // - Events -
     public event Action<ModBrowserItem> onItemClicked;
 
-    // ---[ SCENE COMPONENTS ]---
+    // ---[ UI ]---
     [Header("Settings")]
     public GameObject itemPrefab;
-    public ModBrowserLayoutMode layoutMode;
-    public ModBrowserLayoutSettings gridSettings;
-    public ModBrowserLayoutSettings tableSettings;
+    public RectOffset minPadding;
+    public float minRowSpacing;
+    public float minColumnSpacing;
 
-    [Header("UI Components")]
+    [Header("Scene Components")]
     public RectTransform contentPane;
 
-    // --- Events ---
-
-    // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]
-    public float itemHeight;
-    public float rowPadding;
-    public float itemWidth;
-    public float columnPadding;
+    public RectTransform innerPaneMain;
+    public RectTransform innerPaneTransitional;
     public int columnCount;
+    public int rowCount;
+    public Vector2 calculatedCellSize;
+    public Vector2 calculatedItemSize;
+    public Vector2 calculatedItemCellOffset;
 
-    // ---------[ PRIVATES ]---------
-    private IEnumerator<ModProfile> _profileEnumerator;
+    // ---[ DATA ]---
+    public int firstModProfileOffset;
 
-    // --- TEMP DATA ---
-    public int TEST_rowDisplayCount;
-    public int TEST_pageSize;
-    public int TEST_pageIndex;
+    // ---[ CALCULATED VARS ]----
+    public int pageSize { get { return this.columnCount * this.rowCount; } }
 
 
     // ---------[ IMODBROWSERVIEW ]---------
@@ -58,100 +42,126 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
     public void InitializeLayout()
     {
-        ModBrowserLayoutSettings layoutSettings = null;
-        switch(this.layoutMode)
+        // check itemPrefab componennts
+        ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
+        LayoutElement itemPrefabLayoutElement = itemPrefab.GetComponent<LayoutElement>();
+        RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
+
+        Debug.Assert(itemPrefabScript != null
+                     && itemPrefabLayoutElement != null
+                     && itemPrefabTransform != null,
+                     "[mod.io] The ExplorerView.itemPrefab is missing at least one of the following"
+                     + " components: a ModBrowserItem, a LayoutElement, or a RectTransform.");
+
+        Debug.Assert(itemPrefabTransform.anchorMin == new Vector2(0f, 1f)
+                     && itemPrefabTransform.anchorMax == new Vector2(0f, 1f),
+                     "[mod.io] The ExplorerView.itemPrefab's transfrom needs a top-left anchor."
+                     + " Please ensure the both the anchor min and anchor max are at [0, 1].");
+
+        // initialize inner panes
+        if(innerPaneMain == null || innerPaneTransitional == null)
         {
-            case ModBrowserLayoutMode.Grid:
+            foreach(Transform t in contentPane)
             {
-                layoutSettings = this.gridSettings;
+                GameObject.Destroy(t.gameObject);
             }
-            break;
-            case ModBrowserLayoutMode.Table:
-            {
-                layoutSettings = this.tableSettings;
-            }
-            break;
+
+            innerPaneMain = (new GameObject("Inner Pane: Main")).AddComponent<RectTransform>();
+            innerPaneMain.SetParent(contentPane);
+            innerPaneMain.anchorMin = new Vector2(0f, 0f);
+            innerPaneMain.anchorMax = new Vector2(1f, 1f);
+            innerPaneMain.offsetMin = new Vector2(0f, 0f);
+            innerPaneMain.offsetMax = new Vector2(0f, 0f);
+
+            innerPaneTransitional = (new GameObject("Inner Pane: Transitional")).AddComponent<RectTransform>();
+            innerPaneTransitional.SetParent(contentPane);
+            innerPaneTransitional.anchorMin = new Vector2(0f, 0f);
+            innerPaneTransitional.anchorMax = new Vector2(1f, 1f);
+            innerPaneTransitional.offsetMin = new Vector2(0f, 0f);
+            innerPaneTransitional.offsetMax = new Vector2(0f, 0f);
         }
 
-        // check itemPrefab transform
-        RectTransform itemPrefabTransform = layoutSettings.itemPrefab.GetComponent<RectTransform>();
-        if(itemPrefabTransform == null
-           || itemPrefabTransform.anchorMin != new Vector2(0f, 1f)
-           || itemPrefabTransform.anchorMax != new Vector2(0f, 1f))
+        // - calculate size vars -
+        // width
+        float prefItemWidth = itemPrefabLayoutElement.preferredWidth;
+        if(prefItemWidth < 0)
         {
-            Debug.LogError("[mod.io] Mod Browser View Item Prefab must have a "
-                           + "UnityEngine.RectTransform component with an Anchor Min of [0, 1] "
-                           + "and an Anchor Max of [0, 1].", layoutSettings.itemPrefab);
-            return;
+            prefItemWidth = itemPrefabTransform.rect.width;
         }
 
-        // check contentPane transform
-        if(contentPane.GetComponent<RectTransform>().anchorMin.y != 1f
-           || contentPane.GetComponent<RectTransform>().anchorMax.y != 1f)
+        float minItemWidth = itemPrefabLayoutElement.minWidth;
+        if(minItemWidth < 0)
         {
-            Debug.LogError("[mod.io] Mod Browser View Content Pane must have a "
-                           + "UnityEngine.RectTransform component with a top anchor",
-                           this.contentPane);
-            return;
+            minItemWidth = prefItemWidth;
         }
 
-        // perform simple copies
-        this.itemPrefab = layoutSettings.itemPrefab;
-        this.itemHeight = itemPrefabTransform.rect.height;
-        this.rowPadding = layoutSettings.rowPadding;
+        float contentWidth = contentPane.rect.width - minPadding.horizontal + minColumnSpacing;
+        this.columnCount = (int)Mathf.Floor(contentWidth / (minItemWidth + minColumnSpacing));
 
-        // calculate complex vars
-        if(layoutSettings.isSingleColumnLayout)
+        calculatedCellSize.x = contentWidth / (float)this.columnCount;
+        calculatedItemSize.x = calculatedCellSize.x - minColumnSpacing;
+        if(calculatedItemSize.x > prefItemWidth)
         {
-            this.itemWidth = contentPane.rect.width - (2 * layoutSettings.minColumnPadding);
-            this.columnCount = 1;
-            this.columnPadding = layoutSettings.minColumnPadding;
+            calculatedItemSize.x = prefItemWidth;
         }
-        else
+        calculatedItemCellOffset.x = (calculatedCellSize.x - calculatedItemSize.x) * 0.5f;
+
+        // height
+        float prefItemHeight = itemPrefabLayoutElement.preferredHeight;
+        if(prefItemHeight < 0)
         {
-            this.itemWidth = itemPrefabTransform.rect.width;
-
-            float minColumnWidth = itemPrefabTransform.rect.width + layoutSettings.minColumnPadding;
-            this.columnCount = (int)Mathf.Floor((contentPane.rect.width - layoutSettings.rowPadding)
-                                                / minColumnWidth);
-
-            this.columnPadding = ((contentPane.rect.width - (itemPrefabTransform.rect.width * this.columnCount))
-                                   / (1f + this.columnCount));
+            prefItemHeight = itemPrefabTransform.rect.height;
         }
+
+        float minItemHeight = itemPrefabLayoutElement.minHeight;
+        if(minItemHeight < 0)
+        {
+            minItemHeight = prefItemHeight;
+        }
+
+        float contentHeight = contentPane.rect.height - minPadding.vertical + minRowSpacing;
+        this.rowCount = (int)Mathf.Floor(contentHeight / (minItemHeight + minRowSpacing));
+
+        calculatedCellSize.y = contentHeight / (float)this.rowCount;
+        calculatedItemSize.y = calculatedCellSize.y - minColumnSpacing;
+        if(calculatedItemSize.y > prefItemHeight)
+        {
+            calculatedItemSize.y = prefItemHeight;
+        }
+        calculatedItemCellOffset.y = (calculatedCellSize.y - calculatedItemSize.y) * 0.5f;
     }
 
     /// <summary>Refreshes the view using the current settings.</summary>
     public void Refresh()
     {
-        _profileEnumerator = profileCollection.GetEnumerator();
-
         // clear existing items
-        foreach(ModBrowserItem item in this.contentPane.GetComponentsInChildren<ModBrowserItem>())
+        foreach(Transform t in innerPaneMain)
         {
-            item.onClick -= NotifyItemClicked;
+            ModBrowserItem item = t.GetComponent<ModBrowserItem>();
+            if(item != null)
+            {
+                item.onClick -= NotifyItemClicked;
+            }
 
             #if DEBUG
             if(!Application.isPlaying)
             {
-                UnityEngine.Object.DestroyImmediate(item.gameObject);
+                UnityEngine.Object.DestroyImmediate(t.gameObject);
             }
             else
             #endif
             {
-                UnityEngine.Object.Destroy(item.gameObject);
+                UnityEngine.Object.Destroy(t.gameObject);
             }
         }
 
-        // TODO(@jackson): pageSize = rows that fit +/- 0.25?
-        TEST_pageIndex = 0;
-
         // collect the profiles in view
-        List<ModProfile> modProfileCollection = new List<ModProfile>(TEST_pageSize);
-        while(TEST_pageIndex < TEST_pageSize
-              && _profileEnumerator.MoveNext())
+        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(firstModProfileOffset).GetEnumerator();
+        List<ModProfile> modProfileCollection = new List<ModProfile>(this.pageSize);
+        while(modProfileCollection.Count < this.pageSize
+              && profileEnumerator.MoveNext())
         {
-            modProfileCollection.Add(_profileEnumerator.Current);
-            ++TEST_pageIndex;
+            modProfileCollection.Add(profileEnumerator.Current);
         }
 
         // create new items
@@ -160,14 +170,23 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
             GameObject itemGO = GameObject.Instantiate(itemPrefab,
                                                        new Vector3(),
                                                        Quaternion.identity,
-                                                       contentPane);
+                                                       innerPaneMain);
+
+            // calculate layout
+            int itemX = i % this.columnCount;
+            int itemY = i / this.columnCount;
+
+            Vector2 itemPos = new Vector2();
+            itemPos.x = (minPadding.left + calculatedItemCellOffset.x
+                         + (itemX * calculatedCellSize.x));
+            itemPos.y = (minPadding.top + calculatedItemCellOffset.y
+                         + (itemY * calculatedCellSize.y)) * -1f;
 
             RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
-            Vector2 itemPos = CalculateItemPos(i);
-            itemTransform.offsetMin = itemPos;
-            itemTransform.offsetMax = new Vector2(itemPos.x + this.itemWidth,
-                                                  itemPos.y + this.itemHeight);
+            itemTransform.anchoredPosition = itemPos;
+            itemTransform.sizeDelta = calculatedItemSize;
 
+            // display mod profile
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
             item.modProfile = modProfileCollection[i];
             item.onClick += NotifyItemClicked;
@@ -179,30 +198,6 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                                         (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
                                         null);
         }
-
-        ResizeContentPane(modProfileCollection.Count);
-    }
-
-    /// <summary>Calculates the lower-left anchor offset of an item.</summary>
-    public Vector2 CalculateItemPos(int index)
-    {
-        int x = index % this.columnCount;
-        int y = index / this.columnCount;
-
-        Vector2 pos = new Vector2(columnPadding * (x+1) + itemWidth * (x),
-                                  -1 * (rowPadding + itemHeight) * (y+1));
-
-        return pos;
-    }
-
-    public void ResizeContentPane(int itemCount)
-    {
-        float rowCount = Mathf.Ceil((float)itemCount / (float)this.columnCount);
-        float newHeight = (this.rowPadding * (rowCount + 1)
-                           + this.itemHeight * (rowCount));
-
-        RectTransform contentTransform = contentPane.GetComponent<RectTransform>();
-        contentTransform.sizeDelta = new Vector2(0f, newHeight);
     }
 
     // ---------[ EVENTS ]---------
