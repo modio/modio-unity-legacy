@@ -7218,6 +7218,7 @@ MonoBehaviour:
     m_Bottom: 12
   minRowSpacing: 8
   minColumnSpacing: 8
+  pageTransitionTimeSeconds: 0.4
   contentPane: {fileID: 224480924864000676}
   pageLeftButton: {fileID: 114271665032887358}
   pageRightButton: {fileID: 114404324250867444}
@@ -7231,7 +7232,9 @@ MonoBehaviour:
   calculatedGridOffset: {x: 0, y: 0}
   currentPage: 0
   targetPage: 0
+  queuedTargetPage: 0
   lastPage: 0
+  isPageTransitioning: 0
 --- !u!114 &114202621014420824
 MonoBehaviour:
   m_ObjectHideFlags: 1

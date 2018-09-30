@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public RectOffset minPadding;
     public float minRowSpacing;
     public float minColumnSpacing;
+    public float pageTransitionTimeSeconds;
 
     [Header("Scene Components")]
     public RectTransform contentPane;
@@ -34,7 +36,9 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public Vector2 calculatedGridOffset;
     public int currentPage;
     public int targetPage;
+    public int queuedTargetPage;
     public int lastPage;
+    public bool isPageTransitioning;
 
     // ---[ CALCULATED VARS ]----
     public int pageSize { get { return this.columnCount * this.rowCount; } }
@@ -43,6 +47,9 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     {
         pageLeftButton.onClick.AddListener(() => ChangePage(-1));
         pageRightButton.onClick.AddListener(() => ChangePage(1));
+        isPageTransitioning = false;
+        targetPage = currentPage;
+        queuedTargetPage = -1;
     }
 
     // ---------[ IMODBROWSERVIEW ]---------
@@ -165,40 +172,15 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                 UnityEngine.Object.Destroy(t.gameObject);
             }
         }
-        foreach(Transform t in innerPaneTransitional)
-        {
-            ModBrowserItem item = t.GetComponent<ModBrowserItem>();
-            if(item != null)
-            {
-                item.onClick -= NotifyItemClicked;
-            }
-
-            #if DEBUG
-            if(!Application.isPlaying)
-            {
-                UnityEngine.Object.DestroyImmediate(t.gameObject);
-            }
-            else
-            #endif
-            {
-                UnityEngine.Object.Destroy(t.gameObject);
-            }
-        }
 
         // collect the profiles in view
-        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(currentPage * pageSize).GetEnumerator();
+        IEnumerator<ModProfile> mainProfiles = CacheClient.IterateAllModProfilesFromOffset(currentPage * pageSize).GetEnumerator();
         List<ModProfile> mainPaneMods = new List<ModProfile>(this.pageSize);
-        List<ModProfile> transitionPaneMods = new List<ModProfile>(this.pageSize);
 
         while(mainPaneMods.Count < this.pageSize
-              && profileEnumerator.MoveNext())
+              && mainProfiles.MoveNext())
         {
-            mainPaneMods.Add(profileEnumerator.Current);
-        }
-        while(transitionPaneMods.Count < this.pageSize
-              && profileEnumerator.MoveNext())
-        {
-            transitionPaneMods.Add(profileEnumerator.Current);
+            mainPaneMods.Add(mainProfiles.Current);
         }
         lastPage = (int)Mathf.Ceil((float)CacheClient.CountModProfiles() / (float)pageSize) - 1;
 
@@ -207,9 +189,44 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         {
             CreateItem(mainPaneMods[i], innerPaneMain, i);
         }
-        for(int i = 0; i < transitionPaneMods.Count; ++i)
+
+        // handle page transitioning
+        if(isPageTransitioning)
         {
-            CreateItem(transitionPaneMods[i], innerPaneTransitional, i);
+            foreach(Transform t in innerPaneTransitional)
+            {
+                ModBrowserItem item = t.GetComponent<ModBrowserItem>();
+                if(item != null)
+                {
+                    item.onClick -= NotifyItemClicked;
+                }
+
+                #if DEBUG
+                if(!Application.isPlaying)
+                {
+                    UnityEngine.Object.DestroyImmediate(t.gameObject);
+                }
+                else
+                #endif
+                {
+                    UnityEngine.Object.Destroy(t.gameObject);
+                }
+            }
+
+            IEnumerator<ModProfile> transProfiles = CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize).GetEnumerator();
+            List<ModProfile> transitionPaneMods = new List<ModProfile>(this.pageSize);
+
+            while(transitionPaneMods.Count < this.pageSize
+                  && transProfiles.MoveNext())
+            {
+                transitionPaneMods.Add(transProfiles.Current);
+            }
+
+            for(int i = 0; i < transitionPaneMods.Count; ++i)
+            {
+                CreateItem(transitionPaneMods[i], innerPaneTransitional, i);
+            }
+
         }
 
         // update buttons
@@ -217,7 +234,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         pageRightButton.interactable = (currentPage < lastPage);
     }
 
-    private void CreateItem(ModProfile profile, RectTransform pane, int index)
+    private GameObject CreateItem(ModProfile profile, RectTransform pane, int index)
     {
         GameObject itemGO = GameObject.Instantiate(itemPrefab,
                                                    new Vector3(),
@@ -249,14 +266,114 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         ModManager.GetModStatistics(item.modProfile.id,
                                     (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
                                     null);
+
+        return itemGO;
     }
 
-    public void MoveToPage(int targetPage)
+    public void MoveToPage(int pageIndex)
     {
-        Debug.Assert(targetPage >= 0);
+        Debug.Assert(pageIndex >= 0 && pageIndex <= lastPage);
+        if(currentPage == pageIndex) { return; }
+
+        if(!isPageTransitioning)
+        {
+            targetPage = pageIndex;
+            StartCoroutine(TransitionPageCoroutine());
+        }
+        else
+        {
+            queuedTargetPage = targetPage;
+        }
+    }
+
+    private IEnumerator TransitionPageCoroutine()
+    {
+        isPageTransitioning = true;
+
+        pageLeftButton.interactable = false;
+        pageRightButton.interactable = false;
+
+        // load up transition panel
+        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize).GetEnumerator();
+        List<ModProfile> transitionPaneMods = new List<ModProfile>(pageSize);
+
+        while(transitionPaneMods.Count < this.pageSize
+              && profileEnumerator.MoveNext())
+        {
+            transitionPaneMods.Add(profileEnumerator.Current);
+        }
+
+        for(int i = 0; i < transitionPaneMods.Count; ++i)
+        {
+            CreateItem(transitionPaneMods[i], innerPaneTransitional, i);
+        }
+
+        // transition
+        float transitionTime = Time.deltaTime;
+        float mainPaneTargetX = contentPane.rect.width * (currentPage < targetPage ? -1f : 1f);
+        float transPaneStartX = mainPaneTargetX * -1f;
+        while(transitionTime < pageTransitionTimeSeconds)
+        {
+            float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / pageTransitionTimeSeconds);
+
+            innerPaneMain.offsetMin = new Vector2(transPos,
+                                                  0f);
+            innerPaneMain.offsetMax = new Vector2(transPos + contentPane.rect.width,
+                                                  contentPane.rect.height);
+
+            innerPaneTransitional.offsetMin = new Vector2(transPos + transPaneStartX,
+                                                          0f);
+            innerPaneTransitional.offsetMax = new Vector2(transPos + transPaneStartX + contentPane.rect.width,
+                                                          contentPane.rect.height);
+
+            transitionTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        // finalize
+        innerPaneTransitional.offsetMin = Vector2.zero;
+        innerPaneTransitional.offsetMax = new Vector2(0f, contentPane.rect.height);
+
+        foreach(Transform t in innerPaneMain)
+        {
+            ModBrowserItem item = t.GetComponent<ModBrowserItem>();
+            if(item != null)
+            {
+                item.onClick -= NotifyItemClicked;
+            }
+
+            #if DEBUG
+            if(!Application.isPlaying)
+            {
+                UnityEngine.Object.DestroyImmediate(t.gameObject);
+            }
+            else
+            #endif
+            {
+                UnityEngine.Object.Destroy(t.gameObject);
+            }
+        }
+
+        innerPaneMain.offsetMin = Vector2.zero;
+        innerPaneMain.offsetMax = new Vector2(0f, contentPane.rect.height);
+
+        while(innerPaneTransitional.childCount > 0)
+        {
+            innerPaneTransitional.GetChild(0).SetParent(innerPaneMain);
+        }
 
         currentPage = targetPage;
-        Refresh();
+        pageLeftButton.interactable = (currentPage > 0);
+        pageRightButton.interactable = (currentPage < lastPage);
+        isPageTransitioning = false;
+
+        if(queuedTargetPage > 0)
+        {
+            targetPage = queuedTargetPage;
+            queuedTargetPage = 0;
+            StartCoroutine(TransitionPageCoroutine());
+        }
     }
 
     public void ChangePage(int direction)
