@@ -29,9 +29,8 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public Vector2 calculatedCellSize;
     public Vector2 calculatedItemSize;
     public Vector2 calculatedItemCellOffset;
-
-    // ---[ DATA ]---
-    public int firstModProfileOffset;
+    public Vector2 calculatedGridOffset;
+    public int currentPage;
 
     // ---[ CALCULATED VARS ]----
     public int pageSize { get { return this.columnCount * this.rowCount; } }
@@ -68,17 +67,18 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
             innerPaneMain = (new GameObject("Inner Pane: Main")).AddComponent<RectTransform>();
             innerPaneMain.SetParent(contentPane);
-            innerPaneMain.anchorMin = new Vector2(0f, 0f);
-            innerPaneMain.anchorMax = new Vector2(1f, 1f);
-            innerPaneMain.offsetMin = new Vector2(0f, 0f);
-            innerPaneMain.offsetMax = new Vector2(0f, 0f);
+            innerPaneMain.anchorMin = Vector2.zero;
+            innerPaneMain.anchorMax = Vector2.zero;
+            innerPaneMain.offsetMin = Vector2.zero;
+            innerPaneMain.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
 
             innerPaneTransitional = (new GameObject("Inner Pane: Transitional")).AddComponent<RectTransform>();
             innerPaneTransitional.SetParent(contentPane);
-            innerPaneTransitional.anchorMin = new Vector2(0f, 0f);
-            innerPaneTransitional.anchorMax = new Vector2(1f, 1f);
-            innerPaneTransitional.offsetMin = new Vector2(0f, 0f);
-            innerPaneTransitional.offsetMax = new Vector2(0f, 0f);
+            innerPaneTransitional.anchorMin = Vector2.zero;
+            innerPaneTransitional.anchorMax = Vector2.zero;
+            innerPaneTransitional.offsetMin = new Vector2(contentPane.rect.width, 0f);
+            innerPaneTransitional.offsetMax = new Vector2(contentPane.rect.width * 2f,
+                                                          contentPane.rect.height);
         }
 
         // - calculate size vars -
@@ -99,6 +99,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         this.columnCount = (int)Mathf.Floor(contentWidth / (minItemWidth + minColumnSpacing));
 
         calculatedCellSize.x = contentWidth / (float)this.columnCount;
+        calculatedGridOffset.x = (contentPane.rect.width - (calculatedCellSize.x * (float)this.columnCount)) * 0.5f;
         calculatedItemSize.x = calculatedCellSize.x - minColumnSpacing;
         if(calculatedItemSize.x > prefItemWidth)
         {
@@ -123,6 +124,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         this.rowCount = (int)Mathf.Floor(contentHeight / (minItemHeight + minRowSpacing));
 
         calculatedCellSize.y = contentHeight / (float)this.rowCount;
+        calculatedGridOffset.y = (contentPane.rect.height - (calculatedCellSize.y * (float)this.rowCount)) * 0.5f;
         calculatedItemSize.y = calculatedCellSize.y - minColumnSpacing;
         if(calculatedItemSize.y > prefItemHeight)
         {
@@ -131,7 +133,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         calculatedItemCellOffset.y = (calculatedCellSize.y - calculatedItemSize.y) * 0.5f;
     }
 
-    /// <summary>Refreshes the view using the current settings.</summary>
+    /// <summary>Refreshes the view using the current data.</summary>
     public void Refresh()
     {
         // clear existing items
@@ -154,50 +156,85 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                 UnityEngine.Object.Destroy(t.gameObject);
             }
         }
+        foreach(Transform t in innerPaneTransitional)
+        {
+            ModBrowserItem item = t.GetComponent<ModBrowserItem>();
+            if(item != null)
+            {
+                item.onClick -= NotifyItemClicked;
+            }
+
+            #if DEBUG
+            if(!Application.isPlaying)
+            {
+                UnityEngine.Object.DestroyImmediate(t.gameObject);
+            }
+            else
+            #endif
+            {
+                UnityEngine.Object.Destroy(t.gameObject);
+            }
+        }
 
         // collect the profiles in view
-        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(firstModProfileOffset).GetEnumerator();
-        List<ModProfile> modProfileCollection = new List<ModProfile>(this.pageSize);
-        while(modProfileCollection.Count < this.pageSize
+        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(currentPage * pageSize).GetEnumerator();
+        List<ModProfile> mainPaneMods = new List<ModProfile>(this.pageSize);
+        List<ModProfile> transitionPaneMods = new List<ModProfile>(this.pageSize);
+
+        while(mainPaneMods.Count < this.pageSize
               && profileEnumerator.MoveNext())
         {
-            modProfileCollection.Add(profileEnumerator.Current);
+            mainPaneMods.Add(profileEnumerator.Current);
+        }
+        while(transitionPaneMods.Count < this.pageSize
+              && profileEnumerator.MoveNext())
+        {
+            transitionPaneMods.Add(profileEnumerator.Current);
         }
 
         // create new items
-        for(int i = 0; i < modProfileCollection.Count; ++i)
+        for(int i = 0; i < mainPaneMods.Count; ++i)
         {
-            GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                                       new Vector3(),
-                                                       Quaternion.identity,
-                                                       innerPaneMain);
-
-            // calculate layout
-            int itemX = i % this.columnCount;
-            int itemY = i / this.columnCount;
-
-            Vector2 itemPos = new Vector2();
-            itemPos.x = (minPadding.left + calculatedItemCellOffset.x
-                         + (itemX * calculatedCellSize.x));
-            itemPos.y = (minPadding.top + calculatedItemCellOffset.y
-                         + (itemY * calculatedCellSize.y)) * -1f;
-
-            RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
-            itemTransform.anchoredPosition = itemPos;
-            itemTransform.sizeDelta = calculatedItemSize;
-
-            // display mod profile
-            ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-            item.modProfile = modProfileCollection[i];
-            item.onClick += NotifyItemClicked;
-            item.Initialize();
-            item.UpdateProfileUIComponents();
-            item.UpdateStatisticsUIComponents();
-
-            ModManager.GetModStatistics(item.modProfile.id,
-                                        (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
-                                        null);
+            CreateItem(mainPaneMods[i], innerPaneMain, i);
         }
+        for(int i = 0; i < transitionPaneMods.Count; ++i)
+        {
+            CreateItem(transitionPaneMods[i], innerPaneTransitional, i);
+        }
+    }
+
+    private void CreateItem(ModProfile profile, RectTransform pane, int index)
+    {
+        GameObject itemGO = GameObject.Instantiate(itemPrefab,
+                                                   new Vector3(),
+                                                   Quaternion.identity,
+                                                   pane);
+
+        // calculate layout
+        int itemX = index % this.columnCount;
+        int itemY = index / this.columnCount;
+
+        Vector2 itemPos = new Vector2();
+        itemPos.x = (calculatedGridOffset.x + calculatedItemCellOffset.x
+                     + (itemX * calculatedCellSize.x));
+        itemPos.y = (calculatedGridOffset.y + calculatedItemCellOffset.y
+                     + (itemY * calculatedCellSize.y)) * -1f;
+
+        RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
+        itemTransform.anchoredPosition = itemPos;
+        itemTransform.sizeDelta = calculatedItemSize;
+
+        // display mod profile
+        ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
+        item.modProfile = profile;
+        item.onClick += NotifyItemClicked;
+        item.Initialize();
+        item.UpdateProfileUIComponents();
+        item.UpdateStatisticsUIComponents();
+
+        ModManager.GetModStatistics(item.modProfile.id,
+                                    (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
+                                    null);
     }
 
     // ---------[ EVENTS ]---------
