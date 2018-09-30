@@ -20,6 +20,8 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
     [Header("Scene Components")]
     public RectTransform contentPane;
+    public Button pageLeftButton;
+    public Button pageRightButton;
 
     [Header("Runtime Data")]
     public RectTransform innerPaneMain;
@@ -31,10 +33,17 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public Vector2 calculatedItemCellOffset;
     public Vector2 calculatedGridOffset;
     public int currentPage;
+    public int targetPage;
+    public int lastPage;
 
     // ---[ CALCULATED VARS ]----
     public int pageSize { get { return this.columnCount * this.rowCount; } }
 
+    private void Start()
+    {
+        pageLeftButton.onClick.AddListener(() => ChangePage(-1));
+        pageRightButton.onClick.AddListener(() => ChangePage(1));
+    }
 
     // ---------[ IMODBROWSERVIEW ]---------
     public IEnumerable<ModProfile> profileCollection { get; set; }
@@ -191,6 +200,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         {
             transitionPaneMods.Add(profileEnumerator.Current);
         }
+        lastPage = (int)Mathf.Ceil((float)CacheClient.CountModProfiles() / (float)pageSize) - 1;
 
         // create new items
         for(int i = 0; i < mainPaneMods.Count; ++i)
@@ -201,6 +211,10 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         {
             CreateItem(transitionPaneMods[i], innerPaneTransitional, i);
         }
+
+        // update buttons
+        pageLeftButton.interactable = (currentPage > 0);
+        pageRightButton.interactable = (currentPage < lastPage);
     }
 
     private void CreateItem(ModProfile profile, RectTransform pane, int index)
@@ -235,6 +249,19 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         ModManager.GetModStatistics(item.modProfile.id,
                                     (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
                                     null);
+    }
+
+    public void MoveToPage(int targetPage)
+    {
+        Debug.Assert(targetPage >= 0);
+
+        currentPage = targetPage;
+        Refresh();
+    }
+
+    public void ChangePage(int direction)
+    {
+        MoveToPage(currentPage + direction);
     }
 
     // ---------[ EVENTS ]---------

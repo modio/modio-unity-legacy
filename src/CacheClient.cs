@@ -527,6 +527,35 @@ namespace ModIO
             }
         }
 
+        /// <summary>Determines how many ModProfiles are currently stored in the cache.</summary>
+        public static int CountModProfiles()
+        {
+            string profileDirectory = CacheClient._cacheDirectory + "mods/";
+
+            if(Directory.Exists(profileDirectory))
+            {
+                string[] modDirectories;
+                try
+                {
+                    modDirectories = Directory.GetDirectories(profileDirectory);
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
+                                          + "\nDirectory: " + profileDirectory + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+
+                    modDirectories = new string[0];
+                }
+
+                return modDirectories.Length;
+            }
+
+            return 0;
+        }
+
         /// <summary>Deletes all of a mod's data from the cache.</summary>
         public static void DeleteMod(int modId)
         {
