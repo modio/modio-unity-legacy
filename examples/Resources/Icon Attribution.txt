@@ -31,3 +31,7 @@ https://thenounproject.com/icon/637356/
 [ browser_icon-grid.png ]
 grid by David from the Noun Project
 https://thenounproject.com/icon/486324/
+
+[ browser_icon-ratingSpeech.png ]
+rating by Rose Alice Design from the Noun Project
+https://thenounproject.com/icon/1966359/

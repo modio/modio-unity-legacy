@@ -610,11 +610,11 @@ public class ModBrowser : MonoBehaviour
 
     public void OnExplorerItemClicked(ModBrowserItem item)
     {
-        inspector.profile = item.modProfile;
+        inspector.profile = item.profile;
         inspector.stats = null;
         inspector.UpdateProfileUIComponents();
 
-        if(collectionModIds.Contains(item.modProfile.id))
+        if(collectionModIds.Contains(item.profile.id))
         {
             inspector.subscribeButtonText.text = "View In Collection";
         }
@@ -623,7 +623,7 @@ public class ModBrowser : MonoBehaviour
             inspector.subscribeButtonText.text = "Add To Collection";
         }
 
-        ModManager.GetModStatistics(item.modProfile.id,
+        ModManager.GetModStatistics(item.profile.id,
                                     (s) => { inspector.stats = s; inspector.UpdateStatisticsUIComponents(); },
                                     null);
 
@@ -1072,6 +1072,30 @@ public class ModBrowser : MonoBehaviour
             // remove hundreds of thousands
             int truncatedValue = (value / 1000000);
             return(truncatedValue.ToString() + "M");
+        }
+    }
+
+    public static string ConvertByteCountIntoDisplayText(Int64 value)
+    {
+        string[] sizeSuffixes = new string[]{"B", "KB", "MB", "GB"};
+        int sizeIndex = 0;
+        Int64 adjustedSize = value;
+        while(adjustedSize > 0x0400
+              && (sizeIndex+1) < sizeSuffixes.Length)
+        {
+            adjustedSize /= 0x0400;
+            ++sizeIndex;
+        }
+
+        if(sizeIndex > 0
+           && adjustedSize < 100)
+        {
+            decimal displayValue = (decimal)value / (decimal)(0x0400^sizeIndex);
+            return displayValue.ToString("0.0") + sizeSuffixes[sizeIndex];
+        }
+        else
+        {
+            return adjustedSize + sizeSuffixes[sizeIndex];
         }
     }
 

@@ -257,14 +257,14 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
         // display mod profile
         ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-        item.modProfile = profile;
+        item.profile = profile;
         item.onClick += NotifyItemClicked;
         item.Initialize();
         item.UpdateProfileUIComponents();
         item.UpdateStatisticsUIComponents();
 
-        ModManager.GetModStatistics(item.modProfile.id,
-                                    (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
+        ModManager.GetModStatistics(item.profile.id,
+                                    (s) => { item.statistics = s; item.UpdateStatisticsUIComponents(); },
                                     null);
 
         return itemGO;

@@ -169,14 +169,14 @@ public class ExplorerView_Scrolling : MonoBehaviour, IModBrowserView
                                                   itemPos.y + this.itemHeight);
 
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-            item.modProfile = modProfileCollection[i];
+            item.profile = modProfileCollection[i];
             item.onClick += NotifyItemClicked;
             item.Initialize();
             item.UpdateProfileUIComponents();
             item.UpdateStatisticsUIComponents();
 
-            ModManager.GetModStatistics(item.modProfile.id,
-                                        (s) => { item.modStatistics = s; item.UpdateStatisticsUIComponents(); },
+            ModManager.GetModStatistics(item.profile.id,
+                                        (s) => { item.statistics = s; item.UpdateStatisticsUIComponents(); },
                                         null);
         }
 
