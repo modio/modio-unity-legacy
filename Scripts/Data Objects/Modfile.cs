@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Int64 = System.Int64;
 
 namespace ModIO
 {
@@ -24,7 +25,7 @@ namespace ModIO
 
         /// <summary>Size of the file in bytes.</summary>
         [JsonProperty("filesize")]
-        public int fileSize;
+        public Int64 fileSize;
 
         /// <summary>Contains filehash data.</summary>
         [JsonProperty("filehash")]
