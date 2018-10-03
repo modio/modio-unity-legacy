@@ -197,9 +197,12 @@ public class ModBrowser : MonoBehaviour
 
         messageDialog.gameObject.SetActive(false);
 
-        userDisplay.button.onClick.AddListener(OpenLoginDialog);
-        userDisplay.profile = ModBrowser.GUEST_PROFILE;
-        userDisplay.UpdateUIComponents();
+        if(userDisplay != null)
+        {
+            userDisplay.button.onClick.AddListener(OpenLoginDialog);
+            userDisplay.profile = ModBrowser.GUEST_PROFILE;
+            userDisplay.UpdateUIComponents();
+        }
 
         // load manifest
         ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -222,15 +225,16 @@ public class ModBrowser : MonoBehaviour
             // callbacks
             Action<UserProfile> onGetUserProfile = (u) =>
             {
-                Debug.Log("DISPLAY USER");
-
                 this.userProfile = u;
 
-                this.userDisplay.profile = u;
-                this.userDisplay.UpdateUIComponents();
+                if(this.userDisplay != null)
+                {
+                    this.userDisplay.profile = u;
+                    this.userDisplay.UpdateUIComponents();
 
-                this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
-                this.userDisplay.button.onClick.AddListener(LogUserOut);
+                    this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
+                    this.userDisplay.button.onClick.AddListener(LogUserOut);
+                }
             };
 
             // TODO(@jackson): DO BETTER
@@ -395,8 +399,11 @@ public class ModBrowser : MonoBehaviour
         Debug.Assert(!String.IsNullOrEmpty(oAuthToken),
                      "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
 
-        this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
-        this.userDisplay.button.onClick.AddListener(LogUserOut);
+        if(this.userDisplay != null)
+        {
+            this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
+            this.userDisplay.button.onClick.AddListener(LogUserOut);
+        }
 
         StartCoroutine(UserLoginCoroutine(oAuthToken));
     }
@@ -424,8 +431,11 @@ public class ModBrowser : MonoBehaviour
 
         CacheClient.SaveAuthenticatedUserProfile(requestProfile);
         this.userProfile = requestProfile;
-        userDisplay.profile = this.userProfile;
-        userDisplay.UpdateUIComponents();
+        if(this.userDisplay != null)
+        {
+            userDisplay.profile = this.userProfile;
+            userDisplay.UpdateUIComponents();
+        }
 
         // - get the subscriptions -
         Debug.Log("GETTING USER SUBSCRIPTIONS");
@@ -555,14 +565,16 @@ public class ModBrowser : MonoBehaviour
 
         this.userProfile = ModBrowser.GUEST_PROFILE;
         this.collectionModIds = new List<int>(0);
-
-        this.userDisplay.profile = ModBrowser.GUEST_PROFILE;
-        this.userDisplay.UpdateUIComponents();
-
         this.collectionView.Refresh();
 
-        this.userDisplay.button.onClick.RemoveListener(LogUserOut);
-        this.userDisplay.button.onClick.AddListener(OpenLoginDialog);
+        if(this.userDisplay != null)
+        {
+            this.userDisplay.profile = ModBrowser.GUEST_PROFILE;
+            this.userDisplay.UpdateUIComponents();
+
+            this.userDisplay.button.onClick.RemoveListener(LogUserOut);
+            this.userDisplay.button.onClick.AddListener(OpenLoginDialog);
+        }
     }
 
     // ---------[ UI CONTROL ]---------

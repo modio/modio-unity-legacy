@@ -244,6 +244,9 @@ public class ModBrowserItem : MonoBehaviour
             UnityEngine.Object.Destroy(modLogo.sprite);
         }
 
+        Debug.Assert(modLogo != null);
+        Debug.Assert(logoTexture != null);
+
         modLogo.sprite = Sprite.Create(logoTexture,
                                        new Rect(0.0f, 0.0f, logoTexture.width, logoTexture.height),
                                        Vector2.zero);

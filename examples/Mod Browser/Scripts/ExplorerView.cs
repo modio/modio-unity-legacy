@@ -9,7 +9,7 @@ using ModIO;
 public class ExplorerView : MonoBehaviour, IModBrowserView
 {
     // ---------[ FIELDS ]---------
-    // - Events -
+    // ---[ EVENTS ]---
     public event Action<ModBrowserItem> onItemClicked;
 
     // ---[ UI ]---
@@ -26,28 +26,28 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public Button pageRightButton;
 
     [Header("Runtime Data")]
-    public RectTransform innerPaneMain;
-    public RectTransform innerPaneTransitional;
+    public RectTransform mainPage;
+    public RectTransform transitionPage;
     public int columnCount;
     public int rowCount;
-    public Vector2 calculatedCellSize;
-    public Vector2 calculatedItemSize;
-    public Vector2 calculatedItemCellOffset;
-    public Vector2 calculatedGridOffset;
-    public int currentPage;
-    public int targetPage;
-    public int queuedTargetPage;
-    public int lastPage;
-    public bool isPageTransitioning;
+    public Vector2 cellSize;
+    public Vector2 itemSize;
+    public Vector2 cellItemOffset;
+    public Vector2 gridCellOffset;
+    public int currentPageIndex;
+    public int targetPageIndex;
+    public int queuedPageIndex;
+    public int lastPageIndex;
+    public bool isTransitioning;
 
     // ---[ CALCULATED VARS ]----
     public int pageSize { get { return this.columnCount * this.rowCount; } }
 
     private void Start()
     {
-        isPageTransitioning = false;
-        targetPage = currentPage;
-        queuedTargetPage = -1;
+        isTransitioning = false;
+        targetPageIndex = currentPageIndex;
+        queuedPageIndex = -1;
 
         if(pageLeftButton != null)
         {
@@ -64,6 +64,8 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
     public void InitializeLayout()
     {
+        Debug.Assert(itemPrefab != null);
+
         // check itemPrefab componennts
         ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
         LayoutElement itemPrefabLayoutElement = itemPrefab.GetComponent<LayoutElement>();
@@ -80,28 +82,28 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                      "[mod.io] The ExplorerView.itemPrefab's transfrom needs a top-left anchor."
                      + " Please ensure the both the anchor min and anchor max are at [0, 1].");
 
-        // initialize inner panes
-        if(innerPaneMain == null || innerPaneTransitional == null)
+        // initialize pages
+        if(mainPage == null || transitionPage == null)
         {
             foreach(Transform t in contentPane)
             {
                 GameObject.Destroy(t.gameObject);
             }
 
-            innerPaneMain = (new GameObject("Inner Pane: Main")).AddComponent<RectTransform>();
-            innerPaneMain.SetParent(contentPane);
-            innerPaneMain.anchorMin = Vector2.zero;
-            innerPaneMain.anchorMax = Vector2.zero;
-            innerPaneMain.offsetMin = Vector2.zero;
-            innerPaneMain.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+            mainPage = (new GameObject("Mod Page: Main")).AddComponent<RectTransform>();
+            mainPage.SetParent(contentPane);
+            mainPage.anchorMin = Vector2.zero;
+            mainPage.anchorMax = Vector2.zero;
+            mainPage.offsetMin = Vector2.zero;
+            mainPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
 
-            innerPaneTransitional = (new GameObject("Inner Pane: Transitional")).AddComponent<RectTransform>();
-            innerPaneTransitional.SetParent(contentPane);
-            innerPaneTransitional.anchorMin = Vector2.zero;
-            innerPaneTransitional.anchorMax = Vector2.zero;
-            innerPaneTransitional.offsetMin = new Vector2(contentPane.rect.width, 0f);
-            innerPaneTransitional.offsetMax = new Vector2(contentPane.rect.width * 2f,
-                                                          contentPane.rect.height);
+            transitionPage = (new GameObject("Mod Page: Transitional")).AddComponent<RectTransform>();
+            transitionPage.SetParent(contentPane);
+            transitionPage.anchorMin = Vector2.zero;
+            transitionPage.anchorMax = Vector2.zero;
+            transitionPage.offsetMin = new Vector2(contentPane.rect.width, 0f);
+            transitionPage.offsetMax = new Vector2(contentPane.rect.width * 2f,
+                                                   contentPane.rect.height);
         }
 
         // - calculate size vars -
@@ -121,14 +123,14 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         float contentWidth = contentPane.rect.width - minPadding.horizontal + minColumnSpacing;
         this.columnCount = (int)Mathf.Floor(contentWidth / (minItemWidth + minColumnSpacing));
 
-        calculatedCellSize.x = contentWidth / (float)this.columnCount;
-        calculatedGridOffset.x = (contentPane.rect.width - (calculatedCellSize.x * (float)this.columnCount)) * 0.5f;
-        calculatedItemSize.x = calculatedCellSize.x - minColumnSpacing;
-        if(calculatedItemSize.x > prefItemWidth)
+        cellSize.x = contentWidth / (float)this.columnCount;
+        gridCellOffset.x = (contentPane.rect.width - (cellSize.x * (float)this.columnCount)) * 0.5f;
+        itemSize.x = cellSize.x - minColumnSpacing;
+        if(itemSize.x > prefItemWidth)
         {
-            calculatedItemSize.x = prefItemWidth;
+            itemSize.x = prefItemWidth;
         }
-        calculatedItemCellOffset.x = (calculatedCellSize.x - calculatedItemSize.x) * 0.5f;
+        cellItemOffset.x = (cellSize.x - itemSize.x) * 0.5f;
 
         // height
         float prefItemHeight = itemPrefabLayoutElement.preferredHeight;
@@ -146,20 +148,20 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         float contentHeight = contentPane.rect.height - minPadding.vertical + minRowSpacing;
         this.rowCount = (int)Mathf.Floor(contentHeight / (minItemHeight + minRowSpacing));
 
-        calculatedCellSize.y = contentHeight / (float)this.rowCount;
-        calculatedGridOffset.y = (contentPane.rect.height - (calculatedCellSize.y * (float)this.rowCount)) * 0.5f;
-        calculatedItemSize.y = calculatedCellSize.y - minColumnSpacing;
-        if(calculatedItemSize.y > prefItemHeight)
+        cellSize.y = contentHeight / (float)this.rowCount;
+        gridCellOffset.y = (contentPane.rect.height - (cellSize.y * (float)this.rowCount)) * 0.5f;
+        itemSize.y = cellSize.y - minColumnSpacing;
+        if(itemSize.y > prefItemHeight)
         {
-            calculatedItemSize.y = prefItemHeight;
+            itemSize.y = prefItemHeight;
         }
-        calculatedItemCellOffset.y = (calculatedCellSize.y - calculatedItemSize.y) * 0.5f;
+        cellItemOffset.y = (cellSize.y - itemSize.y) * 0.5f;
     }
 
     /// <summary>Refreshes the view using the current data.</summary>
     public void Refresh()
     {
-        Debug.Assert(innerPaneMain != null && innerPaneTransitional != null,
+        Debug.Assert(mainPage != null && transitionPage != null,
                      "[mod.io] ExplorerView.Refresh() cannot be called until after ExplorerView.InitializeLayout() has been called.");
         Debug.Assert(pageSize > 0,
                      "[mod.io] PageSize has an invalid value. This is because either the columnCount"
@@ -168,7 +170,7 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         Debug.Assert(itemPrefab != null);
 
         // clear existing items
-        foreach(Transform t in innerPaneMain)
+        foreach(Transform t in mainPage)
         {
             ModBrowserItem item = t.GetComponent<ModBrowserItem>();
             if(item != null)
@@ -189,15 +191,15 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         }
 
         // collect the profiles in view
-        FillModPage(CacheClient.IterateAllModProfilesFromOffset(currentPage * pageSize),
-                    innerPaneMain);
+        FillModPage(CacheClient.IterateAllModProfilesFromOffset(currentPageIndex * pageSize),
+                    mainPage);
 
-        lastPage = (int)Mathf.Ceil((float)CacheClient.CountModProfiles() / (float)pageSize) - 1;
+        lastPageIndex = (int)Mathf.Ceil((float)CacheClient.CountModProfiles() / (float)pageSize) - 1;
 
         // handle page transitioning
-        if(isPageTransitioning)
+        if(isTransitioning)
         {
-            foreach(Transform t in innerPaneTransitional)
+            foreach(Transform t in transitionPage)
             {
                 ModBrowserItem item = t.GetComponent<ModBrowserItem>();
                 if(item != null)
@@ -216,19 +218,19 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                     UnityEngine.Object.Destroy(t.gameObject);
                 }
 
-                FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize),
-                            innerPaneTransitional);
+                FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPageIndex * pageSize),
+                            transitionPage);
             }
         }
 
         // update buttons
         if(pageLeftButton != null)
         {
-            pageLeftButton.interactable = (currentPage > 0);
+            pageLeftButton.interactable = (currentPageIndex > 0);
         }
         if(pageRightButton != null)
         {
-            pageRightButton.interactable = (currentPage < lastPage);
+            pageRightButton.interactable = (currentPageIndex < lastPageIndex);
         }
     }
 
@@ -250,14 +252,14 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
             int itemY = index / this.columnCount;
 
             Vector2 itemPos = new Vector2();
-            itemPos.x = (calculatedGridOffset.x + calculatedItemCellOffset.x
-                         + (itemX * calculatedCellSize.x));
-            itemPos.y = (calculatedGridOffset.y + calculatedItemCellOffset.y
-                         + (itemY * calculatedCellSize.y)) * -1f;
+            itemPos.x = (gridCellOffset.x + cellItemOffset.x
+                         + (itemX * cellSize.x));
+            itemPos.y = (gridCellOffset.y + cellItemOffset.y
+                         + (itemY * cellSize.y)) * -1f;
 
             RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
             itemTransform.anchoredPosition = itemPos;
-            itemTransform.sizeDelta = calculatedItemSize;
+            itemTransform.sizeDelta = itemSize;
 
             // display mod profile
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
@@ -275,23 +277,29 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
     public void MoveToPage(int pageIndex)
     {
-        Debug.Assert(pageIndex >= 0 && pageIndex <= lastPage);
-        if(currentPage == pageIndex) { return; }
+        #if DEBUG
+        Debug.Assert(pageIndex >= 0 && pageIndex <= lastPageIndex);
+        #else
+        if(pageIndex < 0) { pageIndex = 0; }
+        if(pageIndex > lastPageIndex) { pageIndex = lastPageIndex; }
+        #endif
 
-        if(!isPageTransitioning)
+        if(currentPageIndex == pageIndex) { return; }
+
+        if(!isTransitioning)
         {
-            targetPage = pageIndex;
+            targetPageIndex = pageIndex;
             StartCoroutine(TransitionPageCoroutine());
         }
         else
         {
-            queuedTargetPage = targetPage;
+            queuedPageIndex = targetPageIndex;
         }
     }
 
     private IEnumerator TransitionPageCoroutine()
     {
-        isPageTransitioning = true;
+        isTransitioning = true;
 
         if(pageLeftButton != null)
         {
@@ -303,25 +311,25 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         }
 
         // load up transition panel
-        FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize),
-                    innerPaneTransitional);
+        FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPageIndex * pageSize),
+                    transitionPage);
 
         // transition
         float transitionTime = Time.deltaTime;
-        float mainPaneTargetX = contentPane.rect.width * (currentPage < targetPage ? -1f : 1f);
+        float mainPaneTargetX = contentPane.rect.width * (currentPageIndex < targetPageIndex ? -1f : 1f);
         float transPaneStartX = mainPaneTargetX * -1f;
         while(transitionTime < pageTransitionTimeSeconds)
         {
             float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / pageTransitionTimeSeconds);
 
-            innerPaneMain.offsetMin = new Vector2(transPos,
+            mainPage.offsetMin = new Vector2(transPos,
                                                   0f);
-            innerPaneMain.offsetMax = new Vector2(transPos + contentPane.rect.width,
+            mainPage.offsetMax = new Vector2(transPos + contentPane.rect.width,
                                                   contentPane.rect.height);
 
-            innerPaneTransitional.offsetMin = new Vector2(transPos + transPaneStartX,
+            transitionPage.offsetMin = new Vector2(transPos + transPaneStartX,
                                                           0f);
-            innerPaneTransitional.offsetMax = new Vector2(transPos + transPaneStartX + contentPane.rect.width,
+            transitionPage.offsetMax = new Vector2(transPos + transPaneStartX + contentPane.rect.width,
                                                           contentPane.rect.height);
 
             transitionTime += Time.deltaTime;
@@ -330,10 +338,10 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         }
 
         // finalize
-        innerPaneTransitional.offsetMin = Vector2.zero;
-        innerPaneTransitional.offsetMax = new Vector2(0f, contentPane.rect.height);
+        transitionPage.offsetMin = Vector2.zero;
+        transitionPage.offsetMax = new Vector2(0f, contentPane.rect.height);
 
-        foreach(Transform t in innerPaneMain)
+        foreach(Transform t in mainPage)
         {
             ModBrowserItem item = t.GetComponent<ModBrowserItem>();
             if(item != null)
@@ -353,37 +361,37 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
             }
         }
 
-        innerPaneMain.offsetMin = Vector2.zero;
-        innerPaneMain.offsetMax = new Vector2(0f, contentPane.rect.height);
+        mainPage.offsetMin = Vector2.zero;
+        mainPage.offsetMax = new Vector2(0f, contentPane.rect.height);
 
-        while(innerPaneTransitional.childCount > 0)
+        while(transitionPage.childCount > 0)
         {
-            innerPaneTransitional.GetChild(0).SetParent(innerPaneMain);
+            transitionPage.GetChild(0).SetParent(mainPage);
         }
 
-        currentPage = targetPage;
-        isPageTransitioning = false;
+        currentPageIndex = targetPageIndex;
+        isTransitioning = false;
 
         if(pageLeftButton != null)
         {
-            pageLeftButton.interactable = (currentPage > 0);
+            pageLeftButton.interactable = (currentPageIndex > 0);
         }
         if(pageRightButton != null)
         {
-            pageRightButton.interactable = (currentPage < lastPage);
+            pageRightButton.interactable = (currentPageIndex < lastPageIndex);
         }
 
-        if(queuedTargetPage > 0)
+        if(queuedPageIndex > 0)
         {
-            targetPage = queuedTargetPage;
-            queuedTargetPage = 0;
+            targetPageIndex = queuedPageIndex;
+            queuedPageIndex = 0;
             StartCoroutine(TransitionPageCoroutine());
         }
     }
 
     public void ChangePage(int direction)
     {
-        MoveToPage(currentPage + direction);
+        MoveToPage(currentPageIndex + direction);
     }
 
     // ---------[ EVENTS ]---------
