@@ -54,6 +54,10 @@ public class ModBrowserItem : MonoBehaviour
     public GameObject logoLoadingPrefab;
     public GameObject tagBadgePrefab;
     public LogoSize logoVersion;
+    [Range(0.5f, 1.0f)]
+    public float minimumScaleFactor = 1f;
+    [Range(1.0f, 2.0f)]
+    public float maximumScaleFactor = 1f;
 
     [Header("Scene Components")]
     public InspectorHelper_ProfileElements profileDisplay;

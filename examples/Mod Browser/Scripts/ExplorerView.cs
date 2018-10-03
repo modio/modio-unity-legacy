@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-
+// TODO(@jackson): The padding/spacing maths might need work?
 public class ExplorerView : MonoBehaviour, IModBrowserView
 {
     // ---------[ FIELDS ]---------
@@ -29,11 +29,11 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public RectTransform mainPage;
     public RectTransform transitionPage;
     public int columnCount;
+    public float columnWidth;
     public int rowCount;
-    public Vector2 cellSize;
+    public float rowHeight;
     public Vector2 itemSize;
-    public Vector2 cellItemOffset;
-    public Vector2 gridCellOffset;
+    public Vector2 itemOffset;
     public int currentPageIndex;
     public int targetPageIndex;
     public int queuedPageIndex;
@@ -66,23 +66,21 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     {
         Debug.Assert(itemPrefab != null);
 
-        // check itemPrefab componennts
+        // - check itemPrefab components -
         ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
-        LayoutElement itemPrefabLayoutElement = itemPrefab.GetComponent<LayoutElement>();
         RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
 
         Debug.Assert(itemPrefabScript != null
-                     && itemPrefabLayoutElement != null
                      && itemPrefabTransform != null,
-                     "[mod.io] The ExplorerView.itemPrefab is missing at least one of the following"
-                     + " components: a ModBrowserItem, a LayoutElement, or a RectTransform.");
+                     "[mod.io] The ExplorerView.itemPrefab is missing a ModBrowserItem component"
+                     + " and/or a RectTransform component.");
 
         Debug.Assert(itemPrefabTransform.anchorMin == new Vector2(0f, 1f)
                      && itemPrefabTransform.anchorMax == new Vector2(0f, 1f),
                      "[mod.io] The ExplorerView.itemPrefab's transfrom needs a top-left anchor."
                      + " Please ensure the both the anchor min and anchor max are at [0, 1].");
 
-        // initialize pages
+        // - initialize pages -
         if(mainPage == null || transitionPage == null)
         {
             foreach(Transform t in contentPane)
@@ -107,55 +105,28 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         }
 
         // - calculate size vars -
+        // TODO(@jackson): WHOLE PIXELS!
+        this.itemOffset = Vector2.zero;
+
         // width
-        float prefItemWidth = itemPrefabLayoutElement.preferredWidth;
-        if(prefItemWidth < 0)
-        {
-            prefItemWidth = itemPrefabTransform.rect.width;
-        }
-
-        float minItemWidth = itemPrefabLayoutElement.minWidth;
-        if(minItemWidth < 0)
-        {
-            minItemWidth = prefItemWidth;
-        }
-
+        float minItemWidth = itemPrefabScript.minimumScaleFactor * itemPrefabTransform.rect.width;
+        float maxItemWidth = itemPrefabScript.maximumScaleFactor * itemPrefabTransform.rect.width;
         float contentWidth = contentPane.rect.width - minPadding.horizontal + minColumnSpacing;
-        this.columnCount = (int)Mathf.Floor(contentWidth / (minItemWidth + minColumnSpacing));
 
-        cellSize.x = contentWidth / (float)this.columnCount;
-        gridCellOffset.x = (contentPane.rect.width - (cellSize.x * (float)this.columnCount)) * 0.5f;
-        itemSize.x = cellSize.x - minColumnSpacing;
-        if(itemSize.x > prefItemWidth)
-        {
-            itemSize.x = prefItemWidth;
-        }
-        cellItemOffset.x = (cellSize.x - itemSize.x) * 0.5f;
+        this.columnCount = (int)Mathf.Floor(contentWidth / (minItemWidth + minColumnSpacing));
+        this.columnWidth = (contentPane.rect.width - minPadding.horizontal) / (float)this.columnCount;
+        this.itemSize.x = Mathf.Min(this.columnWidth - minColumnSpacing, maxItemWidth);
+        this.itemOffset.x = 0.5f * (this.columnWidth - this.itemSize.x);
 
         // height
-        float prefItemHeight = itemPrefabLayoutElement.preferredHeight;
-        if(prefItemHeight < 0)
-        {
-            prefItemHeight = itemPrefabTransform.rect.height;
-        }
-
-        float minItemHeight = itemPrefabLayoutElement.minHeight;
-        if(minItemHeight < 0)
-        {
-            minItemHeight = prefItemHeight;
-        }
-
+        float minItemHeight = itemPrefabScript.minimumScaleFactor * itemPrefabTransform.rect.height;
+        float maxItemHeight = itemPrefabScript.maximumScaleFactor * itemPrefabTransform.rect.height;
         float contentHeight = contentPane.rect.height - minPadding.vertical + minRowSpacing;
-        this.rowCount = (int)Mathf.Floor(contentHeight / (minItemHeight + minRowSpacing));
 
-        cellSize.y = contentHeight / (float)this.rowCount;
-        gridCellOffset.y = (contentPane.rect.height - (cellSize.y * (float)this.rowCount)) * 0.5f;
-        itemSize.y = cellSize.y - minColumnSpacing;
-        if(itemSize.y > prefItemHeight)
-        {
-            itemSize.y = prefItemHeight;
-        }
-        cellItemOffset.y = (cellSize.y - itemSize.y) * 0.5f;
+        this.rowCount = (int)Mathf.Floor(contentHeight / (minItemHeight + minRowSpacing));
+        this.rowHeight = (contentPane.rect.height - minPadding.vertical) / (float)this.rowCount;
+        this.itemSize.y = Mathf.Min(this.rowHeight - minRowSpacing, maxItemHeight);
+        this.itemOffset.y = 0.5f * (this.rowHeight - this.itemSize.y);
     }
 
     /// <summary>Refreshes the view using the current data.</summary>
@@ -252,10 +223,8 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
             int itemY = index / this.columnCount;
 
             Vector2 itemPos = new Vector2();
-            itemPos.x = (gridCellOffset.x + cellItemOffset.x
-                         + (itemX * cellSize.x));
-            itemPos.y = (gridCellOffset.y + cellItemOffset.y
-                         + (itemY * cellSize.y)) * -1f;
+            itemPos.x = (this.minPadding.left + this.itemOffset.x + itemX * this.columnWidth);
+            itemPos.y = (this.minPadding.top  + this.itemOffset.y + itemY * this.rowHeight) * -1;
 
             RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
             itemTransform.anchoredPosition = itemPos;
