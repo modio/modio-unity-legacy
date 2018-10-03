@@ -420,13 +420,14 @@ namespace ModIO
         {
             Action processResponse = () =>
             {
+                // TODO(@jackson): Don't call success on exception
                 if(successCallback != null)
                 {
+                    T response = default(T);
+
                     try
                     {
-                        T response = default(T);
                         response = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
-                        successCallback(response);
                     }
                     catch(Exception e)
                     {
@@ -435,6 +436,8 @@ namespace ModIO
 
                         // TODO(@jackson): Error!
                     }
+
+                    successCallback(response);
                 }
             };
 

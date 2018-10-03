@@ -70,31 +70,33 @@ public class ModBrowserItem : MonoBehaviour
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        if(profileDisplay.logoContainer != null
-           && (logoPlaceholderInstance == null || modLogo == null))
+        if(profileDisplay.logoContainer != null)
         {
-            foreach(Transform t in profileDisplay.logoContainer)
+            if(logoPlaceholderInstance == null || modLogo == null)
             {
-                UnityEngine.Object.Destroy(t.gameObject);
+                foreach(Transform t in profileDisplay.logoContainer)
+                {
+                    UnityEngine.Object.Destroy(t.gameObject);
+                }
+
+                logoPlaceholderInstance = UnityEngine.Object.Instantiate(logoLoadingPrefab, profileDisplay.logoContainer) as GameObject;
+
+                GameObject modLogo_go = new GameObject("ModLogo");
+                modLogo_go.AddComponent<CanvasRenderer>();
+
+                RectTransform logoTransfrom = modLogo_go.AddComponent<RectTransform>();
+                logoTransfrom.SetParent(profileDisplay.logoContainer);
+                logoTransfrom.anchorMin = new Vector2(0f, 0f);
+                logoTransfrom.anchorMax = new Vector2(1f, 1f);
+                logoTransfrom.offsetMin = new Vector2(0f, 0f);
+                logoTransfrom.offsetMax = new Vector2(0f, 0f);
+
+                modLogo = modLogo_go.AddComponent<Image>();
             }
 
-            logoPlaceholderInstance = UnityEngine.Object.Instantiate(logoLoadingPrefab, profileDisplay.logoContainer) as GameObject;
-
-            GameObject modLogo_go = new GameObject("ModLogo");
-            modLogo_go.AddComponent<CanvasRenderer>();
-
-            RectTransform logoTransfrom = modLogo_go.AddComponent<RectTransform>();
-            logoTransfrom.SetParent(profileDisplay.logoContainer);
-            logoTransfrom.anchorMin = new Vector2(0f, 0f);
-            logoTransfrom.anchorMax = new Vector2(1f, 1f);
-            logoTransfrom.offsetMin = new Vector2(0f, 0f);
-            logoTransfrom.offsetMax = new Vector2(0f, 0f);
-
-            modLogo = modLogo_go.AddComponent<Image>();
+            logoPlaceholderInstance.gameObject.SetActive(false);
+            modLogo.gameObject.SetActive(false);
         }
-
-        logoPlaceholderInstance.gameObject.SetActive(false);
-        modLogo.gameObject.SetActive(false);
     }
 
     public void UpdateProfileUIComponents()

@@ -45,11 +45,18 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
     private void Start()
     {
-        pageLeftButton.onClick.AddListener(() => ChangePage(-1));
-        pageRightButton.onClick.AddListener(() => ChangePage(1));
         isPageTransitioning = false;
         targetPage = currentPage;
         queuedTargetPage = -1;
+
+        if(pageLeftButton != null)
+        {
+            pageLeftButton.onClick.AddListener(() => ChangePage(-1));
+        }
+        if(pageRightButton != null)
+        {
+            pageRightButton.onClick.AddListener(() => ChangePage(1));
+        }
     }
 
     // ---------[ IMODBROWSERVIEW ]---------
@@ -152,6 +159,14 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     /// <summary>Refreshes the view using the current data.</summary>
     public void Refresh()
     {
+        Debug.Assert(innerPaneMain != null && innerPaneTransitional != null,
+                     "[mod.io] ExplorerView.Refresh() cannot be called until after ExplorerView.InitializeLayout() has been called.");
+        Debug.Assert(pageSize > 0,
+                     "[mod.io] PageSize has an invalid value. This is because either the columnCount"
+                     + " or rowCount has been calculated to be less than 1.");
+
+        Debug.Assert(itemPrefab != null);
+
         // clear existing items
         foreach(Transform t in innerPaneMain)
         {
@@ -174,21 +189,10 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         }
 
         // collect the profiles in view
-        IEnumerator<ModProfile> mainProfiles = CacheClient.IterateAllModProfilesFromOffset(currentPage * pageSize).GetEnumerator();
-        List<ModProfile> mainPaneMods = new List<ModProfile>(this.pageSize);
+        FillModPage(CacheClient.IterateAllModProfilesFromOffset(currentPage * pageSize),
+                    innerPaneMain);
 
-        while(mainPaneMods.Count < this.pageSize
-              && mainProfiles.MoveNext())
-        {
-            mainPaneMods.Add(mainProfiles.Current);
-        }
         lastPage = (int)Mathf.Ceil((float)CacheClient.CountModProfiles() / (float)pageSize) - 1;
-
-        // create new items
-        for(int i = 0; i < mainPaneMods.Count; ++i)
-        {
-            CreateItem(mainPaneMods[i], innerPaneMain, i);
-        }
 
         // handle page transitioning
         if(isPageTransitioning)
@@ -211,63 +215,62 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                 {
                     UnityEngine.Object.Destroy(t.gameObject);
                 }
+
+                FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize),
+                            innerPaneTransitional);
             }
-
-            IEnumerator<ModProfile> transProfiles = CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize).GetEnumerator();
-            List<ModProfile> transitionPaneMods = new List<ModProfile>(this.pageSize);
-
-            while(transitionPaneMods.Count < this.pageSize
-                  && transProfiles.MoveNext())
-            {
-                transitionPaneMods.Add(transProfiles.Current);
-            }
-
-            for(int i = 0; i < transitionPaneMods.Count; ++i)
-            {
-                CreateItem(transitionPaneMods[i], innerPaneTransitional, i);
-            }
-
         }
 
         // update buttons
-        pageLeftButton.interactable = (currentPage > 0);
-        pageRightButton.interactable = (currentPage < lastPage);
+        if(pageLeftButton != null)
+        {
+            pageLeftButton.interactable = (currentPage > 0);
+        }
+        if(pageRightButton != null)
+        {
+            pageRightButton.interactable = (currentPage < lastPage);
+        }
     }
 
-    private GameObject CreateItem(ModProfile profile, RectTransform pane, int index)
+    private void FillModPage(IEnumerable<ModProfile> profiles, RectTransform pageTransform)
     {
-        GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                                   new Vector3(),
-                                                   Quaternion.identity,
-                                                   pane);
+        IEnumerator<ModProfile> pEnumerator = profiles.GetEnumerator();
 
-        // calculate layout
-        int itemX = index % this.columnCount;
-        int itemY = index / this.columnCount;
+        for(int index = 0;
+            index < this.pageSize && pEnumerator.MoveNext();
+            ++index)
+        {
+            GameObject itemGO = GameObject.Instantiate(itemPrefab,
+                                           new Vector3(),
+                                           Quaternion.identity,
+                                           pageTransform);
 
-        Vector2 itemPos = new Vector2();
-        itemPos.x = (calculatedGridOffset.x + calculatedItemCellOffset.x
-                     + (itemX * calculatedCellSize.x));
-        itemPos.y = (calculatedGridOffset.y + calculatedItemCellOffset.y
-                     + (itemY * calculatedCellSize.y)) * -1f;
+            // calculate layout
+            int itemX = index % this.columnCount;
+            int itemY = index / this.columnCount;
 
-        RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
-        itemTransform.anchoredPosition = itemPos;
-        itemTransform.sizeDelta = calculatedItemSize;
+            Vector2 itemPos = new Vector2();
+            itemPos.x = (calculatedGridOffset.x + calculatedItemCellOffset.x
+                         + (itemX * calculatedCellSize.x));
+            itemPos.y = (calculatedGridOffset.y + calculatedItemCellOffset.y
+                         + (itemY * calculatedCellSize.y)) * -1f;
 
-        // display mod profile
-        ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-        item.profile = profile;
-        item.onClick += NotifyItemClicked;
-        item.Initialize();
-        item.UpdateProfileUIComponents();
-        item.UpdateStatisticsUIComponents();
+            RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
+            itemTransform.anchoredPosition = itemPos;
+            itemTransform.sizeDelta = calculatedItemSize;
 
-        ModManager.GetModStatistics(item.profile.id,
-                                    (s) => { item.statistics = s; item.UpdateStatisticsUIComponents(); },
-                                    null);
+            // display mod profile
+            ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
+            item.profile = pEnumerator.Current;
+            item.onClick += NotifyItemClicked;
+            item.Initialize();
+            item.UpdateProfileUIComponents();
+            item.UpdateStatisticsUIComponents();
 
-        return itemGO;
+            ModManager.GetModStatistics(item.profile.id,
+                                        (s) => { item.statistics = s; item.UpdateStatisticsUIComponents(); },
+                                        null);
+        }
     }
 
     public void MoveToPage(int pageIndex)
@@ -290,23 +293,18 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     {
         isPageTransitioning = true;
 
-        pageLeftButton.interactable = false;
-        pageRightButton.interactable = false;
+        if(pageLeftButton != null)
+        {
+            pageLeftButton.interactable = false;
+        }
+        if(pageRightButton != null)
+        {
+            pageRightButton.interactable = false;
+        }
 
         // load up transition panel
-        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize).GetEnumerator();
-        List<ModProfile> transitionPaneMods = new List<ModProfile>(pageSize);
-
-        while(transitionPaneMods.Count < this.pageSize
-              && profileEnumerator.MoveNext())
-        {
-            transitionPaneMods.Add(profileEnumerator.Current);
-        }
-
-        for(int i = 0; i < transitionPaneMods.Count; ++i)
-        {
-            CreateItem(transitionPaneMods[i], innerPaneTransitional, i);
-        }
+        FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPage * pageSize),
+                    innerPaneTransitional);
 
         // transition
         float transitionTime = Time.deltaTime;
@@ -364,9 +362,16 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         }
 
         currentPage = targetPage;
-        pageLeftButton.interactable = (currentPage > 0);
-        pageRightButton.interactable = (currentPage < lastPage);
         isPageTransitioning = false;
+
+        if(pageLeftButton != null)
+        {
+            pageLeftButton.interactable = (currentPage > 0);
+        }
+        if(pageRightButton != null)
+        {
+            pageRightButton.interactable = (currentPage < lastPage);
+        }
 
         if(queuedTargetPage > 0)
         {
