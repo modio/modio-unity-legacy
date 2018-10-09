@@ -21,7 +21,7 @@ namespace ModIO
         {
             Debug.Assert(utcDateTime.Kind == DateTimeKind.Utc,
                          "Provided DateTime is not UTC. Consider using ServerTimeStamp.Now() instead of DateTime.Now() or by converting a local time to UTC using the DateTime.ToUniversalTime() method");
-            
+
             int serverTimeStamp = (int)utcDateTime.Subtract(UNIX_EPOCH).TotalSeconds;
             return serverTimeStamp;
         }

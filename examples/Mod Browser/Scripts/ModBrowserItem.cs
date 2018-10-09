@@ -59,7 +59,7 @@ public class ModBrowserItem : MonoBehaviour
     [Range(1.0f, 2.0f)]
     public float maximumScaleFactor = 1f;
 
-    [Header("Scene Components")]
+    [Header("UI Components")]
     public InspectorHelper_ProfileElements profileDisplay;
     public InspectorHelper_ModfileElements modfileDisplay;
     public InspectorHelper_StatisticsElements statisticsDisplay;
@@ -86,7 +86,6 @@ public class ModBrowserItem : MonoBehaviour
                 logoPlaceholderInstance = UnityEngine.Object.Instantiate(logoLoadingPrefab, profileDisplay.logoContainer) as GameObject;
 
                 GameObject modLogo_go = new GameObject("ModLogo");
-                modLogo_go.AddComponent<CanvasRenderer>();
 
                 RectTransform logoTransfrom = modLogo_go.AddComponent<RectTransform>();
                 logoTransfrom.SetParent(profileDisplay.logoContainer);
@@ -190,45 +189,91 @@ public class ModBrowserItem : MonoBehaviour
 
     public void UpdateStatisticsUIComponents()
     {
+        bool isLoading = (statistics == null);
+        string displayText = (isLoading ? "..." : string.Empty);
+
         if(statisticsDisplay.popularityRankPosition != null)
         {
-            statisticsDisplay.popularityRankPosition.text = ModBrowser.ConvertValueIntoShortText(statistics.popularityRankPosition);
+            if(!isLoading)
+            {
+                displayText = "#" + statistics.popularityRankPosition;
+            }
+
+            statisticsDisplay.popularityRankPosition.text = displayText;
         }
         if(statisticsDisplay.downloadCount != null)
         {
-            statisticsDisplay.downloadCount.text = ModBrowser.ConvertValueIntoShortText(statistics.downloadCount);
+            if(!isLoading)
+            {
+                displayText = ModBrowser.ConvertValueIntoShortText(statistics.downloadCount);
+            }
+
+            statisticsDisplay.downloadCount.text = displayText;
         }
         if(statisticsDisplay.subscriberCount != null)
         {
-            statisticsDisplay.subscriberCount.text = ModBrowser.ConvertValueIntoShortText(statistics.subscriberCount);
+            if(!isLoading)
+            {
+                displayText = ModBrowser.ConvertValueIntoShortText(statistics.subscriberCount);
+            }
+
+            statisticsDisplay.subscriberCount.text = displayText;
         }
         if(statisticsDisplay.ratingsTotalCount != null)
         {
-            statisticsDisplay.ratingsTotalCount.text = ModBrowser.ConvertValueIntoShortText(statistics.ratingsTotalCount);
+            if(!isLoading)
+            {
+                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsTotalCount);
+            }
+            statisticsDisplay.ratingsTotalCount.text = displayText;
         }
         if(statisticsDisplay.ratingsPositiveCount != null)
         {
-            statisticsDisplay.ratingsPositiveCount.text = ModBrowser.ConvertValueIntoShortText(statistics.ratingsPositiveCount);
+            if(!isLoading)
+            {
+                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsPositiveCount);
+            }
+            statisticsDisplay.ratingsPositiveCount.text = displayText;
         }
         if(statisticsDisplay.ratingsNegativeCount != null)
         {
-            statisticsDisplay.ratingsNegativeCount.text = ModBrowser.ConvertValueIntoShortText(statistics.ratingsNegativeCount);
+            if(!isLoading)
+            {
+                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsNegativeCount);
+            }
+            statisticsDisplay.ratingsNegativeCount.text = displayText;
         }
         if(statisticsDisplay.ratingsPositivePercentage != null)
         {
-            statisticsDisplay.ratingsPositivePercentage.text = ((float)statistics.ratingsPositiveCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
+            if(!isLoading)
+            {
+                displayText = ((float)statistics.ratingsPositiveCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
+            }
+            statisticsDisplay.ratingsPositivePercentage.text = displayText;
         }
         if(statisticsDisplay.ratingsNegativePercentage != null)
         {
-            statisticsDisplay.ratingsNegativePercentage.text = ((float)statistics.ratingsNegativeCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
+            if(!isLoading)
+            {
+                displayText = ((float)statistics.ratingsNegativeCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
+            }
+            statisticsDisplay.ratingsNegativePercentage.text = displayText;
         }
         if(statisticsDisplay.ratingsWeightedAggregate != null)
         {
-            statisticsDisplay.ratingsWeightedAggregate.text = (statistics.ratingsWeightedAggregate * 100f).ToString("0.0") + "%";
+            if(!isLoading)
+            {
+                displayText = (statistics.ratingsWeightedAggregate * 100f).ToString("0.0") + "%";
+            }
+            statisticsDisplay.ratingsWeightedAggregate.text = displayText;
         }
         if(statisticsDisplay.ratingsDisplayText != null)
         {
-            statisticsDisplay.ratingsDisplayText.text = statistics.ratingsDisplayText;
+            if(!isLoading)
+            {
+                displayText = statistics.ratingsDisplayText;
+            }
+            statisticsDisplay.ratingsDisplayText.text = displayText;
         }
     }
 
@@ -237,6 +282,9 @@ public class ModBrowserItem : MonoBehaviour
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }
         #endif
+
+        Debug.Assert(modLogo != null);
+        Debug.Assert(logoTexture != null);
 
         if(modLogo.sprite != null)
         {
@@ -248,12 +296,7 @@ public class ModBrowserItem : MonoBehaviour
             UnityEngine.Object.Destroy(modLogo.sprite);
         }
 
-        Debug.Assert(modLogo != null);
-        Debug.Assert(logoTexture != null);
-
-        modLogo.sprite = Sprite.Create(logoTexture,
-                                       new Rect(0.0f, 0.0f, logoTexture.width, logoTexture.height),
-                                       Vector2.zero);
+        modLogo.sprite = ModBrowser.CreateSpriteWithTexture(logoTexture);
 
         modLogo.gameObject.SetActive(true);
         logoPlaceholderInstance.gameObject.SetActive(false);

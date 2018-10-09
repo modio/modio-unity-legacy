@@ -42,7 +42,7 @@ public class ModBrowser : MonoBehaviour
     public ExplorerView explorerView;
     public ExplorerView_Scrolling explorerViewScrolling;
     public CollectionView collectionView;
-    public ModInspector inspector;
+    public InspectorView inspector;
     public ModBrowserSearchBar searchBar;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
@@ -148,8 +148,9 @@ public class ModBrowser : MonoBehaviour
         APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();;
 
         // assert ui is prepared
-        inspector.gameObject.SetActive(false);
+        inspector.InitializeLayout();
         inspector.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspector.profile));
+        inspector.gameObject.SetActive(false);
 
         searchBar.Initialize();
         searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
@@ -219,6 +220,10 @@ public class ModBrowser : MonoBehaviour
         }
 
         this.collectionModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
+        if(this.collectionModIds == null)
+        {
+            this.collectionModIds = new List<int>();
+        }
 
         if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
         {
@@ -623,7 +628,7 @@ public class ModBrowser : MonoBehaviour
     public void OnExplorerItemClicked(ModBrowserItem item)
     {
         inspector.profile = item.profile;
-        inspector.stats = null;
+        inspector.statistics = null;
         inspector.UpdateProfileUIComponents();
 
         if(collectionModIds.Contains(item.profile.id))
@@ -636,7 +641,7 @@ public class ModBrowser : MonoBehaviour
         }
 
         ModManager.GetModStatistics(item.profile.id,
-                                    (s) => { inspector.stats = s; inspector.UpdateStatisticsUIComponents(); },
+                                    (s) => { inspector.statistics = s; inspector.UpdateStatisticsUIComponents(); },
                                     null);
 
         inspector.gameObject.SetActive(true);
