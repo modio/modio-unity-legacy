@@ -16,7 +16,7 @@ namespace ModIO
         /// Contains user data.
         /// </summary>
         [JsonProperty("user")]
-        public UserProfileStub user;
+        public UserProfile user;
 
         /// <summary>
         /// Level of permission the user has:

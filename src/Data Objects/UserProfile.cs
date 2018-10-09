@@ -3,46 +3,38 @@ using Newtonsoft.Json;
 namespace ModIO
 {
     [System.Serializable]
-    public class UserProfileStub
-    {
-        // ---------[ FIELDS ]---------
-        /// <summary>Unique id of the user.</summary>
-        [JsonProperty("id")]
-        public int id;
-
-        /// <summary>Username of the user.</summary>
-        [JsonProperty("username")]
-        public string username;
-
-        /// <summary>Contains avatar data.</summary>
-        [JsonProperty("avatar")]
-        public AvatarImageLocator avatarLocator;
-    }
-
-    [System.Serializable]
-    public class UserProfile : UserProfileStub
+    public class UserProfile
     {
         // ---------[ API LIMITS ]---------
         /// <summary>Maximum length for the username supported.</summary>
         public const int USERNAME_MAXLENGTH = 20;
 
         // ---------[ FIELDS ]---------
-        /// <summary>Path for the user on mod.io.
-        /// For example: https://mod.io/members/username-id-here
-        /// Usually a simplified version of their username.</summary>
+        /// <summary>Unique id for the user.</summary>
+        [JsonProperty("id")]
+        public int id;
+
+        /// <summary>Unique text identifier for the user.</summary>
         [JsonProperty("name_id")]
         public string nameId;
 
-        /// <summary>Unix timestamp of date the user was last online.</summary>
-        [JsonProperty("date_online")]
-        public int dateOnline;
+        /// <summary>Username of the user.</summary>
+        [JsonProperty("username")]
+        public string username;
 
-        /// <summary>Timezone of the user, format is country/city.</summary>
+        /// <summary>Locator for the user's avatar.</summary>
+        [JsonProperty("avatar")]
+        public AvatarImageLocator avatarLocator;
+
+        /// <summary>Unix timestamp of when the user was last online.</summary>
+        [JsonProperty("date_online")]
+        public int lastOnline;
+
+        /// <summary>Timezone of the user.</summary>
         [JsonProperty("timezone")]
         public string timezone;
 
-        /// <summary>Users language preference. See localization for the
-        /// supported languages.</summary>
+        /// <summary>User's language preference.</summary>
         [JsonProperty("language")]
         public string language;
 

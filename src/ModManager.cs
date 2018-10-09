@@ -192,7 +192,7 @@ namespace ModIO
 
 
         // ---------[ USER PROFILES ]---------
-        public static void GetUserAvatar(UserProfileStub profile,
+        public static void GetUserAvatar(UserProfile profile,
                                          UserAvatarSize size,
                                          Action<Texture2D> onSuccess,
                                          Action<WebRequestError> onError)

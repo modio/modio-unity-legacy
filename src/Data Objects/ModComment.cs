@@ -35,7 +35,7 @@ namespace ModIO
         /// Contains user data.
         /// </summary>
         [JsonProperty("submitted_by")]
-        public UserProfileStub submittedBy;
+        public UserProfile submittedBy;
 
         /// <summary>
         /// Unix timestamp of date the comment was posted.

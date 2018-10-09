@@ -50,7 +50,7 @@ namespace ModIO
             return request;
         }
 
-        public static ImageRequest DownloadUserAvatar(UserProfileStub profile,
+        public static ImageRequest DownloadUserAvatar(UserProfile profile,
                                                       UserAvatarSize size)
         {
             Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");

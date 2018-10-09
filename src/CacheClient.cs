@@ -883,7 +883,7 @@ namespace ModIO
         }
 
         /// <summary>Iterates through all the user profiles in the cache.</summary>
-        public static IEnumerable<UserProfileStub> IterateAllUserProfiles()
+        public static IEnumerable<UserProfile> IterateAllUserProfiles()
         {
             string profileDirectory = CacheClient.GetCacheDirectory() + "users/";
 
@@ -907,7 +907,7 @@ namespace ModIO
 
                 foreach(string profileFilePath in userFiles)
                 {
-                    var profile = CacheClient.ReadJsonObjectFile<UserProfileStub>(profileFilePath);
+                    var profile = CacheClient.ReadJsonObjectFile<UserProfile>(profileFilePath);
                     if(profile != null)
                     {
                         yield return profile;

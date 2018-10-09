@@ -38,7 +38,7 @@ namespace ModIO
 
         /// <summary>User that submitted the game profile to mod.io.</summary>
         [JsonProperty("submitted_by")]
-        public UserProfileStub submittedBy;
+        public UserProfile submittedBy;
 
         /// <summary>Server time stamp for the creation of the game profile.</summary>
         [JsonProperty("date_added")]
