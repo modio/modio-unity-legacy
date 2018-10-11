@@ -179,7 +179,7 @@ public class ModBrowserItem : MonoBehaviour
         }
         if(modfileDisplay.fileSize != null)
         {
-            modfileDisplay.fileSize.text = ModBrowser.ConvertByteCountIntoDisplayText(profile.activeBuild.fileSize);
+            modfileDisplay.fileSize.text = ModBrowser.ByteCountToDisplayString(profile.activeBuild.fileSize);
         }
         if(modfileDisplay.version != null)
         {
@@ -205,7 +205,7 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.downloadCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.downloadCount);
             }
 
             statisticsDisplay.downloadCount.text = displayText;
@@ -214,7 +214,7 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.subscriberCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.subscriberCount);
             }
 
             statisticsDisplay.subscriberCount.text = displayText;
@@ -223,7 +223,7 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsTotalCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsTotalCount);
             }
             statisticsDisplay.ratingsTotalCount.text = displayText;
         }
@@ -231,7 +231,7 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsPositiveCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsPositiveCount);
             }
             statisticsDisplay.ratingsPositiveCount.text = displayText;
         }
@@ -239,7 +239,7 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsNegativeCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsNegativeCount);
             }
             statisticsDisplay.ratingsNegativeCount.text = displayText;
         }

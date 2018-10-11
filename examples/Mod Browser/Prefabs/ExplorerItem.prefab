@@ -517,6 +517,8 @@ MonoBehaviour:
   tagBadgePrefab: {fileID: 1707814027038778, guid: 9e3ae7d594e9a46b6b23c6185aefd555,
     type: 2}
   logoVersion: 2
+  minimumScaleFactor: 0.75
+  maximumScaleFactor: 1.25
   profileDisplay:
     logoContainer: {fileID: 224786822620174664}
     name: {fileID: 114523196112149134}
@@ -548,12 +550,17 @@ MonoBehaviour:
     visibility: 0
     submittedBy:
       id: 0
+      nameId: 
       username: 
       avatarLocator:
         fileName: 
         original: 
         thumbnail_50x50: 
         thumbnail_100x100: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
     dateAdded: 0
     dateUpdated: 0
     dateLive: 0
@@ -1170,11 +1177,11 @@ RectTransform:
   m_Father: {fileID: 224291637973253560}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -278}
-  m_SizeDelta: {x: 460, y: 18}
-  m_Pivot: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 0, y: 20}
+  m_SizeDelta: {x: -20, y: 18}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!224 &224546086037838732
 RectTransform:
   m_ObjectHideFlags: 1
@@ -1263,11 +1270,11 @@ RectTransform:
   m_Father: {fileID: 224291637973253560}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -38}
-  m_SizeDelta: {x: 480, y: 270}
-  m_Pivot: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -15}
+  m_SizeDelta: {x: 0, y: -46}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224806415805626200
 RectTransform:
   m_ObjectHideFlags: 1

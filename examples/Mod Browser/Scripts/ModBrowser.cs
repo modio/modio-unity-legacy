@@ -43,7 +43,7 @@ public class ModBrowser : MonoBehaviour
     public ExplorerView_Scrolling explorerViewScrolling;
     public CollectionView collectionView;
     public InspectorView inspector;
-    public ModBrowserSearchBar searchBar;
+    // public ModBrowserSearchBar searchBar;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
     public MessageDialog messageDialog;
@@ -152,8 +152,8 @@ public class ModBrowser : MonoBehaviour
         inspector.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspector.profile));
         inspector.gameObject.SetActive(false);
 
-        searchBar.Initialize();
-        searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
+        // searchBar.Initialize();
+        // searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
 
         loginDialog.gameObject.SetActive(false);
         loginDialog.onSecurityCodeSent += (m) =>
@@ -631,13 +631,22 @@ public class ModBrowser : MonoBehaviour
         inspector.statistics = null;
         inspector.UpdateProfileUIComponents();
 
-        if(collectionModIds.Contains(item.profile.id))
+        Text buttonText = inspector.subscribeButton.GetComponent<Text>();
+        if(buttonText == null)
         {
-            inspector.subscribeButtonText.text = "View In Collection";
+            buttonText = inspector.subscribeButton.GetComponentInChildren<Text>();
         }
-        else
+
+        if(buttonText != null)
         {
-            inspector.subscribeButtonText.text = "Add To Collection";
+            if(collectionModIds.Contains(item.profile.id))
+            {
+                buttonText.text = "View In Collection";
+            }
+            else
+            {
+                buttonText.text = "Add To Collection";
+            }
         }
 
         ModManager.GetModStatistics(item.profile.id,
@@ -733,6 +742,12 @@ public class ModBrowser : MonoBehaviour
         }
         else
         {
+            Text buttonText = inspector.subscribeButton.GetComponent<Text>();
+            if(buttonText == null)
+            {
+                buttonText = inspector.subscribeButton.GetComponentInChildren<Text>();
+            }
+
             if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
             {
                 inspector.subscribeButton.interactable = false;
@@ -740,7 +755,7 @@ public class ModBrowser : MonoBehaviour
                 // TODO(@jackson): Protect from switch
                 Action<ModProfile> onSubscribe = (p) =>
                 {
-                    inspector.subscribeButtonText.text = "View In Collection";
+                    buttonText.text = "View In Collection";
                     inspector.subscribeButton.interactable = true;
                     OnSubscribedToMod(p);
                 };
@@ -756,7 +771,7 @@ public class ModBrowser : MonoBehaviour
             }
             else
             {
-                inspector.subscribeButtonText.text = "View In Collection";
+                buttonText.text = "View In Collection";
                 OnSubscribedToMod(profile);
             }
         }
@@ -1060,7 +1075,7 @@ public class ModBrowser : MonoBehaviour
     // }
 
     // ---------[ UTILITY ]---------
-    public static string ConvertValueIntoShortText(int value)
+    public static string ValueToDisplayString(int value)
     {
         if(value < 1000) // 0 - 999
         {
@@ -1092,7 +1107,7 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-    public static string ConvertByteCountIntoDisplayText(Int64 value)
+    public static string ByteCountToDisplayString(Int64 value)
     {
         string[] sizeSuffixes = new string[]{"B", "KB", "MB", "GB"};
         int sizeIndex = 0;

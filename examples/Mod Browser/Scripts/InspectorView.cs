@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 using UnityEngine;
@@ -25,10 +26,12 @@ public class InspectorView : MonoBehaviour
         public Text description_HTML;
         public Text description_text;
         public Text tags;
-        public RectTransform mediaGalleryContainer;
         public Text latestBuildName;
         public Text latestVersion;
         public Text downloadSize;
+        // TODO(@jackson): Create layouting classes
+        public RectTransform mediaGalleryContainer;
+        public RectTransform versionHistoryContainer;
     }
 
     [Serializable]
@@ -43,6 +46,7 @@ public class InspectorView : MonoBehaviour
     public struct InspectorHelper_StatisticsElements
     {
         public Text popularityRankPosition;
+        public Text popularityRankModCount;
         public Text downloadCount;
         public Text subscriberCount;
         public Text ratingsTotalCount;
@@ -59,7 +63,7 @@ public class InspectorView : MonoBehaviour
     public GameObject defaultAvatarPrefab;
     public GameObject mediaLoadingPrefab;
     public GameObject youTubeOverlayPrefab;
-    // public GameObject versionPrefab;
+    public GameObject versionHistoryItemPrefab;
     public UserAvatarSize avatarSize;
     public LogoSize logoSize;
     public ModGalleryImageSize galleryImageSize;
@@ -69,14 +73,7 @@ public class InspectorView : MonoBehaviour
     public InspectorHelper_ProfileElements profileElements;
     public InspectorHelper_CreatorElements creatorElements;
     public InspectorHelper_StatisticsElements statisticsElements;
-    // TODO(@jackson): Create layouting classes
-    public RectTransform versionHistoryContainer;
     public Button subscribeButton;
-    public Text subscribeButtonText;
-
-    // ---[ TEMP DATA ]---
-    [Header("Temp Data")]
-    public float mediaElementHeight;
 
     // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]
@@ -85,6 +82,9 @@ public class InspectorView : MonoBehaviour
     public GameObject creatorAvatarPlaceholder;
     public Image creatorAvatar;
 
+    // ---[ TEMP DATA ]---
+    [Header("Temp Data")]
+    public float mediaElementHeight;
 
     // ---------[ INITIALIZATION ]---------
     public void InitializeLayout()
@@ -127,6 +127,10 @@ public class InspectorView : MonoBehaviour
     // TODO(@jackson): Reset view (scrolling, etc)
     public void UpdateProfileUIComponents()
     {
+        #if UNITY_EDITOR
+        if(!Application.isPlaying) { return; }
+        #endif
+
         Debug.Assert(creatorElements.avatarContainer == null || creatorAvatarPlaceholder != null,
                      "[mod.io] InspectorView.UpdateProfileUIComponents() cannot be called until after InspectorView.InitializeLayout() has been called.");
         Debug.Assert(this.profile != null,
@@ -271,7 +275,7 @@ public class InspectorView : MonoBehaviour
         }
         if(profileElements.downloadSize != null)
         {
-            profileElements.downloadSize.text = ModBrowser.ConvertByteCountIntoDisplayText(profile.activeBuild.fileSize);
+            profileElements.downloadSize.text = ModBrowser.ByteCountToDisplayString(profile.activeBuild.fileSize);
         }
 
         // - creator -
@@ -291,6 +295,26 @@ public class InspectorView : MonoBehaviour
         {
             creatorElements.lastOnline.text = ServerTimeStamp.ToLocalDateTime(profile.submittedBy.lastOnline).ToString();
         }
+
+        // - version history -
+        if(profileElements.versionHistoryContainer != null)
+        {
+            foreach(Transform t in profileElements.versionHistoryContainer)
+            {
+                GameObject.Destroy(t.gameObject);
+            }
+
+            RequestFilter modfileFilter = new RequestFilter();
+            modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
+            modfileFilter.isSortAscending = false;
+
+            // TODO(@jackson): onError
+            APIClient.GetAllModfiles(profile.id,
+                                     modfileFilter,
+                                     new APIPaginationParameters(){ limit = 20 },
+                                     (r) => ApplyVersionHistory(profile.id, r),
+                                     null);
+        }
     }
 
     public void UpdateStatisticsUIComponents()
@@ -302,16 +326,25 @@ public class InspectorView : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = "#" + statistics.popularityRankPosition;
+                displayText = statistics.popularityRankPosition.ToString();
             }
 
             statisticsElements.popularityRankPosition.text = displayText;
+        }
+        if(statisticsElements.popularityRankModCount != null)
+        {
+            if(!isLoading)
+            {
+                displayText = ModBrowser.ValueToDisplayString(statistics.popularityRankModCount);
+            }
+
+            statisticsElements.popularityRankModCount.text = displayText;
         }
         if(statisticsElements.downloadCount != null)
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.downloadCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.downloadCount);
             }
 
             statisticsElements.downloadCount.text = displayText;
@@ -320,7 +353,7 @@ public class InspectorView : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.subscriberCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.subscriberCount);
             }
 
             statisticsElements.subscriberCount.text = displayText;
@@ -329,7 +362,7 @@ public class InspectorView : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsTotalCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsTotalCount);
             }
             statisticsElements.ratingsTotalCount.text = displayText;
         }
@@ -337,7 +370,7 @@ public class InspectorView : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsPositiveCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsPositiveCount);
             }
             statisticsElements.ratingsPositiveCount.text = displayText;
         }
@@ -345,7 +378,7 @@ public class InspectorView : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ModBrowser.ConvertValueIntoShortText(statistics.ratingsNegativeCount);
+                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsNegativeCount);
             }
             statisticsElements.ratingsNegativeCount.text = displayText;
         }
@@ -412,6 +445,18 @@ public class InspectorView : MonoBehaviour
         }
     }
 
+    private void ApplyYouTubeOverlay(Image image, string youTubeId)
+    {
+        GameObject overlay_go = GameObject.Instantiate(youTubeOverlayPrefab, image.transform) as GameObject;
+        overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = youTubeId;
+
+        RectTransform overlayTransform = overlay_go.GetComponent<RectTransform>();
+        overlayTransform.anchorMin = new Vector2(0f, 0f);
+        overlayTransform.anchorMax = new Vector2(1f, 1f);
+        overlayTransform.offsetMin = Vector2.zero;
+        overlayTransform.offsetMax = Vector2.zero;
+    }
+
     private Image CreateMediaGalleryElement(float width, float height)
     {
         GameObject newElement = new GameObject("Media Gallery Item");
@@ -433,8 +478,7 @@ public class InspectorView : MonoBehaviour
         return retVal;
     }
 
-    private void ApplyMediaGalleryTexture(Image image,
-                                          Texture2D texture)
+    private void ApplyMediaGalleryTexture(Image image, Texture2D texture)
     {
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }
@@ -449,15 +493,27 @@ public class InspectorView : MonoBehaviour
         }
     }
 
-    private void ApplyYouTubeOverlay(Image image, string youTubeId)
+    private void ApplyVersionHistory(int modId, IEnumerable<Modfile> modfiles)
     {
-        GameObject overlay_go = GameObject.Instantiate(youTubeOverlayPrefab, image.transform) as GameObject;
-        overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = youTubeId;
+        #if UNITY_EDITOR
+        if(!Application.isPlaying) { return; }
+        #endif
 
-        RectTransform overlayTransform = overlay_go.GetComponent<RectTransform>();
-        overlayTransform.anchorMin = new Vector2(0f, 0f);
-        overlayTransform.anchorMax = new Vector2(1f, 1f);
-        overlayTransform.offsetMin = Vector2.zero;
-        overlayTransform.offsetMax = Vector2.zero;
+        if(!this.gameObject.activeInHierarchy
+           || profile.id != modId)
+        {
+            // inspector has closed/changed mods since call was made
+            return;
+        }
+
+        foreach(Modfile modfile in modfiles)
+        {
+            GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, profileElements.versionHistoryContainer) as GameObject;
+            go.name = "Mod Version: " + modfile.version;
+
+            var entry = go.GetComponent<InspectorView_VersionEntry>();
+            entry.modfile = modfile;
+            entry.UpdateUIComponents();
+        }
     }
 }
