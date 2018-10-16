@@ -16,10 +16,23 @@ using ModIO;
 public class ModBrowser : MonoBehaviour
 {
     // ---------[ NESTED CLASSES ]---------
-    [System.Serializable]
+    [Serializable]
     private class ManifestData
     {
         public int lastCacheUpdate = -1;
+    }
+
+    [Serializable]
+    public class ExplorerViewData
+    {
+        public int currentPageIndex;
+        public int lastPageIndex;
+    }
+
+    [Serializable]
+    public class InspectorViewData
+    {
+        public int currentModIndex;
     }
 
     // ---------[ CONST & STATIC ]---------
@@ -42,7 +55,7 @@ public class ModBrowser : MonoBehaviour
     [Header("UI Components")]
     public ExplorerView explorerView;
     public CollectionView collectionView;
-    public InspectorView inspector;
+    public InspectorView inspectorView;
     // public ModBrowserSearchBar searchBar;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
@@ -51,13 +64,13 @@ public class ModBrowser : MonoBehaviour
     // --- Runtime Data ---
     [Header("Runtime Data")]
     public UserProfile userProfile = null;
+    public ExplorerViewData explorerData;
+    public InspectorViewData inspectorData;
     public int lastCacheUpdate = -1;
     public string titleSearch = string.Empty;
     public List<int> collectionModIds = new List<int>();
     public ModProfileFilter modProfileFilter = new ModProfileFilter();
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
-    public int currentPageIndex = 0;
-    public int lastPageIndex = 0;
 
     // ---------[ ACCESSORS ]---------
     // public IModBrowserView GetViewForMode(ModBrowserViewMode mode)
@@ -150,9 +163,9 @@ public class ModBrowser : MonoBehaviour
         APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();;
 
         // assert ui is prepared
-        inspector.Initialize();
-        inspector.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspector.profile));
-        inspector.gameObject.SetActive(false);
+        inspectorView.Initialize();
+        inspectorView.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspectorView.profile));
+        inspectorView.gameObject.SetActive(false);
 
         // searchBar.Initialize();
         // searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
@@ -283,22 +296,22 @@ public class ModBrowser : MonoBehaviour
             LoadCachedProfiles(explorerView.mainPageProfiles, 0, explorerView.pageSize);
             explorerView.UpdateMainPageUIComponents();
 
-            lastPageIndex = (int)Mathf.Ceil((float)modCount / (float)explorerView.pageSize) - 1;
-            currentPageIndex = 0;
+            explorerData.lastPageIndex = (int)Mathf.Ceil((float)modCount / (float)explorerView.pageSize) - 1;
+            explorerData.currentPageIndex = 0;
         }
         else
         {
-            lastPageIndex = -1;
-            currentPageIndex = -1;
+            explorerData.lastPageIndex = -1;
+            explorerData.currentPageIndex = -1;
         }
 
         if(explorerView.pageIndexText != null)
         {
-            explorerView.pageIndexText.text = (currentPageIndex + 1).ToString();
+            explorerView.pageIndexText.text = (explorerData.currentPageIndex + 1).ToString();
         }
         if(explorerView.pageCountText != null)
         {
-            explorerView.pageCountText.text = (lastPageIndex + 1).ToString();
+            explorerView.pageCountText.text = (explorerData.lastPageIndex + 1).ToString();
         }
 
         UpdateExplorerViewPageButtonInteractibility();
@@ -344,7 +357,7 @@ public class ModBrowser : MonoBehaviour
         //         downloaded = activeDownload.webRequest.downloadProgress * 100f;
         //     }
 
-        //     inspector.installButtonText.text = "Downloading [" + downloaded.ToString("00.00") + "%]";
+        //     inspectorView.installButtonText.text = "Downloading [" + downloaded.ToString("00.00") + "%]";
         // }
     }
 
@@ -664,38 +677,14 @@ public class ModBrowser : MonoBehaviour
 
     public void OnExplorerItemClicked(ModBrowserItem item)
     {
-        inspector.profile = item.profile;
-        inspector.statistics = null;
-        inspector.UpdateProfileUIComponents();
+        inspectorData.currentModIndex = item.index + (explorerData.currentPageIndex * explorerView.pageSize);
 
-        Text buttonText = inspector.subscribeButton.GetComponent<Text>();
-        if(buttonText == null)
-        {
-            buttonText = inspector.subscribeButton.GetComponentInChildren<Text>();
-        }
-
-        if(buttonText != null)
-        {
-            if(collectionModIds.Contains(item.profile.id))
-            {
-                buttonText.text = "View In Collection";
-            }
-            else
-            {
-                buttonText.text = "Add To Collection";
-            }
-        }
-
-        ModManager.GetModStatistics(item.profile.id,
-                                    (s) => { inspector.statistics = s; inspector.UpdateStatisticsUIComponents(); },
-                                    null);
-
-        inspector.gameObject.SetActive(true);
+        ChangeInspectorPage(0);
     }
 
     public void CloseInspector()
     {
-        inspector.gameObject.SetActive(false);
+        inspectorView.gameObject.SetActive(false);
     }
 
     public void OpenLoginDialog()
@@ -779,21 +768,21 @@ public class ModBrowser : MonoBehaviour
         }
         else
         {
-            Text buttonText = inspector.subscribeButton.GetComponent<Text>();
+            Text buttonText = inspectorView.subscribeButton.GetComponent<Text>();
             if(buttonText == null)
             {
-                buttonText = inspector.subscribeButton.GetComponentInChildren<Text>();
+                buttonText = inspectorView.subscribeButton.GetComponentInChildren<Text>();
             }
 
             if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
             {
-                inspector.subscribeButton.interactable = false;
+                inspectorView.subscribeButton.interactable = false;
 
                 // TODO(@jackson): Protect from switch
                 Action<ModProfile> onSubscribe = (p) =>
                 {
                     buttonText.text = "View In Collection";
-                    inspector.subscribeButton.interactable = true;
+                    inspectorView.subscribeButton.interactable = true;
                     OnSubscribedToMod(p);
                 };
 
@@ -801,7 +790,7 @@ public class ModBrowser : MonoBehaviour
                 Action<WebRequestError> onError = (e) =>
                 {
                     Debug.Log("Failed to Subscribe");
-                    inspector.subscribeButton.interactable = true;
+                    inspectorView.subscribeButton.interactable = true;
                 };
 
                 APIClient.SubscribeToMod(profile.id, onSubscribe, onError);
@@ -888,14 +877,17 @@ public class ModBrowser : MonoBehaviour
     {
         Debug.Assert(!explorerView.isTransitioning);
 
-        int transitioningPageIndex = currentPageIndex + direction;
+        int targetPageIndex = explorerData.currentPageIndex + direction;
+
+        Debug.Assert(targetPageIndex > 0);
+        Debug.Assert(targetPageIndex < explorerData.lastPageIndex);
 
         PageTransitionDirection transitionDirection = (direction < 0
                                                        ? PageTransitionDirection.FromLeft
                                                        : PageTransitionDirection.FromRight);
 
         LoadCachedProfiles(explorerView.transitionPageProfiles,
-                           transitioningPageIndex * explorerView.pageSize,
+                           targetPageIndex * explorerView.pageSize,
                            explorerView.pageSize);
 
         explorerView.pageLeftButton.interactable = false;
@@ -903,11 +895,11 @@ public class ModBrowser : MonoBehaviour
         explorerView.UpdateTransitionPageUIComponents();
         explorerView.InitiatePageTransition(transitionDirection, () =>
         {
-            currentPageIndex = transitioningPageIndex;
+            explorerData.currentPageIndex = targetPageIndex;
 
             if(explorerView.pageIndexText != null)
             {
-                explorerView.pageIndexText.text = (currentPageIndex + 1).ToString();
+                explorerView.pageIndexText.text = (explorerData.currentPageIndex + 1).ToString();
             }
 
             UpdateExplorerViewPageButtonInteractibility();
@@ -917,9 +909,65 @@ public class ModBrowser : MonoBehaviour
     public void UpdateExplorerViewPageButtonInteractibility()
     {
         explorerView.pageLeftButton.interactable = (!explorerView.isTransitioning
-                                                    && currentPageIndex > 0);
+                                                    && explorerData.currentPageIndex > 0);
         explorerView.pageRightButton.interactable = (!explorerView.isTransitioning
-                                                     && currentPageIndex < lastPageIndex);
+                                                     && explorerData.currentPageIndex < explorerData.lastPageIndex);
+    }
+
+    public void ChangeInspectorPage(int direction)
+    {
+        int firstExplorerIndex = explorerData.currentPageIndex * explorerView.pageSize;
+        int newModIndex = inspectorData.currentModIndex + direction;
+        int offsetIndex = newModIndex - firstExplorerIndex;
+
+        Debug.Assert(newModIndex > 0);
+        Debug.Assert(newModIndex < explorerData.lastPageIndex * explorerView.pageSize);
+
+        if(offsetIndex < 0)
+        {
+            ChangeExplorerPage(-1);
+
+            offsetIndex += explorerView.pageSize;
+            inspectorView.profile = explorerView.transitionPageProfiles[offsetIndex];
+        }
+        else if(offsetIndex >= explorerView.pageSize)
+        {
+            ChangeExplorerPage(1);
+
+            offsetIndex -= explorerView.pageSize;
+            inspectorView.profile = explorerView.transitionPageProfiles[offsetIndex];
+        }
+        else
+        {
+            inspectorView.profile = explorerView.mainPageProfiles[offsetIndex];
+        }
+
+        inspectorView.statistics = null;
+        inspectorView.UpdateProfileUIComponents();
+
+        Text buttonText = inspectorView.subscribeButton.GetComponent<Text>();
+        if(buttonText == null)
+        {
+            buttonText = inspectorView.subscribeButton.GetComponentInChildren<Text>();
+        }
+
+        if(buttonText != null)
+        {
+            if(collectionModIds.Contains(inspectorView.profile.id))
+            {
+                buttonText.text = "View In Collection";
+            }
+            else
+            {
+                buttonText.text = "Add To Collection";
+            }
+        }
+
+        ModManager.GetModStatistics(inspectorView.profile.id,
+                                    (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsUIComponents(); },
+                                    null);
+
+        inspectorView.gameObject.SetActive(true);
     }
 
     // ---------[ EVENT HANDLING ]---------
@@ -1003,30 +1051,30 @@ public class ModBrowser : MonoBehaviour
     //     // - set up inspector ui -
     //     inspectedProfile = profile;
 
-    //     inspector.title.text = profile.name;
-    //     inspector.author.text = profile.submittedBy.username;
-    //     inspector.logo.sprite = CreateSpriteFromTexture(loadingPlaceholder);
+    //     inspectorView.title.text = profile.name;
+    //     inspectorView.author.text = profile.submittedBy.username;
+    //     inspectorView.logo.sprite = CreateSpriteFromTexture(loadingPlaceholder);
 
     //     List<int> userSubscriptions = CacheClient.LoadAuthenticatedUserSubscriptions();
 
     //     if(userSubscriptions != null
     //        && userSubscriptions.Contains(profile.id))
     //     {
-    //         inspector.subscribeButtonText.text = "Unsubscribe";
+    //         inspectorView.subscribeButtonText.text = "Unsubscribe";
     //     }
     //     else
     //     {
-    //         inspector.subscribeButtonText.text = "Subscribe";
+    //         inspectorView.subscribeButtonText.text = "Subscribe";
     //     }
 
     //     ModManager.GetModLogo(profile, logoInspectorVersion,
-    //                           (t) => inspector.logo.sprite = CreateSpriteFromTexture(t),
+    //                           (t) => inspectorView.logo.sprite = CreateSpriteFromTexture(t),
     //                           null);
 
-    //     inspector.installButton.gameObject.SetActive(false);
-    //     inspector.downloadButtonText.text = "Verifying local data";
-    //     inspector.downloadButton.gameObject.SetActive(true);
-    //     inspector.downloadButton.interactable = false;
+    //     inspectorView.installButton.gameObject.SetActive(false);
+    //     inspectorView.downloadButtonText.text = "Verifying local data";
+    //     inspectorView.downloadButton.gameObject.SetActive(true);
+    //     inspectorView.downloadButton.interactable = false;
 
     //     // - check binary status -
     //     ModManager.GetDownloadedBinaryStatus(profile.activeBuild,
@@ -1034,20 +1082,20 @@ public class ModBrowser : MonoBehaviour
     //                                          {
     //                                             if(status == ModBinaryStatus.CompleteAndVerified)
     //                                             {
-    //                                                 inspector.downloadButton.gameObject.SetActive(false);
-    //                                                 inspector.installButton.gameObject.SetActive(true);
+    //                                                 inspectorView.downloadButton.gameObject.SetActive(false);
+    //                                                 inspectorView.installButton.gameObject.SetActive(true);
     //                                             }
     //                                             else
     //                                             {
-    //                                                 inspector.downloadButtonText.text = "Download";
-    //                                                 inspector.downloadButton.interactable = true;
+    //                                                 inspectorView.downloadButtonText.text = "Download";
+    //                                                 inspectorView.downloadButton.interactable = true;
     //                                             }
     //                                          });
 
     //     // - finalize -
     //     isInspecting = true;
     //     thumbnailContainer.gameObject.SetActive(false);
-    //     inspector.gameObject.SetActive(true);
+    //     inspectorView.gameObject.SetActive(true);
     // }
 
     // protected virtual void OnBackClicked()
@@ -1056,7 +1104,7 @@ public class ModBrowser : MonoBehaviour
     //     {
     //         isInspecting = false;
     //         thumbnailContainer.gameObject.SetActive(true);
-    //         inspector.gameObject.SetActive(false);
+    //         inspectorView.gameObject.SetActive(false);
     //     }
     // }
 
@@ -1075,7 +1123,7 @@ public class ModBrowser : MonoBehaviour
     //     if(subscriptionIndex == -1)
     //     {
     //         subscriptions.Add(modId);
-    //         inspector.subscribeButtonText.text = "Unsubscribe";
+    //         inspectorView.subscribeButtonText.text = "Unsubscribe";
 
     //         if(userProfile != null)
     //         {
@@ -1086,7 +1134,7 @@ public class ModBrowser : MonoBehaviour
     //     else
     //     {
     //         subscriptions.RemoveAt(subscriptionIndex);
-    //         inspector.subscribeButtonText.text = "Subscribe";
+    //         inspectorView.subscribeButtonText.text = "Subscribe";
 
     //         if(userProfile != null)
     //         {
@@ -1106,26 +1154,26 @@ public class ModBrowser : MonoBehaviour
 
     //     if(this.activeDownload.isDone)
     //     {
-    //         inspector.installButton.gameObject.SetActive(true);
-    //         inspector.downloadButton.gameObject.SetActive(true);
+    //         inspectorView.installButton.gameObject.SetActive(true);
+    //         inspectorView.downloadButton.gameObject.SetActive(true);
 
     //         this.activeDownload = null;
     //     }
     //     else
     //     {
-    //         inspector.downloadButtonText.text = "Initializing Download...";
+    //         inspectorView.downloadButtonText.text = "Initializing Download...";
 
     //         this.activeDownload.succeeded += (d) =>
     //         {
-    //             inspector.installButton.gameObject.SetActive(true);
-    //             inspector.downloadButton.gameObject.SetActive(true);
+    //             inspectorView.installButton.gameObject.SetActive(true);
+    //             inspectorView.downloadButton.gameObject.SetActive(true);
 
     //             this.activeDownload = null;
     //         };
     //         this.activeDownload.failed += (d) =>
     //         {
-    //             inspector.installButton.gameObject.SetActive(true);
-    //             inspector.downloadButton.gameObject.SetActive(true);
+    //             inspectorView.installButton.gameObject.SetActive(true);
+    //             inspectorView.downloadButton.gameObject.SetActive(true);
 
     //             this.activeDownload = null;
     //         };

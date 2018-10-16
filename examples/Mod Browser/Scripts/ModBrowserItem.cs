@@ -66,6 +66,7 @@ public class ModBrowserItem : MonoBehaviour
 
     // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]
+    public int index;
     public ModProfile profile;
     public ModStatistics statistics;
     public GameObject logoPlaceholderInstance;

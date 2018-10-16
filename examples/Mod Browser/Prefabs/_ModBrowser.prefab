@@ -8384,6 +8384,7 @@ MonoBehaviour:
     ratingsNegativePercentage: {fileID: 0}
     ratingsWeightedAggregate: {fileID: 0}
     ratingsDisplayText: {fileID: 0}
+  index: 0
   profile:
     id: 0
     gameId: 0
@@ -9411,7 +9412,7 @@ MonoBehaviour:
   viewMode: 1
   explorerView: {fileID: 114195835507779204}
   collectionView: {fileID: 114913865012966326}
-  inspector: {fileID: 114058456442351948}
+  inspectorView: {fileID: 114058456442351948}
   userDisplay: {fileID: 114095034556547416}
   loginDialog: {fileID: 114863113973899486}
   messageDialog: {fileID: 114823163344274638}
@@ -9428,13 +9429,16 @@ MonoBehaviour:
     timezone: 
     language: 
     profileURL: 
+  explorerData:
+    currentPageIndex: 0
+    lastPageIndex: 0
+  inspectorData:
+    currentModIndex: 0
   lastCacheUpdate: -1
   titleSearch: 
   collectionModIds: 
   modProfileFilter:
     title: 
-  currentPageIndex: 0
-  lastPageIndex: 0
 --- !u!114 &114433139031511472
 MonoBehaviour:
   m_ObjectHideFlags: 1

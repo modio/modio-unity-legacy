@@ -164,6 +164,7 @@ public class ExplorerView : MonoBehaviour
 
             // display mod profile
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
+            item.index = index;
             item.profile = null;
             item.onClick += NotifyItemClicked;
             item.Initialize();
