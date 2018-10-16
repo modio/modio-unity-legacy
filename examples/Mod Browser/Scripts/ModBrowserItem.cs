@@ -277,7 +277,7 @@ public class ModBrowserItem : MonoBehaviour
         }
     }
 
-    public void ApplyModLogo(Texture2D logoTexture)
+    private void ApplyModLogo(Texture2D logoTexture)
     {
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }

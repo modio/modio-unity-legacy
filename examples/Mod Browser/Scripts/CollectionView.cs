@@ -8,7 +8,7 @@ using ModIO;
 
 // TODO(@jackson): Handle no mods in list inspection
 // TODO(@jackson): Set inspect on load
-public class CollectionView : MonoBehaviour, IModBrowserView
+public class CollectionView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     // ---[ EVENTS ]---
@@ -39,7 +39,7 @@ public class CollectionView : MonoBehaviour, IModBrowserView
     // ---------[ IMODBROWSERVIEW ]---------
     public IEnumerable<ModProfile> profileCollection { get; set; }
 
-    public void InitializeLayout()
+    public void Initialize()
     {
         _itemHeight = itemListing_prefab.GetComponent<RectTransform>().rect.height;
     }

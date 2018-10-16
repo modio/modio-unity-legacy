@@ -5,8 +5,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
+public enum PageTransitionDirection
+{
+    FromLeft,
+    FromRight,
+}
+
 // TODO(@jackson): The padding/spacing maths might need work?
-public class ExplorerView : MonoBehaviour, IModBrowserView
+public class ExplorerView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     // ---[ EVENTS ]---
@@ -24,8 +30,15 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public RectTransform contentPane;
     public Button pageLeftButton;
     public Button pageRightButton;
+    public Text pageIndexText;
+    public Text pageCountText;
+
+    [Header("Display Data")]
+    public ModProfile[] mainPageProfiles;
+    public ModProfile[] transitionPageProfiles;
 
     [Header("Runtime Data")]
+    public bool isTransitioning;
     public RectTransform mainPage;
     public RectTransform transitionPage;
     public int columnCount;
@@ -34,37 +47,16 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
     public float rowHeight;
     public Vector2 itemSize;
     public Vector2 itemOffset;
-    public int currentPageIndex;
-    public int targetPageIndex;
-    public int queuedPageIndex;
-    public int lastPageIndex;
-    public bool isTransitioning;
 
     // ---[ CALCULATED VARS ]----
     public int pageSize { get { return this.columnCount * this.rowCount; } }
 
-    private void Start()
-    {
-        isTransitioning = false;
-        targetPageIndex = currentPageIndex;
-        queuedPageIndex = -1;
-
-        if(pageLeftButton != null)
-        {
-            pageLeftButton.onClick.AddListener(() => ChangePage(-1));
-        }
-        if(pageRightButton != null)
-        {
-            pageRightButton.onClick.AddListener(() => ChangePage(1));
-        }
-    }
-
-    // ---------[ IMODBROWSERVIEW ]---------
-    public IEnumerable<ModProfile> profileCollection { get; set; }
-
-    public void InitializeLayout()
+    // ---------[ INITIALIZATION ]---------
+    public void Initialize()
     {
         Debug.Assert(itemPrefab != null);
+
+        isTransitioning = false;
 
         // - check itemPrefab components -
         ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
@@ -79,30 +71,6 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
                      && itemPrefabTransform.anchorMax == new Vector2(0f, 1f),
                      "[mod.io] The ExplorerView.itemPrefab's transfrom needs a top-left anchor."
                      + " Please ensure the both the anchor min and anchor max are at [0, 1].");
-
-        // - initialize pages -
-        if(mainPage == null || transitionPage == null)
-        {
-            foreach(Transform t in contentPane)
-            {
-                GameObject.Destroy(t.gameObject);
-            }
-
-            mainPage = (new GameObject("Mod Page: Main")).AddComponent<RectTransform>();
-            mainPage.SetParent(contentPane);
-            mainPage.anchorMin = Vector2.zero;
-            mainPage.anchorMax = Vector2.zero;
-            mainPage.offsetMin = Vector2.zero;
-            mainPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
-
-            transitionPage = (new GameObject("Mod Page: Transitional")).AddComponent<RectTransform>();
-            transitionPage.SetParent(contentPane);
-            transitionPage.anchorMin = Vector2.zero;
-            transitionPage.anchorMax = Vector2.zero;
-            transitionPage.offsetMin = new Vector2(contentPane.rect.width, 0f);
-            transitionPage.offsetMax = new Vector2(contentPane.rect.width * 2f,
-                                                   contentPane.rect.height);
-        }
 
         // - calculate size vars -
         // TODO(@jackson): WHOLE PIXELS!
@@ -127,28 +95,40 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
         this.rowHeight = (contentPane.rect.height - minPadding.vertical) / (float)this.rowCount;
         this.itemSize.y = Mathf.Min(this.rowHeight - minRowSpacing, maxItemHeight);
         this.itemOffset.y = 0.5f * (this.rowHeight - this.itemSize.y);
+
+        // - initialize pages -
+        foreach(Transform t in contentPane)
+        {
+            GameObject.Destroy(t.gameObject);
+        }
+
+        mainPage = (new GameObject("Mod Page")).AddComponent<RectTransform>();
+        mainPage.SetParent(contentPane);
+        mainPage.anchorMin = Vector2.zero;
+        mainPage.anchorMax = Vector2.zero;
+        mainPage.offsetMin = Vector2.zero;
+        mainPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+        InitializePageLayout(mainPage);
+
+        transitionPage = (new GameObject("Mod Page")).AddComponent<RectTransform>();
+        transitionPage.SetParent(contentPane);
+        transitionPage.anchorMin = Vector2.zero;
+        transitionPage.anchorMax = Vector2.zero;
+        transitionPage.offsetMin = new Vector2(contentPane.rect.width, 0f);
+        transitionPage.offsetMax = new Vector2(contentPane.rect.width * 2f,
+                                               contentPane.rect.height);
+        InitializePageLayout(transitionPage);
+
+        transitionPage.gameObject.SetActive(false);
+
+        mainPageProfiles = new ModProfile[this.pageSize];
+        transitionPageProfiles = new ModProfile[this.pageSize];
     }
 
-    /// <summary>Refreshes the view using the current data.</summary>
-    public void Refresh()
+    private void InitializePageLayout(RectTransform pageTransform)
     {
-        Debug.Assert(mainPage != null && transitionPage != null,
-                     "[mod.io] ExplorerView.Refresh() cannot be called until after ExplorerView.InitializeLayout() has been called.");
-        Debug.Assert(pageSize > 0,
-                     "[mod.io] PageSize has an invalid value. This is because either the columnCount"
-                     + " or rowCount has been calculated to be less than 1.");
-
-        Debug.Assert(itemPrefab != null);
-
-        // clear existing items
-        foreach(Transform t in mainPage)
+        foreach(Transform t in pageTransform)
         {
-            ModBrowserItem item = t.GetComponent<ModBrowserItem>();
-            if(item != null)
-            {
-                item.onClick -= NotifyItemClicked;
-            }
-
             #if DEBUG
             if(!Application.isPlaying)
             {
@@ -161,56 +141,8 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
             }
         }
 
-        // collect the profiles in view
-        FillModPage(CacheClient.IterateAllModProfilesFromOffset(currentPageIndex * pageSize),
-                    mainPage);
-
-        lastPageIndex = (int)Mathf.Ceil((float)CacheClient.CountModProfiles() / (float)pageSize) - 1;
-
-        // handle page transitioning
-        if(isTransitioning)
-        {
-            foreach(Transform t in transitionPage)
-            {
-                ModBrowserItem item = t.GetComponent<ModBrowserItem>();
-                if(item != null)
-                {
-                    item.onClick -= NotifyItemClicked;
-                }
-
-                #if DEBUG
-                if(!Application.isPlaying)
-                {
-                    UnityEngine.Object.DestroyImmediate(t.gameObject);
-                }
-                else
-                #endif
-                {
-                    UnityEngine.Object.Destroy(t.gameObject);
-                }
-
-                FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPageIndex * pageSize),
-                            transitionPage);
-            }
-        }
-
-        // update buttons
-        if(pageLeftButton != null)
-        {
-            pageLeftButton.interactable = (currentPageIndex > 0);
-        }
-        if(pageRightButton != null)
-        {
-            pageRightButton.interactable = (currentPageIndex < lastPageIndex);
-        }
-    }
-
-    private void FillModPage(IEnumerable<ModProfile> profiles, RectTransform pageTransform)
-    {
-        IEnumerator<ModProfile> pEnumerator = profiles.GetEnumerator();
-
         for(int index = 0;
-            index < this.pageSize && pEnumerator.MoveNext();
+            index < this.pageSize;
             ++index)
         {
             GameObject itemGO = GameObject.Instantiate(itemPrefab,
@@ -232,74 +164,137 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
             // display mod profile
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-            item.profile = pEnumerator.Current;
+            item.profile = null;
             item.onClick += NotifyItemClicked;
             item.Initialize();
-            item.UpdateProfileUIComponents();
-            item.UpdateStatisticsUIComponents();
 
-            ModManager.GetModStatistics(item.profile.id,
-                                        (s) => { item.statistics = s; item.UpdateStatisticsUIComponents(); },
-                                        null);
+            itemGO.SetActive(false);
         }
     }
 
-    public void MoveToPage(int pageIndex)
+    // ----------[ PAGE DISPLAY ]---------
+    public void UpdateMainPageUIComponents()
     {
+        Debug.Assert(mainPage != null,
+                     "[mod.io] ExplorerView.Initialize has not yet been called");
+        Debug.Assert(pageSize > 0,
+                     "[mod.io] PageSize has an invalid value. This is because either the columnCount"
+                     + " or rowCount has been calculated to be less than 1.");
+        Debug.Assert(mainPageProfiles.Length == pageSize,
+                     "[mod.io] The quantity of profiles to display must match the the calculated page size."
+                     + " Any excess array slots should be set to NULL."
+                     + "\nPageSize=" + pageSize + " - ArraySize=" + mainPageProfiles.Length);
+
         #if DEBUG
-        Debug.Assert(pageIndex >= 0 && pageIndex <= lastPageIndex);
-        #else
-        if(pageIndex < 0) { pageIndex = 0; }
-        if(pageIndex > lastPageIndex) { pageIndex = lastPageIndex; }
+        if(isTransitioning)
+        {
+            Debug.LogWarning("[mod.io] Explorer View is currently transitioning between pages. It"
+                             + " is recommended to not update page displays at this time.");
+        }
         #endif
 
-        if(currentPageIndex == pageIndex) { return; }
+        SetPageMods(this.mainPageProfiles, this.mainPage);
+    }
 
-        if(!isTransitioning)
+    public void UpdateTransitionPageUIComponents()
+    {
+        Debug.Assert(transitionPage != null,
+                     "[mod.io] ExplorerView.Initialize has not yet been called");
+        Debug.Assert(pageSize > 0,
+                     "[mod.io] PageSize has an invalid value. This is because either the columnCount"
+                     + " or rowCount has been calculated to be less than 1.");
+        Debug.Assert(transitionPageProfiles.Length == pageSize,
+                     "[mod.io] The quantity of profiles to display must match the the calculated page size."
+                     + " Any excess array slots should be set to NULL."
+                     + "\nPageSize=" + pageSize + " - ArraySize=" + transitionPageProfiles.Length);
+
+        #if DEBUG
+        if(isTransitioning)
         {
-            targetPageIndex = pageIndex;
-            StartCoroutine(TransitionPageCoroutine());
+            Debug.LogWarning("[mod.io] Explorer View is currently transitioning between pages. It"
+                             + " is recommended to not update page displays at this time.");
         }
-        else
+        #endif
+
+        SetPageMods(this.transitionPageProfiles, this.transitionPage);
+    }
+
+    private void SetPageMods(ModProfile[] profiles, RectTransform pageTransform)
+    {
+        for(int i = 0; i < pageSize; ++i)
         {
-            queuedPageIndex = targetPageIndex;
+            Transform itemTransform = pageTransform.GetChild(i);
+            ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
+            item.profile = profiles[i];
+            item.statistics = null;
+
+            if(item.profile == null)
+            {
+                itemTransform.gameObject.SetActive(false);
+            }
+            else
+            {
+                item.UpdateProfileUIComponents();
+                item.UpdateStatisticsUIComponents();
+
+                itemTransform.gameObject.SetActive(true);
+
+                ModManager.GetModStatistics(item.profile.id,
+                                            (s) => { item.statistics = s; item.UpdateStatisticsUIComponents(); },
+                                            null);
+            }
         }
     }
 
-    private IEnumerator TransitionPageCoroutine()
+    // ----------[ PAGE TRANSITIONS ]---------
+    public void InitiatePageTransition(PageTransitionDirection direction, Action onTransitionCompleted)
+    {
+        if(!isTransitioning)
+        {
+            float mainPaneTargetX = contentPane.rect.width * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
+            float transPaneStartX = mainPaneTargetX * -1f;
+
+            mainPage.offsetMin = Vector2.zero;
+            mainPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+
+            transitionPage.offsetMin = new Vector2(transPaneStartX, 0f);
+            transitionPage.offsetMax = new Vector2(transPaneStartX + contentPane.rect.width,
+                                                   contentPane.rect.height);
+
+            StartCoroutine(TransitionPageCoroutine(mainPaneTargetX, transPaneStartX,
+                                                   this.pageTransitionTimeSeconds, onTransitionCompleted));
+        }
+        #if DEBUG
+        else
+        {
+            Debug.LogWarning("[mod.io] ModPages are already transitioning.");
+        }
+        #endif
+    }
+
+    private IEnumerator TransitionPageCoroutine(float mainPaneTargetX, float transitionPaneStartX,
+                                                float transitionLength, Action onTransitionCompleted)
     {
         isTransitioning = true;
 
-        if(pageLeftButton != null)
-        {
-            pageLeftButton.interactable = false;
-        }
-        if(pageRightButton != null)
-        {
-            pageRightButton.interactable = false;
-        }
+        transitionPage.gameObject.SetActive(true);
 
-        // load up transition panel
-        FillModPage(CacheClient.IterateAllModProfilesFromOffset(targetPageIndex * pageSize),
-                    transitionPage);
+        float transitionTime = 0f;
 
         // transition
-        float transitionTime = Time.deltaTime;
-        float mainPaneTargetX = contentPane.rect.width * (currentPageIndex < targetPageIndex ? -1f : 1f);
-        float transPaneStartX = mainPaneTargetX * -1f;
-        while(transitionTime < pageTransitionTimeSeconds)
+        while(transitionTime < transitionLength)
         {
-            float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / pageTransitionTimeSeconds);
+            float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / transitionLength);
 
             mainPage.offsetMin = new Vector2(transPos,
-                                                  0f);
+                                             0f);
             mainPage.offsetMax = new Vector2(transPos + contentPane.rect.width,
-                                                  contentPane.rect.height);
+                                             contentPane.rect.height);
 
-            transitionPage.offsetMin = new Vector2(transPos + transPaneStartX,
-                                                          0f);
-            transitionPage.offsetMax = new Vector2(transPos + transPaneStartX + contentPane.rect.width,
-                                                          contentPane.rect.height);
+            transitionPage.offsetMin = new Vector2(transPos + transitionPaneStartX,
+                                                   0f);
+            transitionPage.offsetMax = new Vector2(transPos + transitionPaneStartX + contentPane.rect.width,
+                                                   contentPane.rect.height);
 
             transitionTime += Time.deltaTime;
 
@@ -308,59 +303,24 @@ public class ExplorerView : MonoBehaviour, IModBrowserView
 
         // finalize
         transitionPage.offsetMin = Vector2.zero;
-        transitionPage.offsetMax = new Vector2(0f, contentPane.rect.height);
+        transitionPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
 
-        foreach(Transform t in mainPage)
-        {
-            ModBrowserItem item = t.GetComponent<ModBrowserItem>();
-            if(item != null)
-            {
-                item.onClick -= NotifyItemClicked;
-            }
+        mainPage.gameObject.SetActive(false);
 
-            #if DEBUG
-            if(!Application.isPlaying)
-            {
-                UnityEngine.Object.DestroyImmediate(t.gameObject);
-            }
-            else
-            #endif
-            {
-                UnityEngine.Object.Destroy(t.gameObject);
-            }
-        }
+        RectTransform tempPage = mainPage;
+        mainPage = transitionPage;
+        transitionPage = tempPage;
 
-        mainPage.offsetMin = Vector2.zero;
-        mainPage.offsetMax = new Vector2(0f, contentPane.rect.height);
+        ModProfile[] tempProfiles = mainPageProfiles;
+        mainPageProfiles = transitionPageProfiles;
+        transitionPageProfiles = tempProfiles;
 
-        while(transitionPage.childCount > 0)
-        {
-            transitionPage.GetChild(0).SetParent(mainPage);
-        }
-
-        currentPageIndex = targetPageIndex;
         isTransitioning = false;
 
-        if(pageLeftButton != null)
+        if(onTransitionCompleted != null)
         {
-            pageLeftButton.interactable = (currentPageIndex > 0);
+            onTransitionCompleted();
         }
-        if(pageRightButton != null)
-        {
-            pageRightButton.interactable = (currentPageIndex < lastPageIndex);
-        }
-
-        if(queuedPageIndex > 0)
-        {
-            targetPageIndex = queuedPageIndex;
-            queuedPageIndex = 0;
-            StartCoroutine(TransitionPageCoroutine());
-        }
-    }
-
-    public void ChangePage(int direction)
-    {
-        MoveToPage(currentPageIndex + direction);
     }
 
     // ---------[ EVENTS ]---------

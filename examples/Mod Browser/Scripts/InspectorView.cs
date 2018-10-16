@@ -87,7 +87,7 @@ public class InspectorView : MonoBehaviour
     public float mediaElementHeight;
 
     // ---------[ INITIALIZATION ]---------
-    public void InitializeLayout()
+    public void Initialize()
     {
         if(creatorElements.avatarContainer != null)
         {

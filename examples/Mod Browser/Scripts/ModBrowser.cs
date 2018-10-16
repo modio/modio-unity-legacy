@@ -8,6 +8,7 @@ using System.Linq;
 
 using ModIO;
 
+// TODO(@jackson): Clean up after removing IModBrowserView
 // TODO(@jackson): Queue missed requests? (Unsub fail)
 // TODO(@jackson): Correct subscription loading
 // TODO(@jackson): Add user events
@@ -40,7 +41,6 @@ public class ModBrowser : MonoBehaviour
     // --- UI Components ---
     [Header("UI Components")]
     public ExplorerView explorerView;
-    public ExplorerView_Scrolling explorerViewScrolling;
     public CollectionView collectionView;
     public InspectorView inspector;
     // public ModBrowserSearchBar searchBar;
@@ -56,24 +56,26 @@ public class ModBrowser : MonoBehaviour
     public List<int> collectionModIds = new List<int>();
     public ModProfileFilter modProfileFilter = new ModProfileFilter();
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
+    public int currentPageIndex = 0;
+    public int lastPageIndex = 0;
 
     // ---------[ ACCESSORS ]---------
-    public IModBrowserView GetViewForMode(ModBrowserViewMode mode)
-    {
-        switch(mode)
-        {
-            case ModBrowserViewMode.Collection:
-            {
-                return this.collectionView;
-            }
-            case ModBrowserViewMode.Explorer:
-            {
-                return this.explorerView;
-            }
-        }
+    // public IModBrowserView GetViewForMode(ModBrowserViewMode mode)
+    // {
+    //     switch(mode)
+    //     {
+    //         case ModBrowserViewMode.Collection:
+    //         {
+    //             return this.collectionView;
+    //         }
+    //         case ModBrowserViewMode.Explorer:
+    //         {
+    //             return this.explorerView;
+    //         }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     public IEnumerable<ModProfile> GetFilteredProfileCollectionForMode(ModBrowserViewMode mode)
     {
@@ -148,7 +150,7 @@ public class ModBrowser : MonoBehaviour
         APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();;
 
         // assert ui is prepared
-        inspector.InitializeLayout();
+        inspector.Initialize();
         inspector.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspector.profile));
         inspector.gameObject.SetActive(false);
 
@@ -264,21 +266,59 @@ public class ModBrowser : MonoBehaviour
         }
 
         // intialize views
-        // collectionView.onItemClicked += OnExplorerItemClicked;
-        collectionView.InitializeLayout();
-        collectionView.profileCollection = CacheClient.IterateAllModProfiles()
-                                                    .Where(p => collectionModIds.Contains(p.id));
-        collectionView.gameObject.SetActive(false);
+        collectionView.Initialize();
         collectionView.onUnsubscribeClicked += OnUnsubscribeButtonClicked;
+        collectionView.profileCollection = CacheClient.IterateAllModProfiles().Where(p => collectionModIds.Contains(p.id));
+        collectionView.gameObject.SetActive(false);
 
+        explorerView.Initialize();
         explorerView.onItemClicked += OnExplorerItemClicked;
-        explorerView.profileCollection = CacheClient.IterateAllModProfiles();
-        explorerView.InitializeLayout();
-        explorerView.gameObject.SetActive(false);
+        explorerView.gameObject.SetActive(true);
 
-        IModBrowserView view = GetViewForMode(this.viewMode);
-        view.Refresh();
-        view.gameObject.SetActive(true);
+        // load explorer pages
+        int modCount = CacheClient.CountModProfiles();
+
+        if(modCount > 0)
+        {
+            LoadCachedProfiles(explorerView.mainPageProfiles, 0, explorerView.pageSize);
+            explorerView.UpdateMainPageUIComponents();
+
+            lastPageIndex = (int)Mathf.Ceil((float)modCount / (float)explorerView.pageSize) - 1;
+            currentPageIndex = 0;
+        }
+        else
+        {
+            lastPageIndex = -1;
+            currentPageIndex = -1;
+        }
+
+        if(explorerView.pageIndexText != null)
+        {
+            explorerView.pageIndexText.text = (currentPageIndex + 1).ToString();
+        }
+        if(explorerView.pageCountText != null)
+        {
+            explorerView.pageCountText.text = (lastPageIndex + 1).ToString();
+        }
+
+        UpdateExplorerViewPageButtonInteractibility();
+    }
+
+    private void LoadCachedProfiles(ModProfile[] destinationArray, int offset, int count)
+    {
+        Debug.Assert(count <= destinationArray.Length);
+
+        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(offset).GetEnumerator();
+
+        int i = 0;
+        for(; i < count && profileEnumerator.MoveNext(); ++i)
+        {
+            destinationArray[i] = profileEnumerator.Current;
+        }
+        for(; i < count; ++i)
+        {
+            destinationArray[i] = null;
+        }
     }
 
     // ---------[ UPDATES ]---------
@@ -361,14 +401,14 @@ public class ModBrowser : MonoBehaviour
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
 
-                #if DEBUG
-                if(Application.isPlaying)
-                #endif
-                {
-                    IModBrowserView view = GetViewForMode(this.viewMode);
-                    view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
-                    view.Refresh();
-                }
+                // #if DEBUG
+                // if(Application.isPlaying)
+                // #endif
+                // {
+                //     IModBrowserView view = GetViewForMode(this.viewMode);
+                //     view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
+                //     view.Refresh();
+                // }
             };
 
             Action<WebRequestError> onError = (error) =>
@@ -583,25 +623,6 @@ public class ModBrowser : MonoBehaviour
     }
 
     // ---------[ UI CONTROL ]---------
-    public void SetExplorerViewLayoutGrid()
-    {
-        SetExplorerViewLayout(ModBrowserLayoutMode.Grid);
-    }
-    public void SetExplorerViewLayoutTable()
-    {
-        SetExplorerViewLayout(ModBrowserLayoutMode.Table);
-    }
-    public void SetExplorerViewLayout(ModBrowserLayoutMode layout)
-    {
-        // if(explorerView.layoutMode == layout) { return; }
-
-        // // collectionView.layoutMode = layout;
-        // // collectionView.InitializeLayout();
-        // explorerView.layoutMode = layout;
-        // explorerView.InitializeLayout();
-        // explorerView.Refresh();
-    }
-
     public void SetViewModeCollection()
     {
         this.viewMode = ModBrowserViewMode.Collection;
@@ -615,14 +636,30 @@ public class ModBrowser : MonoBehaviour
 
     public void UpdateViewMode()
     {
-        IModBrowserView view = GetViewForMode(this.viewMode);
-        if(view.gameObject.activeSelf) { return; }
+        // IModBrowserView view = GetViewForMode(this.viewMode);
+        // if(view.gameObject.activeSelf) { return; }
 
-        collectionView.gameObject.SetActive(false);
-        explorerView.gameObject.SetActive(false);
+        // collectionView.gameObject.SetActive(false);
+        // explorerView.gameObject.SetActive(false);
 
-        view.Refresh();
-        view.gameObject.SetActive(true);
+        // view.Refresh();
+        // view.gameObject.SetActive(true);
+
+        switch(this.viewMode)
+        {
+            case ModBrowserViewMode.Collection:
+            {
+                collectionView.gameObject.SetActive(true);
+                explorerView.gameObject.SetActive(false);
+            }
+            break;
+            case ModBrowserViewMode.Explorer:
+            {
+                explorerView.gameObject.SetActive(true);
+                collectionView.gameObject.SetActive(false);
+            }
+            break;
+        }
     }
 
     public void OnExplorerItemClicked(ModBrowserItem item)
@@ -725,9 +762,9 @@ public class ModBrowser : MonoBehaviour
         this.modProfileFilter.title = textFilter;
         this.modProfileFilter.tags = tagFilters;
 
-        IModBrowserView view = GetViewForMode(this.viewMode);
-        view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
-        view.Refresh();
+        // IModBrowserView view = GetViewForMode(this.viewMode);
+        // view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
+        // view.Refresh();
     }
 
     public void OnSubscribeButtonClicked(ModProfile profile)
@@ -845,6 +882,44 @@ public class ModBrowser : MonoBehaviour
         CacheClient.DeleteAllModfileAndBinaryData(modProfile.id);
 
         collectionView.Refresh();
+    }
+
+    public void ChangeExplorerPage(int direction)
+    {
+        Debug.Assert(!explorerView.isTransitioning);
+
+        int transitioningPageIndex = currentPageIndex + direction;
+
+        PageTransitionDirection transitionDirection = (direction < 0
+                                                       ? PageTransitionDirection.FromLeft
+                                                       : PageTransitionDirection.FromRight);
+
+        LoadCachedProfiles(explorerView.transitionPageProfiles,
+                           transitioningPageIndex * explorerView.pageSize,
+                           explorerView.pageSize);
+
+        explorerView.pageLeftButton.interactable = false;
+        explorerView.pageRightButton.interactable = false;
+        explorerView.UpdateTransitionPageUIComponents();
+        explorerView.InitiatePageTransition(transitionDirection, () =>
+        {
+            currentPageIndex = transitioningPageIndex;
+
+            if(explorerView.pageIndexText != null)
+            {
+                explorerView.pageIndexText.text = (currentPageIndex + 1).ToString();
+            }
+
+            UpdateExplorerViewPageButtonInteractibility();
+        });
+    }
+
+    public void UpdateExplorerViewPageButtonInteractibility()
+    {
+        explorerView.pageLeftButton.interactable = (!explorerView.isTransitioning
+                                                    && currentPageIndex > 0);
+        explorerView.pageRightButton.interactable = (!explorerView.isTransitioning
+                                                     && currentPageIndex < lastPageIndex);
     }
 
     // ---------[ EVENT HANDLING ]---------
