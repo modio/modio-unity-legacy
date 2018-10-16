@@ -387,15 +387,23 @@ namespace ModIO
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
-                    Debug.Log(webRequest.method.ToUpper() + " REQUEST RESPONSE"
-                              + "\nResponse received at: "
-                              + "[" + responseTimeStamp + "] "
-                              + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                              + "\nURL: " + webRequest.url
-                              + "\nResponse Code: " + webRequest.responseCode
-                              + "\nResponse Error: " + webRequest.error
-                              + "\nResponse: " + webRequest.downloadHandler.text
-                              + "\n");
+                    string logString = (webRequest.method.ToUpper() + " REQUEST RESPONSE"
+                                        + "\nResponse received at: "
+                                        + "[" + responseTimeStamp + "] "
+                                        + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
+                                        + "\nURL: " + webRequest.url
+                                        + "\nResponse Code: " + webRequest.responseCode
+                                        + "\nResponse Error: " + webRequest.error
+                                        + "\nResponse: " + webRequest.downloadHandler.text
+                                        + "\n");
+                    if(webRequest.isNetworkError || webRequest.isHttpError)
+                    {
+                        Debug.LogWarning(logString);
+                    }
+                    else
+                    {
+                        Debug.Log(logString);
+                    }
                 }
                 #endif
 
