@@ -33,6 +33,7 @@ public class ModBrowser : MonoBehaviour
     public class InspectorViewData
     {
         public int currentModIndex;
+        public int lastModIndex;
     }
 
     // ---------[ CONST & STATIC ]---------
@@ -163,9 +164,6 @@ public class ModBrowser : MonoBehaviour
         APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();;
 
         // assert ui is prepared
-        inspectorView.Initialize();
-        inspectorView.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspectorView.profile));
-        inspectorView.gameObject.SetActive(false);
 
         // searchBar.Initialize();
         // searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
@@ -279,6 +277,10 @@ public class ModBrowser : MonoBehaviour
         }
 
         // intialize views
+        inspectorView.Initialize();
+        inspectorView.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspectorView.profile));
+        inspectorView.gameObject.SetActive(false);
+
         collectionView.Initialize();
         collectionView.onUnsubscribeClicked += OnUnsubscribeButtonClicked;
         collectionView.profileCollection = CacheClient.IterateAllModProfiles().Where(p => collectionModIds.Contains(p.id));
@@ -288,7 +290,7 @@ public class ModBrowser : MonoBehaviour
         explorerView.onItemClicked += OnExplorerItemClicked;
         explorerView.gameObject.SetActive(true);
 
-        // load explorer pages
+        // load pages
         int modCount = CacheClient.CountModProfiles();
 
         if(modCount > 0)
@@ -298,11 +300,17 @@ public class ModBrowser : MonoBehaviour
 
             explorerData.lastPageIndex = (int)Mathf.Ceil((float)modCount / (float)explorerView.pageSize) - 1;
             explorerData.currentPageIndex = 0;
+
+            inspectorData.currentModIndex = -1;
+            inspectorData.lastModIndex = modCount-1;
         }
         else
         {
             explorerData.lastPageIndex = -1;
             explorerData.currentPageIndex = -1;
+
+            inspectorData.currentModIndex = -1;
+            inspectorData.lastModIndex = -1;
         }
 
         if(explorerView.pageIndexText != null)
@@ -315,6 +323,7 @@ public class ModBrowser : MonoBehaviour
         }
 
         UpdateExplorerViewPageButtonInteractibility();
+        UpdateInspectorViewPageButtonInteractibility();
     }
 
     private void LoadCachedProfiles(ModProfile[] destinationArray, int offset, int count)
@@ -678,6 +687,7 @@ public class ModBrowser : MonoBehaviour
     public void OnExplorerItemClicked(ModBrowserItem item)
     {
         inspectorData.currentModIndex = item.index + (explorerData.currentPageIndex * explorerView.pageSize);
+        Debug.Log("NEW currentModIndex=" + inspectorData.currentModIndex);
 
         ChangeInspectorPage(0);
     }
@@ -875,12 +885,17 @@ public class ModBrowser : MonoBehaviour
 
     public void ChangeExplorerPage(int direction)
     {
-        Debug.Assert(!explorerView.isTransitioning);
+        // TODO(@jackson): Cue on on isTransitioning?
+        if(explorerView.isTransitioning)
+        {
+            Debug.LogWarning("[mod.io] Cannot change during transition");
+            return;
+        }
 
         int targetPageIndex = explorerData.currentPageIndex + direction;
 
-        Debug.Assert(targetPageIndex > 0);
-        Debug.Assert(targetPageIndex < explorerData.lastPageIndex);
+        Debug.Assert(targetPageIndex >= 0);
+        Debug.Assert(targetPageIndex <= explorerData.lastPageIndex);
 
         PageTransitionDirection transitionDirection = (direction < 0
                                                        ? PageTransitionDirection.FromLeft
@@ -890,8 +905,6 @@ public class ModBrowser : MonoBehaviour
                            targetPageIndex * explorerView.pageSize,
                            explorerView.pageSize);
 
-        explorerView.pageLeftButton.interactable = false;
-        explorerView.pageRightButton.interactable = false;
         explorerView.UpdateTransitionPageUIComponents();
         explorerView.InitiatePageTransition(transitionDirection, () =>
         {
@@ -904,14 +917,22 @@ public class ModBrowser : MonoBehaviour
 
             UpdateExplorerViewPageButtonInteractibility();
         });
+
+        UpdateExplorerViewPageButtonInteractibility();
     }
 
     public void UpdateExplorerViewPageButtonInteractibility()
     {
-        explorerView.pageLeftButton.interactable = (!explorerView.isTransitioning
-                                                    && explorerData.currentPageIndex > 0);
-        explorerView.pageRightButton.interactable = (!explorerView.isTransitioning
-                                                     && explorerData.currentPageIndex < explorerData.lastPageIndex);
+        if(explorerView.pageLeftButton != null)
+        {
+            explorerView.pageLeftButton.interactable = (!explorerView.isTransitioning
+                                                        && explorerData.currentPageIndex > 0);
+        }
+        if(explorerView.pageRightButton != null)
+        {
+            explorerView.pageRightButton.interactable = (!explorerView.isTransitioning
+                                                         && explorerData.currentPageIndex < explorerData.lastPageIndex);
+        }
     }
 
     public void ChangeInspectorPage(int direction)
@@ -920,8 +941,8 @@ public class ModBrowser : MonoBehaviour
         int newModIndex = inspectorData.currentModIndex + direction;
         int offsetIndex = newModIndex - firstExplorerIndex;
 
-        Debug.Assert(newModIndex > 0);
-        Debug.Assert(newModIndex < explorerData.lastPageIndex * explorerView.pageSize);
+        Debug.Assert(newModIndex >= 0);
+        Debug.Assert(newModIndex <= inspectorData.lastModIndex);
 
         if(offsetIndex < 0)
         {
@@ -967,7 +988,24 @@ public class ModBrowser : MonoBehaviour
                                     (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsUIComponents(); },
                                     null);
 
+        inspectorData.currentModIndex = newModIndex;
         inspectorView.gameObject.SetActive(true);
+
+        if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
+
+        UpdateInspectorViewPageButtonInteractibility();
+    }
+
+    public void UpdateInspectorViewPageButtonInteractibility()
+    {
+        if(inspectorView.previousModButton != null)
+        {
+            inspectorView.previousModButton.interactable = (inspectorData.currentModIndex > 0);
+        }
+        if(inspectorView.nextModButton != null)
+        {
+            inspectorView.nextModButton.interactable = (inspectorData.currentModIndex < inspectorData.lastModIndex);
+        }
     }
 
     // ---------[ EVENT HANDLING ]---------

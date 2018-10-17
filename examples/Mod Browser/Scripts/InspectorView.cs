@@ -9,6 +9,7 @@ using ModIO;
 
 // TODO(@jackson): Handle guest accounts
 // TODO(@jackson): Handle errors
+// TODO(@jackson): Assert all required object on Initialize()
 public class InspectorView : MonoBehaviour
 {
     public const float YOUTUBE_THUMB_RATIO = 4f/3f;
@@ -73,7 +74,10 @@ public class InspectorView : MonoBehaviour
     public InspectorHelper_ProfileElements profileElements;
     public InspectorHelper_CreatorElements creatorElements;
     public InspectorHelper_StatisticsElements statisticsElements;
+    public ScrollRect scrollView;
     public Button subscribeButton;
+    public Button previousModButton;
+    public Button nextModButton;
 
     // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]
@@ -124,6 +128,7 @@ public class InspectorView : MonoBehaviour
         }
     }
 
+    // ---------[ UPDATE VIEW ]---------
     // TODO(@jackson): Reset view (scrolling, etc)
     public void UpdateProfileUIComponents()
     {
@@ -416,6 +421,7 @@ public class InspectorView : MonoBehaviour
         }
     }
 
+    // ---------[ UI ELEMENT CREATION ]---------
     public void ApplyCreatorAvatar(Texture2D texture)
     {
         #if UNITY_EDITOR
