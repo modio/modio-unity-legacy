@@ -295,7 +295,7 @@ public class ModBrowser : MonoBehaviour
 
         if(modCount > 0)
         {
-            LoadCachedProfiles(explorerView.mainPageProfiles, 0, explorerView.pageSize);
+            CacheClient.LoadModProfilesToArray(explorerView.mainPageProfiles, 0);
             explorerView.UpdateMainPageUIComponents();
 
             explorerData.lastPageIndex = (int)Mathf.Ceil((float)modCount / (float)explorerView.pageSize) - 1;
@@ -324,23 +324,6 @@ public class ModBrowser : MonoBehaviour
 
         UpdateExplorerViewPageButtonInteractibility();
         UpdateInspectorViewPageButtonInteractibility();
-    }
-
-    private void LoadCachedProfiles(ModProfile[] destinationArray, int offset, int count)
-    {
-        Debug.Assert(count <= destinationArray.Length);
-
-        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(offset).GetEnumerator();
-
-        int i = 0;
-        for(; i < count && profileEnumerator.MoveNext(); ++i)
-        {
-            destinationArray[i] = profileEnumerator.Current;
-        }
-        for(; i < count; ++i)
-        {
-            destinationArray[i] = null;
-        }
     }
 
     // ---------[ UPDATES ]---------
@@ -901,9 +884,8 @@ public class ModBrowser : MonoBehaviour
                                                        ? PageTransitionDirection.FromLeft
                                                        : PageTransitionDirection.FromRight);
 
-        LoadCachedProfiles(explorerView.transitionPageProfiles,
-                           targetPageIndex * explorerView.pageSize,
-                           explorerView.pageSize);
+        CacheClient.LoadModProfilesToArray(explorerView.transitionPageProfiles,
+                                           targetPageIndex * explorerView.pageSize);
 
         explorerView.UpdateTransitionPageUIComponents();
         explorerView.InitiatePageTransition(transitionDirection, () =>
