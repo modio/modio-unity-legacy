@@ -77,23 +77,24 @@ public class ExplorerView : MonoBehaviour
         this.itemOffset = Vector2.zero;
 
         // width
-        float minItemWidth = itemPrefabScript.minimumScaleFactor * itemPrefabTransform.rect.width;
-        float maxItemWidth = itemPrefabScript.maximumScaleFactor * itemPrefabTransform.rect.width;
+        float baseItemWidth = itemPrefabTransform.rect.width;
         float contentWidth = contentPane.rect.width - minPadding.horizontal + minColumnSpacing;
-
-        this.columnCount = (int)Mathf.Floor(contentWidth / (minItemWidth + minColumnSpacing));
+        this.columnCount = (int)Mathf.Floor(contentWidth / (baseItemWidth + minColumnSpacing));
         this.columnWidth = (contentPane.rect.width - minPadding.horizontal) / (float)this.columnCount;
-        this.itemSize.x = Mathf.Min(this.columnWidth - minColumnSpacing, maxItemWidth);
-        this.itemOffset.x = 0.5f * (this.columnWidth - this.itemSize.x);
 
         // height
-        float minItemHeight = itemPrefabScript.minimumScaleFactor * itemPrefabTransform.rect.height;
-        float maxItemHeight = itemPrefabScript.maximumScaleFactor * itemPrefabTransform.rect.height;
+        float baseItemHeight = itemPrefabTransform.rect.height;
         float contentHeight = contentPane.rect.height - minPadding.vertical + minRowSpacing;
-
-        this.rowCount = (int)Mathf.Floor(contentHeight / (minItemHeight + minRowSpacing));
+        this.rowCount = (int)Mathf.Floor(contentHeight / (baseItemHeight + minRowSpacing));
         this.rowHeight = (contentPane.rect.height - minPadding.vertical) / (float)this.rowCount;
-        this.itemSize.y = Mathf.Min(this.rowHeight - minRowSpacing, maxItemHeight);
+
+        // item dimension
+        float maxWidthScale = (this.columnWidth - minColumnSpacing) / itemPrefabTransform.rect.width;
+        float maxHeightScale = (this.rowHeight - minRowSpacing) / itemPrefabTransform.rect.height;
+        float itemScaling = Mathf.Min(itemPrefabScript.maximumScaleFactor, maxWidthScale, maxHeightScale);
+        this.itemSize.x = itemPrefabTransform.rect.width * itemScaling;
+        this.itemOffset.x = 0.5f * (this.columnWidth - this.itemSize.x);
+        this.itemSize.y = itemPrefabTransform.rect.height * itemScaling;
         this.itemOffset.y = 0.5f * (this.rowHeight - this.itemSize.y);
 
         // - initialize pages -

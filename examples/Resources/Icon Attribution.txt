@@ -12,9 +12,9 @@ https://thenounproject.com/icon/596058/
 Sort by Saideep Karipalli from the Noun Project
 https://thenounproject.com/icon/315651/
 
-[ browser_icon-downloads.png ]
-Download by Weltenraser from the Noun Project
-https://thenounproject.com/icon/1371547/
+[ browser_icon-download.png ]
+Download by Darrin Loeliger from the Noun Project
+https://thenounproject.com/icon/1088686/
 
 [ browser_icon-star_unfilled.png ]
 Star by Renee Ramsey-Passmore from the Noun Project
@@ -35,3 +35,7 @@ https://thenounproject.com/icon/486324/
 [ browser_icon-ratingSpeech.png ]
 rating by Rose Alice Design from the Noun Project
 https://thenounproject.com/icon/1966359/
+
+[ browser_icon-thumbUp.png ]
+like by i cons from the Noun Project
+https://thenounproject.com/icon/1857682/

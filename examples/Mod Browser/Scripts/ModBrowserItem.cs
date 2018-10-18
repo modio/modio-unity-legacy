@@ -54,8 +54,6 @@ public class ModBrowserItem : MonoBehaviour
     public GameObject logoLoadingPrefab;
     public GameObject tagBadgePrefab;
     public LogoSize logoVersion;
-    [Range(0.5f, 1.0f)]
-    public float minimumScaleFactor = 1f;
     [Range(1.0f, 2.0f)]
     public float maximumScaleFactor = 1f;
 
@@ -197,7 +195,7 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = "#" + statistics.popularityRankPosition;
+                displayText = statistics.popularityRankPosition.ToString();
             }
 
             statisticsDisplay.popularityRankPosition.text = displayText;
@@ -248,7 +246,15 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ((float)statistics.ratingsPositiveCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
+                if(statistics.ratingsTotalCount > 0)
+                {
+                    float value = 100f * (float)statistics.ratingsPositiveCount / (float)statistics.ratingsTotalCount;
+                    displayText = value.ToString("0") + "%";
+                }
+                else
+                {
+                    displayText = "~%";
+                }
             }
             statisticsDisplay.ratingsPositivePercentage.text = displayText;
         }
@@ -256,7 +262,15 @@ public class ModBrowserItem : MonoBehaviour
         {
             if(!isLoading)
             {
-                displayText = ((float)statistics.ratingsNegativeCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
+                if(statistics.ratingsTotalCount > 0)
+                {
+                    float value = 100f * (float)statistics.ratingsNegativeCount / (float)statistics.ratingsTotalCount;
+                    displayText = value.ToString("0") + "%";
+                }
+                else
+                {
+                    displayText = "~%";
+                }
             }
             statisticsDisplay.ratingsNegativePercentage.text = displayText;
         }
