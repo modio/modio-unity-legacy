@@ -41,7 +41,7 @@ GameObject:
   - component: {fileID: 114969125624928138}
   - component: {fileID: 114350673634069634}
   m_Layer: 5
-  m_Name: FilterCategory
+  m_Name: FilterTagCategory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -116,7 +116,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   modTagPrefab: {fileID: 1300801099346922, guid: c545b7c02e1af4efaa0b4448ca29e322,
     type: 2}
-  displayNameUpperCase: 1
+  textToUpper: 1
   nameText: {fileID: 114667482808473326}
   tagContainer: {fileID: 224604052070671266}
   modTagCategory:

@@ -13,6 +13,7 @@ using ModIO;
 // TODO(@jackson): Correct subscription loading
 // TODO(@jackson): Add user events
 // TODO(@jackson): Error handling on log in
+// TODO(@jackson): Update view function names (see FilterView)
 public class ModBrowser : MonoBehaviour
 {
     // ---------[ NESTED CLASSES ]---------
@@ -45,93 +46,58 @@ public class ModBrowser : MonoBehaviour
     };
 
     // ---------[ FIELDS ]---------
-    // --- Key Data ---
     [Header("Settings")]
     public int gameId = 0;
     public string gameAPIKey = string.Empty;
     public bool isAutomaticUpdateEnabled = false;
     public ModBrowserViewMode viewMode = ModBrowserViewMode.Collection;
 
-    // --- UI Components ---
     [Header("UI Components")]
     public ExplorerView explorerView;
     public CollectionView collectionView;
     public InspectorView inspectorView;
-    public FilterView filterView;
-    // public ModBrowserSearchBar searchBar;
+    public ModTagFilterView tagFilterView;
+    public InputField titleSearchField;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
     public MessageDialog messageDialog;
     public Button prevPageButton;
     public Button nextPageButton;
 
-    // --- Runtime Data ---
-    [Header("Runtime Data")]
+    [Header("Display Data")]
+    public ExplorerViewData explorerData = new ExplorerViewData();
+    public InspectorViewData inspectorData = new InspectorViewData();
+    public List<int> collectionModIds = new List<int>();
     public UserProfile userProfile = null;
-    public ExplorerViewData explorerData;
-    public InspectorViewData inspectorData;
+
+    [Header("Runtime Data")]
     public int lastCacheUpdate = -1;
     public string titleSearch = string.Empty;
-    public List<int> collectionModIds = new List<int>();
-    public ModProfileFilter modProfileFilter = new ModProfileFilter();
+    public Func<ModProfile, bool> nameFilterDelegate = (p) => { return true; };
+    public Func<ModProfile, bool> tagFilterDelegate = (p) => { return true; };
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
 
     // ---------[ ACCESSORS ]---------
-    // public IModBrowserView GetViewForMode(ModBrowserViewMode mode)
-    // {
-    //     switch(mode)
-    //     {
-    //         case ModBrowserViewMode.Collection:
-    //         {
-    //             return this.collectionView;
-    //         }
-    //         case ModBrowserViewMode.Explorer:
-    //         {
-    //             return this.explorerView;
-    //         }
-    //     }
-
-    //     return null;
-    // }
-
-    public IEnumerable<ModProfile> GetFilteredProfileCollectionForMode(ModBrowserViewMode mode)
+    private void LoadFilteredProfiles(ModProfile[] destinationArray, int offset, int count)
     {
-        IEnumerable<ModProfile> profileCollection = CacheClient.IterateAllModProfiles();
+        Debug.Assert(count <= destinationArray.Length);
 
-        switch(mode)
+        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(offset)
+                .Where(nameFilterDelegate)
+                .Where(tagFilterDelegate)
+                .GetEnumerator();
+
+        int i = 0;
+        for(; i < count && profileEnumerator.MoveNext(); ++i)
         {
-            case ModBrowserViewMode.Collection:
-            {
-                profileCollection = profileCollection.Where(p => collectionModIds.Contains(p.id));
-            }
-            break;
+            destinationArray[i] = profileEnumerator.Current;
         }
-
-        if(!String.IsNullOrEmpty(modProfileFilter.title))
+        for(; i < count; ++i)
         {
-            profileCollection = profileCollection.Where(p => p.name.ToUpper().Contains(modProfileFilter.title.ToUpper()));
+            destinationArray[i] = null;
         }
-        if(modProfileFilter.tags != null
-           && modProfileFilter.tags.Count() > 0)
-        {
-            Func<ModProfile, bool> profileContainsTags = (profile) =>
-            {
-                bool isMatch = true;
-                List<string> filterTagNames = new List<string>(SimpleModTag.EnumerateNames(modProfileFilter.tags));
-
-                foreach(string filterTag in filterTagNames)
-                {
-                    isMatch &= profile.tagNames.Contains(filterTag);
-                }
-
-                return isMatch;
-            };
-
-            profileCollection = profileCollection.Where(profileContainsTags);
-        }
-
-        return profileCollection;
     }
+
 
     // ---------[ INITIALIZATION ]---------
     private void Start()
@@ -171,6 +137,7 @@ public class ModBrowser : MonoBehaviour
         // searchBar.Initialize();
         // searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
 
+        // initialize login dialog
         loginDialog.gameObject.SetActive(false);
         loginDialog.onSecurityCodeSent += (m) =>
         {
@@ -293,16 +260,17 @@ public class ModBrowser : MonoBehaviour
         explorerView.onItemClicked += OnExplorerItemClicked;
         explorerView.gameObject.SetActive(true);
 
-        filterView.gameObject.SetActive(false);
-        ModManager.GetGameProfile((g) => { filterView.tagCategories = g.tagCategories; filterView.Initialize(); },
+        tagFilterView.gameObject.SetActive(false);
+        tagFilterView.onSelectedTagsChanged += UpdateFilters;
+        ModManager.GetGameProfile((g) => { tagFilterView.tagCategories = g.tagCategories; tagFilterView.Initialize(); },
                                   WebRequestError.LogAsWarning);
 
-        // load pages
+        // load view pages
         int modCount = CacheClient.CountModProfiles();
 
         if(modCount > 0)
         {
-            CacheClient.LoadModProfilesToArray(explorerView.mainPageProfiles, 0);
+            LoadFilteredProfiles(explorerView.mainPageProfiles, 0, explorerView.pageSize);
             explorerView.UpdateMainPageUIComponents();
 
             explorerData.lastPageIndex = (int)Mathf.Ceil((float)modCount / (float)explorerView.pageSize) - 1;
@@ -331,6 +299,16 @@ public class ModBrowser : MonoBehaviour
 
         UpdateExplorerViewPageButtonInteractibility();
         UpdateInspectorViewPageButtonInteractibility();
+
+        // final elements
+        // TODO(@jackson): titleSearchField.onValueChanged.AddListener((t) => {});
+        titleSearchField.onEndEdit.AddListener((t) =>
+        {
+            if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                UpdateFilters();
+            }
+        } );
     }
 
     // ---------[ UPDATES ]---------
@@ -743,19 +721,6 @@ public class ModBrowser : MonoBehaviour
         messageDialog.gameObject.SetActive(false);
     }
 
-    // TODO(@jackson): Change parameter type
-    public void OnProfileFiltersUpdated(string textFilter,
-                                        IEnumerable<SimpleModTag> tagFilters)
-    {
-        this.modProfileFilter = new ModProfileFilter();
-        this.modProfileFilter.title = textFilter;
-        this.modProfileFilter.tags = tagFilters;
-
-        // IModBrowserView view = GetViewForMode(this.viewMode);
-        // view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
-        // view.Refresh();
-    }
-
     public void OnSubscribeButtonClicked(ModProfile profile)
     {
         Debug.Assert(profile != null);
@@ -891,8 +856,9 @@ public class ModBrowser : MonoBehaviour
                                                        ? PageTransitionDirection.FromLeft
                                                        : PageTransitionDirection.FromRight);
 
-        CacheClient.LoadModProfilesToArray(explorerView.transitionPageProfiles,
-                                           targetPageIndex * explorerView.pageSize);
+        LoadFilteredProfiles(explorerView.transitionPageProfiles,
+                             targetPageIndex * explorerView.pageSize,
+                             explorerView.pageSize);
 
         explorerView.UpdateTransitionPageUIComponents();
         explorerView.InitiatePageTransition(transitionDirection, () =>
@@ -996,6 +962,50 @@ public class ModBrowser : MonoBehaviour
             inspectorView.nextModButton.interactable = (inspectorData.currentModIndex < inspectorData.lastModIndex);
         }
     }
+
+    public void UpdateFilters()
+    {
+        // title
+        if(String.IsNullOrEmpty(titleSearchField.text))
+        {
+            nameFilterDelegate = (p) => true;
+        }
+        else
+        {
+            string searchString = titleSearchField.text.ToUpper();
+            nameFilterDelegate = (profile) =>
+            {
+                return profile.name.ToUpper().Contains(searchString);
+            };
+        }
+
+        // tags
+        string[] filterTagNames = tagFilterView.selectedTags.ToArray();
+
+        if(filterTagNames.Length == 0)
+        {
+            tagFilterDelegate = (p) => true;
+        }
+        else
+        {
+            tagFilterDelegate = (profile) =>
+            {
+                if(profile.tags == null) { return false; }
+
+                foreach(string filterTag in filterTagNames)
+                {
+                    if(!profile.tagNames.Contains(filterTag)) { return false; }
+                }
+
+                return true;
+            };
+        }
+
+        // TODO(@jackson): BAD ZERO?
+        LoadFilteredProfiles(explorerView.mainPageProfiles, 0, explorerView.pageSize);
+        explorerView.UpdateMainPageUIComponents();
+    }
+
 
     // ---------[ EVENT HANDLING ]---------
     // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)

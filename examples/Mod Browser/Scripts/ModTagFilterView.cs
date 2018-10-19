@@ -1,9 +1,14 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using ModIO;
 
-public class FilterView : MonoBehaviour
+// TODO(@jackson): Single-select categories
+public class ModTagFilterView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    public event Action onSelectedTagsChanged;
+
     [Header("Settings")]
     public GameObject tagCategoryPrefab;
 
@@ -12,7 +17,7 @@ public class FilterView : MonoBehaviour
 
     [Header("Display Data")]
     public ModTagCategory[] tagCategories;
-    public string[] selectedTags;
+    public List<string> selectedTags;
 
     [Header("Runtime Data")]
     public ModTagCategoryDisplay[] categoryDisplayComponents;
@@ -30,7 +35,7 @@ public class FilterView : MonoBehaviour
         {
             foreach(ModTagCategoryDisplay cat in categoryDisplayComponents)
             {
-                // TODO(@jackson): Remove listener
+                cat.onSelectedTagsChanged -= this.OnTagsChanged;
                 GameObject.Destroy(cat.gameObject);
             }
         }
@@ -49,13 +54,26 @@ public class FilterView : MonoBehaviour
             ModTagCategoryDisplay categoryDisp = categoryGO.GetComponent<ModTagCategoryDisplay>();
             categoryDisp.modTagCategory = category;
             categoryDisp.selectedTags = this.selectedTags;
-            // TODO(@jackson): Add Listener
+            categoryDisp.onSelectedTagsChanged += this.OnTagsChanged;
             categoryDisp.Initialize();
         }
     }
 
-    public void UpdateTagSelection()
+    private void OnTagsChanged(ModTagCategoryDisplay displayComponent)
     {
+        if(displayComponent.selectedTags != this.selectedTags)
+        {
+            this.selectedTags = displayComponent.selectedTags;
 
+            foreach(var catDisp in categoryDisplayComponents)
+            {
+                catDisp.selectedTags = this.selectedTags;
+            }
+        }
+
+        if(onSelectedTagsChanged != null)
+        {
+            onSelectedTagsChanged();
+        }
     }
 }

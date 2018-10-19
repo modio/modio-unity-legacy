@@ -526,23 +526,6 @@ namespace ModIO
             }
         }
 
-        /// <summary>Retrieves a number of mods from the cache starting at the offset.</summary>
-        public static void LoadModProfilesToArray(ModProfile[] destinationArray,
-                                                  int offset)
-        {
-            IEnumerator<ModProfile> enumerator = IterateAllModProfilesFromOffset(offset).GetEnumerator();
-
-            int i = 0;
-            for(; i < destinationArray.Length && enumerator.MoveNext(); ++i)
-            {
-                destinationArray[i] = enumerator.Current;
-            }
-            for(; i < destinationArray.Length; ++i)
-            {
-                destinationArray[i] = null;
-            }
-        }
-
         /// <summary>Determines how many ModProfiles are currently stored in the cache.</summary>
         public static int CountModProfiles()
         {

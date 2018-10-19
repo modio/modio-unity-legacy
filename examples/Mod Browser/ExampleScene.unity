@@ -585,11 +585,6 @@ Prefab:
       propertyPath: m_Name
       value: ModBrowser
       objectReference: {fileID: 0}
-    - target: {fileID: 224457192024282754, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df954dfebde1c4fdda2233d14d2bf4cd, type: 2}
   m_IsPrefabAsset: 0

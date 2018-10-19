@@ -5,17 +5,19 @@ using UnityEngine.UI;
 public class ModTagToggle : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public event Action<bool> onToggled;
+    public event Action<ModTagToggle> onToggled;
 
     [Header("Settings")]
-    public bool displayTagUpperCase;
+    public bool textToUpper;
 
     [Header("UI Components")]
     public Text nameText;
+    public Text categoryText;
     public Toggle toggleComponent;
 
     [Header("Display Data")]
     public string tagName;
+    public string categoryName;
     public bool isSelected;
 
 
@@ -26,17 +28,27 @@ public class ModTagToggle : MonoBehaviour
         Debug.Assert(nameText != null);
         Debug.Assert(toggleComponent != null);
 
-        // setup
-        nameText.text = (displayTagUpperCase ? tagName.ToUpper() : tagName);
-        toggleComponent.isOn = isSelected;
+        // events
         toggleComponent.onValueChanged.RemoveListener(OnToggleChanged);
         toggleComponent.onValueChanged.AddListener(OnToggleChanged);
+
+        // display
+        nameText.text = (textToUpper ? tagName.ToUpper() : tagName);
+        if(categoryText != null)
+        {
+            categoryText.text = (textToUpper ? categoryName.ToUpper() : categoryName);
+        }
+        toggleComponent.isOn = isSelected;
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
     public void Refresh()
     {
-        nameText.text = (displayTagUpperCase ? tagName.ToUpper() : tagName);
+        nameText.text = (textToUpper ? tagName.ToUpper() : tagName);
+        if(categoryText != null)
+        {
+            categoryText.text = (textToUpper ? categoryName.ToUpper() : categoryName);
+        }
         toggleComponent.isOn = isSelected;
     }
 
@@ -46,7 +58,7 @@ public class ModTagToggle : MonoBehaviour
 
         if(onToggled != null)
         {
-            onToggled(isSelected);
+            onToggled(this);
         }
     }
 }
