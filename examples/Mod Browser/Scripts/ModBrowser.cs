@@ -61,6 +61,8 @@ public class ModBrowser : MonoBehaviour
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
     public MessageDialog messageDialog;
+    public Button prevPageButton;
+    public Button nextPageButton;
 
     // --- Runtime Data ---
     [Header("Runtime Data")]
@@ -276,7 +278,7 @@ public class ModBrowser : MonoBehaviour
             APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
         }
 
-        // intialize views
+        // initialize views
         inspectorView.Initialize();
         inspectorView.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspectorView.profile));
         inspectorView.gameObject.SetActive(false);
@@ -905,15 +907,15 @@ public class ModBrowser : MonoBehaviour
 
     public void UpdateExplorerViewPageButtonInteractibility()
     {
-        if(explorerView.pageLeftButton != null)
+        if(prevPageButton != null)
         {
-            explorerView.pageLeftButton.interactable = (!explorerView.isTransitioning
-                                                        && explorerData.currentPageIndex > 0);
+            prevPageButton.interactable = (!explorerView.isTransitioning
+                                           && explorerData.currentPageIndex > 0);
         }
-        if(explorerView.pageRightButton != null)
+        if(nextPageButton != null)
         {
-            explorerView.pageRightButton.interactable = (!explorerView.isTransitioning
-                                                         && explorerData.currentPageIndex < explorerData.lastPageIndex);
+            nextPageButton.interactable = (!explorerView.isTransitioning
+                                           && explorerData.currentPageIndex < explorerData.lastPageIndex);
         }
     }
 

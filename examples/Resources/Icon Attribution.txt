@@ -39,3 +39,11 @@ https://thenounproject.com/icon/1966359/
 [ browser_icon-thumbUp.png ]
 like by i cons from the Noun Project
 https://thenounproject.com/icon/1857682/
+
+[ browser_icon-pageLeft.png ]
+Arrow by Tahsin Tahil from the Noun Project
+https://thenounproject.com/icon/89788/
+
+[ browser_icon-pageDown.png ]
+Arrow by Tahsin Tahil from the Noun Project
+https://thenounproject.com/icon/89788/

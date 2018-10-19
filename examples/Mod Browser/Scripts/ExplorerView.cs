@@ -28,8 +28,6 @@ public class ExplorerView : MonoBehaviour
 
     [Header("Scene Components")]
     public RectTransform contentPane;
-    public Button pageLeftButton;
-    public Button pageRightButton;
     public Text pageIndexText;
     public Text pageCountText;
 
