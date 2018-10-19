@@ -57,6 +57,7 @@ public class ModBrowser : MonoBehaviour
     public ExplorerView explorerView;
     public CollectionView collectionView;
     public InspectorView inspectorView;
+    public FilterView filterView;
     // public ModBrowserSearchBar searchBar;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
@@ -291,6 +292,10 @@ public class ModBrowser : MonoBehaviour
         explorerView.Initialize();
         explorerView.onItemClicked += OnExplorerItemClicked;
         explorerView.gameObject.SetActive(true);
+
+        filterView.gameObject.SetActive(false);
+        ModManager.GetGameProfile((g) => { filterView.tagCategories = g.tagCategories; filterView.Initialize(); },
+                                  WebRequestError.LogAsWarning);
 
         // load pages
         int modCount = CacheClient.CountModProfiles();

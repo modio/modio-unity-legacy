@@ -129,7 +129,6 @@ public class InspectorView : MonoBehaviour
     }
 
     // ---------[ UPDATE VIEW ]---------
-    // TODO(@jackson): Reset view (scrolling, etc)
     public void UpdateProfileUIComponents()
     {
         #if UNITY_EDITOR
