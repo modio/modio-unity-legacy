@@ -15,8 +15,9 @@ public enum PageTransitionDirection
 public class ExplorerView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    // ---[ EVENTS ]---
-    public event Action<ModBrowserItem> onItemClicked;
+    public event Action<ModBrowserItem> inspectRequested;
+    public event Action<ModBrowserItem> subscribeRequested;
+    public event Action<ModBrowserItem> unsubscribeRequested;
 
     // ---[ UI ]---
     [Header("Settings")]
@@ -165,7 +166,9 @@ public class ExplorerView : MonoBehaviour
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
             item.index = index;
             item.profile = null;
-            item.onInspectClicked += NotifyItemClicked;
+            item.inspectRequested +=        (i) => { if(inspectRequested != null) { inspectRequested(i); } };
+            item.subscribeRequested +=      (i) => { if(subscribeRequested != null) { subscribeRequested(i); } };
+            item.unsubscribeRequested +=    (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
             item.Initialize();
 
             itemGO.SetActive(false);
@@ -321,11 +324,5 @@ public class ExplorerView : MonoBehaviour
         {
             onTransitionCompleted();
         }
-    }
-
-    // ---------[ EVENTS ]---------
-    private void NotifyItemClicked(ModBrowserItem item)
-    {
-        if(onItemClicked != null) { onItemClicked(item); }
     }
 }

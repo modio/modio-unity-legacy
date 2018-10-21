@@ -45,9 +45,9 @@ public class ModBrowserItem : MonoBehaviour
     }
 
     // ---[ EVENTS ]---
-    public event Action<ModBrowserItem> onInspectClicked;
-    public event Action<ModBrowserItem> onSubscribeClicked;
-    public event Action<ModBrowserItem> onUnsubscribeClicked;
+    public event Action<ModBrowserItem> inspectRequested;
+    public event Action<ModBrowserItem> subscribeRequested;
+    public event Action<ModBrowserItem> unsubscribeRequested;
 
     // ---[ UI ]---
     [Header("Settings")]
@@ -64,7 +64,7 @@ public class ModBrowserItem : MonoBehaviour
     public InspectorHelper_ProfileElements profileDisplay;
     public InspectorHelper_StatisticsElements statisticsDisplay;
     public Button subscribeButton;
-    public Button unsubcribeButton;
+    public Button unsubscribeButton;
 
     [Header("Display Data")]
     public ModProfile profile = null;
@@ -707,15 +707,15 @@ public class ModBrowserItem : MonoBehaviour
                 subscribeButton.gameObject.SetActive(!isSubscribed);
             }
         }
-        if(unsubcribeButton != null)
+        if(unsubscribeButton != null)
         {
             if(profile == null)
             {
-                unsubcribeButton.gameObject.SetActive(false);
+                unsubscribeButton.gameObject.SetActive(false);
             }
             else
             {
-                unsubcribeButton.gameObject.SetActive(isSubscribed);
+                unsubscribeButton.gameObject.SetActive(isSubscribed);
             }
         }
     }
@@ -723,23 +723,23 @@ public class ModBrowserItem : MonoBehaviour
     // ---------[ EVENTS ]---------
     public void InspectClicked()
     {
-        if(onInspectClicked != null)
+        if(inspectRequested != null)
         {
-            onInspectClicked(this);
+            inspectRequested(this);
         }
     }
     public void SubscribeClicked()
     {
-        if(onSubscribeClicked != null)
+        if(subscribeRequested != null)
         {
-            onSubscribeClicked(this);
+            subscribeRequested(this);
         }
     }
     public void UnsubscribeClicked()
     {
-        if(onUnsubscribeClicked != null)
+        if(unsubscribeRequested != null)
         {
-            onUnsubscribeClicked(this);
+            unsubscribeRequested(this);
         }
     }
 }

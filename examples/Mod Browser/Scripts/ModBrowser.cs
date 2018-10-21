@@ -257,7 +257,7 @@ public class ModBrowser : MonoBehaviour
         collectionView.gameObject.SetActive(false);
 
         explorerView.Initialize();
-        explorerView.onItemClicked += OnExplorerItemClicked;
+        explorerView.inspectRequested += OnExplorerItemClicked;
         explorerView.gameObject.SetActive(true);
 
         tagFilterView.gameObject.SetActive(false);
