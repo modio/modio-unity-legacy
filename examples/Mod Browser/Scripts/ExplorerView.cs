@@ -165,7 +165,7 @@ public class ExplorerView : MonoBehaviour
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
             item.index = index;
             item.profile = null;
-            item.onClick += NotifyItemClicked;
+            item.onInspectClicked += NotifyItemClicked;
             item.Initialize();
 
             itemGO.SetActive(false);
@@ -234,13 +234,13 @@ public class ExplorerView : MonoBehaviour
             }
             else
             {
-                item.UpdateProfileUIComponents();
-                item.UpdateStatisticsUIComponents();
+                item.UpdateProfileDisplay();
+                item.UpdateStatisticsDisplay();
 
                 itemTransform.gameObject.SetActive(true);
 
                 ModManager.GetModStatistics(item.profile.id,
-                                            (s) => { item.statistics = s; item.UpdateStatisticsUIComponents(); },
+                                            (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
                                             null);
             }
         }
