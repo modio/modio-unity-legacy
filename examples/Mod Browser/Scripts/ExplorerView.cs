@@ -11,6 +11,14 @@ public enum PageTransitionDirection
     FromRight,
 }
 
+[Serializable]
+public class ModPage
+{
+    public int index;
+    public int profileCount;
+    public ModProfile[] profiles;
+}
+
 // TODO(@jackson): The padding/spacing maths might need work?
 public class ExplorerView : MonoBehaviour
 {
@@ -19,7 +27,6 @@ public class ExplorerView : MonoBehaviour
     public event Action<ModBrowserItem> subscribeRequested;
     public event Action<ModBrowserItem> unsubscribeRequested;
 
-    // ---[ UI ]---
     [Header("Settings")]
     public GameObject itemPrefab;
     public RectOffset minPadding;
@@ -27,37 +34,37 @@ public class ExplorerView : MonoBehaviour
     public float minColumnSpacing;
     public float pageTransitionTimeSeconds;
 
-    [Header("Scene Components")]
+    [Header("UI Components")]
     public RectTransform contentPane;
-    public Text pageIndexText;
+    public Text pageNumberText;
     public Text pageCountText;
 
     [Header("Display Data")]
-    public ModProfile[] mainPageProfiles;
-    public ModProfile[] transitionPageProfiles;
+    public ModPage currentPage = null;
+    public ModPage targetPage = null;
+    public int pageCount = 0;
+    public List<int> subscribedModIds = null;
 
     [Header("Runtime Data")]
-    public bool isTransitioning;
-    public RectTransform mainPage;
-    public RectTransform transitionPage;
-    public int columnCount;
-    public float columnWidth;
-    public int rowCount;
-    public float rowHeight;
-    public Vector2 itemSize;
-    public Vector2 itemOffset;
+    public bool isTransitioning = false;
+    public RectTransform currentPageContainer = null;
+    public RectTransform targetPageContainer = null;
+    public int columnCount = -1;
+    public float columnWidth = -1f;
+    public int rowCount = -1;
+    public float rowHeight = -1f;
+    public Vector2 itemSize = Vector2.zero;
+    public Vector2 itemOffset = Vector2.zero;
 
     // ---[ CALCULATED VARS ]----
-    public int pageSize { get { return this.columnCount * this.rowCount; } }
+    public int itemCount { get { return this.columnCount * this.rowCount; } }
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
+        // assert fields
         Debug.Assert(itemPrefab != null);
 
-        isTransitioning = false;
-
-        // - check itemPrefab components -
         ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
         RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
 
@@ -102,27 +109,24 @@ public class ExplorerView : MonoBehaviour
             GameObject.Destroy(t.gameObject);
         }
 
-        mainPage = (new GameObject("Mod Page")).AddComponent<RectTransform>();
-        mainPage.SetParent(contentPane);
-        mainPage.anchorMin = Vector2.zero;
-        mainPage.anchorMax = Vector2.zero;
-        mainPage.offsetMin = Vector2.zero;
-        mainPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
-        InitializePageLayout(mainPage);
+        currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
+        currentPageContainer.SetParent(contentPane);
+        currentPageContainer.anchorMin = Vector2.zero;
+        currentPageContainer.anchorMax = Vector2.zero;
+        currentPageContainer.offsetMin = Vector2.zero;
+        currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+        InitializePageLayout(currentPageContainer);
 
-        transitionPage = (new GameObject("Mod Page")).AddComponent<RectTransform>();
-        transitionPage.SetParent(contentPane);
-        transitionPage.anchorMin = Vector2.zero;
-        transitionPage.anchorMax = Vector2.zero;
-        transitionPage.offsetMin = new Vector2(contentPane.rect.width, 0f);
-        transitionPage.offsetMax = new Vector2(contentPane.rect.width * 2f,
+        targetPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
+        targetPageContainer.SetParent(contentPane);
+        targetPageContainer.anchorMin = Vector2.zero;
+        targetPageContainer.anchorMax = Vector2.zero;
+        targetPageContainer.offsetMin = new Vector2(contentPane.rect.width, 0f);
+        targetPageContainer.offsetMax = new Vector2(contentPane.rect.width * 2f,
                                                contentPane.rect.height);
-        InitializePageLayout(transitionPage);
+        InitializePageLayout(targetPageContainer);
 
-        transitionPage.gameObject.SetActive(false);
-
-        mainPageProfiles = new ModProfile[this.pageSize];
-        transitionPageProfiles = new ModProfile[this.pageSize];
+        targetPageContainer.gameObject.SetActive(false);
     }
 
     private void InitializePageLayout(RectTransform pageTransform)
@@ -142,7 +146,7 @@ public class ExplorerView : MonoBehaviour
         }
 
         for(int index = 0;
-            index < this.pageSize;
+            index < this.itemCount;
             ++index)
         {
             GameObject itemGO = GameObject.Instantiate(itemPrefab,
@@ -176,17 +180,13 @@ public class ExplorerView : MonoBehaviour
     }
 
     // ----------[ PAGE DISPLAY ]---------
-    public void UpdateMainPageUIComponents()
+    public void UpdateCurrentPageDisplay()
     {
-        Debug.Assert(mainPage != null,
+        Debug.Assert(currentPageContainer != null,
                      "[mod.io] ExplorerView.Initialize has not yet been called");
-        Debug.Assert(pageSize > 0,
-                     "[mod.io] PageSize has an invalid value. This is because either the columnCount"
+        Debug.Assert(itemCount > 0,
+                     "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
                      + " or rowCount has been calculated to be less than 1.");
-        Debug.Assert(mainPageProfiles.Length == pageSize,
-                     "[mod.io] The quantity of profiles to display must match the the calculated page size."
-                     + " Any excess array slots should be set to NULL."
-                     + "\nPageSize=" + pageSize + " - ArraySize=" + mainPageProfiles.Length);
 
         #if DEBUG
         if(isTransitioning)
@@ -196,20 +196,21 @@ public class ExplorerView : MonoBehaviour
         }
         #endif
 
-        SetPageMods(this.mainPageProfiles, this.mainPage);
+        if(pageNumberText != null)
+        {
+            pageNumberText.text = (currentPage.index+1).ToString();
+        }
+
+        UpdatePageDisplay(this.currentPage, this.currentPageContainer);
     }
 
-    public void UpdateTransitionPageUIComponents()
+    public void UpdateTargetPageDisplay()
     {
-        Debug.Assert(transitionPage != null,
+        Debug.Assert(targetPageContainer != null,
                      "[mod.io] ExplorerView.Initialize has not yet been called");
-        Debug.Assert(pageSize > 0,
-                     "[mod.io] PageSize has an invalid value. This is because either the columnCount"
+        Debug.Assert(itemCount > 0,
+                     "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
                      + " or rowCount has been calculated to be less than 1.");
-        Debug.Assert(transitionPageProfiles.Length == pageSize,
-                     "[mod.io] The quantity of profiles to display must match the the calculated page size."
-                     + " Any excess array slots should be set to NULL."
-                     + "\nPageSize=" + pageSize + " - ArraySize=" + transitionPageProfiles.Length);
 
         #if DEBUG
         if(isTransitioning)
@@ -219,49 +220,60 @@ public class ExplorerView : MonoBehaviour
         }
         #endif
 
-        SetPageMods(this.transitionPageProfiles, this.transitionPage);
+        UpdatePageDisplay(this.targetPage, this.targetPageContainer);
     }
 
-    private void SetPageMods(ModProfile[] profiles, RectTransform pageTransform)
+    private void UpdatePageDisplay(ModPage page, RectTransform pageTransform)
     {
-        for(int i = 0; i < pageSize; ++i)
+        int i = 0;
+        for(; i < itemCount && i < page.profileCount; ++i)
         {
             Transform itemTransform = pageTransform.GetChild(i);
             ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
-            item.profile = profiles[i];
+            item.profile = page.profiles[i];
             item.statistics = null;
 
-            if(item.profile == null)
-            {
-                itemTransform.gameObject.SetActive(false);
-            }
-            else
-            {
-                item.UpdateProfileDisplay();
-                item.UpdateStatisticsDisplay();
+            item.UpdateProfileDisplay();
+            item.UpdateStatisticsDisplay();
 
-                itemTransform.gameObject.SetActive(true);
+            itemTransform.gameObject.SetActive(true);
 
+            if(item.profile != null)
+            {
                 ModManager.GetModStatistics(item.profile.id,
                                             (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
                                             null);
             }
         }
+
+        for(; i < itemCount; ++i)
+        {
+            Transform itemTransform = pageTransform.GetChild(i);
+            itemTransform.gameObject.SetActive(false);
+        }
+    }
+
+    public void UpdatePageCountDisplay()
+    {
+        if(pageCountText != null)
+        {
+            pageCountText.text = pageCount.ToString();
+        }
     }
 
     // ----------[ PAGE TRANSITIONS ]---------
-    public void InitiatePageTransition(PageTransitionDirection direction, Action onTransitionCompleted)
+    public void InitiateTargetPageTransition(PageTransitionDirection direction, Action onTransitionCompleted)
     {
         if(!isTransitioning)
         {
             float mainPaneTargetX = contentPane.rect.width * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
             float transPaneStartX = mainPaneTargetX * -1f;
 
-            mainPage.offsetMin = Vector2.zero;
-            mainPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+            currentPageContainer.offsetMin = Vector2.zero;
+            currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
 
-            transitionPage.offsetMin = new Vector2(transPaneStartX, 0f);
-            transitionPage.offsetMax = new Vector2(transPaneStartX + contentPane.rect.width,
+            targetPageContainer.offsetMin = new Vector2(transPaneStartX, 0f);
+            targetPageContainer.offsetMax = new Vector2(transPaneStartX + contentPane.rect.width,
                                                    contentPane.rect.height);
 
             StartCoroutine(TransitionPageCoroutine(mainPaneTargetX, transPaneStartX,
@@ -280,7 +292,7 @@ public class ExplorerView : MonoBehaviour
     {
         isTransitioning = true;
 
-        transitionPage.gameObject.SetActive(true);
+        targetPageContainer.gameObject.SetActive(true);
 
         float transitionTime = 0f;
 
@@ -289,14 +301,14 @@ public class ExplorerView : MonoBehaviour
         {
             float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / transitionLength);
 
-            mainPage.offsetMin = new Vector2(transPos,
+            currentPageContainer.offsetMin = new Vector2(transPos,
                                              0f);
-            mainPage.offsetMax = new Vector2(transPos + contentPane.rect.width,
+            currentPageContainer.offsetMax = new Vector2(transPos + contentPane.rect.width,
                                              contentPane.rect.height);
 
-            transitionPage.offsetMin = new Vector2(transPos + transitionPaneStartX,
+            targetPageContainer.offsetMin = new Vector2(transPos + transitionPaneStartX,
                                                    0f);
-            transitionPage.offsetMax = new Vector2(transPos + transitionPaneStartX + contentPane.rect.width,
+            targetPageContainer.offsetMax = new Vector2(transPos + transitionPaneStartX + contentPane.rect.width,
                                                    contentPane.rect.height);
 
             transitionTime += Time.deltaTime;
@@ -305,18 +317,23 @@ public class ExplorerView : MonoBehaviour
         }
 
         // finalize
-        transitionPage.offsetMin = Vector2.zero;
-        transitionPage.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+        targetPageContainer.offsetMin = Vector2.zero;
+        targetPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
 
-        mainPage.gameObject.SetActive(false);
+        currentPageContainer.gameObject.SetActive(false);
 
-        RectTransform tempPage = mainPage;
-        mainPage = transitionPage;
-        transitionPage = tempPage;
+        RectTransform tempContainer = currentPageContainer;
+        currentPageContainer = targetPageContainer;
+        targetPageContainer = tempContainer;
 
-        ModProfile[] tempProfiles = mainPageProfiles;
-        mainPageProfiles = transitionPageProfiles;
-        transitionPageProfiles = tempProfiles;
+        ModPage tempPage = currentPage;
+        currentPage = targetPage;
+        targetPage = tempPage;
+
+        if(pageNumberText != null)
+        {
+            pageNumberText.text = (currentPage.index+1).ToString();
+        }
 
         isTransitioning = false;
 
