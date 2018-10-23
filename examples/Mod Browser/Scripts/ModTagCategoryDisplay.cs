@@ -4,93 +4,79 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
+// TODO(@jackson): Implement single-selection
 public class ModTagCategoryDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     public event Action<ModTagCategoryDisplay> onSelectedTagsChanged;
 
     [Header("Settings")]
-    public GameObject modTagPrefab;
     public bool textToUpper;
 
     [Header("UI Components")]
     public Text nameText;
-    public RectTransform tagContainer;
+    public ModTagCollectionDisplay tagDisplay;
 
     [Header("Display Data")]
     public ModTagCategory modTagCategory;
     public List<string> selectedTags;
-
-    [Header("Runtime Data")]
-    public ModTagToggle[] tagToggles;
 
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
         // asserts
-        Debug.Assert(modTagPrefab != null);
-        Debug.Assert(modTagPrefab.GetComponent<ModTagToggle>() != null);
-        Debug.Assert(nameText != null);
-        Debug.Assert(tagContainer != null);
-        Debug.Assert(modTagCategory != null);
-        Debug.Assert(selectedTags != null);
-
-        // clear existing
-        foreach(ModTagToggle toggle in this.tagToggles)
-        {
-            toggle.onToggled -= OnTagToggled;
-            GameObject.Destroy(toggle.gameObject);
-        }
+        Debug.Assert(tagDisplay != null);
 
         // setup
-        nameText.text = (textToUpper ? modTagCategory.name.ToUpper() : modTagCategory.name);
-
-        tagToggles = new ModTagToggle[modTagCategory.tags.Length];
-        for(int i = 0; i < modTagCategory.tags.Length; ++i)
+        string categoryName = string.Empty;
+        if(modTagCategory != null)
         {
-            GameObject itemGO = GameObject.Instantiate(modTagPrefab,
-                                                       new Vector3(),
-                                                       Quaternion.identity,
-                                                       tagContainer);
-
-            ModTagToggle item = itemGO.GetComponent<ModTagToggle>();
-            item.categoryName = modTagCategory.name;
-            item.tagName = modTagCategory.tags[i];
-            item.isSelected = IsTagSelected(item.tagName);
-            item.onToggled += OnTagToggled;
-            item.Initialize();
-
-            tagToggles[i] = item;
+            categoryName = (textToUpper ? modTagCategory.name.ToUpper() : modTagCategory.name);
         }
+        if(nameText != null)
+        {
+            nameText.text = categoryName;
+        }
+
+        tagDisplay.tags = CreateTagList();
+        tagDisplay.tagToggled += OnTagToggled;
+        tagDisplay.Initialize();
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void Refresh()
+    public void UpdateDisplay()
     {
-        foreach(ModTagToggle tag in tagToggles)
+        string categoryName = string.Empty;
+        if(modTagCategory != null)
         {
-            tag.isSelected = IsTagSelected(tag.tagName);
-            tag.Refresh();
+            categoryName = (textToUpper ? modTagCategory.name.ToUpper() : modTagCategory.name);
         }
+        if(nameText != null)
+        {
+            nameText.text = categoryName;
+        }
+
+        tagDisplay.tags = CreateTagList();
+        tagDisplay.UpdateDisplay();
     }
 
-    public void OnTagToggled(ModTagToggle toggleComponent)
+    public void OnTagToggled(SelectableModTag modTag)
     {
-        bool isTagSelected = IsTagSelected(toggleComponent.tagName);
+        bool isTagSelected = IsTagSelected(modTag.tagName);
 
-        if(!isTagSelected && toggleComponent.isSelected)
+        if(!isTagSelected && modTag.isSelected)
         {
-            this.selectedTags.Add(toggleComponent.tagName);
+            this.selectedTags.Add(modTag.tagName);
 
             if(onSelectedTagsChanged != null)
             {
                 onSelectedTagsChanged(this);
             }
         }
-        else if(isTagSelected && !toggleComponent.isSelected)
+        else if(isTagSelected && !modTag.isSelected)
         {
-            this.selectedTags.Remove(toggleComponent.tagName);
+            this.selectedTags.Remove(modTag.tagName);
 
             if(onSelectedTagsChanged != null)
             {
@@ -102,8 +88,33 @@ public class ModTagCategoryDisplay : MonoBehaviour
     // ---------[ UTILITY ]---------
     private bool IsTagSelected(string tagName)
     {
-        Debug.Assert(selectedTags != null);
-
+        if(this.selectedTags == null) { return false; }
         return this.selectedTags.Contains(tagName);
+    }
+
+    private List<SelectableModTag> CreateTagList()
+    {
+        List<SelectableModTag> tags;
+
+        if(modTagCategory != null
+           && modTagCategory.tags != null)
+        {
+            tags = new List<SelectableModTag>(modTagCategory.tags.Length);
+            foreach(string tagName in modTagCategory.tags)
+            {
+                tags.Add(new SelectableModTag()
+                {
+                    categoryName = modTagCategory.name,
+                    tagName = tagName,
+                    isSelected = IsTagSelected(tagName),
+                });
+            }
+        }
+        else
+        {
+            tags = new List<SelectableModTag>(0);
+        }
+
+        return tags;
     }
 }

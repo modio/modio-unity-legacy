@@ -2,10 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ModTagToggle : MonoBehaviour
+public class ModTagDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public event Action<ModTagToggle> onToggled;
+    public event Action<ModTagDisplay> toggled;
 
     [Header("Settings")]
     public bool textToUpper;
@@ -16,9 +16,9 @@ public class ModTagToggle : MonoBehaviour
     public Toggle toggleComponent;
 
     [Header("Display Data")]
-    public string tagName;
-    public string categoryName;
-    public bool isSelected;
+    public string tagName = string.Empty;
+    public string categoryName = string.Empty;
+    public bool isSelected = false;
 
 
     // ---------[ INTIALIZATION ]---------
@@ -26,39 +26,39 @@ public class ModTagToggle : MonoBehaviour
     {
         // assert
         Debug.Assert(nameText != null);
-        Debug.Assert(toggleComponent != null);
 
         // events
-        toggleComponent.onValueChanged.RemoveListener(OnToggleChanged);
-        toggleComponent.onValueChanged.AddListener(OnToggleChanged);
+        if(toggleComponent != null)
+        {
+            toggleComponent.onValueChanged.RemoveListener(OnToggleChanged);
+            toggleComponent.onValueChanged.AddListener(OnToggleChanged);
+        }
 
+        UpdateDisplay();
+    }
+
+    // ---------[ UI FUNCTIONALITY ]---------
+    public void UpdateDisplay()
+    {
         // display
         nameText.text = (textToUpper ? tagName.ToUpper() : tagName);
         if(categoryText != null)
         {
             categoryText.text = (textToUpper ? categoryName.ToUpper() : categoryName);
         }
-        toggleComponent.isOn = isSelected;
-    }
-
-    // ---------[ UI FUNCTIONALITY ]---------
-    public void Refresh()
-    {
-        nameText.text = (textToUpper ? tagName.ToUpper() : tagName);
-        if(categoryText != null)
+        if(toggleComponent != null)
         {
-            categoryText.text = (textToUpper ? categoryName.ToUpper() : categoryName);
+            toggleComponent.isOn = isSelected;
         }
-        toggleComponent.isOn = isSelected;
     }
 
     private void OnToggleChanged(bool value)
     {
         isSelected = value;
 
-        if(onToggled != null)
+        if(toggled != null)
         {
-            onToggled(this);
+            toggled(this);
         }
     }
 }

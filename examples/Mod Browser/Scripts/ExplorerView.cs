@@ -279,22 +279,13 @@ public class ExplorerView : MonoBehaviour
 
     private void UpdatePageNumberDisplay()
     {
-        int pageNumber = 0;
-        int pageCount = 0;
-
-        if(currentPage != null
-           && currentPage.size > 0
-           && currentPage.resultTotal > 0)
-        {
-        }
-
         if(pageNumberText != null)
         {
-            pageNumberText.text = pageNumber.ToString();
+            pageNumberText.text = CurrentPageNumber.ToString();
         }
         if(pageCountText != null)
         {
-            pageCountText.text = pageCount.ToString();
+            pageCountText.text = CurrentPageCount.ToString();
         }
     }
 

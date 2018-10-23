@@ -219,13 +219,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1300801099346922}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ca628afdd66344d997cf2f6a7ed365e, type: 3}
+  m_Script: {fileID: 11500000, guid: a91cb8b2cf4214936a433cdc4f8b502b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayTagUpperCase: 0
+  textToUpper: 0
   nameText: {fileID: 114159942404126762}
+  categoryText: {fileID: 0}
   toggleComponent: {fileID: 114377598044721038}
   tagName: 
+  categoryName: 
   isSelected: 0
 --- !u!222 &222256690445399160
 CanvasRenderer:
