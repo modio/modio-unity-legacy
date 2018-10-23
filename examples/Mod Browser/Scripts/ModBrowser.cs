@@ -77,6 +77,7 @@ public class ModBrowser : MonoBehaviour
     public InspectorView inspectorView;
     public InputField nameSearchField;
     public ModTagFilterView tagFilterView;
+    public ModTagFilterBar tagFilterBar;
     public Dropdown sortByDropdown;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
@@ -88,7 +89,7 @@ public class ModBrowser : MonoBehaviour
     public InspectorViewData inspectorData = new InspectorViewData();
     public List<int> collectionModIds = new List<int>();
     public UserProfile userProfile = null;
-    public int modCount;
+    public List<string> filterTags = new List<string>();
 
     [Header("Runtime Data")]
     public int lastCacheUpdate = -1;
@@ -261,8 +262,6 @@ public class ModBrowser : MonoBehaviour
         }
 
 
-        this.modCount = CacheClient.CountModProfiles();
-
         // initialize views
         inspectorView.Initialize();
         inspectorView.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspectorView.profile));
@@ -274,9 +273,48 @@ public class ModBrowser : MonoBehaviour
         collectionView.profileCollection = CacheClient.IterateAllModProfiles().Where(p => collectionModIds.Contains(p.id));
         collectionView.gameObject.SetActive(false);
 
+        tagFilterView.selectedTags = this.filterTags;
         tagFilterView.gameObject.SetActive(false);
-        tagFilterView.onSelectedTagsChanged += UpdateFilters;
-        ModManager.GetGameProfile((g) => { tagFilterView.tagCategories = g.tagCategories; tagFilterView.Initialize(); },
+        tagFilterView.onSelectedTagsChanged += () =>
+        {
+            if(this.filterTags != tagFilterView.selectedTags)
+            {
+                this.filterTags = tagFilterView.selectedTags;
+            }
+            if(tagFilterBar.selectedTags != this.filterTags)
+            {
+                tagFilterBar.selectedTags = this.filterTags;
+            }
+            tagFilterBar.UpdateDisplay();
+
+            UpdateFilters();
+        };
+
+        tagFilterBar.selectedTags = this.filterTags;
+        tagFilterBar.gameObject.SetActive(true);
+        tagFilterBar.onSelectedTagsChanged += () =>
+        {
+            if(this.filterTags != tagFilterBar.selectedTags)
+            {
+                this.filterTags = tagFilterBar.selectedTags;
+            }
+            if(tagFilterView.selectedTags != this.filterTags)
+            {
+                tagFilterView.selectedTags = this.filterTags;
+            }
+            tagFilterView.UpdateDisplay();
+
+            UpdateFilters();
+        };
+
+        ModManager.GetGameProfile((g) =>
+                                  {
+                                    tagFilterView.categories = g.tagCategories;
+                                    tagFilterView.Initialize();
+
+                                    tagFilterBar.categories = g.tagCategories;
+                                    tagFilterBar.Initialize();
+                                  },
                                   WebRequestError.LogAsWarning);
 
         // final elements
@@ -302,10 +340,6 @@ public class ModBrowser : MonoBehaviour
             sortByDropdown.onValueChanged.AddListener((v) => UpdateFilters());
         }
 
-        SortOptionData sortOption = sortOptions[0];
-        explorerViewFilter.sortFieldName = sortOption.fieldName;
-        explorerViewFilter.isSortAscending = sortOption.isSortAscending;
-
         InitializeExplorerView();
     }
 
@@ -313,32 +347,37 @@ public class ModBrowser : MonoBehaviour
     {
         explorerView.Initialize();
         explorerView.inspectRequested += OnExplorerItemClicked;
-        explorerView.currentPage = null;
-        explorerView.targetPage = null;
 
-        if(this.modCount > 0)
+        // setup filter
+        explorerViewFilter = new RequestFilter();
+
+        SortOptionData sortOption = sortOptions[0];
+        explorerViewFilter.sortFieldName = sortOption.fieldName;
+        explorerViewFilter.isSortAscending = sortOption.isSortAscending;
+
+
+        RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
         {
-            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
-            {
-                size = explorerView.ItemCount,
-                items = new ModProfile[explorerView.ItemCount],
-                resultOffset = 0,
-                resultTotal = 0,
-            };
-            explorerView.currentPage = modPage;
+            size = explorerView.ItemCount,
+            items = new ModProfile[explorerView.ItemCount],
+            resultOffset = 0,
+            resultTotal = 0,
+        };
+        explorerView.currentPage = modPage;
 
-            RequestExplorerPage(0,
-                                (page) =>
+        RequestExplorerPage(0,
+                            (page) =>
+                            {
+                                if(explorerView.currentPage == modPage)
                                 {
-                                    if(explorerView.currentPage == modPage)
-                                    {
-                                        explorerView.currentPage = page;
-                                        explorerView.UpdateCurrentPageDisplay();
-                                        UpdateExplorerViewPageButtonInteractibility();
-                                    }
-                                },
-                                null);
-        }
+                                    explorerView.currentPage = page;
+                                    explorerView.UpdateCurrentPageDisplay();
+                                    UpdateExplorerViewPageButtonInteractibility();
+                                }
+                            },
+                            null);
+
+        explorerView.targetPage = null;
 
         explorerView.UpdateCurrentPageDisplay();
         explorerView.gameObject.SetActive(true);
@@ -889,14 +928,14 @@ public class ModBrowser : MonoBehaviour
         Debug.Assert(targetPageIndex < explorerView.CurrentPageCount);
 
         int pageItemCount = (int)Mathf.Min(explorerView.ItemCount,
-                                           this.modCount - targetPageProfileOffset);
+                                           explorerView.currentPage.resultTotal - targetPageProfileOffset);
 
         RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
         {
             size = explorerView.ItemCount,
             items = new ModProfile[pageItemCount],
             resultOffset = targetPageProfileOffset,
-            resultTotal = this.modCount,
+            resultTotal = explorerView.currentPage.resultTotal,
         };
         explorerView.targetPage = targetPage;
         explorerView.UpdateTargetPageDisplay();

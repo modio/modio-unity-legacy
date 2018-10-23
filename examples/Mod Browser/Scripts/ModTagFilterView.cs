@@ -16,7 +16,7 @@ public class ModTagFilterView : MonoBehaviour
     public RectTransform categoryContainer;
 
     [Header("Display Data")]
-    public ModTagCategory[] tagCategories;
+    public ModTagCategory[] categories;
     public List<string> selectedTags;
 
     [Header("Runtime Data")]
@@ -41,10 +41,10 @@ public class ModTagFilterView : MonoBehaviour
         }
 
         // setup categories
-        categoryDisplayComponents = new ModTagCategoryDisplay[tagCategories.Length];
-        for(int i = 0; i < tagCategories.Length; ++i)
+        categoryDisplayComponents = new ModTagCategoryDisplay[categories.Length];
+        for(int i = 0; i < categories.Length; ++i)
         {
-            ModTagCategory category = tagCategories[i];
+            ModTagCategory category = categories[i];
             GameObject categoryGO = GameObject.Instantiate(tagCategoryPrefab,
                                                             new Vector3(),
                                                             Quaternion.identity,
@@ -56,6 +56,14 @@ public class ModTagFilterView : MonoBehaviour
             categoryDisp.selectedTags = this.selectedTags;
             categoryDisp.onSelectedTagsChanged += this.OnTagsChanged;
             categoryDisp.Initialize();
+        }
+    }
+
+    public void UpdateDisplay()
+    {
+        foreach(ModTagCategoryDisplay display in categoryDisplayComponents)
+        {
+            display.UpdateDisplay();
         }
     }
 
