@@ -5534,7 +5534,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: NEWEST
+  m_Text: AUTO_FILLED
 --- !u!114 &114016296539281656
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7622,11 +7622,7 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: NEWEST
-      m_Image: {fileID: 0}
-    - m_Text: MOST POPULAR
-      m_Image: {fileID: 0}
-    - m_Text: MOST DOWNLOADED
+    - m_Text: AUTO_FILLED
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
@@ -10252,8 +10248,9 @@ MonoBehaviour:
   explorerView: {fileID: 114195835507779204}
   collectionView: {fileID: 114913865012966326}
   inspectorView: {fileID: 114309666271251828}
-  tagFilterView: {fileID: 114881975973044358}
   nameSearchField: {fileID: 114064344666904252}
+  tagFilterView: {fileID: 114881975973044358}
+  sortByDropdown: {fileID: 114201071870212290}
   userDisplay: {fileID: 114095034556547416}
   loginDialog: {fileID: 114863113973899486}
   messageDialog: {fileID: 114823163344274638}
@@ -11011,7 +11008,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.29411766, g: 0.6901961, b: 0.76470596, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7490196, b: 0.8352941, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -19432,10 +19429,10 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -42}
-  m_SizeDelta: {x: 1500, y: 780}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224177770614527494
 RectTransform:

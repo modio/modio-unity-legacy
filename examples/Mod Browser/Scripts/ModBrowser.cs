@@ -24,6 +24,25 @@ public class ModBrowser : MonoBehaviour
     }
 
     [Serializable]
+    private class SortOptionData
+    {
+        public string dropdownText;
+        public string fieldName;
+        public bool isSortAscending;
+
+        public static SortOptionData Create(string dropdownText, string fieldName, bool isSortAscending)
+        {
+            SortOptionData newSOD = new SortOptionData()
+            {
+                dropdownText = dropdownText,
+                fieldName = fieldName,
+                isSortAscending = isSortAscending,
+            };
+            return newSOD;
+        }
+    }
+
+    [Serializable]
     public class InspectorViewData
     {
         public int currentModIndex;
@@ -37,6 +56,13 @@ public class ModBrowser : MonoBehaviour
         id = 0,
         username = "Guest",
     };
+    private readonly SortOptionData[] sortOptions = new SortOptionData[]
+    {
+        SortOptionData.Create("NEWEST",         ModIO.API.GetAllModsFilterFields.dateLive, false),
+        SortOptionData.Create("POPULARITY",     ModIO.API.GetAllModsFilterFields.popular, true),
+        SortOptionData.Create("RATING",         ModIO.API.GetAllModsFilterFields.rating, false),
+        SortOptionData.Create("SUBSCRIBERS",    ModIO.API.GetAllModsFilterFields.subscribers, false),
+    };
 
     // ---------[ FIELDS ]---------
     [Header("Settings")]
@@ -49,8 +75,9 @@ public class ModBrowser : MonoBehaviour
     public ExplorerView explorerView;
     public CollectionView collectionView;
     public InspectorView inspectorView;
-    public ModTagFilterView tagFilterView;
     public InputField nameSearchField;
+    public ModTagFilterView tagFilterView;
+    public Dropdown sortByDropdown;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
     public MessageDialog messageDialog;
@@ -235,6 +262,7 @@ public class ModBrowser : MonoBehaviour
 
 
         this.modCount = CacheClient.CountModProfiles();
+
         // initialize views
         inspectorView.Initialize();
         inspectorView.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspectorView.profile));
@@ -251,9 +279,6 @@ public class ModBrowser : MonoBehaviour
         ModManager.GetGameProfile((g) => { tagFilterView.tagCategories = g.tagCategories; tagFilterView.Initialize(); },
                                   WebRequestError.LogAsWarning);
 
-        InitializeExplorerView();
-
-
         // final elements
         // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
         nameSearchField.onEndEdit.AddListener((t) =>
@@ -263,6 +288,25 @@ public class ModBrowser : MonoBehaviour
                 UpdateFilters();
             }
         } );
+
+        if(sortByDropdown != null)
+        {
+            sortByDropdown.options = new List<Dropdown.OptionData>(sortOptions.Count());
+            foreach(SortOptionData option in sortOptions)
+            {
+                sortByDropdown.options.Add(new Dropdown.OptionData() { text = option.dropdownText });
+            }
+            sortByDropdown.value = 0;
+            sortByDropdown.captionText.text = sortOptions[0].dropdownText;
+
+            sortByDropdown.onValueChanged.AddListener((v) => UpdateFilters());
+        }
+
+        SortOptionData sortOption = sortOptions[0];
+        explorerViewFilter.sortFieldName = sortOption.fieldName;
+        explorerViewFilter.isSortAscending = sortOption.isSortAscending;
+
+        InitializeExplorerView();
     }
 
     private void InitializeExplorerView()
@@ -972,11 +1016,21 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
+    // TODO(@jackson): Don't request page!!!!!!!
     public void UpdateFilters()
     {
         // sort
-        explorerViewFilter.sortFieldName = ModIO.API.GetAllModsFilterFields.popular;
-        explorerViewFilter.isSortAscending = false;
+        if(sortByDropdown == null)
+        {
+            explorerViewFilter.sortFieldName = ModIO.API.GetAllModsFilterFields.popular;
+            explorerViewFilter.isSortAscending = false;
+        }
+        else
+        {
+            SortOptionData optionData = sortOptions[sortByDropdown.value];
+            explorerViewFilter.sortFieldName = optionData.fieldName;
+            explorerViewFilter.isSortAscending = optionData.isSortAscending;
+        }
 
         // title
         if(String.IsNullOrEmpty(nameSearchField.text))
