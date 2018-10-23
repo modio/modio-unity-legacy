@@ -11,14 +11,6 @@ public enum PageTransitionDirection
     FromRight,
 }
 
-[Serializable]
-public class ModPage
-{
-    public int index;
-    public int profileCount;
-    public ModProfile[] profiles;
-}
-
 // TODO(@jackson): The padding/spacing maths might need work?
 public class ExplorerView : MonoBehaviour
 {
@@ -40,9 +32,8 @@ public class ExplorerView : MonoBehaviour
     public Text pageCountText;
 
     [Header("Display Data")]
-    public ModPage currentPage = null;
-    public ModPage targetPage = null;
-    public int pageCount = 0;
+    public RequestPage<ModProfile> currentPage = null;
+    public RequestPage<ModProfile> targetPage = null;
     public List<int> subscribedModIds = null;
 
     [Header("Runtime Data")]
@@ -57,7 +48,39 @@ public class ExplorerView : MonoBehaviour
     public Vector2 itemOffset = Vector2.zero;
 
     // ---[ CALCULATED VARS ]----
-    public int itemCount { get { return this.columnCount * this.rowCount; } }
+    public int ItemCount { get { return this.columnCount * this.rowCount; } }
+    public int CurrentPageNumber
+    {
+        get
+        {
+            int pageNumber = 0;
+
+            if(currentPage != null
+               && currentPage.size > 0
+               && currentPage.resultTotal > 0)
+            {
+                pageNumber = (int)Mathf.Floor((float)currentPage.resultOffset / (float)currentPage.size) + 1;
+            }
+
+            return pageNumber;
+        }
+    }
+    public int CurrentPageCount
+    {
+        get
+        {
+            int pageCount = 0;
+
+            if(currentPage != null
+               && currentPage.size > 0
+               && currentPage.resultTotal > 0)
+            {
+                pageCount = (int)Mathf.Ceil((float)currentPage.resultTotal / (float)currentPage.size);
+            }
+
+            return pageCount;
+        }
+    }
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
@@ -146,7 +169,7 @@ public class ExplorerView : MonoBehaviour
         }
 
         for(int index = 0;
-            index < this.itemCount;
+            index < this.ItemCount;
             ++index)
         {
             GameObject itemGO = GameObject.Instantiate(itemPrefab,
@@ -184,7 +207,7 @@ public class ExplorerView : MonoBehaviour
     {
         Debug.Assert(currentPageContainer != null,
                      "[mod.io] ExplorerView.Initialize has not yet been called");
-        Debug.Assert(itemCount > 0,
+        Debug.Assert(ItemCount > 0,
                      "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
                      + " or rowCount has been calculated to be less than 1.");
 
@@ -196,11 +219,7 @@ public class ExplorerView : MonoBehaviour
         }
         #endif
 
-        if(pageNumberText != null)
-        {
-            pageNumberText.text = (currentPage.index+1).ToString();
-        }
-
+        UpdatePageNumberDisplay();
         UpdatePageDisplay(this.currentPage, this.currentPageContainer);
     }
 
@@ -208,7 +227,7 @@ public class ExplorerView : MonoBehaviour
     {
         Debug.Assert(targetPageContainer != null,
                      "[mod.io] ExplorerView.Initialize has not yet been called");
-        Debug.Assert(itemCount > 0,
+        Debug.Assert(ItemCount > 0,
                      "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
                      + " or rowCount has been calculated to be less than 1.");
 
@@ -223,38 +242,56 @@ public class ExplorerView : MonoBehaviour
         UpdatePageDisplay(this.targetPage, this.targetPageContainer);
     }
 
-    private void UpdatePageDisplay(ModPage page, RectTransform pageTransform)
+    private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
     {
         int i = 0;
-        for(; i < itemCount && i < page.profileCount; ++i)
+
+        if(page != null
+           && page.items != null)
         {
-            Transform itemTransform = pageTransform.GetChild(i);
-            ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
-            item.profile = page.profiles[i];
-            item.statistics = null;
-
-            item.UpdateProfileDisplay();
-            item.UpdateStatisticsDisplay();
-
-            itemTransform.gameObject.SetActive(true);
-
-            if(item.profile != null)
+            for(; i < ItemCount && i < page.items.Length; ++i)
             {
-                ModManager.GetModStatistics(item.profile.id,
-                                            (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
-                                            null);
+                Transform itemTransform = pageTransform.GetChild(i);
+                ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
+                item.profile = page.items[i];
+                item.statistics = null;
+
+                item.UpdateProfileDisplay();
+                item.UpdateStatisticsDisplay();
+
+                itemTransform.gameObject.SetActive(true);
+
+                if(item.profile != null)
+                {
+                    ModManager.GetModStatistics(item.profile.id,
+                                                (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
+                                                null);
+                }
             }
         }
 
-        for(; i < itemCount; ++i)
+        for(; i < ItemCount; ++i)
         {
             Transform itemTransform = pageTransform.GetChild(i);
             itemTransform.gameObject.SetActive(false);
         }
     }
 
-    public void UpdatePageCountDisplay()
+    private void UpdatePageNumberDisplay()
     {
+        int pageNumber = 0;
+        int pageCount = 0;
+
+        if(currentPage != null
+           && currentPage.size > 0
+           && currentPage.resultTotal > 0)
+        {
+        }
+
+        if(pageNumberText != null)
+        {
+            pageNumberText.text = pageNumber.ToString();
+        }
         if(pageCountText != null)
         {
             pageCountText.text = pageCount.ToString();
@@ -322,18 +359,15 @@ public class ExplorerView : MonoBehaviour
 
         currentPageContainer.gameObject.SetActive(false);
 
-        RectTransform tempContainer = currentPageContainer;
+        var tempContainer = currentPageContainer;
         currentPageContainer = targetPageContainer;
         targetPageContainer = tempContainer;
 
-        ModPage tempPage = currentPage;
+        var tempPage = currentPage;
         currentPage = targetPage;
         targetPage = tempPage;
 
-        if(pageNumberText != null)
-        {
-            pageNumberText.text = (currentPage.index+1).ToString();
-        }
+        UpdatePageNumberDisplay();
 
         isTransitioning = false;
 

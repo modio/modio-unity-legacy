@@ -1387,7 +1387,7 @@ namespace ModIO
 
         // ---------[ FETCH ALL RESULTS HELPER ]---------
         private delegate void GetAllObjectsQuery<T>(APIPaginationParameters pagination,
-                                                    Action<APIResponseArray<T>> onSuccess,
+                                                    Action<RequestPage<T>> onSuccess,
                                                     Action<WebRequestError> onError);
 
         private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
@@ -1413,7 +1413,7 @@ namespace ModIO
         }
 
         private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
-                                                            APIResponseArray<T> queryResult,
+                                                            RequestPage<T> queryResult,
                                                             APIPaginationParameters pagination,
                                                             List<T> culmativeResults,
                                                             Action<List<T>> onSuccess,
@@ -1421,9 +1421,9 @@ namespace ModIO
         {
             Debug.Assert(pagination.limit > 0);
 
-            culmativeResults.AddRange(queryResult.Items);
+            culmativeResults.AddRange(queryResult.items);
 
-            if(queryResult.Count < queryResult.Limit)
+            if(queryResult.items.Length < queryResult.size)
             {
                 onSuccess(culmativeResults);
             }

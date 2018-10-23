@@ -316,7 +316,7 @@ public class InspectorView : MonoBehaviour
             APIClient.GetAllModfiles(profile.id,
                                      modfileFilter,
                                      new APIPaginationParameters(){ limit = 20 },
-                                     (r) => ApplyVersionHistory(profile.id, r),
+                                     (r) => ApplyVersionHistory(profile.id, r.items),
                                      null);
         }
     }
