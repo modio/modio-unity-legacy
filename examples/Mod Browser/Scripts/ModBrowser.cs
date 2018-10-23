@@ -72,24 +72,32 @@ public class ModBrowser : MonoBehaviour
 
 
     // ---------[ ACCESSORS ]---------
-    private void LoadFilteredProfiles(ModProfile[] destinationArray, int offset, int count)
+    public void RequestExplorerPage(int pageIndex,
+                                    Action<RequestPage<ModProfile>> onSuccess,
+                                    Action<WebRequestError> onError)
     {
-        Debug.Assert(count <= destinationArray.Length);
-
-        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(offset)
+        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(pageIndex * explorerView.ItemCount)
                 .Where(nameFilterDelegate)
                 .Where(tagFilterDelegate)
                 .GetEnumerator();
 
+        List<ModProfile> profileList = new List<ModProfile>(explorerView.ItemCount);
+
         int i = 0;
-        for(; i < count && profileEnumerator.MoveNext(); ++i)
+        for(; i < explorerView.ItemCount && profileEnumerator.MoveNext(); ++i)
         {
-            destinationArray[i] = profileEnumerator.Current;
+            profileList.Add(profileEnumerator.Current);
         }
-        for(; i < count; ++i)
+
+        RequestPage<ModProfile> page = new RequestPage<ModProfile>()
         {
-            destinationArray[i] = null;
-        }
+            size = explorerView.ItemCount,
+            resultOffset = pageIndex * explorerView.ItemCount,
+            resultTotal = modCount,
+            items = profileList.ToArray(),
+        };
+
+        onSuccess(page);
     }
 
     // ---------[ INITIALIZATION ]---------
@@ -286,9 +294,13 @@ public class ModBrowser : MonoBehaviour
             explorerView.currentPage.resultOffset = 0;
             explorerView.currentPage.resultTotal = this.modCount;
 
-            LoadFilteredProfiles(explorerView.currentPage.items,
-                                 0,
-                                 explorerView.currentPage.size);
+            RequestExplorerPage(0,
+                                (page) =>
+                                {
+                                    explorerView.currentPage = page;
+                                    explorerView.UpdateCurrentPageDisplay();
+                                },
+                                null);
         }
 
         explorerView.UpdateCurrentPageDisplay();
@@ -833,6 +845,7 @@ public class ModBrowser : MonoBehaviour
             return;
         }
 
+
         int targetPageIndex = explorerView.CurrentPageNumber - 1 + direction;
         int targetPageProfileOffset = targetPageIndex * explorerView.ItemCount;
 
@@ -841,6 +854,7 @@ public class ModBrowser : MonoBehaviour
 
         int pageItemCount = (int)Mathf.Min(explorerView.ItemCount,
                                            this.modCount - targetPageProfileOffset);
+
         explorerView.targetPage = new RequestPage<ModProfile>()
         {
             size = explorerView.ItemCount,
@@ -848,9 +862,14 @@ public class ModBrowser : MonoBehaviour
             resultTotal = this.modCount,
             items = new ModProfile[pageItemCount],
         };
-        LoadFilteredProfiles(explorerView.targetPage.items,
-                             targetPageIndex * explorerView.ItemCount,
-                             pageItemCount);
+
+        RequestExplorerPage(targetPageIndex,
+                            (page) =>
+                            {
+                                explorerView.targetPage = page;
+                                explorerView.UpdateTargetPageDisplay();
+                            },
+                            null);
 
         explorerView.UpdateTargetPageDisplay();
 
@@ -992,11 +1011,15 @@ public class ModBrowser : MonoBehaviour
         }
 
         // TODO(@jackson): BAD ZERO?
-        LoadFilteredProfiles(explorerView.currentPage.items,
-                             0,
-                             explorerView.ItemCount);
-        // TODO(@jackson): Update Mod Count
+        RequestExplorerPage(0,
+                            (page) =>
+                            {
+                                explorerView.currentPage = page;
+                                explorerView.UpdateCurrentPageDisplay();
+                            },
+                            null);
 
+        // TODO(@jackson): Update Mod Count
         explorerView.UpdateCurrentPageDisplay();
     }
 
