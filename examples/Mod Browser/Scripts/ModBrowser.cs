@@ -50,7 +50,7 @@ public class ModBrowser : MonoBehaviour
     public CollectionView collectionView;
     public InspectorView inspectorView;
     public ModTagFilterView tagFilterView;
-    public InputField titleSearchField;
+    public InputField nameSearchField;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
     public MessageDialog messageDialog;
@@ -66,8 +66,7 @@ public class ModBrowser : MonoBehaviour
     [Header("Runtime Data")]
     public int lastCacheUpdate = -1;
     public string titleSearch = string.Empty;
-    public Func<ModProfile, bool> nameFilterDelegate = (p) => { return true; };
-    public Func<ModProfile, bool> tagFilterDelegate = (p) => { return true; };
+    public RequestFilter explorerViewFilter = new RequestFilter();
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
 
 
@@ -76,29 +75,16 @@ public class ModBrowser : MonoBehaviour
                                     Action<RequestPage<ModProfile>> onSuccess,
                                     Action<WebRequestError> onError)
     {
-        IEnumerator<ModProfile> profileEnumerator = CacheClient.IterateAllModProfilesFromOffset(pageIndex * explorerView.ItemCount)
-                .Where(nameFilterDelegate)
-                .Where(tagFilterDelegate)
-                .GetEnumerator();
+        // PaginationParameters
+        APIPaginationParameters pagination = new APIPaginationParameters();
+        pagination.limit = explorerView.ItemCount;
+        pagination.offset = pageIndex * explorerView.ItemCount;
 
-        List<ModProfile> profileList = new List<ModProfile>(explorerView.ItemCount);
-
-        int i = 0;
-        for(; i < explorerView.ItemCount && profileEnumerator.MoveNext(); ++i)
-        {
-            profileList.Add(profileEnumerator.Current);
-        }
-
-        RequestPage<ModProfile> page = new RequestPage<ModProfile>()
-        {
-            size = explorerView.ItemCount,
-            resultOffset = pageIndex * explorerView.ItemCount,
-            resultTotal = modCount,
-            items = profileList.ToArray(),
-        };
-
-        onSuccess(page);
+        // Send Request
+        APIClient.GetAllMods(explorerViewFilter, pagination,
+                             onSuccess, onError);
     }
+
 
     // ---------[ INITIALIZATION ]---------
     private void Start()
@@ -269,8 +255,8 @@ public class ModBrowser : MonoBehaviour
 
 
         // final elements
-        // TODO(@jackson): titleSearchField.onValueChanged.AddListener((t) => {});
-        titleSearchField.onEndEdit.AddListener((t) =>
+        // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
+        nameSearchField.onEndEdit.AddListener((t) =>
         {
             if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
@@ -288,17 +274,24 @@ public class ModBrowser : MonoBehaviour
 
         if(this.modCount > 0)
         {
-            explorerView.currentPage = new RequestPage<ModProfile>();
-            explorerView.currentPage.size = explorerView.ItemCount;
-            explorerView.currentPage.items = new ModProfile[explorerView.ItemCount];
-            explorerView.currentPage.resultOffset = 0;
-            explorerView.currentPage.resultTotal = this.modCount;
+            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
+            {
+                size = explorerView.ItemCount,
+                items = new ModProfile[explorerView.ItemCount],
+                resultOffset = 0,
+                resultTotal = 0,
+            };
+            explorerView.currentPage = modPage;
 
             RequestExplorerPage(0,
                                 (page) =>
                                 {
-                                    explorerView.currentPage = page;
-                                    explorerView.UpdateCurrentPageDisplay();
+                                    if(explorerView.currentPage == modPage)
+                                    {
+                                        explorerView.currentPage = page;
+                                        explorerView.UpdateCurrentPageDisplay();
+                                        UpdateExplorerViewPageButtonInteractibility();
+                                    }
                                 },
                                 null);
         }
@@ -845,7 +838,6 @@ public class ModBrowser : MonoBehaviour
             return;
         }
 
-
         int targetPageIndex = explorerView.CurrentPageNumber - 1 + direction;
         int targetPageProfileOffset = targetPageIndex * explorerView.ItemCount;
 
@@ -855,23 +847,32 @@ public class ModBrowser : MonoBehaviour
         int pageItemCount = (int)Mathf.Min(explorerView.ItemCount,
                                            this.modCount - targetPageProfileOffset);
 
-        explorerView.targetPage = new RequestPage<ModProfile>()
+        RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
         {
             size = explorerView.ItemCount,
+            items = new ModProfile[pageItemCount],
             resultOffset = targetPageProfileOffset,
             resultTotal = this.modCount,
-            items = new ModProfile[pageItemCount],
         };
+        explorerView.targetPage = targetPage;
+        explorerView.UpdateTargetPageDisplay();
 
         RequestExplorerPage(targetPageIndex,
                             (page) =>
                             {
-                                explorerView.targetPage = page;
-                                explorerView.UpdateTargetPageDisplay();
+                                if(explorerView.targetPage == targetPage)
+                                {
+                                    explorerView.targetPage = page;
+                                    explorerView.UpdateTargetPageDisplay();
+                                }
+                                if(explorerView.currentPage == targetPage)
+                                {
+                                    explorerView.currentPage = page;
+                                    explorerView.UpdateCurrentPageDisplay();
+                                    UpdateExplorerViewPageButtonInteractibility();
+                                }
                             },
                             null);
-
-        explorerView.UpdateTargetPageDisplay();
 
         PageTransitionDirection transitionDirection = (direction < 0
                                                        ? PageTransitionDirection.FromLeft
@@ -881,7 +882,6 @@ public class ModBrowser : MonoBehaviour
         {
             UpdateExplorerViewPageButtonInteractibility();
         });
-
         UpdateExplorerViewPageButtonInteractibility();
     }
 
@@ -974,18 +974,19 @@ public class ModBrowser : MonoBehaviour
 
     public void UpdateFilters()
     {
+        // sort
+        explorerViewFilter.sortFieldName = ModIO.API.GetAllModsFilterFields.popular;
+        explorerViewFilter.isSortAscending = false;
+
         // title
-        if(String.IsNullOrEmpty(titleSearchField.text))
+        if(String.IsNullOrEmpty(nameSearchField.text))
         {
-            nameFilterDelegate = (p) => true;
+            explorerViewFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
         }
         else
         {
-            string searchString = titleSearchField.text.ToUpper();
-            nameFilterDelegate = (profile) =>
-            {
-                return profile.name.ToUpper().Contains(searchString);
-            };
+            explorerViewFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
+                = new StringLikeFilter() { likeValue = "*"+nameSearchField.text+"*" };
         }
 
         // tags
@@ -993,29 +994,33 @@ public class ModBrowser : MonoBehaviour
 
         if(filterTagNames.Length == 0)
         {
-            tagFilterDelegate = (p) => true;
+            explorerViewFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
         }
         else
         {
-            tagFilterDelegate = (profile) =>
-            {
-                if(profile.tags == null) { return false; }
-
-                foreach(string filterTag in filterTagNames)
-                {
-                    if(!profile.tagNames.Contains(filterTag)) { return false; }
-                }
-
-                return true;
-            };
+            explorerViewFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
+                = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
         }
 
         // TODO(@jackson): BAD ZERO?
+        RequestPage<ModProfile> filteredPage = new RequestPage<ModProfile>()
+        {
+            size = explorerView.ItemCount,
+            items = new ModProfile[explorerView.ItemCount],
+            resultOffset = 0,
+            resultTotal = 0,
+        };
+        explorerView.currentPage = filteredPage;
+
         RequestExplorerPage(0,
                             (page) =>
                             {
-                                explorerView.currentPage = page;
-                                explorerView.UpdateCurrentPageDisplay();
+                                if(explorerView.currentPage == filteredPage)
+                                {
+                                    explorerView.currentPage = page;
+                                    explorerView.UpdateCurrentPageDisplay();
+                                    UpdateExplorerViewPageButtonInteractibility();
+                                }
                             },
                             null);
 
