@@ -261,7 +261,6 @@ public class ExplorerView : MonoBehaviour
 
                 item.UpdateProfileDisplay();
                 item.UpdateStatisticsDisplay();
-                item.UpdateIsSubscribedDisplay();
 
                 if(item.profile != null)
                 {
@@ -271,6 +270,7 @@ public class ExplorerView : MonoBehaviour
                                                 (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
                                                 null);
                 }
+                item.UpdateIsSubscribedDisplay();
 
                 itemTransform.gameObject.SetActive(true);
             }

@@ -39,12 +39,15 @@ public class SubscriptionsView : MonoBehaviour
         Debug.Assert(itemPrefabScript != null);
         Debug.Assert(TEMP_pageSize > 0);
 
-        currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
-        currentPageContainer.SetParent(contentPane);
-        currentPageContainer.anchorMin = Vector2.zero;
-        currentPageContainer.anchorMax = Vector2.zero;
-        currentPageContainer.offsetMin = Vector2.zero;
-        currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+        // currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
+        // currentPageContainer.SetParent(contentPane);
+        // currentPageContainer.anchorMin = Vector2.zero;
+        // currentPageContainer.anchorMax = Vector2.zero;
+        // currentPageContainer.offsetMin = Vector2.zero;
+        // currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+        // TODO(@jackson): FIX!
+        Debug.LogWarning("@jackson FAKING PAGES HERE!");
+        currentPageContainer = contentPane;
 
         InitializePageLayout(currentPageContainer);
     }
@@ -121,12 +124,12 @@ public class SubscriptionsView : MonoBehaviour
                 ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
                 item.profile = page.items[i];
                 item.statistics = null;
+                item.isSubscribed = true;
 
                 item.UpdateProfileDisplay();
                 item.UpdateStatisticsDisplay();
                 item.UpdateIsSubscribedDisplay();
 
-                itemTransform.gameObject.SetActive(true);
 
                 if(item.profile != null)
                 {
@@ -134,6 +137,8 @@ public class SubscriptionsView : MonoBehaviour
                                                 (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
                                                 null);
                 }
+
+                itemTransform.gameObject.SetActive(true);
             }
         }
 

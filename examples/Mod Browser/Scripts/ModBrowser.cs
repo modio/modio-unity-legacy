@@ -378,6 +378,10 @@ public class ModBrowser : MonoBehaviour
 
         // TODO(@jackson): Hook up events
         subscriptionsView.inspectRequested += OnExplorerItemClicked;
+        subscriptionsView.subscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
+        subscriptionsView.unsubscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
+        subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
+
 
         RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
         {
@@ -407,7 +411,12 @@ public class ModBrowser : MonoBehaviour
     private void InitializeExplorerView()
     {
         explorerView.Initialize();
+
         explorerView.inspectRequested += OnExplorerItemClicked;
+        explorerView.subscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
+        explorerView.unsubscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
+        explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
+
         explorerView.subscribedModIds = this.subscribedModIds;
 
         // setup filter
@@ -1223,6 +1232,13 @@ public class ModBrowser : MonoBehaviour
                                     }
                                 },
                                 null);
+    }
+
+    public void ToggleModEnabled(ModProfile profile)
+    {
+        throw new System.NotImplementedException("[mod.io] This function handle is a placeholder "
+                                                 + "for the enable/disable functionality that the "
+                                                 + "game code may need to execute.");
     }
 
 

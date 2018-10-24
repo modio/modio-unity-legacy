@@ -15271,16 +15271,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a74d6d78c4d734e09a38d233ac1c0861, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemListing_prefab: {fileID: 1171308732636730, guid: 68ffe4cea6e9a43bfabe186b45d60afd,
-    type: 2}
-  itemListingContainer: {fileID: 224498596249550734}
-  itemInspector_modName: {fileID: 114267399055648704}
-  itemInspector_downloadContainer: {fileID: 224812211021483054}
-  itemInspector_downloadProgressText: {fileID: 114832067824421318}
-  itemInspector_downloadProgressBar: {fileID: 224452564886365144}
-  itemInspector_buttonContainer: {fileID: 224876961086755274}
-  unsubscribeButton: {fileID: 114633001354530698}
-  enableButton: {fileID: 114006369959355418}
+  itemListing_prefab: {fileID: 0}
+  itemListingContainer: {fileID: 0}
+  itemInspector_modName: {fileID: 0}
+  itemInspector_downloadContainer: {fileID: 0}
+  itemInspector_downloadProgressText: {fileID: 0}
+  itemInspector_downloadProgressBar: {fileID: 0}
+  itemInspector_buttonContainer: {fileID: 0}
+  unsubscribeButton: {fileID: 0}
+  enableButton: {fileID: 0}
 --- !u!114 &114915889108695338
 MonoBehaviour:
   m_ObjectHideFlags: 1
