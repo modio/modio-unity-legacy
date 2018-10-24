@@ -1,5 +1,6 @@
+// TODO(@jackson): Add Inspector?
 public enum ModBrowserViewMode
 {
-    Collection,
+    Subscriptions,
     Explorer,
 }

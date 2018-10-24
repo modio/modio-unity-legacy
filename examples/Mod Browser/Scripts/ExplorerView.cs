@@ -18,6 +18,7 @@ public class ExplorerView : MonoBehaviour
     public event Action<ModBrowserItem> inspectRequested;
     public event Action<ModBrowserItem> subscribeRequested;
     public event Action<ModBrowserItem> unsubscribeRequested;
+    public event Action<ModBrowserItem> toggleModEnabledRequested;
 
     [Header("Settings")]
     public GameObject itemPrefab;
@@ -173,9 +174,9 @@ public class ExplorerView : MonoBehaviour
             ++index)
         {
             GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                           new Vector3(),
-                                           Quaternion.identity,
-                                           pageTransform);
+                                                       new Vector3(),
+                                                       Quaternion.identity,
+                                                       pageTransform);
 
             // calculate layout
             int itemX = index % this.columnCount;
@@ -193,9 +194,10 @@ public class ExplorerView : MonoBehaviour
             ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
             item.index = index;
             item.profile = null;
-            item.inspectRequested +=        (i) => { if(inspectRequested != null) { inspectRequested(i); } };
-            item.subscribeRequested +=      (i) => { if(subscribeRequested != null) { subscribeRequested(i); } };
-            item.unsubscribeRequested +=    (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
+            item.inspectRequested +=            (i) => { if(inspectRequested != null) { inspectRequested(i); } };
+            item.subscribeRequested +=          (i) => { if(subscribeRequested != null) { subscribeRequested(i); } };
+            item.unsubscribeRequested +=        (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
+            item.toggleModEnabledRequested +=   (i) => { if(toggleModEnabledRequested != null) { toggleModEnabledRequested(i); } };
             item.Initialize();
 
             itemGO.SetActive(false);
@@ -255,18 +257,22 @@ public class ExplorerView : MonoBehaviour
                 ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
                 item.profile = page.items[i];
                 item.statistics = null;
+                item.isSubscribed = false;
 
                 item.UpdateProfileDisplay();
                 item.UpdateStatisticsDisplay();
-
-                itemTransform.gameObject.SetActive(true);
+                item.UpdateIsSubscribedDisplay();
 
                 if(item.profile != null)
                 {
+                    item.isSubscribed = subscribedModIds.Contains(item.profile.id);
+
                     ModManager.GetModStatistics(item.profile.id,
                                                 (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
                                                 null);
                 }
+
+                itemTransform.gameObject.SetActive(true);
             }
         }
 

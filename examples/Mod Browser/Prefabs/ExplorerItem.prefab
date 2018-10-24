@@ -972,8 +972,7 @@ MonoBehaviour:
     type: 2}
   avatarSize: 0
   avatarLoadingPrefab: {fileID: 0}
-  tagBadgePrefab: {fileID: 1707814027038778, guid: 9e3ae7d594e9a46b6b23c6185aefd555,
-    type: 2}
+  tagBadgePrefab: {fileID: 0}
   profileDisplay:
     logo: {fileID: 114036147128813362}
     name: {fileID: 114216206363109244}
@@ -999,7 +998,9 @@ MonoBehaviour:
     ratingsWeightedAggregate: {fileID: 114657416708957760}
     ratingsDisplayText: {fileID: 0}
   subscribeButton: {fileID: 114293078002437414}
-  unsubcribeButton: {fileID: 114828377778284990}
+  unsubscribeButton: {fileID: 114828377778284990}
+  enableModButton: {fileID: 0}
+  disableModButton: {fileID: 0}
   profile:
     id: 0
     gameId: 0
@@ -1066,6 +1067,7 @@ MonoBehaviour:
     ratingsDisplayText: 
     dateExpires: 0
   isSubscribed: 0
+  isModEnabled: 0
   isInitialized: 0
   index: 0
 --- !u!114 &114784321023470896

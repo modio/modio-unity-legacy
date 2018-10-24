@@ -48,6 +48,7 @@ public class ModBrowserItem : MonoBehaviour
     public event Action<ModBrowserItem> inspectRequested;
     public event Action<ModBrowserItem> subscribeRequested;
     public event Action<ModBrowserItem> unsubscribeRequested;
+    public event Action<ModBrowserItem> toggleModEnabledRequested;
 
     // ---[ UI ]---
     [Header("Settings")]
@@ -65,11 +66,14 @@ public class ModBrowserItem : MonoBehaviour
     public InspectorHelper_StatisticsElements statisticsDisplay;
     public Button subscribeButton;
     public Button unsubscribeButton;
+    public Button enableModButton;
+    public Button disableModButton;
 
     [Header("Display Data")]
     public ModProfile profile = null;
     public ModStatistics statistics = null;
     public bool isSubscribed = false;
+    public bool isModEnabled = false;
 
     // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]
@@ -96,6 +100,27 @@ public class ModBrowserItem : MonoBehaviour
 
         InitializeProfileDisplay();
         InitializeStatisticsDisplay();
+
+        // TODO(@jackson): Move to button Prefab
+        if(subscribeButton != null)
+        {
+            subscribeButton.onClick.AddListener(SubscribeClicked);
+        }
+
+        if(unsubscribeButton != null)
+        {
+            unsubscribeButton.onClick.AddListener(UnsubscribeClicked);
+        }
+
+        if(enableModButton != null)
+        {
+            enableModButton.onClick.AddListener(ModEnabledToggled);
+        }
+
+        if(disableModButton != null)
+        {
+            disableModButton.onClick.AddListener(ModEnabledToggled);
+        }
     }
 
     private GameObject InstantiateTextLoadingPrefab(RectTransform displayObjectTransform)
@@ -117,7 +142,9 @@ public class ModBrowserItem : MonoBehaviour
 
     private void InitializeProfileDisplay()
     {
-        Debug.Assert(logoLoadingPrefab != null);
+        Debug.Assert(profileDisplay.logo == null || logoLoadingPrefab != null,
+                     "[mod.io] If the profile logo is to be displayed, this display requires a"
+                     + " logoLoadingPrefab to present while loading.");
 
         profileUIDelegates = new List<Action>();
         profileLoadingUIDelegates = new List<Action>();
@@ -378,59 +405,59 @@ public class ModBrowserItem : MonoBehaviour
         // - modfile elements -
         if(profileDisplay.modfileDateAdded != null)
         {
-            RectTransform displayRT = profileDisplay.name.transform as RectTransform;
+            RectTransform displayRT = profileDisplay.modfileDateAdded.transform as RectTransform;
             GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
             profileUIDelegates.Add(() =>
             {
                 profileDisplay.modfileDateAdded.text = ServerTimeStamp.ToLocalDateTime(profile.activeBuild.dateAdded).ToString();
 
-                profileDisplay.name.gameObject.SetActive(true);
+                profileDisplay.modfileDateAdded.gameObject.SetActive(true);
                 loadingGO.SetActive(false);
             });
 
             profileLoadingUIDelegates.Add(() =>
             {
                 loadingGO.SetActive(true);
-                profileDisplay.name.gameObject.SetActive(false);
+                profileDisplay.modfileDateAdded.gameObject.SetActive(false);
             });
         }
         if(profileDisplay.modfileSize != null)
         {
-            RectTransform displayRT = profileDisplay.name.transform as RectTransform;
+            RectTransform displayRT = profileDisplay.modfileSize.transform as RectTransform;
             GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
             profileUIDelegates.Add(() =>
             {
                 profileDisplay.modfileSize.text = ModBrowser.ByteCountToDisplayString(profile.activeBuild.fileSize);
 
-                profileDisplay.name.gameObject.SetActive(true);
+                profileDisplay.modfileSize.gameObject.SetActive(true);
                 loadingGO.SetActive(false);
             });
 
             profileLoadingUIDelegates.Add(() =>
             {
                 loadingGO.SetActive(true);
-                profileDisplay.name.gameObject.SetActive(false);
+                profileDisplay.modfileSize.gameObject.SetActive(false);
             });
         }
         if(profileDisplay.modfileVersion != null)
         {
-            RectTransform displayRT = profileDisplay.name.transform as RectTransform;
+            RectTransform displayRT = profileDisplay.modfileVersion.transform as RectTransform;
             GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
             profileUIDelegates.Add(() =>
             {
                 profileDisplay.modfileVersion.text = profile.activeBuild.version;
 
-                profileDisplay.name.gameObject.SetActive(true);
+                profileDisplay.modfileVersion.gameObject.SetActive(true);
                 loadingGO.SetActive(false);
             });
 
             profileLoadingUIDelegates.Add(() =>
             {
                 loadingGO.SetActive(true);
-                profileDisplay.name.gameObject.SetActive(false);
+                profileDisplay.modfileVersion.gameObject.SetActive(false);
             });
         }
     }
@@ -692,7 +719,7 @@ public class ModBrowserItem : MonoBehaviour
         }
     }
 
-    public void UpdateSubscribedDisplay()
+    public void UpdateIsSubscribedDisplay()
     {
         if(subscribeButton != null)
         {
@@ -720,6 +747,34 @@ public class ModBrowserItem : MonoBehaviour
         }
     }
 
+    public void UpdateIsModEnabledDisplay()
+    {
+        if(enableModButton != null)
+        {
+            if(profile == null)
+            {
+                enableModButton.interactable = false;
+                enableModButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                enableModButton.interactable = true;
+                enableModButton.gameObject.SetActive(!isModEnabled);
+            }
+        }
+        if(unsubscribeButton != null)
+        {
+            if(profile == null)
+            {
+                disableModButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                disableModButton.gameObject.SetActive(isModEnabled);
+            }
+        }
+    }
+
     // ---------[ EVENTS ]---------
     public void InspectClicked()
     {
@@ -740,6 +795,13 @@ public class ModBrowserItem : MonoBehaviour
         if(unsubscribeRequested != null)
         {
             unsubscribeRequested(this);
+        }
+    }
+    public void ModEnabledToggled()
+    {
+        if(toggleModEnabledRequested != null)
+        {
+            toggleModEnabledRequested(this);
         }
     }
 }
