@@ -56,6 +56,8 @@ public class ModTagFilterView : MonoBehaviour
             categoryDisp.selectedTags = this.selectedTags;
             categoryDisp.onSelectedTagsChanged += this.OnTagsChanged;
             categoryDisp.Initialize();
+
+            categoryDisplayComponents[i] = categoryDisp;
         }
     }
 
