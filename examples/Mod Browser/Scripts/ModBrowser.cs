@@ -395,7 +395,6 @@ public class ModBrowser : MonoBehaviour
         RequestSubscriptionsPage(0,
                                  (page) =>
                                  {
-                                    Debug.Log("Got sub profiles: " + page.items.Length);
                                     if(subscriptionsView.currentPage == modPage)
                                     {
                                         subscriptionsView.currentPage = page;
