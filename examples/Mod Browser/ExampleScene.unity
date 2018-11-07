@@ -283,26 +283,6 @@ Prefab:
       propertyPath: m_Name
       value: ModBrowser
       objectReference: {fileID: 0}
-    - target: {fileID: 224007066534490724, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 985.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224007066534490724, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_SizeDelta.x
-      value: 1287
-      objectReference: {fileID: 0}
-    - target: {fileID: 224517358256111650, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 1637
-      objectReference: {fileID: 0}
-    - target: {fileID: 224699914162258284, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 1759.5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df954dfebde1c4fdda2233d14d2bf4cd, type: 2}
   m_IsPrefabAsset: 0

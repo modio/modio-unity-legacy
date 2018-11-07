@@ -1146,6 +1146,25 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
+    public void ClearTagFilters()
+    {
+        this.filterTags.Clear();
+
+        if(tagFilterBar.selectedTags != this.filterTags)
+        {
+            tagFilterBar.selectedTags = this.filterTags;
+        }
+        tagFilterBar.UpdateDisplay();
+
+        if(tagFilterView.selectedTags != this.filterTags)
+        {
+            tagFilterView.selectedTags = this.filterTags;
+        }
+        tagFilterView.UpdateDisplay();
+
+        UpdateFilters();
+    }
+
     // TODO(@jackson): Don't request page!!!!!!!
     public void UpdateFilters()
     {

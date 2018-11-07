@@ -31,11 +31,12 @@ public class ExplorerView : MonoBehaviour
     public RectTransform contentPane;
     public Text pageNumberText;
     public Text pageCountText;
+    public Text resultCountText;
 
     [Header("Display Data")]
+    public List<int> subscribedModIds = null;
     public RequestPage<ModProfile> currentPage = null;
     public RequestPage<ModProfile> targetPage = null;
-    public List<int> subscribedModIds = null;
 
     [Header("Runtime Data")]
     public bool isTransitioning = false;
@@ -292,6 +293,10 @@ public class ExplorerView : MonoBehaviour
         if(pageCountText != null)
         {
             pageCountText.text = CurrentPageCount.ToString();
+        }
+        if(resultCountText != null)
+        {
+            resultCountText.text = ModBrowser.ValueToDisplayString(currentPage.resultTotal);
         }
     }
 
