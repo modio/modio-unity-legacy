@@ -266,7 +266,7 @@ public class ModBrowser : MonoBehaviour
                 }
             };
 
-            // TODO(@jackson): DO BETTER
+            // TODO(@jackson): DO BETTER - (CACHE?! DOWNLOADS?)
             Action<RequestPage<ModProfile>> onGetSubscriptions = (r) =>
             {
                 this.subscribedModIds = new List<int>(r.items.Length);
@@ -274,7 +274,7 @@ public class ModBrowser : MonoBehaviour
                 {
                     this.subscribedModIds.Add(modProfile.id);
                 }
-                OnSubscriptionsUpdated();
+                UpdateViewSubscriptions();
             };
 
             // requests
@@ -812,7 +812,6 @@ public class ModBrowser : MonoBehaviour
     public void OnExplorerItemClicked(ModBrowserItem item)
     {
         inspectorData.currentModIndex = item.index + explorerView.currentPage.resultOffset;
-        Debug.Log("NEW currentModIndex=" + inspectorData.currentModIndex);
 
         ChangeInspectorPage(0);
     }
@@ -876,71 +875,6 @@ public class ModBrowser : MonoBehaviour
     private void CloseMessageDialog()
     {
         messageDialog.gameObject.SetActive(false);
-    }
-
-    public void SubscribeToMod(ModProfile profile)
-    {
-        APIClient.SubscribeToMod(profile.id,
-                                 OnSubscribedToMod,
-                                 WebRequestError.LogAsWarning);
-    }
-
-    public void OnSubscribedToMod(ModProfile profile)
-    {
-        Debug.Assert(profile != null);
-        Debug.LogWarning("UPDATE SUBSCRIPTION DISPLAYS");
-
-        // update collection
-        subscribedModIds.Add(profile.id);
-        CacheClient.SaveAuthenticatedUserSubscriptions(subscribedModIds);
-
-        // begin download
-        ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
-
-        if(!request.isDone)
-        {
-            modDownloads.Add(request);
-
-            request.succeeded += (r) =>
-            {
-                Debug.Log(profile.name + " Downloaded!");
-                modDownloads.Remove(request);
-            };
-        }
-    }
-
-    public void UnsubscribeFromMod(ModProfile profile)
-    {
-        APIClient.UnsubscribeFromMod(profile.id,
-                                     () => OnUnsubscribedFromMod(profile),
-                                     WebRequestError.LogAsWarning);
-
-    }
-
-    public void OnUnsubscribedFromMod(ModProfile modProfile)
-    {
-        Debug.Assert(modProfile != null);
-        Debug.LogWarning("UPDATE SUBSCRIPTION DISPLAYS");
-
-        // update collection
-        subscribedModIds.Remove(modProfile.id);
-        CacheClient.SaveAuthenticatedUserSubscriptions(subscribedModIds);
-
-        // remove from disk
-        CacheClient.DeleteAllModfileAndBinaryData(modProfile.id);
-
-        RequestPage<ModProfile> modPage = subscriptionsView.currentPage;
-
-        RequestSubscriptionsPage(modPage.resultOffset,
-                                 (page) =>
-                                 {
-                                    if(subscriptionsView.currentPage == modPage)
-                                    {
-                                        subscriptionsView.currentPage = page;
-                                        subscriptionsView.UpdateCurrentPageDisplay();
-                                    }
-                                 },
-                                 null);
     }
 
     public void ChangeExplorerPage(int direction)
@@ -1022,6 +956,7 @@ public class ModBrowser : MonoBehaviour
         Debug.Assert(newModIndex >= 0);
         Debug.Assert(newModIndex <= inspectorData.lastModIndex);
 
+        // profile
         if(offsetIndex < 0)
         {
             ChangeExplorerPage(-1);
@@ -1041,9 +976,10 @@ public class ModBrowser : MonoBehaviour
             inspectorView.profile = explorerView.currentPage.items[offsetIndex];
         }
 
-        inspectorView.statistics = null;
         inspectorView.UpdateProfileUIComponents();
 
+        // statistics
+        inspectorView.statistics = null;
         Text buttonText = inspectorView.subscribeButton.GetComponent<Text>();
         if(buttonText == null)
         {
@@ -1066,6 +1002,11 @@ public class ModBrowser : MonoBehaviour
                                     (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsUIComponents(); },
                                     null);
 
+        // subscription
+        inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
+        inspectorView.UpdateIsSubscribedDisplay();
+
+        // inspectorView stuff
         inspectorData.currentModIndex = newModIndex;
         inspectorView.gameObject.SetActive(true);
 
@@ -1171,14 +1112,80 @@ public class ModBrowser : MonoBehaviour
         explorerView.UpdateCurrentPageDisplay();
     }
 
-    public void OnSubscriptionsUpdated()
+    public void SubscribeToMod(ModProfile profile)
     {
-        // - update explorer -
-        explorerView.subscribedModIds = this.subscribedModIds;
-        explorerView.UpdateCurrentPageDisplay();
-        explorerView.UpdateTargetPageDisplay();
+        if(this.userProfile.id == ModBrowser.GUEST_PROFILE.id)
+        {
+            OnSubscribedToMod(profile);
+        }
+        else
+        {
+            APIClient.SubscribeToMod(profile.id,
+                                     OnSubscribedToMod,
+                                     WebRequestError.LogAsWarning);
+        }
+    }
 
-        // - update subscriptionsView -
+    public void OnSubscribedToMod(ModProfile profile)
+    {
+        Debug.Assert(profile != null);
+
+        // update collection
+        subscribedModIds.Add(profile.id);
+        CacheClient.SaveAuthenticatedUserSubscriptions(subscribedModIds);
+
+        // begin download
+        ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
+
+        if(!request.isDone)
+        {
+            modDownloads.Add(request);
+
+            request.succeeded += (r) =>
+            {
+                Debug.Log(profile.name + " Downloaded!");
+                modDownloads.Remove(request);
+            };
+        }
+
+        UpdateViewSubscriptions();
+    }
+
+    public void UnsubscribeFromMod(ModProfile profile)
+    {
+        if(this.userProfile.id == ModBrowser.GUEST_PROFILE.id)
+        {
+            OnUnsubscribedFromMod(profile);
+        }
+        else
+        {
+            APIClient.UnsubscribeFromMod(profile.id,
+                                         () => OnUnsubscribedFromMod(profile),
+                                         WebRequestError.LogAsWarning);
+        }
+    }
+
+    public void OnUnsubscribedFromMod(ModProfile modProfile)
+    {
+        Debug.Assert(modProfile != null);
+
+        // update collection
+        subscribedModIds.Remove(modProfile.id);
+        CacheClient.SaveAuthenticatedUserSubscriptions(subscribedModIds);
+
+        // remove from disk
+        CacheClient.DeleteAllModfileAndBinaryData(modProfile.id);
+
+        UpdateViewSubscriptions();
+    }
+
+    private void UpdateViewSubscriptions()
+    {
+        // - explorerView -
+        explorerView.subscribedModIds = this.subscribedModIds;
+        explorerView.UpdateSubscriptionsDisplay();
+
+        // - subscriptionsView -
         RequestPage<ModProfile> modPage = subscriptionsView.currentPage;
         RequestSubscriptionsPage(modPage.resultOffset,
                                  (page) =>
@@ -1190,6 +1197,13 @@ public class ModBrowser : MonoBehaviour
                                     }
                                 },
                                 null);
+
+        // - inspectorView -
+        if(inspectorView.profile != null)
+        {
+            inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
+            inspectorView.UpdateIsSubscribedDisplay();
+        }
     }
 
     public void ToggleModEnabled(ModProfile profile)

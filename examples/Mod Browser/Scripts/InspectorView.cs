@@ -76,6 +76,7 @@ public class InspectorView : MonoBehaviour
     public InspectorHelper_StatisticsElements statisticsElements;
     public ScrollRect scrollView;
     public Button subscribeButton;
+    public Button unsubscribeButton;
     public Button previousModButton;
     public Button nextModButton;
 
@@ -83,6 +84,7 @@ public class InspectorView : MonoBehaviour
     [Header("Runtime Data")]
     public ModProfile profile;
     public ModStatistics statistics;
+    public bool isModSubscribed;
     public GameObject creatorAvatarPlaceholder;
     public Image creatorAvatar;
 
@@ -417,6 +419,18 @@ public class InspectorView : MonoBehaviour
                 displayText = statistics.ratingsDisplayText;
             }
             statisticsElements.ratingsDisplayText.text = displayText;
+        }
+    }
+
+    public void UpdateIsSubscribedDisplay()
+    {
+        if(subscribeButton != null)
+        {
+            subscribeButton.gameObject.SetActive(!isModSubscribed);
+        }
+        if(unsubscribeButton != null)
+        {
+            unsubscribeButton.gameObject.SetActive(isModSubscribed);
         }
     }
 

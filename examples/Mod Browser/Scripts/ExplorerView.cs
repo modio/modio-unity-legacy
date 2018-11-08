@@ -245,6 +245,34 @@ public class ExplorerView : MonoBehaviour
         UpdatePageDisplay(this.targetPage, this.targetPageContainer);
     }
 
+    public void UpdateSubscriptionsDisplay()
+    {
+        if(currentPageContainer != null)
+        {
+            foreach(Transform itemTransform in currentPageContainer)
+            {
+                ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
+                if(item.profile != null)
+                {
+                    item.isSubscribed = subscribedModIds.Contains(item.profile.id);
+                    item.UpdateIsSubscribedDisplay();
+                }
+            }
+        }
+        if(targetPageContainer != null)
+        {
+            foreach(Transform itemTransform in targetPageContainer)
+            {
+                ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
+                if(item.profile != null)
+                {
+                    item.isSubscribed = subscribedModIds.Contains(item.profile.id);
+                    item.UpdateIsSubscribedDisplay();
+                }
+            }
+        }
+    }
+
     private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
     {
         int i = 0;

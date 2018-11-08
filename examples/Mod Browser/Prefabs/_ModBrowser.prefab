@@ -8974,6 +8974,7 @@ MonoBehaviour:
     ratingsDisplayText: {fileID: 114056756392832284}
   scrollView: {fileID: 114798251423014436}
   subscribeButton: {fileID: 114717641030747298}
+  unsubscribeButton: {fileID: 0}
   previousModButton: {fileID: 0}
   nextModButton: {fileID: 0}
   profile:
@@ -9041,6 +9042,7 @@ MonoBehaviour:
     ratingsWeightedAggregate: 0
     ratingsDisplayText: 
     dateExpires: 0
+  isModSubscribed: 0
   creatorAvatarPlaceholder: {fileID: 0}
   creatorAvatar: {fileID: 0}
   mediaElementHeight: 360
