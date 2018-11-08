@@ -291,7 +291,7 @@ public class ModBrowser : MonoBehaviour
 
         // initialize views
         inspectorView.Initialize();
-        inspectorView.subscribeButton.onClick.AddListener(() => OnSubscribeButtonClicked(inspectorView.profile));
+        inspectorView.subscribeButton.onClick.AddListener(() => SubscribeToMod(inspectorView.profile));
         inspectorView.gameObject.SetActive(false);
         UpdateInspectorViewPageButtonInteractibility();
 
@@ -378,8 +378,8 @@ public class ModBrowser : MonoBehaviour
 
         // TODO(@jackson): Hook up events
         subscriptionsView.inspectRequested += OnExplorerItemClicked;
-        subscriptionsView.subscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
-        subscriptionsView.unsubscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
+        subscriptionsView.subscribeRequested += (i) => SubscribeToMod(i.profile);
+        subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
         subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
 
 
@@ -412,8 +412,8 @@ public class ModBrowser : MonoBehaviour
         explorerView.Initialize();
 
         explorerView.inspectRequested += OnExplorerItemClicked;
-        explorerView.subscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
-        explorerView.unsubscribeRequested += (i) => OnSubscribeButtonClicked(i.profile);
+        explorerView.subscribeRequested += (i) => SubscribeToMod(i.profile);
+        explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
         explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
 
         explorerView.subscribedModIds = this.subscribedModIds;
@@ -878,56 +878,17 @@ public class ModBrowser : MonoBehaviour
         messageDialog.gameObject.SetActive(false);
     }
 
-    public void OnSubscribeButtonClicked(ModProfile profile)
+    public void SubscribeToMod(ModProfile profile)
     {
-        Debug.Assert(profile != null);
-
-        if(subscribedModIds.Contains(profile.id))
-        {
-            // "View In Collection"
-            CloseInspector();
-            SetViewModeSubscriptions();
-        }
-        else
-        {
-            Text buttonText = inspectorView.subscribeButton.GetComponent<Text>();
-            if(buttonText == null)
-            {
-                buttonText = inspectorView.subscribeButton.GetComponentInChildren<Text>();
-            }
-
-            if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
-            {
-                inspectorView.subscribeButton.interactable = false;
-
-                // TODO(@jackson): Protect from switch
-                Action<ModProfile> onSubscribe = (p) =>
-                {
-                    buttonText.text = "View In Collection";
-                    inspectorView.subscribeButton.interactable = true;
-                    OnSubscribedToMod(p);
-                };
-
-                // TODO(@jackson): onError
-                Action<WebRequestError> onError = (e) =>
-                {
-                    Debug.Log("Failed to Subscribe");
-                    inspectorView.subscribeButton.interactable = true;
-                };
-
-                APIClient.SubscribeToMod(profile.id, onSubscribe, onError);
-            }
-            else
-            {
-                buttonText.text = "View In Collection";
-                OnSubscribedToMod(profile);
-            }
-        }
+        APIClient.SubscribeToMod(profile.id,
+                                 OnSubscribedToMod,
+                                 WebRequestError.LogAsWarning);
     }
 
     public void OnSubscribedToMod(ModProfile profile)
     {
         Debug.Assert(profile != null);
+        Debug.LogWarning("UPDATE SUBSCRIPTION DISPLAYS");
 
         // update collection
         subscribedModIds.Add(profile.id);
@@ -948,33 +909,12 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-    public void OnUnsubscribeButtonClicked(ModProfile modProfile)
+    public void UnsubscribeFromMod(ModProfile profile)
     {
-        Debug.Assert(modProfile != null);
+        APIClient.UnsubscribeFromMod(profile.id,
+                                     () => OnUnsubscribedFromMod(profile),
+                                     WebRequestError.LogAsWarning);
 
-        if(userProfile.id != ModBrowser.GUEST_PROFILE.id)
-        {
-            // TODO(@jackson): ???
-            // collectionView.unsubscribeButton.interactable = false;
-
-            Action onUnsubscribe = () =>
-            {
-                OnUnsubscribedFromMod(modProfile);
-            };
-
-            // TODO(@jackson): onError
-            Action<WebRequestError> onError = (e) =>
-            {
-                Debug.Log("[mod.io] Failed to Unsubscribe");
-                // collectionView.unsubscribeButton.interactable = true;
-            };
-
-            APIClient.UnsubscribeFromMod(modProfile.id, onUnsubscribe, onError);
-        }
-        else
-        {
-            OnUnsubscribedFromMod(modProfile);
-        }
     }
 
     public void OnUnsubscribedFromMod(ModProfile modProfile)
@@ -999,8 +939,8 @@ public class ModBrowser : MonoBehaviour
                                         subscriptionsView.currentPage = page;
                                         subscriptionsView.UpdateCurrentPageDisplay();
                                     }
-                                },
-                                null);
+                                 },
+                                 null);
     }
 
     public void ChangeExplorerPage(int direction)
