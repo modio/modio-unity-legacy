@@ -11071,7 +11071,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameId: 0
   gameAPIKey: 
-  isAutomaticUpdateEnabled: 1
+  isAutomaticUpdateEnabled: 0
   viewMode: 1
   explorerView: {fileID: 114195835507779204}
   subscriptionsView: {fileID: 114130614508925794}

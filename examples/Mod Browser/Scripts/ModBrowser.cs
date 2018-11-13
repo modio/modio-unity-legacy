@@ -45,12 +45,10 @@ public class ModBrowser : MonoBehaviour
     [Serializable]
     private class SubscriptionSortOption
     {
-        public delegate int SortDelegate(ModProfile a, ModProfile b);
-
         public string displayText;
-        public SortDelegate sortDelegate;
+        public Comparison<ModProfile> sortDelegate;
 
-        public static SubscriptionSortOption Create(string displayText, SortDelegate sortDelegate)
+        public static SubscriptionSortOption Create(string displayText, Comparison<ModProfile> sortDelegate)
         {
             SubscriptionSortOption newSOD = new SubscriptionSortOption()
             {
@@ -59,6 +57,13 @@ public class ModBrowser : MonoBehaviour
             };
             return newSOD;
         }
+    }
+
+    [Serializable]
+    private class SubscriptionViewFilter
+    {
+        public Func<ModProfile, bool> titleFilterDelegate;
+        public Comparison<ModProfile> sortDelegate;
     }
 
     [Serializable]
@@ -128,6 +133,7 @@ public class ModBrowser : MonoBehaviour
     [Header("Runtime Data")]
     public int lastCacheUpdate = -1;
     public RequestFilter explorerViewFilter = new RequestFilter();
+    private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
 
 
@@ -160,20 +166,33 @@ public class ModBrowser : MonoBehaviour
             items = null,
         };
 
-        int remainingModCount = modPage.resultTotal - offset;
-        if(remainingModCount > 0)
+        if(subscribedModIds.Count > offset)
         {
-            int arraySize = (int)Mathf.Min(modPage.size, remainingModCount);
-            modPage.items = new ModProfile[arraySize];
-
             Action<List<ModProfile>> onGetModProfiles = (list) =>
             {
-                list.CopyTo(0, modPage.items, 0, arraySize);
+                List<ModProfile> filteredList = new List<ModProfile>(list.Count);
+                foreach(ModProfile profile in list)
+                {
+                    if(subscriptionViewFilter.titleFilterDelegate(profile))
+                    {
+                        filteredList.Add(profile);
+                    }
+                }
+
+                int remainingModCount = filteredList.Count - offset;
+                if(remainingModCount > 0)
+                {
+                    int arraySize = (int)Mathf.Min(modPage.size, remainingModCount);
+                    modPage.items = new ModProfile[arraySize];
+
+                    filteredList.Sort(subscriptionViewFilter.sortDelegate);
+                    filteredList.CopyTo(0, modPage.items, 0, arraySize);
+                }
 
                 onSuccess(modPage);
             };
 
-            ModManager.GetModProfiles(subscribedModIds.GetRange(offset, arraySize),
+            ModManager.GetModProfiles(subscribedModIds,
                                       onGetModProfiles, onError);
         }
         else
@@ -373,6 +392,10 @@ public class ModBrowser : MonoBehaviour
 
             subscriptionsView.sortByDropdown.onValueChanged.AddListener((v) => UpdateSubscriptionFilters());
         }
+
+        // - initialize filter -
+        subscriptionViewFilter.sortDelegate = subscriptionSortOptions[0].sortDelegate;
+        subscriptionViewFilter.titleFilterDelegate = (p) => true;
 
         // get page
         RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -1202,7 +1225,38 @@ public class ModBrowser : MonoBehaviour
 
     public void UpdateSubscriptionFilters()
     {
-        throw new System.NotImplementedException();
+        // sort
+        if(subscriptionsView.sortByDropdown == null)
+        {
+            subscriptionViewFilter.sortDelegate = subscriptionSortOptions[0].sortDelegate;
+        }
+        else
+        {
+            subscriptionViewFilter.sortDelegate = subscriptionSortOptions[subscriptionsView.sortByDropdown.value].sortDelegate;
+        }
+
+        // name
+        if(subscriptionsView.nameSearchField == null
+           || String.IsNullOrEmpty(subscriptionsView.nameSearchField.text))
+        {
+            subscriptionViewFilter.titleFilterDelegate = (p) => true;
+        }
+        else
+        {
+            subscriptionViewFilter.titleFilterDelegate = (p) =>
+            {
+                return p.name.ToUpper().Contains(subscriptionsView.nameSearchField.text.ToUpper());
+            };
+        }
+
+        // request page
+        RequestSubscriptionsPage(0,
+                                 (page) =>
+                                 {
+                                    subscriptionsView.currentPage = page;
+                                    subscriptionsView.UpdateCurrentPageDisplay();
+                                 },
+                                 WebRequestError.LogAsWarning);
     }
 
     public void SubscribeToMod(ModProfile profile)
