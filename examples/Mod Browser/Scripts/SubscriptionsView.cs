@@ -21,6 +21,8 @@ public class SubscriptionsView : MonoBehaviour
 
     [Header("UI Components")]
     public RectTransform contentPane;
+    public InputField nameSearchField;
+    public Dropdown sortByDropdown;
 
     [Header("Display Data")]
     public RequestPage<ModProfile> currentPage;

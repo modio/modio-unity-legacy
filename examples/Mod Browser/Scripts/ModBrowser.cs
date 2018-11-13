@@ -43,6 +43,25 @@ public class ModBrowser : MonoBehaviour
     }
 
     [Serializable]
+    private class SubscriptionSortOption
+    {
+        public delegate int SortDelegate(ModProfile a, ModProfile b);
+
+        public string displayText;
+        public SortDelegate sortDelegate;
+
+        public static SubscriptionSortOption Create(string displayText, SortDelegate sortDelegate)
+        {
+            SubscriptionSortOption newSOD = new SubscriptionSortOption()
+            {
+                displayText = displayText,
+                sortDelegate = sortDelegate,
+            };
+            return newSOD;
+        }
+    }
+
+    [Serializable]
     public class InspectorViewData
     {
         public int currentModIndex;
@@ -63,6 +82,24 @@ public class ModBrowser : MonoBehaviour
         ExplorerSortOption.Create("RATING",         ModIO.API.GetAllModsFilterFields.rating, false),
         ExplorerSortOption.Create("SUBSCRIBERS",    ModIO.API.GetAllModsFilterFields.subscribers, false),
     };
+    private readonly SubscriptionSortOption[] subscriptionSortOptions = new SubscriptionSortOption[]
+    {
+        SubscriptionSortOption.Create("A-Z",       (a,b) => { return String.Compare(a.name, b.name); }),
+        SubscriptionSortOption.Create("LARGEST",   (a,b) => { return (int)(a.activeBuild.fileSize - a.activeBuild.fileSize); }),
+        SubscriptionSortOption.Create("UPDATED",   (a,b) => { return b.dateUpdated - a.dateUpdated; }),
+        SubscriptionSortOption.Create("ENABLED",   (a,b) =>
+                                                    {
+                                                        int diff = 0;
+                                                        diff += (IsModEnabled(a) ? -1 : 0);
+                                                        diff += (IsModEnabled(b) ? 1 : 0);
+
+                                                        if(diff == 0)
+                                                        {
+                                                            diff = String.Compare(a.name, b.name);
+                                                        }
+
+                                                        return diff;
+                                                    } ),
     };
 
     // ---------[ FIELDS ]---------
@@ -90,7 +127,6 @@ public class ModBrowser : MonoBehaviour
 
     [Header("Runtime Data")]
     public int lastCacheUpdate = -1;
-    public string titleSearch = string.Empty;
     public RequestFilter explorerViewFilter = new RequestFilter();
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
 
@@ -312,7 +348,33 @@ public class ModBrowser : MonoBehaviour
         subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
         subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
 
+        // - setup ui filter controls -
+        // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
+        if(subscriptionsView.nameSearchField != null)
+        {
+            subscriptionsView.nameSearchField.onEndEdit.AddListener((t) =>
+            {
+                if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                {
+                    UpdateSubscriptionFilters();
+                }
+            });
+        }
 
+        if(subscriptionsView.sortByDropdown != null)
+        {
+            subscriptionsView.sortByDropdown.options = new List<Dropdown.OptionData>(subscriptionSortOptions.Count());
+            foreach(SubscriptionSortOption option in subscriptionSortOptions)
+            {
+                subscriptionsView.sortByDropdown.options.Add(new Dropdown.OptionData() { text = option.displayText });
+            }
+            subscriptionsView.sortByDropdown.value = 0;
+            subscriptionsView.sortByDropdown.captionText.text = subscriptionSortOptions[0].displayText;
+
+            subscriptionsView.sortByDropdown.onValueChanged.AddListener((v) => UpdateSubscriptionFilters());
+        }
+
+        // get page
         RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
         {
             size = subscriptionsView.TEMP_pageSize,
@@ -356,7 +418,7 @@ public class ModBrowser : MonoBehaviour
             {
                 if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
-                    UpdateFilters();
+                    UpdateExplorerFilters();
                 }
             } );
         }
@@ -371,7 +433,7 @@ public class ModBrowser : MonoBehaviour
             explorerView.sortByDropdown.value = 0;
             explorerView.sortByDropdown.captionText.text = explorerSortOptions[0].displayText;
 
-            explorerView.sortByDropdown.onValueChanged.AddListener((v) => UpdateFilters());
+            explorerView.sortByDropdown.onValueChanged.AddListener((v) => UpdateExplorerFilters());
         }
 
         // tags
@@ -399,7 +461,7 @@ public class ModBrowser : MonoBehaviour
                 };
             }
 
-            explorerView.tagFilterView.onSelectedTagsChanged += () => UpdateFilters();
+            explorerView.tagFilterView.onSelectedTagsChanged += () => UpdateExplorerFilters();
         }
 
         if(explorerView.tagFilterBar != null)
@@ -425,7 +487,7 @@ public class ModBrowser : MonoBehaviour
                 };
             }
 
-            explorerView.tagFilterBar.onSelectedTagsChanged += () => UpdateFilters();
+            explorerView.tagFilterBar.onSelectedTagsChanged += () => UpdateExplorerFilters();
         }
 
         ModManager.GetGameProfile((g) =>
@@ -1052,7 +1114,7 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-    public void ClearTagFilters()
+    public void ClearExplorerTagFilters()
     {
         this.filterTags.Clear();
 
@@ -1068,11 +1130,11 @@ public class ModBrowser : MonoBehaviour
         }
         explorerView.tagFilterView.UpdateDisplay();
 
-        UpdateFilters();
+        UpdateExplorerFilters();
     }
 
     // TODO(@jackson): Don't request page!!!!!!!
-    public void UpdateFilters()
+    public void UpdateExplorerFilters()
     {
         // sort
         if(explorerView.sortByDropdown == null)
@@ -1136,6 +1198,11 @@ public class ModBrowser : MonoBehaviour
 
         // TODO(@jackson): Update Mod Count
         explorerView.UpdateCurrentPageDisplay();
+    }
+
+    public void UpdateSubscriptionFilters()
+    {
+        throw new System.NotImplementedException();
     }
 
     public void SubscribeToMod(ModProfile profile)
@@ -1232,11 +1299,30 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-    public void ToggleModEnabled(ModProfile profile)
+    private static List<int> enabledMods = new List<int>();
+    public static bool IsModEnabled(ModProfile profile)
     {
-        throw new System.NotImplementedException("[mod.io] This function handle is a placeholder "
-                                                 + "for the enable/disable functionality that the "
-                                                 + "game code may need to execute.");
+        Debug.LogError("[mod.io] This function handle is a placeholder "
+                       + "for the enable/disable functionality that the "
+                       + "game code may need to execute.");
+
+        return enabledMods.Contains(profile.id);
+    }
+
+    public static void ToggleModEnabled(ModProfile profile)
+    {
+        Debug.LogError("[mod.io] This function handle is a placeholder "
+                       + "for the enable/disable functionality that the "
+                       + "game code may need to execute.");
+
+        if(enabledMods.Contains(profile.id))
+        {
+            enabledMods.Remove(profile.id);
+        }
+        else
+        {
+            enabledMods.Add(profile.id);
+        }
     }
 
 
