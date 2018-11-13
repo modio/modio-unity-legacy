@@ -112,7 +112,6 @@ public class ModBrowser : MonoBehaviour
     public int gameId = 0;
     public string gameAPIKey = string.Empty;
     public bool isAutomaticUpdateEnabled = false;
-    public ModBrowserViewMode viewMode = ModBrowserViewMode.Subscriptions;
 
     [Header("UI Components")]
     public ExplorerView explorerView;
@@ -880,181 +879,24 @@ public class ModBrowser : MonoBehaviour
     }
 
     // ---------[ UI CONTROL ]---------
-    public void SetViewModeSubscriptions()
+    // ---[ VIEW MANAGEMENT ]---
+    public void ShowInspectorView()
     {
-        this.viewMode = ModBrowserViewMode.Subscriptions;
-        this.UpdateViewMode();
+        inspectorView.gameObject.SetActive(true);
+        explorerView.gameObject.SetActive(false);
+        subscriptionsView.gameObject.SetActive(false);
     }
-    public void SetViewModeBrowse()
+    public void ShowExplorerView()
     {
-        this.viewMode = ModBrowserViewMode.Explorer;
-        this.UpdateViewMode();
-    }
-
-    public void UpdateViewMode()
-    {
-        // IModBrowserView view = GetViewForMode(this.viewMode);
-        // if(view.gameObject.activeSelf) { return; }
-
-        // collectionView.gameObject.SetActive(false);
-        // explorerView.gameObject.SetActive(false);
-
-        // view.Refresh();
-        // view.gameObject.SetActive(true);
-
-        switch(this.viewMode)
-        {
-            case ModBrowserViewMode.Subscriptions:
-            {
-                subscriptionsView.gameObject.SetActive(true);
-                explorerView.gameObject.SetActive(false);
-            }
-            break;
-            case ModBrowserViewMode.Explorer:
-            {
-                explorerView.gameObject.SetActive(true);
-                subscriptionsView.gameObject.SetActive(false);
-            }
-            break;
-        }
-    }
-
-    public void OnExplorerItemClicked(ModBrowserItem item)
-    {
-        inspectorData.currentModIndex = item.index + explorerView.currentPage.resultOffset;
-
-        ChangeInspectorPage(0);
-    }
-
-    public void CloseInspector()
-    {
+        explorerView.gameObject.SetActive(true);
         inspectorView.gameObject.SetActive(false);
+        subscriptionsView.gameObject.SetActive(false);
     }
-
-    public void OpenLoginDialog()
+    public void ShowSubscriptionsView()
     {
-        loginDialog.gameObject.SetActive(true);
-        loginDialog.Initialize();
-    }
-
-    public void CloseLoginDialog()
-    {
-        loginDialog.gameObject.SetActive(false);
-    }
-
-    public void OpenMessageDialog_OneButton(string header, string content,
-                                            string buttonText, Action buttonCallback)
-    {
-        messageDialog.button01.GetComponentInChildren<Text>().text = buttonText;
-
-        messageDialog.button01.onClick.RemoveAllListeners();
-        messageDialog.button01.onClick.AddListener(() => buttonCallback());
-
-        messageDialog.button02.gameObject.SetActive(false);
-
-        OpenMessageDialog(header, content);
-    }
-
-    public void OpenMessageDialog_TwoButton(string header, string content,
-                                            string button01Text, Action button01Callback,
-                                            string button02Text, Action button02Callback)
-    {
-        messageDialog.button01.GetComponentInChildren<Text>().text = button01Text;
-
-        messageDialog.button01.onClick.RemoveAllListeners();
-        messageDialog.button01.onClick.AddListener(() => button01Callback());
-
-        messageDialog.button02.GetComponentInChildren<Text>().text = button02Text;
-
-        messageDialog.button02.onClick.RemoveAllListeners();
-        messageDialog.button02.onClick.AddListener(() => button02Callback());
-
-        messageDialog.button02.gameObject.SetActive(true);
-
-        OpenMessageDialog(header, content);
-    }
-
-    private void OpenMessageDialog(string header, string content)
-    {
-        messageDialog.header.text = header;
-        messageDialog.content.text = content;
-
-        messageDialog.gameObject.SetActive(true);
-    }
-
-    private void CloseMessageDialog()
-    {
-        messageDialog.gameObject.SetActive(false);
-    }
-
-    public void ChangeExplorerPage(int direction)
-    {
-        // TODO(@jackson): Queue on isTransitioning?
-        if(explorerView.isTransitioning)
-        {
-            Debug.LogWarning("[mod.io] Cannot change during transition");
-            return;
-        }
-
-        int targetPageIndex = explorerView.CurrentPageNumber - 1 + direction;
-        int targetPageProfileOffset = targetPageIndex * explorerView.ItemCount;
-
-        Debug.Assert(targetPageIndex >= 0);
-        Debug.Assert(targetPageIndex < explorerView.CurrentPageCount);
-
-        int pageItemCount = (int)Mathf.Min(explorerView.ItemCount,
-                                           explorerView.currentPage.resultTotal - targetPageProfileOffset);
-
-        RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
-        {
-            size = explorerView.ItemCount,
-            items = new ModProfile[pageItemCount],
-            resultOffset = targetPageProfileOffset,
-            resultTotal = explorerView.currentPage.resultTotal,
-        };
-        explorerView.targetPage = targetPage;
-        explorerView.UpdateTargetPageDisplay();
-
-        RequestExplorerPage(targetPageIndex,
-                            (page) =>
-                            {
-                                if(explorerView.targetPage == targetPage)
-                                {
-                                    explorerView.targetPage = page;
-                                    explorerView.UpdateTargetPageDisplay();
-                                }
-                                if(explorerView.currentPage == targetPage)
-                                {
-                                    explorerView.currentPage = page;
-                                    explorerView.UpdateCurrentPageDisplay();
-                                    UpdateExplorerViewPageButtonInteractibility();
-                                }
-                            },
-                            null);
-
-        PageTransitionDirection transitionDirection = (direction < 0
-                                                       ? PageTransitionDirection.FromLeft
-                                                       : PageTransitionDirection.FromRight);
-
-        explorerView.InitiateTargetPageTransition(transitionDirection, () =>
-        {
-            UpdateExplorerViewPageButtonInteractibility();
-        });
-        UpdateExplorerViewPageButtonInteractibility();
-    }
-
-    public void UpdateExplorerViewPageButtonInteractibility()
-    {
-        if(prevPageButton != null)
-        {
-            prevPageButton.interactable = (!explorerView.isTransitioning
-                                           && explorerView.CurrentPageNumber > 1);
-        }
-        if(nextPageButton != null)
-        {
-            nextPageButton.interactable = (!explorerView.isTransitioning
-                                           && explorerView.CurrentPageNumber < explorerView.CurrentPageCount);
-        }
+        subscriptionsView.gameObject.SetActive(true);
+        inspectorView.gameObject.SetActive(false);
+        explorerView.gameObject.SetActive(false);
     }
 
     public void ChangeInspectorPage(int direction)
@@ -1118,11 +960,146 @@ public class ModBrowser : MonoBehaviour
 
         // inspectorView stuff
         inspectorData.currentModIndex = newModIndex;
-        inspectorView.gameObject.SetActive(true);
 
         if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
 
         UpdateInspectorViewPageButtonInteractibility();
+    }
+
+    public void ChangeExplorerPage(int direction)
+    {
+        // TODO(@jackson): Queue on isTransitioning?
+        if(explorerView.isTransitioning)
+        {
+            Debug.LogWarning("[mod.io] Cannot change during transition");
+            return;
+        }
+
+        int targetPageIndex = explorerView.CurrentPageNumber - 1 + direction;
+        int targetPageProfileOffset = targetPageIndex * explorerView.ItemCount;
+
+        Debug.Assert(targetPageIndex >= 0);
+        Debug.Assert(targetPageIndex < explorerView.CurrentPageCount);
+
+        int pageItemCount = (int)Mathf.Min(explorerView.ItemCount,
+                                           explorerView.currentPage.resultTotal - targetPageProfileOffset);
+
+        RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
+        {
+            size = explorerView.ItemCount,
+            items = new ModProfile[pageItemCount],
+            resultOffset = targetPageProfileOffset,
+            resultTotal = explorerView.currentPage.resultTotal,
+        };
+        explorerView.targetPage = targetPage;
+        explorerView.UpdateTargetPageDisplay();
+
+        RequestExplorerPage(targetPageIndex,
+                            (page) =>
+                            {
+                                if(explorerView.targetPage == targetPage)
+                                {
+                                    explorerView.targetPage = page;
+                                    explorerView.UpdateTargetPageDisplay();
+                                }
+                                if(explorerView.currentPage == targetPage)
+                                {
+                                    explorerView.currentPage = page;
+                                    explorerView.UpdateCurrentPageDisplay();
+                                    UpdateExplorerViewPageButtonInteractibility();
+                                }
+                            },
+                            null);
+
+        PageTransitionDirection transitionDirection = (direction < 0
+                                                       ? PageTransitionDirection.FromLeft
+                                                       : PageTransitionDirection.FromRight);
+
+        explorerView.InitiateTargetPageTransition(transitionDirection, () =>
+        {
+            UpdateExplorerViewPageButtonInteractibility();
+        });
+        UpdateExplorerViewPageButtonInteractibility();
+    }
+
+    public void OnExplorerItemClicked(ModBrowserItem item)
+    {
+        // TODO(@jackson): Load explorer page
+        inspectorData.currentModIndex = item.index + explorerView.currentPage.resultOffset;
+        ChangeInspectorPage(0);
+
+        ShowInspectorView();
+    }
+
+    // ---[ DIALOGS ]---
+    public void OpenLoginDialog()
+    {
+        loginDialog.gameObject.SetActive(true);
+        loginDialog.Initialize();
+    }
+
+    public void CloseLoginDialog()
+    {
+        loginDialog.gameObject.SetActive(false);
+    }
+
+    public void OpenMessageDialog_OneButton(string header, string content,
+                                            string buttonText, Action buttonCallback)
+    {
+        messageDialog.button01.GetComponentInChildren<Text>().text = buttonText;
+
+        messageDialog.button01.onClick.RemoveAllListeners();
+        messageDialog.button01.onClick.AddListener(() => buttonCallback());
+
+        messageDialog.button02.gameObject.SetActive(false);
+
+        OpenMessageDialog(header, content);
+    }
+
+    public void OpenMessageDialog_TwoButton(string header, string content,
+                                            string button01Text, Action button01Callback,
+                                            string button02Text, Action button02Callback)
+    {
+        messageDialog.button01.GetComponentInChildren<Text>().text = button01Text;
+
+        messageDialog.button01.onClick.RemoveAllListeners();
+        messageDialog.button01.onClick.AddListener(() => button01Callback());
+
+        messageDialog.button02.GetComponentInChildren<Text>().text = button02Text;
+
+        messageDialog.button02.onClick.RemoveAllListeners();
+        messageDialog.button02.onClick.AddListener(() => button02Callback());
+
+        messageDialog.button02.gameObject.SetActive(true);
+
+        OpenMessageDialog(header, content);
+    }
+
+    private void OpenMessageDialog(string header, string content)
+    {
+        messageDialog.header.text = header;
+        messageDialog.content.text = content;
+
+        messageDialog.gameObject.SetActive(true);
+    }
+
+    private void CloseMessageDialog()
+    {
+        messageDialog.gameObject.SetActive(false);
+    }
+
+    public void UpdateExplorerViewPageButtonInteractibility()
+    {
+        if(prevPageButton != null)
+        {
+            prevPageButton.interactable = (!explorerView.isTransitioning
+                                           && explorerView.CurrentPageNumber > 1);
+        }
+        if(nextPageButton != null)
+        {
+            nextPageButton.interactable = (!explorerView.isTransitioning
+                                           && explorerView.CurrentPageNumber < explorerView.CurrentPageCount);
+        }
     }
 
     public void UpdateInspectorViewPageButtonInteractibility()
