@@ -29,6 +29,10 @@ public class ExplorerView : MonoBehaviour
 
     [Header("UI Components")]
     public RectTransform contentPane;
+    public InputField nameSearchField;
+    public ModTagFilterView tagFilterView;
+    public ModTagFilterBar tagFilterBar;
+    public Dropdown sortByDropdown;
     public Text pageNumberText;
     public Text pageCountText;
     public Text resultCountText;

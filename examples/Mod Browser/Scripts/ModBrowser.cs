@@ -24,18 +24,18 @@ public class ModBrowser : MonoBehaviour
     }
 
     [Serializable]
-    private class SortOptionData
+    private class ExplorerSortOption
     {
-        public string dropdownText;
-        public string fieldName;
+        public string displayText;
+        public string apiFieldName;
         public bool isSortAscending;
 
-        public static SortOptionData Create(string dropdownText, string fieldName, bool isSortAscending)
+        public static ExplorerSortOption Create(string displayText, string apiFieldName, bool isSortAscending)
         {
-            SortOptionData newSOD = new SortOptionData()
+            ExplorerSortOption newSOD = new ExplorerSortOption()
             {
-                dropdownText = dropdownText,
-                fieldName = fieldName,
+                displayText = displayText,
+                apiFieldName = apiFieldName,
                 isSortAscending = isSortAscending,
             };
             return newSOD;
@@ -56,12 +56,13 @@ public class ModBrowser : MonoBehaviour
         id = 0,
         username = "Guest",
     };
-    private readonly SortOptionData[] sortOptions = new SortOptionData[]
+    private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
     {
-        SortOptionData.Create("NEWEST",         ModIO.API.GetAllModsFilterFields.dateLive, false),
-        SortOptionData.Create("POPULARITY",     ModIO.API.GetAllModsFilterFields.popular, true),
-        SortOptionData.Create("RATING",         ModIO.API.GetAllModsFilterFields.rating, false),
-        SortOptionData.Create("SUBSCRIBERS",    ModIO.API.GetAllModsFilterFields.subscribers, false),
+        ExplorerSortOption.Create("NEWEST",         ModIO.API.GetAllModsFilterFields.dateLive, false),
+        ExplorerSortOption.Create("POPULARITY",     ModIO.API.GetAllModsFilterFields.popular, true),
+        ExplorerSortOption.Create("RATING",         ModIO.API.GetAllModsFilterFields.rating, false),
+        ExplorerSortOption.Create("SUBSCRIBERS",    ModIO.API.GetAllModsFilterFields.subscribers, false),
+    };
     };
 
     // ---------[ FIELDS ]---------
@@ -75,10 +76,6 @@ public class ModBrowser : MonoBehaviour
     public ExplorerView explorerView;
     public SubscriptionsView subscriptionsView;
     public InspectorView inspectorView;
-    public InputField nameSearchField;
-    public ModTagFilterView tagFilterView;
-    public ModTagFilterBar tagFilterBar;
-    public Dropdown sortByDropdown;
     public ModBrowserUserDisplay userDisplay;
     public LoginDialog loginDialog;
     public MessageDialog messageDialog;
@@ -300,73 +297,6 @@ public class ModBrowser : MonoBehaviour
         // collectionView.profileCollection = CacheClient.IterateAllModProfiles().Where(p => subscribedModIds.Contains(p.id));
         // collectionView.gameObject.SetActive(false);
 
-        tagFilterView.selectedTags = this.filterTags;
-        tagFilterView.gameObject.SetActive(false);
-        tagFilterView.onSelectedTagsChanged += () =>
-        {
-            if(this.filterTags != tagFilterView.selectedTags)
-            {
-                this.filterTags = tagFilterView.selectedTags;
-            }
-            if(tagFilterBar.selectedTags != this.filterTags)
-            {
-                tagFilterBar.selectedTags = this.filterTags;
-            }
-            tagFilterBar.UpdateDisplay();
-
-            UpdateFilters();
-        };
-
-        tagFilterBar.selectedTags = this.filterTags;
-        tagFilterBar.gameObject.SetActive(true);
-        tagFilterBar.onSelectedTagsChanged += () =>
-        {
-            if(this.filterTags != tagFilterBar.selectedTags)
-            {
-                this.filterTags = tagFilterBar.selectedTags;
-            }
-            if(tagFilterView.selectedTags != this.filterTags)
-            {
-                tagFilterView.selectedTags = this.filterTags;
-            }
-            tagFilterView.UpdateDisplay();
-
-            UpdateFilters();
-        };
-
-        ModManager.GetGameProfile((g) =>
-                                  {
-                                    tagFilterView.categories = g.tagCategories;
-                                    tagFilterView.Initialize();
-
-                                    tagFilterBar.categories = g.tagCategories;
-                                    tagFilterBar.Initialize();
-                                  },
-                                  WebRequestError.LogAsWarning);
-
-        // final elements
-        // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
-        nameSearchField.onEndEdit.AddListener((t) =>
-        {
-            if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            {
-                UpdateFilters();
-            }
-        } );
-
-        if(sortByDropdown != null)
-        {
-            sortByDropdown.options = new List<Dropdown.OptionData>(sortOptions.Count());
-            foreach(SortOptionData option in sortOptions)
-            {
-                sortByDropdown.options.Add(new Dropdown.OptionData() { text = option.dropdownText });
-            }
-            sortByDropdown.value = 0;
-            sortByDropdown.captionText.text = sortOptions[0].dropdownText;
-
-            sortByDropdown.onValueChanged.AddListener((v) => UpdateFilters());
-        }
-
         InitializeExplorerView();
         InitializeSubscriptionsView();
     }
@@ -418,13 +348,108 @@ public class ModBrowser : MonoBehaviour
 
         explorerView.subscribedModIds = this.subscribedModIds;
 
-        // setup filter
+        // - setup ui filter controls -
+        // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
+        if(explorerView.nameSearchField != null)
+        {
+            explorerView.nameSearchField.onEndEdit.AddListener((t) =>
+            {
+                if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                {
+                    UpdateFilters();
+                }
+            } );
+        }
+
+        if(explorerView.sortByDropdown != null)
+        {
+            explorerView.sortByDropdown.options = new List<Dropdown.OptionData>(explorerSortOptions.Count());
+            foreach(ExplorerSortOption option in explorerSortOptions)
+            {
+                explorerView.sortByDropdown.options.Add(new Dropdown.OptionData() { text = option.displayText });
+            }
+            explorerView.sortByDropdown.value = 0;
+            explorerView.sortByDropdown.captionText.text = explorerSortOptions[0].displayText;
+
+            explorerView.sortByDropdown.onValueChanged.AddListener((v) => UpdateFilters());
+        }
+
+        // tags
+        if(explorerView.tagFilterView != null)
+        {
+            explorerView.tagFilterView.selectedTags = this.filterTags;
+            explorerView.tagFilterView.gameObject.SetActive(false);
+            explorerView.tagFilterView.onSelectedTagsChanged += () =>
+            {
+                if(this.filterTags != explorerView.tagFilterView.selectedTags)
+                {
+                    this.filterTags = explorerView.tagFilterView.selectedTags;
+                }
+            };
+
+            if(explorerView.tagFilterBar != null)
+            {
+                explorerView.tagFilterView.onSelectedTagsChanged += () =>
+                {
+                    if(explorerView.tagFilterBar.selectedTags != this.filterTags)
+                    {
+                        explorerView.tagFilterBar.selectedTags = this.filterTags;
+                    }
+                    explorerView.tagFilterBar.UpdateDisplay();
+                };
+            }
+
+            explorerView.tagFilterView.onSelectedTagsChanged += () => UpdateFilters();
+        }
+
+        if(explorerView.tagFilterBar != null)
+        {
+            explorerView.tagFilterBar.selectedTags = this.filterTags;
+            explorerView.tagFilterBar.gameObject.SetActive(true);
+            explorerView.tagFilterBar.onSelectedTagsChanged += () =>
+            {
+                if(this.filterTags != explorerView.tagFilterBar.selectedTags)
+                {
+                    this.filterTags = explorerView.tagFilterBar.selectedTags;
+                }
+            };
+            if(explorerView.tagFilterView != null)
+            {
+                explorerView.tagFilterBar.onSelectedTagsChanged += () =>
+                {
+                    if(explorerView.tagFilterView.selectedTags != this.filterTags)
+                    {
+                        explorerView.tagFilterView.selectedTags = this.filterTags;
+                    }
+                    explorerView.tagFilterView.UpdateDisplay();
+                };
+            }
+
+            explorerView.tagFilterBar.onSelectedTagsChanged += () => UpdateFilters();
+        }
+
+        ModManager.GetGameProfile((g) =>
+                                  {
+                                    if(explorerView.tagFilterView != null)
+                                    {
+                                        explorerView.tagFilterView.categories = g.tagCategories;
+                                        explorerView.tagFilterView.Initialize();
+                                    }
+
+                                    if(explorerView.tagFilterBar != null)
+                                    {
+                                        explorerView.tagFilterBar.categories = g.tagCategories;
+                                        explorerView.tagFilterBar.Initialize();
+                                    }
+                                  },
+                                  WebRequestError.LogAsWarning);
+
+        // - setup filter -
         explorerViewFilter = new RequestFilter();
 
-        SortOptionData sortOption = sortOptions[0];
-        explorerViewFilter.sortFieldName = sortOption.fieldName;
+        ExplorerSortOption sortOption = explorerSortOptions[0];
+        explorerViewFilter.sortFieldName = sortOption.apiFieldName;
         explorerViewFilter.isSortAscending = sortOption.isSortAscending;
-
 
         RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
         {
@@ -1031,17 +1056,17 @@ public class ModBrowser : MonoBehaviour
     {
         this.filterTags.Clear();
 
-        if(tagFilterBar.selectedTags != this.filterTags)
+        if(explorerView.tagFilterBar.selectedTags != this.filterTags)
         {
-            tagFilterBar.selectedTags = this.filterTags;
+            explorerView.tagFilterBar.selectedTags = this.filterTags;
         }
-        tagFilterBar.UpdateDisplay();
+        explorerView.tagFilterBar.UpdateDisplay();
 
-        if(tagFilterView.selectedTags != this.filterTags)
+        if(explorerView.tagFilterView.selectedTags != this.filterTags)
         {
-            tagFilterView.selectedTags = this.filterTags;
+            explorerView.tagFilterView.selectedTags = this.filterTags;
         }
-        tagFilterView.UpdateDisplay();
+        explorerView.tagFilterView.UpdateDisplay();
 
         UpdateFilters();
     }
@@ -1050,31 +1075,32 @@ public class ModBrowser : MonoBehaviour
     public void UpdateFilters()
     {
         // sort
-        if(sortByDropdown == null)
+        if(explorerView.sortByDropdown == null)
         {
             explorerViewFilter.sortFieldName = ModIO.API.GetAllModsFilterFields.popular;
             explorerViewFilter.isSortAscending = false;
         }
         else
         {
-            SortOptionData optionData = sortOptions[sortByDropdown.value];
-            explorerViewFilter.sortFieldName = optionData.fieldName;
+            ExplorerSortOption optionData = explorerSortOptions[explorerView.sortByDropdown.value];
+            explorerViewFilter.sortFieldName = optionData.apiFieldName;
             explorerViewFilter.isSortAscending = optionData.isSortAscending;
         }
 
         // title
-        if(String.IsNullOrEmpty(nameSearchField.text))
+        if(explorerView.nameSearchField == null
+           || String.IsNullOrEmpty(explorerView.nameSearchField.text))
         {
             explorerViewFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
         }
         else
         {
             explorerViewFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
-                = new StringLikeFilter() { likeValue = "*"+nameSearchField.text+"*" };
+                = new StringLikeFilter() { likeValue = "*"+explorerView.nameSearchField.text+"*" };
         }
 
         // tags
-        string[] filterTagNames = tagFilterView.selectedTags.ToArray();
+        string[] filterTagNames = this.filterTags.ToArray();
 
         if(filterTagNames.Length == 0)
         {
