@@ -1641,7 +1641,7 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-    public static Sprite CreateSpriteWithTexture(Texture2D texture)
+    public static Sprite CreateSpriteFromTexture(Texture2D texture)
     {
         return Sprite.Create(texture,
                              new Rect(0.0f, 0.0f, texture.width, texture.height),

@@ -34,7 +34,7 @@ public class ModBrowserUserDisplay : MonoBehaviour
             placeholder_rt.sizeDelta = new Vector2(0f, 0f);
 
             ModManager.GetUserAvatar(profile, UserAvatarSize.Thumbnail_50x50,
-                                     (t) => this.SetAvatar(ModBrowser.CreateSpriteWithTexture(t)),
+                                     (t) => this.SetAvatar(ModBrowser.CreateSpriteFromTexture(t)),
                                      (e) => Debug.LogWarning(e.ToUnityDebugString()));
         }
     }

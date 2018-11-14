@@ -239,7 +239,7 @@ public class InspectorView : MonoBehaviour
                     };
 
                     // TODO(@jackson): onError?
-                    ModManager.GetModYouTubeThumbnail(profile, i,
+                    ModManager.GetModYouTubeThumbnail(profile.id, youTubeId,
                                                       (t) => onGetThumbnail(youtubeImage, t, youTubeId),
                                                       null);
 
@@ -258,7 +258,9 @@ public class InspectorView : MonoBehaviour
                     galleryImageComponent.gameObject.name = imageLocator.fileName;
                     galleryImageComponent.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(nextElementPos, 0f);
 
-                    ModManager.GetModGalleryImage(profile, imageLocator.fileName, galleryImageSize,
+                    ModManager.GetModGalleryImage(profile.id,
+                                                  imageLocator,
+                                                  galleryImageSize,
                                                   (t) => ApplyMediaGalleryTexture(galleryImageComponent, t),
                                                   null);
 
@@ -452,7 +454,7 @@ public class InspectorView : MonoBehaviour
                 UnityEngine.Object.Destroy(creatorAvatar.sprite.texture);
             }
 
-            creatorAvatar.sprite = ModBrowser.CreateSpriteWithTexture(texture);
+            creatorAvatar.sprite = ModBrowser.CreateSpriteFromTexture(texture);
 
             creatorAvatar.gameObject.SetActive(true);
             creatorAvatarPlaceholder.SetActive(false);
@@ -505,7 +507,7 @@ public class InspectorView : MonoBehaviour
 
         if(image != null)
         {
-            image.sprite = ModBrowser.CreateSpriteWithTexture(texture);
+            image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
             image.enabled = true;
 
             GameObject.Destroy(image.transform.GetChild(0).gameObject);

@@ -175,7 +175,7 @@ public class ModBrowserItem : MonoBehaviour
 
                     Debug.Assert(t != null);
 
-                    profileDisplay.logo.sprite = ModBrowser.CreateSpriteWithTexture(t);
+                    profileDisplay.logo.sprite = ModBrowser.CreateSpriteFromTexture(t);
                     profileDisplay.logo.gameObject.SetActive(true);
                     loadingGO.gameObject.SetActive(false);
                 };
@@ -229,7 +229,7 @@ public class ModBrowserItem : MonoBehaviour
                         UnityEngine.Object.Destroy(profileDisplay.creatorAvatar.sprite);
                     }
 
-                    profileDisplay.creatorAvatar.sprite = ModBrowser.CreateSpriteWithTexture(t);
+                    profileDisplay.creatorAvatar.sprite = ModBrowser.CreateSpriteFromTexture(t);
 
                     profileDisplay.creatorAvatar.gameObject.SetActive(true);
                     loadingGO.gameObject.SetActive(false);
