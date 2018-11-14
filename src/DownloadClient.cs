@@ -43,10 +43,21 @@ namespace ModIO
                 }
                 else
                 {
-                    request = DownloadImage(locator.GetSizeURL(size));
+                    request = DownloadClient.DownloadModGalleryImage(locator, size);
                 }
             }
 
+            return request;
+        }
+
+        public static ImageRequest DownloadModGalleryImage(GalleryImageLocator imageLocator,
+                                                           ModGalleryImageSize size)
+        {
+            Debug.Assert(imageLocator != null, "[mod.io] imageLocator parameter cannot be null.");
+            Debug.Assert(!String.IsNullOrEmpty(imageLocator.fileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
+
+            ImageRequest request = null;
+            request = DownloadImage(imageLocator.GetSizeURL(size));
             return request;
         }
 
@@ -88,7 +99,6 @@ namespace ModIO
 
         public static ImageRequest DownloadImage(string imageURL)
         {
-
             ImageRequest request = new ImageRequest();
             request.isDone = false;
 

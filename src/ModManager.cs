@@ -560,18 +560,28 @@ namespace ModIO
         }
 
         // TODO(@jackson): Take ModMediaCollection instead of profile
+        [Obsolete()]
         public static void GetModGalleryImage(ModProfile profile,
                                               string imageFileName,
                                               ModGalleryImageSize size,
                                               Action<Texture2D> onSuccess,
                                               Action<WebRequestError> onError)
         {
-            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
-            Debug.Assert(profile.media != null, "[mod.io] The given profile has no media information");
-            Debug.Assert(!String.IsNullOrEmpty(imageFileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
+            ModManager.GetModGalleryImage(profile.id, profile.media.GetGalleryImageWithFileName(imageFileName), size, onSuccess, onError);
+        }
 
-            var cachedImageTexture = CacheClient.LoadModGalleryImage(profile.id,
-                                                                     imageFileName,
+        public static void GetModGalleryImage(int modId,
+                                              GalleryImageLocator imageLocator,
+                                              ModGalleryImageSize size,
+                                              Action<Texture2D> onSuccess,
+                                              Action<WebRequestError> onError)
+        {
+            Debug.Assert(modId > 0, "[mod.io] modId parameter is invalid.");
+            Debug.Assert(imageLocator != null, "[mod.io] imageLocator parameter cannot be null.");
+            Debug.Assert(!String.IsNullOrEmpty(imageLocator.fileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
+
+            var cachedImageTexture = CacheClient.LoadModGalleryImage(modId,
+                                                                     imageLocator.fileName,
                                                                      size);
 
             if(cachedImageTexture != null)
@@ -580,47 +590,34 @@ namespace ModIO
             }
             else
             {
-                if(profile.media.GetGalleryImageWithFileName(imageFileName) != null)
-                {
-                    // - Fetch from Server -
-                    var download = DownloadClient.DownloadModGalleryImage(profile,
-                                                                          imageFileName,
-                                                                          size);
+                // - Fetch from Server -
+                var download = DownloadClient.DownloadModGalleryImage(imageLocator,
+                                                                      size);
 
-                    download.succeeded += (d) =>
-                    {
-                        CacheClient.SaveModGalleryImage(profile.id, imageFileName, size, d.imageTexture);
-                    };
-
-                    download.succeeded += (d) => onSuccess(d.imageTexture);
-                    download.failed += (d) => onError(d.error);
-                }
-                else
+                download.succeeded += (d) =>
                 {
-                    if(onError != null)
-                    {
-                        WebRequestError error = WebRequestError.GenerateLocal("Unable to find mod gallery image locator for the file name \'"+ imageFileName + "\' in the mod profile \'" + profile.name + "\'[" + profile.id + "]");
-                        onError(error);
-                    }
-                }
+                    CacheClient.SaveModGalleryImage(modId,
+                                                    imageLocator.fileName,
+                                                    size,
+                                                    d.imageTexture);
+                };
+
+                download.succeeded += (d) => onSuccess(d.imageTexture);
+                download.failed += (d) => onError(d.error);
             }
         }
 
-        public static void GetModYouTubeThumbnail(ModProfile profile,
-                                                  int index,
+        public static void GetModYouTubeThumbnail(int modId,
+                                                  string youTubeVideoId,
                                                   Action<Texture2D> onSuccess,
                                                   Action<WebRequestError> onError)
         {
-            Debug.Assert(profile != null, "[mod.io] Profile parameter cannot be null");
-            Debug.Assert(profile.media != null, "[mod.io] The given profile has no media information");
-            Debug.Assert(index >= 0 && index < profile.media.youtubeURLs.Length,
-                         "[mod.io] index parameter is not valid for the youtubeURLs array length");
+            Debug.Assert(modId > 0, "[mod.io] modId parameter must be a valid mod profile id.");
+            Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
+                         "[mod.io] youTubeVideoId parameter must not be null or empty.");
 
-            string youTubeURL = profile.media.youtubeURLs[index];
-            string youTubeId = Utility.ExtractYouTubeIdFromURL(youTubeURL);
-
-            var cachedYouTubeThumbnail = CacheClient.LoadModYouTubeThumbnail(profile.id,
-                                                                             youTubeId);
+            var cachedYouTubeThumbnail = CacheClient.LoadModYouTubeThumbnail(modId,
+                                                                             youTubeVideoId);
 
             if(cachedYouTubeThumbnail != null)
             {
@@ -628,11 +625,11 @@ namespace ModIO
             }
             else
             {
-                var download = DownloadClient.DownloadYouTubeThumbnail(youTubeId);
+                var download = DownloadClient.DownloadYouTubeThumbnail(youTubeVideoId);
 
                 download.succeeded += (d) =>
                 {
-                    CacheClient.SaveModYouTubeThumbnail(profile.id, youTubeId, d.imageTexture);
+                    CacheClient.SaveModYouTubeThumbnail(modId, youTubeVideoId, d.imageTexture);
                 };
 
                 download.succeeded += (d) => onSuccess(d.imageTexture);

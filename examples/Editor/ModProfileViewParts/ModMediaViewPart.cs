@@ -99,9 +99,11 @@ namespace ModIO
             this.isImagesExpanded = false;
 
             // Initialize textureCache
-            this.textureCache = new Dictionary<string, Texture2D>(galleryImagesProp.FindPropertyRelative("value").arraySize);
+            int arraySize = galleryImagesProp.FindPropertyRelative("value").arraySize;
+
+            this.textureCache = new Dictionary<string, Texture2D>(arraySize);
             for (int i = 0;
-                 i < galleryImagesProp.FindPropertyRelative("value").arraySize;
+                 i < arraySize;
                  ++i)
             {
                 string imageFileName = GetGalleryImageFileName(i);
@@ -110,21 +112,21 @@ namespace ModIO
                 if(!String.IsNullOrEmpty(imageFileName)
                    && !String.IsNullOrEmpty(imageURL))
                 {
-                    this.textureCache[imageFileName] = EditorImages.LoadingPlaceholder;
+                    GalleryImageLocator imageLocator = baseProfile.media.GetGalleryImageWithFileName(imageFileName);
 
-                    Texture2D texture = CacheClient.ReadImageFile(imageURL);
+                    if(imageLocator != null)
+                    {
+                        this.textureCache[imageFileName] = EditorImages.LoadingPlaceholder;
 
-                    if(texture != null)
-                    {
-                        this.textureCache[imageFileName] = texture;
-                    }
-                    else
-                    {
-                        ModManager.GetModGalleryImage(baseProfile,
-                                                      imageFileName,
+                        ModManager.GetModGalleryImage(baseProfile.id,
+                                                      imageLocator,
                                                       IMAGE_PREVIEW_SIZE,
                                                       (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
                                                       WebRequestError.LogAsWarning);
+                    }
+                    else
+                    {
+                        this.textureCache[imageFileName] = CacheClient.ReadImageFile(imageURL);
                     }
                 }
             }
@@ -213,7 +215,7 @@ namespace ModIO
             EditorGUILayout.EndHorizontal();
 
             // - Draw Texture -
-            Texture2D imageTexture = GetGalleryImageTexture(imageFileName, imageSource);
+            Texture2D imageTexture = GetGalleryImageByIndex(elementIndex);
 
             if(imageTexture != null)
             {
@@ -263,40 +265,48 @@ namespace ModIO
             }
         }
 
-        private Texture2D GetGalleryImageTexture(string imageFileName,
-                                                 string imageSource)
+        private Texture2D GetGalleryImageByIndex(int index)
         {
+            string imageFileName = GetGalleryImageFileName(index);
+            GalleryImageLocator imageLocator = null;
+
+            if(this.profile != null
+               && this.profile.media != null)
+            {
+                imageLocator = this.profile.media.GetGalleryImageWithFileName(imageFileName);
+            }
+
+            Texture2D texture;
             if(String.IsNullOrEmpty(imageFileName))
             {
                 return null;
             }
-
-            Texture2D texture;
             // - Get -
-            if(this.textureCache.TryGetValue(imageFileName, out texture))
+            else if(this.textureCache.TryGetValue(imageFileName, out texture))
             {
-                return texture;
-            }
-            // - Load -
-            else if((texture = CacheClient.ReadImageFile(imageSource)) != null)
-            {
-                this.textureCache.Add(imageFileName, texture);
                 return texture;
             }
             // - LoadOrDownload -
-            else if(profile != null)
+            else if(imageLocator != null)
             {
                 this.textureCache.Add(imageFileName, EditorImages.LoadingPlaceholder);
 
-                ModManager.GetModGalleryImage(profile,
-                                              imageFileName,
+                ModManager.GetModGalleryImage(this.profile.id,
+                                              imageLocator,
                                               IMAGE_PREVIEW_SIZE,
                                               (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
                                               null);
+
                 return this.textureCache[imageFileName];
             }
+            // - Load -
+            else
+            {
+                string imageSource = GetGalleryImageSource(index);
+                this.textureCache.Add(imageFileName, CacheClient.ReadImageFile(imageSource));
 
-            return null;
+                return this.textureCache[imageFileName];
+            }
         }
 
         // - Misc Functionality -
