@@ -220,14 +220,14 @@ public class InspectorView : MonoBehaviour
             nextElementPos += imageWidth + 20f;
 
             // youtubes
-            if(profile.media.youtubeURLs != null)
+            if(profile.media.youTubeURLs != null)
             {
-                for(int i = 0; i < profile.media.youtubeURLs.Length; ++i)
+                for(int i = 0; i < profile.media.youTubeURLs.Length; ++i)
                 {
                     Image youtubeImage = CreateMediaGalleryElement(youTubeWidth,
                                                                    mediaElementHeight);
 
-                    string youTubeURL = profile.media.youtubeURLs[i];
+                    string youTubeURL = profile.media.youTubeURLs[i];
                     string youTubeId = Utility.ExtractYouTubeIdFromURL(youTubeURL);
                     youtubeImage.gameObject.name = "yt_" + youTubeId;
                     youtubeImage.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(nextElementPos, 0f);
@@ -468,14 +468,14 @@ public class InspectorView : MonoBehaviour
 
     private void ApplyYouTubeOverlay(Image image, string youTubeId)
     {
-        GameObject overlay_go = GameObject.Instantiate(youTubeOverlayPrefab, image.transform) as GameObject;
-        overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = youTubeId;
+        // GameObject overlay_go = GameObject.Instantiate(youTubeOverlayPrefab, image.transform) as GameObject;
+        // overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = youTubeId;
 
-        RectTransform overlayTransform = overlay_go.GetComponent<RectTransform>();
-        overlayTransform.anchorMin = new Vector2(0f, 0f);
-        overlayTransform.anchorMax = new Vector2(1f, 1f);
-        overlayTransform.offsetMin = Vector2.zero;
-        overlayTransform.offsetMax = Vector2.zero;
+        // RectTransform overlayTransform = overlay_go.GetComponent<RectTransform>();
+        // overlayTransform.anchorMin = new Vector2(0f, 0f);
+        // overlayTransform.anchorMax = new Vector2(1f, 1f);
+        // overlayTransform.offsetMin = Vector2.zero;
+        // overlayTransform.offsetMax = Vector2.zero;
     }
 
     private Image CreateMediaGalleryElement(float width, float height)

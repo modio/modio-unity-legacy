@@ -894,7 +894,7 @@ namespace ModIO
             //  we can ignore some of the elements in the EditModParameters
             //  when passing to SubmitModProfileComponents
             var remainingModEdits = new EditableModProfile();
-            remainingModEdits.youtubeURLs = modEdits.youtubeURLs;
+            remainingModEdits.youTubeURLs = modEdits.youTubeURLs;
             remainingModEdits.sketchfabURLs = modEdits.sketchfabURLs;
             remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
 
@@ -996,7 +996,7 @@ namespace ModIO
 
             // - Media -
             if(modEdits.logoLocator.isDirty
-               || modEdits.youtubeURLs.isDirty
+               || modEdits.youTubeURLs.isDirty
                || modEdits.sketchfabURLs.isDirty
                || modEdits.galleryImageLocators.isDirty)
             {
@@ -1010,17 +1010,17 @@ namespace ModIO
                                                                   File.ReadAllBytes(modEdits.logoLocator.value.url));
                 }
 
-                if(modEdits.youtubeURLs.isDirty)
+                if(modEdits.youTubeURLs.isDirty)
                 {
-                    var addedYouTubeLinks = new List<string>(modEdits.youtubeURLs.value);
-                    foreach(string youtubeLink in profile.media.youtubeURLs)
+                    var addedYouTubeLinks = new List<string>(modEdits.youTubeURLs.value);
+                    foreach(string youtubeLink in profile.media.youTubeURLs)
                     {
                         addedYouTubeLinks.Remove(youtubeLink);
                     }
                     addMediaParameters.youtube = addedYouTubeLinks.ToArray();
 
-                    var removedTags = new List<string>(profile.media.youtubeURLs);
-                    foreach(string youtubeLink in modEdits.youtubeURLs.value)
+                    var removedTags = new List<string>(profile.media.youTubeURLs);
+                    foreach(string youtubeLink in modEdits.youTubeURLs.value)
                     {
                         removedTags.Remove(youtubeLink);
                     }

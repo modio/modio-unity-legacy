@@ -21,7 +21,7 @@ namespace ModIO
 
         // - Serialized Property -
         private ModProfile profile;
-        private SerializedProperty youtubeURLsProp;
+        private SerializedProperty youTubeURLsProp;
         private SerializedProperty sketchfabURLsProp;
         private SerializedProperty galleryImagesProp;
 
@@ -90,7 +90,7 @@ namespace ModIO
         public void OnEnable(SerializedProperty serializedEditableModProfile, ModProfile baseProfile, UserProfile user)
         {
             this.profile = baseProfile;
-            this.youtubeURLsProp = serializedEditableModProfile.FindPropertyRelative("youtubeURLs");
+            this.youTubeURLsProp = serializedEditableModProfile.FindPropertyRelative("youTubeURLs");
             this.sketchfabURLsProp = serializedEditableModProfile.FindPropertyRelative("sketchfabURLs");
             this.galleryImagesProp = serializedEditableModProfile.FindPropertyRelative("galleryImageLocators");
 
@@ -175,9 +175,9 @@ namespace ModIO
             {
                 // - YouTube -
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayoutExtensions.ArrayPropertyField(youtubeURLsProp.FindPropertyRelative("value"),
+                EditorGUILayoutExtensions.ArrayPropertyField(youTubeURLsProp.FindPropertyRelative("value"),
                                                              "YouTube Links", ref isYouTubeExpanded);
-                youtubeURLsProp.FindPropertyRelative("isDirty").boolValue |= EditorGUI.EndChangeCheck();
+                youTubeURLsProp.FindPropertyRelative("isDirty").boolValue |= EditorGUI.EndChangeCheck();
                 // - SketchFab -
                 EditorGUI.BeginChangeCheck();
                 EditorGUILayoutExtensions.ArrayPropertyField(sketchfabURLsProp.FindPropertyRelative("value"),
@@ -312,9 +312,9 @@ namespace ModIO
         // - Misc Functionality -
         private void ResetModMedia()
         {
-            EditorUtilityExtensions.SetSerializedPropertyStringArray(youtubeURLsProp.FindPropertyRelative("value"),
-                                                                     profile.media.youtubeURLs);
-            youtubeURLsProp.FindPropertyRelative("isDirty").boolValue = false;
+            EditorUtilityExtensions.SetSerializedPropertyStringArray(youTubeURLsProp.FindPropertyRelative("value"),
+                                                                     profile.media.youTubeURLs);
+            youTubeURLsProp.FindPropertyRelative("isDirty").boolValue = false;
 
             EditorUtilityExtensions.SetSerializedPropertyStringArray(sketchfabURLsProp.FindPropertyRelative("value"),
                                                                      profile.media.sketchfabURLs);

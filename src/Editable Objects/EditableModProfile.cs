@@ -22,6 +22,8 @@ namespace ModIO
         public class EditableModVisibilityField : ModIO.EditableModVisibilityField {}
         [Obsolete]
         public class EditableKVPArrayField : ModIO.EditableKVPArrayField {}
+        [Obsolete]
+        public EditableStringArrayField youtubeURLs { get { return this.youTubeURLs; } set { this.youTubeURLs = value; } }
         /// @endcond
 
         // ---------[ FIELDS ]---------
@@ -37,7 +39,7 @@ namespace ModIO
         public ModIO.EditableKVPArrayField metadataKVPs =           new ModIO.EditableKVPArrayField();
         // - Mod Media -
         public EditableImageLocatorField logoLocator =              new EditableImageLocatorField();
-        public EditableStringArrayField youtubeURLs =               new EditableStringArrayField();
+        public EditableStringArrayField youTubeURLs =               new EditableStringArrayField();
         public EditableStringArrayField sketchfabURLs =             new EditableStringArrayField();
         public EditableImageLocatorArrayField galleryImageLocators =new EditableImageLocatorArrayField();
 
@@ -102,9 +104,9 @@ namespace ModIO
                 this.logoLocator.value.fileName = profile.logoLocator.fileName;
                 this.logoLocator.value.url = profile.logoLocator.GetURL();
             }
-            if(!this.youtubeURLs.isDirty)
+            if(!this.youTubeURLs.isDirty)
             {
-                this.youtubeURLs.value = profile.media.youtubeURLs;
+                this.youTubeURLs.value = profile.media.youTubeURLs;
             }
             if(!this.sketchfabURLs.isDirty)
             {

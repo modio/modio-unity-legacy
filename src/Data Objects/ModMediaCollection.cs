@@ -6,9 +6,13 @@ namespace ModIO
     public class ModMediaCollection
     {
         // ---------[ FIELDS ]---------
+        [System.Obsolete]
+        public string[] youtubeURLs
+        { get { return youTubeURLs; } set { youTubeURLs = value; } }
+
         /// <summary>Array of YouTube links.</summary>
         [JsonProperty("youtube")]
-        public string[] youtubeURLs;
+        public string[] youTubeURLs;
 
         /// <summary>Array of SketchFab links.</summary>
         [JsonProperty("sketchfab")]
