@@ -343,8 +343,10 @@ public class ModBrowser : MonoBehaviour
         // initialize views
         inspectorView.Initialize();
         inspectorView.subscribeButton.onClick.AddListener(() => SubscribeToMod(inspectorView.profile));
+        inspectorView.unsubscribeButton.onClick.AddListener(() => ShowSubscriptionsView());
         inspectorView.gameObject.SetActive(false);
         UpdateInspectorViewPageButtonInteractibility();
+
 
         // collectionView.Initialize();
         // collectionView.onUnsubscribeClicked += OnUnsubscribeButtonClicked;
@@ -425,7 +427,7 @@ public class ModBrowser : MonoBehaviour
     {
         explorerView.Initialize();
 
-        explorerView.inspectRequested += OnExplorerItemClicked;
+        explorerView.inspectRequested += InspectSubscriptionItem;
         explorerView.subscribeRequested += (i) => SubscribeToMod(i.profile);
         explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
         explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
@@ -966,6 +968,46 @@ public class ModBrowser : MonoBehaviour
         UpdateInspectorViewPageButtonInteractibility();
     }
 
+    public void SetInspectorViewProfile(ModProfile profile)
+    {
+        // profile
+        inspectorView.profile = profile;
+        inspectorView.UpdateProfileUIComponents();
+
+        // statistics
+        inspectorView.statistics = null;
+        Text buttonText = inspectorView.subscribeButton.GetComponent<Text>();
+        if(buttonText == null)
+        {
+            buttonText = inspectorView.subscribeButton.GetComponentInChildren<Text>();
+        }
+
+        if(buttonText != null)
+        {
+            if(subscribedModIds.Contains(inspectorView.profile.id))
+            {
+                buttonText.text = "View In Collection";
+            }
+            else
+            {
+                buttonText.text = "Add To Collection";
+            }
+        }
+
+        ModManager.GetModStatistics(inspectorView.profile.id,
+                                    (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsUIComponents(); },
+                                    null);
+
+        // subscription
+        inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
+        inspectorView.UpdateIsSubscribedDisplay();
+
+        // inspectorView stuff
+        inspectorData.currentModIndex = -1;
+
+        if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
+    }
+
     public void ChangeExplorerPage(int direction)
     {
         // TODO(@jackson): Queue on isTransitioning?
@@ -1026,6 +1068,14 @@ public class ModBrowser : MonoBehaviour
     {
         // TODO(@jackson): Load explorer page
         inspectorData.currentModIndex = item.index + explorerView.currentPage.resultOffset;
+        SetInspectorViewProfile(item.profile);
+        ShowInspectorView();
+    }
+
+    public void InspectSubscriptionItem(ModBrowserItem item)
+    {
+        // TODO(@jackson): Load explorer page
+        inspectorData.currentModIndex = item.index + subscriptionsView.currentPage.resultOffset;
         ChangeInspectorPage(0);
 
         ShowInspectorView();

@@ -42,7 +42,8 @@ public class ModMediaCollectionDisplay : MonoBehaviour
         if(modId > 0
            && mediaCollection != null)
         {
-            if(youTubeThumbnailPrefab != null)
+            if(mediaCollection.youTubeURLs != null
+               && youTubeThumbnailPrefab != null)
             {
                 foreach(string youTubeURL in mediaCollection.youTubeURLs)
                 {

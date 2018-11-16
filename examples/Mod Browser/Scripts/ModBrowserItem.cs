@@ -689,6 +689,11 @@ public class ModBrowserItem : MonoBehaviour
     // ---------[ UI UPDATES ]---------
     public void UpdateProfileDisplay()
     {
+        if(downloadProgressPercentageText != null)
+        {
+            downloadProgressPercentageText.gameObject.SetActive(false);
+        }
+
         if(profile != null)
         {
             foreach(Action updateDelegate in profileUIDelegates)
