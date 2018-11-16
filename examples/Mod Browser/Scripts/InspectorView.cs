@@ -31,7 +31,6 @@ public class InspectorView : MonoBehaviour
         public Text latestVersion;
         public Text downloadSize;
         // TODO(@jackson): Create layouting classes
-        public RectTransform mediaGalleryContainer;
         public RectTransform versionHistoryContainer;
     }
 
@@ -61,7 +60,7 @@ public class InspectorView : MonoBehaviour
 
     // ---[ UI ]---
     [Header("Settings")]
-    public GameObject defaultAvatarPrefab;
+    public GameObject defaultAvatarPrefab; // TODO(@jackson): Obsolete
     public GameObject mediaLoadingPrefab;
     public GameObject youTubeOverlayPrefab;
     public GameObject versionHistoryItemPrefab;
@@ -74,6 +73,7 @@ public class InspectorView : MonoBehaviour
     public InspectorHelper_ProfileElements profileElements;
     public InspectorHelper_CreatorElements creatorElements;
     public InspectorHelper_StatisticsElements statisticsElements;
+    public ModMediaCollectionDisplay mediaCollectionDisplay;
     public ScrollRect scrollView;
     public Button subscribeButton;
     public Button unsubscribeButton;
@@ -194,82 +194,12 @@ public class InspectorView : MonoBehaviour
             profileElements.tags.text = tagsString.ToString();
         }
 
-
         // - media -
-        if(profileElements.mediaGalleryContainer != null)
+        if(mediaCollectionDisplay != null)
         {
-            float imageWidth = mediaElementHeight * IMAGE_THUMB_RATIO;
-            float youTubeWidth = mediaElementHeight * YOUTUBE_THUMB_RATIO;
-            float nextElementPos = 20f;
-
-            foreach(Transform t in profileElements.mediaGalleryContainer)
-            {
-                GameObject.Destroy(t.gameObject);
-            }
-
-            // logo
-            Image logoImage = CreateMediaGalleryElement(imageWidth,
-                                                        mediaElementHeight);
-            logoImage.gameObject.name = "Mod Logo";
-            logoImage.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(nextElementPos, 0f);
-
-            ModManager.GetModLogo(profile, logoSize,
-                                  (t) => ApplyMediaGalleryTexture(logoImage, t),
-                                  null);
-
-            nextElementPos += imageWidth + 20f;
-
-            // youtubes
-            if(profile.media.youTubeURLs != null)
-            {
-                for(int i = 0; i < profile.media.youTubeURLs.Length; ++i)
-                {
-                    Image youtubeImage = CreateMediaGalleryElement(youTubeWidth,
-                                                                   mediaElementHeight);
-
-                    string youTubeURL = profile.media.youTubeURLs[i];
-                    string youTubeId = Utility.ExtractYouTubeIdFromURL(youTubeURL);
-                    youtubeImage.gameObject.name = "yt_" + youTubeId;
-                    youtubeImage.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(nextElementPos, 0f);
-
-                    Action<Image, Texture2D, string> onGetThumbnail = (image, t, id) =>
-                    {
-                        ApplyMediaGalleryTexture(image, t);
-                        ApplyYouTubeOverlay(image, id);
-                    };
-
-                    // TODO(@jackson): onError?
-                    ModManager.GetModYouTubeThumbnail(profile.id, youTubeId,
-                                                      (t) => onGetThumbnail(youtubeImage, t, youTubeId),
-                                                      null);
-
-                    nextElementPos += youTubeWidth + 20f;
-                }
-            }
-
-            // images
-            if(profile.media.galleryImageLocators != null)
-            {
-                foreach(var imageLocator in profile.media.galleryImageLocators)
-                {
-                    Image galleryImageComponent = CreateMediaGalleryElement(imageWidth,
-                                                                            mediaElementHeight);
-
-                    galleryImageComponent.gameObject.name = imageLocator.fileName;
-                    galleryImageComponent.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(nextElementPos, 0f);
-
-                    ModManager.GetModGalleryImage(profile.id,
-                                                  imageLocator,
-                                                  galleryImageSize,
-                                                  (t) => ApplyMediaGalleryTexture(galleryImageComponent, t),
-                                                  null);
-
-                    nextElementPos += imageWidth + 20f;
-                }
-            }
-
-            // - set gallery width -
-            profileElements.mediaGalleryContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(nextElementPos, 0f);
+            mediaCollectionDisplay.modId = profile.id;
+            mediaCollectionDisplay.mediaCollection = profile.media;
+            mediaCollectionDisplay.UpdateDisplay();
         }
 
         // - modfile -
@@ -478,26 +408,26 @@ public class InspectorView : MonoBehaviour
         // overlayTransform.offsetMax = Vector2.zero;
     }
 
-    private Image CreateMediaGalleryElement(float width, float height)
-    {
-        GameObject newElement = new GameObject("Media Gallery Item");
+    // private Image CreateMediaGalleryElement(float width, float height)
+    // {
+    //     GameObject newElement = new GameObject("Media Gallery Item");
 
-        RectTransform elementTransform = newElement.AddComponent<RectTransform>();
-        elementTransform.SetParent(profileElements.mediaGalleryContainer);
-        elementTransform.anchorMin = new Vector2(0f, 0.5f);
-        elementTransform.anchorMax = new Vector2(0f, 0.5f);
-        elementTransform.pivot = new Vector2(0f, 0.5f);
-        elementTransform.sizeDelta = new Vector2(width, height);
+    //     RectTransform elementTransform = newElement.AddComponent<RectTransform>();
+    //     elementTransform.SetParent(profileElements.mediaGalleryContainer);
+    //     elementTransform.anchorMin = new Vector2(0f, 0.5f);
+    //     elementTransform.anchorMax = new Vector2(0f, 0.5f);
+    //     elementTransform.pivot = new Vector2(0f, 0.5f);
+    //     elementTransform.sizeDelta = new Vector2(width, height);
 
-        GameObject placeholder_go = UnityEngine.Object.Instantiate(mediaLoadingPrefab, elementTransform) as GameObject;
-        RectTransform placeholderTransform = placeholder_go.GetComponent<RectTransform>();
-        placeholderTransform.anchorMin = new Vector2(0f, 0f);
-        placeholderTransform.anchorMax = new Vector2(1f, 1f);
-        placeholderTransform.sizeDelta = new Vector2(0f, 0f);
+    //     GameObject placeholder_go = UnityEngine.Object.Instantiate(mediaLoadingPrefab, elementTransform) as GameObject;
+    //     RectTransform placeholderTransform = placeholder_go.GetComponent<RectTransform>();
+    //     placeholderTransform.anchorMin = new Vector2(0f, 0f);
+    //     placeholderTransform.anchorMax = new Vector2(1f, 1f);
+    //     placeholderTransform.sizeDelta = new Vector2(0f, 0f);
 
-        Image retVal = newElement.AddComponent<Image>();
-        return retVal;
-    }
+    //     Image retVal = newElement.AddComponent<Image>();
+    //     return retVal;
+    // }
 
     private void ApplyMediaGalleryTexture(Image image, Texture2D texture)
     {
