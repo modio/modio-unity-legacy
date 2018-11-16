@@ -905,8 +905,8 @@ public class ModBrowser : MonoBehaviour
         int newModIndex = inspectorData.currentModIndex + direction;
         int offsetIndex = newModIndex - firstExplorerIndex;
 
-        Debug.Assert(newModIndex >= 0);
-        Debug.Assert(newModIndex <= inspectorData.lastModIndex);
+        // Debug.Assert(newModIndex >= 0);
+        // Debug.Assert(newModIndex <= inspectorData.lastModIndex);
 
         // profile
         if(offsetIndex < 0)

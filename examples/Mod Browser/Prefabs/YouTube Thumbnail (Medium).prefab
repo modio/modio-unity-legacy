@@ -57,7 +57,6 @@ GameObject:
   - component: {fileID: 222227809444400222}
   - component: {fileID: 114036899722901572}
   - component: {fileID: 114224974763670578}
-  - component: {fileID: 114628175705817240}
   m_Layer: 5
   m_Name: Button+Tint
   m_TagString: Untagged
@@ -269,18 +268,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114628175705817240
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1669292339366142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd2f1747feb8f4ff39e6cdda451c66ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  youTubeVideoId: 
 --- !u!114 &114789102035979850
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -295,7 +282,9 @@ MonoBehaviour:
   loadingPrefab: {fileID: 1211250885151908, guid: 2f40aeca2bf41497e9da178e556a22b6,
     type: 2}
   thumbnailImage: {fileID: 114129838812102000}
+  modId: 0
   youTubeVideoId: 
+  loadingInstance: {fileID: 0}
 --- !u!222 &222071074061383464
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -379,7 +368,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 760, y: 427.5}
+  m_SizeDelta: {x: 760, y: 428}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224782540633271160
 RectTransform:
@@ -395,7 +384,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 142.5}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
