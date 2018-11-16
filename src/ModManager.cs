@@ -761,6 +761,18 @@ namespace ModIO
             return request;
         }
 
+        public static ModBinaryRequest GetDownloadInProgress(int modfileId)
+        {
+            foreach(ModBinaryRequest inProgressRequest in downloadsInProgress)
+            {
+                if(inProgressRequest.modfileId == modfileId)
+                {
+                    return inProgressRequest;
+                }
+            }
+            return null;
+        }
+
         public static void DeleteInactiveBuilds(ModProfile profile)
         {
             string buildDir = CacheClient.GenerateModBinariesDirectoryPath(profile.id);

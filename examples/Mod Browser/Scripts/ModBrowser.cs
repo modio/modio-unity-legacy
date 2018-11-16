@@ -1261,6 +1261,18 @@ public class ModBrowser : MonoBehaviour
         // begin download
         ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
 
+        // TODO(@jackson): Dirty hack
+        ModBrowserItem[] mbiArray = Resources.FindObjectsOfTypeAll<ModBrowserItem>();
+        foreach(ModBrowserItem mbi in mbiArray)
+        {
+            if(mbi.profile != null
+               && mbi.profile.id == profile.id
+               && mbi.downloadProgressPercentageText != null)
+            {
+                this.StartCoroutine(updateMBIProgress(mbi, request));
+            }
+        }
+
         if(!request.isDone)
         {
             modDownloads.Add(request);
@@ -1273,6 +1285,29 @@ public class ModBrowser : MonoBehaviour
         }
 
         UpdateViewSubscriptions();
+    }
+
+    private IEnumerator updateMBIProgress(ModBrowserItem mbi, ModBinaryRequest r)
+    {
+        mbi.downloadProgressPercentageText.text = "Initializing";
+
+        while(!r.isDone)
+        {
+            if(r.webRequest != null)
+            {
+                float percentComplete = r.webRequest.downloadProgress;
+                string displayString = ("Downloading "
+                                        + (percentComplete * 100f).ToString("0.0")
+                                        + "%");
+                mbi.downloadProgressPercentageText.text = displayString;
+            }
+
+            mbi.downloadProgressPercentageText.text = "Downloading 100%";
+
+            yield return new WaitForSeconds(4f);
+        }
+
+        mbi.downloadProgressPercentageText.gameObject.SetActive(false);
     }
 
     public void UnsubscribeFromMod(ModProfile profile)

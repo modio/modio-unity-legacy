@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -68,6 +69,9 @@ public class ModBrowserItem : MonoBehaviour
     public Button unsubscribeButton;
     public Button enableModButton;
     public Button disableModButton;
+
+    // TODO(@jackson): You know what to do...
+    public Text downloadProgressPercentageText;
 
     [Header("Display Data")]
     public ModProfile profile = null;
@@ -691,6 +695,9 @@ public class ModBrowserItem : MonoBehaviour
             {
                 updateDelegate();
             }
+
+            // TODO(@jackson): yep
+            // UpdateDownloadProgressDisplay();
         }
         else
         {
@@ -745,6 +752,12 @@ public class ModBrowserItem : MonoBehaviour
                 unsubscribeButton.gameObject.SetActive(isSubscribed);
             }
         }
+
+        if(profile != null && isSubscribed)
+        {
+            // TODO(@jackson): yep
+            // UpdateDownloadProgressDisplay();
+        }
     }
 
     public void UpdateIsModEnabledDisplay()
@@ -774,6 +787,73 @@ public class ModBrowserItem : MonoBehaviour
             }
         }
     }
+
+    public void UpdateDownloadProgressDisplay()
+    {
+        if(downloadProgressPercentageText != null)
+        {
+            ModBinaryRequest request = ModManager.GetDownloadInProgress(profile.activeBuild.id);
+            if(request == null
+               || request.isDone)
+            {
+                downloadProgressPercentageText.gameObject.SetActive(false);
+            }
+            else
+            {
+                downloadProgressPercentageText.gameObject.SetActive(true);
+
+                StartCoroutine(UpdateDownloadProgressText(request));
+            }
+        }
+    }
+
+    public IEnumerator UpdateDownloadProgressText(ModBinaryRequest request)
+    {
+        downloadProgressPercentageText.text = "Initializing";
+
+        while(!request.isDone)
+        {
+            if(request.webRequest != null)
+            {
+                float percentComplete = request.webRequest.downloadProgress;
+                string displayString = ("Downloading "
+                                        + (percentComplete * 100f).ToString("0.0")
+                                        + "%");
+                downloadProgressPercentageText.text = displayString;
+            }
+
+            downloadProgressPercentageText.text = "Downloading 100%";
+
+            yield return new WaitForSeconds(4f);
+        }
+
+        downloadProgressPercentageText.gameObject.SetActive(false);
+    }
+
+    // private IEnumerator UpdateDownloadProgressBar(ModBinaryRequest request)
+    // {
+    //     itemInspector_downloadProgressBar.sizeDelta = new Vector2(0f, 0f);
+    //     itemInspector_downloadProgressText.text = "Initializing";
+
+    //     RectTransform progressBarParent = itemInspector_downloadProgressBar.parent.GetComponent<RectTransform>();
+    //     while(!request.isDone)
+    //     {
+    //         if(request.webRequest != null)
+    //         {
+    //             float percentComplete = request.webRequest.downloadProgress;
+
+    //             float barWidth = percentComplete * progressBarParent.rect.width;
+    //             itemInspector_downloadProgressBar.sizeDelta = new Vector2(barWidth, 0f);
+
+    //             itemInspector_downloadProgressText.text = (percentComplete * 100f).ToString("0.0") + "%";
+    //         }
+
+    //         yield return null;
+    //     }
+
+    //     itemInspector_buttonContainer.gameObject.SetActive(true);
+    //     itemInspector_downloadContainer.gameObject.SetActive(false);
+    // }
 
     // ---------[ EVENTS ]---------
     public void InspectClicked()
