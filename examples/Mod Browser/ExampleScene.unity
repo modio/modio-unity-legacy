@@ -352,16 +352,6 @@ Prefab:
       propertyPath: m_Name
       value: ModBrowser
       objectReference: {fileID: 0}
-    - target: {fileID: 224681085448584648, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224681085448584648, guid: df954dfebde1c4fdda2233d14d2bf4cd,
-        type: 2}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 224221118626415054, guid: df954dfebde1c4fdda2233d14d2bf4cd,
         type: 2}
       propertyPath: m_SizeDelta.x
