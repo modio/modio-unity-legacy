@@ -533,24 +533,35 @@ namespace ModIO
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
         {
+            GetModLogo(profile.id, profile.logoLocator,
+                       size,
+                       onSuccess,
+                       onError);
+        }
+
+        public static void GetModLogo(int modId, LogoImageLocator logoLocator,
+                                      LogoSize size,
+                                      Action<Texture2D> onSuccess,
+                                      Action<WebRequestError> onError)
+        {
             Debug.Assert(onSuccess != null);
 
-            var logoTexture = CacheClient.LoadModLogo(profile.id, size);
+            var logoTexture = CacheClient.LoadModLogo(modId, size);
             if(logoTexture != null)
             {
                 onSuccess(logoTexture);
             }
 
-            var versionFilePaths = CacheClient.LoadModLogoFilePaths(profile.id);
+            var versionFilePaths = CacheClient.LoadModLogoFilePaths(modId);
 
             if(logoTexture == null
-               || versionFilePaths[size] != profile.logoLocator.GetFileName())
+               || versionFilePaths[size] != logoLocator.GetFileName())
             {
-                var textureDownload = DownloadClient.DownloadModLogo(profile, size);
+                var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
 
                 textureDownload.succeeded += (d) =>
                 {
-                    CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
+                    CacheClient.SaveModLogo(modId, logoLocator.GetFileName(),
                                             size, d.imageTexture);
                 };
 
