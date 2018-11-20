@@ -44,6 +44,7 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     private delegate string GetDisplayString(ModProfile profile);
     private Dictionary<Text, GetDisplayString> m_displayMapping = null;
     private List<GameObject> m_loadingInstances = null;
+    private List<IModProfilePresenter> m_nestedPresenters = null;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
@@ -57,58 +58,6 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
 
             return;
         }
-
-
-        Debug.Assert(logoDisplay == null || logoLoadingPrefab != null,
-                     "[mod.io] If the profile logo is to be displayed, this display requires a"
-                     + " logoLoadingPrefab to present while loading.");
-
-        m_displayMapping = new Dictionary<Text, GetDisplayString>();
-
-        // // - logo -
-        // if(logoDisplay != null)
-        // {
-        //     RectTransform displayRT = logoDisplay.transform as RectTransform;
-        //     RectTransform parentRT = displayRT.parent as RectTransform;
-        //     GameObject loadingGO = GameObject.Instantiate(logoLoadingPrefab,
-        //                                                   new Vector3(),
-        //                                                   Quaternion.identity,
-        //                                                   parentRT);
-
-        //     RectTransform loadingRT = loadingGO.transform as RectTransform;
-        //     loadingRT.anchorMin = displayRT.anchorMin;
-        //     loadingRT.anchorMax = displayRT.anchorMax;
-        //     loadingRT.offsetMin = displayRT.offsetMin;
-        //     loadingRT.offsetMax = displayRT.offsetMax;
-
-        //     m_profileUIDelegates.Add(() =>
-        //     {
-        //         Action<Texture2D> onGetTexture = (t) =>
-        //         {
-        //             #if UNITY_EDITOR
-        //             if(!Application.isPlaying) { return; }
-        //             #endif
-
-        //             Debug.Assert(t != null);
-
-        //             logoDisplay.sprite = ModBrowser.CreateSpriteFromTexture(t);
-        //             logoDisplay.gameObject.SetActive(true);
-        //             loadingGO.gameObject.SetActive(false);
-        //         };
-
-        //         loadingGO.SetActive(true);
-        //         logoDisplay.gameObject.SetActive(false);
-
-        //         // TODO(@jackson): onError
-        //         ModManager.GetModLogo(profile, logoSize, onGetTexture, null);
-        //     });
-
-        //     m_profileLoadingUIDelegates.Add(() =>
-        //     {
-        //         loadingGO.SetActive(true);
-        //         logoDisplay.gameObject.SetActive(false);
-        //     });
-        // }
 
         // // - avatar -
         // if(creatorAvatarDisplay != null)
@@ -203,6 +152,8 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         // }
 
         // - text elements -
+        m_displayMapping = new Dictionary<Text, GetDisplayString>();
+
         if(nameDisplay != null)
         {
             m_displayMapping.Add(nameDisplay, (p) => p.name);
@@ -274,7 +225,13 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         }
 
         // - nested components -
+        m_nestedPresenters = new List<IModProfilePresenter>();
 
+        if(logoDisplay != null)
+        {
+            m_nestedPresenters.Add(logoDisplay);
+            logoDisplay.Initialize();
+        }
 
         // // - modfile elements -
         // if(modfileDateAddedDisplay != null)
@@ -375,6 +332,11 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
                 loadingInstance.SetActive(false);
             }
         }
+
+        foreach(IModProfilePresenter presenter in m_nestedPresenters)
+        {
+            presenter.DisplayProfile(profile);
+        }
     }
 
     public void DisplayLoading()
@@ -396,6 +358,11 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
             {
                 textComponent.text = string.Empty;
             }
+        }
+
+        foreach(IModProfilePresenter presenter in m_nestedPresenters)
+        {
+            presenter.DisplayLoading();
         }
     }
 }

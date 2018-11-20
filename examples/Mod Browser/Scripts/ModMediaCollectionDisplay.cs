@@ -67,10 +67,8 @@ public class ModMediaCollectionDisplay : MonoBehaviour
         {
             GameObject media_go = GameObject.Instantiate(logoPrefab, container);
             ModLogoDisplay mediaDisplay = media_go.GetComponent<ModLogoDisplay>();
-            mediaDisplay.modId = modId;
-            mediaDisplay.logoLocator = logoLocator;
             mediaDisplay.Initialize();
-            mediaDisplay.UpdateDisplay();
+            mediaDisplay.DisplayLogo(modId, logoLocator);
             mediaDisplay.onClick += OnLogoClicked;
         }
 

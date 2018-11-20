@@ -9,36 +9,23 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
     public event Action<ModLogoDisplay> onClick;
 
     [Header("Settings")]
-    public GameObject loadingPrefab;
     public LogoSize logoSize;
 
     [Header("UI Components")]
+    public GameObject loadingPlaceholder;
     public Image image;
 
+    // TODO(@jackson): Is this needed?
     [Header("Display Data")]
-    public int modId;
-    public LogoImageLocator logoLocator;
-
-    [Header("Runtime Data")]
-    public GameObject loadingInstance;
+    #pragma warning disable 0414
+    [SerializeField] private int m_modId;
+    [SerializeField] private LogoImageLocator m_logoLocator;
+    #pragma warning restore 0414
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
         Debug.Assert(image != null);
-
-        if(loadingPrefab != null)
-        {
-            loadingInstance = GameObject.Instantiate(loadingPrefab, image.transform);
-
-            RectTransform instance_rt = loadingInstance.transform as RectTransform;
-            instance_rt.anchorMin = new Vector2(0f, 0f);
-            instance_rt.anchorMax = new Vector2(1f, 1f);
-            instance_rt.offsetMin = Vector2.zero;
-            instance_rt.offsetMax = Vector2.zero;
-
-            loadingInstance.gameObject.SetActive(false);
-        }
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -56,8 +43,8 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
         Debug.Assert(logoLocator != null,
                      "[mod.io] logoLocator needs to be set and have a fileName.");
 
-        this.modId = modId;
-        this.logoLocator = logoLocator;
+        m_modId = modId;
+        m_logoLocator = logoLocator;
 
         DisplayLoading();
         ModManager.GetModLogo(modId, logoLocator, logoSize,
@@ -67,26 +54,12 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
 
     public void DisplayLoading()
     {
-        if(loadingInstance != null)
+        if(loadingPlaceholder != null)
         {
-            loadingInstance.gameObject.SetActive(true);
+            loadingPlaceholder.gameObject.SetActive(true);
         }
-        else
-        {
-            image.enabled = false;
-        }
-    }
 
-    public void UpdateDisplay()
-    {
-        if(modId > 0 && logoLocator != null)
-        {
-            DisplayLogo(modId, logoLocator);
-        }
-        else
-        {
-            DisplayLoading();
-        }
+        image.enabled = false;
     }
 
     private void OnGetThumbnail(string fileName, Texture2D texture)
@@ -95,15 +68,15 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
         if(!Application.isPlaying) { return; }
         #endif
 
-        if(fileName != this.logoLocator.fileName
+        if(fileName != m_logoLocator.fileName
            || this.image == null)
         {
             return;
         }
 
-        if(loadingInstance != null)
+        if(loadingPlaceholder != null)
         {
-            loadingInstance.gameObject.SetActive(false);
+            loadingPlaceholder.gameObject.SetActive(false);
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
