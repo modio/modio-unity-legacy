@@ -6,6 +6,8 @@ using ModIO;
 public class YouTubeThumbnailDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    public event Action<YouTubeThumbnailDisplay> onClick;
+
     [Header("Settings")]
     public GameObject loadingPrefab;
 
@@ -77,8 +79,16 @@ public class YouTubeThumbnailDisplay : MonoBehaviour
         thumbnailImage.sprite = ModBrowser.CreateSpriteFromTexture(texture);
     }
 
-    public void OpenYouTubeVideoURL()
+    // public void OpenYouTubeVideoURL()
+    // {
+    //     Application.OpenURL(@"https://youtu.be/" + youTubeVideoId);
+    // }
+
+    public void NotifyClicked()
     {
-        Application.OpenURL(@"https://youtu.be/" + youTubeVideoId);
+        if(this.onClick != null)
+        {
+            this.onClick(this);
+        }
     }
 }

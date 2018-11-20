@@ -6,6 +6,8 @@ using ModIO;
 public class ModGalleryImageDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    public event Action<ModGalleryImageDisplay> onClick;
+
     [Header("Settings")]
     public GameObject loadingPrefab;
     public ModGalleryImageSize imageSize;
@@ -75,5 +77,13 @@ public class ModGalleryImageDisplay : MonoBehaviour
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+    }
+
+    public void NotifyClicked()
+    {
+        if(this.onClick != null)
+        {
+            this.onClick(this);
+        }
     }
 }

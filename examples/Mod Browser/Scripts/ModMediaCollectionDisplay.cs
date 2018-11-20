@@ -1,14 +1,21 @@
-﻿using UnityEngine;
-
+﻿using System;
+using UnityEngine;
 using ModIO;
+
+public delegate void YouTubeIdReceiver(string youTubeVideoId);
+public delegate void GalleryImageFileNameReceiver(string imageFileName);
 
 public class ModMediaCollectionDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    public event Action logoClicked;
+    public event YouTubeIdReceiver youTubePreviewClicked;
+    public event GalleryImageFileNameReceiver galleryImageClicked;
+
     [Header("Settings")]
     public GameObject logoPrefab;
     public GameObject galleryImagePrefab;
-    public GameObject youTubeThumbnailPrefab;
+    public GameObject youTubePreviewPrefab;
 
     [Header("UI Components")]
     public RectTransform container;
@@ -38,10 +45,10 @@ public class ModMediaCollectionDisplay : MonoBehaviour
                          + " component attached in order to display correctly.");
         }
 
-        if(youTubeThumbnailPrefab != null)
+        if(youTubePreviewPrefab != null)
         {
-            Debug.Assert(youTubeThumbnailPrefab.GetComponent<YouTubeThumbnailDisplay>() != null,
-                         "[mod.io] The youTubeThumbnailPrefab needs to have a YouTubeThumbnailDisplay"
+            Debug.Assert(youTubePreviewPrefab.GetComponent<YouTubeThumbnailDisplay>() != null,
+                         "[mod.io] The youTubePreviewPrefab needs to have a YouTubeThumbnailDisplay"
                          + " component attached in order to display correctly.");
         }
         #endif
@@ -64,22 +71,24 @@ public class ModMediaCollectionDisplay : MonoBehaviour
             mediaDisplay.logoLocator = logoLocator;
             mediaDisplay.Initialize();
             mediaDisplay.UpdateDisplay();
+            mediaDisplay.onClick += OnLogoClicked;
         }
 
         if(modId > 0
            && mediaCollection != null)
         {
             if(mediaCollection.youTubeURLs != null
-               && youTubeThumbnailPrefab != null)
+               && youTubePreviewPrefab != null)
             {
                 foreach(string youTubeURL in mediaCollection.youTubeURLs)
                 {
-                    GameObject media_go = GameObject.Instantiate(youTubeThumbnailPrefab, container);
+                    GameObject media_go = GameObject.Instantiate(youTubePreviewPrefab, container);
                     YouTubeThumbnailDisplay mediaDisplay = media_go.GetComponent<YouTubeThumbnailDisplay>();
                     mediaDisplay.modId = modId;
                     mediaDisplay.youTubeVideoId = Utility.ExtractYouTubeIdFromURL(youTubeURL);
                     mediaDisplay.Initialize();
                     mediaDisplay.UpdateDisplay();
+                    mediaDisplay.onClick += OnYouTubePreviewClicked;
                 }
             }
 
@@ -94,8 +103,36 @@ public class ModMediaCollectionDisplay : MonoBehaviour
                     mediaDisplay.imageLocator = imageLocator;
                     mediaDisplay.Initialize();
                     mediaDisplay.UpdateDisplay();
+                    mediaDisplay.onClick += OnGalleryImageClicked;
                 }
             }
+        }
+    }
+
+    private void OnLogoClicked(ModLogoDisplay display)
+    {
+        Debug.Log("CLICKED");
+        if(this.logoClicked != null)
+        {
+            this.logoClicked();
+        }
+    }
+
+    private void OnYouTubePreviewClicked(YouTubeThumbnailDisplay display)
+    {
+        Debug.Log("CLICKED");
+        if(this.youTubePreviewClicked != null)
+        {
+            this.youTubePreviewClicked(display.youTubeVideoId);
+        }
+    }
+
+    private void OnGalleryImageClicked(ModGalleryImageDisplay display)
+    {
+        Debug.Log("CLICKED");
+        if(this.galleryImageClicked != null)
+        {
+            this.galleryImageClicked(display.imageLocator.fileName);
         }
     }
 }

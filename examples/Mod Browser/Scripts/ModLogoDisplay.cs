@@ -6,6 +6,8 @@ using ModIO;
 public class ModLogoDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    public event Action<ModLogoDisplay> onClick;
+
     [Header("Settings")]
     public GameObject loadingPrefab;
     public LogoSize logoSize;
@@ -75,5 +77,13 @@ public class ModLogoDisplay : MonoBehaviour
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+    }
+
+    public void NotifyClicked()
+    {
+        if(this.onClick != null)
+        {
+            this.onClick(this);
+        }
     }
 }
