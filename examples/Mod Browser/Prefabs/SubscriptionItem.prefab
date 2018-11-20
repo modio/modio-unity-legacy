@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224736745252371414}
   m_Layer: 5
-  m_Name: CollectionListItem
+  m_Name: SubscriptionItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

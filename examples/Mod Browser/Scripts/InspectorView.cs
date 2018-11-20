@@ -65,8 +65,6 @@ public class InspectorView : MonoBehaviour
     public GameObject youTubeOverlayPrefab;
     public GameObject versionHistoryItemPrefab;
     public UserAvatarSize avatarSize;
-    public LogoSize logoSize;
-    public ModGalleryImageSize galleryImageSize;
     public bool ifDescriptionMissingLoadSummary;
 
     [Header("UI Components")]
@@ -198,6 +196,7 @@ public class InspectorView : MonoBehaviour
         if(mediaCollectionDisplay != null)
         {
             mediaCollectionDisplay.modId = profile.id;
+            mediaCollectionDisplay.logoLocator = profile.logoLocator;
             mediaCollectionDisplay.mediaCollection = profile.media;
             mediaCollectionDisplay.UpdateDisplay();
         }
