@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-public class ModProfileDisplay : MonoBehaviour
+public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
 {
     // ---------[ FIELDS ]---------
     [Header("Settings")]
@@ -35,10 +35,11 @@ public class ModProfileDisplay : MonoBehaviour
     public Text modfileSizeDisplay;
     public Text modfileVersionDisplay;
 
-    // ---[ RUNTIME DATA ]---
+    [Header("Display Data")]
     [SerializeField]
     private ModProfile m_profile = null;
 
+    // ---[ RUNTIME DATA ]---
     private bool m_isInitialized = false;
     private delegate string GetDisplayString(ModProfile profile);
     private Dictionary<Text, GetDisplayString> m_displayMapping = null;
@@ -357,7 +358,7 @@ public class ModProfileDisplay : MonoBehaviour
     // ---------[ UI FUNCTIONALITY ]---------
     public void DisplayProfile(ModProfile profile)
     {
-        Debug.Asset(profile != null);
+        Debug.Assert(profile != null);
 
         m_profile = profile;
 

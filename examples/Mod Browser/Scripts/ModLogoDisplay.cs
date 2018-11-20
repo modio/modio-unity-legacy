@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-public class ModLogoDisplay : MonoBehaviour
+public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
 {
     // ---------[ FIELDS ]---------
     public event Action<ModLogoDisplay> onClick;
@@ -42,21 +42,51 @@ public class ModLogoDisplay : MonoBehaviour
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void UpdateDisplay()
+    public void DisplayProfile(ModProfile profile)
+    {
+        Debug.Assert(profile != null);
+
+        DisplayLogo(profile.id, profile.logoLocator);
+    }
+
+    public void DisplayLogo(int modId, LogoImageLocator logoLocator)
     {
         Debug.Assert(modId > 0,
                      "[mod.io] Mod Id needs to be set to a valid mod profile id.");
         Debug.Assert(logoLocator != null,
                      "[mod.io] logoLocator needs to be set and have a fileName.");
 
+        this.modId = modId;
+        this.logoLocator = logoLocator;
+
+        DisplayLoading();
+        ModManager.GetModLogo(modId, logoLocator, logoSize,
+                              (t) => OnGetThumbnail(logoLocator.fileName, t),
+                              WebRequestError.LogAsWarning);
+    }
+
+    public void DisplayLoading()
+    {
         if(loadingInstance != null)
         {
             loadingInstance.gameObject.SetActive(true);
         }
+        else
+        {
+            image.enabled = false;
+        }
+    }
 
-        ModManager.GetModLogo(modId, logoLocator, logoSize,
-                              (t) => OnGetThumbnail(logoLocator.fileName, t),
-                              WebRequestError.LogAsWarning);
+    public void UpdateDisplay()
+    {
+        if(modId > 0 && logoLocator != null)
+        {
+            DisplayLogo(modId, logoLocator);
+        }
+        else
+        {
+            DisplayLoading();
+        }
     }
 
     private void OnGetThumbnail(string fileName, Texture2D texture)
@@ -77,6 +107,7 @@ public class ModLogoDisplay : MonoBehaviour
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+        image.enabled = true;
     }
 
     public void NotifyClicked()
