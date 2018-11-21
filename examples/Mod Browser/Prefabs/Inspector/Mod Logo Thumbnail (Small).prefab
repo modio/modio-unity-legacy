@@ -76,16 +76,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54bb5ff2aba0b48b3aec840fa7492ac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logoSize: 1
+  logoSize: 3
   image: {fileID: 114570025219337196}
   loadingPlaceholder: {fileID: 1385752765964470}
   m_modId: 0
-  m_logoLocator:
-    fileName: 
-    original: 
-    thumbnail_320x180: 
-    thumbnail_640x360: 
-    thumbnail_1280x720: 
+  m_imageFileName: 
 --- !u!114 &114415024368027130
 MonoBehaviour:
   m_ObjectHideFlags: 1
