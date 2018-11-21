@@ -72,19 +72,16 @@ public class YouTubeThumbnailDisplay : MonoBehaviour
         image.enabled = true;
     }
 
-    public void OpenYouTubeVideoURL()
-    {
-        if(!String.IsNullOrEmpty(m_youTubeVideoId))
-        {
-            Application.OpenURL(@"https://youtu.be/" + m_youTubeVideoId);
-        }
-    }
-
     public void NotifyClicked()
     {
         if(this.onClick != null)
         {
             this.onClick(this, m_modId, m_youTubeVideoId);
         }
+    }
+
+    public void OpenYouTubeVideoURL()
+    {
+        ModBrowser.OpenYouTubeVideoURL(m_youTubeVideoId);
     }
 }

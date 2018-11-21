@@ -1732,4 +1732,12 @@ public class ModBrowser : MonoBehaviour
                              new Rect(0.0f, 0.0f, texture.width, texture.height),
                              Vector2.zero);
     }
+
+    public static void OpenYouTubeVideoURL(string youTubeVideoId)
+    {
+        if(!String.IsNullOrEmpty(youTubeVideoId))
+        {
+            Application.OpenURL(@"https://youtu.be/" + youTubeVideoId);
+        }
+    }
 }

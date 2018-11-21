@@ -6,7 +6,16 @@ using ModIO;
 public class ModMediaElementDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    // TODO(@jackson): Add click events
+    public delegate void OnLogoClicked(ModMediaElementDisplay component,
+                                       int modId);
+    public delegate void OnYouTubeThumbClicked(ModMediaElementDisplay component,
+                                               int modId, string youTubeVideoId);
+    public delegate void OnGalleryImageClicked(ModMediaElementDisplay component,
+                                               int modId, string imageFileName);
+
+    public event OnLogoClicked          logoClicked;
+    public event OnYouTubeThumbClicked  youTubeThumbClicked;
+    public event OnGalleryImageClicked  galleryImageClicked;
 
     [Header("Settings")]
     public LogoSize logoSize;
@@ -22,11 +31,24 @@ public class ModMediaElementDisplay : MonoBehaviour
     [Header("Display Data")]
     [SerializeField] private int m_modId = -1;
     [SerializeField] private string m_mediaId = string.Empty;
+    private Action m_clickNotifier = () => {};
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
         Debug.Assert(image != null);
+        if(logoOverlay != null)
+        {
+            logoOverlay.SetActive(false);
+        }
+        if(youTubeOverlay != null)
+        {
+            youTubeOverlay.SetActive(false);
+        }
+        if(galleryImageOverlay != null)
+        {
+            galleryImageOverlay.SetActive(false);
+        }
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -39,6 +61,7 @@ public class ModMediaElementDisplay : MonoBehaviour
 
         m_modId = modId;
         m_mediaId = "_LOGO_";
+        m_clickNotifier = NotifyLogoClicked;
 
         DisplayLoading();
         ModManager.GetModLogo(modId, logoLocator, logoSize,
@@ -55,6 +78,7 @@ public class ModMediaElementDisplay : MonoBehaviour
 
         m_modId = modId;
         m_mediaId = youTubeVideoId;
+        m_clickNotifier = NotifyYouTubeClicked;
 
         DisplayLoading();
         ModManager.GetModYouTubeThumbnail(modId, youTubeVideoId,
@@ -71,6 +95,7 @@ public class ModMediaElementDisplay : MonoBehaviour
 
         m_modId = modId;
         m_mediaId = imageLocator.fileName;
+        m_clickNotifier = NotifyImageClicked;
 
         DisplayLoading();
         ModManager.GetModGalleryImage(modId, imageLocator, galleryImageSize,
@@ -128,7 +153,30 @@ public class ModMediaElementDisplay : MonoBehaviour
 
     public void NotifyClicked()
     {
-        // TODO(@jackson)
-        throw new System.NotImplementedException();
+        m_clickNotifier();
+    }
+
+    private void NotifyLogoClicked()
+    {
+        if(logoClicked != null)
+        {
+            logoClicked(this, m_modId);
+        }
+    }
+
+    private void NotifyYouTubeClicked()
+    {
+        if(youTubeThumbClicked != null)
+        {
+            youTubeThumbClicked(this, m_modId, m_mediaId);
+        }
+    }
+
+    private void NotifyImageClicked()
+    {
+        if(galleryImageClicked != null)
+        {
+            galleryImageClicked(this, m_modId, m_mediaId);
+        }
     }
 }
