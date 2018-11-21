@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using ModIO;
 
-public delegate void YouTubeIdReceiver(string youTubeVideoId);
-public delegate void GalleryImageFileNameReceiver(string imageFileName);
-
 public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
 {
     // ---------[ FIELDS ]---------
-    public event Action logoClicked;
-    public event YouTubeIdReceiver youTubeThumbnailClicked;
-    public event GalleryImageFileNameReceiver galleryImageClicked;
+    public event ModLogoDisplay.OnClickDelegate logoClicked;
+    public event YouTubeThumbnailDisplay.OnClickDelegate youTubeThumbnailClicked;
+    public event ModGalleryImageDisplay.OnClickDelegate galleryImageClicked;
 
     [Header("Settings")]
     public GameObject logoPrefab;
@@ -136,7 +133,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
         Debug.Log("CLICKED");
         if(this.logoClicked != null)
         {
-            this.logoClicked();
+            this.logoClicked(component, modId);
         }
     }
 
@@ -146,7 +143,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
         Debug.Log("CLICKED");
         if(this.youTubeThumbnailClicked != null)
         {
-            this.youTubeThumbnailClicked(youTubeVideoId);
+            this.youTubeThumbnailClicked(component, modId, youTubeVideoId);
         }
     }
 
@@ -156,7 +153,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
         Debug.Log("CLICKED");
         if(this.galleryImageClicked != null)
         {
-            this.galleryImageClicked(imageFileName);
+            this.galleryImageClicked(component, modId, imageFileName);
         }
     }
 }
