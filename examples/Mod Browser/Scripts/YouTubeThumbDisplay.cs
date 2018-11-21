@@ -3,10 +3,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-public class YouTubeThumbnailDisplay : MonoBehaviour
+public class YouTubeThumbDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public delegate void OnClickDelegate(YouTubeThumbnailDisplay component,
+    public delegate void OnClickDelegate(YouTubeThumbDisplay component,
                                          int modId, string youTubeVideoId);
     public event OnClickDelegate onClick;
 

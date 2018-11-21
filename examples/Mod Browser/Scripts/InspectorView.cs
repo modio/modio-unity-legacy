@@ -73,6 +73,14 @@ public class InspectorView : MonoBehaviour
             selectedMediaPreview.youTubeThumbClicked += (c, mId, ytId) => ModBrowser.OpenYouTubeVideoURL(ytId);
             // selectedMediaPreview.logoClicked += (c, mId) => Debug.Log("Clicked Logo");
             // selectedMediaPreview.galleryImageClicked += (c, mId, iFN) => Debug.Log("Clicked Image: " + iFN);
+
+            if(profileDisplay != null
+               && profileDisplay.mediaDisplay != null)
+            {
+                profileDisplay.mediaDisplay.logoClicked += MediaPreview_Logo;
+                profileDisplay.mediaDisplay.youTubeThumbClicked += MediaPreview_YouTubeThumb;
+                profileDisplay.mediaDisplay.galleryImageClicked += MediaPreview_GalleryImage;
+            }
         }
     }
 
@@ -328,5 +336,21 @@ public class InspectorView : MonoBehaviour
             entry.modfile = modfile;
             entry.UpdateUIComponents();
         }
+    }
+
+    // ---------[ CLICKS ]---------
+    private void MediaPreview_Logo(ModLogoDisplay display, int modId)
+    {
+        selectedMediaPreview.DisplayLogoTexture(modId, display.image.mainTexture as Texture2D);
+    }
+    private void MediaPreview_YouTubeThumb(YouTubeThumbDisplay display, int modId, string youTubeVideoId)
+    {
+        selectedMediaPreview.DisplayYouTubeThumbTexture(modId, youTubeVideoId,
+                                                        display.image.mainTexture as Texture2D);
+    }
+    private void MediaPreview_GalleryImage(ModGalleryImageDisplay display, int modId, string imageFileName)
+    {
+        selectedMediaPreview.DisplayGalleryImage(modId,
+                                                 profile.media.GetGalleryImageWithFileName(imageFileName));
     }
 }

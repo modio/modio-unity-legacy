@@ -8,7 +8,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
     // ---------[ FIELDS ]---------
     public delegate void OnLogoClicked(ModLogoDisplay component,
                                        int modId);
-    public delegate void OnYouTubeThumbClicked(YouTubeThumbnailDisplay component,
+    public delegate void OnYouTubeThumbClicked(YouTubeThumbDisplay component,
                                                int modId, string youTubeVideoId);
     public delegate void OnGalleryImageClicked(ModGalleryImageDisplay component,
                                                int modId, string imageFileName);
@@ -53,8 +53,8 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
 
         if(youTubeThumbnailPrefab != null)
         {
-            Debug.Assert(youTubeThumbnailPrefab.GetComponent<YouTubeThumbnailDisplay>() != null,
-                         "[mod.io] The youTubeThumbnailPrefab needs to have a YouTubeThumbnailDisplay"
+            Debug.Assert(youTubeThumbnailPrefab.GetComponent<YouTubeThumbDisplay>() != null,
+                         "[mod.io] The youTubeThumbnailPrefab needs to have a YouTubeThumbDisplay"
                          + " component attached in order to display correctly.");
         }
         #endif
@@ -104,7 +104,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
             foreach(string youTubeURL in youTubeURLs)
             {
                 GameObject media_go = GameObject.Instantiate(youTubeThumbnailPrefab, container);
-                YouTubeThumbnailDisplay mediaDisplay = media_go.GetComponent<YouTubeThumbnailDisplay>();
+                YouTubeThumbDisplay mediaDisplay = media_go.GetComponent<YouTubeThumbDisplay>();
                 mediaDisplay.Initialize();
                 mediaDisplay.DisplayYouTubeThumbnail(modId, Utility.ExtractYouTubeIdFromURL(youTubeURL));
                 mediaDisplay.onClick += NotifyYouTubeThumbnailClicked;
@@ -135,17 +135,15 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
 
     private void NotifyLogoClicked(ModLogoDisplay component, int modId)
     {
-        Debug.Log("CLICKED");
         if(this.logoClicked != null)
         {
             this.logoClicked(component, modId);
         }
     }
 
-    private void NotifyYouTubeThumbnailClicked(YouTubeThumbnailDisplay component,
+    private void NotifyYouTubeThumbnailClicked(YouTubeThumbDisplay component,
                                            int modId, string youTubeVideoId)
     {
-        Debug.Log("CLICKED");
         if(this.youTubeThumbClicked != null)
         {
             this.youTubeThumbClicked(component, modId, youTubeVideoId);
@@ -155,7 +153,6 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
     private void NotifyGalleryImageClicked(ModGalleryImageDisplay component,
                                        int modId, string imageFileName)
     {
-        Debug.Log("CLICKED");
         if(this.galleryImageClicked != null)
         {
             this.galleryImageClicked(component, modId, imageFileName);

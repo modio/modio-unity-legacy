@@ -78,6 +78,15 @@ public class ModMediaElementDisplay : MonoBehaviour
         m_mediaId = "_LOGO_";
         m_clickNotifier = NotifyLogoClicked;
 
+        if(youTubeOverlay != null)
+        {
+            youTubeOverlay.SetActive(false);
+        }
+        if(galleryImageOverlay != null)
+        {
+            galleryImageOverlay.SetActive(false);
+        }
+
         LoadTexture(texture, modId, "_LOGO_", logoOverlay);
     }
 
@@ -109,6 +118,15 @@ public class ModMediaElementDisplay : MonoBehaviour
         m_mediaId = youTubeVideoId;
         m_clickNotifier = NotifyYouTubeClicked;
 
+        if(logoOverlay != null)
+        {
+            logoOverlay.SetActive(false);
+        }
+        if(galleryImageOverlay != null)
+        {
+            galleryImageOverlay.SetActive(false);
+        }
+
         LoadTexture(texture, modId, youTubeVideoId, youTubeOverlay);
     }
 
@@ -138,6 +156,15 @@ public class ModMediaElementDisplay : MonoBehaviour
         m_modId = modId;
         m_mediaId = imageFileName;
         m_clickNotifier = NotifyImageClicked;
+
+        if(logoOverlay != null)
+        {
+            logoOverlay.SetActive(false);
+        }
+        if(youTubeOverlay != null)
+        {
+            youTubeOverlay.SetActive(false);
+        }
 
         LoadTexture(texture, modId, imageFileName, galleryImageOverlay);
     }

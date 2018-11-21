@@ -107,10 +107,7 @@ MonoBehaviour:
   image: {fileID: 114570025219337196}
   loadingPlaceholder: {fileID: 1763408483951822}
   m_modId: 0
-  m_imageLocator:
-    fileName: 
-    original: 
-    thumbnail_320x180: 
+  m_imageFileName: 
 --- !u!114 &114570025219337196
 MonoBehaviour:
   m_ObjectHideFlags: 1
