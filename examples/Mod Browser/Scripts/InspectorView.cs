@@ -17,32 +17,6 @@ public class InspectorView : MonoBehaviour
 
     // ---------[ FIELDS ]---------
     [Serializable]
-    public struct InspectorHelper_ProfileElements
-    {
-        public Text name;
-        public Text dateAdded;
-        public Text dateUpdated;
-        public Text dateLive;
-        public Text summary;
-        public Text description_HTML;
-        public Text description_text;
-        public Text tags;
-        public Text latestBuildName;
-        public Text latestVersion;
-        public Text downloadSize;
-        // TODO(@jackson): Create layouting classes
-        public RectTransform versionHistoryContainer;
-    }
-
-    [Serializable]
-    public struct InspectorHelper_CreatorElements
-    {
-        public Text username;
-        public RectTransform avatarContainer;
-        public Text lastOnline;
-    }
-
-    [Serializable]
     public struct InspectorHelper_StatisticsElements
     {
         public Text popularityRankPosition;
@@ -60,18 +34,13 @@ public class InspectorView : MonoBehaviour
 
     // ---[ UI ]---
     [Header("Settings")]
-    public GameObject defaultAvatarPrefab; // TODO(@jackson): Obsolete
-    public GameObject mediaLoadingPrefab;
-    public GameObject youTubeOverlayPrefab;
     public GameObject versionHistoryItemPrefab;
-    public UserAvatarSize avatarSize;
-    public bool ifDescriptionMissingLoadSummary;
 
     [Header("UI Components")]
-    public InspectorHelper_ProfileElements profileElements;
-    public InspectorHelper_CreatorElements creatorElements;
+    public ModProfileDisplay profileDisplay;
+    public ModMediaElementDisplay selectedMediaPreview;
+    public RectTransform versionHistoryContainer;
     public InspectorHelper_StatisticsElements statisticsElements;
-    public ModMediaCollectionDisplay mediaCollectionDisplay;
     public ScrollRect scrollView;
     public Button subscribeButton;
     public Button unsubscribeButton;
@@ -93,150 +62,36 @@ public class InspectorView : MonoBehaviour
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        if(creatorElements.avatarContainer != null)
+        if(profileDisplay != null)
         {
-            if(creatorAvatarPlaceholder == null || creatorAvatar == null)
-            {
-                Debug.Assert(defaultAvatarPrefab != null);
-
-                foreach(Transform t in creatorElements.avatarContainer)
-                {
-                    GameObject.Destroy(t.gameObject);
-                }
-
-                creatorAvatarPlaceholder = UnityEngine.Object.Instantiate(defaultAvatarPrefab,
-                                                                          creatorElements.avatarContainer) as GameObject;
-
-                RectTransform avatarTransform = creatorAvatarPlaceholder.GetComponent<RectTransform>();
-                avatarTransform.anchorMin = new Vector2(0f, 0f);
-                avatarTransform.anchorMax = new Vector2(1f, 1f);
-                avatarTransform.offsetMin = Vector2.zero;
-                avatarTransform.offsetMax = Vector2.zero;
-
-                RectTransform ca_transform = (new GameObject("Creator Avatar")).AddComponent<RectTransform>();
-                ca_transform.SetParent(creatorElements.avatarContainer);
-                ca_transform.anchorMin = new Vector2(0f, 0f);
-                ca_transform.anchorMax = new Vector2(1f, 1f);
-                ca_transform.offsetMin = Vector2.zero;
-                ca_transform.offsetMax = Vector2.zero;
-
-                creatorAvatar = ca_transform.gameObject.AddComponent<Image>();
-
-                creatorAvatarPlaceholder.gameObject.SetActive(true);
-                creatorAvatar.gameObject.SetActive(false);
-            }
+            profileDisplay.Initialize();
         }
     }
 
     // ---------[ UPDATE VIEW ]---------
-    public void UpdateProfileUIComponents()
+    public void UpdateProfileDisplay()
     {
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }
         #endif
 
-        Debug.Assert(creatorElements.avatarContainer == null || creatorAvatarPlaceholder != null,
-                     "[mod.io] InspectorView.UpdateProfileUIComponents() cannot be called until after InspectorView.InitializeLayout() has been called.");
         Debug.Assert(this.profile != null,
                      "[mod.io] Assign the mod profile before updating the profile UI components.");
 
-        // - text elements -
-        if(profileElements.name != null)
+        if(profileDisplay != null)
         {
-            profileElements.name.text = profile.name;
-        }
-        if(profileElements.dateAdded != null)
-        {
-            profileElements.dateAdded.text = ServerTimeStamp.ToLocalDateTime(profile.dateAdded).ToString();
-        }
-        if(profileElements.dateUpdated != null)
-        {
-            profileElements.dateUpdated.text = ServerTimeStamp.ToLocalDateTime(profile.dateUpdated).ToString();
-        }
-        if(profileElements.dateLive != null)
-        {
-            profileElements.dateLive.text = ServerTimeStamp.ToLocalDateTime(profile.dateLive).ToString();
-        }
-        if(profileElements.summary != null)
-        {
-            profileElements.summary.text = profile.summary;
-        }
-        if(profileElements.description_HTML != null)
-        {
-            profileElements.description_HTML.text = (String.IsNullOrEmpty(profile.description_HTML) && ifDescriptionMissingLoadSummary
-                                                     ? profile.summary
-                                                     : profile.description_HTML);
-        }
-        if(profileElements.description_text != null)
-        {
-            profileElements.description_text.text = (String.IsNullOrEmpty(profile.description_text) && ifDescriptionMissingLoadSummary
-                                                     ? profile.summary
-                                                     : profile.description_text);
+            profileDisplay.DisplayProfile(profile);
         }
 
-        // - tags -
-        if(profileElements.tags != null)
+        if(selectedMediaPreview != null)
         {
-            StringBuilder tagsString = new StringBuilder();
-
-            foreach(string tagName in profile.tagNames)
-            {
-                tagsString.Append(tagName + ", ");
-            }
-
-            if(tagsString.Length > 0)
-            {
-                tagsString.Length -= 2; // remove final ", "
-            }
-
-            profileElements.tags.text = tagsString.ToString();
-        }
-
-        // - media -
-        if(mediaCollectionDisplay != null)
-        {
-            mediaCollectionDisplay.modId = profile.id;
-            mediaCollectionDisplay.logoLocator = profile.logoLocator;
-            mediaCollectionDisplay.mediaCollection = profile.media;
-            mediaCollectionDisplay.UpdateDisplay();
-        }
-
-        // - modfile -
-        if(profileElements.latestBuildName != null)
-        {
-            profileElements.latestBuildName.text = profile.activeBuild.fileName;
-        }
-        if(profileElements.latestVersion != null)
-        {
-            profileElements.latestVersion.text = profile.activeBuild.version;
-        }
-        if(profileElements.downloadSize != null)
-        {
-            profileElements.downloadSize.text = ModBrowser.ByteCountToDisplayString(profile.activeBuild.fileSize);
-        }
-
-        // - creator -
-        if(creatorElements.username != null)
-        {
-            creatorElements.username.text = profile.submittedBy.username;
-        }
-        if(creatorElements.avatarContainer != null)
-        {
-            creatorAvatarPlaceholder.SetActive(true);
-            creatorAvatar.gameObject.SetActive(false);
-            // TODO(@jackson): Error handling?
-            ModManager.GetUserAvatar(profile.submittedBy, avatarSize,
-                                     ApplyCreatorAvatar, null);
-        }
-        if(creatorElements.lastOnline != null)
-        {
-            creatorElements.lastOnline.text = ServerTimeStamp.ToLocalDateTime(profile.submittedBy.lastOnline).ToString();
+            selectedMediaPreview.DisplayModLogo(profile.id, profile.logoLocator);
         }
 
         // - version history -
-        if(profileElements.versionHistoryContainer != null)
+        if(versionHistoryContainer != null)
         {
-            foreach(Transform t in profileElements.versionHistoryContainer)
+            foreach(Transform t in versionHistoryContainer)
             {
                 GameObject.Destroy(t.gameObject);
             }
@@ -458,7 +313,7 @@ public class InspectorView : MonoBehaviour
 
         foreach(Modfile modfile in modfiles)
         {
-            GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, profileElements.versionHistoryContainer) as GameObject;
+            GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, versionHistoryContainer) as GameObject;
             go.name = "Mod Version: " + modfile.version;
 
             var entry = go.GetComponent<InspectorView_VersionEntry>();

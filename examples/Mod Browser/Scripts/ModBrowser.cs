@@ -930,7 +930,7 @@ public class ModBrowser : MonoBehaviour
             inspectorView.profile = explorerView.currentPage.items[offsetIndex];
         }
 
-        inspectorView.UpdateProfileUIComponents();
+        inspectorView.UpdateProfileDisplay();
 
         // statistics
         inspectorView.statistics = null;
@@ -972,7 +972,7 @@ public class ModBrowser : MonoBehaviour
     {
         // profile
         inspectorView.profile = profile;
-        inspectorView.UpdateProfileUIComponents();
+        inspectorView.UpdateProfileDisplay();
 
         // statistics
         inspectorView.statistics = null;
