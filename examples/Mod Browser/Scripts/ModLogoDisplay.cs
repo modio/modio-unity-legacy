@@ -55,7 +55,7 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
     {
         if(loadingPlaceholder != null)
         {
-            loadingPlaceholder.gameObject.SetActive(true);
+            loadingPlaceholder.SetActive(true);
         }
 
         image.enabled = false;
@@ -75,7 +75,7 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
 
         if(loadingPlaceholder != null)
         {
-            loadingPlaceholder.gameObject.SetActive(false);
+            loadingPlaceholder.SetActive(false);
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
