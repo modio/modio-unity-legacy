@@ -11,16 +11,12 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public GameObject       textLoadingPrefab;
     public LogoSize         logoSize;
     public GameObject       logoLoadingPrefab;
-    public UserAvatarSize   avatarSize;
-    public GameObject       avatarLoadingPrefab;
     public GameObject       tagBadgePrefab;
     [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]
     public bool             replaceMissingDescriptionWithSummary;
 
     [Header("UI Components")]
     public Text         nameDisplay;
-    public Text         creatorUsernameDisplay;
-    public Image        creatorAvatarDisplay;
     public Text         dateAddedDisplay;
     public Text         dateUpdatedDisplay;
     public Text         dateLiveDisplay;
@@ -28,6 +24,7 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public Text         descriptionHTMLDisplay;
     public Text         descriptionTextDisplay;
 
+    public UserProfileDisplay           creatorDisplay;
     public ModLogoDisplay               logoDisplay;
     public ModMediaCollectionDisplay    mediaDisplay;
     public LayoutGroup  tagContainer;
@@ -38,12 +35,12 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public Text modfileVersionDisplay;
 
     [Header("Display Data")]
-    [SerializeField]
-    private ModProfile m_profile = null;
+    [SerializeField] private ModProfile m_profile = null;
 
     // ---[ RUNTIME DATA ]---
-    private bool m_isInitialized = false;
     private delegate string GetDisplayString(ModProfile profile);
+
+    private bool m_isInitialized = false;
     private Dictionary<Text, GetDisplayString> m_displayMapping = null;
     private List<GameObject> m_loadingInstances = null;
     private List<IModProfilePresenter> m_nestedPresenters = null;
@@ -160,10 +157,6 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         {
             m_displayMapping.Add(nameDisplay, (p) => p.name);
         }
-        if(creatorUsernameDisplay != null)
-        {
-            m_displayMapping.Add(creatorUsernameDisplay, (p) => p.submittedBy.username);
-        }
         if(dateAddedDisplay != null)
         {
             m_displayMapping.Add(dateAddedDisplay, (p) => ServerTimeStamp.ToLocalDateTime(p.dateAdded).ToString());
@@ -224,6 +217,12 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         else
         {
             m_loadingInstances = null;
+        }
+
+        // - user display -
+        if(creatorDisplay != null)
+        {
+            creatorDisplay.Initialize();
         }
 
         // - nested components -
@@ -335,6 +334,11 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
             kvp.Key.gameObject.SetActive(true);
         }
 
+        if(creatorDisplay != null)
+        {
+            creatorDisplay.DisplayProfile(profile.submittedBy);
+        }
+
         if(m_loadingInstances != null)
         {
             foreach(GameObject loadingInstance in m_loadingInstances)
@@ -368,6 +372,11 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
             {
                 textComponent.text = string.Empty;
             }
+        }
+
+        if(creatorDisplay != null)
+        {
+            creatorDisplay.DisplayLoading();
         }
 
         foreach(IModProfilePresenter presenter in m_nestedPresenters)
