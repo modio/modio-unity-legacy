@@ -27,7 +27,9 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public Text         summaryDisplay;
     public Text         descriptionHTMLDisplay;
     public Text         descriptionTextDisplay;
-    public ModLogoDisplay logoDisplay;
+
+    public ModLogoDisplay               logoDisplay;
+    public ModMediaCollectionDisplay    mediaDisplay;
     public LayoutGroup  tagContainer;
 
     // TODO(@jackson): Push to modfile Display
@@ -230,7 +232,15 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         if(logoDisplay != null)
         {
             m_nestedPresenters.Add(logoDisplay);
-            logoDisplay.Initialize();
+        }
+        if(mediaDisplay != null)
+        {
+            m_nestedPresenters.Add(mediaDisplay);
+        }
+
+        foreach(IModProfilePresenter presenter in m_nestedPresenters)
+        {
+            presenter.Initialize();
         }
 
         // // - modfile elements -

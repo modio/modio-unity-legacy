@@ -3,24 +3,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
+
 public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
 {
     // ---------[ FIELDS ]---------
-    public event Action<ModLogoDisplay> onClick;
+    public delegate void OnClickDelegate(ModLogoDisplay component, int modId);
+    public event OnClickDelegate onClick;
 
     [Header("Settings")]
     public LogoSize logoSize;
 
     [Header("UI Components")]
-    public GameObject loadingPlaceholder;
     public Image image;
+    public GameObject loadingPlaceholder;
 
-    // TODO(@jackson): Is this needed?
     [Header("Display Data")]
-    #pragma warning disable 0414
     [SerializeField] private int m_modId;
     [SerializeField] private LogoImageLocator m_logoLocator;
-    #pragma warning restore 0414
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
@@ -87,7 +86,7 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
     {
         if(this.onClick != null)
         {
-            this.onClick(this);
+            this.onClick(this, m_modId);
         }
     }
 }

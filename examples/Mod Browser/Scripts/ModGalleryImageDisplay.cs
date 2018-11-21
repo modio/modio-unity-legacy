@@ -6,57 +6,52 @@ using ModIO;
 public class ModGalleryImageDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public event Action<ModGalleryImageDisplay> onClick;
+    public delegate void OnClickDelegate(ModGalleryImageDisplay component,
+                                         int modId, string fileName);
+    public event OnClickDelegate onClick;
 
     [Header("Settings")]
-    public GameObject loadingPrefab;
     public ModGalleryImageSize imageSize;
 
     [Header("UI Components")]
     public Image image;
+    public GameObject loadingPlaceholder;
 
     [Header("Display Data")]
-    public int modId;
-    public GalleryImageLocator imageLocator;
-
-    [Header("Runtime Data")]
-    public GameObject loadingInstance;
+    [SerializeField] private int m_modId;
+    [SerializeField] private GalleryImageLocator m_imageLocator;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
         Debug.Assert(image != null);
-
-        if(loadingPrefab != null)
-        {
-            loadingInstance = GameObject.Instantiate(loadingPrefab, image.transform);
-
-            RectTransform instance_rt = loadingInstance.transform as RectTransform;
-            instance_rt.anchorMin = new Vector2(0f, 0f);
-            instance_rt.anchorMax = new Vector2(1f, 1f);
-            instance_rt.offsetMin = Vector2.zero;
-            instance_rt.offsetMax = Vector2.zero;
-
-            loadingInstance.gameObject.SetActive(false);
-        }
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void UpdateDisplay()
+    public void DisplayGalleryImage(int modId, GalleryImageLocator imageLocator)
     {
         Debug.Assert(modId > 0,
                      "[mod.io] Mod Id needs to be set to a valid mod profile id.");
         Debug.Assert(imageLocator != null && !String.IsNullOrEmpty(imageLocator.fileName),
                      "[mod.io] imageLocator needs to be set and have a fileName.");
 
-        if(loadingInstance != null)
-        {
-            loadingInstance.gameObject.SetActive(true);
-        }
+        m_modId = modId;
+        m_imageLocator = imageLocator;
 
+        DisplayLoading();
         ModManager.GetModGalleryImage(modId, imageLocator, imageSize,
                                       (t) => OnGetThumbnail(imageLocator.fileName, t),
                                       WebRequestError.LogAsWarning);
+    }
+
+    public void DisplayLoading()
+    {
+        if(loadingPlaceholder != null)
+        {
+            loadingPlaceholder.gameObject.SetActive(true);
+        }
+
+        image.enabled = false;
     }
 
     private void OnGetThumbnail(string fileName, Texture2D texture)
@@ -65,25 +60,26 @@ public class ModGalleryImageDisplay : MonoBehaviour
         if(!Application.isPlaying) { return; }
         #endif
 
-        if(fileName != this.imageLocator.fileName
+        if(fileName != m_imageLocator.fileName
            || this.image == null)
         {
             return;
         }
 
-        if(loadingInstance != null)
+        if(loadingPlaceholder != null)
         {
-            loadingInstance.gameObject.SetActive(false);
+            loadingPlaceholder.gameObject.SetActive(false);
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+        image.enabled = true;
     }
 
     public void NotifyClicked()
     {
         if(this.onClick != null)
         {
-            this.onClick(this);
+            this.onClick(this, m_modId, m_imageLocator.fileName);
         }
     }
 }
