@@ -6,9 +6,16 @@ using ModIO;
 public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
 {
     // ---------[ FIELDS ]---------
-    public event ModLogoDisplay.OnClickDelegate logoClicked;
-    public event YouTubeThumbnailDisplay.OnClickDelegate youTubeThumbnailClicked;
-    public event ModGalleryImageDisplay.OnClickDelegate galleryImageClicked;
+    public delegate void OnLogoClicked(ModLogoDisplay component,
+                                       int modId);
+    public delegate void OnYouTubeThumbClicked(YouTubeThumbnailDisplay component,
+                                               int modId, string youTubeVideoId);
+    public delegate void OnGalleryImageClicked(ModGalleryImageDisplay component,
+                                               int modId, string imageFileName);
+
+    public event OnLogoClicked          logoClicked;
+    public event OnYouTubeThumbClicked  youTubeThumbClicked;
+    public event OnGalleryImageClicked  galleryImageClicked;
 
     [Header("Settings")]
     public GameObject logoPrefab;
@@ -19,12 +26,10 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
     public RectTransform container;
 
     [Header("Display Data")]
-    #pragma warning disable 0414
     [SerializeField] private int m_modId;
     [SerializeField] private LogoImageLocator m_logoLocator;
     [SerializeField] private IEnumerable<string> m_youTubeURLs;
     [SerializeField] private IEnumerable<GalleryImageLocator> m_galleryImageLocators;
-    #pragma warning restore 0414
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
@@ -89,7 +94,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
             ModLogoDisplay mediaDisplay = media_go.GetComponent<ModLogoDisplay>();
             mediaDisplay.Initialize();
             mediaDisplay.DisplayLogo(modId, logoLocator);
-            mediaDisplay.onClick += OnLogoClicked;
+            mediaDisplay.onClick += NotifyLogoClicked;
         }
 
 
@@ -102,7 +107,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
                 YouTubeThumbnailDisplay mediaDisplay = media_go.GetComponent<YouTubeThumbnailDisplay>();
                 mediaDisplay.Initialize();
                 mediaDisplay.DisplayYouTubeThumbnail(modId, Utility.ExtractYouTubeIdFromURL(youTubeURL));
-                mediaDisplay.onClick += OnYouTubeThumbnailClicked;
+                mediaDisplay.onClick += NotifyYouTubeThumbnailClicked;
             }
         }
 
@@ -115,7 +120,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
                 ModGalleryImageDisplay mediaDisplay = media_go.GetComponent<ModGalleryImageDisplay>();
                 mediaDisplay.Initialize();
                 mediaDisplay.DisplayGalleryImage(modId, imageLocator);
-                mediaDisplay.onClick += OnGalleryImageClicked;
+                mediaDisplay.onClick += NotifyGalleryImageClicked;
             }
         }
     }
@@ -128,7 +133,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
         }
     }
 
-    private void OnLogoClicked(ModLogoDisplay component, int modId)
+    private void NotifyLogoClicked(ModLogoDisplay component, int modId)
     {
         Debug.Log("CLICKED");
         if(this.logoClicked != null)
@@ -137,17 +142,17 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
         }
     }
 
-    private void OnYouTubeThumbnailClicked(YouTubeThumbnailDisplay component,
+    private void NotifyYouTubeThumbnailClicked(YouTubeThumbnailDisplay component,
                                            int modId, string youTubeVideoId)
     {
         Debug.Log("CLICKED");
-        if(this.youTubeThumbnailClicked != null)
+        if(this.youTubeThumbClicked != null)
         {
-            this.youTubeThumbnailClicked(component, modId, youTubeVideoId);
+            this.youTubeThumbClicked(component, modId, youTubeVideoId);
         }
     }
 
-    private void OnGalleryImageClicked(ModGalleryImageDisplay component,
+    private void NotifyGalleryImageClicked(ModGalleryImageDisplay component,
                                        int modId, string imageFileName)
     {
         Debug.Log("CLICKED");

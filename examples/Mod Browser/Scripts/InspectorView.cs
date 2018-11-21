@@ -93,7 +93,7 @@ public class InspectorView : MonoBehaviour
 
         if(selectedMediaPreview != null)
         {
-            selectedMediaPreview.DisplayModLogo(profile.id, profile.logoLocator);
+            selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
         }
 
         // - version history -

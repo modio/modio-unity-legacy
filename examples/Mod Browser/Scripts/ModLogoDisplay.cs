@@ -19,7 +19,7 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
 
     [Header("Display Data")]
     [SerializeField] private int m_modId;
-    [SerializeField] private LogoImageLocator m_logoLocator;
+    [SerializeField] private string m_imageFileName;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
@@ -37,18 +37,27 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
 
     public void DisplayLogo(int modId, LogoImageLocator logoLocator)
     {
-        Debug.Assert(modId > 0,
-                     "[mod.io] Mod Id needs to be set to a valid mod profile id.");
-        Debug.Assert(logoLocator != null,
-                     "[mod.io] logoLocator needs to be set and have a fileName.");
+        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(logoLocator != null);
 
         m_modId = modId;
-        m_logoLocator = logoLocator;
+        m_imageFileName = logoLocator.fileName;
 
         DisplayLoading();
         ModManager.GetModLogo(modId, logoLocator, logoSize,
-                              (t) => OnGetThumbnail(logoLocator.fileName, t),
+                              (t) => LoadTexture(t, logoLocator.fileName),
                               WebRequestError.LogAsWarning);
+    }
+
+    public void DisplayTexture(int modId, Texture2D logoTexture)
+    {
+        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(logoTexture != null);
+
+        m_modId = modId;
+        m_imageFileName = string.Empty;
+
+        LoadTexture(logoTexture, string.Empty);
     }
 
     public void DisplayLoading()
@@ -61,13 +70,13 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
         image.enabled = false;
     }
 
-    private void OnGetThumbnail(string fileName, Texture2D texture)
+    private void LoadTexture(Texture2D texture, string fileName)
     {
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }
         #endif
 
-        if(fileName != m_logoLocator.fileName
+        if(fileName != m_imageFileName
            || this.image == null)
         {
             return;

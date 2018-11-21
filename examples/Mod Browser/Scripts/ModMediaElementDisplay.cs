@@ -52,7 +52,7 @@ public class ModMediaElementDisplay : MonoBehaviour
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void DisplayModLogo(int modId, LogoImageLocator logoLocator)
+    public void DisplayLogo(int modId, LogoImageLocator logoLocator)
     {
         Debug.Assert(modId > 0,
                      "[mod.io] Mod Id needs to be set to a valid mod profile id.");
@@ -60,16 +60,28 @@ public class ModMediaElementDisplay : MonoBehaviour
                      "[mod.io] logoLocator needs to be set and have a fileName.");
 
         m_modId = modId;
-        m_mediaId = "_LOGO_";
+        m_mediaId = logoLocator.fileName;
         m_clickNotifier = NotifyLogoClicked;
 
         DisplayLoading();
         ModManager.GetModLogo(modId, logoLocator, logoSize,
-                              (t) => OnGetThumbnail(t, modId, "_LOGO_", logoOverlay),
+                              (t) => LoadTexture(t, modId, logoLocator.fileName, logoOverlay),
                               WebRequestError.LogAsWarning);
     }
 
-    public void DisplayYouTubeThumbnail(int modId, string youTubeVideoId)
+    public void DisplayLogoTexture(int modId, Texture2D texture)
+    {
+        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(texture != null);
+
+        m_modId = modId;
+        m_mediaId = "_LOGO_";
+        m_clickNotifier = NotifyLogoClicked;
+
+        LoadTexture(texture, modId, "_LOGO_", logoOverlay);
+    }
+
+    public void DisplayYouTubeThumb(int modId, string youTubeVideoId)
     {
         Debug.Assert(modId > 0,
                      "[mod.io] Mod Id needs to be set to a valid mod profile id.");
@@ -82,8 +94,22 @@ public class ModMediaElementDisplay : MonoBehaviour
 
         DisplayLoading();
         ModManager.GetModYouTubeThumbnail(modId, youTubeVideoId,
-                                          (t) => OnGetThumbnail(t, modId, youTubeVideoId, youTubeOverlay),
+                                          (t) => LoadTexture(t, modId, youTubeVideoId, youTubeOverlay),
                                           WebRequestError.LogAsWarning);
+    }
+
+    public void DisplayYouTubeThumbTexture(int modId, string youTubeVideoId, Texture2D texture)
+    {
+        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
+                     "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
+        Debug.Assert(texture != null);
+
+        m_modId = modId;
+        m_mediaId = youTubeVideoId;
+        m_clickNotifier = NotifyYouTubeClicked;
+
+        LoadTexture(texture, modId, youTubeVideoId, youTubeOverlay);
     }
 
     public void DisplayGalleryImage(int modId, GalleryImageLocator imageLocator)
@@ -99,8 +125,21 @@ public class ModMediaElementDisplay : MonoBehaviour
 
         DisplayLoading();
         ModManager.GetModGalleryImage(modId, imageLocator, galleryImageSize,
-                                      (t) => OnGetThumbnail(t, modId, imageLocator.fileName, galleryImageOverlay),
+                                      (t) => LoadTexture(t, modId, imageLocator.fileName, galleryImageOverlay),
                                       WebRequestError.LogAsWarning);
+    }
+
+    public void DisplayGalleryImageTexture(int modId, string imageFileName, Texture2D texture)
+    {
+        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(!String.IsNullOrEmpty(imageFileName));
+        Debug.Assert(texture != null);
+
+        m_modId = modId;
+        m_mediaId = imageFileName;
+        m_clickNotifier = NotifyImageClicked;
+
+        LoadTexture(texture, modId, imageFileName, galleryImageOverlay);
     }
 
     public void DisplayLoading()
@@ -125,7 +164,7 @@ public class ModMediaElementDisplay : MonoBehaviour
         }
     }
 
-    private void OnGetThumbnail(Texture2D texture, int modId, string mediaId, GameObject overlay)
+    private void LoadTexture(Texture2D texture, int modId, string mediaId, GameObject overlay)
     {
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }

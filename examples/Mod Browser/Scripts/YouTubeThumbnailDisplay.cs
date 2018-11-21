@@ -37,8 +37,21 @@ public class YouTubeThumbnailDisplay : MonoBehaviour
 
         DisplayLoading();
         ModManager.GetModYouTubeThumbnail(modId, youTubeVideoId,
-                                          (t) => OnGetThumbnail(youTubeVideoId, t),
+                                          (t) => LoadTexture(t, youTubeVideoId),
                                           WebRequestError.LogAsWarning);
+    }
+
+    public void DisplayTexture(int modId, string youTubeVideoId, Texture2D texture)
+    {
+        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
+                     "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
+        Debug.Assert(texture != null);
+
+        m_modId = modId;
+        m_youTubeVideoId = youTubeVideoId;
+
+        LoadTexture(texture, youTubeVideoId);
     }
 
     public void DisplayLoading()
@@ -51,7 +64,7 @@ public class YouTubeThumbnailDisplay : MonoBehaviour
         image.enabled = false;
     }
 
-    private void OnGetThumbnail(string youTubeVideoId, Texture2D texture)
+    private void LoadTexture(Texture2D texture, string youTubeVideoId)
     {
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }
