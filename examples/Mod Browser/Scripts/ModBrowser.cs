@@ -1164,8 +1164,13 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-    public void ClearExplorerTagFilters()
+    public void ClearExplorerFilters()
     {
+        if(explorerView.nameSearchField != null)
+        {
+            explorerView.nameSearchField.text = string.Empty;
+        }
+
         this.filterTags.Clear();
 
         if(explorerView.tagFilterBar.selectedTags != this.filterTags)
