@@ -58,6 +58,7 @@ GameObject:
   - component: {fileID: 222994675854925114}
   - component: {fileID: 114570025219337196}
   - component: {fileID: 114737289866412576}
+  - component: {fileID: 114423747694936136}
   m_Layer: 5
   m_Name: Mod Logo Thumbnail (Small)
   m_TagString: Untagged
@@ -94,6 +95,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 114882596250018860}
   secondsPerRotation: 1.4
+--- !u!114 &114423747694936136
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1541241466415974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ce718442f60d45f9ab720dd94bfde3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scrollRect: {fileID: 0}
 --- !u!114 &114570025219337196
 MonoBehaviour:
   m_ObjectHideFlags: 1
