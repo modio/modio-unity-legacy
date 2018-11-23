@@ -3,26 +3,23 @@ using UnityEngine;
 [RequireComponent(typeof(RectTransform))]
 public class JumpScrollAnchor : MonoBehaviour
 {
-    public HorizontalJumpScrollRect scrollRect;
-
     private void OnEnable()
     {
-        // Register with HorizontalJumpScrollRect
-        scrollRect = this.GetComponentInParent<HorizontalJumpScrollRect>();
+        var scrollRectParents = this.GetComponentsInParent<JumpScrollRect>();
 
-        if(scrollRect != null)
+        foreach(JumpScrollRect scrollRect in scrollRectParents)
         {
-            scrollRect.RegisterAnchor(this);
+            scrollRect.UpdateButtonState();
         }
     }
 
     private void OnDisable()
     {
-        if(scrollRect != null)
-        {
-            scrollRect.DeregisterAnchor(this);
-        }
+        var scrollRectParents = this.GetComponentsInParent<JumpScrollRect>();
 
-        scrollRect = null;
+        foreach(JumpScrollRect scrollRect in scrollRectParents)
+        {
+            scrollRect.UpdateButtonState();
+        }
     }
 }
