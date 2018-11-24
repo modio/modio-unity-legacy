@@ -9,8 +9,6 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     // ---------[ FIELDS ]---------
     [Header("Settings")]
     public GameObject       textLoadingPrefab;
-    public LogoSize         logoSize;
-    public GameObject       logoLoadingPrefab;
     public GameObject       tagBadgePrefab;
     [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]
     public bool             replaceMissingDescriptionWithSummary;

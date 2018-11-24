@@ -13,13 +13,11 @@ public class UserProfileDisplay : MonoBehaviour
 
     [Header("Settings")]
     public GameObject       textLoadingPrefab;
-    public UserAvatarSize   avatarSize;
-    public GameObject       avatarLoadingPrefab;
 
     [Header("UI Components")]
     public Text usernameDisplay;
     public Text lastOnlineDisplay;
-    public Image avatarDisplay;
+    public UserAvatarDisplay avatarDisplay;
 
     [Header("Display Data")]
     [SerializeField] private int m_userId;
@@ -46,6 +44,11 @@ public class UserProfileDisplay : MonoBehaviour
                 loadingGO.SetActive(false);
                 m_loadingInstances.Add(loadingGO);
             }
+        }
+
+        if(avatarDisplay != null)
+        {
+            avatarDisplay.Initialize();
         }
     }
 
@@ -89,6 +92,10 @@ public class UserProfileDisplay : MonoBehaviour
             lastOnlineDisplay.enabled = true;
             lastOnlineDisplay.text = ServerTimeStamp.ToLocalDateTime(profile.lastOnline).ToString();
         }
+        if(avatarDisplay != null)
+        {
+            avatarDisplay.DisplayProfile(profile);
+        }
     }
 
     public void DisplayLoading()
@@ -101,13 +108,17 @@ public class UserProfileDisplay : MonoBehaviour
         {
             lastOnlineDisplay.enabled = false;
         }
-
-        if(lastOnlineDisplay != null)
+        if(m_loadingInstances != null)
         {
             foreach(GameObject loadingGO in m_loadingInstances)
             {
                 loadingGO.SetActive(true);
             }
+        }
+
+        if(avatarDisplay != null)
+        {
+            avatarDisplay.DisplayLoading();
         }
     }
 

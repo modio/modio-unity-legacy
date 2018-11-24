@@ -62,6 +62,7 @@ GameObject:
   - component: {fileID: 114149317506018658}
   - component: {fileID: 114641165286744530}
   - component: {fileID: 114892703815327852}
+  - component: {fileID: 114246832923019544}
   m_Layer: 5
   m_Name: FilterBarTag
   m_TagString: Untagged
@@ -126,6 +127,17 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114246832923019544
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1695936261783880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ce718442f60d45f9ab720dd94bfde3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114289671944770002
 MonoBehaviour:
   m_ObjectHideFlags: 1
