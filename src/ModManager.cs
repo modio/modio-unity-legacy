@@ -200,14 +200,20 @@ namespace ModIO
             Debug.Assert(onSuccess != null);
             Debug.Assert(profile != null, "[mod.io] User profile must not be null");
 
-            if(profile.avatarLocator == null
-               || String.IsNullOrEmpty(profile.avatarLocator.GetSizeURL(size)))
-            {
-                onSuccess(null);
-                return;
-            }
+            ModManager.GetUserAvatar(profile.id, profile.avatarLocator, size,
+                                     onSuccess, onError);
+        }
 
-            var cachedAvatarTexture = CacheClient.LoadUserAvatar(profile.id, size);
+        public static void GetUserAvatar(int userId,
+                                         AvatarImageLocator avatarLocator,
+                                         UserAvatarSize size,
+                                         Action<Texture2D> onSuccess,
+                                         Action<WebRequestError> onError)
+        {
+            Debug.Assert(userId > 0);
+            Debug.Assert(avatarLocator != null);
+
+            var cachedAvatarTexture = CacheClient.LoadUserAvatar(userId, size);
             if(cachedAvatarTexture != null)
             {
                 onSuccess(cachedAvatarTexture);
@@ -215,11 +221,11 @@ namespace ModIO
             else
             {
                 // - Fetch from Server -
-                var download = DownloadClient.DownloadUserAvatar(profile, size);
+                var download = DownloadClient.DownloadImage(avatarLocator.GetSizeURL(size));
 
                 download.succeeded += (d) =>
                 {
-                    CacheClient.SaveUserAvatar(profile.id, size, d.imageTexture);
+                    CacheClient.SaveUserAvatar(userId, size, d.imageTexture);
                 };
 
                 download.succeeded += (d) => onSuccess(d.imageTexture);
