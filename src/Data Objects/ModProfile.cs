@@ -102,7 +102,7 @@ namespace ModIO
 
         /// <summary> Contains modfile data. </summary>
         [JsonProperty("modfile")]
-        public ModfileStub activeBuild;
+        public Modfile activeBuild;
 
         /// <summary> Contains mod media data. </summary>
         [JsonProperty("media")]

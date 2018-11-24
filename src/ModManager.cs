@@ -267,7 +267,7 @@ namespace ModIO
                                                  Action<List<ModProfile>> profilesEditedCallback = null,
                                                  Action<List<int>> profilesUnavailableCallback = null,
                                                  Action<List<int>> profilesDeletedCallback = null,
-                                                 Action<List<ModfileStub>> profileBuildsUpdatedCallback = null,
+                                                 Action<List<Modfile>> profileBuildsUpdatedCallback = null,
                                                  Action onSuccess = null,
                                                  Action<WebRequestError> onError = null)
         {
@@ -356,7 +356,7 @@ namespace ModIO
                     // - Create Update Lists -
                     List<ModProfile> addedProfiles = new List<ModProfile>(addedIds.Count);
                     List<ModProfile> editedProfiles = new List<ModProfile>(editedIds.Count);
-                    List<ModfileStub> modfileChangedStubs = new List<ModfileStub>(modfileChangedIds.Count);
+                    List<Modfile> changedModfiles = new List<Modfile>(modfileChangedIds.Count);
 
                     foreach(ModProfile profile in updatedProfiles)
                     {
@@ -377,7 +377,7 @@ namespace ModIO
                             if((idIndex = modfileChangedIds.IndexOf(profile.id)) >= 0)
                             {
                                 modfileChangedIds.RemoveAt(idIndex);
-                                modfileChangedStubs.Add(profile.activeBuild);
+                                changedModfiles.Add(profile.activeBuild);
                             }
                         }
                     }
@@ -399,9 +399,9 @@ namespace ModIO
                     }
 
                     if(profileBuildsUpdatedCallback != null
-                       && modfileChangedStubs.Count > 0)
+                       && changedModfiles.Count > 0)
                     {
-                        profileBuildsUpdatedCallback(modfileChangedStubs);
+                        profileBuildsUpdatedCallback(changedModfiles);
                     }
 
                     isAddedDone = isEditedDone = isModfilesDone = true;
@@ -683,7 +683,7 @@ namespace ModIO
             }
         }
 
-        public static void GetDownloadedBinaryStatus(ModfileStub modfile,
+        public static void GetDownloadedBinaryStatus(Modfile modfile,
                                                      Action<ModBinaryStatus> callback)
         {
             string binaryFilePath = CacheClient.GenerateModBinaryZipFilePath(modfile.modId, modfile.id);
@@ -805,7 +805,7 @@ namespace ModIO
             }
         }
 
-        public static void UnzipModBinaryToLocation(ModfileStub modfile,
+        public static void UnzipModBinaryToLocation(Modfile modfile,
                                                     string unzipLocation)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modfile.modId, modfile.id);

@@ -9,14 +9,14 @@ namespace ModIO
         public EditableStringField metadataBlob   = new EditableStringField();
 
         // ---------[ VALUE DUPLICATION ]---------
-        public static EditableModfile CreateFromModfile(ModfileStub modfile)
+        public static EditableModfile CreateFromModfile(Modfile modfile)
         {
             EditableModfile newModfile = new EditableModfile();
             newModfile.ApplyBaseModfileChanges(modfile);
             return newModfile;
         }
 
-        public void ApplyBaseModfileChanges(ModfileStub modfile)
+        public void ApplyBaseModfileChanges(Modfile modfile)
         {
             if(!this.version.isDirty)
             {

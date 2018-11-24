@@ -621,7 +621,7 @@ public class ModBrowser : MonoBehaviour
             {
                 // this.OnModsEdited(profiles);
             };
-            Action<List<ModfileStub>> onReleasesUpdated = (modfiles) =>
+            Action<List<Modfile>> onReleasesUpdated = (modfiles) =>
             {
                 // this.OnModReleasesUpdated(modfiles);
             };

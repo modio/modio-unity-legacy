@@ -4,7 +4,7 @@ using Int64 = System.Int64;
 namespace ModIO
 {
     [System.Serializable]
-    public class ModfileStub
+    public class Modfile
     {
         // ---------[ FIELDS ]---------
         /// <summary>Unique modfile id.</summary>
@@ -42,12 +42,7 @@ namespace ModIO
         /// <summary>Metadata stored by the game developer for this file.</summary>
         [JsonProperty("metadata_blob")]
         public string metadataBlob;
-    }
 
-    [System.Serializable]
-    public class Modfile : ModfileStub
-    {
-        // ---------[ FIELDS ]---------
         /// <summary>Unix timestamp of date file was virus scanned.</summary>
         [JsonProperty("date_scanned")]
         public int dateScanned;
