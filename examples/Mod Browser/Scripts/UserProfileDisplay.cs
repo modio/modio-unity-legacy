@@ -12,7 +12,7 @@ public class UserProfileDisplay : MonoBehaviour
     public event OnClickDelegate onClick;
 
     [Header("Settings")]
-    public GameObject       textLoadingPrefab;
+    public GameObject textLoadingPrefab;
 
     [Header("UI Components")]
     public Text usernameDisplay;

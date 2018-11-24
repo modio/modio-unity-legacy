@@ -26,11 +26,7 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public ModLogoDisplay               logoDisplay;
     public ModMediaCollectionDisplay    mediaDisplay;
     public LayoutGroup  tagContainer;
-
-    // TODO(@jackson): Push to modfile Display
-    public Text modfileDateAddedDisplay;
-    public Text modfileSizeDisplay;
-    public Text modfileVersionDisplay;
+    public ModfileDisplay buildDisplay;
 
     [Header("Display Data")]
     [SerializeField] private ModProfile m_profile = null;
@@ -55,98 +51,6 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
 
             return;
         }
-
-        // // - avatar -
-        // if(creatorAvatarDisplay != null)
-        // {
-        //     RectTransform displayRT = creatorAvatarDisplay.transform as RectTransform;
-        //     RectTransform parentRT = displayRT.parent as RectTransform;
-        //     GameObject loadingGO = GameObject.Instantiate(avatarLoadingPrefab,
-        //                                                   new Vector3(),
-        //                                                   Quaternion.identity,
-        //                                                   parentRT);
-
-        //     RectTransform loadingRT = loadingGO.transform as RectTransform;
-        //     loadingRT.anchorMin = displayRT.anchorMin;
-        //     loadingRT.anchorMax = displayRT.anchorMax;
-        //     loadingRT.offsetMin = displayRT.offsetMin;
-        //     loadingRT.offsetMax = displayRT.offsetMax;
-
-        //     m_profileUIDelegates.Add(() =>
-        //     {
-        //         Action<Texture2D> onGetTexture = (t) =>
-        //         {
-        //             #if UNITY_EDITOR
-        //             if(!Application.isPlaying) { return; }
-        //             #endif
-
-        //             Debug.Assert(t != null);
-
-        //             if(creatorAvatarDisplay.sprite != null)
-        //             {
-        //                 if(creatorAvatarDisplay.sprite.texture != null)
-        //                 {
-        //                     UnityEngine.Object.Destroy(creatorAvatarDisplay.sprite.texture);
-        //                 }
-        //                 UnityEngine.Object.Destroy(creatorAvatarDisplay.sprite);
-        //             }
-
-        //             creatorAvatarDisplay.sprite = ModBrowser.CreateSpriteFromTexture(t);
-
-        //             creatorAvatarDisplay.gameObject.SetActive(true);
-        //             loadingGO.gameObject.SetActive(false);
-        //         };
-
-        //         loadingGO.SetActive(true);
-        //         creatorAvatarDisplay.gameObject.SetActive(false);
-
-        //         // TODO(@jackson): onError
-        //         ModManager.GetUserAvatar(profile.submittedBy, avatarSize, onGetTexture, null);
-        //     });
-
-        //     m_profileLoadingUIDelegates.Add(() =>
-        //     {
-        //         loadingGO.SetActive(true);
-        //         creatorAvatarDisplay.gameObject.SetActive(false);
-        //     });
-        // }
-
-        // // - tags -
-        // if(tagContainer != null)
-        // {
-        //     Func<GameObject, Text> getTextComponent;
-        //     if(tagBadgePrefab.GetComponent<Text>() != null)
-        //     {
-        //         getTextComponent = (go) => go.GetComponent<Text>();
-        //     }
-        //     else
-        //     {
-        //         getTextComponent = (go) => go.GetComponentInChildren<Text>();
-        //     }
-
-        //     m_profileUIDelegates.Add(() =>
-        //     {
-        //         foreach(Transform t in tagContainer.transform)
-        //         {
-        //             GameObject.Destroy(t.gameObject);
-        //         }
-
-        //         foreach(string tagName in profile.tagNames)
-        //         {
-        //             GameObject tag_go = GameObject.Instantiate(tagBadgePrefab, tagContainer.transform) as GameObject;
-        //             tag_go.name = "Tag: " + tagName;
-        //             getTextComponent(tag_go).text = tagName;
-        //         }
-        //     });
-
-        //     m_profileLoadingUIDelegates.Add(() =>
-        //     {
-        //         foreach(Transform t in tagContainer.transform)
-        //         {
-        //             GameObject.Destroy(t.gameObject);
-        //         }
-        //     });
-        // }
 
         // - text elements -
         m_displayMapping = new Dictionary<Text, GetDisplayString>();
@@ -240,64 +144,10 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
             presenter.Initialize();
         }
 
-        // // - modfile elements -
-        // if(modfileDateAddedDisplay != null)
-        // {
-        //     RectTransform displayRT = modfileDateAddedDisplay.transform as RectTransform;
-        //     GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
-
-        //     m_profileUIDelegates.Add(() =>
-        //     {
-        //         modfileDateAddedDisplay.text = ServerTimeStamp.ToLocalDateTime(profile.activeBuild.dateAdded).ToString();
-
-        //         modfileDateAddedDisplay.gameObject.SetActive(true);
-        //         loadingGO.SetActive(false);
-        //     });
-
-        //     m_profileLoadingUIDelegates.Add(() =>
-        //     {
-        //         loadingGO.SetActive(true);
-        //         modfileDateAddedDisplay.gameObject.SetActive(false);
-        //     });
-        // }
-        // if(modfileSizeDisplay != null)
-        // {
-        //     RectTransform displayRT = modfileSizeDisplay.transform as RectTransform;
-        //     GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
-
-        //     m_profileUIDelegates.Add(() =>
-        //     {
-        //         modfileSizeDisplay.text = ModBrowser.ByteCountToDisplayString(profile.activeBuild.fileSize);
-
-        //         modfileSizeDisplay.gameObject.SetActive(true);
-        //         loadingGO.SetActive(false);
-        //     });
-
-        //     m_profileLoadingUIDelegates.Add(() =>
-        //     {
-        //         loadingGO.SetActive(true);
-        //         modfileSizeDisplay.gameObject.SetActive(false);
-        //     });
-        // }
-        // if(modfileVersionDisplay != null)
-        // {
-        //     RectTransform displayRT = modfileVersionDisplay.transform as RectTransform;
-        //     GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
-
-        //     m_profileUIDelegates.Add(() =>
-        //     {
-        //         modfileVersionDisplay.text = profile.activeBuild.version;
-
-        //         modfileVersionDisplay.gameObject.SetActive(true);
-        //         loadingGO.SetActive(false);
-        //     });
-
-        //     m_profileLoadingUIDelegates.Add(() =>
-        //     {
-        //         loadingGO.SetActive(true);
-        //         modfileVersionDisplay.gameObject.SetActive(false);
-        //     });
-        // }
+        if(buildDisplay != null)
+        {
+            buildDisplay.Initialize();
+        }
 
         m_isInitialized = true;
     }
@@ -349,6 +199,11 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         {
             presenter.DisplayProfile(profile);
         }
+
+        if(buildDisplay != null)
+        {
+            buildDisplay.DisplayModfile(profile.activeBuild);
+        }
     }
 
     public void DisplayLoading()
@@ -380,6 +235,11 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         foreach(IModProfilePresenter presenter in m_nestedPresenters)
         {
             presenter.DisplayLoading();
+        }
+
+        if(buildDisplay != null)
+        {
+            buildDisplay.DisplayLoading();
         }
     }
 }
