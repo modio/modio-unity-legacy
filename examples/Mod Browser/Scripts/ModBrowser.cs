@@ -363,7 +363,7 @@ public class ModBrowser : MonoBehaviour
         subscriptionsView.Initialize();
 
         // TODO(@jackson): Hook up events
-        subscriptionsView.inspectRequested += OnExplorerItemClicked;
+        subscriptionsView.inspectRequested += InspectSubscriptionItem;
         subscriptionsView.subscribeRequested += (i) => SubscribeToMod(i.profile);
         subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
         subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
@@ -427,7 +427,7 @@ public class ModBrowser : MonoBehaviour
     {
         explorerView.Initialize();
 
-        explorerView.inspectRequested += InspectSubscriptionItem;
+        explorerView.inspectRequested += InspectDiscoverItem;
         explorerView.subscribeRequested += (i) => SubscribeToMod(i.profile);
         explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
         explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
@@ -1064,10 +1064,20 @@ public class ModBrowser : MonoBehaviour
         UpdateExplorerViewPageButtonInteractibility();
     }
 
-    public void OnExplorerItemClicked(ModBrowserItem item)
+    public void InspectDiscoverItem(ModBrowserItem item)
     {
         // TODO(@jackson): Load explorer page
         inspectorData.currentModIndex = item.index + explorerView.currentPage.resultOffset;
+
+        if(inspectorView.backToDiscoverButton != null)
+        {
+            inspectorView.backToDiscoverButton.gameObject.SetActive(true);
+        }
+        if(inspectorView.backToSubscriptionsButton != null)
+        {
+            inspectorView.backToSubscriptionsButton.gameObject.SetActive(false);
+        }
+
         SetInspectorViewProfile(item.profile);
         ShowInspectorView();
     }
@@ -1076,8 +1086,17 @@ public class ModBrowser : MonoBehaviour
     {
         // TODO(@jackson): Load explorer page
         inspectorData.currentModIndex = item.index + subscriptionsView.currentPage.resultOffset;
-        ChangeInspectorPage(0);
 
+        if(inspectorView.backToSubscriptionsButton != null)
+        {
+            inspectorView.backToSubscriptionsButton.gameObject.SetActive(true);
+        }
+        if(inspectorView.backToDiscoverButton != null)
+        {
+            inspectorView.backToDiscoverButton.gameObject.SetActive(false);
+        }
+
+        SetInspectorViewProfile(item.profile);
         ShowInspectorView();
     }
 

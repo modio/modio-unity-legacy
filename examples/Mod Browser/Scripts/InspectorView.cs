@@ -27,6 +27,8 @@ public class InspectorView : MonoBehaviour
     public Button unsubscribeButton;
     public Button previousModButton;
     public Button nextModButton;
+    public Button backToDiscoverButton;
+    public Button backToSubscriptionsButton;
 
     // ---[ RUNTIME DATA ]---
     [Header("Runtime Data")]

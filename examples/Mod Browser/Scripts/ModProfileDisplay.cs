@@ -7,6 +7,10 @@ using ModIO;
 public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
 {
     // ---------[ FIELDS ]---------
+    public delegate void OnClickDelegate(ModProfileDisplay display,
+                                         int modId);
+    public event OnClickDelegate onClick;
+
     [Header("Settings")]
     public GameObject       textLoadingPrefab;
     public GameObject       tagBadgePrefab;
@@ -29,7 +33,7 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public ModfileDisplay buildDisplay;
 
     [Header("Display Data")]
-    [SerializeField] private ModProfile m_profile = null;
+    [SerializeField] private int m_modId = -1;
 
     // ---[ RUNTIME DATA ]---
     private delegate string GetDisplayString(ModProfile profile);
@@ -174,11 +178,11 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     {
         Debug.Assert(profile != null);
 
-        m_profile = profile;
+        m_modId = profile.id;
 
         foreach(var kvp in m_displayMapping)
         {
-            kvp.Key.text = kvp.Value(m_profile);
+            kvp.Key.text = kvp.Value(profile);
             kvp.Key.gameObject.SetActive(true);
         }
 
@@ -240,6 +244,16 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
         if(buildDisplay != null)
         {
             buildDisplay.DisplayLoading();
+        }
+    }
+
+
+    // ---------[ EVENT HANDLING ]---------
+    public void NotifyClicked()
+    {
+        if(this.onClick != null)
+        {
+            this.onClick(this, m_modId);
         }
     }
 }
