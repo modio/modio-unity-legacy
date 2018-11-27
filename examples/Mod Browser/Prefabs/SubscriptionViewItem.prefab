@@ -345,7 +345,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1904815348332098
 GameObject:
   m_ObjectHideFlags: 1
@@ -439,12 +439,12 @@ MonoBehaviour:
     creatorUsername: {fileID: 0}
     creatorAvatar: {fileID: 0}
     dateAdded: {fileID: 0}
-    dateUpdated: {fileID: 0}
+    dateUpdated: {fileID: 114089507548324642}
     dateLive: {fileID: 0}
     summary: {fileID: 0}
     tagContainer: {fileID: 0}
     modfileDateAdded: {fileID: 0}
-    modfileSize: {fileID: 0}
+    modfileSize: {fileID: 114100271337470856}
     modfileVersion: {fileID: 0}
   statisticsDisplay:
     popularityRankPosition: {fileID: 0}
@@ -633,7 +633,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 40
-    m_Alignment: 3
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
