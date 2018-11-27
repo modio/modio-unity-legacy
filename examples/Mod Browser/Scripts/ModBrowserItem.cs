@@ -467,224 +467,225 @@ public class ModBrowserItem : MonoBehaviour
     }
 
     private void InitializeStatisticsDisplay()
-    {
-        statisticsUIDelegates = new List<Action>();
-        statisticsLoadingUIDelegates = new List<Action>();
+    // {
+    //     statisticsUIDelegates = new List<Action>();
+    //     statisticsLoadingUIDelegates = new List<Action>();
 
-        if(statisticsDisplay.popularityRankPosition != null)
-        {
-            RectTransform displayRT = statisticsDisplay.popularityRankPosition.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //     if(statisticsDisplay.popularityRankPosition != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.popularityRankPosition.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.popularityRankPosition.text = statistics.popularityRankPosition.ToString();
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.popularityRankPosition.text = statistics.popularityRankPosition.ToString();
 
-                statisticsDisplay.popularityRankPosition.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.popularityRankPosition.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.popularityRankPosition.gameObject.SetActive(false);
-            });
-        }
-        if(statisticsDisplay.downloadCount != null)
-        {
-            RectTransform displayRT = statisticsDisplay.downloadCount.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.popularityRankPosition.gameObject.SetActive(false);
+    //         });
+    //     }
+    //     if(statisticsDisplay.downloadCount != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.downloadCount.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.downloadCount.text = ModBrowser.ValueToDisplayString(statistics.downloadCount);
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.downloadCount.text = ModBrowser.ValueToDisplayString(statistics.downloadCount);
 
-                statisticsDisplay.downloadCount.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.downloadCount.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.downloadCount.gameObject.SetActive(false);
-            });
-        }
-        if(statisticsDisplay.subscriberCount != null)
-        {
-            RectTransform displayRT = statisticsDisplay.subscriberCount.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.downloadCount.gameObject.SetActive(false);
+    //         });
+    //     }
+    //     if(statisticsDisplay.subscriberCount != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.subscriberCount.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.subscriberCount.text = ModBrowser.ValueToDisplayString(statistics.subscriberCount);
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.subscriberCount.text = ModBrowser.ValueToDisplayString(statistics.subscriberCount);
 
-                statisticsDisplay.subscriberCount.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.subscriberCount.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.subscriberCount.gameObject.SetActive(false);
-            });
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.subscriberCount.gameObject.SetActive(false);
+    //         });
 
-        }
-        if(statisticsDisplay.ratingsTotalCount != null)
-        {
-            RectTransform displayRT = statisticsDisplay.ratingsTotalCount.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //     }
+    //     if(statisticsDisplay.ratingsTotalCount != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.ratingsTotalCount.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.ratingsTotalCount.text = ModBrowser.ValueToDisplayString(statistics.ratingsTotalCount);
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.ratingsTotalCount.text = ModBrowser.ValueToDisplayString(statistics.ratingsTotalCount);
 
-                statisticsDisplay.ratingsTotalCount.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.ratingsTotalCount.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.ratingsTotalCount.gameObject.SetActive(false);
-            });
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.ratingsTotalCount.gameObject.SetActive(false);
+    //         });
 
-        }
-        if(statisticsDisplay.ratingsPositiveCount != null)
-        {
-            RectTransform displayRT = statisticsDisplay.ratingsPositiveCount.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //     }
+    //     if(statisticsDisplay.ratingsPositiveCount != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.ratingsPositiveCount.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.ratingsPositiveCount.text = ModBrowser.ValueToDisplayString(statistics.ratingsPositiveCount);
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.ratingsPositiveCount.text = ModBrowser.ValueToDisplayString(statistics.ratingsPositiveCount);
 
-                statisticsDisplay.ratingsPositiveCount.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.ratingsPositiveCount.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.ratingsPositiveCount.gameObject.SetActive(false);
-            });
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.ratingsPositiveCount.gameObject.SetActive(false);
+    //         });
 
-        }
-        if(statisticsDisplay.ratingsNegativeCount != null)
-        {
-            RectTransform displayRT = statisticsDisplay.ratingsNegativeCount.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //     }
+    //     if(statisticsDisplay.ratingsNegativeCount != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.ratingsNegativeCount.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.ratingsNegativeCount.text = ModBrowser.ValueToDisplayString(statistics.ratingsNegativeCount);
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.ratingsNegativeCount.text = ModBrowser.ValueToDisplayString(statistics.ratingsNegativeCount);
 
-                statisticsDisplay.ratingsNegativeCount.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.ratingsNegativeCount.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.ratingsNegativeCount.gameObject.SetActive(false);
-            });
-        }
-        if(statisticsDisplay.ratingsPositivePercentage != null)
-        {
-            RectTransform displayRT = statisticsDisplay.ratingsPositivePercentage.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.ratingsNegativeCount.gameObject.SetActive(false);
+    //         });
+    //     }
+    //     if(statisticsDisplay.ratingsPositivePercentage != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.ratingsPositivePercentage.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                string displayText = string.Empty;
-                if(statistics.ratingsTotalCount > 0)
-                {
-                    float value = 100f * (float)statistics.ratingsPositiveCount / (float)statistics.ratingsTotalCount;
-                    displayText = value.ToString("0") + "%";
-                }
-                else
-                {
-                    displayText = "~%";
-                }
-                statisticsDisplay.ratingsPositivePercentage.text = displayText;
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             string displayText = string.Empty;
+    //             if(statistics.ratingsTotalCount > 0)
+    //             {
+    //                 float value = 100f * (float)statistics.ratingsPositiveCount / (float)statistics.ratingsTotalCount;
+    //                 displayText = value.ToString("0") + "%";
+    //             }
+    //             else
+    //             {
+    //                 displayText = "~%";
+    //             }
+    //             statisticsDisplay.ratingsPositivePercentage.text = displayText;
 
-                statisticsDisplay.ratingsPositivePercentage.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.ratingsPositivePercentage.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.ratingsPositivePercentage.gameObject.SetActive(false);
-            });
-        }
-        if(statisticsDisplay.ratingsNegativePercentage != null)
-        {
-            RectTransform displayRT = statisticsDisplay.ratingsNegativePercentage.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.ratingsPositivePercentage.gameObject.SetActive(false);
+    //         });
+    //     }
+    //     if(statisticsDisplay.ratingsNegativePercentage != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.ratingsNegativePercentage.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                string displayText = string.Empty;
-                if(statistics.ratingsTotalCount > 0)
-                {
-                    float value = 100f * (float)statistics.ratingsNegativeCount / (float)statistics.ratingsTotalCount;
-                    displayText = value.ToString("0") + "%";
-                }
-                else
-                {
-                    displayText = "~%";
-                }
-                statisticsDisplay.ratingsNegativePercentage.text = displayText;
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             string displayText = string.Empty;
+    //             if(statistics.ratingsTotalCount > 0)
+    //             {
+    //                 float value = 100f * (float)statistics.ratingsNegativeCount / (float)statistics.ratingsTotalCount;
+    //                 displayText = value.ToString("0") + "%";
+    //             }
+    //             else
+    //             {
+    //                 displayText = "~%";
+    //             }
+    //             statisticsDisplay.ratingsNegativePercentage.text = displayText;
 
-                statisticsDisplay.ratingsNegativePercentage.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.ratingsNegativePercentage.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.ratingsNegativePercentage.gameObject.SetActive(false);
-            });
-        }
-        if(statisticsDisplay.ratingsWeightedAggregate != null)
-        {
-            RectTransform displayRT = statisticsDisplay.ratingsWeightedAggregate.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.ratingsNegativePercentage.gameObject.SetActive(false);
+    //         });
+    //     }
+    //     if(statisticsDisplay.ratingsWeightedAggregate != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.ratingsWeightedAggregate.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.ratingsWeightedAggregate.text = (100f * statistics.ratingsWeightedAggregate).ToString("0") + "%";
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.ratingsWeightedAggregate.text = (100f * statistics.ratingsWeightedAggregate).ToString("0") + "%";
 
-                statisticsDisplay.ratingsWeightedAggregate.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.ratingsWeightedAggregate.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.ratingsWeightedAggregate.gameObject.SetActive(false);
-            });
-        }
-        if(statisticsDisplay.ratingsDisplayText != null)
-        {
-            RectTransform displayRT = statisticsDisplay.ratingsDisplayText.transform as RectTransform;
-            GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.ratingsWeightedAggregate.gameObject.SetActive(false);
+    //         });
+    //     }
+    //     if(statisticsDisplay.ratingsDisplayText != null)
+    //     {
+    //         RectTransform displayRT = statisticsDisplay.ratingsDisplayText.transform as RectTransform;
+    //         GameObject loadingGO = InstantiateTextLoadingPrefab(displayRT);
 
-            statisticsUIDelegates.Add(() =>
-            {
-                statisticsDisplay.ratingsDisplayText.text = statistics.ratingsDisplayText;
+    //         statisticsUIDelegates.Add(() =>
+    //         {
+    //             statisticsDisplay.ratingsDisplayText.text = statistics.ratingsDisplayText;
 
-                statisticsDisplay.ratingsDisplayText.gameObject.SetActive(true);
-                loadingGO.SetActive(false);
-            });
+    //             statisticsDisplay.ratingsDisplayText.gameObject.SetActive(true);
+    //             loadingGO.SetActive(false);
+    //         });
 
-            statisticsLoadingUIDelegates.Add(() =>
-            {
-                loadingGO.SetActive(true);
-                statisticsDisplay.ratingsDisplayText.gameObject.SetActive(false);
-            });
-        }
-    }
+    //         statisticsLoadingUIDelegates.Add(() =>
+    //         {
+    //             loadingGO.SetActive(true);
+    //             statisticsDisplay.ratingsDisplayText.gameObject.SetActive(false);
+    //         });
+    //     }
+    // }
+    {}
 
     // ---------[ UI UPDATES ]---------
     public void UpdateProfileDisplay()
@@ -715,20 +716,20 @@ public class ModBrowserItem : MonoBehaviour
 
     public void UpdateStatisticsDisplay()
     {
-        if(statistics != null)
-        {
-            foreach(Action updateDelegate in statisticsUIDelegates)
-            {
-                updateDelegate();
-            }
-        }
-        else
-        {
-            foreach(Action updateDelegate in statisticsLoadingUIDelegates)
-            {
-                updateDelegate();
-            }
-        }
+        // if(statistics != null)
+        // {
+        //     foreach(Action updateDelegate in statisticsUIDelegates)
+        //     {
+        //         updateDelegate();
+        //     }
+        // }
+        // else
+        // {
+        //     foreach(Action updateDelegate in statisticsLoadingUIDelegates)
+        //     {
+        //         updateDelegate();
+        //     }
+        // }
     }
 
     public void UpdateIsSubscribedDisplay()

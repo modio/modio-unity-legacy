@@ -58,6 +58,7 @@ GameObject:
   - component: {fileID: 114835771881959764}
   - component: {fileID: 114112872799890884}
   - component: {fileID: 114916773895953650}
+  - component: {fileID: 114034985456107004}
   m_Layer: 5
   m_Name: VersionHistoryItem
   m_TagString: Untagged
@@ -132,6 +133,25 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 22/06/2018
+--- !u!114 &114034985456107004
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1527782458058220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e12b4065a2b874a64882bb8f754dfac2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textLoadingPrefab: {fileID: 0}
+  dateAddedDisplay: {fileID: 114026099628693996}
+  fileNameDisplay: {fileID: 0}
+  fileSizeDisplay: {fileID: 0}
+  fileHashDisplay: {fileID: 0}
+  versionDisplay: {fileID: 114605380037962906}
+  changelogDisplay: {fileID: 114690865727002986}
+  m_modfileId: -1
 --- !u!114 &114112872799890884
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -398,7 +418,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 377, y: -4}
-  m_SizeDelta: {x: 502, y: 144}
+  m_SizeDelta: {x: 502, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224192640099787356
 RectTransform:

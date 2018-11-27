@@ -28,15 +28,15 @@ namespace ModIO
 
         /// <summary>Number of times this item has been rated.</summary>
         [JsonProperty("ratings_total")]
-        public int ratingsTotalCount;
+        public int ratingCount;
 
         /// <summary>Number of positive ratings.</summary>
         [JsonProperty("ratings_positive")]
-        public int ratingsPositiveCount;
+        public int ratingPositiveCount;
 
         /// <summary>Number of negative ratings.</summary>
         [JsonProperty("ratings_negative")]
-        public int ratingsNegativeCount;
+        public int ratingNegativeCount;
 
         /// <summmary>An aggregrated rating beased on votes and number of votes</summary>
         /// <para>Overall rating of this item calculated using the
@@ -45,11 +45,11 @@ namespace ModIO
         /// the percentage of positive ratings, placing items with many positive ratings above those with
         /// a higher percentage but fewer ratings.</para>
         [JsonProperty("ratings_weighted_aggregate")]
-        public float ratingsWeightedAggregate;
+        public float ratingWeightedAggregate;
 
         /// <summary>Friendly display text suggested for the rating.</summary>
         [JsonProperty("ratings_display_text")]
-        public string ratingsDisplayText;
+        public string ratingDisplayText;
 
         /// <summary>Unix timestamp until this object is considered out-dated.</summary>
         [JsonProperty("date_expires")]

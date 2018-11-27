@@ -953,7 +953,7 @@ public class ModBrowser : MonoBehaviour
         }
 
         ModManager.GetModStatistics(inspectorView.profile.id,
-                                    (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsUIComponents(); },
+                                    (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsDisplay(); },
                                     null);
 
         // subscription
@@ -995,7 +995,7 @@ public class ModBrowser : MonoBehaviour
         }
 
         ModManager.GetModStatistics(inspectorView.profile.id,
-                                    (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsUIComponents(); },
+                                    (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsDisplay(); },
                                     null);
 
         // subscription

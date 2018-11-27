@@ -12,35 +12,16 @@ using ModIO;
 // TODO(@jackson): Assert all required object on Initialize()
 public class InspectorView : MonoBehaviour
 {
-    public const float YOUTUBE_THUMB_RATIO = 4f/3f;
-    public const float IMAGE_THUMB_RATIO = 16f/9f;
-
     // ---------[ FIELDS ]---------
-    [Serializable]
-    public struct InspectorHelper_StatisticsElements
-    {
-        public Text popularityRankPosition;
-        public Text popularityRankModCount;
-        public Text downloadCount;
-        public Text subscriberCount;
-        public Text ratingsTotalCount;
-        public Text ratingsPositiveCount;
-        public Text ratingsNegativeCount;
-        public Text ratingsPositivePercentage;
-        public Text ratingsNegativePercentage;
-        public Text ratingsWeightedAggregate;
-        public Text ratingsDisplayText;
-    }
-
-    // ---[ UI ]---
     [Header("Settings")]
     public GameObject versionHistoryItemPrefab;
+    public string missingVersionChangelogText;
 
     [Header("UI Components")]
     public ModProfileDisplay profileDisplay;
     public ModMediaElementDisplay selectedMediaPreview;
+    public ModStatisticsDisplay statisticsDisplay;
     public RectTransform versionHistoryContainer;
-    public InspectorHelper_StatisticsElements statisticsElements;
     public ScrollRect scrollView;
     public Button subscribeButton;
     public Button unsubscribeButton;
@@ -52,8 +33,6 @@ public class InspectorView : MonoBehaviour
     public ModProfile profile;
     public ModStatistics statistics;
     public bool isModSubscribed;
-    public GameObject creatorAvatarPlaceholder;
-    public Image creatorAvatar;
 
     // ---[ TEMP DATA ]---
     [Header("Temp Data")]
@@ -82,6 +61,22 @@ public class InspectorView : MonoBehaviour
                 profileDisplay.mediaDisplay.galleryImageClicked += MediaPreview_GalleryImage;
             }
         }
+
+        if(statisticsDisplay != null)
+        {
+            statisticsDisplay.Initialize();
+        }
+
+        if((versionHistoryContainer != null && versionHistoryItemPrefab == null)
+           || (versionHistoryItemPrefab != null && versionHistoryContainer == null))
+        {
+            Debug.LogWarning("[mod.io] In order to display a version history both the "
+                             + "versionHistoryItemPrefab and versionHistoryContainer variables must "
+                             + "be set for the InspectorView.", this);
+        }
+
+        Debug.Assert(!(versionHistoryItemPrefab != null && versionHistoryItemPrefab.GetComponent<ModfileDisplay>() == null),
+                     "[mod.io] The versionHistoryItemPrefab requires a ModfileDisplay component on the root Game Object.");
     }
 
     // ---------[ UPDATE VIEW ]---------
@@ -105,7 +100,8 @@ public class InspectorView : MonoBehaviour
         }
 
         // - version history -
-        if(versionHistoryContainer != null)
+        if(versionHistoryContainer != null
+           && versionHistoryItemPrefab != null)
         {
             foreach(Transform t in versionHistoryContainer)
             {
@@ -120,107 +116,22 @@ public class InspectorView : MonoBehaviour
             APIClient.GetAllModfiles(profile.id,
                                      modfileFilter,
                                      new APIPaginationParameters(){ limit = 20 },
-                                     (r) => ApplyVersionHistory(profile.id, r.items),
-                                     null);
+                                     (r) => PopulateVersionHistory(profile.id, r.items),
+                                     WebRequestError.LogAsWarning);
         }
     }
-
-    public void UpdateStatisticsUIComponents()
+    public void UpdateStatisticsDisplay()
     {
-        bool isLoading = (statistics == null);
-        string displayText = (isLoading ? "..." : string.Empty);
+        #if UNITY_EDITOR
+        if(!Application.isPlaying) { return; }
+        #endif
 
-        if(statisticsElements.popularityRankPosition != null)
-        {
-            if(!isLoading)
-            {
-                displayText = statistics.popularityRankPosition.ToString();
-            }
+        Debug.Assert(this.statistics != null,
+                     "[mod.io] Assign the mod statistics before updating the statistics UI components.");
 
-            statisticsElements.popularityRankPosition.text = displayText;
-        }
-        if(statisticsElements.popularityRankModCount != null)
+        if(statisticsDisplay != null)
         {
-            if(!isLoading)
-            {
-                displayText = ModBrowser.ValueToDisplayString(statistics.popularityRankModCount);
-            }
-
-            statisticsElements.popularityRankModCount.text = displayText;
-        }
-        if(statisticsElements.downloadCount != null)
-        {
-            if(!isLoading)
-            {
-                displayText = ModBrowser.ValueToDisplayString(statistics.downloadCount);
-            }
-
-            statisticsElements.downloadCount.text = displayText;
-        }
-        if(statisticsElements.subscriberCount != null)
-        {
-            if(!isLoading)
-            {
-                displayText = ModBrowser.ValueToDisplayString(statistics.subscriberCount);
-            }
-
-            statisticsElements.subscriberCount.text = displayText;
-        }
-        if(statisticsElements.ratingsTotalCount != null)
-        {
-            if(!isLoading)
-            {
-                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsTotalCount);
-            }
-            statisticsElements.ratingsTotalCount.text = displayText;
-        }
-        if(statisticsElements.ratingsPositiveCount != null)
-        {
-            if(!isLoading)
-            {
-                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsPositiveCount);
-            }
-            statisticsElements.ratingsPositiveCount.text = displayText;
-        }
-        if(statisticsElements.ratingsNegativeCount != null)
-        {
-            if(!isLoading)
-            {
-                displayText = ModBrowser.ValueToDisplayString(statistics.ratingsNegativeCount);
-            }
-            statisticsElements.ratingsNegativeCount.text = displayText;
-        }
-        if(statisticsElements.ratingsPositivePercentage != null)
-        {
-            if(!isLoading)
-            {
-                displayText = ((float)statistics.ratingsPositiveCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
-            }
-            statisticsElements.ratingsPositivePercentage.text = displayText;
-        }
-        if(statisticsElements.ratingsNegativePercentage != null)
-        {
-            if(!isLoading)
-            {
-                displayText = ((float)statistics.ratingsNegativeCount / (float)statistics.ratingsTotalCount).ToString("0.0") + "%";
-            }
-            statisticsElements.ratingsNegativePercentage.text = displayText;
-        }
-        if(statisticsElements.ratingsWeightedAggregate != null)
-        {
-            if(!isLoading)
-            {
-                displayText = (statistics.ratingsWeightedAggregate * 100f).ToString("0.0") + "%";
-            }
-            statisticsElements.ratingsWeightedAggregate.text = displayText;
-        }
-        if(statisticsElements.ratingsDisplayText != null)
-        {
-            if(!isLoading)
-            {
-                displayText = statistics.ratingsDisplayText;
-            }
-            statisticsElements.ratingsDisplayText.text = displayText;
+            statisticsDisplay.DisplayStatistics(statistics);
         }
     }
 
@@ -237,104 +148,27 @@ public class InspectorView : MonoBehaviour
     }
 
     // ---------[ UI ELEMENT CREATION ]---------
-    public void ApplyCreatorAvatar(Texture2D texture)
+    private void PopulateVersionHistory(int modId, IEnumerable<Modfile> modfiles)
     {
         #if UNITY_EDITOR
         if(!Application.isPlaying) { return; }
         #endif
 
-        Debug.Assert(creatorAvatar != null);
-        Debug.Assert(creatorAvatarPlaceholder != null);
-
-        if(texture != null)
-        {
-            if(creatorAvatar.sprite != null
-               && creatorAvatar.sprite.texture != null)
-            {
-                UnityEngine.Object.Destroy(creatorAvatar.sprite.texture);
-            }
-
-            creatorAvatar.sprite = ModBrowser.CreateSpriteFromTexture(texture);
-
-            creatorAvatar.gameObject.SetActive(true);
-            creatorAvatarPlaceholder.SetActive(false);
-        }
-        else
-        {
-            creatorAvatarPlaceholder.SetActive(true);
-            creatorAvatar.gameObject.SetActive(false);
-        }
-    }
-
-    private void ApplyYouTubeOverlay(Image image, string youTubeId)
-    {
-        // GameObject overlay_go = GameObject.Instantiate(youTubeOverlayPrefab, image.transform) as GameObject;
-        // overlay_go.GetComponent<YouTubeLinker>().youTubeVideoId = youTubeId;
-
-        // RectTransform overlayTransform = overlay_go.GetComponent<RectTransform>();
-        // overlayTransform.anchorMin = new Vector2(0f, 0f);
-        // overlayTransform.anchorMax = new Vector2(1f, 1f);
-        // overlayTransform.offsetMin = Vector2.zero;
-        // overlayTransform.offsetMax = Vector2.zero;
-    }
-
-    // private Image CreateMediaGalleryElement(float width, float height)
-    // {
-    //     GameObject newElement = new GameObject("Media Gallery Item");
-
-    //     RectTransform elementTransform = newElement.AddComponent<RectTransform>();
-    //     elementTransform.SetParent(profileElements.mediaGalleryContainer);
-    //     elementTransform.anchorMin = new Vector2(0f, 0.5f);
-    //     elementTransform.anchorMax = new Vector2(0f, 0.5f);
-    //     elementTransform.pivot = new Vector2(0f, 0.5f);
-    //     elementTransform.sizeDelta = new Vector2(width, height);
-
-    //     GameObject placeholder_go = UnityEngine.Object.Instantiate(mediaLoadingPrefab, elementTransform) as GameObject;
-    //     RectTransform placeholderTransform = placeholder_go.GetComponent<RectTransform>();
-    //     placeholderTransform.anchorMin = new Vector2(0f, 0f);
-    //     placeholderTransform.anchorMax = new Vector2(1f, 1f);
-    //     placeholderTransform.sizeDelta = new Vector2(0f, 0f);
-
-    //     Image retVal = newElement.AddComponent<Image>();
-    //     return retVal;
-    // }
-
-    private void ApplyMediaGalleryTexture(Image image, Texture2D texture)
-    {
-        #if UNITY_EDITOR
-        if(!Application.isPlaying) { return; }
-        #endif
-
-        if(image != null)
-        {
-            image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
-            image.enabled = true;
-
-            GameObject.Destroy(image.transform.GetChild(0).gameObject);
-        }
-    }
-
-    private void ApplyVersionHistory(int modId, IEnumerable<Modfile> modfiles)
-    {
-        #if UNITY_EDITOR
-        if(!Application.isPlaying) { return; }
-        #endif
-
-        if(!this.gameObject.activeInHierarchy
-           || profile.id != modId)
-        {
-            // inspector has closed/changed mods since call was made
-            return;
-        }
+        // inspector has closed/changed mods since call was made
+        if(profile.id != modId) { return; }
 
         foreach(Modfile modfile in modfiles)
         {
             GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, versionHistoryContainer) as GameObject;
             go.name = "Mod Version: " + modfile.version;
 
-            var entry = go.GetComponent<InspectorView_VersionEntry>();
-            entry.modfile = modfile;
-            entry.UpdateUIComponents();
+            if(String.IsNullOrEmpty(modfile.changelog))
+            {
+                modfile.changelog = missingVersionChangelogText;
+            }
+
+            var entry = go.GetComponent<ModfileDisplay>();
+            entry.DisplayModfile(modfile);
         }
     }
 
