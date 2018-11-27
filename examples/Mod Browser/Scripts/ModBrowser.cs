@@ -287,6 +287,23 @@ public class ModBrowser : MonoBehaviour
             this.lastCacheUpdate = manifest.lastCacheUpdate;
         }
 
+        // initialize views
+        inspectorView.Initialize();
+        inspectorView.subscribeButton.onClick.AddListener(() => SubscribeToMod(inspectorView.profile));
+        inspectorView.unsubscribeButton.onClick.AddListener(() => ShowSubscriptionsView());
+        inspectorView.gameObject.SetActive(false);
+        UpdateInspectorViewPageButtonInteractibility();
+
+
+        // collectionView.Initialize();
+        // collectionView.onUnsubscribeClicked += OnUnsubscribeButtonClicked;
+        // collectionView.profileCollection = CacheClient.IterateAllModProfiles().Where(p => subscribedModIds.Contains(p.id));
+        // collectionView.gameObject.SetActive(false);
+
+        InitializeExplorerView();
+        InitializeSubscriptionsView();
+
+
         // load user
         this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
         if(this.userProfile == null)
@@ -338,23 +355,6 @@ public class ModBrowser : MonoBehaviour
 
             APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
         }
-
-
-        // initialize views
-        inspectorView.Initialize();
-        inspectorView.subscribeButton.onClick.AddListener(() => SubscribeToMod(inspectorView.profile));
-        inspectorView.unsubscribeButton.onClick.AddListener(() => ShowSubscriptionsView());
-        inspectorView.gameObject.SetActive(false);
-        UpdateInspectorViewPageButtonInteractibility();
-
-
-        // collectionView.Initialize();
-        // collectionView.onUnsubscribeClicked += OnUnsubscribeButtonClicked;
-        // collectionView.profileCollection = CacheClient.IterateAllModProfiles().Where(p => subscribedModIds.Contains(p.id));
-        // collectionView.gameObject.SetActive(false);
-
-        InitializeExplorerView();
-        InitializeSubscriptionsView();
     }
 
     private void InitializeSubscriptionsView()
