@@ -99,6 +99,7 @@ public class InspectorView : MonoBehaviour
         if(selectedMediaPreview != null)
         {
             selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+            MediaPreview_UpdateAspectRatio();
         }
 
         // - version history -
@@ -178,15 +179,46 @@ public class InspectorView : MonoBehaviour
     private void MediaPreview_Logo(ModLogoDisplay display, int modId)
     {
         selectedMediaPreview.DisplayLogoTexture(modId, display.image.mainTexture as Texture2D);
+        MediaPreview_UpdateAspectRatio();
+
+        if(display.logoSize != selectedMediaPreview.logoSize)
+        {
+            ModManager.GetModLogo(profile, selectedMediaPreview.logoSize,
+                                  (t) =>
+                                  { selectedMediaPreview.DisplayLogoTexture(modId, t); MediaPreview_UpdateAspectRatio(); },
+                                  WebRequestError.LogAsWarning);
+        }
     }
     private void MediaPreview_YouTubeThumb(YouTubeThumbDisplay display, int modId, string youTubeVideoId)
     {
         selectedMediaPreview.DisplayYouTubeThumbTexture(modId, youTubeVideoId,
                                                         display.image.mainTexture as Texture2D);
+        MediaPreview_UpdateAspectRatio();
     }
     private void MediaPreview_GalleryImage(ModGalleryImageDisplay display, int modId, string imageFileName)
     {
-        selectedMediaPreview.DisplayGalleryImage(modId,
-                                                 profile.media.GetGalleryImageWithFileName(imageFileName));
+        selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, display.image.mainTexture as Texture2D);
+        MediaPreview_UpdateAspectRatio();
+
+        if(display.imageSize != selectedMediaPreview.galleryImageSize)
+        {
+            ModManager.GetModGalleryImage(profile, imageFileName, selectedMediaPreview.galleryImageSize,
+                                          (t) =>
+                                          {
+                                            selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, t);
+                                            MediaPreview_UpdateAspectRatio();
+                                          },
+                                          WebRequestError.LogAsWarning);
+        }
+    }
+
+    private void MediaPreview_UpdateAspectRatio()
+    {
+        AspectRatioFitter fitter = selectedMediaPreview.image.GetComponent<AspectRatioFitter>();
+        if(fitter != null)
+        {
+            Texture t = selectedMediaPreview.image.mainTexture;
+            fitter.aspectRatio = (float)t.width / (float)t.height;
+        }
     }
 }

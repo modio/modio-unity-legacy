@@ -280,6 +280,19 @@ public class ModBrowser : MonoBehaviour
             userDisplay.UpdateUIComponents();
         }
 
+        // load cached user data
+        this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
+        if(this.userProfile == null)
+        {
+            this.userProfile = ModBrowser.GUEST_PROFILE;
+        }
+
+        this.subscribedModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
+        if(this.subscribedModIds == null)
+        {
+            this.subscribedModIds = new List<int>();
+        }
+
         // load manifest
         ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
         if(manifest != null)
@@ -304,19 +317,7 @@ public class ModBrowser : MonoBehaviour
         InitializeSubscriptionsView();
 
 
-        // load user
-        this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
-        if(this.userProfile == null)
-        {
-            this.userProfile = ModBrowser.GUEST_PROFILE;
-        }
-
-        this.subscribedModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
-        if(this.subscribedModIds == null)
-        {
-            this.subscribedModIds = new List<int>();
-        }
-
+        // Update user data
         if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
         {
             // callbacks
@@ -934,24 +935,6 @@ public class ModBrowser : MonoBehaviour
 
         // statistics
         inspectorView.statistics = null;
-        Text buttonText = inspectorView.subscribeButton.GetComponent<Text>();
-        if(buttonText == null)
-        {
-            buttonText = inspectorView.subscribeButton.GetComponentInChildren<Text>();
-        }
-
-        if(buttonText != null)
-        {
-            if(subscribedModIds.Contains(inspectorView.profile.id))
-            {
-                buttonText.text = "View In Collection";
-            }
-            else
-            {
-                buttonText.text = "Add To Collection";
-            }
-        }
-
         ModManager.GetModStatistics(inspectorView.profile.id,
                                     (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsDisplay(); },
                                     null);
