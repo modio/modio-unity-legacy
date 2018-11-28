@@ -28,20 +28,20 @@ namespace ModIO
             CacheClient.TrySetCacheDirectory(CacheClient.GetCacheDirectory());
         }
 
-        [MenuItem("mod.io/Clear Cache/Authentication Data", false, 1)]
-        public static void ClearCachedAuthentaticationData()
+        [MenuItem("mod.io/Clear Cache/User Data", false, 1)]
+        public static void ClearCachedAuthenticatedUserData()
         {
             if(CacheClient.DeleteAuthenticatedUser())
             {
-                Debug.Log("[mod.io] Cached Data Deleted.");
+                Debug.Log("[mod.io] Cached User Data Deleted.");
             }
         }
-        [MenuItem("mod.io/Clear Cache/Game Profile", false, 1)]
+        [MenuItem("mod.io/Clear Cache/Game Data", false, 1)]
         public static void ClearCachedGameProfile()
         {
             if(CacheClient.DeleteFile(CacheClient.gameProfileFilePath))
             {
-                Debug.Log("[mod.io] Cached Data Deleted.");
+                Debug.Log("[mod.io] Cached Game Data Deleted.");
             }
         }
         [MenuItem("mod.io/Clear Cache/Mod Data", false, 1)]
@@ -49,15 +49,15 @@ namespace ModIO
         {
             if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory() + "mods/"))
             {
-                Debug.Log("[mod.io] Cached Data Deleted.");
+                Debug.Log("[mod.io] Cached Mod Data Deleted.");
             }
         }
-        [MenuItem("mod.io/Clear Cache/User Data", false, 1)]
-        public static void ClearCachedUserData()
+        [MenuItem("mod.io/Clear Cache/User Profiles", false, 1)]
+        public static void ClearCachedUserProfiles()
         {
             if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory() + "users/"))
             {
-                Debug.Log("[mod.io] Cached Data Deleted.");
+                Debug.Log("[mod.io] Cached User Profiles Deleted.");
             }
         }
     }
