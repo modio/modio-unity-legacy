@@ -500,6 +500,7 @@ MonoBehaviour:
   mediaDisplay: {fileID: 0}
   tagContainer: {fileID: 0}
   buildDisplay: {fileID: 0}
+  downloadDisplay: {fileID: 0}
   m_modId: -1
 --- !u!114 &114216206363109244
 MonoBehaviour:
@@ -1109,13 +1110,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maximumScaleFactor: 1
-  textLoadingPrefab: {fileID: 1621626126853172, guid: 3b9bac8985e50439482f0b462e21dff8,
-    type: 2}
-  logoSize: 1
-  logoLoadingPrefab: {fileID: 1211250885151908, guid: 2f40aeca2bf41497e9da178e556a22b6,
-    type: 2}
-  avatarSize: 0
-  avatarLoadingPrefab: {fileID: 0}
   tagBadgePrefab: {fileID: 0}
   profileDisplay: {fileID: 114179558294228882}
   buildDisplay: {fileID: 0}
@@ -1164,7 +1158,7 @@ MonoBehaviour:
     description_text: 
     metadataBlob: 
     profileURL: 
-    currentBuild:
+    activeBuild:
       id: 0
       modId: 0
       dateAdded: 0
