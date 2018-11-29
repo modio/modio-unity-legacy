@@ -29,8 +29,9 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public UserProfileDisplay           creatorDisplay;
     public ModLogoDisplay               logoDisplay;
     public ModMediaCollectionDisplay    mediaDisplay;
-    public LayoutGroup  tagContainer;
-    public ModfileDisplay buildDisplay;
+    public LayoutGroup                  tagContainer;
+    public ModfileDisplay               buildDisplay;
+    public DownloadProgressDisplay      downloadDisplay;
 
     [Header("Display Data")]
     [SerializeField] private int m_modId = -1;

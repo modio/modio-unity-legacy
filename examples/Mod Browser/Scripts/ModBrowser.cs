@@ -1323,9 +1323,11 @@ public class ModBrowser : MonoBehaviour
         foreach(ModBrowserItem mbi in mbiArray)
         {
             if(mbi.profile != null
-               && mbi.profile.id == profile.id)
+               && mbi.profile.id == profile.id
+               && mbi.profileDisplay != null
+               && mbi.profileDisplay.downloadDisplay != null)
             {
-                this.StartCoroutine(mbi.UpdateDownloadProgressElements(request));
+                this.StartCoroutine(mbi.profileDisplay.downloadDisplay.UpdateDisplayForRequestCoroutine(request));
             }
         }
 
@@ -1340,29 +1342,6 @@ public class ModBrowser : MonoBehaviour
         }
 
         UpdateViewSubscriptions();
-    }
-
-    private IEnumerator updateMBIProgress(ModBrowserItem mbi, ModBinaryRequest r)
-    {
-        mbi.downloadProgressPercentageText.text = "Initializing";
-
-        while(!r.isDone)
-        {
-            if(r.webRequest != null)
-            {
-                float percentComplete = r.webRequest.downloadProgress;
-                string displayString = ("Downloading "
-                                        + (percentComplete * 100f).ToString("0.0")
-                                        + "%");
-                mbi.downloadProgressPercentageText.text = displayString;
-            }
-
-            mbi.downloadProgressPercentageText.text = "Downloading 100%";
-
-            yield return new WaitForSeconds(4f);
-        }
-
-        mbi.downloadProgressPercentageText.gameObject.SetActive(false);
     }
 
     public void UnsubscribeFromMod(ModProfile profile)
