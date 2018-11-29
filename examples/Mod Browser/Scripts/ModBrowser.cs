@@ -1327,7 +1327,8 @@ public class ModBrowser : MonoBehaviour
                && mbi.profileDisplay != null
                && mbi.profileDisplay.downloadDisplay != null)
             {
-                this.StartCoroutine(mbi.profileDisplay.downloadDisplay.UpdateDisplayForRequestCoroutine(request));
+                mbi.profileDisplay.downloadDisplay.gameObject.SetActive(true);
+                mbi.profileDisplay.downloadDisplay.DisplayRequest(request);
             }
         }
 

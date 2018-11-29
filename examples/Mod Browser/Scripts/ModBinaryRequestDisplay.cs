@@ -18,32 +18,36 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-public class DownloadProgressDisplay : MonoBehaviour
+public class ModBinaryRequestDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     [Header("UI Elements")]
-    // TODO(@jackson): You know what to do...
     public Text percentageText;
     public Text byteCountText;
     public RectTransform progressBar;
     public GameObject container;
 
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize()
-    {
+    // --- RUNTIME DATA ---
+    private ModBinaryRequest m_request;
+    private Coroutine m_updateCoroutine;
 
-    }
+    // ---------[ INITIALIZATION ]---------
+    public void Initialize() {}
 
     private void OnEnable()
     {
-        // if(m_uwr != null)
-        // {
-        //     // Start Coroutine
-        // }
+        if(m_request != null)
+        {
+            StartDisplayCoroutine();
+        }
     }
     private void OnDisable()
     {
-        // stop coroutine
+        if(m_updateCoroutine != null)
+        {
+            this.StopCoroutine(m_updateCoroutine);
+            m_updateCoroutine = null;
+        }
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -85,8 +89,32 @@ public class DownloadProgressDisplay : MonoBehaviour
     //     }
     // }
 
-    public IEnumerator UpdateDisplayForRequestCoroutine(ModBinaryRequest request)
+    public void DisplayRequest(ModBinaryRequest request)
     {
+        Debug.Assert(request != null);
+
+        m_request = request;
+
+        if(this.isActiveAndEnabled)
+        {
+            StartDisplayCoroutine();
+        }
+    }
+
+    private void StartDisplayCoroutine()
+    {
+
+        if(m_updateCoroutine != null)
+        {
+            StopCoroutine(m_updateCoroutine);
+        }
+
+        m_updateCoroutine = StartCoroutine(UpdateDisplayCoroutine());
+    }
+
+    private IEnumerator UpdateDisplayCoroutine()
+    {
+
         if(container != null)
         {
             container.gameObject.SetActive(true);
@@ -107,11 +135,11 @@ public class DownloadProgressDisplay : MonoBehaviour
             percentageText.text = "0%";
         }
 
-        while(!request.isDone)
+        while(!m_request.isDone)
         {
-            if(request.webRequest != null)
+            if(m_request.webRequest != null)
             {
-                float percentComplete = request.webRequest.downloadProgress;
+                float percentComplete = m_request.webRequest.downloadProgress;
 
                 if(progressBar != null)
                 {
@@ -121,7 +149,7 @@ public class DownloadProgressDisplay : MonoBehaviour
 
                 if(byteCountText != null)
                 {
-                    byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)request.webRequest.downloadedBytes);
+                    byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)m_request.webRequest.downloadedBytes);
                 }
 
                 if(percentageText != null)
@@ -143,7 +171,7 @@ public class DownloadProgressDisplay : MonoBehaviour
 
             try
             {
-                var info = new System.IO.FileInfo(request.binaryFilePath);
+                var info = new System.IO.FileInfo(m_request.binaryFilePath);
                 string byteCountString = ModBrowser.ByteCountToDisplayString(info.Length);
                 byteCountText.text = byteCountString;
             }
@@ -159,6 +187,8 @@ public class DownloadProgressDisplay : MonoBehaviour
         }
 
         yield return new WaitForSeconds(4f);
+
+        m_updateCoroutine = null;
 
         if(container != null)
         {
