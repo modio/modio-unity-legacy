@@ -57,7 +57,6 @@ GameObject:
   - component: {fileID: 114690865727002986}
   - component: {fileID: 114835771881959764}
   - component: {fileID: 114112872799890884}
-  - component: {fileID: 114916773895953650}
   - component: {fileID: 114034985456107004}
   m_Layer: 5
   m_Name: VersionHistoryItem
@@ -312,41 +311,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
---- !u!114 &114916773895953650
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1527782458058220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7043371434cd54867a5ae1133ed2320d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  missingChangelogDescription: <i>No changelog added</i>
-  dateAdded: {fileID: 114026099628693996}
-  fileName: {fileID: 0}
-  fileSize: {fileID: 0}
-  version: {fileID: 114605380037962906}
-  changelog: {fileID: 114690865727002986}
-  modfile:
-    id: 0
-    modId: 0
-    dateAdded: 0
-    fileName: 
-    fileSize: 0
-    fileHash:
-      md5: 
-    version: 
-    changelog: 
-    metadataBlob: 
-    dateScanned: 0
-    virusScanStatus: 0
-    virusScanResult: 0
-    virusScanHash: 
-    downloadLocator:
-      binaryURL: 
-      dateExpires: 0
 --- !u!222 &222405995590087656
 CanvasRenderer:
   m_ObjectHideFlags: 1

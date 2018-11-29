@@ -1336,7 +1336,6 @@ public class ModBrowser : MonoBehaviour
 
             request.succeeded += (r) =>
             {
-                Debug.Log(profile.name + " Downloaded!");
                 modDownloads.Remove(request);
             };
         }
