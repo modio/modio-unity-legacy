@@ -87,7 +87,7 @@ public class ModStatisticsDisplay : MonoBehaviour
         {
             m_displayMapping.Add(ratingPositivePercentageDisplay,
                                  (s) => (s.ratingCount > 0
-                                         ? ((float)s.ratingPositiveCount / (float)s.ratingCount).ToString("0.0") + "%"
+                                         ? (100f * (float)s.ratingPositiveCount / (float)s.ratingCount).ToString("0") + "%"
                                          : "~%"));
         }
         if(ratingNegativeCountDisplay != null)
@@ -99,13 +99,13 @@ public class ModStatisticsDisplay : MonoBehaviour
         {
             m_displayMapping.Add(ratingNegativePercentageDisplay,
                                  (s) => (s.ratingCount > 0
-                                         ? ((float)s.ratingNegativeCount / (float)s.ratingCount).ToString("0.0") + "%"
+                                         ? (100f * (float)s.ratingNegativeCount / (float)s.ratingCount).ToString("0") + "%"
                                          : "~%"));
         }
         if(ratingWeightedAggregateDisplay != null)
         {
             m_displayMapping.Add(ratingWeightedAggregateDisplay,
-                                 (s) => (100f * s.ratingWeightedAggregate).ToString("0.0") + "%");
+                                 (s) => (100f * s.ratingWeightedAggregate).ToString("0") + "%");
         }
         if(ratingAsTextDisplay != null)
         {
