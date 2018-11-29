@@ -1323,10 +1323,9 @@ public class ModBrowser : MonoBehaviour
         foreach(ModBrowserItem mbi in mbiArray)
         {
             if(mbi.profile != null
-               && mbi.profile.id == profile.id
-               && mbi.downloadProgressPercentageText != null)
+               && mbi.profile.id == profile.id)
             {
-                this.StartCoroutine(updateMBIProgress(mbi, request));
+                this.StartCoroutine(mbi.UpdateDownloadProgressElements(request));
             }
         }
 

@@ -101,10 +101,6 @@ public class ModBrowserItem : MonoBehaviour
     // ---------[ UI UPDATES ]---------
     public void UpdateProfileDisplay()
     {
-        if(downloadProgressPercentageText != null)
-        {
-            downloadProgressPercentageText.gameObject.SetActive(false);
-        }
 
         if(profile != null)
         {
@@ -116,7 +112,11 @@ public class ModBrowserItem : MonoBehaviour
             {
                 buildDisplay.DisplayModfile(profile.activeBuild);
             }
+            // if(downloadProgressContainer != null)
+            // {
+            //     downloadProgressContainer.gameObject.SetActive(false);
 
+            // }
             // TODO(@jackson): yep
             // UpdateDownloadProgressDisplay();
         }
@@ -130,6 +130,10 @@ public class ModBrowserItem : MonoBehaviour
             {
                 buildDisplay.DisplayLoading();
             }
+            // if(downloadProgressContainer != null)
+            // {
+            //     downloadProgressContainer.gameObject.SetActive(false);
+            // }
         }
     }
 
@@ -216,6 +220,11 @@ public class ModBrowserItem : MonoBehaviour
     public void UpdateDownloadProgressDisplay()
     {
         ModBinaryRequest request = ModManager.GetDownloadInProgress(profile.activeBuild.id);
+        StartCoroutine(UpdateDownloadProgressElements(request));
+    }
+
+    public IEnumerator UpdateDownloadProgressElements(ModBinaryRequest request)
+    {
         if(request == null
            || request.isDone)
         {
@@ -230,53 +239,46 @@ public class ModBrowserItem : MonoBehaviour
             {
                 downloadProgressContainer.gameObject.SetActive(true);
             }
-            StartCoroutine(UpdateDownloadProgressElements(request));
-        }
-    }
 
-    public IEnumerator UpdateDownloadProgressElements(ModBinaryRequest request)
-    {
-        if(downloadProgressContainer != null)
-        {
-            downloadProgressContainer.gameObject.SetActive(true);
-        }
-
-        RectTransform barTransform = null;
-        if(downloadProgress_bar != null)
-        {
-            barTransform = downloadProgress_bar.GetChild(0) as RectTransform;
-            barTransform.sizeDelta = new Vector2(0f, 0f);
-        }
-        if(downloadProgress_byteCountText != null)
-        {
-            downloadProgress_byteCountText.text = ModBrowser.ByteCountToDisplayString(0);
-        }
-        if(downloadProgressPercentageText != null)
-        {
-            downloadProgressPercentageText.text = "0%";
-        }
-
-        while(!request.isDone)
-        {
-            if(request.webRequest != null)
+            RectTransform barTransform = null;
+            if(downloadProgress_bar != null)
             {
-                float percentComplete = request.webRequest.downloadProgress;
+                barTransform = downloadProgress_bar.GetChild(0) as RectTransform;
+                barTransform.sizeDelta = new Vector2(0f, 0f);
+            }
+            if(downloadProgress_byteCountText != null)
+            {
+                downloadProgress_byteCountText.text = ModBrowser.ByteCountToDisplayString(0);
+            }
+            if(downloadProgressPercentageText != null)
+            {
+                downloadProgressPercentageText.text = "0%";
+            }
 
-                if(downloadProgress_bar != null)
+            while(!request.isDone)
+            {
+                if(request.webRequest != null)
                 {
-                    float barWidth = percentComplete * downloadProgress_bar.rect.width;
-                    barTransform.sizeDelta = new Vector2(barWidth, 0f);
+                    float percentComplete = request.webRequest.downloadProgress;
+
+                    if(downloadProgress_bar != null)
+                    {
+                        float barWidth = percentComplete * downloadProgress_bar.rect.width;
+                        barTransform.sizeDelta = new Vector2(barWidth, 0f);
+                    }
+
+                    if(downloadProgress_byteCountText != null)
+                    {
+                        downloadProgress_byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)request.webRequest.downloadedBytes);
+                    }
+
+                    if(downloadProgressPercentageText != null)
+                    {
+                        downloadProgressPercentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
+                    }
                 }
 
-                if(downloadProgress_byteCountText != null)
-                {
-                    downloadProgress_byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)request.webRequest.downloadedBytes);
-                }
-
-                if(downloadProgressPercentageText != null)
-                {
-                    downloadProgressPercentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
-                }
+                yield return null;
             }
 
             if(downloadProgress_bar != null)
@@ -286,7 +288,8 @@ public class ModBrowserItem : MonoBehaviour
 
             if(downloadProgress_byteCountText != null)
             {
-                downloadProgress_byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)request.webRequest.downloadedBytes);
+                // TODO(@jackson): Unhack
+                downloadProgress_byteCountText.text = ModBrowser.ByteCountToDisplayString(profile.activeBuild.fileSize);
             }
 
             if(downloadProgressPercentageText != null)
@@ -295,11 +298,11 @@ public class ModBrowserItem : MonoBehaviour
             }
 
             yield return new WaitForSeconds(4f);
-        }
 
-        if(downloadProgressContainer != null)
-        {
-            downloadProgressContainer.gameObject.SetActive(false);
+            if(downloadProgressContainer != null)
+            {
+                downloadProgressContainer.gameObject.SetActive(false);
+            }
         }
     }
 
