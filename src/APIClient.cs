@@ -184,12 +184,14 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
+            #pragma warning disable 0162 // ignore unreachable code warning
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 Debug.Log("GENERATED GET REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
+            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -222,12 +224,14 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
+            #pragma warning disable 0162 // ignore unreachable code warning
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 Debug.Log("GENERATED GET REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
+            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -254,6 +258,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
+            #pragma warning disable 0162 // ignore unreachable code warning
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string formFields = "";
@@ -267,6 +272,7 @@ namespace ModIO
                           + "\nFields: " + formFields
                           + "\n");
             }
+            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -301,6 +307,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
+            #pragma warning disable 0162 // ignore unreachable code warning
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string formFields = "";
@@ -327,6 +334,7 @@ namespace ModIO
                           + "\nFields: " + formFields
                           + "\n");
             }
+            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -353,6 +361,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
+            #pragma warning disable 0162 // ignore unreachable code warning
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string formFields = "";
@@ -369,6 +378,7 @@ namespace ModIO
                           + "\nFields: " + formFields
                           + "\n");
             }
+            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -384,6 +394,7 @@ namespace ModIO
             requestOperation.completed += (operation) =>
             {
                 #if DEBUG
+                #pragma warning disable 0162 // ignore unreachable code warning
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
@@ -405,6 +416,7 @@ namespace ModIO
                         Debug.Log(logString);
                     }
                 }
+                #pragma warning restore 0162
                 #endif
 
                 if(webRequest.isNetworkError || webRequest.isHttpError)

@@ -26,11 +26,13 @@ namespace ModIO
         internal void NotifyFailed()
         {
             #if DEBUG
-                if(GlobalSettings.LOG_ALL_WEBREQUESTS
-                   && error != null)
+            #pragma warning disable 0162 // ignore unreachable code warning
+                if(error != null
+                   && GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
                     WebRequestError.LogAsWarning(error);
                 }
+            #pragma warning restore 0162
             #endif
 
             if(failed != null)

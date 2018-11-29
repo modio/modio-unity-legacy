@@ -106,6 +106,7 @@ namespace ModIO
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             #if DEBUG
+            #pragma warning disable 0162 // ignore unreachable code warning
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string requestHeaders = "";
@@ -127,6 +128,7 @@ namespace ModIO
                           + "\n"
                           );
             }
+            #pragma warning restore 0162
             #endif
 
             var operation = webRequest.SendWebRequest();
@@ -149,6 +151,7 @@ namespace ModIO
             else
             {
                 #if DEBUG
+                #pragma warning disable 0162 // ignore unreachable code warning
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
@@ -159,6 +162,7 @@ namespace ModIO
                                             webRequest.url,
                                             webRequest.downloadHandler.text));
                 }
+                #pragma warning restore 0162
                 #endif
 
                 request.imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
@@ -212,6 +216,7 @@ namespace ModIO
 
 
             #if DEBUG
+            #pragma warning disable 0162 // ignore unreachable code warning
             if(GlobalSettings.LOG_ALL_WEBREQUESTS)
             {
                 string requestHeaders = "";
@@ -231,6 +236,7 @@ namespace ModIO
                           + "\nURL: " + webRequest.url
                           + "\nHeaders: " + requestHeaders);
             }
+            #pragma warning restore 0162
             #endif
 
             var operation = request.webRequest.SendWebRequest();
@@ -253,6 +259,7 @@ namespace ModIO
             else
             {
                 #if DEBUG
+                #pragma warning disable 0162 // ignore unreachable code warning
                 if(GlobalSettings.LOG_ALL_WEBREQUESTS)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
@@ -261,6 +268,7 @@ namespace ModIO
                               + "\nURL: " + webRequest.url
                               + "\nFilePath: " + request.binaryFilePath);
                 }
+                #pragma warning restore 0162
                 #endif
 
                 try
