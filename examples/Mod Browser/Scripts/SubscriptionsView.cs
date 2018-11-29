@@ -132,7 +132,6 @@ public class SubscriptionsView : MonoBehaviour
                 item.UpdateStatisticsDisplay();
                 item.UpdateIsSubscribedDisplay();
 
-
                 if(item.profile != null)
                 {
                     ModManager.GetModStatistics(item.profile.id,

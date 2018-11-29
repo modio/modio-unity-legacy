@@ -94,32 +94,32 @@ public class ModfileDisplay : MonoBehaviour
 
         m_modfileId = modfile.id;
 
-        if(dateAddedDisplay)
+        if(dateAddedDisplay != null)
         {
             dateAddedDisplay.text = ServerTimeStamp.ToLocalDateTime(modfile.dateAdded).ToString();
             dateAddedDisplay.enabled = true;
         }
-        if(fileNameDisplay)
+        if(fileNameDisplay != null)
         {
             fileNameDisplay.text = modfile.fileName;
             fileNameDisplay.enabled = true;
         }
-        if(fileSizeDisplay)
+        if(fileSizeDisplay != null)
         {
             fileSizeDisplay.text = ModBrowser.ByteCountToDisplayString(modfile.fileSize);
             fileSizeDisplay.enabled = true;
         }
-        if(fileHashDisplay)
+        if(fileHashDisplay != null)
         {
             fileHashDisplay.text = modfile.fileHash.md5;
             fileHashDisplay.enabled = true;
         }
-        if(versionDisplay)
+        if(versionDisplay != null)
         {
             versionDisplay.text = modfile.version;
             versionDisplay.enabled = true;
         }
-        if(changelogDisplay)
+        if(changelogDisplay != null)
         {
             changelogDisplay.text = modfile.changelog;
             changelogDisplay.enabled = true;
@@ -136,28 +136,27 @@ public class ModfileDisplay : MonoBehaviour
 
     public void DisplayLoading()
     {
-
-        if(dateAddedDisplay)
+        if(dateAddedDisplay != null)
         {
             dateAddedDisplay.enabled = false;
         }
-        if(fileNameDisplay)
+        if(fileNameDisplay != null)
         {
             fileNameDisplay.enabled = false;
         }
-        if(fileSizeDisplay)
+        if(fileSizeDisplay != null)
         {
             fileSizeDisplay.enabled = false;
         }
-        if(fileHashDisplay)
+        if(fileHashDisplay != null)
         {
             fileHashDisplay.enabled = false;
         }
-        if(versionDisplay)
+        if(versionDisplay != null)
         {
             versionDisplay.enabled = false;
         }
-        if(changelogDisplay)
+        if(changelogDisplay != null)
         {
             changelogDisplay.enabled = false;
         }

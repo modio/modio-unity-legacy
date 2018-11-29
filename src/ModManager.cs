@@ -577,7 +577,6 @@ namespace ModIO
         }
 
         // TODO(@jackson): Take ModMediaCollection instead of profile
-        [Obsolete()]
         public static void GetModGalleryImage(ModProfile profile,
                                               string imageFileName,
                                               ModGalleryImageSize size,

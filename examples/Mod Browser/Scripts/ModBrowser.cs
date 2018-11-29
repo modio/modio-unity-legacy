@@ -1709,6 +1709,7 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
+    // TODO(@jackson): Add smallest unit
     public static string ByteCountToDisplayString(Int64 value)
     {
         string[] sizeSuffixes = new string[]{"B", "KB", "MB", "GB"};
