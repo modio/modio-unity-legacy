@@ -4,9 +4,9 @@ using UnityEditor;
 
 namespace ModIO
 {
-    public static class MenuItems
+    public static class EditorMenuItems
     {
-        static MenuItems()
+        static EditorMenuItems()
         {
             new MenuItem("mod.io/Clear Cache/", false, 1);
         }
