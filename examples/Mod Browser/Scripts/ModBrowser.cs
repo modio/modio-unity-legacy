@@ -959,24 +959,6 @@ public class ModBrowser : MonoBehaviour
 
         // statistics
         inspectorView.statistics = null;
-        Text buttonText = inspectorView.subscribeButton.GetComponent<Text>();
-        if(buttonText == null)
-        {
-            buttonText = inspectorView.subscribeButton.GetComponentInChildren<Text>();
-        }
-
-        if(buttonText != null)
-        {
-            if(subscribedModIds.Contains(inspectorView.profile.id))
-            {
-                buttonText.text = "View In Collection";
-            }
-            else
-            {
-                buttonText.text = "Add To Collection";
-            }
-        }
-
         ModManager.GetModStatistics(inspectorView.profile.id,
                                     (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsDisplay(); },
                                     null);
