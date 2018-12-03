@@ -18,14 +18,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
+// TODO(@jackson): Needs cleanup
 public class ModBinaryRequestDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    [Header("Settings")]
+    [Tooltip("If the display component has no download to show, or the download has finished, this gameObject can be set to inactive.")]
+    public bool setInactiveIfNotDownloading = true;
+
     [Header("UI Elements")]
     public Text percentageText;
     public Text byteCountText;
     public RectTransform progressBar;
-    public GameObject container;
 
     // --- RUNTIME DATA ---
     private ModBinaryRequest m_request;
@@ -39,6 +43,10 @@ public class ModBinaryRequestDisplay : MonoBehaviour
         if(m_request != null)
         {
             StartDisplayCoroutine();
+        }
+        else if(setInactiveIfNotDownloading)
+        {
+            this.gameObject.SetActive(false);
         }
     }
     private void OnDisable()
@@ -91,19 +99,25 @@ public class ModBinaryRequestDisplay : MonoBehaviour
 
     public void DisplayRequest(ModBinaryRequest request)
     {
-        Debug.Assert(request != null);
-
         m_request = request;
 
-        if(this.isActiveAndEnabled)
+        if(request != null)
         {
-            StartDisplayCoroutine();
+            this.gameObject.SetActive(true);
+
+            if(this.isActiveAndEnabled)
+            {
+                StartDisplayCoroutine();
+            }
+        }
+        else if(setInactiveIfNotDownloading)
+        {
+            this.gameObject.SetActive(false);
         }
     }
 
     private void StartDisplayCoroutine()
     {
-
         if(m_updateCoroutine != null)
         {
             StopCoroutine(m_updateCoroutine);
@@ -114,12 +128,6 @@ public class ModBinaryRequestDisplay : MonoBehaviour
 
     private IEnumerator UpdateDisplayCoroutine()
     {
-
-        if(container != null)
-        {
-            container.gameObject.SetActive(true);
-        }
-
         RectTransform barTransform = null;
         if(progressBar != null)
         {
@@ -190,9 +198,9 @@ public class ModBinaryRequestDisplay : MonoBehaviour
 
         m_updateCoroutine = null;
 
-        if(container != null)
+        if(setInactiveIfNotDownloading)
         {
-            container.gameObject.SetActive(false);
+            this.gameObject.SetActive(false);
         }
     }
 }
