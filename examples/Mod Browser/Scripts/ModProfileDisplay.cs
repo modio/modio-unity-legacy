@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
+public class ModProfileDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     public delegate void OnClickDelegate(ModProfileDisplay display,
@@ -12,8 +12,6 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public event OnClickDelegate onClick;
 
     [Header("Settings")]
-    public GameObject       textLoadingPrefab;
-    public GameObject       tagBadgePrefab;
     [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]
     public bool             replaceMissingDescriptionWithSummary;
 
@@ -29,9 +27,12 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     public UserProfileDisplay           creatorDisplay;
     public ModLogoDisplay               logoDisplay;
     public ModMediaCollectionDisplay    mediaDisplay;
-    public LayoutGroup                  tagContainer;
     public ModfileDisplay               buildDisplay;
     public ModBinaryRequestDisplay      downloadDisplay;
+
+    // TODO(@jackson)
+    public LayoutGroup      tagContainer;
+    public GameObject       tagBadgePrefab;
 
     [Header("Display Data")]
     [SerializeField] private int m_modId = -1;
@@ -39,25 +40,13 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
     // ---[ RUNTIME DATA ]---
     private delegate string GetDisplayString(ModProfile profile);
 
-    private bool m_isInitialized = false;
     private Dictionary<Text, GetDisplayString> m_displayMapping = null;
-    private List<GameObject> m_loadingInstances = null;
-    private List<IModProfilePresenter> m_nestedPresenters = null;
+    private List<LoadingDisplay> m_loadingDisplays = null;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        // asserts
-        if(m_isInitialized)
-        {
-            #if DEBUG
-            Debug.LogWarning("[mod.io] Once initialized, a ModProfileDisplay component cannot be re-initialized.");
-            #endif
-
-            return;
-        }
-
-        // - text elements -
+        // - text displays -
         m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
         if(nameDisplay != null)
@@ -111,67 +100,33 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
             });
         }
 
-        if(textLoadingPrefab != null)
+        m_loadingDisplays = new List<LoadingDisplay>();
+        foreach(Text textDisplay in m_displayMapping.Keys)
         {
-            m_loadingInstances = new List<GameObject>(m_displayMapping.Count);
-
-            foreach(Text textComponent in m_displayMapping.Keys)
-            {
-                RectTransform textTransform = textComponent.GetComponent<RectTransform>();
-                m_loadingInstances.Add(InstantiateTextLoadingPrefab(textTransform));
-            }
-        }
-        else
-        {
-            m_loadingInstances = null;
+            m_loadingDisplays.AddRange(textDisplay.gameObject.GetComponentsInChildren<LoadingDisplay>(true));
         }
 
-        // - user display -
+        // - nested displays -
         if(creatorDisplay != null)
         {
             creatorDisplay.Initialize();
         }
-
-        // - nested components -
-        m_nestedPresenters = new List<IModProfilePresenter>();
-
         if(logoDisplay != null)
         {
-            m_nestedPresenters.Add(logoDisplay);
+            logoDisplay.Initialize();
         }
         if(mediaDisplay != null)
         {
-            m_nestedPresenters.Add(mediaDisplay);
+            mediaDisplay.Initialize();
         }
-
-        foreach(IModProfilePresenter presenter in m_nestedPresenters)
-        {
-            presenter.Initialize();
-        }
-
         if(buildDisplay != null)
         {
             buildDisplay.Initialize();
         }
-
-        m_isInitialized = true;
-    }
-
-    private GameObject InstantiateTextLoadingPrefab(RectTransform displayObjectTransform)
-    {
-        RectTransform parentRT = displayObjectTransform.parent as RectTransform;
-        GameObject loadingGO = GameObject.Instantiate(textLoadingPrefab,
-                                                      new Vector3(),
-                                                      Quaternion.identity,
-                                                      parentRT);
-
-        RectTransform loadingRT = loadingGO.transform as RectTransform;
-        loadingRT.anchorMin = displayObjectTransform.anchorMin;
-        loadingRT.anchorMax = displayObjectTransform.anchorMax;
-        loadingRT.offsetMin = displayObjectTransform.offsetMin;
-        loadingRT.offsetMax = displayObjectTransform.offsetMax;
-
-        return loadingGO;
+        if(downloadDisplay != null)
+        {
+            downloadDisplay.Initialize();
+        }
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -181,73 +136,86 @@ public class ModProfileDisplay : MonoBehaviour, IModProfilePresenter
 
         m_modId = profile.id;
 
+        // - text displays -
+        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
+        {
+            loadingDisplay.gameObject.SetActive(false);
+        }
         foreach(var kvp in m_displayMapping)
         {
             kvp.Key.text = kvp.Value(profile);
-            kvp.Key.gameObject.SetActive(true);
+            kvp.Key.enabled = true;
         }
 
+        // - nested displays -
         if(creatorDisplay != null)
         {
             creatorDisplay.DisplayProfile(profile.submittedBy);
         }
-
-        if(m_loadingInstances != null)
+        if(logoDisplay != null)
         {
-            foreach(GameObject loadingInstance in m_loadingInstances)
-            {
-                loadingInstance.SetActive(false);
-            }
+            logoDisplay.DisplayLogo(profile.id, profile.logoLocator);
         }
-
-        foreach(IModProfilePresenter presenter in m_nestedPresenters)
+        if(mediaDisplay != null)
         {
-            presenter.DisplayProfile(profile);
+            mediaDisplay.DisplayProfileMedia(profile);
         }
-
         if(buildDisplay != null)
         {
             buildDisplay.DisplayModfile(profile.activeBuild);
         }
+        if(downloadDisplay != null)
+        {
+            ModBinaryRequest download = null;
+            foreach(ModBinaryRequest request in ModManager.downloadsInProgress)
+            {
+                if(request.modId == profile.id)
+                {
+                    download = request;
+                    break;
+                }
+            }
+
+            downloadDisplay.DisplayRequest(download);
+        }
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int modId = -1)
     {
-        if(m_loadingInstances != null)
+        m_modId = modId;
+
+        // - text displays -
+        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
         {
-            foreach(Text textComponent in m_displayMapping.Keys)
-            {
-                textComponent.gameObject.SetActive(false);
-            }
-            foreach(GameObject loadingInstance in m_loadingInstances)
-            {
-                loadingInstance.SetActive(true);
-            }
+            loadingDisplay.gameObject.SetActive(true);
         }
-        else
+        foreach(Text textComponent in m_displayMapping.Keys)
         {
-            foreach(Text textComponent in m_displayMapping.Keys)
-            {
-                textComponent.text = string.Empty;
-            }
+            textComponent.enabled = false;
         }
 
+        // - nested displays -
         if(creatorDisplay != null)
         {
             creatorDisplay.DisplayLoading();
         }
-
-        foreach(IModProfilePresenter presenter in m_nestedPresenters)
+        if(logoDisplay != null)
         {
-            presenter.DisplayLoading();
+            logoDisplay.DisplayLoading(modId);
         }
-
+        if(mediaDisplay != null)
+        {
+            mediaDisplay.DisplayLoading(modId);
+        }
         if(buildDisplay != null)
         {
-            buildDisplay.DisplayLoading();
+            buildDisplay.DisplayLoading(modId);
+        }
+        if(downloadDisplay != null)
+        {
+            downloadDisplay.DisplayRequest(null);
         }
     }
-
 
     // ---------[ EVENT HANDLING ]---------
     public void NotifyClicked()

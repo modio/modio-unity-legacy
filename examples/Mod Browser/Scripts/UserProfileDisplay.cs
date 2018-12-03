@@ -12,6 +12,7 @@ public class UserProfileDisplay : MonoBehaviour
     public event OnClickDelegate onClick;
 
     [Header("Settings")]
+    // TODO(@jackson)
     public GameObject textLoadingPrefab;
 
     [Header("UI Components")]
@@ -74,6 +75,8 @@ public class UserProfileDisplay : MonoBehaviour
     {
         Debug.Assert(profile != null);
 
+        m_userId = profile.id;
+
         if(m_loadingInstances != null)
         {
             foreach(GameObject loadingGO in m_loadingInstances)
@@ -94,12 +97,21 @@ public class UserProfileDisplay : MonoBehaviour
         }
         if(avatarDisplay != null)
         {
-            avatarDisplay.DisplayProfile(profile);
+            avatarDisplay.DisplayAvatar(profile);
         }
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int userId = -1)
     {
+        m_userId = userId;
+
+        if(m_loadingInstances != null)
+        {
+            foreach(GameObject loadingGO in m_loadingInstances)
+            {
+                loadingGO.SetActive(true);
+            }
+        }
         if(usernameDisplay != null)
         {
             usernameDisplay.enabled = false;
@@ -108,17 +120,10 @@ public class UserProfileDisplay : MonoBehaviour
         {
             lastOnlineDisplay.enabled = false;
         }
-        if(m_loadingInstances != null)
-        {
-            foreach(GameObject loadingGO in m_loadingInstances)
-            {
-                loadingGO.SetActive(true);
-            }
-        }
 
         if(avatarDisplay != null)
         {
-            avatarDisplay.DisplayLoading();
+            avatarDisplay.DisplayLoading(userId);
         }
     }
 

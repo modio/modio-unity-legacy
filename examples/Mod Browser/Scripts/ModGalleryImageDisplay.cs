@@ -35,10 +35,11 @@ public class ModGalleryImageDisplay : MonoBehaviour
         Debug.Assert(imageLocator != null && !String.IsNullOrEmpty(imageLocator.fileName),
                      "[mod.io] imageLocator needs to be set and have a fileName.");
 
+        DisplayLoading();
+
         m_modId = modId;
         m_imageFileName = imageLocator.fileName;
 
-        DisplayLoading();
         ModManager.GetModGalleryImage(modId, imageLocator, imageSize,
                                       (t) => LoadTexture(t, imageLocator.fileName),
                                       WebRequestError.LogAsWarning);
@@ -55,8 +56,10 @@ public class ModGalleryImageDisplay : MonoBehaviour
         LoadTexture(texture, imageFileName);
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int modId = -1)
     {
+        m_modId = modId;
+
         if(loadingPlaceholder != null)
         {
             loadingPlaceholder.SetActive(true);
@@ -86,6 +89,7 @@ public class ModGalleryImageDisplay : MonoBehaviour
         image.enabled = true;
     }
 
+    // ---------[ EVENT HANDLING ]---------
     public void NotifyClicked()
     {
         if(this.onClick != null)

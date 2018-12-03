@@ -22,8 +22,8 @@ public class ModMediaElementDisplay : MonoBehaviour
     public ModGalleryImageSize galleryImageSize;
 
     [Header("UI Components")]
+    public GameObject loadingPlaceholder; // TODO(@jackson)
     public Image image;
-    public GameObject loadingPlaceholder;
     public GameObject logoOverlay;
     public GameObject youTubeOverlay;
     public GameObject galleryImageOverlay;
@@ -52,18 +52,20 @@ public class ModMediaElementDisplay : MonoBehaviour
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
+    // --- LOGO ---
     public void DisplayLogo(int modId, LogoImageLocator logoLocator)
     {
         Debug.Assert(modId > 0,
-                     "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+                     "[mod.io] modId needs to be set to a valid mod profile id.");
         Debug.Assert(logoLocator != null,
                      "[mod.io] logoLocator needs to be set and have a fileName.");
+
+        DisplayLoading();
 
         m_modId = modId;
         m_mediaId = logoLocator.fileName;
         m_clickNotifier = NotifyLogoClicked;
 
-        DisplayLoading();
         ModManager.GetModLogo(modId, logoLocator, logoSize,
                               (t) => LoadTexture(t, modId, logoLocator.fileName, logoOverlay),
                               WebRequestError.LogAsWarning);
@@ -71,7 +73,7 @@ public class ModMediaElementDisplay : MonoBehaviour
 
     public void DisplayLogoTexture(int modId, Texture2D texture)
     {
-        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(modId > 0, "[mod.io] modId needs to be set to a valid mod profile id.");
         Debug.Assert(texture != null);
 
         m_modId = modId;
@@ -90,18 +92,20 @@ public class ModMediaElementDisplay : MonoBehaviour
         LoadTexture(texture, modId, "_LOGO_", logoOverlay);
     }
 
+    // --- YOUTUBE ---
     public void DisplayYouTubeThumb(int modId, string youTubeVideoId)
     {
         Debug.Assert(modId > 0,
-                     "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+                     "[mod.io] modId needs to be set to a valid mod profile id.");
         Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                      "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
+
+        DisplayLoading();
 
         m_modId = modId;
         m_mediaId = youTubeVideoId;
         m_clickNotifier = NotifyYouTubeClicked;
 
-        DisplayLoading();
         ModManager.GetModYouTubeThumbnail(modId, youTubeVideoId,
                                           (t) => LoadTexture(t, modId, youTubeVideoId, youTubeOverlay),
                                           WebRequestError.LogAsWarning);
@@ -109,7 +113,7 @@ public class ModMediaElementDisplay : MonoBehaviour
 
     public void DisplayYouTubeThumbTexture(int modId, string youTubeVideoId, Texture2D texture)
     {
-        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(modId > 0, "[mod.io] modId needs to be set to a valid mod profile id.");
         Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                      "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
         Debug.Assert(texture != null);
@@ -130,18 +134,20 @@ public class ModMediaElementDisplay : MonoBehaviour
         LoadTexture(texture, modId, youTubeVideoId, youTubeOverlay);
     }
 
+    // --- GALLERY ---
     public void DisplayGalleryImage(int modId, GalleryImageLocator imageLocator)
     {
         Debug.Assert(modId > 0,
-                     "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+                     "[mod.io] modId needs to be set to a valid mod profile id.");
         Debug.Assert(imageLocator != null && !String.IsNullOrEmpty(imageLocator.fileName),
                      "[mod.io] imageLocator needs to be set and have a fileName.");
+
+        DisplayLoading();
 
         m_modId = modId;
         m_mediaId = imageLocator.fileName;
         m_clickNotifier = NotifyImageClicked;
 
-        DisplayLoading();
         ModManager.GetModGalleryImage(modId, imageLocator, galleryImageSize,
                                       (t) => LoadTexture(t, modId, imageLocator.fileName, galleryImageOverlay),
                                       WebRequestError.LogAsWarning);
@@ -149,7 +155,7 @@ public class ModMediaElementDisplay : MonoBehaviour
 
     public void DisplayGalleryImageTexture(int modId, string imageFileName, Texture2D texture)
     {
-        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+        Debug.Assert(modId > 0, "[mod.io] modId needs to be set to a valid mod profile id.");
         Debug.Assert(!String.IsNullOrEmpty(imageFileName));
         Debug.Assert(texture != null);
 
@@ -169,8 +175,13 @@ public class ModMediaElementDisplay : MonoBehaviour
         LoadTexture(texture, modId, imageFileName, galleryImageOverlay);
     }
 
-    public void DisplayLoading()
+    // --- MISC ---
+    public void DisplayLoading(int modId = -1)
     {
+        m_modId = modId;
+        m_mediaId = string.Empty;
+        m_clickNotifier = () => {};
+
         image.enabled = false;
 
         if(loadingPlaceholder != null)
@@ -217,6 +228,7 @@ public class ModMediaElementDisplay : MonoBehaviour
         image.enabled = true;
     }
 
+    // ---------[ EVENT HANDLING ]---------
     public void NotifyClicked()
     {
         m_clickNotifier();

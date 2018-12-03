@@ -32,10 +32,11 @@ public class YouTubeThumbDisplay : MonoBehaviour
         Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                      "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
 
+        DisplayLoading();
+
         m_modId = modId;
         m_youTubeVideoId = youTubeVideoId;
 
-        DisplayLoading();
         ModManager.GetModYouTubeThumbnail(modId, youTubeVideoId,
                                           (t) => LoadTexture(t, youTubeVideoId),
                                           WebRequestError.LogAsWarning);
@@ -54,8 +55,10 @@ public class YouTubeThumbDisplay : MonoBehaviour
         LoadTexture(texture, youTubeVideoId);
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int modId = -1)
     {
+        m_modId = modId;
+
         if(loadingPlaceholder != null)
         {
             loadingPlaceholder.SetActive(true);
@@ -85,6 +88,7 @@ public class YouTubeThumbDisplay : MonoBehaviour
         image.enabled = true;
     }
 
+    // ---------[ EVENT HANDLING ]---------
     public void NotifyClicked()
     {
         if(this.onClick != null)
@@ -93,6 +97,7 @@ public class YouTubeThumbDisplay : MonoBehaviour
         }
     }
 
+    // ---------[ UTILITIES ]---------
     public void OpenYouTubeVideoURL()
     {
         ModBrowser.OpenYouTubeVideoURL(m_youTubeVideoId);

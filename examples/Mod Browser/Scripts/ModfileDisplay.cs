@@ -10,7 +10,7 @@ public class ModfileDisplay : MonoBehaviour
     public event OnClickDelegate onClick;
 
     [Header("Settings")]
-    public GameObject textLoadingPrefab;
+    public GameObject textLoadingPrefab; // TODO(@jackson)
 
     [Header("UI Components")]
     public Text dateAddedDisplay;
@@ -134,8 +134,10 @@ public class ModfileDisplay : MonoBehaviour
         }
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int modfileId = -1)
     {
+        m_modfileId = modfileId;
+
         if(dateAddedDisplay != null)
         {
             dateAddedDisplay.enabled = false;

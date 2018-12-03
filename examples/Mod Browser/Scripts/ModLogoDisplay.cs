@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using ModIO;
 
 
-public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
+public class ModLogoDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     public delegate void OnClickDelegate(ModLogoDisplay component, int modId);
@@ -15,7 +15,7 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
 
     [Header("UI Components")]
     public Image image;
-    public GameObject loadingPlaceholder;
+    public GameObject loadingPlaceholder; // TODO(@jackson)
 
     [Header("Display Data")]
     [SerializeField] private int m_modId;
@@ -28,22 +28,16 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void DisplayProfile(ModProfile profile)
-    {
-        Debug.Assert(profile != null);
-
-        DisplayLogo(profile.id, profile.logoLocator);
-    }
-
     public void DisplayLogo(int modId, LogoImageLocator logoLocator)
     {
         Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
         Debug.Assert(logoLocator != null);
 
+        DisplayLoading();
+
         m_modId = modId;
         m_imageFileName = logoLocator.fileName;
 
-        DisplayLoading();
         ModManager.GetModLogo(modId, logoLocator, logoSize,
                               (t) => LoadTexture(t, logoLocator.fileName),
                               WebRequestError.LogAsWarning);
@@ -60,8 +54,10 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
         LoadTexture(logoTexture, string.Empty);
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int modId = -1)
     {
+        m_modId = modId;
+
         if(loadingPlaceholder != null)
         {
             loadingPlaceholder.SetActive(true);
@@ -91,6 +87,7 @@ public class ModLogoDisplay : MonoBehaviour, IModProfilePresenter
         image.enabled = true;
     }
 
+    // ---------[ EVENT HANDLING ]---------
     public void NotifyClicked()
     {
         if(this.onClick != null)

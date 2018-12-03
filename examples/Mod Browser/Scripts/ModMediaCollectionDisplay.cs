@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ModIO;
 
-public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
+public class ModMediaCollectionDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     public delegate void OnLogoClicked(ModLogoDisplay component,
@@ -61,7 +61,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void DisplayProfile(ModProfile profile)
+    public void DisplayProfileMedia(ModProfile profile)
     {
         Debug.Assert(profile != null);
         Debug.Assert(profile.media != null);
@@ -74,7 +74,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
                                     IEnumerable<string> youTubeURLs,
                                     IEnumerable<GalleryImageLocator> galleryImageLocators)
     {
-        Debug.Assert(modId > 0);
+        Debug.Assert(modId > 0, "[mod.io] modId needs to be set to a valid mod profile id.");
 
         m_modId = modId;
         m_logoLocator = logoLocator;
@@ -125,14 +125,17 @@ public class ModMediaCollectionDisplay : MonoBehaviour, IModProfilePresenter
         }
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int modId = -1)
     {
+        m_modId = modId;
+
         foreach(Transform t in container)
         {
             GameObject.Destroy(t.gameObject);
         }
     }
 
+    // ---------[ EVENT HANDLING ]---------
     private void NotifyLogoClicked(ModLogoDisplay component, int modId)
     {
         if(this.logoClicked != null)

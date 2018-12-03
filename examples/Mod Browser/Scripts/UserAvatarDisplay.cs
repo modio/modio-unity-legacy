@@ -26,7 +26,7 @@ public class UserAvatarDisplay : MonoBehaviour
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void DisplayProfile(UserProfile profile)
+    public void DisplayAvatar(UserProfile profile)
     {
         DisplayAvatar(profile.id, profile.avatarLocator);
     }
@@ -36,10 +36,11 @@ public class UserAvatarDisplay : MonoBehaviour
         Debug.Assert(userId > 0, "[mod.io] UserId needs to be set to a valid user profile id.");
         Debug.Assert(avatarLocator != null);
 
+        DisplayLoading();
+
         m_userId = userId;
         m_imageFileName = avatarLocator.fileName;
 
-        DisplayLoading();
         ModManager.GetUserAvatar(userId, avatarLocator, avatarSize,
                                  (t) => LoadTexture(t, avatarLocator.fileName),
                                  WebRequestError.LogAsWarning);
@@ -56,8 +57,10 @@ public class UserAvatarDisplay : MonoBehaviour
         LoadTexture(avatarTexture, string.Empty);
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int userId = -1)
     {
+        m_userId = userId;
+
         if(loadingPlaceholder != null)
         {
             loadingPlaceholder.SetActive(true);
@@ -87,6 +90,7 @@ public class UserAvatarDisplay : MonoBehaviour
         image.enabled = true;
     }
 
+    // ---------[ EVENT HANDLING ]---------
     public void NotifyClicked()
     {
         if(this.onClick != null)
