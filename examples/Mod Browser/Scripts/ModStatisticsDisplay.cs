@@ -11,9 +11,6 @@ public class ModStatisticsDisplay : MonoBehaviour
                                          int modId);
     public event OnClickDelegate onClick;
 
-    [Header("Settings")]
-    public GameObject textLoadingPrefab;
-
     [Header("UI Components")]
     public Text popularityRankDisplay;
     public Text popularityModCountDisplay;
@@ -33,24 +30,12 @@ public class ModStatisticsDisplay : MonoBehaviour
     // ---[ RUNTIME DATA ]---
     private delegate string GetDisplayString(ModStatistics statistics);
 
-    private bool m_isInitialized = false;
     private Dictionary<Text, GetDisplayString> m_displayMapping = null;
-    private List<GameObject> m_loadingInstances = null;
+    private List<LoadingDisplay> m_loadingDisplays = null;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        // asserts
-        if(m_isInitialized)
-        {
-            #if DEBUG
-            Debug.LogWarning("[mod.io] Once initialized, a ModStatisticsDisplay component cannot be re-initialized.");
-            #endif
-
-            return;
-        }
-
-        // - text elements -
         m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
         if(popularityRankDisplay != null)
@@ -113,39 +98,11 @@ public class ModStatisticsDisplay : MonoBehaviour
                                  (s) => s.ratingDisplayText);
         }
 
-        if(textLoadingPrefab != null)
+        m_loadingDisplays = new List<LoadingDisplay>();
+        foreach(Text textDisplay in m_displayMapping.Keys)
         {
-            m_loadingInstances = new List<GameObject>(m_displayMapping.Count);
-
-            foreach(Text textComponent in m_displayMapping.Keys)
-            {
-                RectTransform textTransform = textComponent.GetComponent<RectTransform>();
-                m_loadingInstances.Add(InstantiateTextLoadingPrefab(textTransform));
-            }
+            m_loadingDisplays.AddRange(textDisplay.gameObject.GetComponentsInChildren<LoadingDisplay>(true));
         }
-        else
-        {
-            m_loadingInstances = null;
-        }
-
-        m_isInitialized = true;
-    }
-
-    private GameObject InstantiateTextLoadingPrefab(RectTransform displayObjectTransform)
-    {
-        RectTransform parentRT = displayObjectTransform.parent as RectTransform;
-        GameObject loadingGO = GameObject.Instantiate(textLoadingPrefab,
-                                                      new Vector3(),
-                                                      Quaternion.identity,
-                                                      parentRT);
-
-        RectTransform loadingRT = loadingGO.transform as RectTransform;
-        loadingRT.anchorMin = displayObjectTransform.anchorMin;
-        loadingRT.anchorMax = displayObjectTransform.anchorMax;
-        loadingRT.offsetMin = displayObjectTransform.offsetMin;
-        loadingRT.offsetMax = displayObjectTransform.offsetMax;
-
-        return loadingGO;
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -155,40 +112,30 @@ public class ModStatisticsDisplay : MonoBehaviour
 
         m_modId = statistics.modId;
 
+        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
+        {
+            loadingDisplay.gameObject.SetActive(false);
+        }
+
         foreach(var kvp in m_displayMapping)
         {
             kvp.Key.text = kvp.Value(statistics);
-            kvp.Key.gameObject.SetActive(true);
-        }
-
-        if(m_loadingInstances != null)
-        {
-            foreach(GameObject loadingInstance in m_loadingInstances)
-            {
-                loadingInstance.SetActive(false);
-            }
+            kvp.Key.enabled = true;
         }
     }
 
-    public void DisplayLoading()
+    public void DisplayLoading(int modId = -1)
     {
-        if(m_loadingInstances != null)
+        m_modId = modId;
+
+        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
         {
-            foreach(Text textComponent in m_displayMapping.Keys)
-            {
-                textComponent.gameObject.SetActive(false);
-            }
-            foreach(GameObject loadingInstance in m_loadingInstances)
-            {
-                loadingInstance.SetActive(true);
-            }
+            loadingDisplay.gameObject.SetActive(true);
         }
-        else
+
+        foreach(Text textComponent in m_displayMapping.Keys)
         {
-            foreach(Text textComponent in m_displayMapping.Keys)
-            {
-                textComponent.text = string.Empty;
-            }
+            textComponent.enabled = false;
         }
     }
 
