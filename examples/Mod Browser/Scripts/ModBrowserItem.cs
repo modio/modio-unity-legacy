@@ -33,12 +33,6 @@ public class ModBrowserItem : MonoBehaviour
     public Button enableModButton;
     public Button disableModButton;
 
-    // TODO(@jackson): You know what to do...
-    public Text downloadProgressPercentageText;
-    public Text downloadProgress_byteCountText;
-    public RectTransform downloadProgress_bar;
-    public GameObject downloadProgressContainer;
-
     [Header("Display Data")]
     public ModProfile profile = null;
     public ModStatistics statistics = null;
@@ -101,7 +95,6 @@ public class ModBrowserItem : MonoBehaviour
     // ---------[ UI UPDATES ]---------
     public void UpdateProfileDisplay()
     {
-
         if(profile != null)
         {
             if(profileDisplay != null)
@@ -112,13 +105,6 @@ public class ModBrowserItem : MonoBehaviour
             {
                 buildDisplay.DisplayModfile(profile.activeBuild);
             }
-            // if(downloadProgressContainer != null)
-            // {
-            //     downloadProgressContainer.gameObject.SetActive(false);
-
-            // }
-            // TODO(@jackson): yep
-            // UpdateDownloadProgressDisplay();
         }
         else
         {
@@ -130,10 +116,6 @@ public class ModBrowserItem : MonoBehaviour
             {
                 buildDisplay.DisplayLoading();
             }
-            // if(downloadProgressContainer != null)
-            // {
-            //     downloadProgressContainer.gameObject.SetActive(false);
-            // }
         }
     }
 
@@ -180,12 +162,6 @@ public class ModBrowserItem : MonoBehaviour
             {
                 unsubscribeButton.gameObject.SetActive(isSubscribed);
             }
-        }
-
-        if(profile != null && isSubscribed)
-        {
-            // TODO(@jackson): yep
-            // UpdateDownloadProgressDisplay();
         }
     }
 
