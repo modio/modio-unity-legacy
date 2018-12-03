@@ -37,7 +37,7 @@ public class ModProfileDisplay : MonoBehaviour
     [Header("Display Data")]
     [SerializeField] private int m_modId = -1;
 
-    // ---[ RUNTIME DATA ]---
+    // --- RUNTIME DATA ---
     private delegate string GetDisplayString(ModProfile profile);
 
     private Dictionary<Text, GetDisplayString> m_displayMapping = null;

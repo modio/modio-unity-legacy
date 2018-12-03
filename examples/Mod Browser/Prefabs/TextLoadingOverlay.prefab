@@ -40,6 +40,7 @@ GameObject:
   - component: {fileID: 222867201847539878}
   - component: {fileID: 114077287887040272}
   - component: {fileID: 114356899147910514}
+  - component: {fileID: 114577224475451206}
   m_Layer: 5
   m_Name: TextLoadingOverlay
   m_TagString: Untagged
@@ -99,6 +100,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
+--- !u!114 &114577224475451206
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1621626126853172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f22130b155843568f9821b311a1dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114941947932493620
 MonoBehaviour:
   m_ObjectHideFlags: 1
