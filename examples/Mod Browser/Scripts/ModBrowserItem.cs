@@ -2,13 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-
 using UnityEngine;
 using UnityEngine.UI;
-
 using ModIO;
 
-// TODO(@jackson): Add "Display Loading Profile" functionality
+// TODO(@jackson): Match to new interface
 public class ModBrowserItem : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
@@ -28,6 +26,7 @@ public class ModBrowserItem : MonoBehaviour
     public ModProfileDisplay profileDisplay;
     public ModfileDisplay buildDisplay;
     public ModStatisticsDisplay statisticsDisplay;
+    public TagCollectionDisplayBase tagsDisplay;
     public Button subscribeButton;
     public Button unsubscribeButton;
     public Button enableModButton;
@@ -68,6 +67,10 @@ public class ModBrowserItem : MonoBehaviour
         if(statisticsDisplay != null)
         {
             statisticsDisplay.Initialize();
+        }
+        if(tagsDisplay != null)
+        {
+            tagsDisplay.Initialize();
         }
 
         // TODO(@jackson): Move to button Prefab
@@ -189,6 +192,23 @@ public class ModBrowserItem : MonoBehaviour
             else
             {
                 disableModButton.gameObject.SetActive(isModEnabled);
+            }
+        }
+    }
+
+    public void UpdateTagsDisplay(IEnumerable<ModTagCategory> tagCategories)
+    {
+        Debug.Assert(tagCategories != null);
+
+        if(tagsDisplay != null)
+        {
+            if(profile != null)
+            {
+                tagsDisplay.DisplayModTags(profile, tagCategories);
+            }
+            else
+            {
+                tagsDisplay.DisplayLoading();
             }
         }
     }
