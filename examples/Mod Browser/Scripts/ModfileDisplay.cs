@@ -24,7 +24,7 @@ public class ModfileDisplay : MonoBehaviour
     private delegate string GetDisplayString(Modfile modfile);
 
     private Dictionary<Text, GetDisplayString> m_displayMapping = null;
-    private List<LoadingDisplay> m_loadingDisplays = null;
+    private List<TextLoadingDisplay> m_loadingDisplays = null;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
@@ -56,10 +56,16 @@ public class ModfileDisplay : MonoBehaviour
             m_displayMapping.Add(changelogDisplay, (m) => m.changelog);
         }
 
-        m_loadingDisplays = new List<LoadingDisplay>();
-        foreach(Text textDisplay in m_displayMapping.Keys)
+        TextLoadingDisplay[] childLoadingDisplays = this.gameObject.GetComponentsInChildren<TextLoadingDisplay>(true);
+        List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
+
+        m_loadingDisplays = new List<TextLoadingDisplay>();
+        foreach(TextLoadingDisplay loadingDisplay in childLoadingDisplays)
         {
-            m_loadingDisplays.AddRange(textDisplay.gameObject.GetComponentsInChildren<LoadingDisplay>(true));
+            if(textDisplays.Contains(loadingDisplay.valueDisplayComponent))
+            {
+                m_loadingDisplays.Add(loadingDisplay);
+            }
         }
     }
 
@@ -70,7 +76,7 @@ public class ModfileDisplay : MonoBehaviour
 
         m_modfileId = modfile.id;
 
-        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
+        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
         {
             loadingDisplay.gameObject.SetActive(false);
         }
@@ -85,7 +91,7 @@ public class ModfileDisplay : MonoBehaviour
     {
         m_modfileId = modfileId;
 
-        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
+        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
         {
             loadingDisplay.gameObject.SetActive(true);
         }
