@@ -9986,7 +9986,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  textLoadingPrefab: {fileID: 0}
   usernameDisplay: {fileID: 114929665266779030}
   lastOnlineDisplay: {fileID: 0}
   avatarDisplay: {fileID: 0}

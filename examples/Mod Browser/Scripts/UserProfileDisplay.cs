@@ -11,10 +11,6 @@ public class UserProfileDisplay : MonoBehaviour
                                          int userId);
     public event OnClickDelegate onClick;
 
-    [Header("Settings")]
-    // TODO(@jackson)
-    public GameObject textLoadingPrefab;
-
     [Header("UI Components")]
     public Text usernameDisplay;
     public Text lastOnlineDisplay;
@@ -24,50 +20,29 @@ public class UserProfileDisplay : MonoBehaviour
     [SerializeField] private int m_userId;
 
     // --- RUNTIME DATA ---
-    private List<GameObject> m_loadingInstances = null;
+    private List<TextLoadingDisplay> m_loadingDisplays = null;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        if(textLoadingPrefab != null)
-        {
-            m_loadingInstances = new List<GameObject>();
+        // text loading
+        TextLoadingDisplay[] childLoadingDisplays = this.gameObject.GetComponentsInChildren<TextLoadingDisplay>(true);
 
-            if(usernameDisplay != null)
+        m_loadingDisplays = new List<TextLoadingDisplay>();
+        foreach(TextLoadingDisplay loadingDisplay in childLoadingDisplays)
+        {
+            if(loadingDisplay.valueDisplayComponent == usernameDisplay
+               || loadingDisplay.valueDisplayComponent == lastOnlineDisplay)
             {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(usernameDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
-            }
-            if(lastOnlineDisplay != null)
-            {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(lastOnlineDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
+                m_loadingDisplays.Add(loadingDisplay);
             }
         }
 
+        // avatar
         if(avatarDisplay != null)
         {
             avatarDisplay.Initialize();
         }
-    }
-
-    private GameObject InstantiateTextLoadingPrefab(RectTransform displayObjectTransform)
-    {
-        RectTransform parentRT = displayObjectTransform.parent as RectTransform;
-        GameObject loadingGO = GameObject.Instantiate(textLoadingPrefab,
-                                                      new Vector3(),
-                                                      Quaternion.identity,
-                                                      parentRT);
-
-        RectTransform loadingRT = loadingGO.transform as RectTransform;
-        loadingRT.anchorMin = displayObjectTransform.anchorMin;
-        loadingRT.anchorMax = displayObjectTransform.anchorMax;
-        loadingRT.offsetMin = displayObjectTransform.offsetMin;
-        loadingRT.offsetMax = displayObjectTransform.offsetMax;
-
-        return loadingGO;
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -77,12 +52,9 @@ public class UserProfileDisplay : MonoBehaviour
 
         m_userId = profile.id;
 
-        if(m_loadingInstances != null)
+        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
         {
-            foreach(GameObject loadingGO in m_loadingInstances)
-            {
-                loadingGO.SetActive(false);
-            }
+            loadingDisplay.gameObject.SetActive(false);
         }
 
         if(usernameDisplay != null)
@@ -105,13 +77,11 @@ public class UserProfileDisplay : MonoBehaviour
     {
         m_userId = userId;
 
-        if(m_loadingInstances != null)
+        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
         {
-            foreach(GameObject loadingGO in m_loadingInstances)
-            {
-                loadingGO.SetActive(true);
-            }
+            loadingDisplay.gameObject.SetActive(true);
         }
+
         if(usernameDisplay != null)
         {
             usernameDisplay.enabled = false;
