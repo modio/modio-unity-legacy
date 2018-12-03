@@ -9,9 +9,6 @@ public class ModfileDisplay : MonoBehaviour
     public delegate void OnClickDelegate(ModfileDisplay display, int modfileId);
     public event OnClickDelegate onClick;
 
-    [Header("Settings")]
-    public GameObject textLoadingPrefab; // TODO(@jackson)
-
     [Header("UI Components")]
     public Text dateAddedDisplay;
     public Text fileNameDisplay;
@@ -22,69 +19,48 @@ public class ModfileDisplay : MonoBehaviour
 
     [Header("Display Data")]
     [SerializeField] private int m_modfileId = -1;
-    private List<GameObject> m_loadingInstances = null;
+
+    // --- RUNTIME DATA ---
+    private delegate string GetDisplayString(Modfile modfile);
+
+    private Dictionary<Text, GetDisplayString> m_displayMapping = null;
+    private List<LoadingDisplay> m_loadingDisplays = null;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        if(textLoadingPrefab != null)
+        m_displayMapping = new Dictionary<Text, GetDisplayString>();
+
+        if(dateAddedDisplay != null)
         {
-            m_loadingInstances = new List<GameObject>();
-
-            if(dateAddedDisplay != null)
-            {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(dateAddedDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
-            }
-            if(fileNameDisplay != null)
-            {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(fileNameDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
-            }
-            if(fileSizeDisplay != null)
-            {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(fileSizeDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
-            }
-            if(fileHashDisplay != null)
-            {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(fileHashDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
-            }
-            if(versionDisplay != null)
-            {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(versionDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
-            }
-            if(changelogDisplay != null)
-            {
-                GameObject loadingGO = InstantiateTextLoadingPrefab(changelogDisplay.GetComponent<RectTransform>());
-                loadingGO.SetActive(false);
-                m_loadingInstances.Add(loadingGO);
-            }
+            m_displayMapping.Add(dateAddedDisplay, (m) => ServerTimeStamp.ToLocalDateTime(m.dateAdded).ToString());
         }
-    }
+        if(fileNameDisplay != null)
+        {
+            m_displayMapping.Add(fileNameDisplay, (m) => m.fileName);
+        }
+        if(fileSizeDisplay != null)
+        {
+            m_displayMapping.Add(fileSizeDisplay, (m) => ModBrowser.ByteCountToDisplayString(m.fileSize));
+        }
+        if(fileHashDisplay != null)
+        {
+            m_displayMapping.Add(fileHashDisplay, (m) => m.fileHash.md5);
+        }
+        if(versionDisplay != null)
+        {
+            m_displayMapping.Add(versionDisplay, (m) => m.version);
+        }
+        if(changelogDisplay != null)
+        {
+            m_displayMapping.Add(changelogDisplay, (m) => m.changelog);
+        }
 
-    private GameObject InstantiateTextLoadingPrefab(RectTransform displayObjectTransform)
-    {
-        RectTransform parentRT = displayObjectTransform.parent as RectTransform;
-        GameObject loadingGO = GameObject.Instantiate(textLoadingPrefab,
-                                                      new Vector3(),
-                                                      Quaternion.identity,
-                                                      parentRT);
-
-        RectTransform loadingRT = loadingGO.transform as RectTransform;
-        loadingRT.anchorMin = displayObjectTransform.anchorMin;
-        loadingRT.anchorMax = displayObjectTransform.anchorMax;
-        loadingRT.offsetMin = displayObjectTransform.offsetMin;
-        loadingRT.offsetMax = displayObjectTransform.offsetMax;
-
-        return loadingGO;
+        m_loadingDisplays = new List<LoadingDisplay>();
+        foreach(Text textDisplay in m_displayMapping.Keys)
+        {
+            m_loadingDisplays.AddRange(textDisplay.gameObject.GetComponentsInChildren<LoadingDisplay>(true));
+        }
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -94,43 +70,14 @@ public class ModfileDisplay : MonoBehaviour
 
         m_modfileId = modfile.id;
 
-        if(dateAddedDisplay != null)
+        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
         {
-            dateAddedDisplay.text = ServerTimeStamp.ToLocalDateTime(modfile.dateAdded).ToString();
-            dateAddedDisplay.enabled = true;
+            loadingDisplay.gameObject.SetActive(false);
         }
-        if(fileNameDisplay != null)
+        foreach(var kvp in m_displayMapping)
         {
-            fileNameDisplay.text = modfile.fileName;
-            fileNameDisplay.enabled = true;
-        }
-        if(fileSizeDisplay != null)
-        {
-            fileSizeDisplay.text = ModBrowser.ByteCountToDisplayString(modfile.fileSize);
-            fileSizeDisplay.enabled = true;
-        }
-        if(fileHashDisplay != null)
-        {
-            fileHashDisplay.text = modfile.fileHash.md5;
-            fileHashDisplay.enabled = true;
-        }
-        if(versionDisplay != null)
-        {
-            versionDisplay.text = modfile.version;
-            versionDisplay.enabled = true;
-        }
-        if(changelogDisplay != null)
-        {
-            changelogDisplay.text = modfile.changelog;
-            changelogDisplay.enabled = true;
-        }
-
-        if(m_loadingInstances != null)
-        {
-            foreach(GameObject loadingGO in m_loadingInstances)
-            {
-                loadingGO.SetActive(false);
-            }
+            kvp.Key.text = kvp.Value(modfile);
+            kvp.Key.enabled = true;
         }
     }
 
@@ -138,37 +85,13 @@ public class ModfileDisplay : MonoBehaviour
     {
         m_modfileId = modfileId;
 
-        if(dateAddedDisplay != null)
+        foreach(LoadingDisplay loadingDisplay in m_loadingDisplays)
         {
-            dateAddedDisplay.enabled = false;
+            loadingDisplay.gameObject.SetActive(true);
         }
-        if(fileNameDisplay != null)
+        foreach(Text textComponent in m_displayMapping.Keys)
         {
-            fileNameDisplay.enabled = false;
-        }
-        if(fileSizeDisplay != null)
-        {
-            fileSizeDisplay.enabled = false;
-        }
-        if(fileHashDisplay != null)
-        {
-            fileHashDisplay.enabled = false;
-        }
-        if(versionDisplay != null)
-        {
-            versionDisplay.enabled = false;
-        }
-        if(changelogDisplay != null)
-        {
-            changelogDisplay.enabled = false;
-        }
-
-        if(m_loadingInstances != null)
-        {
-            foreach(GameObject loadingGO in m_loadingInstances)
-            {
-                loadingGO.SetActive(true);
-            }
+            textComponent.enabled = false;
         }
     }
 
