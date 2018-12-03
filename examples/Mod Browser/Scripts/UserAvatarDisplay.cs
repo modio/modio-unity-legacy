@@ -13,7 +13,7 @@ public class UserAvatarDisplay : MonoBehaviour
 
     [Header("UI Components")]
     public Image image;
-    public GameObject loadingPlaceholder;
+    public GameObject loadingDisplay;
 
     [Header("Display Data")]
     [SerializeField] private int m_userId;
@@ -61,9 +61,9 @@ public class UserAvatarDisplay : MonoBehaviour
     {
         m_userId = userId;
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(true);
+            loadingDisplay.SetActive(true);
         }
 
         image.enabled = false;
@@ -81,9 +81,9 @@ public class UserAvatarDisplay : MonoBehaviour
             return;
         }
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(false);
+            loadingDisplay.SetActive(false);
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);

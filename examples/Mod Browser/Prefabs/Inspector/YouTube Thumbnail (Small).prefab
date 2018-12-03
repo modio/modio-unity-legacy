@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   image: {fileID: 114040120732663430}
-  loadingPlaceholder: {fileID: 1276198100357944}
+  loadingDisplay: {fileID: 1276198100357944}
   m_modId: 0
   m_youTubeVideoId: 
 --- !u!114 &114030468051703480
@@ -278,7 +278,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ce718442f60d45f9ab720dd94bfde3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scrollRect: {fileID: 0}
 --- !u!114 &114533098764610332
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -495,7 +494,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -771, y: 380}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 142, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224429609309059588

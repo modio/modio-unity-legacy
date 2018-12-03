@@ -1228,10 +1228,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2152d7191ad448b2bbcbd155a3785d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  setInactiveIfNotDownloading: 1
   percentageText: {fileID: 114557033603824710}
   byteCountText: {fileID: 114701430919161398}
   progressBar: {fileID: 224215965165510086}
-  container: {fileID: 1886362616015150}
 --- !u!114 &114701430919161398
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1352,7 +1352,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12b4065a2b874a64882bb8f754dfac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textLoadingPrefab: {fileID: 0}
   dateAddedDisplay: {fileID: 0}
   fileNameDisplay: {fileID: 0}
   fileSizeDisplay: {fileID: 114100271337470856}
@@ -1404,8 +1403,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d31828b99f023475f834e02f5ade45cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textLoadingPrefab: {fileID: 0}
-  tagBadgePrefab: {fileID: 0}
   replaceMissingDescriptionWithSummary: 0
   nameDisplay: {fileID: 114088017194366426}
   dateAddedDisplay: {fileID: 0}
@@ -1417,9 +1414,10 @@ MonoBehaviour:
   creatorDisplay: {fileID: 0}
   logoDisplay: {fileID: 0}
   mediaDisplay: {fileID: 0}
-  tagContainer: {fileID: 0}
   buildDisplay: {fileID: 114868194789145208}
   downloadDisplay: {fileID: 114618228435171366}
+  tagContainer: {fileID: 0}
+  tagBadgePrefab: {fileID: 0}
   m_modId: -1
 --- !u!114 &114957957831382412
 MonoBehaviour:
@@ -1800,7 +1798,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 210, y: -253}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1388, y: 60}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224113630180907376

@@ -106,7 +106,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageSize: 1
   image: {fileID: 114570025219337196}
-  loadingPlaceholder: {fileID: 1763408483951822}
+  loadingDisplay: {fileID: 1763408483951822}
   m_modId: 0
   m_imageFileName: 
 --- !u!114 &114570025219337196
@@ -147,7 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ce718442f60d45f9ab720dd94bfde3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scrollRect: {fileID: 0}
 --- !u!114 &114632520410454400
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -277,7 +276,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -71, y: 40}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 142, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224513966691431302

@@ -22,8 +22,8 @@ public class ModMediaElementDisplay : MonoBehaviour
     public ModGalleryImageSize galleryImageSize;
 
     [Header("UI Components")]
-    public GameObject loadingPlaceholder; // TODO(@jackson)
     public Image image;
+    public GameObject loadingDisplay;
     public GameObject logoOverlay;
     public GameObject youTubeOverlay;
     public GameObject galleryImageOverlay;
@@ -184,9 +184,9 @@ public class ModMediaElementDisplay : MonoBehaviour
 
         image.enabled = false;
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(true);
+            loadingDisplay.SetActive(true);
         }
         if(logoOverlay != null)
         {
@@ -215,9 +215,9 @@ public class ModMediaElementDisplay : MonoBehaviour
             return;
         }
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(false);
+            loadingDisplay.SetActive(false);
         }
         if(overlay != null)
         {

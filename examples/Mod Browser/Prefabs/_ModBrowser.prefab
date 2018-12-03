@@ -10973,8 +10973,8 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   logoSize: 3
   galleryImageSize: 0
-  loadingPlaceholder: {fileID: 1035376449354654}
   image: {fileID: 114547393388600906}
+  loadingDisplay: {fileID: 1035376449354654}
   logoOverlay: {fileID: 0}
   youTubeOverlay: {fileID: 1353639698890002}
   galleryImageOverlay: {fileID: 0}

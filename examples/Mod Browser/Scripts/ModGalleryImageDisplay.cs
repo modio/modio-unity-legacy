@@ -15,7 +15,7 @@ public class ModGalleryImageDisplay : MonoBehaviour
 
     [Header("UI Components")]
     public Image image;
-    public GameObject loadingPlaceholder;
+    public GameObject loadingDisplay;
 
     [Header("Display Data")]
     [SerializeField] private int m_modId;
@@ -60,9 +60,9 @@ public class ModGalleryImageDisplay : MonoBehaviour
     {
         m_modId = modId;
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(true);
+            loadingDisplay.SetActive(true);
         }
 
         image.enabled = false;
@@ -80,9 +80,9 @@ public class ModGalleryImageDisplay : MonoBehaviour
             return;
         }
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(false);
+            loadingDisplay.SetActive(false);
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);

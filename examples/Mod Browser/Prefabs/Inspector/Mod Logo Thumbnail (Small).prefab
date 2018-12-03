@@ -79,7 +79,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logoSize: 1
   image: {fileID: 114570025219337196}
-  loadingPlaceholder: {fileID: 1385752765964470}
+  loadingDisplay: {fileID: 1385752765964470}
   m_modId: 0
   m_imageFileName: 
 --- !u!114 &114415024368027130

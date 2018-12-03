@@ -15,7 +15,7 @@ public class ModLogoDisplay : MonoBehaviour
 
     [Header("UI Components")]
     public Image image;
-    public GameObject loadingPlaceholder; // TODO(@jackson)
+    public GameObject loadingDisplay;
 
     [Header("Display Data")]
     [SerializeField] private int m_modId;
@@ -58,9 +58,9 @@ public class ModLogoDisplay : MonoBehaviour
     {
         m_modId = modId;
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(true);
+            loadingDisplay.SetActive(true);
         }
 
         image.enabled = false;
@@ -78,9 +78,9 @@ public class ModLogoDisplay : MonoBehaviour
             return;
         }
 
-        if(loadingPlaceholder != null)
+        if(loadingDisplay != null)
         {
-            loadingPlaceholder.SetActive(false);
+            loadingDisplay.SetActive(false);
         }
 
         image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
