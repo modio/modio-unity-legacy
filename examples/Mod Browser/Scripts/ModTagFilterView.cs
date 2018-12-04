@@ -7,22 +7,25 @@ using ModIO;
 public class ModTagFilterView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    // TODO(@jackson): Separate
     public event Action onSelectedTagsChanged;
+    public event Action<string> tagFilterAdded;
+    public event Action<string> tagFilterRemoved;
 
     [Header("Settings")]
     public GameObject tagCategoryPrefab;
 
     [Header("UI Components")]
-    public RectTransform categoryContainer;
+    public RectTransform tagCategoryContainer;
 
     // --- RUNTIME DATA ---
     private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
     private List<string> m_selectedTags = new List<string>();
+    private List<ModTagCategory> m_categories = new List<ModTagCategory>(0);
 
     // --- ACCESSORS ---
     public IEnumerable<ModTagCategoryDisplay> categoryDisplays
     { get { return m_categoryDisplays; } }
+
     public IEnumerable<string> selectedTags
     {
         get { return m_selectedTags; }
@@ -48,10 +51,40 @@ public class ModTagFilterView : MonoBehaviour
         }
     }
 
+    public IEnumerable<ModTagCategory> tagCategories
+    {
+        get { return m_categories; }
+        set
+        {
+            Debug.Assert(value != null);
+
+            m_categories = new List<ModTagCategory>(value);
+
+            // clear existing
+            foreach(ModTagCategoryDisplay cat in m_categoryDisplays)
+            {
+                GameObject.Destroy(cat.gameObject);
+            }
+            m_categoryDisplays.Clear();
+
+            // create
+            foreach(ModTagCategory category in m_categories)
+            {
+                GameObject categoryGO = CreateCategoryDisplayInstance(category,
+                                                                      m_selectedTags,
+                                                                      tagCategoryPrefab,
+                                                                      tagCategoryContainer);
+
+                categoryGO.GetComponent<TagCollectionContainer>().tagClicked += TagClickHandler;
+                m_categoryDisplays.Add(categoryGO.GetComponent<ModTagCategoryDisplay>());
+            }
+        }
+    }
+
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        Debug.Assert(categoryContainer != null);
+        Debug.Assert(tagCategoryContainer != null);
         Debug.Assert(tagCategoryPrefab != null);
         Debug.Assert(tagCategoryPrefab.GetComponent<ModTagCategoryDisplay>() != null);
 
@@ -68,51 +101,39 @@ public class ModTagFilterView : MonoBehaviour
                      + "FilterView.tagCategoryPrefab to have a Toggle Component.");
     }
 
-    // ---------[ UI FUNCTINALITY ]---------
-    public void DisplayCategories(IEnumerable<ModTagCategory> categories)
+    // ---------[ UI FUNCTIONALITY ]---------
+    private static GameObject CreateCategoryDisplayInstance(ModTagCategory category,
+                                                            List<string> selectedTags,
+                                                            GameObject prefab,
+                                                            RectTransform container)
     {
-        Debug.Assert(categories != null);
+        GameObject displayGO = GameObject.Instantiate(prefab,
+                                                      new Vector3(),
+                                                      Quaternion.identity,
+                                                      container);
+        displayGO.name = category.name;
 
-        // clear existing
-        foreach(ModTagCategoryDisplay cat in m_categoryDisplays)
+        ModTagCategoryDisplay display = displayGO.GetComponent<ModTagCategoryDisplay>();
+        display.Initialize();
+        display.DisplayCategory(category);
+
+        ToggleGroup toggleGroup = null;
+        if(!category.isMultiTagCategory)
         {
-            GameObject.Destroy(cat.gameObject);
+            toggleGroup = display.gameObject.AddComponent<ToggleGroup>();
+            toggleGroup.allowSwitchOff = true;
         }
-        m_categoryDisplays.Clear();
 
-        // create
-        foreach(ModTagCategory category in categories)
+        TagCollectionContainer tagContainer = displayGO.GetComponent<TagCollectionContainer>();
+        foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
         {
-            GameObject displayGO = GameObject.Instantiate(tagCategoryPrefab,
-                                                          new Vector3(),
-                                                          Quaternion.identity,
-                                                          categoryContainer);
-            displayGO.name = category.name;
-
-            ModTagCategoryDisplay display = displayGO.GetComponent<ModTagCategoryDisplay>();
-            display.Initialize();
-            display.DisplayCategory(category);
-
-            ToggleGroup toggleGroup = null;
-            if(!category.isMultiTagCategory)
-            {
-                toggleGroup = display.gameObject.AddComponent<ToggleGroup>();
-                toggleGroup.allowSwitchOff = true;
-            }
-
-            TagCollectionContainer tagContainer = displayGO.GetComponent<TagCollectionContainer>();
-            foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
-            {
-                Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
-                tagToggle.isOn = m_selectedTags.Contains(tagDisplay.tagName);
-                tagToggle.group = toggleGroup;
-                // TODO(@jackson): Need to register?
-            }
-
-            tagContainer.tagClicked += TagClickHandler;
-
-            m_categoryDisplays.Add(display);
+            Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
+            tagToggle.isOn = selectedTags.Contains(tagDisplay.tagName);
+            tagToggle.group = toggleGroup;
+            // TODO(@jackson): Need to register?
         }
+
+        return displayGO;
     }
 
     // ---------[ EVENTS ]---------
@@ -121,10 +142,20 @@ public class ModTagFilterView : MonoBehaviour
         if(m_selectedTags.Contains(tagName))
         {
             m_selectedTags.Remove(tagName);
+
+            if(tagFilterRemoved != null)
+            {
+                tagFilterRemoved(tagName);
+            }
         }
         else
         {
             m_selectedTags.Add(tagName);
+
+            if(tagFilterAdded != null)
+            {
+                tagFilterAdded(tagName);
+            }
         }
 
         if(onSelectedTagsChanged != null)

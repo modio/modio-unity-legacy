@@ -542,7 +542,7 @@ public class ModBrowser : MonoBehaviour
 
             if(explorerView.tagFilterView)
             {
-                explorerView.tagFilterView.DisplayCategories(g.tagCategories);
+                explorerView.tagFilterView.tagCategories = g.tagCategories;
             }
             if(explorerView.tagFilterBar)
             {
