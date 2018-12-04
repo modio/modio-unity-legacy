@@ -4496,13 +4496,6 @@ MonoBehaviour:
   galleryImagePrefab: {fileID: 1541241466415974, guid: ff0aee14e37d74315a23feff8aaf39f3,
     type: 2}
   container: {fileID: 224971741684494500}
-  m_modId: 921
-  m_logoLocator:
-    fileName: Samus_HalfSize.png
-    original: https://image.test.mod.io/mods/430c/921/Samus_HalfSize.png
-    thumbnail_320x180: https://thumb.test.mod.io/mods/430c/921/crop_320x180/Samus_HalfSize.png
-    thumbnail_640x360: https://thumb.test.mod.io/mods/430c/921/crop_640x360/Samus_HalfSize.png
-    thumbnail_1280x720: https://thumb.test.mod.io/mods/430c/921/crop_1280x720/Samus_HalfSize.png
 --- !u!114 &114087927727621048
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5537,7 +5530,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -6350,7 +6343,7 @@ MonoBehaviour:
   descriptionTextDisplay: {fileID: 114613325267765034}
   creatorDisplay: {fileID: 114683195646928336}
   logoDisplay: {fileID: 0}
-  mediaDisplay: {fileID: 114072989383737986}
+  mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 0}
   downloadDisplay: {fileID: 0}
   tagContainer: {fileID: 0}
@@ -7770,28 +7763,28 @@ MonoBehaviour:
   gameProfile:
     id: 0
     status: 0
-    name: 
-    nameId: 
-    summary: 
-    instructions: 
-    instructionsURL: 
+    name:
+    nameId:
+    summary:
+    instructions:
+    instructionsURL:
     submittedBy:
       id: 0
-      nameId: 
-      username: 
+      nameId:
+      username:
       avatarLocator:
-        fileName: 
-        original: 
-        thumbnail_50x50: 
-        thumbnail_100x100: 
+        fileName:
+        original:
+        thumbnail_50x50:
+        thumbnail_100x100:
       lastOnline: 0
-      timezone: 
-      language: 
-      profileURL: 
+      timezone:
+      language:
+      profileURL:
     dateAdded: 0
     dateUpdated: 0
     dateLive: 0
-    ugcName: 
+    ugcName:
     modGalleryPresentation: 0
     modSubmissionPermission: 0
     modCuration: 0
@@ -7800,21 +7793,21 @@ MonoBehaviour:
     apiPermissions: 0
     contentPermission: 0
     iconLocator:
-      fileName: 
-      original: 
-      thumbnail_64x64: 
-      thumbnail_128x128: 
-      thumbnail_256x256: 
+      fileName:
+      original:
+      thumbnail_64x64:
+      thumbnail_128x128:
+      thumbnail_256x256:
     logoLocator:
-      fileName: 
-      original: 
-      thumbnail_320x180: 
-      thumbnail_640x360: 
-      thumbnail_1280x720: 
+      fileName:
+      original:
+      thumbnail_320x180:
+      thumbnail_640x360:
+      thumbnail_1280x720:
     headerImageLocator:
-      fileName: 
-      url: 
-    profileURL: 
+      fileName:
+      url:
+    profileURL:
     tagCategories: []
 --- !u!114 &114435840607851232
 MonoBehaviour:
@@ -8394,8 +8387,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad783d381af7c445bb07290cdd54842b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   includeCategory: 1
   tagSeparator: ', '
   text: {fileID: 114421035555909800}
@@ -8536,13 +8529,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91cb8b2cf4214936a433cdc4f8b502b, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  textToUpper: 0
+  capitalizeName: 0
+  capitalizeCategory: 0
   nameText: {fileID: 114408813884624980}
   categoryText: {fileID: 0}
-  toggleComponent: {fileID: 114100614432690184}
-  tagName: Character
-  categoryName: Type
-  isSelected: 0
+  loadingDisplay: {fileID: 0}
 --- !u!114 &114517984816155668
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9580,13 +9571,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91cb8b2cf4214936a433cdc4f8b502b, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  textToUpper: 0
+  capitalizeName: 0
+  capitalizeCategory: 0
   nameText: {fileID: 114520804834585238}
   categoryText: {fileID: 0}
-  toggleComponent: {fileID: 114486170652165838}
-  tagName: Environment
-  categoryName: Type
-  isSelected: 0
+  loadingDisplay: {fileID: 0}
 --- !u!114 &114635485536047094
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10242,7 +10231,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument:
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -10537,7 +10526,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d314413a2c314f3cadc53e77e88c981, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  display: {fileID: 114899197962887232}
+  tagDisplayPrefab: {fileID: 1695936261783880, guid: da69147cafdab4276aac258978695db2,
+    type: 2}
+  container: {fileID: 224007066534490724}
+  loadingDisplay: {fileID: 0}
   categories:
   - name: Type
     isMultiTagCategory: 1
@@ -11781,13 +11773,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91cb8b2cf4214936a433cdc4f8b502b, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  textToUpper: 0
+  capitalizeName: 0
+  capitalizeCategory: 0
   nameText: {fileID: 114569375083132552}
   categoryText: {fileID: 0}
-  toggleComponent: {fileID: 114116541595240612}
-  tagName: Vehicle
-  categoryName: Type
-  isSelected: 0
+  loadingDisplay: {fileID: 0}
 --- !u!114 &114929665266779030
 MonoBehaviour:
   m_ObjectHideFlags: 1

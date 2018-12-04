@@ -5,7 +5,7 @@ using ModIO;
 public class TagCollectionContainer : TagCollectionDisplayBase
 {
     // ---------[ FIELDS ]---------
-    public delegate void OnTagClicked(ModTagDisplay component, string tagName, string category);
+    public delegate void OnTagClicked(ModTagDisplay display, string tagName, string category);
     public event OnTagClicked tagClicked;
 
     [Header("Settings")]
@@ -16,13 +16,12 @@ public class TagCollectionContainer : TagCollectionDisplayBase
     public GameObject loadingDisplay;
 
     // --- RUNTIME DATA ---
-    public int m_modId = -1;
+    private int m_modId = -1;
 
     // ---------[ INITIALIZATION ]---------
     public override void Initialize()
     {
         Debug.Assert(container != null);
-
         Debug.Assert(tagDisplayPrefab != null);
         Debug.Assert(tagDisplayPrefab.GetComponent<ModTagDisplay>() != null);
     }

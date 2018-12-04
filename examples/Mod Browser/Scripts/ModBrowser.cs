@@ -542,6 +542,23 @@ public class ModBrowser : MonoBehaviour
     private void StartFetchRemoteData()
     {
         // --- GameProfile ---
+        ModManager.GetGameProfile(
+        (g) =>
+        {
+            gameProfile = g;
+
+            if(explorerView.tagFilterView)
+            {
+                explorerView.tagFilterView.categories = g.tagCategories;
+                explorerView.tagFilterView.UpdateDisplay();
+            }
+            if(explorerView.tagFilterBar)
+            {
+                explorerView.tagFilterBar.categories = g.tagCategories;
+                explorerView.tagFilterBar.UpdateDisplay();
+            }
+        },
+        WebRequestError.LogAsWarning);
 
         // --- UserData ---
         if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))

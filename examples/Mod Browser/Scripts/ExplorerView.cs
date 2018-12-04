@@ -91,7 +91,6 @@ public class ExplorerView : MonoBehaviour
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        // assert fields
         Debug.Assert(itemPrefab != null);
 
         ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
