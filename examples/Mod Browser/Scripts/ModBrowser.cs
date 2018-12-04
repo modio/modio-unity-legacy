@@ -288,8 +288,9 @@ public class ModBrowser : MonoBehaviour
     private void InitializeInspectorView()
     {
         inspectorView.Initialize();
-        inspectorView.subscribeButton.onClick.AddListener(() => SubscribeToMod(inspectorView.profile));
-        inspectorView.unsubscribeButton.onClick.AddListener(() => ShowSubscriptionsView());
+        inspectorView.subscribeRequested += SubscribeToMod;
+        inspectorView.unsubscribeRequested += UnsubscribeFromMod;
+        // TODO(@jackson): Add Enable/Disable
         inspectorView.gameObject.SetActive(false);
 
         UpdateInspectorViewPageButtonInteractibility();

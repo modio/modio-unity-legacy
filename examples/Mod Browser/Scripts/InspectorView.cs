@@ -13,6 +13,11 @@ using ModIO;
 public class InspectorView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    public event Action<ModProfile> subscribeRequested;
+    public event Action<ModProfile> unsubscribeRequested;
+    public event Action<ModProfile> enableRequested;
+    public event Action<ModProfile> disableRequested;
+
     [Header("Settings")]
     public GameObject versionHistoryItemPrefab;
     public string missingVersionChangelogText;
@@ -176,7 +181,36 @@ public class InspectorView : MonoBehaviour
         }
     }
 
-    // ---------[ CLICKS ]---------
+    // ---------[ EVENTS ]---------
+    public void NotifySubscribeRequested()
+    {
+        if(subscribeRequested != null)
+        {
+            subscribeRequested(this.profile);
+        }
+    }
+    public void NotifyUnsubscribeRequested()
+    {
+        if(unsubscribeRequested != null)
+        {
+            unsubscribeRequested(this.profile);
+        }
+    }
+    public void NotifyEnableRequested()
+    {
+        if(enableRequested != null)
+        {
+            enableRequested(this.profile);
+        }
+    }
+    public void NotifyDisableRequested()
+    {
+        if(disableRequested != null)
+        {
+            disableRequested(this.profile);
+        }
+    }
+
     private void MediaPreview_Logo(ModLogoDisplay display, int modId)
     {
         selectedMediaPreview.DisplayLogoTexture(modId, display.image.mainTexture as Texture2D);
