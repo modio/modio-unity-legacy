@@ -39,46 +39,22 @@ public class TagCollectionTextDisplay : TagCollectionDisplayBase
 
     public override void DisplayModTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
     {
+        Debug.Assert(tags != null);
+
         m_modId = modId;
 
-        List<string> tagNames = new List<string>(tags);
-        string[] categoryNames = new string[tagNames.Count];
-
-        if(includeCategory && tagCategories != null)
-        {
-            foreach(ModTagCategory category in tagCategories)
-            {
-                foreach(string categoryTag in tags)
-                {
-                    int i = tagNames.IndexOf(categoryTag);
-                    while(i >= 0)
-                    {
-                        categoryNames[i] = category.name + ": ";
-
-                        if(i+1 < tagNames.Count)
-                        {
-                            i = tagNames.IndexOf(categoryTag, i+1);
-                        }
-                        else
-                        {
-                            i = -1;
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            for(int i = 0; i < categoryNames.Length; ++i)
-            {
-                categoryNames[i] = string.Empty;
-            }
-        }
+        IDictionary<string, string> tagCategoryMap = TagCollectionDisplayBase.GenerateTagCategoryMap(tags,
+                                                                                                    tagCategories);
 
         StringBuilder builder = new StringBuilder();
-        for(int i = 0; i < tagNames.Count; ++i)
+        foreach(var tagCategory in tagCategoryMap)
         {
-            builder.Append(categoryNames[i] + tagNames[i] + tagSeparator);
+            if(!System.String.IsNullOrEmpty(tagCategory.Value))
+            {
+                builder.Append(tagCategory.Value + ": ");
+            }
+
+            builder.Append(tagCategory.Key + tagSeparator);
         }
 
         if(builder.Length > 0)
