@@ -18,6 +18,8 @@ public class TagCollectionContainer : TagCollectionDisplayBase
     // --- RUNTIME DATA ---
     private int m_modId = -1;
     private List<ModTagDisplay> m_tagDisplays = new List<ModTagDisplay>();
+
+    // --- ACCESSORS ---
     public IEnumerable<ModTagDisplay> tagDisplays { get { return m_tagDisplays; } }
 
     // ---------[ INITIALIZATION ]---------
@@ -43,14 +45,21 @@ public class TagCollectionContainer : TagCollectionDisplayBase
     {
         Debug.Assert(tags != null);
 
+        m_modId = modId;
+
+        if(loadingDisplay != null)
+        {
+            loadingDisplay.SetActive(false);
+        }
+
+        // clear
         foreach(ModTagDisplay display in m_tagDisplays)
         {
             GameObject.Destroy(display.gameObject);
         }
         m_tagDisplays.Clear();
 
-        m_modId = modId;
-
+        // create
         IDictionary<string, string> tagCategoryMap
             = TagCollectionDisplayBase.GenerateTagCategoryMap(tags, tagCategories);
 
@@ -68,27 +77,23 @@ public class TagCollectionContainer : TagCollectionDisplayBase
 
             m_tagDisplays.Add(display);
         }
-
-        if(loadingDisplay != null)
-        {
-            loadingDisplay.SetActive(false);
-        }
     }
 
     public override void DisplayLoading(int modId = -1)
     {
         m_modId = modId;
 
+        if(loadingDisplay != null)
+        {
+            loadingDisplay.SetActive(true);
+        }
+
+        // clear
         foreach(ModTagDisplay display in m_tagDisplays)
         {
             GameObject.Destroy(display.gameObject);
         }
         m_tagDisplays.Clear();
-
-        if(loadingDisplay != null)
-        {
-            loadingDisplay.SetActive(true);
-        }
     }
 
     // ---------[ EVENTS ]---------

@@ -15,64 +15,71 @@ public class ModTagFilterView : MonoBehaviour
     public RectTransform categoryContainer;
 
     [Header("Display Data")]
-    public ModTagCategory[] categories;
     public List<string> selectedTags;
 
-    [Header("Runtime Data")]
-    private ModTagCategoryDisplay[] m_categoryDisplayComponents;
+    // --- RUNTIME DATA ---
+    private IEnumerable<ModTagCategory> TEMP_categories;
+    private List<ModTagCategoryDisplay> m_categoryDisplayComponents = new List<ModTagCategoryDisplay>();
 
+    // --- ACCESSORS ---
+    public IEnumerable<ModTagCategoryDisplay> categoryDisplayComponents
+    { get { return m_categoryDisplayComponents; } }
+
+    // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        // asserts
-        Debug.Assert(tagCategoryPrefab != null);
-        Debug.Assert(tagCategoryPrefab.GetComponent<ModTagCategoryDisplay>() != null);
         Debug.Assert(categoryContainer != null);
+
+        Debug.Assert(tagCategoryPrefab != null);
     }
 
+    // ---------[ UI FUNCTINALITY ]---------
+    [Obsolete]
     public void UpdateDisplay()
     {
+        DisplayCategories(TEMP_categories);
+    }
+
+    public void DisplayCategories(IEnumerable<ModTagCategory> categories)
+    {
+        Debug.Assert(categories != null);
+        TEMP_categories = categories;
+
         // clear existing
-        if(m_categoryDisplayComponents != null
-           && m_categoryDisplayComponents.Length > 0)
+        foreach(ModTagCategoryDisplay cat in m_categoryDisplayComponents)
         {
-            foreach(ModTagCategoryDisplay cat in m_categoryDisplayComponents)
-            {
-                cat.onSelectedTagsChanged -= this.OnTagsChanged;
-                GameObject.Destroy(cat.gameObject);
-            }
+            GameObject.Destroy(cat.gameObject);
         }
+        m_categoryDisplayComponents.Clear();
 
-        // setup categories
-        m_categoryDisplayComponents = new ModTagCategoryDisplay[categories.Length];
-        for(int i = 0; i < categories.Length; ++i)
+        // create
+        foreach(ModTagCategory category in categories)
         {
-            ModTagCategory category = categories[i];
-            GameObject categoryGO = GameObject.Instantiate(tagCategoryPrefab,
-                                                            new Vector3(),
-                                                            Quaternion.identity,
-                                                            categoryContainer);
-            categoryGO.name = category.name;
+            GameObject displayGO = GameObject.Instantiate(tagCategoryPrefab,
+                                                          new Vector3(),
+                                                          Quaternion.identity,
+                                                          categoryContainer);
+            displayGO.name = category.name;
 
-            ModTagCategoryDisplay categoryDisp = categoryGO.GetComponent<ModTagCategoryDisplay>();
-            categoryDisp.Initialize();
-            categoryDisp.DisplayCategory(category);
-            categoryDisp.selectedTags = this.selectedTags;
-            categoryDisp.onSelectedTagsChanged += this.OnTagsChanged;
+            ModTagCategoryDisplay display = displayGO.GetComponent<ModTagCategoryDisplay>();
+            display.Initialize();
+            display.DisplayCategory(category);
+            display.tagContainer.tagClicked += TagClickHandler;
 
-            m_categoryDisplayComponents[i] = categoryDisp;
+            m_categoryDisplayComponents.Add(display);
         }
     }
 
-    private void OnTagsChanged(ModTagCategoryDisplay displayComponent)
+    // ---------[ EVENTS ]---------
+    private void TagClickHandler(ModTagDisplay display, string tagName, string category)
     {
-        if(displayComponent.selectedTags != this.selectedTags)
+        if(selectedTags.Contains(tagName))
         {
-            this.selectedTags = displayComponent.selectedTags;
-
-            foreach(var catDisp in m_categoryDisplayComponents)
-            {
-                catDisp.selectedTags = this.selectedTags;
-            }
+            selectedTags.Remove(tagName);
+        }
+        else
+        {
+            selectedTags.Add(tagName);
         }
 
         if(onSelectedTagsChanged != null)

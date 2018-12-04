@@ -402,6 +402,7 @@ public class ModBrowser : MonoBehaviour
         // tags
         if(explorerView.tagFilterView != null)
         {
+            explorerView.tagFilterView.Initialize();
             explorerView.tagFilterView.selectedTags = this.filterTags;
             explorerView.tagFilterView.gameObject.SetActive(false);
             explorerView.tagFilterView.onSelectedTagsChanged += () =>
@@ -429,6 +430,7 @@ public class ModBrowser : MonoBehaviour
 
         if(explorerView.tagFilterBar != null)
         {
+            explorerView.tagFilterBar.Initialize();
             explorerView.tagFilterBar.selectedTags = this.filterTags;
             explorerView.tagFilterBar.gameObject.SetActive(true);
             explorerView.tagFilterBar.onSelectedTagsChanged += () =>
@@ -452,22 +454,6 @@ public class ModBrowser : MonoBehaviour
 
             explorerView.tagFilterBar.onSelectedTagsChanged += () => UpdateExplorerFilters();
         }
-
-        ModManager.GetGameProfile((g) =>
-                                  {
-                                    if(explorerView.tagFilterView != null)
-                                    {
-                                        explorerView.tagFilterView.categories = g.tagCategories;
-                                        explorerView.tagFilterView.Initialize();
-                                    }
-
-                                    if(explorerView.tagFilterBar != null)
-                                    {
-                                        explorerView.tagFilterBar.categories = g.tagCategories;
-                                        explorerView.tagFilterBar.Initialize();
-                                    }
-                                  },
-                                  WebRequestError.LogAsWarning);
 
         // - setup filter -
         explorerViewFilter = new RequestFilter();
@@ -556,8 +542,7 @@ public class ModBrowser : MonoBehaviour
 
             if(explorerView.tagFilterView)
             {
-                explorerView.tagFilterView.categories = g.tagCategories;
-                explorerView.tagFilterView.UpdateDisplay();
+                explorerView.tagFilterView.DisplayCategories(g.tagCategories);
             }
             if(explorerView.tagFilterBar)
             {

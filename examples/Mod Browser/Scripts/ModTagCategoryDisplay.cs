@@ -9,31 +9,23 @@ using ModIO;
 public class ModTagCategoryDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public event Action<ModTagCategoryDisplay> onSelectedTagsChanged;
-
     [Header("Settings")]
     public bool capitalizeCategory;
 
     [Header("UI Components")]
     public Text nameDisplay;
 
-    // --- RUNTIME DATA ---
-    public List<string> selectedTags = new List<string>();
-
-    private TagCollectionContainer m_tagContainer;
-    public TagCollectionContainer tagContainer { get { return m_tagContainer; } }
+    // ---------[ ACCESSORS ]---------
+    public TagCollectionContainer tagContainer
+    { get { return this.gameObject.GetComponent<TagCollectionContainer>(); } }
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
         Debug.Assert(nameDisplay != null);
+        Debug.Assert(tagContainer != null);
 
-        m_tagContainer = this.gameObject.GetComponent<TagCollectionContainer>();
-        Debug.Assert(m_tagContainer != null);
-
-        m_tagContainer.Initialize();
-        m_tagContainer.tagClicked -= TagClickHandler;
-        m_tagContainer.tagClicked += TagClickHandler;
+        tagContainer.Initialize();
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -54,27 +46,10 @@ public class ModTagCategoryDisplay : MonoBehaviour
         Debug.Assert(category != null);
 
         nameDisplay.text = (capitalizeCategory ? category.name.ToUpper() : category.name);
-        m_tagContainer.DisplayTags(category.tags, new ModTagCategory[]{ category });
+        tagContainer.DisplayTags(category.tags, new ModTagCategory[]{ category });
     }
 
     // ---------[ EVENTS ]---------
-    private void TagClickHandler(ModTagDisplay display, string tagName, string category)
-    {
-        if(selectedTags.Contains(tagName))
-        {
-            selectedTags.Remove(tagName);
-        }
-        else
-        {
-            selectedTags.Add(tagName);
-        }
-
-        if(onSelectedTagsChanged != null)
-        {
-            onSelectedTagsChanged(this);
-        }
-    }
-
     // public void OnTagToggled(SelectableModTag modTag)
     // {
     //     bool isTagSelected = IsTagSelected(modTag.tagName);
