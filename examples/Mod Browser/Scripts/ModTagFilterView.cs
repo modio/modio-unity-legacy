@@ -58,15 +58,15 @@ public class ModTagFilterView : MonoBehaviour
 
         TagCollectionContainer tagContainer = tagCategoryPrefab.GetComponent<TagCollectionContainer>();
         Debug.Assert(tagContainer != null,
-                     "[mod.io] ModTagFilterViews require the Tag Category Prefab to have a "
+                     "[mod.io] ModTagFilterViews require the TagCategoryPrefab to have a "
                      + "TagCollectionContainer component. (Any other TagCollectionDisplay type "
                      + "is incompatible.)");
 
         Debug.Assert(tagContainer.tagDisplayPrefab != null);
 
         Debug.Assert(tagContainer.tagDisplayPrefab.GetComponent<Toggle>() != null,
-                     "[mod.io] The TagDisplayPrefab in the FilterView.tagCategoryPrefab requires a "
-                     + "Toggle component for the purpose of indicating the tag as selected or not.");
+                     "[mod.io] ModTagFilterViews require the TagDisplayPrefab in the "
+                     + "FilterView.tagCategoryPrefab to have a Toggle Component.");
     }
 
     // ---------[ UI FUNCTINALITY ]---------
@@ -101,11 +101,20 @@ public class ModTagFilterView : MonoBehaviour
             display.Initialize();
             display.DisplayCategory(category);
 
+            ToggleGroup toggleGroup = null;
+            if(!category.isMultiTagCategory)
+            {
+                toggleGroup = display.gameObject.AddComponent<ToggleGroup>();
+                toggleGroup.allowSwitchOff = true;
+            }
+
             TagCollectionContainer tagContainer = displayGO.GetComponent<TagCollectionContainer>();
             foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
             {
                 Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
                 tagToggle.isOn = m_selectedTags.Contains(tagDisplay.tagName);
+                tagToggle.group = toggleGroup;
+                // TODO(@jackson): Need to register?
             }
 
             tagContainer.tagClicked += TagClickHandler;
