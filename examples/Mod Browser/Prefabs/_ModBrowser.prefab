@@ -5147,6 +5147,7 @@ MonoBehaviour:
   pageCountText: {fileID: 0}
   resultCountText: {fileID: 114423435185988604}
   subscribedModIds: 
+  filterTags: []
   isTransitioning: 0
   currentPageContainer: {fileID: 0}
   targetPageContainer: {fileID: 0}
@@ -7150,7 +7151,6 @@ MonoBehaviour:
     timezone: 
     language: 
     profileURL: 
-  filterTags: []
   lastCacheUpdate: -1
   gameProfile:
     id: 0

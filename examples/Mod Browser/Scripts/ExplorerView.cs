@@ -19,6 +19,7 @@ public class ExplorerView : MonoBehaviour
     public event Action<ModBrowserItem> subscribeRequested;
     public event Action<ModBrowserItem> unsubscribeRequested;
     public event Action<ModBrowserItem> toggleModEnabledRequested;
+    public event Action onFilterTagsChanged;
 
     [Header("Settings")]
     public GameObject itemPrefab;
@@ -41,6 +42,7 @@ public class ExplorerView : MonoBehaviour
     public List<int> subscribedModIds = null;
     public RequestPage<ModProfile> currentPage = null;
     public RequestPage<ModProfile> targetPage = null;
+    public List<string> filterTags = new List<string>();
 
     [Header("Runtime Data")]
     public bool isTransitioning = false;
@@ -155,6 +157,74 @@ public class ExplorerView : MonoBehaviour
         InitializePageLayout(targetPageContainer);
 
         targetPageContainer.gameObject.SetActive(false);
+
+        // - nested views -
+        if(tagFilterView != null)
+        {
+            tagFilterView.Initialize();
+            tagFilterView.gameObject.SetActive(false);
+
+            tagFilterView.tagFilterAdded += (tag) =>
+            {
+                filterTags.Add(tag);
+
+                if(onFilterTagsChanged != null)
+                {
+                    onFilterTagsChanged();
+                }
+            };
+            tagFilterView.tagFilterRemoved += (tag) =>
+            {
+                filterTags.Remove(tag);
+
+                if(onFilterTagsChanged != null)
+                {
+                    onFilterTagsChanged();
+                }
+            };
+
+            if(tagFilterBar != null)
+            {
+                tagFilterView.tagFilterAdded += (tag) =>
+                {
+                    tagFilterBar.selectedTags = filterTags;
+                    tagFilterBar.UpdateDisplay();
+                };
+                tagFilterView.tagFilterRemoved += (tag) =>
+                {
+                    tagFilterBar.selectedTags = filterTags;
+                    tagFilterBar.UpdateDisplay();
+                };
+            }
+
+        }
+
+        if(tagFilterBar != null)
+        {
+            tagFilterBar.Initialize();
+            tagFilterBar.selectedTags = filterTags;
+            tagFilterBar.gameObject.SetActive(true);
+            tagFilterBar.onSelectedTagsChanged += () =>
+            {
+                if(filterTags != tagFilterBar.selectedTags)
+                {
+                    filterTags = tagFilterBar.selectedTags;
+                }
+
+                if(onFilterTagsChanged != null)
+                {
+                    onFilterTagsChanged();
+                }
+            };
+
+            if(tagFilterView != null)
+            {
+                tagFilterBar.onSelectedTagsChanged += () =>
+                {
+                    tagFilterView.selectedTags = filterTags;
+                };
+            }
+        }
     }
 
     private void InitializePageLayout(RectTransform pageTransform)

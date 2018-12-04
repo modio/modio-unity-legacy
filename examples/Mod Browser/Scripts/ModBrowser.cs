@@ -127,7 +127,6 @@ public class ModBrowser : MonoBehaviour
     public InspectorViewData inspectorData = new InspectorViewData();
     public List<int> subscribedModIds = new List<int>();
     public UserProfile userProfile = null;
-    public List<string> filterTags = new List<string>();
 
     [Header("Runtime Data")]
     public int lastCacheUpdate = -1;
@@ -406,56 +405,9 @@ public class ModBrowser : MonoBehaviour
             explorerView.sortByDropdown.onValueChanged.AddListener((v) => UpdateExplorerFilters());
         }
 
-        // tags
-        if(explorerView.tagFilterView != null)
-        {
-            explorerView.tagFilterView.Initialize();
-            explorerView.tagFilterView.selectedTags = this.filterTags;
-            explorerView.tagFilterView.gameObject.SetActive(false);
-            explorerView.tagFilterView.onSelectedTagsChanged += () =>
-            {
-                this.filterTags = new List<string>(explorerView.tagFilterView.selectedTags);
-            };
-
-            if(explorerView.tagFilterBar != null)
-            {
-                explorerView.tagFilterView.onSelectedTagsChanged += () =>
-                {
-                    if(explorerView.tagFilterBar.selectedTags != this.filterTags)
-                    {
-                        explorerView.tagFilterBar.selectedTags = this.filterTags;
-                    }
-                    explorerView.tagFilterBar.UpdateDisplay();
-                };
-            }
-
-            explorerView.tagFilterView.onSelectedTagsChanged += () => UpdateExplorerFilters();
-        }
-
-        if(explorerView.tagFilterBar != null)
-        {
-            explorerView.tagFilterBar.Initialize();
-            explorerView.tagFilterBar.selectedTags = this.filterTags;
-            explorerView.tagFilterBar.gameObject.SetActive(true);
-            explorerView.tagFilterBar.onSelectedTagsChanged += () =>
-            {
-                if(this.filterTags != explorerView.tagFilterBar.selectedTags)
-                {
-                    this.filterTags = explorerView.tagFilterBar.selectedTags;
-                }
-            };
-            if(explorerView.tagFilterView != null)
-            {
-                explorerView.tagFilterBar.onSelectedTagsChanged += () =>
-                {
-                    explorerView.tagFilterView.selectedTags = this.filterTags;
-                };
-            }
-
-            explorerView.tagFilterBar.onSelectedTagsChanged += () => UpdateExplorerFilters();
-        }
-
         // - setup filter -
+        explorerView.onFilterTagsChanged += () => UpdateExplorerFilters();
+
         explorerViewFilter = new RequestFilter();
 
         ExplorerSortOption sortOption = explorerSortOptions[0];
@@ -1181,17 +1133,17 @@ public class ModBrowser : MonoBehaviour
             explorerView.nameSearchField.text = string.Empty;
         }
 
-        this.filterTags.Clear();
+        explorerView.filterTags.Clear();
 
-        if(explorerView.tagFilterBar.selectedTags != this.filterTags)
+        if(explorerView.tagFilterBar.selectedTags != explorerView.filterTags)
         {
-            explorerView.tagFilterBar.selectedTags = this.filterTags;
+            explorerView.tagFilterBar.selectedTags = explorerView.filterTags;
         }
         explorerView.tagFilterBar.UpdateDisplay();
 
-        if(explorerView.tagFilterView.selectedTags != this.filterTags)
+        if(explorerView.tagFilterView.selectedTags != explorerView.filterTags)
         {
-            explorerView.tagFilterView.selectedTags = this.filterTags;
+            explorerView.tagFilterView.selectedTags = explorerView.filterTags;
         }
 
         UpdateExplorerFilters();
@@ -1226,7 +1178,7 @@ public class ModBrowser : MonoBehaviour
         }
 
         // tags
-        string[] filterTagNames = this.filterTags.ToArray();
+        string[] filterTagNames = explorerView.filterTags.ToArray();
 
         if(filterTagNames.Length == 0)
         {

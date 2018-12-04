@@ -7,7 +7,6 @@ using ModIO;
 public class ModTagFilterView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public event Action onSelectedTagsChanged; // TODO(@jackson): Remove
     public event Action<string> tagFilterAdded;
     public event Action<string> tagFilterRemoved;
 
@@ -156,11 +155,6 @@ public class ModTagFilterView : MonoBehaviour
             {
                 tagFilterAdded(tagName);
             }
-        }
-
-        if(onSelectedTagsChanged != null)
-        {
-            onSelectedTagsChanged();
         }
     }
 }
