@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-[RequireComponent(typeof(TagCollectionContainer))]
+[RequireComponent(typeof(TagCollectionDisplayBase))]
 public class ModTagCategoryDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
@@ -16,16 +16,16 @@ public class ModTagCategoryDisplay : MonoBehaviour
     public Text nameDisplay;
 
     // ---------[ ACCESSORS ]---------
-    public TagCollectionContainer tagContainer
-    { get { return this.gameObject.GetComponent<TagCollectionContainer>(); } }
+    public TagCollectionDisplayBase tagDisplay
+    { get { return this.gameObject.GetComponent<TagCollectionDisplayBase>(); } }
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
         Debug.Assert(nameDisplay != null);
-        Debug.Assert(tagContainer != null);
+        Debug.Assert(tagDisplay != null);
 
-        tagContainer.Initialize();
+        tagDisplay.Initialize();
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -46,7 +46,7 @@ public class ModTagCategoryDisplay : MonoBehaviour
         Debug.Assert(category != null);
 
         nameDisplay.text = (capitalizeCategory ? category.name.ToUpper() : category.name);
-        tagContainer.DisplayTags(category.tags, new ModTagCategory[]{ category });
+        tagDisplay.DisplayTags(category.tags, new ModTagCategory[]{ category });
     }
 
     // ---------[ EVENTS ]---------

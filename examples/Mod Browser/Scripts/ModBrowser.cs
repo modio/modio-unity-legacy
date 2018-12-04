@@ -407,10 +407,7 @@ public class ModBrowser : MonoBehaviour
             explorerView.tagFilterView.gameObject.SetActive(false);
             explorerView.tagFilterView.onSelectedTagsChanged += () =>
             {
-                if(this.filterTags != explorerView.tagFilterView.selectedTags)
-                {
-                    this.filterTags = explorerView.tagFilterView.selectedTags;
-                }
+                this.filterTags = new List<string>(explorerView.tagFilterView.selectedTags);
             };
 
             if(explorerView.tagFilterBar != null)

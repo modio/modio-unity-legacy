@@ -6,7 +6,7 @@ using ModIO;
 public class ModTagDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public delegate void OnClickDelegate(ModTagDisplay component, string tagName, string category);
+    public delegate void OnClickDelegate(ModTagDisplay component, string tag, string category);
     public event OnClickDelegate onClick;
 
     [Header("Settings")]
@@ -22,6 +22,10 @@ public class ModTagDisplay : MonoBehaviour
     private string m_tag = string.Empty;
     private string m_category = string.Empty;
 
+    // --- ACCESSORS ---
+    public string tagName       { get { return m_tag; } }
+    public string categoryName  { get { return m_category; } }
+
     // ---------[ INTIALIZATION ]---------
     public void Initialize()
     {
@@ -35,12 +39,12 @@ public class ModTagDisplay : MonoBehaviour
         DisplayTag(tag.name, category);
     }
 
-    public void DisplayTag(string tagName, string category)
+    public void DisplayTag(string tag, string category)
     {
-        m_tag = tagName;
+        m_tag = tag;
         m_category = category;
 
-        nameDisplay.text = (capitalizeName ? tagName.ToUpper() : tagName);
+        nameDisplay.text = (capitalizeName ? tag.ToUpper() : tag);
         nameDisplay.enabled = true;
         if(categoryDisplay != null)
         {
@@ -54,9 +58,9 @@ public class ModTagDisplay : MonoBehaviour
         }
     }
 
-    public void DisplayLoading(string tagName = null, string category = null)
+    public void DisplayLoading(string tag = null, string category = null)
     {
-        m_tag = tagName;
+        m_tag = tag;
         m_category = category;
 
         nameDisplay.enabled = false;

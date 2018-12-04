@@ -158,7 +158,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9516a5cc2cc644a65a108471cb0b073d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagDisplayPrefab: {fileID: 0}
+  tagDisplayPrefab: {fileID: 1300801099346922, guid: c545b7c02e1af4efaa0b4448ca29e322,
+    type: 2}
   container: {fileID: 224661439401786178}
   loadingDisplay: {fileID: 0}
 --- !u!114 &114506664563286566
@@ -256,7 +257,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   capitalizeCategory: 0
   nameDisplay: {fileID: 114667482808473326}
-  selectedTags: []
 --- !u!114 &114969125624928138
 MonoBehaviour:
   m_ObjectHideFlags: 1

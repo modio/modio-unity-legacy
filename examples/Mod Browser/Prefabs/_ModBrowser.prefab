@@ -10569,17 +10569,6 @@ MonoBehaviour:
   tagCategoryPrefab: {fileID: 1688676007026734, guid: af713a3e81888417089a42d416dbf2af,
     type: 2}
   categoryContainer: {fileID: 224738526159741542}
-  categories:
-  - name: Type
-    isMultiTagCategory: 1
-    isHidden: 0
-    tags:
-    - Environment
-    - Character
-    - Vehicle
-  selectedTags: []
-  categoryDisplayComponents:
-  - {fileID: 0}
 --- !u!114 &114882388177398524
 MonoBehaviour:
   m_ObjectHideFlags: 1

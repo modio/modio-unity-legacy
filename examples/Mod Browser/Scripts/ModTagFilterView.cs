@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using ModIO;
 
 public class ModTagFilterView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
+    // TODO(@jackson): Separate
     public event Action onSelectedTagsChanged;
 
     [Header("Settings")]
@@ -14,23 +16,57 @@ public class ModTagFilterView : MonoBehaviour
     [Header("UI Components")]
     public RectTransform categoryContainer;
 
-    [Header("Display Data")]
-    public List<string> selectedTags;
-
     // --- RUNTIME DATA ---
     private IEnumerable<ModTagCategory> TEMP_categories;
-    private List<ModTagCategoryDisplay> m_categoryDisplayComponents = new List<ModTagCategoryDisplay>();
+    private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
+    private List<string> m_selectedTags = new List<string>();
 
     // --- ACCESSORS ---
-    public IEnumerable<ModTagCategoryDisplay> categoryDisplayComponents
-    { get { return m_categoryDisplayComponents; } }
+    public IEnumerable<ModTagCategoryDisplay> categoryDisplays
+    { get { return m_categoryDisplays; } }
+    public IEnumerable<string> selectedTags
+    {
+        get { return m_selectedTags; }
+        set
+        {
+            Debug.Assert(value != null);
+
+            m_selectedTags = new List<string>(value);
+
+            foreach(ModTagCategoryDisplay categoryDisplay in m_categoryDisplays)
+            {
+                TagCollectionContainer tagContainer = categoryDisplay.tagDisplay as TagCollectionContainer;
+                tagContainer.tagClicked -= TagClickHandler;
+
+                foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
+                {
+                    Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
+                    tagToggle.isOn = m_selectedTags.Contains(tagDisplay.tagName);
+                }
+
+                tagContainer.tagClicked += TagClickHandler;
+            }
+        }
+    }
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
         Debug.Assert(categoryContainer != null);
-
         Debug.Assert(tagCategoryPrefab != null);
+        Debug.Assert(tagCategoryPrefab.GetComponent<ModTagCategoryDisplay>() != null);
+
+        TagCollectionContainer tagContainer = tagCategoryPrefab.GetComponent<TagCollectionContainer>();
+        Debug.Assert(tagContainer != null,
+                     "[mod.io] ModTagFilterViews require the Tag Category Prefab to have a "
+                     + "TagCollectionContainer component. (Any other TagCollectionDisplay type "
+                     + "is incompatible.)");
+
+        Debug.Assert(tagContainer.tagDisplayPrefab != null);
+
+        Debug.Assert(tagContainer.tagDisplayPrefab.GetComponent<Toggle>() != null,
+                     "[mod.io] The TagDisplayPrefab in the FilterView.tagCategoryPrefab requires a "
+                     + "Toggle component for the purpose of indicating the tag as selected or not.");
     }
 
     // ---------[ UI FUNCTINALITY ]---------
@@ -46,11 +82,11 @@ public class ModTagFilterView : MonoBehaviour
         TEMP_categories = categories;
 
         // clear existing
-        foreach(ModTagCategoryDisplay cat in m_categoryDisplayComponents)
+        foreach(ModTagCategoryDisplay cat in m_categoryDisplays)
         {
             GameObject.Destroy(cat.gameObject);
         }
-        m_categoryDisplayComponents.Clear();
+        m_categoryDisplays.Clear();
 
         // create
         foreach(ModTagCategory category in categories)
@@ -64,22 +100,30 @@ public class ModTagFilterView : MonoBehaviour
             ModTagCategoryDisplay display = displayGO.GetComponent<ModTagCategoryDisplay>();
             display.Initialize();
             display.DisplayCategory(category);
-            display.tagContainer.tagClicked += TagClickHandler;
 
-            m_categoryDisplayComponents.Add(display);
+            TagCollectionContainer tagContainer = displayGO.GetComponent<TagCollectionContainer>();
+            foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
+            {
+                Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
+                tagToggle.isOn = m_selectedTags.Contains(tagDisplay.tagName);
+            }
+
+            tagContainer.tagClicked += TagClickHandler;
+
+            m_categoryDisplays.Add(display);
         }
     }
 
     // ---------[ EVENTS ]---------
     private void TagClickHandler(ModTagDisplay display, string tagName, string category)
     {
-        if(selectedTags.Contains(tagName))
+        if(m_selectedTags.Contains(tagName))
         {
-            selectedTags.Remove(tagName);
+            m_selectedTags.Remove(tagName);
         }
         else
         {
-            selectedTags.Add(tagName);
+            m_selectedTags.Add(tagName);
         }
 
         if(onSelectedTagsChanged != null)
