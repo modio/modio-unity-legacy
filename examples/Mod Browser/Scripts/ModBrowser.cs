@@ -488,6 +488,13 @@ public class ModBrowser : MonoBehaviour
         RequestExplorerPage(0,
                             (page) =>
                             {
+                                #if DEBUG
+                                if(!Application.isPlaying)
+                                {
+                                    return;
+                                }
+                                #endif
+
                                 if(explorerView.currentPage == modPage)
                                 {
                                     explorerView.currentPage = page;

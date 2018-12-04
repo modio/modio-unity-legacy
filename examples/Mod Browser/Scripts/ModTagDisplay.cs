@@ -14,8 +14,8 @@ public class ModTagDisplay : MonoBehaviour
     public bool capitalizeCategory;
 
     [Header("UI Components")]
-    public Text nameText;
-    public Text categoryText;
+    public Text nameDisplay;
+    public Text categoryDisplay;
     public GameObject loadingDisplay;
 
     // --- DISPLAY DATA ---
@@ -25,7 +25,7 @@ public class ModTagDisplay : MonoBehaviour
     // ---------[ INTIALIZATION ]---------
     public void Initialize()
     {
-        Debug.Assert(nameText != null);
+        Debug.Assert(nameDisplay != null);
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -40,13 +40,36 @@ public class ModTagDisplay : MonoBehaviour
         m_tag = tagName;
         m_category = category;
 
-        nameText.text = (capitalizeName ? tagName.ToUpper() : tagName);
-        if(categoryText != null)
+        nameDisplay.text = (capitalizeName ? tagName.ToUpper() : tagName);
+        nameDisplay.enabled = true;
+        if(categoryDisplay != null)
         {
-            categoryText.text = (capitalizeCategory ? category.ToUpper() : category);
+            categoryDisplay.text = (capitalizeCategory ? category.ToUpper() : category);
+            categoryDisplay.enabled = true;
+        }
+
+        if(loadingDisplay != null)
+        {
+            loadingDisplay.gameObject.SetActive(false);
         }
     }
 
+    public void DisplayLoading(string tagName = null, string category = null)
+    {
+        m_tag = tagName;
+        m_category = category;
+
+        nameDisplay.enabled = false;
+        if(categoryDisplay != null)
+        {
+            categoryDisplay.enabled = false;
+        }
+
+        if(loadingDisplay != null)
+        {
+            loadingDisplay.gameObject.SetActive(true);
+        }
+    }
 
     // ---------[ EVENT HANDLING ]---------
     public void NotifyClicked()

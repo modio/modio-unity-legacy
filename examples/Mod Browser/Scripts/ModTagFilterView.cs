@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using ModIO;
 
-// TODO(@jackson): Single-select categories
 public class ModTagFilterView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
@@ -20,7 +19,7 @@ public class ModTagFilterView : MonoBehaviour
     public List<string> selectedTags;
 
     [Header("Runtime Data")]
-    public ModTagCategoryDisplay[] categoryDisplayComponents;
+    private ModTagCategoryDisplay[] m_categoryDisplayComponents;
 
     public void Initialize()
     {
@@ -28,12 +27,15 @@ public class ModTagFilterView : MonoBehaviour
         Debug.Assert(tagCategoryPrefab != null);
         Debug.Assert(tagCategoryPrefab.GetComponent<ModTagCategoryDisplay>() != null);
         Debug.Assert(categoryContainer != null);
+    }
 
+    public void UpdateDisplay()
+    {
         // clear existing
-        if(categoryDisplayComponents != null
-           && categoryDisplayComponents.Length > 0)
+        if(m_categoryDisplayComponents != null
+           && m_categoryDisplayComponents.Length > 0)
         {
-            foreach(ModTagCategoryDisplay cat in categoryDisplayComponents)
+            foreach(ModTagCategoryDisplay cat in m_categoryDisplayComponents)
             {
                 cat.onSelectedTagsChanged -= this.OnTagsChanged;
                 GameObject.Destroy(cat.gameObject);
@@ -41,7 +43,7 @@ public class ModTagFilterView : MonoBehaviour
         }
 
         // setup categories
-        categoryDisplayComponents = new ModTagCategoryDisplay[categories.Length];
+        m_categoryDisplayComponents = new ModTagCategoryDisplay[categories.Length];
         for(int i = 0; i < categories.Length; ++i)
         {
             ModTagCategory category = categories[i];
@@ -52,20 +54,12 @@ public class ModTagFilterView : MonoBehaviour
             categoryGO.name = category.name;
 
             ModTagCategoryDisplay categoryDisp = categoryGO.GetComponent<ModTagCategoryDisplay>();
-            categoryDisp.modTagCategory = category;
+            categoryDisp.Initialize();
+            categoryDisp.DisplayCategory(category);
             categoryDisp.selectedTags = this.selectedTags;
             categoryDisp.onSelectedTagsChanged += this.OnTagsChanged;
-            categoryDisp.Initialize();
 
-            categoryDisplayComponents[i] = categoryDisp;
-        }
-    }
-
-    public void UpdateDisplay()
-    {
-        foreach(ModTagCategoryDisplay display in categoryDisplayComponents)
-        {
-            display.UpdateDisplay();
+            m_categoryDisplayComponents[i] = categoryDisp;
         }
     }
 
@@ -75,7 +69,7 @@ public class ModTagFilterView : MonoBehaviour
         {
             this.selectedTags = displayComponent.selectedTags;
 
-            foreach(var catDisp in categoryDisplayComponents)
+            foreach(var catDisp in m_categoryDisplayComponents)
             {
                 catDisp.selectedTags = this.selectedTags;
             }

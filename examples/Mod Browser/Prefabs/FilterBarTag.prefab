@@ -288,8 +288,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   capitalizeName: 0
   capitalizeCategory: 0
-  nameText: {fileID: 114289671944770002}
-  categoryText: {fileID: 0}
+  nameDisplay: {fileID: 114289671944770002}
+  categoryDisplay: {fileID: 0}
   loadingDisplay: {fileID: 0}
 --- !u!114 &114641165286744530
 MonoBehaviour:

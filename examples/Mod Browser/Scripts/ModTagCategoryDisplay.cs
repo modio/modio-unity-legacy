@@ -1,120 +1,101 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-// TODO(@jackson): Implement single-selection
+[RequireComponent(typeof(TagCollectionContainer))]
 public class ModTagCategoryDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     public event Action<ModTagCategoryDisplay> onSelectedTagsChanged;
 
     [Header("Settings")]
-    public bool textToUpper;
+    public bool capitalizeCategory;
 
     [Header("UI Components")]
-    public Text nameText;
-    public ModTagCollectionDisplay tagDisplay;
+    public Text nameDisplay;
 
-    [Header("Display Data")]
-    public ModTagCategory modTagCategory;
-    public List<string> selectedTags;
+    // --- RUNTIME DATA ---
+    public List<string> selectedTags = new List<string>();
 
+    private TagCollectionContainer m_tagContainer;
+    public TagCollectionContainer tagContainer { get { return m_tagContainer; } }
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        // asserts
-        Debug.Assert(tagDisplay != null);
+        Debug.Assert(nameDisplay != null);
 
-        // setup
-        string categoryName = string.Empty;
-        if(modTagCategory != null)
-        {
-            categoryName = (textToUpper ? modTagCategory.name.ToUpper() : modTagCategory.name);
-        }
-        if(nameText != null)
-        {
-            nameText.text = categoryName;
-        }
+        m_tagContainer = this.gameObject.GetComponent<TagCollectionContainer>();
+        Debug.Assert(m_tagContainer != null);
 
-        tagDisplay.tags = CreateTagList();
-        tagDisplay.tagToggled += OnTagToggled;
-        tagDisplay.Initialize();
+        m_tagContainer.Initialize();
+        m_tagContainer.tagClicked -= TagClickHandler;
+        m_tagContainer.tagClicked += TagClickHandler;
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void UpdateDisplay()
+    public void DisplayCategory(string categoryName, IEnumerable<string> tags)
     {
-        string categoryName = string.Empty;
-        if(modTagCategory != null)
-        {
-            categoryName = (textToUpper ? modTagCategory.name.ToUpper() : modTagCategory.name);
-        }
-        if(nameText != null)
-        {
-            nameText.text = categoryName;
-        }
+        Debug.Assert(categoryName != null);
+        Debug.Assert(tags != null);
 
-        tagDisplay.tags = CreateTagList();
-        tagDisplay.UpdateDisplay();
+        ModTagCategory category = new ModTagCategory()
+        {
+            name = categoryName,
+            tags = tags.ToArray(),
+        };
+        DisplayCategory(category);
+    }
+    public void DisplayCategory(ModTagCategory category)
+    {
+        Debug.Assert(category != null);
+
+        nameDisplay.text = (capitalizeCategory ? category.name.ToUpper() : category.name);
+        m_tagContainer.DisplayTags(category.tags, new ModTagCategory[]{ category });
     }
 
-    public void OnTagToggled(SelectableModTag modTag)
+    // ---------[ EVENTS ]---------
+    private void TagClickHandler(ModTagDisplay display, string tagName, string category)
     {
-        bool isTagSelected = IsTagSelected(modTag.tagName);
-
-        if(!isTagSelected && modTag.isSelected)
+        if(selectedTags.Contains(tagName))
         {
-            this.selectedTags.Add(modTag.tagName);
-
-            if(onSelectedTagsChanged != null)
-            {
-                onSelectedTagsChanged(this);
-            }
-        }
-        else if(isTagSelected && !modTag.isSelected)
-        {
-            this.selectedTags.Remove(modTag.tagName);
-
-            if(onSelectedTagsChanged != null)
-            {
-                onSelectedTagsChanged(this);
-            }
-        }
-    }
-
-    // ---------[ UTILITY ]---------
-    private bool IsTagSelected(string tagName)
-    {
-        if(this.selectedTags == null) { return false; }
-        return this.selectedTags.Contains(tagName);
-    }
-
-    private List<SelectableModTag> CreateTagList()
-    {
-        List<SelectableModTag> tags;
-
-        if(modTagCategory != null
-           && modTagCategory.tags != null)
-        {
-            tags = new List<SelectableModTag>(modTagCategory.tags.Length);
-            foreach(string tagName in modTagCategory.tags)
-            {
-                tags.Add(new SelectableModTag()
-                {
-                    categoryName = modTagCategory.name,
-                    tagName = tagName,
-                    isSelected = IsTagSelected(tagName),
-                });
-            }
+            selectedTags.Remove(tagName);
         }
         else
         {
-            tags = new List<SelectableModTag>(0);
+            selectedTags.Add(tagName);
         }
 
-        return tags;
+        if(onSelectedTagsChanged != null)
+        {
+            onSelectedTagsChanged(this);
+        }
     }
+
+    // public void OnTagToggled(SelectableModTag modTag)
+    // {
+    //     bool isTagSelected = IsTagSelected(modTag.tagName);
+
+    //     if(!isTagSelected && modTag.isSelected)
+    //     {
+    //         this.selectedTags.Add(modTag.tagName);
+
+    //         if(onSelectedTagsChanged != null)
+    //         {
+    //             onSelectedTagsChanged(this);
+    //         }
+    //     }
+    //     else if(isTagSelected && !modTag.isSelected)
+    //     {
+    //         this.selectedTags.Remove(modTag.tagName);
+
+    //         if(onSelectedTagsChanged != null)
+    //         {
+    //             onSelectedTagsChanged(this);
+    //         }
+    //     }
+    // }
 }

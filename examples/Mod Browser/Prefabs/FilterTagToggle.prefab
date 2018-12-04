@@ -222,13 +222,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91cb8b2cf4214936a433cdc4f8b502b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textToUpper: 0
-  nameText: {fileID: 114159942404126762}
-  categoryText: {fileID: 0}
-  toggleComponent: {fileID: 114377598044721038}
-  tagName: 
-  categoryName: 
-  isSelected: 0
+  capitalizeName: 0
+  capitalizeCategory: 0
+  nameDisplay: {fileID: 114159942404126762}
+  categoryDisplay: {fileID: 0}
+  loadingDisplay: {fileID: 0}
 --- !u!222 &222256690445399160
 CanvasRenderer:
   m_ObjectHideFlags: 1
