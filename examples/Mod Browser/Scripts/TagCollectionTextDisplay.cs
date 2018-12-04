@@ -44,7 +44,7 @@ public class TagCollectionTextDisplay : TagCollectionDisplayBase
         List<string> tagNames = new List<string>(tags);
         string[] categoryNames = new string[tagNames.Count];
 
-        if(includeCategory)
+        if(includeCategory && tagCategories != null)
         {
             foreach(ModTagCategory category in tagCategories)
             {

@@ -632,6 +632,7 @@ GameObject:
   - component: {fileID: 114285306200924632}
   - component: {fileID: 114683195646928336}
   - component: {fileID: 114253680568553512}
+  - component: {fileID: 114496498026567600}
   m_Layer: 5
   m_Name: InspectorView
   m_TagString: Untagged
@@ -6584,6 +6585,7 @@ MonoBehaviour:
   missingVersionChangelogText: <i>No changelog recorded.</i>
   profileDisplay: {fileID: 114285306200924632}
   selectedMediaPreview: {fileID: 114833834809363262}
+  tagDisplay: {fileID: 114496498026567600}
   statisticsDisplay: {fileID: 114253680568553512}
   versionHistoryContainer: {fileID: 224856625327118078}
   scrollView: {fileID: 114798251423014436}
@@ -8383,6 +8385,21 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+--- !u!114 &114496498026567600
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1159034823061356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad783d381af7c445bb07290cdd54842b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  includeCategory: 1
+  tagSeparator: ', '
+  text: {fileID: 114421035555909800}
+  loadingDisplay: {fileID: 0}
 --- !u!114 &114499770013991538
 MonoBehaviour:
   m_ObjectHideFlags: 1

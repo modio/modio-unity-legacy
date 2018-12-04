@@ -25,6 +25,7 @@ public class InspectorView : MonoBehaviour
     [Header("UI Components")]
     public ModProfileDisplay profileDisplay;
     public ModMediaElementDisplay selectedMediaPreview;
+    public TagCollectionDisplayBase tagDisplay;
     public ModStatisticsDisplay statisticsDisplay;
     public RectTransform versionHistoryContainer;
     public ScrollRect scrollView;
@@ -68,6 +69,10 @@ public class InspectorView : MonoBehaviour
                 profileDisplay.mediaDisplay.galleryImageClicked += MediaPreview_GalleryImage;
             }
         }
+        if(tagDisplay != null)
+        {
+            tagDisplay.Initialize();
+        }
 
         if(statisticsDisplay != null)
         {
@@ -107,6 +112,12 @@ public class InspectorView : MonoBehaviour
             MediaPreview_UpdateAspectRatio();
         }
 
+        if(tagDisplay != null)
+        {
+            Debug.LogWarning("categories needed");
+            tagDisplay.DisplayModTags(profile, null);
+        }
+
         // - version history -
         if(versionHistoryContainer != null
            && versionHistoryItemPrefab != null)
@@ -142,7 +153,6 @@ public class InspectorView : MonoBehaviour
             statisticsDisplay.DisplayStatistics(statistics);
         }
     }
-
     public void UpdateIsSubscribedDisplay()
     {
         if(subscribeButton != null)
