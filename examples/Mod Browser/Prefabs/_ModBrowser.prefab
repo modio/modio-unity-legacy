@@ -3116,7 +3116,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224758281452341256}
-  - component: {fileID: 114746133091555982}
+  - component: {fileID: 114240947648176814}
   - component: {fileID: 114999788380954084}
   m_Layer: 5
   m_Name: FilterBar
@@ -5141,7 +5141,7 @@ MonoBehaviour:
   contentPane: {fileID: 224480924864000676}
   nameSearchField: {fileID: 114098324929849516}
   tagFilterView: {fileID: 114881975973044358}
-  tagFilterBar: {fileID: 114746133091555982}
+  tagFilterBar: {fileID: 114240947648176814}
   sortByDropdown: {fileID: 114312103234560472}
   pageNumberText: {fileID: 0}
   pageCountText: {fileID: 0}
@@ -5562,6 +5562,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: ' ratings)'
+--- !u!114 &114240947648176814
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1926160666802798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9516a5cc2cc644a65a108471cb0b073d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tagDisplayPrefab: {fileID: 1695936261783880, guid: da69147cafdab4276aac258978695db2,
+    type: 2}
+  container: {fileID: 224702908775585828}
+  loadingDisplay: {fileID: 0}
 --- !u!114 &114246057961615116
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5767,8 +5782,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114433127020849870}
-        m_MethodName: ClearExplorerFilters
+      - m_Target: {fileID: 114195835507779204}
+        m_MethodName: ClearFilters
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9704,30 +9719,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114746133091555982
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1926160666802798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d314413a2c314f3cadc53e77e88c981, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tagDisplayPrefab: {fileID: 1695936261783880, guid: da69147cafdab4276aac258978695db2,
-    type: 2}
-  container: {fileID: 224702908775585828}
-  loadingDisplay: {fileID: 0}
-  categories:
-  - name: Type
-    isMultiTagCategory: 1
-    isHidden: 0
-    tags:
-    - Environment
-    - Character
-    - Vehicle
-  selectedTags: []
 --- !u!114 &114746929246132570
 MonoBehaviour:
   m_ObjectHideFlags: 1

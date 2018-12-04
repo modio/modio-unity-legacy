@@ -491,16 +491,7 @@ public class ModBrowser : MonoBehaviour
         (g) =>
         {
             gameProfile = g;
-
-            if(explorerView.tagFilterView)
-            {
-                explorerView.tagFilterView.tagCategories = g.tagCategories;
-            }
-            if(explorerView.tagFilterBar)
-            {
-                explorerView.tagFilterBar.categories = g.tagCategories;
-                explorerView.tagFilterBar.UpdateDisplay();
-            }
+            explorerView.tagCategories = g.tagCategories;
         },
         WebRequestError.LogAsWarning);
 
@@ -1124,29 +1115,6 @@ public class ModBrowser : MonoBehaviour
         {
             inspectorView.nextModButton.interactable = (inspectorData.currentModIndex < inspectorData.lastModIndex);
         }
-    }
-
-    public void ClearExplorerFilters()
-    {
-        if(explorerView.nameSearchField != null)
-        {
-            explorerView.nameSearchField.text = string.Empty;
-        }
-
-        explorerView.filterTags.Clear();
-
-        if(explorerView.tagFilterBar.selectedTags != explorerView.filterTags)
-        {
-            explorerView.tagFilterBar.selectedTags = explorerView.filterTags;
-        }
-        explorerView.tagFilterBar.UpdateDisplay();
-
-        if(explorerView.tagFilterView.selectedTags != explorerView.filterTags)
-        {
-            explorerView.tagFilterView.selectedTags = explorerView.filterTags;
-        }
-
-        UpdateExplorerFilters();
     }
 
     // TODO(@jackson): Don't request page!!!!!!!

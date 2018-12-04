@@ -32,7 +32,7 @@ public class ExplorerView : MonoBehaviour
     public RectTransform contentPane;
     public InputField nameSearchField;
     public ModTagFilterView tagFilterView;
-    public ModTagFilterBar tagFilterBar;
+    public ModTagContainer tagFilterBar;
     public Dropdown sortByDropdown;
     public Text pageNumberText;
     public Text pageCountText;
@@ -54,6 +54,34 @@ public class ExplorerView : MonoBehaviour
     public float rowHeight = -1f;
     public Vector2 itemSize = Vector2.zero;
     public Vector2 itemOffset = Vector2.zero;
+
+    // --- RUNTIME DATA ---
+    private IEnumerable<ModTagCategory> m_tagCategories = null;
+
+    // --- ACCESSORS ---
+    public IEnumerable<ModTagCategory> tagCategories
+    {
+        get { return m_tagCategories; }
+        set
+        {
+            if(m_tagCategories == value)
+            {
+                return;
+            }
+
+            m_tagCategories = value;
+            if(value == null) { return; }
+
+            if(tagFilterView != null)
+            {
+                tagFilterView.tagCategories = value;
+            }
+            if(tagFilterBar != null)
+            {
+                tagFilterBar.DisplayTags(filterTags, value);
+            }
+        }
+    }
 
     // ---[ CALCULATED VARS ]----
     public int ItemCount { get { return this.columnCount * this.rowCount; } }
@@ -162,11 +190,15 @@ public class ExplorerView : MonoBehaviour
         if(tagFilterView != null)
         {
             tagFilterView.Initialize();
-            tagFilterView.gameObject.SetActive(false);
 
             tagFilterView.tagFilterAdded += (tag) =>
             {
                 filterTags.Add(tag);
+
+                if(tagFilterBar != null)
+                {
+                    tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+                }
 
                 if(onFilterTagsChanged != null)
                 {
@@ -177,38 +209,31 @@ public class ExplorerView : MonoBehaviour
             {
                 filterTags.Remove(tag);
 
+                if(tagFilterBar != null)
+                {
+                    tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+                }
+
                 if(onFilterTagsChanged != null)
                 {
                     onFilterTagsChanged();
                 }
             };
-
-            if(tagFilterBar != null)
-            {
-                tagFilterView.tagFilterAdded += (tag) =>
-                {
-                    tagFilterBar.selectedTags = filterTags;
-                    tagFilterBar.UpdateDisplay();
-                };
-                tagFilterView.tagFilterRemoved += (tag) =>
-                {
-                    tagFilterBar.selectedTags = filterTags;
-                    tagFilterBar.UpdateDisplay();
-                };
-            }
-
         }
 
         if(tagFilterBar != null)
         {
             tagFilterBar.Initialize();
-            tagFilterBar.selectedTags = filterTags;
-            tagFilterBar.gameObject.SetActive(true);
-            tagFilterBar.onSelectedTagsChanged += () =>
+
+            tagFilterBar.tagClicked += (display, tagName, category) =>
             {
-                if(filterTags != tagFilterBar.selectedTags)
+                filterTags.Remove(tagName);
+
+                tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+
+                if(tagFilterView != null)
                 {
-                    filterTags = tagFilterBar.selectedTags;
+                    tagFilterView.selectedTags = filterTags;
                 }
 
                 if(onFilterTagsChanged != null)
@@ -216,14 +241,6 @@ public class ExplorerView : MonoBehaviour
                     onFilterTagsChanged();
                 }
             };
-
-            if(tagFilterView != null)
-            {
-                tagFilterBar.onSelectedTagsChanged += () =>
-                {
-                    tagFilterView.selectedTags = filterTags;
-                };
-            }
         }
     }
 
@@ -477,6 +494,31 @@ public class ExplorerView : MonoBehaviour
         if(onTransitionCompleted != null)
         {
             onTransitionCompleted();
+        }
+    }
+
+    // ---------[ FILTER MANAGEMENT ]---------
+    public void ClearFilters()
+    {
+        if(nameSearchField != null)
+        {
+            nameSearchField.text = string.Empty;
+        }
+
+        filterTags.Clear();
+
+        if(tagFilterView != null)
+        {
+            tagFilterView.selectedTags = filterTags;
+        }
+        if(tagFilterBar != null)
+        {
+            tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+        }
+
+        if(onFilterTagsChanged != null)
+        {
+            onFilterTagsChanged();
         }
     }
 }
