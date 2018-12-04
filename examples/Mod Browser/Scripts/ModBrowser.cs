@@ -207,26 +207,6 @@ public class ModBrowser : MonoBehaviour
     // ---------[ INITIALIZATION ]---------
     private void Start()
     {
-        LoadLocalData();
-
-        InitializeInspectorView();
-        InitializeSubscriptionsView();
-        InitializeExplorerView();
-        InitializeDialogs();
-
-        if(userDisplay != null)
-        {
-            userDisplay.button.onClick.AddListener(OpenLoginDialog);
-            userDisplay.profile = ModBrowser.GUEST_PROFILE;
-            userDisplay.UpdateUIComponents();
-        }
-
-        StartFetchRemoteData();
-    }
-
-    private void LoadLocalData()
-    {
-        // --- APIClient ---
         #pragma warning disable 0162
         if(this.gameId <= 0)
         {
@@ -252,6 +232,26 @@ public class ModBrowser : MonoBehaviour
         }
         #pragma warning restore 0162
 
+        LoadLocalData();
+
+        InitializeInspectorView();
+        InitializeSubscriptionsView();
+        InitializeExplorerView();
+        InitializeDialogs();
+
+        if(userDisplay != null)
+        {
+            userDisplay.button.onClick.AddListener(OpenLoginDialog);
+            userDisplay.profile = ModBrowser.GUEST_PROFILE;
+            userDisplay.UpdateUIComponents();
+        }
+
+        StartFetchRemoteData();
+    }
+
+    private void LoadLocalData()
+    {
+        // --- APIClient ---
         APIClient.gameId = this.gameId;
         APIClient.gameAPIKey = this.gameAPIKey;
         APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();
