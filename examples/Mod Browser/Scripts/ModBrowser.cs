@@ -134,6 +134,7 @@ public class ModBrowser : MonoBehaviour
     public RequestFilter explorerViewFilter = new RequestFilter();
     private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
     public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
+    public GameProfile gameProfile = null;
 
 
     // ---------[ ACCESSORS ]---------
@@ -206,7 +207,26 @@ public class ModBrowser : MonoBehaviour
     // ---------[ INITIALIZATION ]---------
     private void Start()
     {
-        // load APIClient vars
+        LoadLocalData();
+
+        InitializeInspectorView();
+        InitializeSubscriptionsView();
+        InitializeExplorerView();
+        InitializeDialogs();
+
+        if(userDisplay != null)
+        {
+            userDisplay.button.onClick.AddListener(OpenLoginDialog);
+            userDisplay.profile = ModBrowser.GUEST_PROFILE;
+            userDisplay.UpdateUIComponents();
+        }
+
+        StartFetchRemoteData();
+    }
+
+    private void LoadLocalData()
+    {
+        // --- APIClient ---
         #pragma warning disable 0162
         if(this.gameId <= 0)
         {
@@ -234,53 +254,16 @@ public class ModBrowser : MonoBehaviour
 
         APIClient.gameId = this.gameId;
         APIClient.gameAPIKey = this.gameAPIKey;
-        APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();;
+        APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();
 
-        // assert ui is prepared
-
-        // searchBar.Initialize();
-        // searchBar.profileFiltersUpdated += OnProfileFiltersUpdated;
-
-        // initialize login dialog
-        loginDialog.gameObject.SetActive(false);
-        loginDialog.onSecurityCodeSent += (m) =>
+        // --- Manifest ---
+        ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
+        if(manifest != null)
         {
-            CloseLoginDialog();
-            OpenMessageDialog_OneButton("Security Code Requested",
-                                        m.message,
-                                        "Back",
-                                        () => { CloseMessageDialog(); OpenLoginDialog(); });
-        };
-        loginDialog.onUserOAuthTokenReceived += (t) =>
-        {
-            CloseLoginDialog();
-
-            OpenMessageDialog_TwoButton("Login Successful",
-                                        "Do you want to merge the local guest account mod subscriptions"
-                                        + " with your mod subscriptions on the server?",
-                                        "Merge Subscriptions", () => { CloseMessageDialog(); LogUserIn(t, false); },
-                                        "Replace Subscriptions", () => { CloseMessageDialog(); LogUserIn(t, true); });
-        };
-        loginDialog.onAPIRequestError += (e) =>
-        {
-            CloseLoginDialog();
-
-            OpenMessageDialog_OneButton("Authorization Failed",
-                                        e.message,
-                                        "Back",
-                                        () => { CloseMessageDialog(); OpenLoginDialog(); });
-        };
-
-        messageDialog.gameObject.SetActive(false);
-
-        if(userDisplay != null)
-        {
-            userDisplay.button.onClick.AddListener(OpenLoginDialog);
-            userDisplay.profile = ModBrowser.GUEST_PROFILE;
-            userDisplay.UpdateUIComponents();
+            this.lastCacheUpdate = manifest.lastCacheUpdate;
         }
 
-        // load cached user data
+        // --- UserData ---
         this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
         if(this.userProfile == null)
         {
@@ -293,69 +276,23 @@ public class ModBrowser : MonoBehaviour
             this.subscribedModIds = new List<int>();
         }
 
-        // load manifest
-        ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
-        if(manifest != null)
+        // --- GameData ---
+        this.gameProfile = CacheClient.LoadGameProfile();
+        if(this.gameProfile == null)
         {
-            this.lastCacheUpdate = manifest.lastCacheUpdate;
+            this.gameProfile = new GameProfile();
+            this.gameProfile.id = this.gameId;
         }
+    }
 
-        // initialize views
+    private void InitializeInspectorView()
+    {
         inspectorView.Initialize();
         inspectorView.subscribeButton.onClick.AddListener(() => SubscribeToMod(inspectorView.profile));
         inspectorView.unsubscribeButton.onClick.AddListener(() => ShowSubscriptionsView());
         inspectorView.gameObject.SetActive(false);
+
         UpdateInspectorViewPageButtonInteractibility();
-
-
-        // collectionView.Initialize();
-        // collectionView.onUnsubscribeClicked += OnUnsubscribeButtonClicked;
-        // collectionView.profileCollection = CacheClient.IterateAllModProfiles().Where(p => subscribedModIds.Contains(p.id));
-        // collectionView.gameObject.SetActive(false);
-
-        InitializeExplorerView();
-        InitializeSubscriptionsView();
-
-
-        // Update user data
-        if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
-        {
-            // callbacks
-            Action<UserProfile> onGetUserProfile = (u) =>
-            {
-                this.userProfile = u;
-
-                if(this.userDisplay != null)
-                {
-                    this.userDisplay.profile = u;
-                    this.userDisplay.UpdateUIComponents();
-
-                    this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
-                    this.userDisplay.button.onClick.AddListener(LogUserOut);
-                }
-            };
-
-            // TODO(@jackson): DO BETTER - (CACHE?! DOWNLOADS?)
-            Action<RequestPage<ModProfile>> onGetSubscriptions = (r) =>
-            {
-                this.subscribedModIds = new List<int>(r.items.Length);
-                foreach(var modProfile in r.items)
-                {
-                    this.subscribedModIds.Add(modProfile.id);
-                }
-                UpdateViewSubscriptions();
-            };
-
-            // requests
-            ModManager.GetAuthenticatedUserProfile(onGetUserProfile,
-                                                   null);
-
-            RequestFilter filter = new RequestFilter();
-            filter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                    new EqualToFilter<int>(){ filterValue = this.gameId });
-
-            APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
-        }
     }
 
     private void InitializeSubscriptionsView()
@@ -565,6 +502,85 @@ public class ModBrowser : MonoBehaviour
         explorerView.gameObject.SetActive(true);
 
         UpdateExplorerViewPageButtonInteractibility();
+    }
+
+    private void InitializeDialogs()
+    {
+        messageDialog.gameObject.SetActive(false);
+
+        loginDialog.gameObject.SetActive(false);
+        loginDialog.onSecurityCodeSent += (m) =>
+        {
+            CloseLoginDialog();
+            OpenMessageDialog_OneButton("Security Code Requested",
+                                        m.message,
+                                        "Back",
+                                        () => { CloseMessageDialog(); OpenLoginDialog(); });
+        };
+        loginDialog.onUserOAuthTokenReceived += (t) =>
+        {
+            CloseLoginDialog();
+
+            OpenMessageDialog_TwoButton("Login Successful",
+                                        "Do you want to merge the local guest account mod subscriptions"
+                                        + " with your mod subscriptions on the server?",
+                                        "Merge Subscriptions", () => { CloseMessageDialog(); LogUserIn(t, false); },
+                                        "Replace Subscriptions", () => { CloseMessageDialog(); LogUserIn(t, true); });
+        };
+        loginDialog.onAPIRequestError += (e) =>
+        {
+            CloseLoginDialog();
+
+            OpenMessageDialog_OneButton("Authorization Failed",
+                                        e.message,
+                                        "Back",
+                                        () => { CloseMessageDialog(); OpenLoginDialog(); });
+        };
+    }
+
+    private void StartFetchRemoteData()
+    {
+        // --- GameProfile ---
+
+        // --- UserData ---
+        if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
+        {
+            // callbacks
+            Action<UserProfile> onGetUserProfile = (u) =>
+            {
+                this.userProfile = u;
+
+                if(this.userDisplay != null)
+                {
+                    this.userDisplay.profile = u;
+                    this.userDisplay.UpdateUIComponents();
+
+                    this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
+                    this.userDisplay.button.onClick.AddListener(LogUserOut);
+                }
+            };
+
+            // TODO(@jackson): DO BETTER - (CACHE?! DOWNLOADS?)
+            Action<RequestPage<ModProfile>> onGetSubscriptions = (r) =>
+            {
+                this.subscribedModIds = new List<int>(r.items.Length);
+                foreach(var modProfile in r.items)
+                {
+                    this.subscribedModIds.Add(modProfile.id);
+                }
+                UpdateViewSubscriptions();
+            };
+
+            // requests
+            ModManager.GetAuthenticatedUserProfile(onGetUserProfile,
+                                                   null);
+
+            RequestFilter filter = new RequestFilter();
+            filter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+                                    new EqualToFilter<int>(){ filterValue = this.gameId });
+
+            APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
+        }
     }
 
     // ---------[ UPDATES ]---------
