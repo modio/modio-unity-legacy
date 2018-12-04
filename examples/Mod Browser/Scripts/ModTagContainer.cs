@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ModIO;
 
-public class TagCollectionContainer : TagCollectionDisplayBase
+public class ModTagContainer : ModTagCollectionDisplay
 {
     // ---------[ FIELDS ]---------
     public delegate void OnTagClicked(ModTagDisplay display, string tagName, string category);
@@ -61,7 +61,7 @@ public class TagCollectionContainer : TagCollectionDisplayBase
 
         // create
         IDictionary<string, string> tagCategoryMap
-            = TagCollectionDisplayBase.GenerateTagCategoryMap(tags, tagCategories);
+            = ModTagCollectionDisplay.GenerateTagCategoryMap(tags, tagCategories);
 
         foreach(var tagCategory in tagCategoryMap)
         {

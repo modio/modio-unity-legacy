@@ -26,7 +26,7 @@ public class ModBrowserItem : MonoBehaviour
     public ModProfileDisplay profileDisplay;
     public ModfileDisplay buildDisplay;
     public ModStatisticsDisplay statisticsDisplay;
-    public TagCollectionDisplayBase tagsDisplay;
+    public ModTagCollectionDisplay tagsDisplay;
     public Button subscribeButton;
     public Button unsubscribeButton;
     public Button enableModButton;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ModIO;
 
-public class ModTagFilterBar : TagCollectionContainer
+public class ModTagFilterBar : ModTagContainer
 {
     // ---------[ FIELDS ]---------
     public event Action onSelectedTagsChanged;

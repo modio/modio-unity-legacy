@@ -7,7 +7,7 @@ using ModIO;
 public class ModTagFilterView : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public event Action onSelectedTagsChanged;
+    public event Action onSelectedTagsChanged; // TODO(@jackson): Remove
     public event Action<string> tagFilterAdded;
     public event Action<string> tagFilterRemoved;
 
@@ -37,7 +37,7 @@ public class ModTagFilterView : MonoBehaviour
 
             foreach(ModTagCategoryDisplay categoryDisplay in m_categoryDisplays)
             {
-                TagCollectionContainer tagContainer = categoryDisplay.tagDisplay as TagCollectionContainer;
+                ModTagContainer tagContainer = categoryDisplay.tagDisplay as ModTagContainer;
                 tagContainer.tagClicked -= TagClickHandler;
 
                 foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
@@ -75,7 +75,7 @@ public class ModTagFilterView : MonoBehaviour
                                                                       tagCategoryPrefab,
                                                                       tagCategoryContainer);
 
-                categoryGO.GetComponent<TagCollectionContainer>().tagClicked += TagClickHandler;
+                categoryGO.GetComponent<ModTagContainer>().tagClicked += TagClickHandler;
                 m_categoryDisplays.Add(categoryGO.GetComponent<ModTagCategoryDisplay>());
             }
         }
@@ -88,10 +88,10 @@ public class ModTagFilterView : MonoBehaviour
         Debug.Assert(tagCategoryPrefab != null);
         Debug.Assert(tagCategoryPrefab.GetComponent<ModTagCategoryDisplay>() != null);
 
-        TagCollectionContainer tagContainer = tagCategoryPrefab.GetComponent<TagCollectionContainer>();
+        ModTagContainer tagContainer = tagCategoryPrefab.GetComponent<ModTagContainer>();
         Debug.Assert(tagContainer != null,
                      "[mod.io] ModTagFilterViews require the TagCategoryPrefab to have a "
-                     + "TagCollectionContainer component. (Any other TagCollectionDisplay type "
+                     + "ModTagContainer component. (Any other TagCollectionDisplay type "
                      + "is incompatible.)");
 
         Debug.Assert(tagContainer.tagDisplayPrefab != null);
@@ -124,7 +124,7 @@ public class ModTagFilterView : MonoBehaviour
             toggleGroup.allowSwitchOff = true;
         }
 
-        TagCollectionContainer tagContainer = displayGO.GetComponent<TagCollectionContainer>();
+        ModTagContainer tagContainer = displayGO.GetComponent<ModTagContainer>();
         foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
         {
             Toggle tagToggle = tagDisplay.GetComponent<Toggle>();

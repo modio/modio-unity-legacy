@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
 
-public class TagCollectionTextDisplay : TagCollectionDisplayBase
+public class ModTagCollectionTextDisplay : ModTagCollectionDisplay
 {
     // ---------[ FIELDS ]---------
     [Header("Settings")]
@@ -43,7 +43,7 @@ public class TagCollectionTextDisplay : TagCollectionDisplayBase
 
         m_modId = modId;
 
-        IDictionary<string, string> tagCategoryMap = TagCollectionDisplayBase.GenerateTagCategoryMap(tags,
+        IDictionary<string, string> tagCategoryMap = ModTagCollectionDisplay.GenerateTagCategoryMap(tags,
                                                                                                      tagCategories);
 
         StringBuilder builder = new StringBuilder();

@@ -25,7 +25,7 @@ public class InspectorView : MonoBehaviour
     [Header("UI Components")]
     public ModProfileDisplay profileDisplay;
     public ModMediaElementDisplay selectedMediaPreview;
-    public TagCollectionDisplayBase tagDisplay;
+    public ModTagCollectionDisplay tagDisplay;
     public ModStatisticsDisplay statisticsDisplay;
     public RectTransform versionHistoryContainer;
     public ScrollRect scrollView;
