@@ -17,6 +17,8 @@ public class TagCollectionContainer : TagCollectionDisplayBase
 
     // --- RUNTIME DATA ---
     private int m_modId = -1;
+    private List<ModTagDisplay> m_tagDisplays = new List<ModTagDisplay>();
+    public IEnumerable<ModTagDisplay> tagDisplays { get { return m_tagDisplays; } }
 
     // ---------[ INITIALIZATION ]---------
     public override void Initialize()
@@ -36,19 +38,21 @@ public class TagCollectionContainer : TagCollectionDisplayBase
         Debug.Assert(profile != null);
         DisplayModTags(profile.id, profile.tagNames, tagCategories);
     }
-    public override void DisplayModTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+    public override void DisplayModTags(int modId, IEnumerable<string> tags,
+                                        IEnumerable<ModTagCategory> tagCategories)
     {
         Debug.Assert(tags != null);
 
+        foreach(ModTagDisplay display in m_tagDisplays)
+        {
+            GameObject.Destroy(display.gameObject);
+        }
+        m_tagDisplays.Clear();
+
         m_modId = modId;
 
-        foreach(Transform t in container)
-        {
-            GameObject.Destroy(t.gameObject);
-        }
-
-        IDictionary<string, string> tagCategoryMap = TagCollectionDisplayBase.GenerateTagCategoryMap(tags,
-                                                                                                     tagCategories);
+        IDictionary<string, string> tagCategoryMap
+            = TagCollectionDisplayBase.GenerateTagCategoryMap(tags, tagCategories);
 
         foreach(var tagCategory in tagCategoryMap)
         {
@@ -61,6 +65,8 @@ public class TagCollectionContainer : TagCollectionDisplayBase
             display.Initialize();
             display.DisplayTag(tagCategory.Key, tagCategory.Value);
             display.onClick += NotifyTagClicked;
+
+            m_tagDisplays.Add(display);
         }
 
         if(loadingDisplay != null)
@@ -73,10 +79,11 @@ public class TagCollectionContainer : TagCollectionDisplayBase
     {
         m_modId = modId;
 
-        foreach(Transform t in container)
+        foreach(ModTagDisplay display in m_tagDisplays)
         {
-            GameObject.Destroy(t.gameObject);
+            GameObject.Destroy(display.gameObject);
         }
+        m_tagDisplays.Clear();
 
         if(loadingDisplay != null)
         {
