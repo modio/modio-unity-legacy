@@ -171,6 +171,7 @@ public class InspectorView : MonoBehaviour
             }
 
             var entry = go.GetComponent<ModfileDisplay>();
+            entry.Initialize();
             entry.DisplayModfile(modfile);
         }
     }
