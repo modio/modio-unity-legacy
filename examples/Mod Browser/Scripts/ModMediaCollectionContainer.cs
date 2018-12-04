@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ModIO;
 
-public class ModMediaCollectionDisplay : MonoBehaviour
+public class ModMediaCollectionContainer : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
     public delegate void OnLogoClicked(ModLogoDisplay component,
@@ -25,39 +25,28 @@ public class ModMediaCollectionDisplay : MonoBehaviour
     [Header("UI Components")]
     public RectTransform container;
 
-    [Header("Display Data")]
-    [SerializeField] private int m_modId;
-    [SerializeField] private LogoImageLocator m_logoLocator;
-    [SerializeField] private IEnumerable<string> m_youTubeURLs;
-    [SerializeField] private IEnumerable<GalleryImageLocator> m_galleryImageLocators;
+    // --- RUNTIME DATA ---
+    private int m_modId = -1;
+    private LogoImageLocator m_logoLocator = null;
+    private IEnumerable<string> m_youTubeURLs = null;
+    private IEnumerable<GalleryImageLocator> m_galleryImageLocators = null;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
     {
-        #if DEBUG
         Debug.Assert(container != null);
 
-        if(logoPrefab != null)
-        {
-            Debug.Assert(logoPrefab.GetComponent<ModLogoDisplay>() != null,
-                         "[mod.io] The logoPrefab needs to have a ModLogoDisplay"
-                         + " component attached in order to display correctly.");
-        }
+        Debug.Assert(!(logoPrefab != null && logoPrefab.GetComponent<ModLogoDisplay>() == null),
+                     "[mod.io] The logoPrefab needs to have a ModLogoDisplay"
+                     + " component attached in order to display correctly.");
 
-        if(galleryImagePrefab != null)
-        {
-            Debug.Assert(galleryImagePrefab.GetComponent<ModGalleryImageDisplay>() != null,
-                         "[mod.io] The galleryImagePrefab needs to have a ModGalleryImageDisplay"
-                         + " component attached in order to display correctly.");
-        }
+        Debug.Assert(!(galleryImagePrefab != null && galleryImagePrefab.GetComponent<ModGalleryImageDisplay>() == null),
+                     "[mod.io] The galleryImagePrefab needs to have a ModGalleryImageDisplay"
+                     + " component attached in order to display correctly.");
 
-        if(youTubeThumbnailPrefab != null)
-        {
-            Debug.Assert(youTubeThumbnailPrefab.GetComponent<YouTubeThumbDisplay>() != null,
-                         "[mod.io] The youTubeThumbnailPrefab needs to have a YouTubeThumbDisplay"
-                         + " component attached in order to display correctly.");
-        }
-        #endif
+        Debug.Assert(!(youTubeThumbnailPrefab != null && youTubeThumbnailPrefab.GetComponent<YouTubeThumbDisplay>() == null),
+                     "[mod.io] The youTubeThumbnailPrefab needs to have a YouTubeThumbDisplay"
+                     + " component attached in order to display correctly.");
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -136,7 +125,7 @@ public class ModMediaCollectionDisplay : MonoBehaviour
     }
 
     // ---------[ EVENT HANDLING ]---------
-    private void NotifyLogoClicked(ModLogoDisplay component, int modId)
+    public void NotifyLogoClicked(ModLogoDisplay component, int modId)
     {
         if(this.logoClicked != null)
         {
@@ -144,8 +133,8 @@ public class ModMediaCollectionDisplay : MonoBehaviour
         }
     }
 
-    private void NotifyYouTubeThumbnailClicked(YouTubeThumbDisplay component,
-                                           int modId, string youTubeVideoId)
+    public void NotifyYouTubeThumbnailClicked(YouTubeThumbDisplay component,
+                                              int modId, string youTubeVideoId)
     {
         if(this.youTubeThumbClicked != null)
         {
@@ -153,8 +142,8 @@ public class ModMediaCollectionDisplay : MonoBehaviour
         }
     }
 
-    private void NotifyGalleryImageClicked(ModGalleryImageDisplay component,
-                                       int modId, string imageFileName)
+    public void NotifyGalleryImageClicked(ModGalleryImageDisplay component,
+                                          int modId, string imageFileName)
     {
         if(this.galleryImageClicked != null)
         {

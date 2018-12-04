@@ -47,7 +47,7 @@ public class ModTagCollectionDisplay : MonoBehaviour
         // clear missing
         foreach(ModTagDisplay display in this.tagDisplays)
         {
-            display.toggled -= OnTagToggled;
+            // display.toggled -= OnTagToggled;
             GameObject.Destroy(display.gameObject);
         }
 
@@ -63,13 +63,13 @@ public class ModTagCollectionDisplay : MonoBehaviour
                                                            tagContainer);
 
                 ModTagDisplay item = itemGO.GetComponent<ModTagDisplay>();
-                item.categoryName = tags[i].categoryName;
-                item.tagName = tags[i].tagName;
-                item.isSelected = tags[i].isSelected;
-                item.toggled += OnTagToggled;
-                item.Initialize();
+                // item.categoryName = tags[i].categoryName;
+                // item.tagName = tags[i].tagName;
+                // item.isSelected = tags[i].isSelected;
+                // item.toggled += OnTagToggled;
+                // item.Initialize();
 
-                tagDisplays.Add(item);
+                // tagDisplays.Add(item);
             }
         }
         else
@@ -82,17 +82,17 @@ public class ModTagCollectionDisplay : MonoBehaviour
     {
         foreach(SelectableModTag tag in tags)
         {
-            if(tag.tagName == displayComponent.tagName)
-            {
-                tag.isSelected = displayComponent.isSelected;
+            // if(tag.tagName == displayComponent.tagName)
+            // {
+            //     tag.isSelected = displayComponent.isSelected;
 
-                if(tagToggled != null)
-                {
-                    tagToggled(tag);
-                }
+            //     if(tagToggled != null)
+            //     {
+            //         tagToggled(tag);
+            //     }
 
-                return;
-            }
+            //     return;
+            // }
         }
     }
 }

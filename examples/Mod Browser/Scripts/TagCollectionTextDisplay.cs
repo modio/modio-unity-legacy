@@ -44,7 +44,7 @@ public class TagCollectionTextDisplay : TagCollectionDisplayBase
         m_modId = modId;
 
         IDictionary<string, string> tagCategoryMap = TagCollectionDisplayBase.GenerateTagCategoryMap(tags,
-                                                                                                    tagCategories);
+                                                                                                     tagCategories);
 
         StringBuilder builder = new StringBuilder();
         foreach(var tagCategory in tagCategoryMap)

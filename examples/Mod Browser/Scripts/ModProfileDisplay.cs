@@ -26,7 +26,7 @@ public class ModProfileDisplay : MonoBehaviour
 
     public UserProfileDisplay           creatorDisplay;
     public ModLogoDisplay               logoDisplay;
-    public ModMediaCollectionDisplay    mediaDisplay;
+    public ModMediaCollectionContainer  mediaContainer;
     public ModfileDisplay               buildDisplay;
     public ModBinaryRequestDisplay      downloadDisplay;
 
@@ -121,9 +121,9 @@ public class ModProfileDisplay : MonoBehaviour
         {
             logoDisplay.Initialize();
         }
-        if(mediaDisplay != null)
+        if(mediaContainer != null)
         {
-            mediaDisplay.Initialize();
+            mediaContainer.Initialize();
         }
         if(buildDisplay != null)
         {
@@ -162,9 +162,9 @@ public class ModProfileDisplay : MonoBehaviour
         {
             logoDisplay.DisplayLogo(profile.id, profile.logoLocator);
         }
-        if(mediaDisplay != null)
+        if(mediaContainer != null)
         {
-            mediaDisplay.DisplayProfileMedia(profile);
+            mediaContainer.DisplayProfileMedia(profile);
         }
         if(buildDisplay != null)
         {
@@ -209,9 +209,9 @@ public class ModProfileDisplay : MonoBehaviour
         {
             logoDisplay.DisplayLoading(modId);
         }
-        if(mediaDisplay != null)
+        if(mediaContainer != null)
         {
-            mediaDisplay.DisplayLoading(modId);
+            mediaContainer.DisplayLoading(modId);
         }
         if(buildDisplay != null)
         {

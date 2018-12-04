@@ -62,11 +62,11 @@ public class InspectorView : MonoBehaviour
             // selectedMediaPreview.galleryImageClicked += (c, mId, iFN) => Debug.Log("Clicked Image: " + iFN);
 
             if(profileDisplay != null
-               && profileDisplay.mediaDisplay != null)
+               && profileDisplay.mediaContainer != null)
             {
-                profileDisplay.mediaDisplay.logoClicked += MediaPreview_Logo;
-                profileDisplay.mediaDisplay.youTubeThumbClicked += MediaPreview_YouTubeThumb;
-                profileDisplay.mediaDisplay.galleryImageClicked += MediaPreview_GalleryImage;
+                profileDisplay.mediaContainer.logoClicked += MediaPreview_Logo;
+                profileDisplay.mediaContainer.youTubeThumbClicked += MediaPreview_YouTubeThumb;
+                profileDisplay.mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
             }
         }
         if(tagDisplay != null)

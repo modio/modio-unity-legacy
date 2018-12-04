@@ -1,64 +1,59 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using ModIO;
 
 public class ModTagDisplay : MonoBehaviour
 {
     // ---------[ FIELDS ]---------
-    public event Action<ModTagDisplay> toggled;
+    public delegate void OnClickDelegate(ModTagDisplay component, string tagName, string category);
+    public event OnClickDelegate onClick;
 
     [Header("Settings")]
-    public bool textToUpper;
+    public bool capitalizeName;
+    public bool capitalizeCategory;
 
     [Header("UI Components")]
     public Text nameText;
     public Text categoryText;
-    public Toggle toggleComponent;
+    public GameObject loadingDisplay;
 
-    [Header("Display Data")]
-    public string tagName = string.Empty;
-    public string categoryName = string.Empty;
-    public bool isSelected = false;
-
+    // --- DISPLAY DATA ---
+    private string m_tag = string.Empty;
+    private string m_category = string.Empty;
 
     // ---------[ INTIALIZATION ]---------
     public void Initialize()
     {
-        // assert
         Debug.Assert(nameText != null);
-
-        // events
-        if(toggleComponent != null)
-        {
-            toggleComponent.onValueChanged.RemoveListener(OnToggleChanged);
-            toggleComponent.onValueChanged.AddListener(OnToggleChanged);
-        }
-
-        UpdateDisplay();
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
-    public void UpdateDisplay()
+    public void DisplayTag(ModTag tag, string category)
     {
-        // display
-        nameText.text = (textToUpper ? tagName.ToUpper() : tagName);
+        Debug.Assert(tag != null);
+        DisplayTag(tag.name, category);
+    }
+
+    public void DisplayTag(string tagName, string category)
+    {
+        m_tag = tagName;
+        m_category = category;
+
+        nameText.text = (capitalizeName ? tagName.ToUpper() : tagName);
         if(categoryText != null)
         {
-            categoryText.text = (textToUpper ? categoryName.ToUpper() : categoryName);
-        }
-        if(toggleComponent != null)
-        {
-            toggleComponent.isOn = isSelected;
+            categoryText.text = (capitalizeCategory ? category.ToUpper() : category);
         }
     }
 
-    private void OnToggleChanged(bool value)
-    {
-        isSelected = value;
 
-        if(toggled != null)
+    // ---------[ EVENT HANDLING ]---------
+    public void NotifyClicked()
+    {
+        if(this.onClick != null)
         {
-            toggled(this);
+            this.onClick(this, m_tag, m_category);
         }
     }
 }
