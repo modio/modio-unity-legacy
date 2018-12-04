@@ -1698,7 +1698,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224702908775585828}
-  - component: {fileID: 114899197962887232}
   - component: {fileID: 114517984816155668}
   m_Layer: 5
   m_Name: FilterTagContainer
@@ -2526,7 +2525,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224007066534490724}
-  - component: {fileID: 114155432499964686}
   - component: {fileID: 114290121377489956}
   - component: {fileID: 114300450509262634}
   - component: {fileID: 222618592802079242}
@@ -5157,22 +5155,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114155432499964686
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1697012587574852}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74c926efaf6c3440c9a831d457838630, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  tagDisplayPrefab: {fileID: 1695936261783880, guid: da69147cafdab4276aac258978695db2,
-    type: 2}
-  tagContainer: {fileID: 224007066534490724}
-  tags: []
-  tagDisplays: []
 --- !u!114 &114155780971084114
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10528,7 +10510,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   tagDisplayPrefab: {fileID: 1695936261783880, guid: da69147cafdab4276aac258978695db2,
     type: 2}
-  container: {fileID: 224007066534490724}
+  container: {fileID: 224702908775585828}
   loadingDisplay: {fileID: 0}
   categories:
   - name: Type
@@ -11613,22 +11595,6 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   m_HorizontalFit: 0
   m_VerticalFit: 2
---- !u!114 &114899197962887232
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1431000243419428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74c926efaf6c3440c9a831d457838630, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  tagDisplayPrefab: {fileID: 1695936261783880, guid: da69147cafdab4276aac258978695db2,
-    type: 2}
-  tagContainer: {fileID: 224702908775585828}
-  tags: []
-  tagDisplays: []
 --- !u!114 &114906318685609984
 MonoBehaviour:
   m_ObjectHideFlags: 1
