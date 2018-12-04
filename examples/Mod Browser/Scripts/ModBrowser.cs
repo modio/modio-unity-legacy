@@ -203,10 +203,17 @@ public class ModBrowser : MonoBehaviour
         }
     }
 
-
     // ---------[ INITIALIZATION ]---------
     private void Start()
     {
+        #if MODIO_TESTING
+        if(!(gameId == 0 && String.IsNullOrEmpty(gameAPIKey)))
+        {
+            Debug.LogError("OI DOOFUS! YOU SAVED AUTHENTICATION THE DETAILS TO THE PREFAB AGAIN!!!!!!");
+            return;
+        }
+        #endif
+
         #pragma warning disable 0162
         if(this.gameId <= 0)
         {
@@ -441,11 +448,7 @@ public class ModBrowser : MonoBehaviour
             {
                 explorerView.tagFilterBar.onSelectedTagsChanged += () =>
                 {
-                    if(explorerView.tagFilterView.selectedTags != this.filterTags)
-                    {
-                        explorerView.tagFilterView.selectedTags = this.filterTags;
-                    }
-                    explorerView.tagFilterView.UpdateDisplay();
+                    explorerView.tagFilterView.selectedTags = this.filterTags;
                 };
             }
 
@@ -1190,7 +1193,6 @@ public class ModBrowser : MonoBehaviour
         {
             explorerView.tagFilterView.selectedTags = this.filterTags;
         }
-        explorerView.tagFilterView.UpdateDisplay();
 
         UpdateExplorerFilters();
     }

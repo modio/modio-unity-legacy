@@ -17,7 +17,6 @@ public class ModTagFilterView : MonoBehaviour
     public RectTransform categoryContainer;
 
     // --- RUNTIME DATA ---
-    private IEnumerable<ModTagCategory> TEMP_categories;
     private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
     private List<string> m_selectedTags = new List<string>();
 
@@ -70,16 +69,9 @@ public class ModTagFilterView : MonoBehaviour
     }
 
     // ---------[ UI FUNCTINALITY ]---------
-    [Obsolete]
-    public void UpdateDisplay()
-    {
-        DisplayCategories(TEMP_categories);
-    }
-
     public void DisplayCategories(IEnumerable<ModTagCategory> categories)
     {
         Debug.Assert(categories != null);
-        TEMP_categories = categories;
 
         // clear existing
         foreach(ModTagCategoryDisplay cat in m_categoryDisplays)
