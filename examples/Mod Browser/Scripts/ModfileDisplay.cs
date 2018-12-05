@@ -1,112 +1,114 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using ModIO;
 
-public class ModfileDisplay : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    public delegate void OnClickDelegate(ModfileDisplay display, int modfileId);
-    public event OnClickDelegate onClick;
-
-    [Header("UI Components")]
-    public Text dateAddedDisplay;
-    public Text fileNameDisplay;
-    public Text fileSizeDisplay;
-    public Text fileHashDisplay;
-    public Text versionDisplay;
-    public Text changelogDisplay;
-
-    [Header("Display Data")]
-    [SerializeField] private int m_modfileId = -1;
-
-    // --- RUNTIME DATA ---
-    private delegate string GetDisplayString(Modfile modfile);
-
-    private Dictionary<Text, GetDisplayString> m_displayMapping = null;
-    private List<TextLoadingDisplay> m_loadingDisplays = null;
-
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize()
+    public class ModfileDisplay : MonoBehaviour
     {
-        m_displayMapping = new Dictionary<Text, GetDisplayString>();
+        // ---------[ FIELDS ]---------
+        public delegate void OnClickDelegate(ModfileDisplay display, int modfileId);
+        public event OnClickDelegate onClick;
 
-        if(dateAddedDisplay != null)
-        {
-            m_displayMapping.Add(dateAddedDisplay, (m) => ServerTimeStamp.ToLocalDateTime(m.dateAdded).ToString());
-        }
-        if(fileNameDisplay != null)
-        {
-            m_displayMapping.Add(fileNameDisplay, (m) => m.fileName);
-        }
-        if(fileSizeDisplay != null)
-        {
-            m_displayMapping.Add(fileSizeDisplay, (m) => ModBrowser.ByteCountToDisplayString(m.fileSize));
-        }
-        if(fileHashDisplay != null)
-        {
-            m_displayMapping.Add(fileHashDisplay, (m) => m.fileHash.md5);
-        }
-        if(versionDisplay != null)
-        {
-            m_displayMapping.Add(versionDisplay, (m) => m.version);
-        }
-        if(changelogDisplay != null)
-        {
-            m_displayMapping.Add(changelogDisplay, (m) => m.changelog);
-        }
+        [Header("UI Components")]
+        public Text dateAddedDisplay;
+        public Text fileNameDisplay;
+        public Text fileSizeDisplay;
+        public Text fileHashDisplay;
+        public Text versionDisplay;
+        public Text changelogDisplay;
 
-        TextLoadingDisplay[] childLoadingDisplays = this.gameObject.GetComponentsInChildren<TextLoadingDisplay>(true);
-        List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
+        [Header("Display Data")]
+        [SerializeField] private int m_modfileId = -1;
 
-        m_loadingDisplays = new List<TextLoadingDisplay>();
-        foreach(TextLoadingDisplay loadingDisplay in childLoadingDisplays)
+        // --- RUNTIME DATA ---
+        private delegate string GetDisplayString(Modfile modfile);
+
+        private Dictionary<Text, GetDisplayString> m_displayMapping = null;
+        private List<TextLoadingOverlay> m_loadingOverlays = null;
+
+        // ---------[ INITIALIZATION ]---------
+        public void Initialize()
         {
-            if(textDisplays.Contains(loadingDisplay.valueDisplayComponent))
+            m_displayMapping = new Dictionary<Text, GetDisplayString>();
+
+            if(dateAddedDisplay != null)
             {
-                m_loadingDisplays.Add(loadingDisplay);
+                m_displayMapping.Add(dateAddedDisplay, (m) => ServerTimeStamp.ToLocalDateTime(m.dateAdded).ToString());
+            }
+            if(fileNameDisplay != null)
+            {
+                m_displayMapping.Add(fileNameDisplay, (m) => m.fileName);
+            }
+            if(fileSizeDisplay != null)
+            {
+                m_displayMapping.Add(fileSizeDisplay, (m) => ModBrowser.ByteCountToDisplayString(m.fileSize));
+            }
+            if(fileHashDisplay != null)
+            {
+                m_displayMapping.Add(fileHashDisplay, (m) => m.fileHash.md5);
+            }
+            if(versionDisplay != null)
+            {
+                m_displayMapping.Add(versionDisplay, (m) => m.version);
+            }
+            if(changelogDisplay != null)
+            {
+                m_displayMapping.Add(changelogDisplay, (m) => m.changelog);
+            }
+
+            TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
+            List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
+
+            m_loadingOverlays = new List<TextLoadingOverlay>();
+            foreach(TextLoadingOverlay loadingOverlay in childLoadingOverlays)
+            {
+                if(textDisplays.Contains(loadingOverlay.textDisplayComponent))
+                {
+                    m_loadingOverlays.Add(loadingOverlay);
+                }
             }
         }
-    }
 
-    // ---------[ UI FUNCTIONALITY ]---------
-    public void DisplayModfile(Modfile modfile)
-    {
-        Debug.Assert(modfile != null);
-
-        m_modfileId = modfile.id;
-
-        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
+        // ---------[ UI FUNCTIONALITY ]---------
+        public void DisplayModfile(Modfile modfile)
         {
-            loadingDisplay.gameObject.SetActive(false);
+            Debug.Assert(modfile != null);
+
+            m_modfileId = modfile.id;
+
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(false);
+            }
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.text = kvp.Value(modfile);
+                kvp.Key.enabled = true;
+            }
         }
-        foreach(var kvp in m_displayMapping)
-        {
-            kvp.Key.text = kvp.Value(modfile);
-            kvp.Key.enabled = true;
-        }
-    }
 
-    public void DisplayLoading(int modfileId = -1)
-    {
-        m_modfileId = modfileId;
+        public void DisplayLoading(int modfileId = -1)
+        {
+            m_modfileId = modfileId;
 
-        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
-        {
-            loadingDisplay.gameObject.SetActive(true);
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(true);
+            }
+            foreach(Text textComponent in m_displayMapping.Keys)
+            {
+                textComponent.enabled = false;
+            }
         }
-        foreach(Text textComponent in m_displayMapping.Keys)
-        {
-            textComponent.enabled = false;
-        }
-    }
 
-    // ---------[ EVENT HANDLING ]---------
-    public void NotifyClicked()
-    {
-        if(this.onClick != null)
+        // ---------[ EVENT HANDLING ]---------
+        public void NotifyClicked()
         {
-            this.onClick(this, m_modfileId);
+            if(this.onClick != null)
+            {
+                this.onClick(this, m_modfileId);
+            }
         }
     }
 }

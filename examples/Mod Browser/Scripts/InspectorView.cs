@@ -5,265 +5,266 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-using ModIO;
-
 // TODO(@jackson): Handle guest accounts
 // TODO(@jackson): Handle errors
 // TODO(@jackson): Assert all required object on Initialize()
-public class InspectorView : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    public event Action<ModProfile> subscribeRequested;
-    public event Action<ModProfile> unsubscribeRequested;
-    public event Action<ModProfile> enableRequested;
-    public event Action<ModProfile> disableRequested;
-
-    [Header("Settings")]
-    public GameObject versionHistoryItemPrefab;
-    public string missingVersionChangelogText;
-
-    [Header("UI Components")]
-    public ModProfileDisplay profileDisplay;
-    public ModMediaElementDisplay selectedMediaPreview;
-    public ModTagCollectionDisplay tagDisplay;
-    public ModStatisticsDisplay statisticsDisplay;
-    public RectTransform versionHistoryContainer;
-    public ScrollRect scrollView;
-    public Button subscribeButton;
-    public Button unsubscribeButton;
-    public Button previousModButton;
-    public Button nextModButton;
-    public Button backToDiscoverButton;
-    public Button backToSubscriptionsButton;
-
-    // ---[ RUNTIME DATA ]---
-    [Header("Runtime Data")]
-    public ModProfile profile;
-    public ModStatistics statistics;
-    public bool isModSubscribed;
-
-    // ---[ TEMP DATA ]---
-    [Header("Temp Data")]
-    public float mediaElementHeight;
-
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize()
+    public class InspectorView : MonoBehaviour
     {
-        if(profileDisplay != null)
+        // ---------[ FIELDS ]---------
+        public event Action<ModProfile> subscribeRequested;
+        public event Action<ModProfile> unsubscribeRequested;
+        public event Action<ModProfile> enableRequested;
+        public event Action<ModProfile> disableRequested;
+
+        [Header("Settings")]
+        public GameObject versionHistoryItemPrefab;
+        public string missingVersionChangelogText;
+
+        [Header("UI Components")]
+        public ModProfileDisplay profileDisplay;
+        public ModMediaElementDisplay selectedMediaPreview;
+        public ModTagCollectionDisplay tagDisplay;
+        public ModStatisticsDisplay statisticsDisplay;
+        public RectTransform versionHistoryContainer;
+        public ScrollRect scrollView;
+        public Button subscribeButton;
+        public Button unsubscribeButton;
+        public Button previousModButton;
+        public Button nextModButton;
+        public Button backToDiscoverButton;
+        public Button backToSubscriptionsButton;
+
+        // ---[ RUNTIME DATA ]---
+        [Header("Runtime Data")]
+        public ModProfile profile;
+        public ModStatistics statistics;
+        public bool isModSubscribed;
+
+        // ---[ TEMP DATA ]---
+        [Header("Temp Data")]
+        public float mediaElementHeight;
+
+        // ---------[ INITIALIZATION ]---------
+        public void Initialize()
         {
-            profileDisplay.Initialize();
+            if(profileDisplay != null)
+            {
+                profileDisplay.Initialize();
+            }
+
+            if(selectedMediaPreview != null)
+            {
+                selectedMediaPreview.Initialize();
+                selectedMediaPreview.youTubeThumbClicked += (c, mId, ytId) => ModBrowser.OpenYouTubeVideoURL(ytId);
+                // selectedMediaPreview.logoClicked += (c, mId) => Debug.Log("Clicked Logo");
+                // selectedMediaPreview.galleryImageClicked += (c, mId, iFN) => Debug.Log("Clicked Image: " + iFN);
+
+                if(profileDisplay != null
+                   && profileDisplay.mediaContainer != null)
+                {
+                    profileDisplay.mediaContainer.logoClicked += MediaPreview_Logo;
+                    profileDisplay.mediaContainer.youTubeThumbClicked += MediaPreview_YouTubeThumb;
+                    profileDisplay.mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
+                }
+            }
+            if(tagDisplay != null)
+            {
+                tagDisplay.Initialize();
+            }
+
+            if(statisticsDisplay != null)
+            {
+                statisticsDisplay.Initialize();
+            }
+
+            if((versionHistoryContainer != null && versionHistoryItemPrefab == null)
+               || (versionHistoryItemPrefab != null && versionHistoryContainer == null))
+            {
+                Debug.LogWarning("[mod.io] In order to display a version history both the "
+                                 + "versionHistoryItemPrefab and versionHistoryContainer variables must "
+                                 + "be set for the InspectorView.", this);
+            }
+
+            Debug.Assert(!(versionHistoryItemPrefab != null && versionHistoryItemPrefab.GetComponent<ModfileDisplay>() == null),
+                         "[mod.io] The versionHistoryItemPrefab requires a ModfileDisplay component on the root Game Object.");
         }
 
-        if(selectedMediaPreview != null)
+        // ---------[ UPDATE VIEW ]---------
+        public void UpdateProfileDisplay()
         {
-            selectedMediaPreview.Initialize();
-            selectedMediaPreview.youTubeThumbClicked += (c, mId, ytId) => ModBrowser.OpenYouTubeVideoURL(ytId);
-            // selectedMediaPreview.logoClicked += (c, mId) => Debug.Log("Clicked Logo");
-            // selectedMediaPreview.galleryImageClicked += (c, mId, iFN) => Debug.Log("Clicked Image: " + iFN);
+            #if UNITY_EDITOR
+            if(!Application.isPlaying) { return; }
+            #endif
 
-            if(profileDisplay != null
-               && profileDisplay.mediaContainer != null)
+            Debug.Assert(this.profile != null,
+                         "[mod.io] Assign the mod profile before updating the profile UI components.");
+
+            if(profileDisplay != null)
             {
-                profileDisplay.mediaContainer.logoClicked += MediaPreview_Logo;
-                profileDisplay.mediaContainer.youTubeThumbClicked += MediaPreview_YouTubeThumb;
-                profileDisplay.mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
+                profileDisplay.DisplayProfile(profile);
+            }
+
+            if(selectedMediaPreview != null)
+            {
+                selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+                MediaPreview_UpdateAspectRatio();
+            }
+
+            if(tagDisplay != null)
+            {
+                Debug.LogWarning("categories needed");
+                tagDisplay.DisplayModTags(profile, null);
+            }
+
+            // - version history -
+            if(versionHistoryContainer != null
+               && versionHistoryItemPrefab != null)
+            {
+                foreach(Transform t in versionHistoryContainer)
+                {
+                    GameObject.Destroy(t.gameObject);
+                }
+
+                RequestFilter modfileFilter = new RequestFilter();
+                modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
+                modfileFilter.isSortAscending = false;
+
+                // TODO(@jackson): onError
+                APIClient.GetAllModfiles(profile.id,
+                                         modfileFilter,
+                                         new APIPaginationParameters(){ limit = 20 },
+                                         (r) => PopulateVersionHistory(profile.id, r.items),
+                                         WebRequestError.LogAsWarning);
             }
         }
-        if(tagDisplay != null)
+        public void UpdateStatisticsDisplay()
         {
-            tagDisplay.Initialize();
+            #if UNITY_EDITOR
+            if(!Application.isPlaying) { return; }
+            #endif
+
+            Debug.Assert(this.statistics != null,
+                         "[mod.io] Assign the mod statistics before updating the statistics UI components.");
+
+            if(statisticsDisplay != null)
+            {
+                statisticsDisplay.DisplayStatistics(statistics);
+            }
+        }
+        public void UpdateIsSubscribedDisplay()
+        {
+            if(subscribeButton != null)
+            {
+                subscribeButton.gameObject.SetActive(!isModSubscribed);
+            }
+            if(unsubscribeButton != null)
+            {
+                unsubscribeButton.gameObject.SetActive(isModSubscribed);
+            }
         }
 
-        if(statisticsDisplay != null)
+        // ---------[ UI ELEMENT CREATION ]---------
+        private void PopulateVersionHistory(int modId, IEnumerable<Modfile> modfiles)
         {
-            statisticsDisplay.Initialize();
+            #if UNITY_EDITOR
+            if(!Application.isPlaying) { return; }
+            #endif
+
+            // inspector has closed/changed mods since call was made
+            if(profile.id != modId) { return; }
+
+            foreach(Modfile modfile in modfiles)
+            {
+                GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, versionHistoryContainer) as GameObject;
+                go.name = "Mod Version: " + modfile.version;
+
+                if(String.IsNullOrEmpty(modfile.changelog))
+                {
+                    modfile.changelog = missingVersionChangelogText;
+                }
+
+                var entry = go.GetComponent<ModfileDisplay>();
+                entry.Initialize();
+                entry.DisplayModfile(modfile);
+            }
         }
 
-        if((versionHistoryContainer != null && versionHistoryItemPrefab == null)
-           || (versionHistoryItemPrefab != null && versionHistoryContainer == null))
+        // ---------[ EVENTS ]---------
+        public void NotifySubscribeRequested()
         {
-            Debug.LogWarning("[mod.io] In order to display a version history both the "
-                             + "versionHistoryItemPrefab and versionHistoryContainer variables must "
-                             + "be set for the InspectorView.", this);
+            if(subscribeRequested != null)
+            {
+                subscribeRequested(this.profile);
+            }
+        }
+        public void NotifyUnsubscribeRequested()
+        {
+            if(unsubscribeRequested != null)
+            {
+                unsubscribeRequested(this.profile);
+            }
+        }
+        public void NotifyEnableRequested()
+        {
+            if(enableRequested != null)
+            {
+                enableRequested(this.profile);
+            }
+        }
+        public void NotifyDisableRequested()
+        {
+            if(disableRequested != null)
+            {
+                disableRequested(this.profile);
+            }
         }
 
-        Debug.Assert(!(versionHistoryItemPrefab != null && versionHistoryItemPrefab.GetComponent<ModfileDisplay>() == null),
-                     "[mod.io] The versionHistoryItemPrefab requires a ModfileDisplay component on the root Game Object.");
-    }
-
-    // ---------[ UPDATE VIEW ]---------
-    public void UpdateProfileDisplay()
-    {
-        #if UNITY_EDITOR
-        if(!Application.isPlaying) { return; }
-        #endif
-
-        Debug.Assert(this.profile != null,
-                     "[mod.io] Assign the mod profile before updating the profile UI components.");
-
-        if(profileDisplay != null)
+        private void MediaPreview_Logo(ModLogoDisplay display, int modId)
         {
-            profileDisplay.DisplayProfile(profile);
+            selectedMediaPreview.DisplayLogoTexture(modId, display.image.mainTexture as Texture2D);
+            MediaPreview_UpdateAspectRatio();
+
+            if(display.logoSize != selectedMediaPreview.logoSize)
+            {
+                ModManager.GetModLogo(profile, selectedMediaPreview.logoSize,
+                                      (t) =>
+                                      { selectedMediaPreview.DisplayLogoTexture(modId, t); MediaPreview_UpdateAspectRatio(); },
+                                      WebRequestError.LogAsWarning);
+            }
         }
-
-        if(selectedMediaPreview != null)
+        private void MediaPreview_YouTubeThumb(YouTubeThumbDisplay display, int modId, string youTubeVideoId)
         {
-            selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+            selectedMediaPreview.DisplayYouTubeThumbTexture(modId, youTubeVideoId,
+                                                            display.image.mainTexture as Texture2D);
             MediaPreview_UpdateAspectRatio();
         }
-
-        if(tagDisplay != null)
+        private void MediaPreview_GalleryImage(ModGalleryImageDisplay display, int modId, string imageFileName)
         {
-            Debug.LogWarning("categories needed");
-            tagDisplay.DisplayModTags(profile, null);
-        }
+            selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, display.image.mainTexture as Texture2D);
+            MediaPreview_UpdateAspectRatio();
 
-        // - version history -
-        if(versionHistoryContainer != null
-           && versionHistoryItemPrefab != null)
-        {
-            foreach(Transform t in versionHistoryContainer)
+            if(display.imageSize != selectedMediaPreview.galleryImageSize)
             {
-                GameObject.Destroy(t.gameObject);
+                ModManager.GetModGalleryImage(profile, imageFileName, selectedMediaPreview.galleryImageSize,
+                                              (t) =>
+                                              {
+                                                selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, t);
+                                                MediaPreview_UpdateAspectRatio();
+                                              },
+                                              WebRequestError.LogAsWarning);
             }
-
-            RequestFilter modfileFilter = new RequestFilter();
-            modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
-            modfileFilter.isSortAscending = false;
-
-            // TODO(@jackson): onError
-            APIClient.GetAllModfiles(profile.id,
-                                     modfileFilter,
-                                     new APIPaginationParameters(){ limit = 20 },
-                                     (r) => PopulateVersionHistory(profile.id, r.items),
-                                     WebRequestError.LogAsWarning);
         }
-    }
-    public void UpdateStatisticsDisplay()
-    {
-        #if UNITY_EDITOR
-        if(!Application.isPlaying) { return; }
-        #endif
 
-        Debug.Assert(this.statistics != null,
-                     "[mod.io] Assign the mod statistics before updating the statistics UI components.");
-
-        if(statisticsDisplay != null)
+        private void MediaPreview_UpdateAspectRatio()
         {
-            statisticsDisplay.DisplayStatistics(statistics);
-        }
-    }
-    public void UpdateIsSubscribedDisplay()
-    {
-        if(subscribeButton != null)
-        {
-            subscribeButton.gameObject.SetActive(!isModSubscribed);
-        }
-        if(unsubscribeButton != null)
-        {
-            unsubscribeButton.gameObject.SetActive(isModSubscribed);
-        }
-    }
-
-    // ---------[ UI ELEMENT CREATION ]---------
-    private void PopulateVersionHistory(int modId, IEnumerable<Modfile> modfiles)
-    {
-        #if UNITY_EDITOR
-        if(!Application.isPlaying) { return; }
-        #endif
-
-        // inspector has closed/changed mods since call was made
-        if(profile.id != modId) { return; }
-
-        foreach(Modfile modfile in modfiles)
-        {
-            GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, versionHistoryContainer) as GameObject;
-            go.name = "Mod Version: " + modfile.version;
-
-            if(String.IsNullOrEmpty(modfile.changelog))
+            AspectRatioFitter fitter = selectedMediaPreview.image.GetComponent<AspectRatioFitter>();
+            if(fitter != null)
             {
-                modfile.changelog = missingVersionChangelogText;
+                Texture t = selectedMediaPreview.image.mainTexture;
+                fitter.aspectRatio = (float)t.width / (float)t.height;
             }
-
-            var entry = go.GetComponent<ModfileDisplay>();
-            entry.Initialize();
-            entry.DisplayModfile(modfile);
-        }
-    }
-
-    // ---------[ EVENTS ]---------
-    public void NotifySubscribeRequested()
-    {
-        if(subscribeRequested != null)
-        {
-            subscribeRequested(this.profile);
-        }
-    }
-    public void NotifyUnsubscribeRequested()
-    {
-        if(unsubscribeRequested != null)
-        {
-            unsubscribeRequested(this.profile);
-        }
-    }
-    public void NotifyEnableRequested()
-    {
-        if(enableRequested != null)
-        {
-            enableRequested(this.profile);
-        }
-    }
-    public void NotifyDisableRequested()
-    {
-        if(disableRequested != null)
-        {
-            disableRequested(this.profile);
-        }
-    }
-
-    private void MediaPreview_Logo(ModLogoDisplay display, int modId)
-    {
-        selectedMediaPreview.DisplayLogoTexture(modId, display.image.mainTexture as Texture2D);
-        MediaPreview_UpdateAspectRatio();
-
-        if(display.logoSize != selectedMediaPreview.logoSize)
-        {
-            ModManager.GetModLogo(profile, selectedMediaPreview.logoSize,
-                                  (t) =>
-                                  { selectedMediaPreview.DisplayLogoTexture(modId, t); MediaPreview_UpdateAspectRatio(); },
-                                  WebRequestError.LogAsWarning);
-        }
-    }
-    private void MediaPreview_YouTubeThumb(YouTubeThumbDisplay display, int modId, string youTubeVideoId)
-    {
-        selectedMediaPreview.DisplayYouTubeThumbTexture(modId, youTubeVideoId,
-                                                        display.image.mainTexture as Texture2D);
-        MediaPreview_UpdateAspectRatio();
-    }
-    private void MediaPreview_GalleryImage(ModGalleryImageDisplay display, int modId, string imageFileName)
-    {
-        selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, display.image.mainTexture as Texture2D);
-        MediaPreview_UpdateAspectRatio();
-
-        if(display.imageSize != selectedMediaPreview.galleryImageSize)
-        {
-            ModManager.GetModGalleryImage(profile, imageFileName, selectedMediaPreview.galleryImageSize,
-                                          (t) =>
-                                          {
-                                            selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, t);
-                                            MediaPreview_UpdateAspectRatio();
-                                          },
-                                          WebRequestError.LogAsWarning);
-        }
-    }
-
-    private void MediaPreview_UpdateAspectRatio()
-    {
-        AspectRatioFitter fitter = selectedMediaPreview.image.GetComponent<AspectRatioFitter>();
-        if(fitter != null)
-        {
-            Texture t = selectedMediaPreview.image.mainTexture;
-            fitter.aspectRatio = (float)t.width / (float)t.height;
         }
     }
 }

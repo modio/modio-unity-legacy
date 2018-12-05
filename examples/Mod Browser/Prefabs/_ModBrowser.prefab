@@ -5617,7 +5617,7 @@ MonoBehaviour:
   tagDisplayPrefab: {fileID: 1695936261783880, guid: da69147cafdab4276aac258978695db2,
     type: 2}
   container: {fileID: 224702908775585828}
-  loadingDisplay: {fileID: 0}
+  loadingOverlay: {fileID: 0}
 --- !u!114 &114246057961615116
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7796,7 +7796,7 @@ MonoBehaviour:
   includeCategory: 1
   tagSeparator: ', '
   text: {fileID: 114421035555909800}
-  loadingDisplay: {fileID: 0}
+  loadingOverlay: {fileID: 0}
 --- !u!114 &114499770013991538
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10275,7 +10275,7 @@ MonoBehaviour:
   logoSize: 3
   galleryImageSize: 0
   image: {fileID: 114547393388600906}
-  loadingDisplay: {fileID: 1035376449354654}
+  loadingOverlay: {fileID: 0}
   logoOverlay: {fileID: 0}
   youTubeOverlay: {fileID: 1353639698890002}
   galleryImageOverlay: {fileID: 0}
@@ -11082,7 +11082,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   avatarSize: 1
   image: {fileID: 114528342675249982}
-  loadingDisplay: {fileID: 1625314398786034}
+  loadingOverlay: {fileID: 0}
 --- !u!114 &114962828148981196
 MonoBehaviour:
   m_ObjectHideFlags: 1

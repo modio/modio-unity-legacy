@@ -497,7 +497,6 @@ GameObject:
   - component: {fileID: 222130468558808046}
   - component: {fileID: 114362076928413270}
   - component: {fileID: 114581649565040802}
-  - component: {fileID: 114397397491777388}
   m_Layer: 5
   m_Name: LoadingPlaceholder_320x180
   m_TagString: Untagged
@@ -690,7 +689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02f22130b155843568f9821b311a1dcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  valueDisplayComponent: {fileID: 114753467607869376}
+  textDisplayComponent: {fileID: 114753467607869376}
 --- !u!114 &114129879914050566
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -822,7 +821,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02f22130b155843568f9821b311a1dcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  valueDisplayComponent: {fileID: 114443437997988334}
+  textDisplayComponent: {fileID: 114443437997988334}
 --- !u!114 &114267690649391174
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -985,7 +984,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logoSize: 1
   image: {fileID: 114146504481294152}
-  loadingDisplay: {fileID: 1981002977696124}
+  loadingOverlay: {fileID: 1981002977696124}
   m_modId: 0
   m_imageFileName: 
 --- !u!114 &114392313839218530
@@ -1000,18 +999,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
---- !u!114 &114397397491777388
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1981002977696124}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02f22130b155843568f9821b311a1dcb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  valueDisplayComponent: {fileID: 0}
 --- !u!114 &114400544554606332
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1351,7 +1338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02f22130b155843568f9821b311a1dcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  valueDisplayComponent: {fileID: 114730648452461230}
+  textDisplayComponent: {fileID: 114730648452461230}
 --- !u!114 &114664801041934314
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1373,7 +1360,7 @@ MonoBehaviour:
   descriptionTextDisplay: {fileID: 0}
   creatorDisplay: {fileID: 0}
   logoDisplay: {fileID: 114362186059247940}
-  mediaDisplay: {fileID: 0}
+  mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 0}
   downloadDisplay: {fileID: 0}
   tagContainer: {fileID: 0}
@@ -1564,14 +1551,11 @@ MonoBehaviour:
   profileDisplay: {fileID: 114664801041934314}
   buildDisplay: {fileID: 0}
   statisticsDisplay: {fileID: 114445023809965056}
+  tagsDisplay: {fileID: 0}
   subscribeButton: {fileID: 114985395148525388}
   unsubscribeButton: {fileID: 114267690649391174}
   enableModButton: {fileID: 0}
   disableModButton: {fileID: 0}
-  downloadProgressPercentageText: {fileID: 0}
-  downloadProgress_byteCountText: {fileID: 0}
-  downloadProgress_bar: {fileID: 0}
-  downloadProgressContainer: {fileID: 0}
   profile:
     id: 0
     gameId: 0

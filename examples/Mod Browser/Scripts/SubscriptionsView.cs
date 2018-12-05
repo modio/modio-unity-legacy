@@ -4,207 +4,209 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using ModIO;
 
 // TODO(@jackson): Handle no mods in list inspection
-public class SubscriptionsView : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    public event Action<ModBrowserItem> inspectRequested;
-    public event Action<ModBrowserItem> subscribeRequested;
-    public event Action<ModBrowserItem> unsubscribeRequested;
-    public event Action<ModBrowserItem> toggleModEnabledRequested;
-
-    [Header("Settings")]
-    public GameObject itemPrefab;
-    public int TEMP_pageSize = 10;
-
-    [Header("UI Components")]
-    public RectTransform contentPane;
-    public InputField nameSearchField;
-    public Dropdown sortByDropdown;
-
-    [Header("Display Data")]
-    public RequestPage<ModProfile> currentPage;
-
-    [Header("Runtime Data")]
-    public RectTransform currentPageContainer;
-
-
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize()
+    public class SubscriptionsView : MonoBehaviour
     {
-        Debug.Assert(itemPrefab != null);
+        // ---------[ FIELDS ]---------
+        public event Action<ModBrowserItem> inspectRequested;
+        public event Action<ModBrowserItem> subscribeRequested;
+        public event Action<ModBrowserItem> unsubscribeRequested;
+        public event Action<ModBrowserItem> toggleModEnabledRequested;
 
-        ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
+        [Header("Settings")]
+        public GameObject itemPrefab;
+        public int TEMP_pageSize = 10;
 
-        Debug.Assert(itemPrefabScript != null);
-        Debug.Assert(TEMP_pageSize > 0);
+        [Header("UI Components")]
+        public RectTransform contentPane;
+        public InputField nameSearchField;
+        public Dropdown sortByDropdown;
 
-        // currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
-        // currentPageContainer.SetParent(contentPane);
-        // currentPageContainer.anchorMin = Vector2.zero;
-        // currentPageContainer.anchorMax = Vector2.zero;
-        // currentPageContainer.offsetMin = Vector2.zero;
-        // currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
-        // TODO(@jackson): FIX!
-        Debug.LogWarning("@jackson FAKING PAGES HERE!");
-        currentPageContainer = contentPane;
+        [Header("Display Data")]
+        public RequestPage<ModProfile> currentPage;
 
-        InitializePageLayout(currentPageContainer);
-    }
+        [Header("Runtime Data")]
+        public RectTransform currentPageContainer;
 
-    private void InitializePageLayout(RectTransform pageTransform)
-    {
-        foreach(Transform t in pageTransform)
+
+        // ---------[ INITIALIZATION ]---------
+        public void Initialize()
         {
-            #if DEBUG
-            if(!Application.isPlaying)
+            Debug.Assert(itemPrefab != null);
+
+            ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
+
+            Debug.Assert(itemPrefabScript != null);
+            Debug.Assert(TEMP_pageSize > 0);
+
+            // currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
+            // currentPageContainer.SetParent(contentPane);
+            // currentPageContainer.anchorMin = Vector2.zero;
+            // currentPageContainer.anchorMax = Vector2.zero;
+            // currentPageContainer.offsetMin = Vector2.zero;
+            // currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+            // TODO(@jackson): FIX!
+            Debug.LogWarning("@jackson FAKING PAGES HERE!");
+            currentPageContainer = contentPane;
+
+            InitializePageLayout(currentPageContainer);
+        }
+
+        private void InitializePageLayout(RectTransform pageTransform)
+        {
+            foreach(Transform t in pageTransform)
             {
-                UnityEngine.Object.DestroyImmediate(t.gameObject);
+                #if DEBUG
+                if(!Application.isPlaying)
+                {
+                    UnityEngine.Object.DestroyImmediate(t.gameObject);
+                }
+                else
+                #endif
+                {
+                    UnityEngine.Object.Destroy(t.gameObject);
+                }
             }
-            else
-            #endif
+
+            for(int index = 0;
+                index < this.TEMP_pageSize;
+                ++index)
             {
-                UnityEngine.Object.Destroy(t.gameObject);
+                GameObject itemGO = GameObject.Instantiate(itemPrefab,
+                                                           new Vector3(),
+                                                           Quaternion.identity,
+                                                           pageTransform);
+
+                // display mod profile
+                ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
+                item.index = index;
+                item.profile = null;
+                item.inspectRequested +=            (i) => { if(inspectRequested != null) { inspectRequested(i); } };
+                item.subscribeRequested +=          (i) => { if(subscribeRequested != null) { unsubscribeRequested(i); } };
+                item.unsubscribeRequested +=        (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
+                item.toggleModEnabledRequested +=   (i) => { if(toggleModEnabledRequested != null) { toggleModEnabledRequested(i); } };
+                item.Initialize();
+
+                itemGO.SetActive(false);
             }
         }
 
-        for(int index = 0;
-            index < this.TEMP_pageSize;
-            ++index)
+        // ---------[ UI FUNCTIONALITY ]------------
+        public void UpdateCurrentPageDisplay()
         {
-            GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                                       new Vector3(),
-                                                       Quaternion.identity,
-                                                       pageTransform);
+            Debug.Assert(currentPageContainer != null,
+                         "[mod.io] ExplorerView.Initialize has not yet been called");
+            Debug.Assert(TEMP_pageSize > 0,
+                         "[mod.io] TEMP_pageSize has an invalid value. This is because either the columnCount"
+                         + " or rowCount has been calculated to be less than 1.");
 
-            // display mod profile
-            ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-            item.index = index;
-            item.profile = null;
-            item.inspectRequested +=            (i) => { if(inspectRequested != null) { inspectRequested(i); } };
-            item.subscribeRequested +=          (i) => { if(subscribeRequested != null) { unsubscribeRequested(i); } };
-            item.unsubscribeRequested +=        (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
-            item.toggleModEnabledRequested +=   (i) => { if(toggleModEnabledRequested != null) { toggleModEnabledRequested(i); } };
-            item.Initialize();
+            // #if DEBUG
+            // if(isTransitioning)
+            // {
+            //     Debug.LogWarning("[mod.io] Explorer View is currently transitioning between pages. It"
+            //                      + " is recommended to not update page displays at this time.");
+            // }
+            // #endif
 
-            itemGO.SetActive(false);
+            UpdatePageDisplay(this.currentPage, this.currentPageContainer);
         }
-    }
 
-    // ---------[ UI FUNCTIONALITY ]------------
-    public void UpdateCurrentPageDisplay()
-    {
-        Debug.Assert(currentPageContainer != null,
-                     "[mod.io] ExplorerView.Initialize has not yet been called");
-        Debug.Assert(TEMP_pageSize > 0,
-                     "[mod.io] TEMP_pageSize has an invalid value. This is because either the columnCount"
-                     + " or rowCount has been calculated to be less than 1.");
-
-        // #if DEBUG
-        // if(isTransitioning)
-        // {
-        //     Debug.LogWarning("[mod.io] Explorer View is currently transitioning between pages. It"
-        //                      + " is recommended to not update page displays at this time.");
-        // }
-        // #endif
-
-        UpdatePageDisplay(this.currentPage, this.currentPageContainer);
-    }
-
-    private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
-    {
-        int i = 0;
-
-        if(page != null
-           && page.items != null)
+        private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
         {
-            for(; i < TEMP_pageSize && i < page.items.Length; ++i)
+            int i = 0;
+
+            if(page != null
+               && page.items != null)
+            {
+                for(; i < TEMP_pageSize && i < page.items.Length; ++i)
+                {
+                    Transform itemTransform = pageTransform.GetChild(i);
+                    ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
+                    item.profile = page.items[i];
+                    item.statistics = null;
+                    item.isSubscribed = true;
+
+                    item.UpdateProfileDisplay();
+                    item.UpdateStatisticsDisplay();
+                    item.UpdateIsSubscribedDisplay();
+
+                    if(item.profile != null)
+                    {
+                        ModManager.GetModStatistics(item.profile.id,
+                                                    (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
+                                                    null);
+                    }
+
+                    itemTransform.gameObject.SetActive(true);
+                }
+            }
+
+            for(; i < TEMP_pageSize; ++i)
             {
                 Transform itemTransform = pageTransform.GetChild(i);
-                ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
-                item.profile = page.items[i];
-                item.statistics = null;
-                item.isSubscribed = true;
-
-                item.UpdateProfileDisplay();
-                item.UpdateStatisticsDisplay();
-                item.UpdateIsSubscribedDisplay();
-
-                if(item.profile != null)
-                {
-                    ModManager.GetModStatistics(item.profile.id,
-                                                (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
-                                                null);
-                }
-
-                itemTransform.gameObject.SetActive(true);
+                itemTransform.gameObject.SetActive(false);
             }
         }
 
-        for(; i < TEMP_pageSize; ++i)
-        {
-            Transform itemTransform = pageTransform.GetChild(i);
-            itemTransform.gameObject.SetActive(false);
-        }
+        // public void InspectProfile(ModProfile profile)
+        // {
+        //     if(_unsubscribeAction != null)
+        //     {
+        //         unsubscribeButton.onClick.RemoveListener(_unsubscribeAction);
+        //     }
+
+        //     _unsubscribeAction = () =>
+        //     {
+        //         if(onUnsubscribeClicked != null)
+        //         {
+        //             onUnsubscribeClicked(profile);
+        //         }
+        //     };
+        //     unsubscribeButton.onClick.AddListener(_unsubscribeAction);
+
+        //     itemInspector_modName.text = profile.name;
+
+        //     ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
+        //     if(request.isDone)
+        //     {
+        //         itemInspector_buttonContainer.gameObject.SetActive(true);
+        //         itemInspector_downloadContainer.gameObject.SetActive(false);
+        //     }
+        //     else
+        //     {
+        //         itemInspector_downloadContainer.gameObject.SetActive(true);
+        //         itemInspector_buttonContainer.gameObject.SetActive(false);
+
+        //         StartCoroutine(UpdateProgressBar(request));
+        //     }
+        // }
+
+        // public IEnumerator UpdateProgressBar(ModBinaryRequest request)
+        // {
+        //     itemInspector_downloadProgressBar.sizeDelta = new Vector2(0f, 0f);
+        //     itemInspector_downloadProgressText.text = "Initializing";
+
+        //     RectTransform progressBarParent = itemInspector_downloadProgressBar.parent.GetComponent<RectTransform>();
+        //     while(!request.isDone)
+        //     {
+        //         if(request.webRequest != null)
+        //         {
+        //             float percentComplete = request.webRequest.downloadProgress;
+
+        //             float barWidth = percentComplete * progressBarParent.rect.width;
+        //             itemInspector_downloadProgressBar.sizeDelta = new Vector2(barWidth, 0f);
+
+        //             itemInspector_downloadProgressText.text = (percentComplete * 100f).ToString("0.0") + "%";
+        //         }
+
+        //         yield return null;
+        //     }
+
+        //     itemInspector_buttonContainer.gameObject.SetActive(true);
+        //     itemInspector_downloadContainer.gameObject.SetActive(false);
+        // }
     }
-
-    // public void InspectProfile(ModProfile profile)
-    // {
-    //     if(_unsubscribeAction != null)
-    //     {
-    //         unsubscribeButton.onClick.RemoveListener(_unsubscribeAction);
-    //     }
-
-    //     _unsubscribeAction = () =>
-    //     {
-    //         if(onUnsubscribeClicked != null)
-    //         {
-    //             onUnsubscribeClicked(profile);
-    //         }
-    //     };
-    //     unsubscribeButton.onClick.AddListener(_unsubscribeAction);
-
-    //     itemInspector_modName.text = profile.name;
-
-    //     ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
-    //     if(request.isDone)
-    //     {
-    //         itemInspector_buttonContainer.gameObject.SetActive(true);
-    //         itemInspector_downloadContainer.gameObject.SetActive(false);
-    //     }
-    //     else
-    //     {
-    //         itemInspector_downloadContainer.gameObject.SetActive(true);
-    //         itemInspector_buttonContainer.gameObject.SetActive(false);
-
-    //         StartCoroutine(UpdateProgressBar(request));
-    //     }
-    // }
-
-    // public IEnumerator UpdateProgressBar(ModBinaryRequest request)
-    // {
-    //     itemInspector_downloadProgressBar.sizeDelta = new Vector2(0f, 0f);
-    //     itemInspector_downloadProgressText.text = "Initializing";
-
-    //     RectTransform progressBarParent = itemInspector_downloadProgressBar.parent.GetComponent<RectTransform>();
-    //     while(!request.isDone)
-    //     {
-    //         if(request.webRequest != null)
-    //         {
-    //             float percentComplete = request.webRequest.downloadProgress;
-
-    //             float barWidth = percentComplete * progressBarParent.rect.width;
-    //             itemInspector_downloadProgressBar.sizeDelta = new Vector2(barWidth, 0f);
-
-    //             itemInspector_downloadProgressText.text = (percentComplete * 100f).ToString("0.0") + "%";
-    //         }
-
-    //         yield return null;
-    //     }
-
-    //     itemInspector_buttonContainer.gameObject.SetActive(true);
-    //     itemInspector_downloadContainer.gameObject.SetActive(false);
-    // }
 }

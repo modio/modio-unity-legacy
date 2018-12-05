@@ -4,242 +4,244 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using ModIO;
 
-// TODO(@jackson): Match to new interface
-public class ModBrowserItem : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    // ---[ EVENTS ]---
-    public event Action<ModBrowserItem> inspectRequested;
-    public event Action<ModBrowserItem> subscribeRequested;
-    public event Action<ModBrowserItem> unsubscribeRequested;
-    public event Action<ModBrowserItem> toggleModEnabledRequested;
-
-    // ---[ UI ]---
-    [Header("Settings")]
-    [Range(1.0f, 2.0f)]
-    public float maximumScaleFactor = 1f;
-    public GameObject tagBadgePrefab;
-
-    [Header("UI Components")]
-    public ModProfileDisplay profileDisplay;
-    public ModfileDisplay buildDisplay;
-    public ModStatisticsDisplay statisticsDisplay;
-    public ModTagCollectionDisplay tagsDisplay;
-    public Button subscribeButton;
-    public Button unsubscribeButton;
-    public Button enableModButton;
-    public Button disableModButton;
-
-    [Header("Display Data")]
-    public ModProfile profile = null;
-    public ModStatistics statistics = null;
-    public bool isSubscribed = false;
-    public bool isModEnabled = false;
-
-    // ---[ RUNTIME DATA ]---
-    [Header("Runtime Data")]
-    public bool isInitialized = false;
-    public int index = -1;
-
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize()
+    // TODO(@jackson): Match to new interface
+    public class ModBrowserItem : MonoBehaviour
     {
-        // asserts
-        if(isInitialized)
-        {
-            #if DEBUG
-            Debug.LogWarning("[mod.io] Once initialized, a ModBrowserItem cannot be re-initialized.");
-            #endif
+        // ---------[ FIELDS ]---------
+        // ---[ EVENTS ]---
+        public event Action<ModBrowserItem> inspectRequested;
+        public event Action<ModBrowserItem> subscribeRequested;
+        public event Action<ModBrowserItem> unsubscribeRequested;
+        public event Action<ModBrowserItem> toggleModEnabledRequested;
 
-            return;
-        }
+        // ---[ UI ]---
+        [Header("Settings")]
+        [Range(1.0f, 2.0f)]
+        public float maximumScaleFactor = 1f;
+        public GameObject tagBadgePrefab;
 
-        if(profileDisplay != null)
-        {
-            profileDisplay.Initialize();
-        }
-        if(buildDisplay != null)
-        {
-            buildDisplay.Initialize();
-        }
-        if(statisticsDisplay != null)
-        {
-            statisticsDisplay.Initialize();
-        }
-        if(tagsDisplay != null)
-        {
-            tagsDisplay.Initialize();
-        }
+        [Header("UI Components")]
+        public ModProfileDisplay profileDisplay;
+        public ModfileDisplay buildDisplay;
+        public ModStatisticsDisplay statisticsDisplay;
+        public ModTagCollectionDisplay tagsDisplay;
+        public Button subscribeButton;
+        public Button unsubscribeButton;
+        public Button enableModButton;
+        public Button disableModButton;
 
-        // TODO(@jackson): Move to button Prefab
-        if(subscribeButton != null)
-        {
-            subscribeButton.onClick.AddListener(SubscribeClicked);
-        }
+        [Header("Display Data")]
+        public ModProfile profile = null;
+        public ModStatistics statistics = null;
+        public bool isSubscribed = false;
+        public bool isModEnabled = false;
 
-        if(unsubscribeButton != null)
-        {
-            unsubscribeButton.onClick.AddListener(UnsubscribeClicked);
-        }
+        // ---[ RUNTIME DATA ]---
+        [Header("Runtime Data")]
+        public bool isInitialized = false;
+        public int index = -1;
 
-        if(enableModButton != null)
+        // ---------[ INITIALIZATION ]---------
+        public void Initialize()
         {
-            enableModButton.onClick.AddListener(ModEnabledToggled);
-        }
+            // asserts
+            if(isInitialized)
+            {
+                #if DEBUG
+                Debug.LogWarning("[mod.io] Once initialized, a ModBrowserItem cannot be re-initialized.");
+                #endif
 
-        if(disableModButton != null)
-        {
-            disableModButton.onClick.AddListener(ModEnabledToggled);
-        }
-    }
+                return;
+            }
 
-    // ---------[ UI UPDATES ]---------
-    public void UpdateProfileDisplay()
-    {
-        if(profile != null)
-        {
             if(profileDisplay != null)
             {
-                profileDisplay.DisplayProfile(profile);
+                profileDisplay.Initialize();
             }
             if(buildDisplay != null)
             {
-                buildDisplay.DisplayModfile(profile.activeBuild);
+                buildDisplay.Initialize();
             }
-        }
-        else
-        {
-            if(profileDisplay != null)
-            {
-                profileDisplay.DisplayLoading();
-            }
-            if(buildDisplay != null)
-            {
-                buildDisplay.DisplayLoading();
-            }
-        }
-    }
-
-    public void UpdateStatisticsDisplay()
-    {
-        if(statistics != null)
-        {
             if(statisticsDisplay != null)
             {
-                statisticsDisplay.DisplayStatistics(statistics);
+                statisticsDisplay.Initialize();
             }
-        }
-        else
-        {
-            if(statisticsDisplay != null)
+            if(tagsDisplay != null)
             {
-                statisticsDisplay.DisplayLoading();
+                tagsDisplay.Initialize();
             }
-        }
-    }
 
-    public void UpdateIsSubscribedDisplay()
-    {
-        if(subscribeButton != null)
-        {
-            if(profile == null)
+            // TODO(@jackson): Move to button Prefab
+            if(subscribeButton != null)
             {
-                subscribeButton.interactable = false;
-                subscribeButton.gameObject.SetActive(true);
+                subscribeButton.onClick.AddListener(SubscribeClicked);
             }
-            else
-            {
-                subscribeButton.interactable = true;
-                subscribeButton.gameObject.SetActive(!isSubscribed);
-            }
-        }
-        if(unsubscribeButton != null)
-        {
-            if(profile == null)
-            {
-                unsubscribeButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                unsubscribeButton.gameObject.SetActive(isSubscribed);
-            }
-        }
-    }
 
-    public void UpdateIsModEnabledDisplay()
-    {
-        if(enableModButton != null)
-        {
-            if(profile == null)
+            if(unsubscribeButton != null)
             {
-                enableModButton.interactable = false;
-                enableModButton.gameObject.SetActive(true);
+                unsubscribeButton.onClick.AddListener(UnsubscribeClicked);
             }
-            else
+
+            if(enableModButton != null)
             {
-                enableModButton.interactable = true;
-                enableModButton.gameObject.SetActive(!isModEnabled);
+                enableModButton.onClick.AddListener(ModEnabledToggled);
+            }
+
+            if(disableModButton != null)
+            {
+                disableModButton.onClick.AddListener(ModEnabledToggled);
             }
         }
-        if(unsubscribeButton != null)
-        {
-            if(profile == null)
-            {
-                disableModButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                disableModButton.gameObject.SetActive(isModEnabled);
-            }
-        }
-    }
 
-    public void UpdateTagsDisplay(IEnumerable<ModTagCategory> tagCategories)
-    {
-        Debug.Assert(tagCategories != null);
-
-        if(tagsDisplay != null)
+        // ---------[ UI UPDATES ]---------
+        public void UpdateProfileDisplay()
         {
             if(profile != null)
             {
-                tagsDisplay.DisplayModTags(profile, tagCategories);
+                if(profileDisplay != null)
+                {
+                    profileDisplay.DisplayProfile(profile);
+                }
+                if(buildDisplay != null)
+                {
+                    buildDisplay.DisplayModfile(profile.activeBuild);
+                }
             }
             else
             {
-                tagsDisplay.DisplayLoading();
+                if(profileDisplay != null)
+                {
+                    profileDisplay.DisplayLoading();
+                }
+                if(buildDisplay != null)
+                {
+                    buildDisplay.DisplayLoading();
+                }
             }
         }
-    }
 
-    // ---------[ EVENTS ]---------
-    public void InspectClicked()
-    {
-        if(inspectRequested != null)
+        public void UpdateStatisticsDisplay()
         {
-            inspectRequested(this);
+            if(statistics != null)
+            {
+                if(statisticsDisplay != null)
+                {
+                    statisticsDisplay.DisplayStatistics(statistics);
+                }
+            }
+            else
+            {
+                if(statisticsDisplay != null)
+                {
+                    statisticsDisplay.DisplayLoading();
+                }
+            }
         }
-    }
-    public void SubscribeClicked()
-    {
-        if(subscribeRequested != null)
+
+        public void UpdateIsSubscribedDisplay()
         {
-            subscribeRequested(this);
+            if(subscribeButton != null)
+            {
+                if(profile == null)
+                {
+                    subscribeButton.interactable = false;
+                    subscribeButton.gameObject.SetActive(true);
+                }
+                else
+                {
+                    subscribeButton.interactable = true;
+                    subscribeButton.gameObject.SetActive(!isSubscribed);
+                }
+            }
+            if(unsubscribeButton != null)
+            {
+                if(profile == null)
+                {
+                    unsubscribeButton.gameObject.SetActive(false);
+                }
+                else
+                {
+                    unsubscribeButton.gameObject.SetActive(isSubscribed);
+                }
+            }
         }
-    }
-    public void UnsubscribeClicked()
-    {
-        if(unsubscribeRequested != null)
+
+        public void UpdateIsModEnabledDisplay()
         {
-            unsubscribeRequested(this);
+            if(enableModButton != null)
+            {
+                if(profile == null)
+                {
+                    enableModButton.interactable = false;
+                    enableModButton.gameObject.SetActive(true);
+                }
+                else
+                {
+                    enableModButton.interactable = true;
+                    enableModButton.gameObject.SetActive(!isModEnabled);
+                }
+            }
+            if(unsubscribeButton != null)
+            {
+                if(profile == null)
+                {
+                    disableModButton.gameObject.SetActive(false);
+                }
+                else
+                {
+                    disableModButton.gameObject.SetActive(isModEnabled);
+                }
+            }
         }
-    }
-    public void ModEnabledToggled()
-    {
-        if(toggleModEnabledRequested != null)
+
+        public void UpdateTagsDisplay(IEnumerable<ModTagCategory> tagCategories)
         {
-            toggleModEnabledRequested(this);
+            Debug.Assert(tagCategories != null);
+
+            if(tagsDisplay != null)
+            {
+                if(profile != null)
+                {
+                    tagsDisplay.DisplayModTags(profile, tagCategories);
+                }
+                else
+                {
+                    tagsDisplay.DisplayLoading();
+                }
+            }
+        }
+
+        // ---------[ EVENTS ]---------
+        public void InspectClicked()
+        {
+            if(inspectRequested != null)
+            {
+                inspectRequested(this);
+            }
+        }
+        public void SubscribeClicked()
+        {
+            if(subscribeRequested != null)
+            {
+                subscribeRequested(this);
+            }
+        }
+        public void UnsubscribeClicked()
+        {
+            if(unsubscribeRequested != null)
+            {
+                unsubscribeRequested(this);
+            }
+        }
+        public void ModEnabledToggled()
+        {
+            if(toggleModEnabledRequested != null)
+            {
+                toggleModEnabledRequested(this);
+            }
         }
     }
 }

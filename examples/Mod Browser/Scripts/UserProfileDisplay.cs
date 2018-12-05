@@ -2,105 +2,107 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using ModIO;
 
-public class UserProfileDisplay : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    public delegate void OnClickDelegate(UserProfileDisplay display,
-                                         int userId);
-    public event OnClickDelegate onClick;
-
-    [Header("UI Components")]
-    public Text usernameDisplay;
-    public Text lastOnlineDisplay;
-    public UserAvatarDisplay avatarDisplay;
-
-    // --- DISPLAY DATA ---
-    private int m_userId = -1;
-    private List<TextLoadingDisplay> m_loadingDisplays = null;
-
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize()
+    public class UserProfileDisplay : MonoBehaviour
     {
-        // text loading
-        TextLoadingDisplay[] childLoadingDisplays = this.gameObject.GetComponentsInChildren<TextLoadingDisplay>(true);
+        // ---------[ FIELDS ]---------
+        public delegate void OnClickDelegate(UserProfileDisplay display,
+                                             int userId);
+        public event OnClickDelegate onClick;
 
-        m_loadingDisplays = new List<TextLoadingDisplay>();
-        foreach(TextLoadingDisplay loadingDisplay in childLoadingDisplays)
+        [Header("UI Components")]
+        public Text usernameDisplay;
+        public Text lastOnlineDisplay;
+        public UserAvatarDisplay avatarDisplay;
+
+        // --- DISPLAY DATA ---
+        private int m_userId = -1;
+        private List<TextLoadingOverlay> m_loadingOverlays = null;
+
+        // ---------[ INITIALIZATION ]---------
+        public void Initialize()
         {
-            if(loadingDisplay.valueDisplayComponent == usernameDisplay
-               || loadingDisplay.valueDisplayComponent == lastOnlineDisplay)
+            // text loading
+            TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
+
+            m_loadingOverlays = new List<TextLoadingOverlay>();
+            foreach(TextLoadingOverlay loadingOverlay in childLoadingOverlays)
             {
-                m_loadingDisplays.Add(loadingDisplay);
+                if(loadingOverlay.textDisplayComponent == usernameDisplay
+                   || loadingOverlay.textDisplayComponent == lastOnlineDisplay)
+                {
+                    m_loadingOverlays.Add(loadingOverlay);
+                }
+            }
+
+            // avatar
+            if(avatarDisplay != null)
+            {
+                avatarDisplay.Initialize();
             }
         }
 
-        // avatar
-        if(avatarDisplay != null)
+        // ---------[ UI FUNCTIONALITY ]---------
+        public void DisplayProfile(UserProfile profile)
         {
-            avatarDisplay.Initialize();
-        }
-    }
+            Debug.Assert(profile != null);
 
-    // ---------[ UI FUNCTIONALITY ]---------
-    public void DisplayProfile(UserProfile profile)
-    {
-        Debug.Assert(profile != null);
+            m_userId = profile.id;
 
-        m_userId = profile.id;
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(false);
+            }
 
-        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
-        {
-            loadingDisplay.gameObject.SetActive(false);
-        }
-
-        if(usernameDisplay != null)
-        {
-            usernameDisplay.enabled = true;
-            usernameDisplay.text = profile.username;
-        }
-        if(lastOnlineDisplay != null)
-        {
-            lastOnlineDisplay.enabled = true;
-            lastOnlineDisplay.text = ServerTimeStamp.ToLocalDateTime(profile.lastOnline).ToString();
-        }
-        if(avatarDisplay != null)
-        {
-            avatarDisplay.DisplayAvatar(profile);
-        }
-    }
-
-    public void DisplayLoading(int userId = -1)
-    {
-        m_userId = userId;
-
-        foreach(TextLoadingDisplay loadingDisplay in m_loadingDisplays)
-        {
-            loadingDisplay.gameObject.SetActive(true);
+            if(usernameDisplay != null)
+            {
+                usernameDisplay.enabled = true;
+                usernameDisplay.text = profile.username;
+            }
+            if(lastOnlineDisplay != null)
+            {
+                lastOnlineDisplay.enabled = true;
+                lastOnlineDisplay.text = ServerTimeStamp.ToLocalDateTime(profile.lastOnline).ToString();
+            }
+            if(avatarDisplay != null)
+            {
+                avatarDisplay.DisplayAvatar(profile);
+            }
         }
 
-        if(usernameDisplay != null)
+        public void DisplayLoading(int userId = -1)
         {
-            usernameDisplay.enabled = false;
-        }
-        if(lastOnlineDisplay != null)
-        {
-            lastOnlineDisplay.enabled = false;
+            m_userId = userId;
+
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(true);
+            }
+
+            if(usernameDisplay != null)
+            {
+                usernameDisplay.enabled = false;
+            }
+            if(lastOnlineDisplay != null)
+            {
+                lastOnlineDisplay.enabled = false;
+            }
+
+            if(avatarDisplay != null)
+            {
+                avatarDisplay.DisplayLoading(userId);
+            }
         }
 
-        if(avatarDisplay != null)
+        // ---------[ EVENT HANDLING ]---------
+        public void NotifyClicked()
         {
-            avatarDisplay.DisplayLoading(userId);
-        }
-    }
-
-    // ---------[ EVENT HANDLING ]---------
-    public void NotifyClicked()
-    {
-        if(this.onClick != null)
-        {
-            this.onClick(this, m_userId);
+            if(this.onClick != null)
+            {
+                this.onClick(this, m_userId);
+            }
         }
     }
 }

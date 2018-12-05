@@ -16,191 +16,193 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using ModIO;
 
 // TODO(@jackson): Needs cleanup
-public class ModBinaryRequestDisplay : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    [Header("Settings")]
-    [Tooltip("If the display component has no download to show, or the download has finished, this gameObject can be set to inactive.")]
-    public bool setInactiveIfNotDownloading = true;
-
-    [Header("UI Elements")]
-    public Text percentageText;
-    public Text byteCountText;
-    public RectTransform progressBar;
-
-    // --- RUNTIME DATA ---
-    private ModBinaryRequest m_request;
-    private Coroutine m_updateCoroutine;
-
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize() {}
-
-    private void OnEnable()
+    public class ModBinaryRequestDisplay : MonoBehaviour
     {
-        if(m_request != null)
+        // ---------[ FIELDS ]---------
+        [Header("Settings")]
+        [Tooltip("If the display component has no download to show, or the download has finished, this gameObject can be set to inactive.")]
+        public bool setInactiveIfNotDownloading = true;
+
+        [Header("UI Elements")]
+        public Text percentageText;
+        public Text byteCountText;
+        public RectTransform progressBar;
+
+        // --- RUNTIME DATA ---
+        private ModBinaryRequest m_request;
+        private Coroutine m_updateCoroutine;
+
+        // ---------[ INITIALIZATION ]---------
+        public void Initialize() {}
+
+        private void OnEnable()
         {
-            StartDisplayCoroutine();
-        }
-        else if(setInactiveIfNotDownloading)
-        {
-            this.gameObject.SetActive(false);
-        }
-    }
-    private void OnDisable()
-    {
-        if(m_updateCoroutine != null)
-        {
-            this.StopCoroutine(m_updateCoroutine);
-            m_updateCoroutine = null;
-        }
-    }
-
-    // ---------[ UI FUNCTIONALITY ]---------
-    // public void DisplayModfile(int modId, int modfileId)
-    // {
-    //     ModBinaryRequest request = ModManager.GetDownloadInProgress(modfileId);
-    //     DisplayDownload(request);
-
-    //     if(request == null)
-    //     {
-    //         this.m_modId = modId;
-    //         this.m_modfileId = modfileId;
-    //     }
-    // }
-
-    // public void DisplayDownload(ModBinaryRequest request)
-    // {
-    //     if(request == null
-    //        || request.isDone)
-    //     {
-    //         m_modId = -1;
-    //         m_modfileId = -1;
-    //         m_uwr = null;
-
-    //         if(container != null)
-    //         {
-    //             container.gameObject.SetActive(false);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         m_modId = request.
-
-    //         if(container != null)
-    //         {
-    //             container.gameObject.SetActive(true);
-    //         }
-    //         StartCoroutine(UpdateDownloadProgressElements(request));
-    //     }
-    // }
-
-    public void DisplayRequest(ModBinaryRequest request)
-    {
-        m_request = request;
-
-        if(request != null)
-        {
-            this.gameObject.SetActive(true);
-
-            if(this.isActiveAndEnabled)
+            if(m_request != null)
             {
                 StartDisplayCoroutine();
             }
-        }
-        else if(setInactiveIfNotDownloading)
-        {
-            this.gameObject.SetActive(false);
-        }
-    }
-
-    private void StartDisplayCoroutine()
-    {
-        if(m_updateCoroutine != null)
-        {
-            StopCoroutine(m_updateCoroutine);
-        }
-
-        m_updateCoroutine = StartCoroutine(UpdateDisplayCoroutine());
-    }
-
-    private IEnumerator UpdateDisplayCoroutine()
-    {
-        RectTransform barTransform = null;
-        if(progressBar != null)
-        {
-            barTransform = progressBar.GetChild(0) as RectTransform;
-            barTransform.sizeDelta = new Vector2(0f, 0f);
-        }
-        if(byteCountText != null)
-        {
-            byteCountText.text = ModBrowser.ByteCountToDisplayString(0);
-        }
-        if(percentageText != null)
-        {
-            percentageText.text = "0%";
-        }
-
-        while(!m_request.isDone)
-        {
-            if(m_request.webRequest != null)
+            else if(setInactiveIfNotDownloading)
             {
-                float percentComplete = m_request.webRequest.downloadProgress;
-
-                if(progressBar != null)
-                {
-                    float barWidth = percentComplete * progressBar.rect.width;
-                    barTransform.sizeDelta = new Vector2(barWidth, 0f);
-                }
-
-                if(byteCountText != null)
-                {
-                    byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)m_request.webRequest.downloadedBytes);
-                }
-
-                if(percentageText != null)
-                {
-                    percentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
-                }
+                this.gameObject.SetActive(false);
             }
-
-            yield return null;
         }
-
-        if(progressBar != null)
+        private void OnDisable()
         {
-            barTransform.sizeDelta = new Vector2(progressBar.rect.width, 0f);
-        }
-
-        if(byteCountText != null)
-        {
-
-            try
+            if(m_updateCoroutine != null)
             {
-                var info = new System.IO.FileInfo(m_request.binaryFilePath);
-                string byteCountString = ModBrowser.ByteCountToDisplayString(info.Length);
-                byteCountText.text = byteCountString;
-            }
-            catch(Exception e)
-            {
-                Debug.LogError(Utility.GenerateExceptionDebugString(e));
+                this.StopCoroutine(m_updateCoroutine);
+                m_updateCoroutine = null;
             }
         }
 
-        if(percentageText != null)
+        // ---------[ UI FUNCTIONALITY ]---------
+        // public void DisplayModfile(int modId, int modfileId)
+        // {
+        //     ModBinaryRequest request = ModManager.GetDownloadInProgress(modfileId);
+        //     DisplayDownload(request);
+
+        //     if(request == null)
+        //     {
+        //         this.m_modId = modId;
+        //         this.m_modfileId = modfileId;
+        //     }
+        // }
+
+        // public void DisplayDownload(ModBinaryRequest request)
+        // {
+        //     if(request == null
+        //        || request.isDone)
+        //     {
+        //         m_modId = -1;
+        //         m_modfileId = -1;
+        //         m_uwr = null;
+
+        //         if(container != null)
+        //         {
+        //             container.gameObject.SetActive(false);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         m_modId = request.
+
+        //         if(container != null)
+        //         {
+        //             container.gameObject.SetActive(true);
+        //         }
+        //         StartCoroutine(UpdateDownloadProgressElements(request));
+        //     }
+        // }
+
+        public void DisplayRequest(ModBinaryRequest request)
         {
-            percentageText.text = "100%";
+            m_request = request;
+
+            if(request != null)
+            {
+                this.gameObject.SetActive(true);
+
+                if(this.isActiveAndEnabled)
+                {
+                    StartDisplayCoroutine();
+                }
+            }
+            else if(setInactiveIfNotDownloading)
+            {
+                this.gameObject.SetActive(false);
+            }
         }
 
-        yield return new WaitForSeconds(4f);
-
-        m_updateCoroutine = null;
-
-        if(setInactiveIfNotDownloading)
+        private void StartDisplayCoroutine()
         {
-            this.gameObject.SetActive(false);
+            if(m_updateCoroutine != null)
+            {
+                StopCoroutine(m_updateCoroutine);
+            }
+
+            m_updateCoroutine = StartCoroutine(UpdateDisplayCoroutine());
+        }
+
+        private IEnumerator UpdateDisplayCoroutine()
+        {
+            RectTransform barTransform = null;
+            if(progressBar != null)
+            {
+                barTransform = progressBar.GetChild(0) as RectTransform;
+                barTransform.sizeDelta = new Vector2(0f, 0f);
+            }
+            if(byteCountText != null)
+            {
+                byteCountText.text = ModBrowser.ByteCountToDisplayString(0);
+            }
+            if(percentageText != null)
+            {
+                percentageText.text = "0%";
+            }
+
+            while(!m_request.isDone)
+            {
+                if(m_request.webRequest != null)
+                {
+                    float percentComplete = m_request.webRequest.downloadProgress;
+
+                    if(progressBar != null)
+                    {
+                        float barWidth = percentComplete * progressBar.rect.width;
+                        barTransform.sizeDelta = new Vector2(barWidth, 0f);
+                    }
+
+                    if(byteCountText != null)
+                    {
+                        byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)m_request.webRequest.downloadedBytes);
+                    }
+
+                    if(percentageText != null)
+                    {
+                        percentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
+                    }
+                }
+
+                yield return null;
+            }
+
+            if(progressBar != null)
+            {
+                barTransform.sizeDelta = new Vector2(progressBar.rect.width, 0f);
+            }
+
+            if(byteCountText != null)
+            {
+
+                try
+                {
+                    var info = new System.IO.FileInfo(m_request.binaryFilePath);
+                    string byteCountString = ModBrowser.ByteCountToDisplayString(info.Length);
+                    byteCountText.text = byteCountString;
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError(Utility.GenerateExceptionDebugString(e));
+                }
+            }
+
+            if(percentageText != null)
+            {
+                percentageText.text = "100%";
+            }
+
+            yield return new WaitForSeconds(4f);
+
+            m_updateCoroutine = null;
+
+            if(setInactiveIfNotDownloading)
+            {
+                this.gameObject.SetActive(false);
+            }
         }
     }
 }

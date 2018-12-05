@@ -1,105 +1,107 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using ModIO;
 
-public class YouTubeThumbDisplay : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    public delegate void OnClickDelegate(YouTubeThumbDisplay component,
-                                         int modId, string youTubeVideoId);
-    public event OnClickDelegate onClick;
-
-    [Header("UI Components")]
-    public Image image;
-    public GameObject loadingDisplay;
-
-    [Header("Display Data")]
-    [SerializeField] private int m_modId;
-    [SerializeField] private string m_youTubeVideoId;
-
-    // ---------[ INITIALIZATION ]---------
-    public void Initialize()
+    public class YouTubeThumbDisplay : MonoBehaviour
     {
-        Debug.Assert(image != null);
-    }
+        // ---------[ FIELDS ]---------
+        public delegate void OnClickDelegate(YouTubeThumbDisplay component,
+                                             int modId, string youTubeVideoId);
+        public event OnClickDelegate onClick;
 
-    // ---------[ UI FUNCTIONALITY ]---------
-    public void DisplayYouTubeThumbnail(int modId, string youTubeVideoId)
-    {
-        Debug.Assert(modId > 0,
-                     "[mod.io] Mod Id needs to be set to a valid mod profile id.");
-        Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
-                     "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
+        [Header("UI Components")]
+        public Image image;
+        public GameObject loadingOverlay;
 
-        DisplayLoading();
+        [Header("Display Data")]
+        [SerializeField] private int m_modId;
+        [SerializeField] private string m_youTubeVideoId;
 
-        m_modId = modId;
-        m_youTubeVideoId = youTubeVideoId;
-
-        ModManager.GetModYouTubeThumbnail(modId, youTubeVideoId,
-                                          (t) => LoadTexture(t, youTubeVideoId),
-                                          WebRequestError.LogAsWarning);
-    }
-
-    public void DisplayTexture(int modId, string youTubeVideoId, Texture2D texture)
-    {
-        Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
-        Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
-                     "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
-        Debug.Assert(texture != null);
-
-        m_modId = modId;
-        m_youTubeVideoId = youTubeVideoId;
-
-        LoadTexture(texture, youTubeVideoId);
-    }
-
-    public void DisplayLoading(int modId = -1)
-    {
-        m_modId = modId;
-
-        if(loadingDisplay != null)
+        // ---------[ INITIALIZATION ]---------
+        public void Initialize()
         {
-            loadingDisplay.SetActive(true);
+            Debug.Assert(image != null);
         }
 
-        image.enabled = false;
-    }
-
-    private void LoadTexture(Texture2D texture, string youTubeVideoId)
-    {
-        #if UNITY_EDITOR
-        if(!Application.isPlaying) { return; }
-        #endif
-
-        if(youTubeVideoId != m_youTubeVideoId
-           || this.image == null)
+        // ---------[ UI FUNCTIONALITY ]---------
+        public void DisplayYouTubeThumbnail(int modId, string youTubeVideoId)
         {
-            return;
+            Debug.Assert(modId > 0,
+                         "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+            Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
+                         "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
+
+            DisplayLoading();
+
+            m_modId = modId;
+            m_youTubeVideoId = youTubeVideoId;
+
+            ModManager.GetModYouTubeThumbnail(modId, youTubeVideoId,
+                                              (t) => LoadTexture(t, youTubeVideoId),
+                                              WebRequestError.LogAsWarning);
         }
 
-        if(loadingDisplay != null)
+        public void DisplayTexture(int modId, string youTubeVideoId, Texture2D texture)
         {
-            loadingDisplay.SetActive(false);
+            Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
+            Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
+                         "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
+            Debug.Assert(texture != null);
+
+            m_modId = modId;
+            m_youTubeVideoId = youTubeVideoId;
+
+            LoadTexture(texture, youTubeVideoId);
         }
 
-        image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
-        image.enabled = true;
-    }
-
-    // ---------[ EVENT HANDLING ]---------
-    public void NotifyClicked()
-    {
-        if(this.onClick != null)
+        public void DisplayLoading(int modId = -1)
         {
-            this.onClick(this, m_modId, m_youTubeVideoId);
-        }
-    }
+            m_modId = modId;
 
-    // ---------[ UTILITIES ]---------
-    public void OpenYouTubeVideoURL()
-    {
-        ModBrowser.OpenYouTubeVideoURL(m_youTubeVideoId);
+            if(loadingOverlay != null)
+            {
+                loadingOverlay.SetActive(true);
+            }
+
+            image.enabled = false;
+        }
+
+        private void LoadTexture(Texture2D texture, string youTubeVideoId)
+        {
+            #if UNITY_EDITOR
+            if(!Application.isPlaying) { return; }
+            #endif
+
+            if(youTubeVideoId != m_youTubeVideoId
+               || this.image == null)
+            {
+                return;
+            }
+
+            if(loadingOverlay != null)
+            {
+                loadingOverlay.SetActive(false);
+            }
+
+            image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+            image.enabled = true;
+        }
+
+        // ---------[ EVENT HANDLING ]---------
+        public void NotifyClicked()
+        {
+            if(this.onClick != null)
+            {
+                this.onClick(this, m_modId, m_youTubeVideoId);
+            }
+        }
+
+        // ---------[ UTILITIES ]---------
+        public void OpenYouTubeVideoURL()
+        {
+            ModBrowser.OpenYouTubeVideoURL(m_youTubeVideoId);
+        }
     }
 }

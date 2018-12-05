@@ -3,81 +3,83 @@ using System.Text;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using ModIO;
 
-public class ModTagCollectionTextDisplay : ModTagCollectionDisplay
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    [Header("Settings")]
-    public bool includeCategory = false;
-    public string tagSeparator = ", ";
-
-    [Header("UI Components")]
-    public Text text;
-    public GameObject loadingDisplay;
-
-    // --- DISPLAY DATA ---
-    private int m_modId = -1;
-
-    // ---------[ INITIALIZE ]---------
-    public override void Initialize()
+    public class ModTagCollectionTextDisplay : ModTagCollectionDisplay
     {
-        Debug.Assert(text != null);
-    }
+        // ---------[ FIELDS ]---------
+        [Header("Settings")]
+        public bool includeCategory = false;
+        public string tagSeparator = ", ";
 
-    // ---------[ UI FUNCTIONALITY ]--------
-    public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
-    {
-        this.DisplayModTags(-1, tags, tagCategories);
-    }
+        [Header("UI Components")]
+        public Text text;
+        public GameObject loadingOverlay;
 
-    public override void DisplayModTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
-    {
-        Debug.Assert(profile != null);
-        this.DisplayModTags(profile.id, profile.tagNames, tagCategories);
-    }
+        // --- DISPLAY DATA ---
+        private int m_modId = -1;
 
-    public override void DisplayModTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
-    {
-        Debug.Assert(tags != null);
-
-        m_modId = modId;
-
-        IDictionary<string, string> tagCategoryMap = ModTagCollectionDisplay.GenerateTagCategoryMap(tags,
-                                                                                                     tagCategories);
-
-        StringBuilder builder = new StringBuilder();
-        foreach(var tagCategory in tagCategoryMap)
+        // ---------[ INITIALIZE ]---------
+        public override void Initialize()
         {
-            if(!System.String.IsNullOrEmpty(tagCategory.Value))
+            Debug.Assert(text != null);
+        }
+
+        // ---------[ UI FUNCTIONALITY ]--------
+        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        {
+            this.DisplayModTags(-1, tags, tagCategories);
+        }
+
+        public override void DisplayModTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        {
+            Debug.Assert(profile != null);
+            this.DisplayModTags(profile.id, profile.tagNames, tagCategories);
+        }
+
+        public override void DisplayModTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        {
+            Debug.Assert(tags != null);
+
+            m_modId = modId;
+
+            IDictionary<string, string> tagCategoryMap = ModTagCollectionDisplay.GenerateTagCategoryMap(tags,
+                                                                                                         tagCategories);
+
+            StringBuilder builder = new StringBuilder();
+            foreach(var tagCategory in tagCategoryMap)
             {
-                builder.Append(tagCategory.Value + ": ");
+                if(!System.String.IsNullOrEmpty(tagCategory.Value))
+                {
+                    builder.Append(tagCategory.Value + ": ");
+                }
+
+                builder.Append(tagCategory.Key + tagSeparator);
             }
 
-            builder.Append(tagCategory.Key + tagSeparator);
+            if(builder.Length > 0)
+            {
+                builder.Length -= tagSeparator.Length;
+            }
+
+            text.text = builder.ToString();
+            text.enabled = true;
+
+            if(loadingOverlay != null)
+            {
+                loadingOverlay.SetActive(false);
+            }
         }
 
-        if(builder.Length > 0)
+        public override void DisplayLoading(int modId = -1)
         {
-            builder.Length -= tagSeparator.Length;
-        }
+            text.enabled = false;
 
-        text.text = builder.ToString();
-        text.enabled = true;
-
-        if(loadingDisplay != null)
-        {
-            loadingDisplay.SetActive(false);
-        }
-    }
-
-    public override void DisplayLoading(int modId = -1)
-    {
-        text.enabled = false;
-
-        if(loadingDisplay != null)
-        {
-            loadingDisplay.SetActive(true);
+            if(loadingOverlay != null)
+            {
+                loadingOverlay.SetActive(true);
+            }
         }
     }
 }
