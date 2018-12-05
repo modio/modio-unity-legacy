@@ -8428,9 +8428,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  avatarDisplay: {fileID: 114954870979911490}
+  userIdDisplay: {fileID: 0}
+  nameIdDisplay: {fileID: 0}
   usernameDisplay: {fileID: 114489184015494542}
   lastOnlineDisplay: {fileID: 0}
-  avatarDisplay: {fileID: 114954870979911490}
+  timezoneDisplay: {fileID: 0}
+  languageDisplay: {fileID: 0}
+  profileURLDisplay: {fileID: 0}
+  m_data:
+    userId: 0
+    nameId: 
+    username: Guest
+    lastOnline: 0
+    timezone: 
+    language: 
+    profileURL: 
+    avatarTexture: {fileID: 0}
 --- !u!114 &114578234792986726
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9339,9 +9353,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  avatarDisplay: {fileID: 0}
+  userIdDisplay: {fileID: 0}
+  nameIdDisplay: {fileID: 0}
   usernameDisplay: {fileID: 114929665266779030}
   lastOnlineDisplay: {fileID: 0}
-  avatarDisplay: {fileID: 0}
+  timezoneDisplay: {fileID: 0}
+  languageDisplay: {fileID: 0}
+  profileURLDisplay: {fileID: 0}
+  m_data:
+    userId: 0
+    nameId: 
+    username: 
+    lastOnline: 0
+    timezone: 
+    language: 
+    profileURL: 
+    avatarTexture: {fileID: 0}
 --- !u!114 &114691170274925224
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10907,7 +10935,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Melodatron
+  m_Text: 
 --- !u!114 &114931991089472728
 MonoBehaviour:
   m_ObjectHideFlags: 1

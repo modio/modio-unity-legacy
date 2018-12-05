@@ -13,29 +13,39 @@ namespace ModIO.UI
         public event OnClickDelegate onClick;
 
         [Header("UI Components")]
+        public UserAvatarDisplay avatarDisplay;
+        public Text userIdDisplay;
+        public Text nameIdDisplay;
         public Text usernameDisplay;
         public Text lastOnlineDisplay;
-        public UserAvatarDisplay avatarDisplay;
+        public Text timezoneDisplay;
+        public Text languageDisplay;
+        public Text profileURLDisplay;
 
-        // --- DISPLAY DATA ---
-        private int m_userId = -1;
-        private List<TextLoadingOverlay> m_loadingOverlays = null;
+        [Header("Display Data")]
+        [SerializeField] private UserDisplayData m_data = new UserDisplayData();
+        private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
+
+        private delegate string GetDisplayString(UserDisplayData data);
+        private Dictionary<Text, GetDisplayString> m_displayMapping = null;
+
+        // --- ACCESSORS ---
+        public UserDisplayData data
+        {
+            get { return data; }
+            set
+            {
+                data = value;
+                PresentData();
+            }
+        }
+
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
-            // text loading
-            TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
-
-            m_loadingOverlays = new List<TextLoadingOverlay>();
-            foreach(TextLoadingOverlay loadingOverlay in childLoadingOverlays)
-            {
-                if(loadingOverlay.textDisplayComponent == usernameDisplay
-                   || loadingOverlay.textDisplayComponent == lastOnlineDisplay)
-                {
-                    m_loadingOverlays.Add(loadingOverlay);
-                }
-            }
+            BuildDisplayMap();
+            CollectLoadingOverlays();
 
             // avatar
             if(avatarDisplay != null)
@@ -44,38 +54,80 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayProfile(UserProfile profile)
+        private void BuildDisplayMap()
         {
-            Debug.Assert(profile != null);
+            m_displayMapping = new Dictionary<Text, GetDisplayString>();
+            if(userIdDisplay != null)
+            {
+                m_displayMapping.Add(userIdDisplay, (d) => d.userId.ToString());
+            }
+            if(nameIdDisplay != null)
+            {
+                m_displayMapping.Add(nameIdDisplay, (d) => d.nameId);
+            }
+            if(usernameDisplay != null)
+            {
+                m_displayMapping.Add(usernameDisplay, (d) => d.username);
+            }
+            if(lastOnlineDisplay != null)
+            {
+                m_displayMapping.Add(lastOnlineDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.lastOnline).ToString());
+            }
+            if(timezoneDisplay != null)
+            {
+                m_displayMapping.Add(timezoneDisplay, (d) => d.timezone);
+            }
+            if(languageDisplay != null)
+            {
+                m_displayMapping.Add(languageDisplay, (d) => d.language);
+            }
+            if(profileURLDisplay != null)
+            {
+                m_displayMapping.Add(profileURLDisplay, (d) => d.profileURL);
+            }
+        }
 
-            m_userId = profile.id;
+        private void CollectLoadingOverlays()
+        {
+            TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
+            List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
+
+            m_loadingOverlays = new List<TextLoadingOverlay>();
+            foreach(TextLoadingOverlay loadingOverlay in childLoadingOverlays)
+            {
+                if(textDisplays.Contains(loadingOverlay.textDisplayComponent))
+                {
+                    m_loadingOverlays.Add(loadingOverlay);
+                }
+            }
+        }
+
+        // ---------[ UI FUNCTIONALITY ]---------
+        private void PresentData()
+        {
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.enabled = true;
+                kvp.Key.text = kvp.Value(m_data);
+            }
 
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(false);
             }
 
-            if(usernameDisplay != null)
-            {
-                usernameDisplay.enabled = true;
-                usernameDisplay.text = profile.username;
-            }
-            if(lastOnlineDisplay != null)
-            {
-                lastOnlineDisplay.enabled = true;
-                lastOnlineDisplay.text = ServerTimeStamp.ToLocalDateTime(profile.lastOnline).ToString();
-            }
-            if(avatarDisplay != null)
-            {
-                avatarDisplay.DisplayAvatar(profile);
-            }
+            // avatarDisplay.data = m_data;
         }
 
-        public void DisplayLoading(int userId = -1)
+        public void DisplayProfile(UserProfile profile)
         {
-            m_userId = userId;
+            Debug.Assert(profile != null);
 
+            m_data.userId = profile.id;
+        }
+
+        public void DisplayLoading()
+        {
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(true);
@@ -92,7 +144,7 @@ namespace ModIO.UI
 
             if(avatarDisplay != null)
             {
-                avatarDisplay.DisplayLoading(userId);
+                avatarDisplay.DisplayLoading();
             }
         }
 
@@ -101,8 +153,17 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_userId);
+                this.onClick(this, m_data.userId);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            BuildDisplayMap();
+            CollectLoadingOverlays();
+            PresentData();
+        }
+        #endif
     }
 }
