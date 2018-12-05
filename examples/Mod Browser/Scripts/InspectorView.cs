@@ -87,8 +87,8 @@ namespace ModIO.UI
                                  + "be set for the InspectorView.", this);
             }
 
-            Debug.Assert(!(versionHistoryItemPrefab != null && versionHistoryItemPrefab.GetComponent<ModfileDisplay>() == null),
-                         "[mod.io] The versionHistoryItemPrefab requires a ModfileDisplay component on the root Game Object.");
+            Debug.Assert(!(versionHistoryItemPrefab != null && versionHistoryItemPrefab.GetComponent<ModfileDisplayComponent>() == null),
+                         "[mod.io] The versionHistoryItemPrefab requires a ModfileDisplayComponent on the root Game Object.");
         }
 
         // ---------[ UPDATE VIEW ]---------
@@ -185,7 +185,7 @@ namespace ModIO.UI
                     modfile.changelog = missingVersionChangelogText;
                 }
 
-                var entry = go.GetComponent<ModfileDisplay>();
+                var entry = go.GetComponent<ModfileDisplayComponent>();
                 entry.Initialize();
                 entry.DisplayModfile(modfile);
             }

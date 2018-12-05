@@ -28,7 +28,7 @@ namespace ModIO.UI
         public UserProfileDisplay           creatorDisplay;
         public ModLogoDisplay               logoDisplay;
         public ModMediaCollectionContainer  mediaContainer;
-        public ModfileDisplay               buildDisplay;
+        public ModfileDisplayComponent      buildDisplay;
         public ModBinaryRequestDisplay      downloadDisplay;
 
         // TODO(@jackson)

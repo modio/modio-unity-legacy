@@ -20,9 +20,9 @@ namespace ModIO.UI
         public string virusScanHash;
     }
 
-    public abstract class ModfileDataDisplayComponent : UnityEngine.MonoBehaviour
+    public abstract class ModfileDisplayComponent : UnityEngine.MonoBehaviour
     {
-        public abstract event System.Action<ModfileDataDisplayComponent> onClick;
+        public abstract event System.Action<ModfileDisplayComponent> onClick;
 
         public abstract ModfileDisplayData data { get; set; }
 

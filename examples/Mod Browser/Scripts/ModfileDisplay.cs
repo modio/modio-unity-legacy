@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModfileDisplay : ModfileDataDisplayComponent
+    public class ModfileDisplay : ModfileDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<ModfileDataDisplayComponent> onClick;
+        public override event Action<ModfileDisplayComponent> onClick;
 
         [Header("UI Components")]
         public Text modfileIdDisplay;
