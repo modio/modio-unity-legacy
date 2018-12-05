@@ -57,7 +57,7 @@ namespace ModIO.UI
             if(selectedMediaPreview != null)
             {
                 selectedMediaPreview.Initialize();
-                selectedMediaPreview.youTubeThumbClicked += (c, mId, ytId) => ModBrowser.OpenYouTubeVideoURL(ytId);
+                selectedMediaPreview.youTubeThumbClicked += (c, mId, ytId) => UIUtilities.OpenYouTubeVideoURL(ytId);
                 // selectedMediaPreview.logoClicked += (c, mId) => Debug.Log("Clicked Logo");
                 // selectedMediaPreview.galleryImageClicked += (c, mId, iFN) => Debug.Log("Clicked Image: " + iFN);
 

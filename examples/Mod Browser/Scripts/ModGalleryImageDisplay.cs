@@ -86,7 +86,7 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(false);
             }
 
-            image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+            image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
             image.enabled = true;
         }
 

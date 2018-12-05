@@ -53,11 +53,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224130394067245370}
+  - component: {fileID: 114034985456107004}
   - component: {fileID: 222824502676651806}
   - component: {fileID: 114690865727002986}
   - component: {fileID: 114835771881959764}
   - component: {fileID: 114112872799890884}
-  - component: {fileID: 114034985456107004}
   m_Layer: 5
   m_Name: VersionHistoryItem
   m_TagString: Untagged
@@ -131,7 +131,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 22/06/2018
+  m_Text: 07/14/2017 12:40:00
 --- !u!114 &114034985456107004
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -143,14 +143,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12b4065a2b874a64882bb8f754dfac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textLoadingPrefab: {fileID: 0}
+  modfileIdDisplay: {fileID: 0}
+  modIdDisplay: {fileID: 0}
   dateAddedDisplay: {fileID: 114026099628693996}
   fileNameDisplay: {fileID: 0}
   fileSizeDisplay: {fileID: 0}
-  fileHashDisplay: {fileID: 0}
+  MD5Display: {fileID: 0}
   versionDisplay: {fileID: 114605380037962906}
   changelogDisplay: {fileID: 114690865727002986}
-  m_modfileId: -1
+  metadataBlobDisplay: {fileID: 0}
+  virusScanDateDisplay: {fileID: 0}
+  virusScanStatusDisplay: {fileID: 0}
+  virusScanResultDisplay: {fileID: 0}
+  virusScanHashDisplay: {fileID: 0}
+  m_data:
+    modfileId: 0
+    modId: 0
+    dateAdded: 1500000000
+    fileName: 
+    fileSize: 0
+    MD5: 
+    version: 1.0.4
+    changelog: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut id orci
+      dictum, lacinia orci sed, rutrum nibh. Orci varius natoque penatibus et magnis
+      dis parturient montes, nascetur ridiculus mus. Aenean orci nisl, cursus in tempor
+      et, cursus sed neque. Praesent pellentesque justo vel tellus fringilla, at posuere
+      turpis egestas. Donec accumsan elit non nibh pellentesque, sit amet semper felis
+      laoreet. Curabitur aliquam ultrices nulla, et vestibulum sapien consequat scelerisque.
+      Praesent non aliquam ante. Vestibulum nec purus ac sem tempor mollis vitae sit
+      amet neque. Aenean et pharetra neque.
+    metadataBlob: 
+    virusScanDate: 0
+    virusScanStatus: 0
+    virusScanResult: 0
+    virusScanHash: 
 --- !u!114 &114112872799890884
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -256,7 +282,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: v1.0.2
+  m_Text: 1.0.4
 --- !u!114 &114690865727002986
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -289,15 +315,14 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat sapien,
-    venenatis at diam quis, condimentum vestibulum quam. Nunc luctus facilisis bibendum.
-    Ut quis velit et ex blandit laoreet sed nec justo. Vivamus maximus aliquet nunc
-    vel facilisis. Proin vitae mollis neque. Aenean tincidunt libero lectus, eu semper
-    magna aliquet sed. Curabitur a massa elit. Proin ultricies maximus nunc non mollis.
-    Quisque sed fringilla sem. Aenean eu tristique nunc, ut cursus nulla. Quisque
-    elementum euismod commodo. Quisque libero nunc, suscipit vel mauris tincidunt,
-    tristique pretium nunc. Vivamus lacinia dolor a lorem molestie, nec ornare quam
-    laoreet. '
+  m_Text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut id orci dictum,
+    lacinia orci sed, rutrum nibh. Orci varius natoque penatibus et magnis dis parturient
+    montes, nascetur ridiculus mus. Aenean orci nisl, cursus in tempor et, cursus
+    sed neque. Praesent pellentesque justo vel tellus fringilla, at posuere turpis
+    egestas. Donec accumsan elit non nibh pellentesque, sit amet semper felis laoreet.
+    Curabitur aliquam ultrices nulla, et vestibulum sapien consequat scelerisque.
+    Praesent non aliquam ante. Vestibulum nec purus ac sem tempor mollis vitae sit
+    amet neque. Aenean et pharetra neque.
 --- !u!114 &114835771881959764
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -381,9 +406,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 377, y: -4}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 502, y: 0}
-  m_Pivot: {x: 0.5, y: 1}
+  m_Pivot: {x: 0, y: 1}
 --- !u!224 &224192640099787356
 RectTransform:
   m_ObjectHideFlags: 1

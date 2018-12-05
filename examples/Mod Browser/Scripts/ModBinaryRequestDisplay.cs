@@ -137,7 +137,7 @@ namespace ModIO.UI
             }
             if(byteCountText != null)
             {
-                byteCountText.text = ModBrowser.ByteCountToDisplayString(0);
+                byteCountText.text = UIUtilities.ByteCountToDisplayString(0);
             }
             if(percentageText != null)
             {
@@ -158,7 +158,7 @@ namespace ModIO.UI
 
                     if(byteCountText != null)
                     {
-                        byteCountText.text = ModBrowser.ByteCountToDisplayString((Int64)m_request.webRequest.downloadedBytes);
+                        byteCountText.text = UIUtilities.ByteCountToDisplayString((Int64)m_request.webRequest.downloadedBytes);
                     }
 
                     if(percentageText != null)
@@ -181,7 +181,7 @@ namespace ModIO.UI
                 try
                 {
                     var info = new System.IO.FileInfo(m_request.binaryFilePath);
-                    string byteCountString = ModBrowser.ByteCountToDisplayString(info.Length);
+                    string byteCountString = UIUtilities.ByteCountToDisplayString(info.Length);
                     byteCountText.text = byteCountString;
                 }
                 catch(Exception e)

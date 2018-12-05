@@ -564,14 +564,11 @@ MonoBehaviour:
   profileDisplay: {fileID: 114955705671663438}
   buildDisplay: {fileID: 114868194789145208}
   statisticsDisplay: {fileID: 0}
+  tagsDisplay: {fileID: 0}
   subscribeButton: {fileID: 0}
   unsubscribeButton: {fileID: 0}
   enableModButton: {fileID: 0}
   disableModButton: {fileID: 0}
-  downloadProgressPercentageText: {fileID: 114557033603824710}
-  downloadProgress_byteCountText: {fileID: 114701430919161398}
-  downloadProgress_bar: {fileID: 224215965165510086}
-  downloadProgressContainer: {fileID: 1886362616015150}
   profile:
     id: 0
     gameId: 0
@@ -746,7 +743,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 120.5 GB
+  m_Text: 16352.1MB
 --- !u!114 &114109154935669094
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1352,13 +1349,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12b4065a2b874a64882bb8f754dfac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  modfileIdDisplay: {fileID: 0}
+  modIdDisplay: {fileID: 0}
   dateAddedDisplay: {fileID: 0}
   fileNameDisplay: {fileID: 0}
   fileSizeDisplay: {fileID: 114100271337470856}
-  fileHashDisplay: {fileID: 0}
+  MD5Display: {fileID: 0}
   versionDisplay: {fileID: 0}
   changelogDisplay: {fileID: 0}
-  m_modfileId: -1
+  metadataBlobDisplay: {fileID: 0}
+  virusScanDateDisplay: {fileID: 0}
+  virusScanStatusDisplay: {fileID: 0}
+  virusScanResultDisplay: {fileID: 0}
+  virusScanHashDisplay: {fileID: 0}
+  m_data:
+    modfileId: 0
+    modId: 0
+    dateAdded: 0
+    fileName: 
+    fileSize: 16777216
+    MD5: 
+    version: 
+    changelog: 
+    metadataBlob: 
+    virusScanDate: 0
+    virusScanStatus: 0
+    virusScanResult: 0
+    virusScanHash: 
 --- !u!114 &114909554212409956
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1413,7 +1430,7 @@ MonoBehaviour:
   descriptionTextDisplay: {fileID: 0}
   creatorDisplay: {fileID: 0}
   logoDisplay: {fileID: 0}
-  mediaDisplay: {fileID: 0}
+  mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 114868194789145208}
   downloadDisplay: {fileID: 114618228435171366}
   tagContainer: {fileID: 0}

@@ -85,7 +85,7 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(false);
             }
 
-            image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+            image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
             image.enabled = true;
         }
 
@@ -101,7 +101,7 @@ namespace ModIO.UI
         // ---------[ UTILITIES ]---------
         public void OpenYouTubeVideoURL()
         {
-            ModBrowser.OpenYouTubeVideoURL(m_youTubeVideoId);
+            UIUtilities.OpenYouTubeVideoURL(m_youTubeVideoId);
         }
     }
 }

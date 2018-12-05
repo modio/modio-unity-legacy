@@ -415,7 +415,7 @@ namespace ModIO.UI
             }
             if(resultCountText != null)
             {
-                resultCountText.text = ModBrowser.ValueToDisplayString(currentPage.resultTotal);
+                resultCountText.text = UIUtilities.ValueToDisplayString(currentPage.resultTotal);
             }
         }
 

@@ -225,7 +225,7 @@ namespace ModIO.UI
                 overlay.SetActive(true);
             }
 
-            image.sprite = ModBrowser.CreateSpriteFromTexture(texture);
+            image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
             image.enabled = true;
         }
 

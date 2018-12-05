@@ -38,7 +38,6 @@ namespace ModIO.UI
             }
         }
 
-
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
         {
@@ -169,9 +168,9 @@ namespace ModIO.UI
                 loadingOverlay.gameObject.SetActive(true);
             }
 
-            foreach(var kvp in m_displayMapping)
+            foreach(Text textComponent in m_displayMapping.Keys)
             {
-                kvp.Key.text = string.Empty;
+                textComponent.text = string.Empty;
             }
 
             if(avatarDisplay != null)

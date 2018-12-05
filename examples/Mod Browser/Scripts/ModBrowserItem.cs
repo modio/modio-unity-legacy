@@ -25,7 +25,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ModProfileDisplay profileDisplay;
-        public ModfileDisplay buildDisplay;
         public ModStatisticsDisplay statisticsDisplay;
         public ModTagCollectionDisplay tagsDisplay;
         public Button subscribeButton;
@@ -60,10 +59,6 @@ namespace ModIO.UI
             if(profileDisplay != null)
             {
                 profileDisplay.Initialize();
-            }
-            if(buildDisplay != null)
-            {
-                buildDisplay.Initialize();
             }
             if(statisticsDisplay != null)
             {
@@ -105,20 +100,12 @@ namespace ModIO.UI
                 {
                     profileDisplay.DisplayProfile(profile);
                 }
-                if(buildDisplay != null)
-                {
-                    buildDisplay.DisplayModfile(profile.activeBuild);
-                }
             }
             else
             {
                 if(profileDisplay != null)
                 {
                     profileDisplay.DisplayLoading();
-                }
-                if(buildDisplay != null)
-                {
-                    buildDisplay.DisplayLoading();
                 }
             }
         }

@@ -10,11 +10,11 @@ namespace ModIO.UI
         public int dateAdded;
         public string fileName;
         public Int64 fileSize;
-        public FileHash fileHash;
+        public string MD5;
         public string version;
         public string changelog;
         public string metadataBlob;
-        public int dateScanned;
+        public int virusScanDate;
         public ModfileVirusScanStatus virusScanStatus;
         public ModfileVirusScanResult virusScanResult;
         public string virusScanHash;

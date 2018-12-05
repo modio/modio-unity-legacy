@@ -44,7 +44,7 @@ namespace ModIO.UI
         {
             if(m_data.avatarTexture != null)
             {
-                image.sprite = ModBrowser.CreateSpriteFromTexture(m_data.avatarTexture);
+                image.sprite = UIUtilities.CreateSpriteFromTexture(m_data.avatarTexture);
             }
             else
             {

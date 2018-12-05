@@ -42,32 +42,32 @@ namespace ModIO.UI
             if(popularityRankDisplay != null)
             {
                 m_displayMapping.Add(popularityRankDisplay,
-                                     (s) => ModBrowser.ValueToDisplayString(s.popularityRankPosition));
+                                     (s) => UIUtilities.ValueToDisplayString(s.popularityRankPosition));
             }
             if(popularityModCountDisplay != null)
             {
                 m_displayMapping.Add(popularityModCountDisplay,
-                                     (s) => ModBrowser.ValueToDisplayString(s.popularityRankModCount));
+                                     (s) => UIUtilities.ValueToDisplayString(s.popularityRankModCount));
             }
             if(downloadCountDisplay != null)
             {
                 m_displayMapping.Add(downloadCountDisplay,
-                                     (s) => ModBrowser.ValueToDisplayString(s.downloadCount));
+                                     (s) => UIUtilities.ValueToDisplayString(s.downloadCount));
             }
             if(subscriberCountDisplay != null)
             {
                 m_displayMapping.Add(subscriberCountDisplay,
-                                     (s) => ModBrowser.ValueToDisplayString(s.subscriberCount));
+                                     (s) => UIUtilities.ValueToDisplayString(s.subscriberCount));
             }
             if(ratingCountDisplay != null)
             {
                 m_displayMapping.Add(ratingCountDisplay,
-                                     (s) => ModBrowser.ValueToDisplayString(s.ratingCount));
+                                     (s) => UIUtilities.ValueToDisplayString(s.ratingCount));
             }
             if(ratingPositiveCountDisplay != null)
             {
                 m_displayMapping.Add(ratingPositiveCountDisplay,
-                                     (s) => ModBrowser.ValueToDisplayString(s.ratingPositiveCount));
+                                     (s) => UIUtilities.ValueToDisplayString(s.ratingPositiveCount));
             }
             if(ratingPositivePercentageDisplay != null)
             {
@@ -79,7 +79,7 @@ namespace ModIO.UI
             if(ratingNegativeCountDisplay != null)
             {
                 m_displayMapping.Add(ratingNegativeCountDisplay,
-                                     (s) => ModBrowser.ValueToDisplayString(s.ratingNegativeCount));
+                                     (s) => UIUtilities.ValueToDisplayString(s.ratingNegativeCount));
             }
             if(ratingNegativePercentageDisplay != null)
             {

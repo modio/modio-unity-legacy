@@ -11,21 +11,26 @@ namespace ModIO.UI
         public override event Action<ModfileDataDisplayComponent> onClick;
 
         [Header("UI Components")]
+        public Text modfileIdDisplay;
+        public Text modIdDisplay;
         public Text dateAddedDisplay;
         public Text fileNameDisplay;
         public Text fileSizeDisplay;
-        public Text fileHashDisplay;
+        public Text MD5Display;
         public Text versionDisplay;
         public Text changelogDisplay;
+        public Text metadataBlobDisplay;
+        public Text virusScanDateDisplay;
+        public Text virusScanStatusDisplay;
+        public Text virusScanResultDisplay;
+        public Text virusScanHashDisplay;
 
         [Header("Display Data")]
         [SerializeField] private ModfileDisplayData m_data = new ModfileDisplayData();
-
-        // --- RUNTIME DATA ---
-        private delegate string GetDisplayString(Modfile modfile);
-
-        private Dictionary<Text, GetDisplayString> m_displayMapping = null;
         private List<TextLoadingOverlay> m_loadingOverlays = null;
+
+        private delegate string GetDisplayString(ModfileDisplayData data);
+        private Dictionary<Text, GetDisplayString> m_displayMapping = null;
 
         // --- ACCESSORS --
         public override ModfileDisplayData data
@@ -34,40 +39,77 @@ namespace ModIO.UI
             set
             {
                 m_data = value;
-                // PresentData();
+                PresentData();
             }
         }
 
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
         {
+            BuildDisplayMap();
+            CollectLoadingOverlays();
+        }
+
+        private void BuildDisplayMap()
+        {
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
+            if(modfileIdDisplay != null)
+            {
+                m_displayMapping.Add(modfileIdDisplay, (d) => d.modfileId.ToString());
+            }
+            if(modIdDisplay != null)
+            {
+                m_displayMapping.Add(modIdDisplay, (d) => d.modId.ToString());
+            }
             if(dateAddedDisplay != null)
             {
-                m_displayMapping.Add(dateAddedDisplay, (m) => ServerTimeStamp.ToLocalDateTime(m.dateAdded).ToString());
+                m_displayMapping.Add(dateAddedDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateAdded).ToString());
             }
             if(fileNameDisplay != null)
             {
-                m_displayMapping.Add(fileNameDisplay, (m) => m.fileName);
+                m_displayMapping.Add(fileNameDisplay, (d) => d.fileName);
             }
             if(fileSizeDisplay != null)
             {
-                m_displayMapping.Add(fileSizeDisplay, (m) => ModBrowser.ByteCountToDisplayString(m.fileSize));
+                m_displayMapping.Add(fileSizeDisplay, (d) => UIUtilities.ByteCountToDisplayString(d.fileSize));
             }
-            if(fileHashDisplay != null)
+            if(MD5Display != null)
             {
-                m_displayMapping.Add(fileHashDisplay, (m) => m.fileHash.md5);
+                m_displayMapping.Add(MD5Display, (d) => d.MD5);
             }
             if(versionDisplay != null)
             {
-                m_displayMapping.Add(versionDisplay, (m) => m.version);
+                m_displayMapping.Add(versionDisplay, (d) => d.version);
             }
             if(changelogDisplay != null)
             {
-                m_displayMapping.Add(changelogDisplay, (m) => m.changelog);
+                m_displayMapping.Add(changelogDisplay, (d) => d.changelog);
             }
+            if(metadataBlobDisplay != null)
+            {
+                m_displayMapping.Add(metadataBlobDisplay, (d) => d.metadataBlob);
+            }
+            if(virusScanDateDisplay != null)
+            {
+                m_displayMapping.Add(virusScanDateDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.virusScanDate).ToString());
+            }
+            if(virusScanStatusDisplay != null)
+            {
+                m_displayMapping.Add(virusScanStatusDisplay, (d) => d.virusScanStatus.ToString());
+            }
+            if(virusScanResultDisplay != null)
+            {
+                m_displayMapping.Add(virusScanResultDisplay, (d) => d.virusScanResult.ToString());
+            }
+            if(virusScanHashDisplay != null)
+            {
+                m_displayMapping.Add(virusScanHashDisplay, (d) => d.virusScanHash);
+            }
+        }
 
+        private void CollectLoadingOverlays()
+        {
             TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
             List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
 
@@ -82,21 +124,42 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayModfile(Modfile modfile)
+        private void PresentData()
         {
-            Debug.Assert(modfile != null);
-
-            m_data.modfileId = modfile.id;
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.text = kvp.Value(m_data);
+            }
 
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(false);
             }
-            foreach(var kvp in m_displayMapping)
+        }
+
+        public override void DisplayModfile(Modfile modfile)
+        {
+            Debug.Assert(modfile != null);
+
+            ModfileDisplayData newData = new ModfileDisplayData()
             {
-                kvp.Key.text = kvp.Value(modfile);
-                kvp.Key.enabled = true;
-            }
+                modfileId       = modfile.id,
+                modId           = modfile.modId,
+                dateAdded       = modfile.dateAdded,
+                fileName        = modfile.fileName,
+                fileSize        = modfile.fileSize,
+                MD5             = modfile.fileHash.md5,
+                version         = modfile.version,
+                changelog       = modfile.changelog,
+                metadataBlob    = modfile.metadataBlob,
+                virusScanDate   = modfile.dateScanned,
+                virusScanStatus = modfile.virusScanStatus,
+                virusScanResult = modfile.virusScanResult,
+                virusScanHash   = modfile.virusScanHash,
+            };
+            m_data = newData;
+
+            PresentData();
         }
 
         public override void DisplayLoading()
@@ -107,7 +170,7 @@ namespace ModIO.UI
             }
             foreach(Text textComponent in m_displayMapping.Keys)
             {
-                textComponent.enabled = false;
+                textComponent.text = string.Empty;
             }
         }
 
@@ -119,5 +182,14 @@ namespace ModIO.UI
                 this.onClick(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            BuildDisplayMap();
+            CollectLoadingOverlays();
+            PresentData();
+        }
+        #endif
     }
 }
