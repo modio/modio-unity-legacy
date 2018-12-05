@@ -112,6 +112,11 @@ namespace ModIO.UI
         public int gameId = 0;
         public string gameAPIKey = string.Empty;
         public bool isAutomaticUpdateEnabled = false;
+        public UserDisplayData guestData = new UserDisplayData()
+        {
+            userId = -1,
+            username = "Guest",
+        };
 
         [Header("UI Components")]
         public ExplorerView explorerView;
@@ -1343,9 +1348,11 @@ namespace ModIO.UI
 
 
         // ---------[ EVENT HANDLING ]---------
-        private void OnUserDisplayClicked(UserProfileDisplay display, int userId)
+        private void OnUserDisplayClicked(UserProfileDisplay display)
         {
             Debug.Log("To log in, or to log out, that is the question");
+
+            OpenLoginDialog();
         }
 
         // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)

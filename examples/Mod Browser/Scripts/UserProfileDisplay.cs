@@ -8,8 +8,7 @@ namespace ModIO.UI
     public class UserProfileDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(UserProfileDisplay display,
-                                             int userId);
+        public delegate void OnClickDelegate(UserProfileDisplay display);
         public event OnClickDelegate onClick;
 
         [Header("UI Components")]
@@ -151,9 +150,8 @@ namespace ModIO.UI
                                          avatarDisplay.avatarSize,
                                          (t) =>
                                          {
-                                            if(!Application.isPlaying) { Debug.LogError("FUCL"); }
+                                            if(!Application.isPlaying) { return; }
 
-                                            Debug.Log("USER IDS: " + userData.userId + " m:" + m_data.userId);
                                             if(m_data.Equals(userData))
                                             {
                                                 m_data.avatarTexture = t;
@@ -188,7 +186,7 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_data.userId);
+                this.onClick(this);
             }
         }
 

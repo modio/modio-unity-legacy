@@ -3932,7 +3932,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114411584983241340}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114572881179706572}
+        m_MethodName: NotifyClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114053313206373060
@@ -7183,6 +7194,15 @@ MonoBehaviour:
   gameId: 0
   gameAPIKey: 
   isAutomaticUpdateEnabled: 0
+  guestData:
+    userId: -1
+    nameId: 
+    username: Guest
+    lastOnline: 0
+    timezone: 
+    language: 
+    profileURL: 
+    avatarTexture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
   explorerView: {fileID: 114195835507779204}
   subscriptionsView: {fileID: 114130614508925794}
   inspectorView: {fileID: 114309666271251828}
@@ -14500,11 +14520,11 @@ RectTransform:
   m_Father: {fileID: 224694753977040656}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -81, y: 0}
-  m_SizeDelta: {x: -170, y: -8}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 4, y: 0}
+  m_SizeDelta: {x: 30, y: 30}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224581648850773904
 RectTransform:
   m_ObjectHideFlags: 1
@@ -14789,8 +14809,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 19.6, y: 0}
-  m_SizeDelta: {x: -47.2, y: -8}
+  m_AnchoredPosition: {x: 19, y: 0}
+  m_SizeDelta: {x: -46, y: -8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224666168086304054
 RectTransform:
@@ -15038,7 +15058,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 38}
+  m_SizeDelta: {x: 360, y: 38}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224699470855391732
 RectTransform:
