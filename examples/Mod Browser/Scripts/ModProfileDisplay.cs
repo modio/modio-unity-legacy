@@ -216,7 +216,7 @@ namespace ModIO.UI
             }
             if(buildDisplay != null)
             {
-                buildDisplay.DisplayLoading(modId);
+                buildDisplay.DisplayLoading();
             }
             if(downloadDisplay != null)
             {

@@ -1,14 +1,14 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModfileDisplay : MonoBehaviour
+    public class ModfileDisplay : ModfileDataDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(ModfileDisplay display, int modfileId);
-        public event OnClickDelegate onClick;
+        public override event Action<ModfileDataDisplayComponent> onClick;
 
         [Header("UI Components")]
         public Text dateAddedDisplay;
@@ -19,7 +19,7 @@ namespace ModIO.UI
         public Text changelogDisplay;
 
         [Header("Display Data")]
-        [SerializeField] private int m_modfileId = -1;
+        [SerializeField] private ModfileDisplayData m_data = new ModfileDisplayData();
 
         // --- RUNTIME DATA ---
         private delegate string GetDisplayString(Modfile modfile);
@@ -27,8 +27,19 @@ namespace ModIO.UI
         private Dictionary<Text, GetDisplayString> m_displayMapping = null;
         private List<TextLoadingOverlay> m_loadingOverlays = null;
 
+        // --- ACCESSORS --
+        public override ModfileDisplayData data
+        {
+            get { return data; }
+            set
+            {
+                m_data = value;
+                // PresentData();
+            }
+        }
+
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        public override void Initialize()
         {
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
@@ -71,11 +82,11 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayModfile(Modfile modfile)
+        public override void DisplayModfile(Modfile modfile)
         {
             Debug.Assert(modfile != null);
 
-            m_modfileId = modfile.id;
+            m_data.modfileId = modfile.id;
 
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
@@ -88,10 +99,8 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayLoading(int modfileId = -1)
+        public override void DisplayLoading()
         {
-            m_modfileId = modfileId;
-
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(true);
@@ -107,7 +116,7 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_modfileId);
+                this.onClick(this);
             }
         }
     }
