@@ -75,11 +75,6 @@ namespace ModIO.UI
 
         // ---------[ CONST & STATIC ]---------
         public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
-        public static readonly UserProfile GUEST_PROFILE = new UserProfile()
-        {
-            id = 0,
-            username = "Guest",
-        };
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
         {
             ExplorerSortOption.Create("NEWEST",         ModIO.API.GetAllModsFilterFields.dateLive, false),
@@ -131,14 +126,14 @@ namespace ModIO.UI
         [Header("Display Data")]
         public InspectorViewData inspectorData = new InspectorViewData();
         public List<int> subscribedModIds = new List<int>();
-        public UserProfile userProfile = null;
 
         [Header("Runtime Data")]
-        public int lastCacheUpdate = -1;
-        public RequestFilter explorerViewFilter = new RequestFilter();
+        private UserProfile userProfile = null;
+        private int lastCacheUpdate = -1;
+        private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
-        public List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
-        public GameProfile gameProfile = null;
+        private List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
+        private GameProfile gameProfile = null;
 
 
         // ---------[ ACCESSORS ]---------
@@ -270,11 +265,6 @@ namespace ModIO.UI
 
             // --- UserData ---
             this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
-            if(this.userProfile == null)
-            {
-                this.userProfile = ModBrowser.GUEST_PROFILE;
-            }
-
             this.subscribedModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
             if(this.subscribedModIds == null)
             {
@@ -488,7 +478,16 @@ namespace ModIO.UI
             if(userDisplay != null)
             {
                 userDisplay.Initialize();
-                userDisplay.DisplayProfile(ModBrowser.GUEST_PROFILE);
+
+                if(userProfile == null)
+                {
+                    userDisplay.data = guestData;
+                }
+                else
+                {
+                    userDisplay.DisplayProfile(userProfile);
+                }
+
                 userDisplay.onClick += OnUserDisplayClicked;
             }
         }
@@ -823,13 +822,14 @@ namespace ModIO.UI
             // - set up guest account -
             CacheClient.SaveAuthenticatedUserSubscriptions(this.subscribedModIds);
 
-            this.userProfile = ModBrowser.GUEST_PROFILE;
-            this.subscribedModIds = new List<int>(0);
-
+            this.userProfile = null;
             if(this.userDisplay != null)
             {
-                this.userDisplay.DisplayProfile(ModBrowser.GUEST_PROFILE);
+                this.userDisplay.data = guestData;
             }
+
+            this.subscribedModIds = new List<int>(0);
+
 
             // - clear subscription view -
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -1215,7 +1215,7 @@ namespace ModIO.UI
 
         public void SubscribeToMod(ModProfile profile)
         {
-            if(this.userProfile.id == ModBrowser.GUEST_PROFILE.id)
+            if(this.userProfile == null)
             {
                 OnSubscribedToMod(profile);
             }
@@ -1267,7 +1267,7 @@ namespace ModIO.UI
 
         public void UnsubscribeFromMod(ModProfile profile)
         {
-            if(this.userProfile.id == ModBrowser.GUEST_PROFILE.id)
+            if(this.userProfile == null)
             {
                 OnUnsubscribedFromMod(profile);
             }
