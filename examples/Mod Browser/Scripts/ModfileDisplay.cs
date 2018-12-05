@@ -35,7 +35,7 @@ namespace ModIO.UI
         // --- ACCESSORS --
         public override ModfileDisplayData data
         {
-            get { return data; }
+            get { return m_data; }
             set
             {
                 m_data = value;
