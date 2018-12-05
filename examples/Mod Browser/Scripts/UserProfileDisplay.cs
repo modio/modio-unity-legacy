@@ -35,7 +35,7 @@ namespace ModIO.UI
             get { return data; }
             set
             {
-                data = value;
+                m_data = value;
                 PresentData();
             }
         }
@@ -107,7 +107,6 @@ namespace ModIO.UI
         {
             foreach(var kvp in m_displayMapping)
             {
-                kvp.Key.enabled = true;
                 kvp.Key.text = kvp.Value(m_data);
             }
 
@@ -116,14 +115,54 @@ namespace ModIO.UI
                 loadingOverlay.gameObject.SetActive(false);
             }
 
-            // avatarDisplay.data = m_data;
+            if(avatarDisplay != null)
+            {
+                avatarDisplay.data = m_data;
+            }
         }
 
         public void DisplayProfile(UserProfile profile)
         {
             Debug.Assert(profile != null);
 
-            m_data.userId = profile.id;
+            UserDisplayData userData = new UserDisplayData()
+            {
+                userId          = profile.id,
+                nameId          = profile.nameId,
+                username        = profile.username,
+                lastOnline      = profile.lastOnline,
+                timezone        = profile.timezone,
+                language        = profile.language,
+                profileURL      = profile.profileURL,
+                avatarTexture   = null,
+            };
+            m_data = userData;
+
+            PresentData();
+
+            if(avatarDisplay != null
+               && profile.avatarLocator != null
+               && !String.IsNullOrEmpty(profile.avatarLocator.fileName))
+            {
+                avatarDisplay.DisplayLoading();
+
+                ModManager.GetUserAvatar(profile.id,
+                                         profile.avatarLocator,
+                                         avatarDisplay.avatarSize,
+                                         (t) =>
+                                         {
+                                            if(!Application.isPlaying) { Debug.LogError("FUCL"); }
+
+                                            Debug.Log("USER IDS: " + userData.userId + " m:" + m_data.userId);
+                                            if(m_data.Equals(userData))
+                                            {
+                                                m_data.avatarTexture = t;
+
+                                                avatarDisplay.data = m_data;
+                                            }
+                                         },
+                                         WebRequestError.LogAsWarning);
+            }
         }
 
         public void DisplayLoading()
@@ -133,13 +172,9 @@ namespace ModIO.UI
                 loadingOverlay.gameObject.SetActive(true);
             }
 
-            if(usernameDisplay != null)
+            foreach(var kvp in m_displayMapping)
             {
-                usernameDisplay.enabled = false;
-            }
-            if(lastOnlineDisplay != null)
-            {
-                lastOnlineDisplay.enabled = false;
+                kvp.Key.text = string.Empty;
             }
 
             if(avatarDisplay != null)

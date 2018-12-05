@@ -2099,7 +2099,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1640898836230364
 GameObject:
   m_ObjectHideFlags: 1
@@ -8104,7 +8104,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 758e70a9f1c58496d9474c8c0d1bd4bd, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8444,7 +8444,7 @@ MonoBehaviour:
     timezone: 
     language: 
     profileURL: 
-    avatarTexture: {fileID: 0}
+    avatarTexture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
 --- !u!114 &114578234792986726
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11109,8 +11109,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   avatarSize: 1
-  image: {fileID: 114528342675249982}
-  loadingOverlay: {fileID: 0}
+  loadingOverlay: {fileID: 1625314398786034}
+  m_data:
+    userId: 0
+    nameId: 
+    username: Guest
+    lastOnline: 0
+    timezone: 
+    language: 
+    profileURL: 
+    avatarTexture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
 --- !u!114 &114962828148981196
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -12975,10 +12983,10 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -64, y: -52}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -42}
+  m_SizeDelta: {x: 1500, y: 780}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224194505302344104
 RectTransform:
