@@ -16,10 +16,8 @@ public class UserProfileDisplay : MonoBehaviour
     public Text lastOnlineDisplay;
     public UserAvatarDisplay avatarDisplay;
 
-    [Header("Display Data")]
-    [SerializeField] private int m_userId;
-
-    // --- RUNTIME DATA ---
+    // --- DISPLAY DATA ---
+    private int m_userId = -1;
     private List<TextLoadingDisplay> m_loadingDisplays = null;
 
     // ---------[ INITIALIZATION ]---------

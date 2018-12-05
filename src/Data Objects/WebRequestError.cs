@@ -146,7 +146,8 @@ namespace ModIO
                 }
             }
 
-            if(this.responseHeaders.Count > 0)
+            if(this.responseHeaders != null
+               && this.responseHeaders.Count > 0)
             {
                 debugString.AppendLine("Response Headers:");
                 foreach(var kvp in responseHeaders)

@@ -15,9 +15,9 @@ public class UserAvatarDisplay : MonoBehaviour
     public Image image;
     public GameObject loadingDisplay;
 
-    [Header("Display Data")]
-    [SerializeField] private int m_userId;
-    [SerializeField] private string m_imageFileName;
+    // --- DISPLAY DATA ---
+    private int m_userId = -1;
+    private string m_imageFileName = string.Empty;
 
     // ---------[ INITIALIZATION ]---------
     public void Initialize()
@@ -33,7 +33,6 @@ public class UserAvatarDisplay : MonoBehaviour
 
     public void DisplayAvatar(int userId, AvatarImageLocator avatarLocator)
     {
-        Debug.Assert(userId > 0, "[mod.io] UserId needs to be set to a valid user profile id.");
         Debug.Assert(avatarLocator != null);
 
         DisplayLoading();
@@ -48,7 +47,6 @@ public class UserAvatarDisplay : MonoBehaviour
 
     public void DisplayTexture(int userId, Texture2D avatarTexture)
     {
-        Debug.Assert(userId > 0, "[mod.io] UserId needs to be set to a valid user profile id.");
         Debug.Assert(avatarTexture != null);
 
         m_userId = userId;

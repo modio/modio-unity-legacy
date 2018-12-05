@@ -117,7 +117,7 @@ public class ModBrowser : MonoBehaviour
     public ExplorerView explorerView;
     public SubscriptionsView subscriptionsView;
     public InspectorView inspectorView;
-    public ModBrowserUserDisplay userDisplay;
+    public UserProfileDisplay userDisplay;
     public LoginDialog loginDialog;
     public MessageDialog messageDialog;
     public Button prevPageButton;
@@ -244,13 +244,7 @@ public class ModBrowser : MonoBehaviour
         InitializeSubscriptionsView();
         InitializeExplorerView();
         InitializeDialogs();
-
-        if(userDisplay != null)
-        {
-            userDisplay.button.onClick.AddListener(OpenLoginDialog);
-            userDisplay.profile = ModBrowser.GUEST_PROFILE;
-            userDisplay.UpdateUIComponents();
-        }
+        InitializeDisplays();
 
         StartFetchRemoteData();
     }
@@ -484,6 +478,16 @@ public class ModBrowser : MonoBehaviour
         };
     }
 
+    private void InitializeDisplays()
+    {
+        if(userDisplay != null)
+        {
+            userDisplay.Initialize();
+            userDisplay.DisplayProfile(ModBrowser.GUEST_PROFILE);
+            userDisplay.onClick += OnUserDisplayClicked;
+        }
+    }
+
     private void StartFetchRemoteData()
     {
         // --- GameProfile ---
@@ -505,11 +509,7 @@ public class ModBrowser : MonoBehaviour
 
                 if(this.userDisplay != null)
                 {
-                    this.userDisplay.profile = u;
-                    this.userDisplay.UpdateUIComponents();
-
-                    this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
-                    this.userDisplay.button.onClick.AddListener(LogUserOut);
+                    this.userDisplay.DisplayProfile(u);
                 }
             };
 
@@ -659,13 +659,6 @@ public class ModBrowser : MonoBehaviour
         Debug.Assert(!String.IsNullOrEmpty(oAuthToken),
                      "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
 
-
-        if(this.userDisplay != null)
-        {
-            this.userDisplay.button.onClick.RemoveListener(OpenLoginDialog);
-            this.userDisplay.button.onClick.AddListener(LogUserOut);
-        }
-
         StartCoroutine(UserLoginCoroutine(oAuthToken, clearExistingSubscriptions));
     }
 
@@ -718,8 +711,7 @@ public class ModBrowser : MonoBehaviour
         this.userProfile = requestProfile;
         if(this.userDisplay != null)
         {
-            userDisplay.profile = this.userProfile;
-            userDisplay.UpdateUIComponents();
+            userDisplay.DisplayProfile(this.userProfile);
         }
 
 
@@ -831,11 +823,7 @@ public class ModBrowser : MonoBehaviour
 
         if(this.userDisplay != null)
         {
-            this.userDisplay.profile = ModBrowser.GUEST_PROFILE;
-            this.userDisplay.UpdateUIComponents();
-
-            this.userDisplay.button.onClick.RemoveListener(LogUserOut);
-            this.userDisplay.button.onClick.AddListener(OpenLoginDialog);
+            this.userDisplay.DisplayProfile(ModBrowser.GUEST_PROFILE);
         }
 
         // - clear subscription view -
@@ -1355,6 +1343,11 @@ public class ModBrowser : MonoBehaviour
 
 
     // ---------[ EVENT HANDLING ]---------
+    private void OnUserDisplayClicked(UserProfileDisplay display, int userId)
+    {
+        Debug.Log("To log in, or to log out, that is the question");
+    }
+
     // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)
     // {
     //     List<ModProfile> undisplayedProfiles = new List<ModProfile>(addedProfiles);

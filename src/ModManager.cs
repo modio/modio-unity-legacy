@@ -210,7 +210,6 @@ namespace ModIO
                                          Action<Texture2D> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            Debug.Assert(userId > 0);
             Debug.Assert(avatarLocator != null);
 
             var cachedAvatarTexture = CacheClient.LoadUserAvatar(userId, size);
