@@ -4,11 +4,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModTagDisplay : MonoBehaviour
+    public class ModTagDisplay : ModTagDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(ModTagDisplay component, string tag, string category);
-        public event OnClickDelegate onClick;
+        public override event Action<ModTagDisplayComponent> onClick;
 
         [Header("Settings")]
         public bool capitalizeName;
@@ -19,6 +18,9 @@ namespace ModIO.UI
         public Text categoryDisplay;
         public GameObject loadingOverlay;
 
+        [Header("Display Data")]
+        [SerializeField] private ModTagDisplayData m_data = new ModTagDisplayData();
+
         // --- DISPLAY DATA ---
         private string m_tag = string.Empty;
         private string m_category = string.Empty;
@@ -26,53 +28,80 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public string tagName       { get { return m_tag; } }
         public string categoryName  { get { return m_category; } }
+        public override ModTagDisplayData data
+        {
+            get { return m_data; }
+            set
+            {
+                m_data = value;
+                PresentData();
+            }
+        }
 
         // ---------[ INTIALIZATION ]---------
-        public void Initialize()
+        public override void Initialize()
         {
             Debug.Assert(nameDisplay != null);
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
+        private void PresentData()
+        {
+            nameDisplay.text = (capitalizeName ? m_data.tagName.ToUpper() : m_data.tagName);
+
+            if(categoryDisplay != null)
+            {
+                categoryDisplay.text = (capitalizeCategory
+                                        ? m_data.categoryName.ToUpper()
+                                        : m_data.categoryName);
+            }
+
+            if(loadingOverlay != null)
+            {
+                loadingOverlay.SetActive(false);
+            }
+        }
+
         public void DisplayTag(ModTag tag, string category)
         {
             Debug.Assert(tag != null);
-            DisplayTag(tag.name, category);
+            DisplayModTag(tag.name, category);
         }
-
         public void DisplayTag(string tag, string category)
         {
-            m_tag = tag;
-            m_category = category;
-
-            nameDisplay.text = (capitalizeName ? tag.ToUpper() : tag);
-            nameDisplay.enabled = true;
-            if(categoryDisplay != null)
-            {
-                categoryDisplay.text = (capitalizeCategory ? category.ToUpper() : category);
-                categoryDisplay.enabled = true;
-            }
-
-            if(loadingOverlay != null)
-            {
-                loadingOverlay.gameObject.SetActive(false);
-            }
+            DisplayModTag(tag, category);
         }
 
-        public void DisplayLoading(string tag = null, string category = null)
+        public override void DisplayModTag(ModTag tag, string categoryName)
         {
-            m_tag = tag;
-            m_category = category;
+            Debug.Assert(tag != null);
+            DisplayModTag(tag.name, categoryName);
+        }
+        public override void DisplayModTag(string tagName, string categoryName)
+        {
+            ModTagDisplayData newData = new ModTagDisplayData()
+            {
+                tagName = tagName,
+                categoryName = (categoryName == null
+                                ? string.Empty
+                                : categoryName),
+            };
+            m_data = newData;
 
-            nameDisplay.enabled = false;
+            PresentData();
+        }
+
+        public override void DisplayLoading()
+        {
+            nameDisplay.text = string.Empty;
             if(categoryDisplay != null)
             {
-                categoryDisplay.enabled = false;
+                categoryDisplay.text = string.Empty;
             }
 
             if(loadingOverlay != null)
             {
-                loadingOverlay.gameObject.SetActive(true);
+                loadingOverlay.SetActive(true);
             }
         }
 
@@ -81,8 +110,15 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_tag, m_category);
+                this.onClick(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            PresentData();
+        }
+        #endif
     }
 }

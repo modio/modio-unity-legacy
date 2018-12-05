@@ -138,7 +138,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Tag Name
+  m_Text: Test Tag
 --- !u!114 &114242462970327244
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -237,7 +237,10 @@ MonoBehaviour:
   capitalizeCategory: 0
   nameDisplay: {fileID: 114159942404126762}
   categoryDisplay: {fileID: 0}
-  loadingDisplay: {fileID: 0}
+  loadingOverlay: {fileID: 0}
+  m_data:
+    tagName: Test Tag
+    categoryName: 
 --- !u!222 &222256690445399160
 CanvasRenderer:
   m_ObjectHideFlags: 1

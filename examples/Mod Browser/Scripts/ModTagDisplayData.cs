@@ -7,14 +7,15 @@ namespace ModIO.UI
         public string categoryName;
     }
 
-    public abstract class ModTagDataDisplayComponent : UnityEngine.MonoBehaviour
+    public abstract class ModTagDisplayComponent : UnityEngine.MonoBehaviour
     {
-        public abstract event System.Action<ModTagDataDisplayComponent> onClick;
+        public abstract event System.Action<ModTagDisplayComponent> onClick;
 
         public abstract ModTagDisplayData data { get; set; }
 
         public abstract void Initialize();
         public abstract void DisplayModTag(string tagName, string categoryName);
+        public abstract void DisplayModTag(ModTag tag, string categoryName);
         public abstract void DisplayLoading();
     }
 }

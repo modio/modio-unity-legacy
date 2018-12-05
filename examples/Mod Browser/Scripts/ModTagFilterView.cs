@@ -153,24 +153,24 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        private void TagClickHandler(ModTagDisplay display, string tagName, string category)
+        private void TagClickHandler(ModTagDisplayComponent display)
         {
-            if(m_selectedTags.Contains(tagName))
+            if(m_selectedTags.Contains(display.data.tagName))
             {
-                m_selectedTags.Remove(tagName);
+                m_selectedTags.Remove(display.data.tagName);
 
                 if(tagFilterRemoved != null)
                 {
-                    tagFilterRemoved(tagName);
+                    tagFilterRemoved(display.data.tagName);
                 }
             }
             else
             {
-                m_selectedTags.Add(tagName);
+                m_selectedTags.Add(display.data.tagName);
 
                 if(tagFilterAdded != null)
                 {
-                    tagFilterAdded(tagName);
+                    tagFilterAdded(display.data.tagName);
                 }
             }
         }

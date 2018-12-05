@@ -226,9 +226,9 @@ namespace ModIO.UI
             {
                 tagFilterBar.Initialize();
 
-                tagFilterBar.tagClicked += (display, tagName, category) =>
+                tagFilterBar.tagClicked += (display) =>
                 {
-                    filterTags.Remove(tagName);
+                    filterTags.Remove(display.data.tagName);
 
                     tagFilterBar.DisplayTags(filterTags, m_tagCategories);
 

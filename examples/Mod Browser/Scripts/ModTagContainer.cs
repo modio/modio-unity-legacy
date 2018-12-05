@@ -7,8 +7,7 @@ namespace ModIO.UI
     public class ModTagContainer : ModTagCollectionDisplay
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnTagClicked(ModTagDisplay display, string tagName, string category);
-        public event OnTagClicked tagClicked;
+        public event System.Action<ModTagDisplayComponent> tagClicked;
 
         [Header("Settings")]
         public GameObject tagDisplayPrefab;
@@ -19,17 +18,17 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private int m_modId = -1;
-        private List<ModTagDisplay> m_tagDisplays = new List<ModTagDisplay>();
+        private List<ModTagDisplayComponent> m_tagDisplays = new List<ModTagDisplayComponent>();
 
         // --- ACCESSORS ---
-        public IEnumerable<ModTagDisplay> tagDisplays { get { return m_tagDisplays; } }
+        public IEnumerable<ModTagDisplayComponent> tagDisplays { get { return m_tagDisplays; } }
 
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
         {
             Debug.Assert(container != null);
             Debug.Assert(tagDisplayPrefab != null);
-            Debug.Assert(tagDisplayPrefab.GetComponent<ModTagDisplay>() != null);
+            Debug.Assert(tagDisplayPrefab.GetComponent<ModTagDisplayComponent>() != null);
         }
 
         public void OnEnable()
@@ -66,7 +65,7 @@ namespace ModIO.UI
             }
 
             // clear
-            foreach(ModTagDisplay display in m_tagDisplays)
+            foreach(ModTagDisplayComponent display in m_tagDisplays)
             {
                 GameObject.Destroy(display.gameObject);
             }
@@ -83,9 +82,9 @@ namespace ModIO.UI
                                                               Quaternion.identity,
                                                               container);
 
-                ModTagDisplay display = displayGO.GetComponent<ModTagDisplay>();
+                ModTagDisplayComponent display = displayGO.GetComponent<ModTagDisplayComponent>();
                 display.Initialize();
-                display.DisplayTag(tagCategory.Key, tagCategory.Value);
+                display.DisplayModTag(tagCategory.Key, tagCategory.Value);
                 display.onClick += NotifyTagClicked;
 
                 m_tagDisplays.Add(display);
@@ -107,7 +106,7 @@ namespace ModIO.UI
             }
 
             // clear
-            foreach(ModTagDisplay display in m_tagDisplays)
+            foreach(ModTagDisplayComponent display in m_tagDisplays)
             {
                 GameObject.Destroy(display.gameObject);
             }
@@ -115,11 +114,11 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        public void NotifyTagClicked(ModTagDisplay component, string tagName, string category)
+        public void NotifyTagClicked(ModTagDisplayComponent display)
         {
             if(tagClicked != null)
             {
-                tagClicked(component, tagName, category);
+                tagClicked(display);
             }
         }
     }
