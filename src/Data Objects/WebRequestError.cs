@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
 
@@ -32,38 +33,55 @@ namespace ModIO
         /// See errors documentation for more information.
         /// </remarks>
         [JsonProperty("errors")]
-        public System.Collections.Generic.IDictionary<string, string> fieldValidationMessages;
+        public IDictionary<string, string> fieldValidationMessages;
 
         public string method;
         public string url;
         public int timeStamp;
         public int responseCode;
+        public string processingException;
+
+        public Dictionary<string, string> responseHeaders;
+        public string responseBody;
 
         // ---------[ INITIALIZATION ]---------
         public static WebRequestError GenerateFromWebRequest(UnityEngine.Networking.UnityWebRequest webRequest)
         {
+            UnityEngine.Debug.Assert(webRequest != null);
             UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
 
-            WebRequestError error = null;
+            string responseBody = null;
+            WebRequestError.APIWrapper errorWrapper = null;
+            string processingException = null;
 
             try
             {
-                WebRequestError.APIWrapper errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(webRequest.downloadHandler.text);
-
-                if(errorWrapper != null
-                   && errorWrapper.error != null)
-                {
-                    error = errorWrapper.error;
-                }
+                responseBody = webRequest.downloadHandler.text;
             }
             catch(System.Exception e)
             {
-                Debug.LogError("[mod.io] The error response was unable to be parsed."
-                               + "\nException Thrown: " + e.Message
-                               + "\nWebRequest ErrorCode: " + webRequest.responseCode
-                               + "\nWebRequest URL: " + webRequest.url
-                               + "\nWebRequest Text:"
-                               + webRequest.downloadHandler.text);
+                responseBody = null;
+                processingException = e.Message;
+            }
+
+            if(responseBody != null)
+            {
+                try
+                {
+                    errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(responseBody);
+                }
+                catch(System.Exception e)
+                {
+                    errorWrapper = null;
+                    processingException = e.Message;
+                }
+            }
+
+            WebRequestError error = null;
+            if(errorWrapper != null)
+            {
+                // NOTE(@jackson): Can be null
+                error = errorWrapper.error;
             }
 
             if(error == null)
@@ -72,7 +90,15 @@ namespace ModIO
                 error.message = webRequest.error;
             }
 
+            if(processingException != null)
+            {
+                error.processingException = processingException;
+            }
+
+            error.responseBody = responseBody;
             error.responseCode = (int)webRequest.responseCode;
+            error.responseHeaders = webRequest.GetResponseHeaders();
+
             error.method = webRequest.method.ToUpper();
             error.url = webRequest.url;
             error.timeStamp = ServerTimeStamp.Now;
@@ -84,11 +110,15 @@ namespace ModIO
         {
             WebRequestError error = new WebRequestError()
             {
+                message = errorMessage,
+                fieldValidationMessages = null,
                 method = "LOCAL",
                 url = "null",
                 timeStamp = ServerTimeStamp.Now,
                 responseCode = 0,
-                message = errorMessage,
+                processingException = null,
+                responseHeaders = null,
+                responseBody = null,
             };
 
             return error;
@@ -97,25 +127,42 @@ namespace ModIO
         // ---------[ HELPER FUNCTIONS ]---------
         public string ToUnityDebugString()
         {
-            string debugString = (this.method + " REQUEST FAILED"
-                                  + "\nResponse received at: [" + this.timeStamp + "] "
-                                  + ServerTimeStamp.ToLocalDateTime(this.timeStamp)
-                                  + "\nURL: " + this.url
-                                  + "\nCode: " + this.responseCode
-                                  + "\nMessage: " + this.message
-                                  + "\n");
+            var debugString = new System.Text.StringBuilder();
+
+            debugString.AppendLine(this.method + " REQUEST FAILED");
+            debugString.AppendLine("URL: " + this.url);
+            debugString.AppendLine("Received At: [" + this.timeStamp + "] "
+                                   + ServerTimeStamp.ToLocalDateTime(this.timeStamp));
+            debugString.AppendLine("Response Code: " + this.responseCode.ToString());
+            debugString.AppendLine("Message: " + this.message);
 
             if(this.fieldValidationMessages != null
                && this.fieldValidationMessages.Count > 0)
             {
-                debugString += "Field Validation Messages:\n";
+                debugString.AppendLine("Field Validation Messages:");
                 foreach(var kvp in fieldValidationMessages)
                 {
-                    debugString += " [" + kvp.Key + "] " + kvp.Value + "\n";
+                    debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
                 }
             }
 
-            return debugString;
+            if(this.responseHeaders.Count > 0)
+            {
+                debugString.AppendLine("Response Headers:");
+                foreach(var kvp in responseHeaders)
+                {
+                    debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
+                }
+            }
+
+            if(this.processingException != null)
+            {
+                debugString.AppendLine("Processing Exception: " + processingException);
+            }
+
+            debugString.AppendLine("Response Body:" + responseBody);
+
+            return debugString.ToString();
         }
 
         public static void LogAsWarning(WebRequestError error)
