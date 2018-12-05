@@ -4,11 +4,10 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     [RequireComponent(typeof(Image))]
-    public class UserAvatarDisplay : MonoBehaviour
+    public class UserAvatarDisplay : UserDataDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(UserAvatarDisplay display);
-        public event OnClickDelegate onClick;
+        public override event System.Action<UserDataDisplayComponent> onClick;
 
         [Header("Settings")]
         public UserAvatarSize avatarSize;
@@ -18,10 +17,9 @@ namespace ModIO.UI
 
         [Header("Display Data")]
         [SerializeField] private UserDisplayData m_data = new UserDisplayData();
-        private string m_loadingFileName = string.Empty;
 
         // --- ACCESSORS ---
-        public UserDisplayData data
+        public override UserDisplayData data
         {
             get { return data; }
             set
@@ -36,7 +34,7 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        public override void Initialize()
         {
             Debug.Assert(image != null);
         }
@@ -59,29 +57,68 @@ namespace ModIO.UI
             }
         }
 
-        // public void DisplayAvatar(UserProfile profile)
-        // {
-        //     DisplayAvatar(profile.id, profile.avatarLocator);
+        public override void DisplayProfile(UserProfile profile)
+        {
+            UserDisplayData userData = new UserDisplayData()
+            {
+                userId          = profile.id,
+                nameId          = profile.nameId,
+                username        = profile.username,
+                lastOnline      = profile.lastOnline,
+                timezone        = profile.timezone,
+                language        = profile.language,
+                profileURL      = profile.profileURL,
+                avatarTexture   = null,
+            };
+            DisplayInternal(userData, profile.avatarLocator);
+        }
 
-        //     m_userId = userId;
-        //     m_imageFileName = string.Empty;
-        // }
+        public void DisplayAvatar(int userId, AvatarImageLocator avatarLocator)
+        {
+            UserDisplayData userData = new UserDisplayData()
+            {
+                userId          = userId,
+                nameId          = string.Empty,
+                username        = string.Empty,
+                lastOnline      = 0,
+                timezone        = string.Empty,
+                language        = string.Empty,
+                profileURL      = string.Empty,
+                avatarTexture   = null,
+            };
+            DisplayInternal(userData, avatarLocator);
+        }
 
-        // public void DisplayAvatar(int userId, AvatarImageLocator avatarLocator)
-        // {
-        //     Debug.Assert(avatarLocator != null);
+        private void DisplayInternal(UserDisplayData userData, AvatarImageLocator avatarLocator)
+        {
+            m_data = userData;
 
-        //     DisplayLoading();
+            if(avatarLocator == null)
+            {
+                PresentData();
+            }
+            else
+            {
+                DisplayLoading();
 
-        //     m_userId = userId;
-        //     m_imageFileName = avatarLocator.fileName;
+                ModManager.GetUserAvatar(userData.userId,
+                                         avatarLocator,
+                                         avatarSize,
+                                         (t) =>
+                                         {
+                                            if(!Application.isPlaying) { return; }
 
-        //     ModManager.GetUserAvatar(userId, avatarLocator, avatarSize,
-        //                              (t) => LoadTexture(t, avatarLocator.fileName),
-        //                              WebRequestError.LogAsWarning);
-        // }
+                                            if(m_data.Equals(userData))
+                                            {
+                                                m_data.avatarTexture = t;
+                                                PresentData();
+                                            }
+                                         },
+                                         WebRequestError.LogAsWarning);
+            }
+        }
 
-        public void DisplayLoading()
+        public override void DisplayLoading()
         {
             image.sprite = null;
 
@@ -90,19 +127,6 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(true);
             }
         }
-
-        // private void LoadTexture(Texture2D texture, string fileName)
-        // {
-        //     #if UNITY_EDITOR
-        //     if(!Application.isPlaying) { return; }
-        //     #endif
-
-        //     if(fileName != m_imageFileName
-        //        || this.image == null)
-        //     {
-        //         return;
-        //     }
-        // }
 
         // ---------[ EVENT HANDLING ]---------
         public void NotifyClicked()
@@ -118,7 +142,8 @@ namespace ModIO.UI
         {
             if(image != null)
             {
-                // TODO(@jackson): Dispose of texture?
+                // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
+                // "Should" be fine.
                 PresentData();
             }
         }

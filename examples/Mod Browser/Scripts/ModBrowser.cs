@@ -122,7 +122,7 @@ namespace ModIO.UI
         public ExplorerView explorerView;
         public SubscriptionsView subscriptionsView;
         public InspectorView inspectorView;
-        public UserProfileDisplay userDisplay;
+        public UserDataDisplayComponent userDisplay;
         public LoginDialog loginDialog;
         public MessageDialog messageDialog;
         public Button prevPageButton;
@@ -1348,10 +1348,8 @@ namespace ModIO.UI
 
 
         // ---------[ EVENT HANDLING ]---------
-        private void OnUserDisplayClicked(UserProfileDisplay display)
+        private void OnUserDisplayClicked(UserDataDisplayComponent display)
         {
-            Debug.Log("To log in, or to log out, that is the question");
-
             OpenLoginDialog();
         }
 

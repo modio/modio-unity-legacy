@@ -5,11 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class UserProfileDisplay : MonoBehaviour
+    public class UserProfileDisplay : UserDataDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(UserProfileDisplay display);
-        public event OnClickDelegate onClick;
+        public override event Action<UserDataDisplayComponent> onClick;
 
         [Header("UI Components")]
         public UserAvatarDisplay avatarDisplay;
@@ -29,7 +28,7 @@ namespace ModIO.UI
         private Dictionary<Text, GetDisplayString> m_displayMapping = null;
 
         // --- ACCESSORS ---
-        public UserDisplayData data
+        public override UserDisplayData data
         {
             get { return data; }
             set
@@ -41,7 +40,7 @@ namespace ModIO.UI
 
 
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        public override void Initialize()
         {
             BuildDisplayMap();
             CollectLoadingOverlays();
@@ -120,7 +119,7 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayProfile(UserProfile profile)
+        public override void DisplayProfile(UserProfile profile)
         {
             Debug.Assert(profile != null);
 
@@ -163,7 +162,7 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayLoading()
+        public override void DisplayLoading()
         {
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
