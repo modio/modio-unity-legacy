@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using ModIO;
 
 public class ModTagContainer : ModTagCollectionDisplay
@@ -28,6 +29,17 @@ public class ModTagContainer : ModTagCollectionDisplay
         Debug.Assert(container != null);
         Debug.Assert(tagDisplayPrefab != null);
         Debug.Assert(tagDisplayPrefab.GetComponent<ModTagDisplay>() != null);
+    }
+
+    public void OnEnable()
+    {
+        StartCoroutine(LateUpdateLayouting());
+    }
+
+    public System.Collections.IEnumerator LateUpdateLayouting()
+    {
+        yield return null;
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(container);
     }
 
     // ---------[ UI FUNCTIONALITY ]---------
@@ -76,6 +88,11 @@ public class ModTagContainer : ModTagCollectionDisplay
             display.onClick += NotifyTagClicked;
 
             m_tagDisplays.Add(display);
+        }
+
+        if(this.isActiveAndEnabled)
+        {
+            StartCoroutine(LateUpdateLayouting());
         }
     }
 

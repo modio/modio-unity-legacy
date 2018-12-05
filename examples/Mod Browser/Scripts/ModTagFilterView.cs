@@ -77,6 +77,11 @@ public class ModTagFilterView : MonoBehaviour
                 categoryGO.GetComponent<ModTagContainer>().tagClicked += TagClickHandler;
                 m_categoryDisplays.Add(categoryGO.GetComponent<ModTagCategoryDisplay>());
             }
+
+            if(this.isActiveAndEnabled)
+            {
+                StartCoroutine(LateUpdateLayouting());
+            }
         }
     }
 
@@ -98,6 +103,17 @@ public class ModTagFilterView : MonoBehaviour
         Debug.Assert(tagContainer.tagDisplayPrefab.GetComponent<Toggle>() != null,
                      "[mod.io] ModTagFilterViews require the TagDisplayPrefab in the "
                      + "FilterView.tagCategoryPrefab to have a Toggle Component.");
+    }
+
+    public void OnEnable()
+    {
+        StartCoroutine(LateUpdateLayouting());
+    }
+
+    public System.Collections.IEnumerator LateUpdateLayouting()
+    {
+        yield return null;
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(tagCategoryContainer);
     }
 
     // ---------[ UI FUNCTIONALITY ]---------

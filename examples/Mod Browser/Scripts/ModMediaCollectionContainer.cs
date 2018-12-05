@@ -49,6 +49,17 @@ public class ModMediaCollectionContainer : MonoBehaviour
                      + " component attached in order to display correctly.");
     }
 
+    public void OnEnable()
+    {
+        StartCoroutine(LateUpdateLayouting());
+    }
+
+    public System.Collections.IEnumerator LateUpdateLayouting()
+    {
+        yield return null;
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+    }
+
     // ---------[ UI FUNCTIONALITY ]---------
     public void DisplayProfileMedia(ModProfile profile)
     {
@@ -111,6 +122,11 @@ public class ModMediaCollectionContainer : MonoBehaviour
                 mediaDisplay.DisplayGalleryImage(modId, imageLocator);
                 mediaDisplay.onClick += NotifyGalleryImageClicked;
             }
+        }
+
+        if(this.isActiveAndEnabled)
+        {
+            StartCoroutine(LateUpdateLayouting());
         }
     }
 
