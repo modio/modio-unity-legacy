@@ -5,12 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModProfileDisplay : MonoBehaviour
+    public class ModProfileDisplay : ModDataDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(ModProfileDisplay display,
-                                             int modId);
-        public event OnClickDelegate onClick;
+        public override event Action<ModDataDisplayComponent> onClick;
 
         [Header("Settings")]
         [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]
@@ -36,16 +34,38 @@ namespace ModIO.UI
         public GameObject       tagBadgePrefab;
 
         [Header("Display Data")]
-        [SerializeField] private int m_modId = -1;
+        [SerializeField] private ModDisplayData m_data = new ModDisplayData();
+        private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
 
-        // --- RUNTIME DATA ---
-        private delegate string GetDisplayString(ModProfile profile);
-
+        // private delegate string GetDisplayString(ModDisplayData data);
+        private delegate string GetDisplayString(ModProfile data);
         private Dictionary<Text, GetDisplayString> m_displayMapping = null;
-        private List<TextLoadingOverlay> m_loadingOverlays = null;
+
+        // --- ACCESSORS ---
+        public override ModDisplayData data
+        {
+            get { return m_data; }
+            set
+            {
+                m_data = value;
+                PresentData(value);
+            }
+        }
+
+        private void PresentData(ModDisplayData displayData)
+        {
+
+        }
 
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        public override void Initialize()
+        {
+            BuildDisplayMap();
+            CollectLoadingOverlays();
+            InitializeNestedDisplays();
+        }
+
+        private void BuildDisplayMap()
         {
             // - text displays -
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
@@ -100,7 +120,10 @@ namespace ModIO.UI
                     return description;
                 });
             }
+        }
 
+        private void CollectLoadingOverlays()
+        {
             TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
             List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
 
@@ -112,8 +135,10 @@ namespace ModIO.UI
                     m_loadingOverlays.Add(loadingOverlay);
                 }
             }
+        }
 
-            // - nested displays -
+        private void InitializeNestedDisplays()
+        {
             if(creatorDisplay != null)
             {
                 creatorDisplay.Initialize();
@@ -137,11 +162,14 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayProfile(ModProfile profile)
+        public override void DisplayProfile(ModProfile profile)
         {
             Debug.Assert(profile != null);
 
-            m_modId = profile.id;
+            ModDisplayData newData = new ModDisplayData()
+            {
+                modId = profile.id,
+            };
 
             // - text displays -
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
@@ -187,10 +215,8 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayLoading(int modId = -1)
+        public override void DisplayLoading()
         {
-            m_modId = modId;
-
             // - text displays -
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
@@ -208,11 +234,11 @@ namespace ModIO.UI
             }
             if(logoDisplay != null)
             {
-                logoDisplay.DisplayLoading(modId);
+                logoDisplay.DisplayLoading();
             }
             if(mediaContainer != null)
             {
-                mediaContainer.DisplayLoading(modId);
+                mediaContainer.DisplayLoading();
             }
             if(buildDisplay != null)
             {
@@ -229,8 +255,17 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_modId);
+                this.onClick(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            BuildDisplayMap();
+            CollectLoadingOverlays();
+            PresentData(m_data);
+        }
+        #endif
     }
 }
