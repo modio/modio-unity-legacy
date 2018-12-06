@@ -116,6 +116,8 @@ namespace ModIO.UI
 
         private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
         {
+            if(!Application.isPlaying) { return; }
+
             int i = 0;
 
             if(page != null

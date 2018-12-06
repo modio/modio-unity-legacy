@@ -1,0 +1,45 @@
+namespace ModIO.UI
+{
+    public struct ModMediaDisplayData
+    {
+        public UnityEngine.Texture2D logo;
+    }
+
+    [System.Serializable]
+    public struct ModDisplayData
+    {
+        public int modId;
+        public int gameId;
+        public ModStatus status;
+        public ModVisibility visibility;
+        public UserDisplayData submittedBy;
+        public int dateAdded;
+        public int dateUpdated;
+        public int dateLive;
+        public ModContentWarnings contentWarnings;
+        public string homepageURL;
+        public string name;
+        public string nameId;
+        public string summary;
+        public string description_HTML;
+        public string description_text;
+        public string metadataBlob;
+        public string profileURL;
+        public MetadataKVP[] metadataKVPs;
+
+        public ModfileDisplayData currentBuild;
+        public ModMediaDisplayData media;
+        public ModTagDisplayData[] tags;
+    }
+
+    public abstract class ModDataDisplayComponent : UnityEngine.MonoBehaviour
+    {
+        public abstract event System.Action<ModDataDisplayComponent> onClick;
+
+        public abstract ModDisplayData data { get; set; }
+
+        public abstract void Initialize();
+        public abstract void DisplayProfile(ModProfile profile);
+        public abstract void DisplayLoading();
+    }
+}
