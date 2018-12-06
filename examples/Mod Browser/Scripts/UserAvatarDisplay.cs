@@ -89,8 +89,11 @@ namespace ModIO.UI
             DisplayInternal(userData, avatarLocator);
         }
 
+        // NOTE(@jackson): Called internally, this is only used when userData.avatarTexture == null
         private void DisplayInternal(UserDisplayData userData, AvatarImageLocator avatarLocator)
         {
+            Debug.Assert(userData.avatarTexture != null);
+
             m_data = userData;
 
             if(avatarLocator == null)

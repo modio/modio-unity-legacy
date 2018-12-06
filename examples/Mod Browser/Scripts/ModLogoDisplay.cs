@@ -2,89 +2,122 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO(@jackson): MERGE!
 namespace ModIO.UI
 {
-    public class ModLogoDisplay : MonoBehaviour
+    [RequireComponent(typeof(Image))]
+    public class ModLogoDisplay : ModLogoDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(ModLogoDisplay component, int modId);
-        public event OnClickDelegate onClick;
+        public override event Action<ModLogoDisplayComponent> onClick;
 
         [Header("Settings")]
-        public LogoSize logoSize;
+        [SerializeField] private LogoSize m_logoSize;
 
         [Header("UI Components")]
-        public Image image;
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private int m_modId;
-        [SerializeField] private string m_imageFileName;
+        [SerializeField] private ModLogoDisplayData m_data;
 
-        // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        // --- ACCESSORS ---
+        public Image image
         {
-            Debug.Assert(image != null);
+            get { return this.gameObject.GetComponent<Image>(); }
         }
 
-        // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayLogo(int modId, LogoImageLocator logoLocator)
+        public override LogoSize logoSize
         {
-            Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
-            Debug.Assert(logoLocator != null);
-
-            DisplayLoading();
-
-            m_modId = modId;
-            m_imageFileName = logoLocator.fileName;
-
-            ModManager.GetModLogo(modId, logoLocator, logoSize,
-                                  (t) => LoadTexture(t, logoLocator.fileName),
-                                  WebRequestError.LogAsWarning);
+            get { return m_logoSize; }
+            set { m_logoSize = value; }
         }
-
-        public void DisplayTexture(int modId, Texture2D logoTexture)
+        public override ModLogoDisplayData data
         {
-            Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
-            Debug.Assert(logoTexture != null);
-
-            m_modId = modId;
-            m_imageFileName = string.Empty;
-
-            LoadTexture(logoTexture, string.Empty);
-        }
-
-        public void DisplayLoading(int modId = -1)
-        {
-            m_modId = modId;
-
-            if(loadingOverlay != null)
+            get { return m_data; }
+            set
             {
-                loadingOverlay.SetActive(true);
+                m_data = value;
+                PresentData(value);
             }
-
-            image.enabled = false;
         }
-
-        private void LoadTexture(Texture2D texture, string fileName)
+        private void PresentData(ModLogoDisplayData displayData)
         {
-            #if UNITY_EDITOR
-            if(!Application.isPlaying) { return; }
-            #endif
-
-            if(fileName != m_imageFileName
-               || this.image == null)
+            if(displayData.texture != null)
             {
-                return;
+                image.sprite = UIUtilities.CreateSpriteFromTexture(displayData.texture);
+            }
+            else
+            {
+                image.sprite = null;
             }
 
             if(loadingOverlay != null)
             {
                 loadingOverlay.SetActive(false);
             }
+        }
 
-            image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
-            image.enabled = true;
+        // ---------[ INITIALIZATION ]---------
+        public override void Initialize()
+        {
+            Debug.Assert(image != null);
+        }
+
+        // ---------[ UI FUNCTIONALITY ]---------
+        public override void DisplayModLogo(int modId, LogoImageLocator locator)
+        {
+            Debug.Assert(locator != null);
+
+            ModLogoDisplayData logoData = new ModLogoDisplayData()
+            {
+                modId = modId,
+                fileName = locator.fileName,
+                texture = null,
+            };
+
+            DisplayInternal(logoData, locator);
+        }
+
+        // NOTE(@jackson): Called internally, this is only used when displayData.texture == null
+        private void DisplayInternal(ModLogoDisplayData displayData, LogoImageLocator locator)
+        {
+            Debug.Assert(displayData.texture == null);
+
+            m_data = displayData;
+
+            if(locator == null)
+            {
+                PresentData(displayData);
+            }
+            else
+            {
+                DisplayLoading();
+
+                ModManager.GetModLogo(displayData.modId,
+                                      locator,
+                                      logoSize,
+                                      (t) =>
+                                      {
+                                        if(!Application.isPlaying) { return; }
+
+                                        if(m_data.Equals(displayData))
+                                        {
+                                            m_data.texture = t;
+                                            PresentData(displayData);
+                                        }
+                                      },
+                                      WebRequestError.LogAsWarning);
+            }
+        }
+
+        public override void DisplayLoading()
+        {
+            image.sprite = null;
+
+            if(loadingOverlay != null)
+            {
+                loadingOverlay.SetActive(true);
+            }
         }
 
         // ---------[ EVENT HANDLING ]---------
@@ -92,8 +125,20 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_modId);
+                this.onClick(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if(image != null)
+            {
+                // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
+                // "Should" be fine.
+                PresentData(m_data);
+            }
+        }
+        #endif
     }
 }

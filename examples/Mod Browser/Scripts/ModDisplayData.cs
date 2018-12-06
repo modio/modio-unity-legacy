@@ -1,11 +1,5 @@
 namespace ModIO.UI
 {
-    public struct ModMediaDisplayData
-    {
-        public int modId;
-        public UnityEngine.Texture2D logo;
-    }
-
     [System.Serializable]
     public struct ModDisplayData
     {
@@ -27,9 +21,11 @@ namespace ModIO.UI
         public string profileURL;
         public MetadataKVP[] metadataKVPs;
 
+        public ModLogoDisplayData logo;
+
         public UserDisplayData submittedBy;
         public ModfileDisplayData currentBuild;
-        public ModMediaDisplayData media;
+        // public ModMediaDisplayData media;
         public ModTagDisplayData[] tags;
     }
 

@@ -12,6 +12,7 @@ namespace ModIO.UI
     {
         public abstract event System.Action<ModLogoDisplayComponent> onClick;
 
+        public abstract LogoSize logoSize       { get; set; }
         public abstract ModLogoDisplayData data { get; set; }
 
         public abstract void Initialize();

@@ -387,6 +387,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224287076282588922}
+  - component: {fileID: 114045059756690928}
   - component: {fileID: 222508596824782428}
   - component: {fileID: 114146504481294152}
   m_Layer: 5
@@ -406,7 +407,6 @@ GameObject:
   - component: {fileID: 224339325037919388}
   - component: {fileID: 114910969499360864}
   - component: {fileID: 114664801041934314}
-  - component: {fileID: 114362186059247940}
   - component: {fileID: 114445023809965056}
   m_Layer: 5
   m_Name: ExplorerItem
@@ -503,7 +503,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &114023700458946944
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -624,6 +624,23 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114045059756690928
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1762570300170294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54bb5ff2aba0b48b3aec840fa7492ac2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_logoSize: 1
+  loadingOverlay: {fileID: 1981002977696124}
+  m_data:
+    modId: 0
+    fileName: placeholder
+    texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
 --- !u!114 &114071733538055860
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -736,7 +753,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -971,22 +988,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114362186059247940
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1780519984737246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54bb5ff2aba0b48b3aec840fa7492ac2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  logoSize: 1
-  image: {fileID: 114146504481294152}
-  loadingOverlay: {fileID: 1981002977696124}
-  m_modId: 0
-  m_imageFileName: 
 --- !u!114 &114392313839218530
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1351,21 +1352,75 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replaceMissingDescriptionWithSummary: 0
+  modIdDisplay: {fileID: 0}
+  gameIdDisplay: {fileID: 0}
   nameDisplay: {fileID: 114730648452461230}
+  nameIdDisplay: {fileID: 0}
+  statusDisplay: {fileID: 0}
+  visibilityDisplay: {fileID: 0}
+  contentWarningsDisplay: {fileID: 0}
   dateAddedDisplay: {fileID: 0}
   dateUpdatedDisplay: {fileID: 0}
   dateLiveDisplay: {fileID: 0}
   summaryDisplay: {fileID: 0}
-  descriptionHTMLDisplay: {fileID: 0}
-  descriptionTextDisplay: {fileID: 0}
+  descriptionAsHTMLDisplay: {fileID: 0}
+  descriptionAsTextDisplay: {fileID: 0}
+  homepageURLDisplay: {fileID: 0}
+  profileURLDisplay: {fileID: 0}
+  metadataBlobDisplay: {fileID: 0}
   creatorDisplay: {fileID: 0}
-  logoDisplay: {fileID: 114362186059247940}
+  logoDisplay: {fileID: 114045059756690928}
   mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 0}
   downloadDisplay: {fileID: 0}
   tagContainer: {fileID: 0}
   tagBadgePrefab: {fileID: 0}
-  m_modId: -1
+  m_data:
+    modId: 0
+    gameId: 0
+    status: 0
+    visibility: 0
+    dateAdded: 0
+    dateUpdated: 0
+    dateLive: 0
+    contentWarnings: 0
+    homepageURL: 
+    name: Test Mod Name
+    nameId: 
+    summary: 
+    descriptionAsHTML: 
+    descriptionAsText: 
+    metadataBlob: 
+    profileURL: 
+    metadataKVPs: []
+    logo:
+      modId: 0
+      fileName: placeholder
+      texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
+    submittedBy:
+      userId: 0
+      nameId: 
+      username: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+      avatarTexture: {fileID: 0}
+    currentBuild:
+      modfileId: 0
+      modId: 0
+      dateAdded: 0
+      fileName: 
+      fileSize: 0
+      MD5: 
+      version: 
+      changelog: 
+      metadataBlob: 
+      virusScanDate: 0
+      virusScanStatus: 0
+      virusScanResult: 0
+      virusScanHash: 
+    tags: []
 --- !u!114 &114667086780414602
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1422,7 +1477,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Short Name
+  m_Text: Test Mod Name
 --- !u!114 &114753467607869376
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1549,7 +1604,6 @@ MonoBehaviour:
   maximumScaleFactor: 1
   tagBadgePrefab: {fileID: 0}
   profileDisplay: {fileID: 114664801041934314}
-  buildDisplay: {fileID: 0}
   statisticsDisplay: {fileID: 114445023809965056}
   tagsDisplay: {fileID: 0}
   subscribeButton: {fileID: 114985395148525388}

@@ -5960,6 +5960,10 @@ MonoBehaviour:
     metadataBlob: 
     profileURL: 
     metadataKVPs: []
+    logo:
+      modId: 0
+      fileName: 
+      texture: {fileID: 0}
     submittedBy:
       userId: 0
       nameId: 

@@ -221,16 +221,16 @@ namespace ModIO.UI
             }
         }
 
-        private void MediaPreview_Logo(ModLogoDisplay display, int modId)
+        private void MediaPreview_Logo(ModLogoDisplayComponent display)
         {
-            selectedMediaPreview.DisplayLogoTexture(modId, display.image.mainTexture as Texture2D);
+            selectedMediaPreview.DisplayLogoTexture(display.data.modId, display.data.texture as Texture2D);
             MediaPreview_UpdateAspectRatio();
 
             if(display.logoSize != selectedMediaPreview.logoSize)
             {
                 ModManager.GetModLogo(profile, selectedMediaPreview.logoSize,
                                       (t) =>
-                                      { selectedMediaPreview.DisplayLogoTexture(modId, t); MediaPreview_UpdateAspectRatio(); },
+                                      { selectedMediaPreview.DisplayLogoTexture(display.data.modId, t); MediaPreview_UpdateAspectRatio(); },
                                       WebRequestError.LogAsWarning);
             }
         }

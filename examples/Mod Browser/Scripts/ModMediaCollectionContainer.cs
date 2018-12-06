@@ -7,8 +7,7 @@ namespace ModIO.UI
     public class ModMediaCollectionContainer : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnLogoClicked(ModLogoDisplay component,
-                                           int modId);
+        public delegate void OnLogoClicked(ModLogoDisplayComponent display);
         public delegate void OnYouTubeThumbClicked(YouTubeThumbDisplay component,
                                                    int modId, string youTubeVideoId);
         public delegate void OnGalleryImageClicked(ModGalleryImageDisplay component,
@@ -94,7 +93,7 @@ namespace ModIO.UI
                 GameObject media_go = GameObject.Instantiate(logoPrefab, container);
                 ModLogoDisplay mediaDisplay = media_go.GetComponent<ModLogoDisplay>();
                 mediaDisplay.Initialize();
-                mediaDisplay.DisplayLogo(modId, logoLocator);
+                mediaDisplay.DisplayModLogo(modId, logoLocator);
                 mediaDisplay.onClick += NotifyLogoClicked;
             }
 
@@ -142,11 +141,11 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENT HANDLING ]---------
-        public void NotifyLogoClicked(ModLogoDisplay component, int modId)
+        public void NotifyLogoClicked(ModLogoDisplayComponent display)
         {
             if(this.logoClicked != null)
             {
-                this.logoClicked(component, modId);
+                this.logoClicked(display);
             }
         }
 

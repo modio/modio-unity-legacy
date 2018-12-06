@@ -81,9 +81,7 @@ namespace ModIO.UI
             }
             if(logoDisplay != null)
             {
-                // logoDisplay.DisplayLogo(profile.id, profile.logoLocator);
-                // TODO(@jackson)
-                Debug.LogWarning("NOT IMPLEMENTED");
+                logoDisplay.data = displayData.logo;
             }
             if(mediaContainer != null)
             {
@@ -299,11 +297,22 @@ namespace ModIO.UI
                 modfileData.modId           = profile.id;
             }
 
-            ModMediaDisplayData mediaData = new ModMediaDisplayData()
+            // ModMediaDisplayData mediaData = new ModMediaDisplayData()
+            // {
+            //     modId   = profile.id,
+            //     logo    = null,
+            // };
+
+            ModLogoDisplayData logoData = new ModLogoDisplayData()
             {
-                modId   = profile.id,
-                logo    = null,
+                modId = profile.id,
+                fileName = null,
+                texture = null,
             };
+            if(profile.logoLocator != null)
+            {
+                logoData.fileName = profile.logoLocator.fileName;
+            }
 
             ModTagDisplayData[] tagData;
             if(profile.tags != null
@@ -345,7 +354,7 @@ namespace ModIO.UI
 
                 submittedBy         = userData,
                 currentBuild        = modfileData,
-                media               = mediaData,
+                // media               = mediaData,
                 tags                = tagData,
             };
             m_data = modData;
