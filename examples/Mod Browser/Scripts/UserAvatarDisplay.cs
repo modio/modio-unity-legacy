@@ -4,10 +4,10 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     [RequireComponent(typeof(Image))]
-    public class UserAvatarDisplay : UserDataDisplayComponent
+    public class UserAvatarDisplay : UserDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event System.Action<UserDataDisplayComponent> onClick;
+        public override event System.Action<UserDisplayComponent> onClick;
 
         [Header("Settings")]
         public UserAvatarSize avatarSize;
@@ -19,32 +19,25 @@ namespace ModIO.UI
         [SerializeField] private UserDisplayData m_data = new UserDisplayData();
 
         // --- ACCESSORS ---
+        public Image image
+        {
+            get { return this.gameObject.GetComponent<Image>(); }
+        }
+
         public override UserDisplayData data
         {
             get { return m_data; }
             set
             {
                 m_data = value;
-                PresentData();
+                PresentData(value);
             }
         }
-        public Image image
+        private void PresentData(UserDisplayData displayData)
         {
-            get { return this.gameObject.GetComponent<Image>(); }
-        }
-
-        // ---------[ INITIALIZATION ]---------
-        public override void Initialize()
-        {
-            Debug.Assert(image != null);
-        }
-
-        // ---------[ UI FUNCTIONALITY ]---------
-        private void PresentData()
-        {
-            if(m_data.avatarTexture != null)
+            if(displayData.avatarTexture != null)
             {
-                image.sprite = UIUtilities.CreateSpriteFromTexture(m_data.avatarTexture);
+                image.sprite = UIUtilities.CreateSpriteFromTexture(displayData.avatarTexture);
             }
             else
             {
@@ -57,6 +50,13 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ INITIALIZATION ]---------
+        public override void Initialize()
+        {
+            Debug.Assert(image != null);
+        }
+
+        // ---------[ UI FUNCTIONALITY ]---------
         public override void DisplayProfile(UserProfile profile)
         {
             UserDisplayData userData = new UserDisplayData()
@@ -95,7 +95,7 @@ namespace ModIO.UI
 
             if(avatarLocator == null)
             {
-                PresentData();
+                PresentData(userData);
             }
             else
             {
@@ -111,7 +111,7 @@ namespace ModIO.UI
                                             if(m_data.Equals(userData))
                                             {
                                                 m_data.avatarTexture = t;
-                                                PresentData();
+                                                PresentData(userData);
                                             }
                                          },
                                          WebRequestError.LogAsWarning);
@@ -144,7 +144,7 @@ namespace ModIO.UI
             {
                 // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
                 // "Should" be fine.
-                PresentData();
+                PresentData(m_data);
             }
         }
         #endif

@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModProfileDisplay : ModDataDisplayComponent
+    public class ModProfileDisplay : ModDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<ModDataDisplayComponent> onClick;
+        public override event Action<ModDisplayComponent> onClick;
 
         [Header("Settings")]
         [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]
@@ -23,7 +23,7 @@ namespace ModIO.UI
         public Text         descriptionHTMLDisplay;
         public Text         descriptionTextDisplay;
 
-        public UserProfileDisplay           creatorDisplay;
+        public UserDisplayComponent         creatorDisplay;
         public ModLogoDisplay               logoDisplay;
         public ModMediaCollectionContainer  mediaContainer;
         public ModfileDisplayComponent      buildDisplay;
@@ -37,8 +37,7 @@ namespace ModIO.UI
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
         private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
 
-        // private delegate string GetDisplayString(ModDisplayData data);
-        private delegate string GetDisplayString(ModProfile data);
+        private delegate string GetDisplayString(ModDisplayData data);
         private Dictionary<Text, GetDisplayString> m_displayMapping = null;
 
         // --- ACCESSORS ---
@@ -54,7 +53,54 @@ namespace ModIO.UI
 
         private void PresentData(ModDisplayData displayData)
         {
+            // - text displays -
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(false);
+            }
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.text = kvp.Value(displayData);
+            }
 
+            // - nested displays -
+            if(creatorDisplay != null)
+            {
+                creatorDisplay.data = displayData.submittedBy;
+            }
+            if(logoDisplay != null)
+            {
+                // logoDisplay.DisplayLogo(profile.id, profile.logoLocator);
+                // TODO(@jackson)
+                Debug.LogWarning("NOT IMPLEMENTED");
+            }
+            if(mediaContainer != null)
+            {
+                // TODO(@jackson)
+                Debug.LogWarning("NOT IMPLEMENTED");
+                // mediaContainer.DisplayProfileMedia(profile);
+            }
+            if(buildDisplay != null)
+            {
+                buildDisplay.data = displayData.currentBuild;
+            }
+            if(downloadDisplay != null)
+            {
+                // ModBinaryRequest download = null;
+                // foreach(ModBinaryRequest request in ModManager.downloadsInProgress)
+                // {
+                //     if(request.modId == profile.id)
+                //     {
+                //         download = request;
+                //         break;
+                //     }
+                // }
+
+                // downloadDisplay.DisplayRequest(download);
+
+                // TODO(@jackson)
+                Debug.LogWarning("NOT IMPLEMENTED");
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -67,6 +113,8 @@ namespace ModIO.UI
 
         private void BuildDisplayMap()
         {
+            Debug.LogWarning("NEEDS UPDATE");
+
             // - text displays -
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
@@ -166,53 +214,98 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
-            ModDisplayData newData = new ModDisplayData()
+            UserDisplayData userData = new UserDisplayData();
+            if(profile.submittedBy != null)
             {
-                modId = profile.id,
+                userData.userId          = profile.submittedBy.id;
+                userData.nameId          = profile.submittedBy.nameId;
+                userData.username        = profile.submittedBy.username;
+                userData.lastOnline      = profile.submittedBy.lastOnline;
+                userData.timezone        = profile.submittedBy.timezone;
+                userData.language        = profile.submittedBy.language;
+                userData.profileURL      = profile.submittedBy.profileURL;
+                userData.avatarTexture   = null;
+            }
+            else
+            {
+                userData.userId = -1;
+            }
+
+            ModfileDisplayData modfileData = new ModfileDisplayData();
+            if(profile.activeBuild != null)
+            {
+                modfileData.modfileId       = profile.activeBuild.id;
+                modfileData.modId           = profile.activeBuild.modId;
+                modfileData.dateAdded       = profile.activeBuild.dateAdded;
+                modfileData.fileName        = profile.activeBuild.fileName;
+                modfileData.fileSize        = profile.activeBuild.fileSize;
+                modfileData.MD5             = profile.activeBuild.fileHash.md5;
+                modfileData.version         = profile.activeBuild.version;
+                modfileData.changelog       = profile.activeBuild.changelog;
+                modfileData.metadataBlob    = profile.activeBuild.metadataBlob;
+                modfileData.virusScanDate   = profile.activeBuild.dateScanned;
+                modfileData.virusScanStatus = profile.activeBuild.virusScanStatus;
+                modfileData.virusScanResult = profile.activeBuild.virusScanResult;
+                modfileData.virusScanHash   = profile.activeBuild.virusScanHash;
+            }
+            else
+            {
+                modfileData.modfileId       = -1;
+                modfileData.modId           = profile.id;
+            }
+
+            ModMediaDisplayData mediaData = new ModMediaDisplayData()
+            {
+                modId   = profile.id,
+                logo    = null,
             };
 
-            // - text displays -
-            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            ModTagDisplayData[] tagData;
+            if(profile.tags != null
+               && profile.tags.Length > 0)
             {
-                loadingOverlay.gameObject.SetActive(false);
-            }
-            foreach(var kvp in m_displayMapping)
-            {
-                kvp.Key.text = kvp.Value(profile);
-                kvp.Key.enabled = true;
-            }
+                // TODO(@jackson): Add Categories
+                tagData = new ModTagDisplayData[profile.tags.Length];
 
-            // - nested displays -
-            if(creatorDisplay != null)
-            {
-                creatorDisplay.DisplayProfile(profile.submittedBy);
-            }
-            if(logoDisplay != null)
-            {
-                logoDisplay.DisplayLogo(profile.id, profile.logoLocator);
-            }
-            if(mediaContainer != null)
-            {
-                mediaContainer.DisplayProfileMedia(profile);
-            }
-            if(buildDisplay != null)
-            {
-                buildDisplay.DisplayModfile(profile.activeBuild);
-            }
-            if(downloadDisplay != null)
-            {
-                ModBinaryRequest download = null;
-                foreach(ModBinaryRequest request in ModManager.downloadsInProgress)
+                for(int i = 0; i < tagData.Length; ++i)
                 {
-                    if(request.modId == profile.id)
-                    {
-                        download = request;
-                        break;
-                    }
+                    tagData[i].tagName = profile.tags[i].name;
+                    tagData[i].categoryName = string.Empty;
                 }
-
-                downloadDisplay.DisplayRequest(download);
             }
+            else
+            {
+                tagData = new ModTagDisplayData[0];
+            }
+
+            ModDisplayData modData = new ModDisplayData()
+            {
+                modId = profile.id,
+                gameId = profile.gameId,
+                status = profile.status,
+                visibility = profile.visibility,
+                dateAdded = profile.dateAdded,
+                dateUpdated = profile.dateUpdated,
+                dateLive = profile.dateLive,
+                contentWarnings = profile.contentWarnings,
+                homepageURL = profile.homepageURL,
+                name = profile.name,
+                nameId = profile.nameId,
+                summary = profile.summary,
+                description_HTML = profile.description_HTML,
+                description_text = profile.description_text,
+                metadataBlob = profile.metadataBlob,
+                profileURL = profile.profileURL,
+                metadataKVPs = profile.metadataKVPs,
+
+                submittedBy = userData,
+                currentBuild = modfileData,
+                media = mediaData,
+                tags = tagData,
+            };
+            m_data = modData;
+
+            PresentData(modData);
         }
 
         public override void DisplayLoading()
@@ -224,7 +317,7 @@ namespace ModIO.UI
             }
             foreach(Text textComponent in m_displayMapping.Keys)
             {
-                textComponent.enabled = false;
+                textComponent.text = string.Empty;
             }
 
             // - nested displays -

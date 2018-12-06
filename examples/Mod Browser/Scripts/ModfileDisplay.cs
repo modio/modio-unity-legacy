@@ -39,7 +39,20 @@ namespace ModIO.UI
             set
             {
                 m_data = value;
-                PresentData();
+                PresentData(value);
+            }
+        }
+
+        private void PresentData(ModfileDisplayData displayData)
+        {
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.text = kvp.Value(displayData);
+            }
+
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(false);
             }
         }
 
@@ -124,24 +137,11 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        private void PresentData()
-        {
-            foreach(var kvp in m_displayMapping)
-            {
-                kvp.Key.text = kvp.Value(m_data);
-            }
-
-            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
-            {
-                loadingOverlay.gameObject.SetActive(false);
-            }
-        }
-
         public override void DisplayModfile(Modfile modfile)
         {
             Debug.Assert(modfile != null);
 
-            ModfileDisplayData newData = new ModfileDisplayData()
+            ModfileDisplayData modfileData = new ModfileDisplayData()
             {
                 modfileId       = modfile.id,
                 modId           = modfile.modId,
@@ -157,9 +157,9 @@ namespace ModIO.UI
                 virusScanResult = modfile.virusScanResult,
                 virusScanHash   = modfile.virusScanHash,
             };
-            m_data = newData;
+            m_data = modfileData;
 
-            PresentData();
+            PresentData(modfileData);
         }
 
         public override void DisplayLoading()
@@ -188,7 +188,7 @@ namespace ModIO.UI
         {
             BuildDisplayMap();
             CollectLoadingOverlays();
-            PresentData();
+            PresentData(m_data);
         }
         #endif
     }

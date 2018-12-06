@@ -117,7 +117,7 @@ namespace ModIO.UI
         public ExplorerView explorerView;
         public SubscriptionsView subscriptionsView;
         public InspectorView inspectorView;
-        public UserDataDisplayComponent userDisplay;
+        public UserDisplayComponent userDisplay;
         public LoginDialog loginDialog;
         public MessageDialog messageDialog;
         public Button prevPageButton;
@@ -1348,7 +1348,7 @@ namespace ModIO.UI
 
 
         // ---------[ EVENT HANDLING ]---------
-        private void OnUserDisplayClicked(UserDataDisplayComponent display)
+        private void OnUserDisplayClicked(UserDisplayComponent display)
         {
             OpenLoginDialog();
         }

@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class UserProfileDisplay : UserDataDisplayComponent
+    public class UserProfileDisplay : UserDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<UserDataDisplayComponent> onClick;
+        public override event Action<UserDisplayComponent> onClick;
 
         [Header("UI Components")]
         public UserAvatarDisplay avatarDisplay;
@@ -34,7 +34,25 @@ namespace ModIO.UI
             set
             {
                 m_data = value;
-                PresentData();
+                PresentData(value);
+            }
+        }
+
+        private void PresentData(UserDisplayData displayData)
+        {
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.text = kvp.Value(displayData);
+            }
+
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(false);
+            }
+
+            if(avatarDisplay != null)
+            {
+                avatarDisplay.data = displayData;
             }
         }
 
@@ -100,24 +118,6 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        private void PresentData()
-        {
-            foreach(var kvp in m_displayMapping)
-            {
-                kvp.Key.text = kvp.Value(m_data);
-            }
-
-            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
-            {
-                loadingOverlay.gameObject.SetActive(false);
-            }
-
-            if(avatarDisplay != null)
-            {
-                avatarDisplay.data = m_data;
-            }
-        }
-
         public override void DisplayProfile(UserProfile profile)
         {
             Debug.Assert(profile != null);
@@ -135,7 +135,7 @@ namespace ModIO.UI
             };
             m_data = userData;
 
-            PresentData();
+            PresentData(userData);
 
             if(avatarDisplay != null
                && profile.avatarLocator != null
@@ -193,7 +193,7 @@ namespace ModIO.UI
         {
             BuildDisplayMap();
             CollectLoadingOverlays();
-            PresentData();
+            PresentData(m_data);
         }
         #endif
     }
