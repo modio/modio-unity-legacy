@@ -21,8 +21,8 @@ namespace ModIO.UI
         public string name;
         public string nameId;
         public string summary;
-        public string description_HTML;
-        public string description_text;
+        public string descriptionAsHTML;
+        public string descriptionAsText;
         public string metadataBlob;
         public string profileURL;
         public MetadataKVP[] metadataKVPs;

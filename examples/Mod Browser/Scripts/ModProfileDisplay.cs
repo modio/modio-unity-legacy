@@ -15,13 +15,24 @@ namespace ModIO.UI
         public bool             replaceMissingDescriptionWithSummary;
 
         [Header("UI Components")]
-        public Text         nameDisplay;
-        public Text         dateAddedDisplay;
-        public Text         dateUpdatedDisplay;
-        public Text         dateLiveDisplay;
-        public Text         summaryDisplay;
-        public Text         descriptionHTMLDisplay;
-        public Text         descriptionTextDisplay;
+        public Text modIdDisplay;
+        public Text gameIdDisplay;
+        public Text nameDisplay;
+        public Text nameIdDisplay;
+        public Text statusDisplay;
+        public Text visibilityDisplay;
+        public Text contentWarningsDisplay;
+        public Text dateAddedDisplay;
+        public Text dateUpdatedDisplay;
+        public Text dateLiveDisplay;
+        public Text summaryDisplay;
+        public Text descriptionAsHTMLDisplay;
+        public Text descriptionAsTextDisplay;
+        public Text homepageURLDisplay;
+        public Text profileURLDisplay;
+        public Text metadataBlobDisplay;
+        // TODO(@jackson)
+        // public MetadataKVP[] metadataKVPs;
 
         public UserDisplayComponent         creatorDisplay;
         public ModLogoDisplay               logoDisplay;
@@ -113,60 +124,94 @@ namespace ModIO.UI
 
         private void BuildDisplayMap()
         {
-            Debug.LogWarning("NEEDS UPDATE");
-
-            // - text displays -
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
-            if(nameDisplay != null)
+
+            if(modIdDisplay != null)
             {
-                m_displayMapping.Add(nameDisplay, (p) => p.name);
+                m_displayMapping.Add(modIdDisplay, (d) => d.modId.ToString());
+            }
+            if(gameIdDisplay != null)
+            {
+                m_displayMapping.Add(gameIdDisplay, (d) => d.gameId.ToString());
+            }
+            if(statusDisplay != null)
+            {
+                m_displayMapping.Add(statusDisplay, (d) => d.status.ToString());
+            }
+            if(visibilityDisplay != null)
+            {
+                m_displayMapping.Add(visibilityDisplay, (d) => d.visibility.ToString());
             }
             if(dateAddedDisplay != null)
             {
-                m_displayMapping.Add(dateAddedDisplay, (p) => ServerTimeStamp.ToLocalDateTime(p.dateAdded).ToString());
+                m_displayMapping.Add(dateAddedDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateAdded).ToString());
             }
             if(dateUpdatedDisplay != null)
             {
-                m_displayMapping.Add(dateUpdatedDisplay, (p) => ServerTimeStamp.ToLocalDateTime(p.dateUpdated).ToString());
+                m_displayMapping.Add(dateUpdatedDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateUpdated).ToString());
             }
             if(dateLiveDisplay != null)
             {
-                m_displayMapping.Add(dateLiveDisplay, (p) => ServerTimeStamp.ToLocalDateTime(p.dateLive).ToString());
+                m_displayMapping.Add(dateLiveDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateLive).ToString());
+            }
+            if(contentWarningsDisplay != null)
+            {
+                m_displayMapping.Add(contentWarningsDisplay, (d) => d.contentWarnings.ToString());
+            }
+            if(homepageURLDisplay != null)
+            {
+                m_displayMapping.Add(homepageURLDisplay, (d) => d.homepageURL);
+            }
+            if(nameDisplay != null)
+            {
+                m_displayMapping.Add(nameDisplay, (d) => d.name);
+            }
+            if(nameIdDisplay != null)
+            {
+                m_displayMapping.Add(nameIdDisplay, (d) => d.nameId);
             }
             if(summaryDisplay != null)
             {
-                m_displayMapping.Add(summaryDisplay, (p) => p.summary);
+                m_displayMapping.Add(summaryDisplay, (d) => d.summary);
             }
-            if(descriptionHTMLDisplay != null)
+            if(descriptionAsHTMLDisplay != null)
             {
-                m_displayMapping.Add(descriptionHTMLDisplay, (p) =>
+                m_displayMapping.Add(descriptionAsHTMLDisplay, (d) =>
                 {
-                    string description = p.description_HTML;
+                    string description = d.descriptionAsHTML;
 
                     if(replaceMissingDescriptionWithSummary
                        && String.IsNullOrEmpty(description))
                     {
-                        description = p.summary;
+                        description = d.summary;
                     }
 
                     return description;
                 });
             }
-            if(descriptionTextDisplay != null)
+            if(descriptionAsTextDisplay != null)
             {
-                m_displayMapping.Add(descriptionTextDisplay, (p) =>
+                m_displayMapping.Add(descriptionAsTextDisplay, (d) =>
                 {
-                    string description = p.description_text;
+                    string description = d.descriptionAsText;
 
                     if(replaceMissingDescriptionWithSummary
                        && String.IsNullOrEmpty(description))
                     {
-                        description = p.summary;
+                        description = d.summary;
                     }
 
                     return description;
                 });
+            }
+            if(metadataBlobDisplay != null)
+            {
+                m_displayMapping.Add(metadataBlobDisplay, (d) => d.metadataBlob);
+            }
+            if(profileURLDisplay != null)
+            {
+                m_displayMapping.Add(profileURLDisplay, (d) => d.profileURL);
             }
         }
 
@@ -280,32 +325,35 @@ namespace ModIO.UI
 
             ModDisplayData modData = new ModDisplayData()
             {
-                modId = profile.id,
-                gameId = profile.gameId,
-                status = profile.status,
-                visibility = profile.visibility,
-                dateAdded = profile.dateAdded,
-                dateUpdated = profile.dateUpdated,
-                dateLive = profile.dateLive,
-                contentWarnings = profile.contentWarnings,
-                homepageURL = profile.homepageURL,
-                name = profile.name,
-                nameId = profile.nameId,
-                summary = profile.summary,
-                description_HTML = profile.description_HTML,
-                description_text = profile.description_text,
-                metadataBlob = profile.metadataBlob,
-                profileURL = profile.profileURL,
-                metadataKVPs = profile.metadataKVPs,
+                modId               = profile.id,
+                gameId              = profile.gameId,
+                status              = profile.status,
+                visibility          = profile.visibility,
+                dateAdded           = profile.dateAdded,
+                dateUpdated         = profile.dateUpdated,
+                dateLive            = profile.dateLive,
+                contentWarnings     = profile.contentWarnings,
+                homepageURL         = profile.homepageURL,
+                name                = profile.name,
+                nameId              = profile.nameId,
+                summary             = profile.summary,
+                descriptionAsHTML   = profile.description_HTML,
+                descriptionAsText   = profile.description_text,
+                metadataBlob        = profile.metadataBlob,
+                profileURL          = profile.profileURL,
+                metadataKVPs        = profile.metadataKVPs,
 
-                submittedBy = userData,
-                currentBuild = modfileData,
-                media = mediaData,
-                tags = tagData,
+                submittedBy         = userData,
+                currentBuild        = modfileData,
+                media               = mediaData,
+                tags                = tagData,
             };
             m_data = modData;
 
             PresentData(modData);
+
+            // TODO(@jackson)
+            Debug.LogWarning("UNFINISHED");
         }
 
         public override void DisplayLoading()
