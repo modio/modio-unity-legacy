@@ -200,7 +200,6 @@ namespace ModIO.UI
                 tags = new string[0];
             }
 
-            // create tag data
             m_data = ModTagDisplayData.GenerateArray(tags, tagCategories);
             PresentData(m_data);
         }

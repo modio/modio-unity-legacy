@@ -38,11 +38,8 @@ namespace ModIO.UI
         public ModLogoDisplay               logoDisplay;
         public ModMediaCollectionContainer  mediaContainer;
         public ModfileDisplayComponent      buildDisplay;
+        public ModTagCollectionDisplay      tagDisplay;
         public ModBinaryRequestDisplay      downloadDisplay;
-
-        // TODO(@jackson)
-        public LayoutGroup      tagContainer;
-        public GameObject       tagBadgePrefab;
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
@@ -92,6 +89,10 @@ namespace ModIO.UI
             if(buildDisplay != null)
             {
                 buildDisplay.data = displayData.currentBuild;
+            }
+            if(tagDisplay != null)
+            {
+                tagDisplay.data = displayData.tags;
             }
             if(downloadDisplay != null)
             {
@@ -246,6 +247,10 @@ namespace ModIO.UI
             {
                 buildDisplay.Initialize();
             }
+            if(tagDisplay != null)
+            {
+                tagDisplay.Initialize();
+            }
             if(downloadDisplay != null)
             {
                 downloadDisplay.Initialize();
@@ -253,7 +258,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayProfile(ModProfile profile)
+        public override void DisplayProfile(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
 
@@ -273,6 +278,24 @@ namespace ModIO.UI
             {
                 userData.userId = -1;
             }
+
+
+            ModLogoDisplayData logoData = new ModLogoDisplayData()
+            {
+                modId = profile.id,
+                fileName = null,
+                texture = null,
+            };
+            if(profile.logoLocator != null)
+            {
+                logoData.fileName = profile.logoLocator.fileName;
+            }
+
+            // ModMediaDisplayData mediaData = new ModMediaDisplayData()
+            // {
+            //     modId   = profile.id,
+            //     logo    = null,
+            // };
 
             ModfileDisplayData modfileData = new ModfileDisplayData();
             if(profile.activeBuild != null)
@@ -297,40 +320,8 @@ namespace ModIO.UI
                 modfileData.modId           = profile.id;
             }
 
-            // ModMediaDisplayData mediaData = new ModMediaDisplayData()
-            // {
-            //     modId   = profile.id,
-            //     logo    = null,
-            // };
-
-            ModLogoDisplayData logoData = new ModLogoDisplayData()
-            {
-                modId = profile.id,
-                fileName = null,
-                texture = null,
-            };
-            if(profile.logoLocator != null)
-            {
-                logoData.fileName = profile.logoLocator.fileName;
-            }
-
-            ModTagDisplayData[] tagData;
-            if(profile.tags != null
-               && profile.tags.Length > 0)
-            {
-                // TODO(@jackson): Add Categories
-                tagData = new ModTagDisplayData[profile.tags.Length];
-
-                for(int i = 0; i < tagData.Length; ++i)
-                {
-                    tagData[i].tagName = profile.tags[i].name;
-                    tagData[i].categoryName = string.Empty;
-                }
-            }
-            else
-            {
-                tagData = new ModTagDisplayData[0];
-            }
+            ModTagDisplayData[] tagData = ModTagDisplayData.GenerateArray(profile.tagNames,
+                                                                          tagCategories);
 
             ModDisplayData modData = new ModDisplayData()
             {

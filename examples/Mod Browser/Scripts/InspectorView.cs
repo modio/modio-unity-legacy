@@ -25,7 +25,6 @@ namespace ModIO.UI
         [Header("UI Components")]
         public ModProfileDisplay profileDisplay;
         public ModMediaElementDisplay selectedMediaPreview;
-        public ModTagCollectionDisplay tagDisplay;
         public ModStatisticsDisplay statisticsDisplay;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
@@ -69,10 +68,6 @@ namespace ModIO.UI
                     profileDisplay.mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
                 }
             }
-            if(tagDisplay != null)
-            {
-                tagDisplay.Initialize();
-            }
 
             if(statisticsDisplay != null)
             {
@@ -103,19 +98,14 @@ namespace ModIO.UI
 
             if(profileDisplay != null)
             {
-                profileDisplay.DisplayProfile(profile);
+                Debug.LogWarning("categories needed");
+                profileDisplay.DisplayProfile(profile, null);
             }
 
             if(selectedMediaPreview != null)
             {
                 selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
                 MediaPreview_UpdateAspectRatio();
-            }
-
-            if(tagDisplay != null)
-            {
-                Debug.LogWarning("categories needed");
-                tagDisplay.DisplayTags(profile, null);
             }
 
             // - version history -

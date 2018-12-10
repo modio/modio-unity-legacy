@@ -6,24 +6,25 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [RequireComponent(typeof(Text))]
     public class ModTagCollectionTextDisplay : ModTagCollectionDisplay
     {
         // ---------[ FIELDS ]---------
+        public event System.Action<ModTagCollectionDisplay> onClick;
+
         [Header("Settings")]
         public bool includeCategory = false;
         public string tagSeparator = ", ";
 
         [Header("UI Components")]
-        public Text text;
         public GameObject loadingOverlay;
-
-        // --- DISPLAY DATA ---
-        private int m_modId = -1;
 
         [Header("Display Data")]
         [SerializeField] private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
 
         // --- ACCESSORS ---
+        public Text text { get { return this.gameObject.GetComponent<Text>(); } }
+
         public override IEnumerable<ModTagDisplayData> data
         {
             get { return m_data; }
@@ -37,39 +38,22 @@ namespace ModIO.UI
                 {
                     m_data = value.ToArray();
                 }
+
+                PresentData(m_data);
             }
         }
 
-
-        // ---------[ INITIALIZE ]---------
-        public override void Initialize()
+        private void PresentData(ModTagDisplayData[] displayData)
         {
-            Debug.Assert(text != null);
-        }
-
-        // ---------[ UI FUNCTIONALITY ]--------
-        public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
-        {
-            Debug.Assert(profile != null);
-            this.DisplayTags(profile.tagNames, tagCategories);
-        }
-
-        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
-        {
-            Debug.Assert(tags != null);
-
-            IDictionary<string, string> tagCategoryMap = ModTagCollectionDisplay.GenerateTagCategoryMap(tags,
-                                                                                                         tagCategories);
-
             StringBuilder builder = new StringBuilder();
-            foreach(var tagCategory in tagCategoryMap)
+            foreach(ModTagDisplayData tag in displayData)
             {
-                if(!System.String.IsNullOrEmpty(tagCategory.Value))
+                if(!System.String.IsNullOrEmpty(tag.categoryName))
                 {
-                    builder.Append(tagCategory.Value + ": ");
+                    builder.Append(tag.categoryName + ": ");
                 }
 
-                builder.Append(tagCategory.Key + tagSeparator);
+                builder.Append(tag.tagName + tagSeparator);
             }
 
             if(builder.Length > 0)
@@ -86,14 +70,57 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ INITIALIZE ]---------
+        public override void Initialize()
+        {
+            if(Application.isPlaying)
+            {
+                Debug.Assert(text != null);
+            }
+        }
+
+        // ---------[ UI FUNCTIONALITY ]--------
+        public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        {
+            Debug.Assert(profile != null);
+            this.DisplayTags(profile.tagNames, tagCategories);
+        }
+
+        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        {
+            if(tags == null)
+            {
+                tags = new string[0];
+            }
+
+            m_data = ModTagDisplayData.GenerateArray(tags, tagCategories);
+            PresentData(m_data);
+        }
+
         public override void DisplayLoading()
         {
-            text.enabled = false;
+            text.text = string.Empty;
 
             if(loadingOverlay != null)
             {
                 loadingOverlay.SetActive(true);
             }
         }
+
+        // ---------[ EVENT HANDLING ]---------
+        public void NotifyClicked()
+        {
+            if(this.onClick != null)
+            {
+                this.onClick(this);
+            }
+        }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            PresentData(m_data);
+        }
+        #endif
     }
 }
