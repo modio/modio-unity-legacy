@@ -115,7 +115,7 @@ namespace ModIO.UI
             if(tagDisplay != null)
             {
                 Debug.LogWarning("categories needed");
-                tagDisplay.DisplayModTags(profile, null);
+                tagDisplay.DisplayTags(profile, null);
             }
 
             // - version history -

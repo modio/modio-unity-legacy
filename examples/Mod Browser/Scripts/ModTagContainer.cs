@@ -21,7 +21,6 @@ namespace ModIO.UI
         [SerializeField] private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
 
         // --- RUNTIME DATA ---
-        private int m_modId = -1;
         private List<ModTagDisplayComponent> m_tagDisplays = new List<ModTagDisplayComponent>();
 
         // --- ACCESSORS ---
@@ -149,9 +148,12 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
         {
-            Debug.Assert(container != null);
-            Debug.Assert(tagDisplayPrefab != null);
-            Debug.Assert(tagDisplayPrefab.GetComponent<ModTagDisplayComponent>() != null);
+            if(Application.isPlaying)
+            {
+                Debug.Assert(container != null);
+                Debug.Assert(tagDisplayPrefab != null);
+                Debug.Assert(tagDisplayPrefab.GetComponent<ModTagDisplayComponent>() != null);
+            }
 
             CollectChildTags();
             if(m_data != null)
@@ -163,9 +165,9 @@ namespace ModIO.UI
         private void CollectChildTags()
         {
             m_tagDisplays = new List<ModTagDisplayComponent>();
+
             #if UNITY_EDITOR
-            if(Application.isPlaying
-               || container != null)
+            if(Application.isPlaying || container != null)
             #endif
             {
                 foreach(Transform t in container)
@@ -193,19 +195,17 @@ namespace ModIO.UI
         // ---------[ UI FUNCTIONALITY ]---------
         public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
         {
-            DisplayModTags(-1, tags, tagCategories);
+            DisplayTags(-1, tags, tagCategories);
         }
-        public override void DisplayModTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
-            DisplayModTags(profile.id, profile.tagNames, tagCategories);
+            DisplayTags(profile.id, profile.tagNames, tagCategories);
         }
-        public override void DisplayModTags(int modId, IEnumerable<string> tags,
+        public override void DisplayTags(int modId, IEnumerable<string> tags,
                                             IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(tags != null);
-
-            m_modId = modId;
 
             if(loadingOverlay != null)
             {
@@ -246,8 +246,6 @@ namespace ModIO.UI
 
         public override void DisplayLoading(int modId = -1)
         {
-            m_modId = modId;
-
             if(loadingOverlay != null)
             {
                 loadingOverlay.SetActive(true);

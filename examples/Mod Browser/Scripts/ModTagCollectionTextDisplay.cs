@@ -50,16 +50,16 @@ namespace ModIO.UI
         // ---------[ UI FUNCTIONALITY ]--------
         public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
         {
-            this.DisplayModTags(-1, tags, tagCategories);
+            this.DisplayTags(-1, tags, tagCategories);
         }
 
-        public override void DisplayModTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
-            this.DisplayModTags(profile.id, profile.tagNames, tagCategories);
+            this.DisplayTags(profile.id, profile.tagNames, tagCategories);
         }
 
-        public override void DisplayModTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(tags != null);
 

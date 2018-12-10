@@ -192,7 +192,7 @@ namespace ModIO.UI
             {
                 if(profile != null)
                 {
-                    tagsDisplay.DisplayModTags(profile, tagCategories);
+                    tagsDisplay.DisplayTags(profile, tagCategories);
                 }
                 else
                 {
