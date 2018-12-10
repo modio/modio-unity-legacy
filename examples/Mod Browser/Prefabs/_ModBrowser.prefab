@@ -5977,7 +5977,7 @@ MonoBehaviour:
     metadataKVPs: []
     logo:
       modId: 0
-      fileName: 
+      imageId: 
       texture: {fileID: 0}
     submittedBy:
       userId: 0

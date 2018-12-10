@@ -64,8 +64,8 @@ namespace ModIO.UI
                    && profileDisplay.mediaContainer != null)
                 {
                     profileDisplay.mediaContainer.logoClicked += MediaPreview_Logo;
-                    profileDisplay.mediaContainer.youTubeThumbClicked += MediaPreview_YouTubeThumb;
                     profileDisplay.mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
+                    profileDisplay.mediaContainer.youTubeThumbClicked += MediaPreview_YouTubeThumb;
                 }
             }
 
@@ -241,10 +241,11 @@ namespace ModIO.UI
                                               WebRequestError.LogAsWarning);
             }
         }
-        private void MediaPreview_YouTubeThumb(YouTubeThumbDisplay display, int modId, string youTubeVideoId)
+        private void MediaPreview_YouTubeThumb(YouTubeThumbnailDisplayComponent display)
         {
-            selectedMediaPreview.DisplayYouTubeThumbTexture(modId, youTubeVideoId,
-                                                            display.image.mainTexture as Texture2D);
+            selectedMediaPreview.DisplayYouTubeThumbTexture(display.data.modId,
+                                                            display.data.youTubeId,
+                                                            display.data.texture);
             MediaPreview_UpdateAspectRatio();
         }
 

@@ -8,9 +8,8 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         public delegate void OnLogoClicked(ModLogoDisplayComponent display);
-        public delegate void OnYouTubeThumbClicked(YouTubeThumbDisplay component,
-                                                   int modId, string youTubeVideoId);
         public delegate void OnGalleryImageClicked(ModGalleryImageDisplayComponent display);
+        public delegate void OnYouTubeThumbClicked(YouTubeThumbnailDisplayComponent display);
 
         public event OnLogoClicked          logoClicked;
         public event OnYouTubeThumbClicked  youTubeThumbClicked;
@@ -43,8 +42,8 @@ namespace ModIO.UI
                          "[mod.io] The galleryImagePrefab needs to have a ModGalleryImageDisplay"
                          + " component attached in order to display correctly.");
 
-            Debug.Assert(!(youTubeThumbnailPrefab != null && youTubeThumbnailPrefab.GetComponent<YouTubeThumbDisplay>() == null),
-                         "[mod.io] The youTubeThumbnailPrefab needs to have a YouTubeThumbDisplay"
+            Debug.Assert(!(youTubeThumbnailPrefab != null && youTubeThumbnailPrefab.GetComponent<YouTubeThumbnailDisplay>() == null),
+                         "[mod.io] The youTubeThumbnailPrefab needs to have a YouTubeThumbnailDisplay"
                          + " component attached in order to display correctly.");
         }
 
@@ -103,9 +102,9 @@ namespace ModIO.UI
                 foreach(string youTubeURL in youTubeURLs)
                 {
                     GameObject media_go = GameObject.Instantiate(youTubeThumbnailPrefab, container);
-                    YouTubeThumbDisplay mediaDisplay = media_go.GetComponent<YouTubeThumbDisplay>();
+                    YouTubeThumbnailDisplay mediaDisplay = media_go.GetComponent<YouTubeThumbnailDisplay>();
                     mediaDisplay.Initialize();
-                    mediaDisplay.DisplayYouTubeThumbnail(modId, Utility.ExtractYouTubeIdFromURL(youTubeURL));
+                    mediaDisplay.DisplayThumbnail(modId, Utility.ExtractYouTubeIdFromURL(youTubeURL));
                     mediaDisplay.onClick += NotifyYouTubeThumbnailClicked;
                 }
             }
@@ -156,12 +155,11 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyYouTubeThumbnailClicked(YouTubeThumbDisplay component,
-                                                  int modId, string youTubeVideoId)
+        public void NotifyYouTubeThumbnailClicked(YouTubeThumbnailDisplayComponent display)
         {
             if(this.youTubeThumbClicked != null)
             {
-                this.youTubeThumbClicked(component, modId, youTubeVideoId);
+                this.youTubeThumbClicked(display);
             }
         }
     }

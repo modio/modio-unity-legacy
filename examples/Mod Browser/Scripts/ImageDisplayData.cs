@@ -7,7 +7,7 @@ namespace ModIO.UI
 
         public string imageId;
         public string fileName  { get { return imageId; } set { imageId = value; } }
-        public string youTubeID { get { return imageId; } set { imageId = value; } }
+        public string youTubeId { get { return imageId; } set { imageId = value; } }
 
         public UnityEngine.Texture2D texture;
     }
@@ -43,7 +43,7 @@ namespace ModIO.UI
         public abstract ImageDisplayData data           { get; set; }
 
         public abstract void Initialize();
-        public abstract void DisplayGalleryImage(int modId, string youTubeVideoId);
+        public abstract void DisplayThumbnail(int modId, string youTubeVideoId);
         public abstract void DisplayLoading();
     }
 }
