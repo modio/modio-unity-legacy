@@ -21,7 +21,7 @@ namespace ModIO.UI
         public string profileURL;
         public MetadataKVP[] metadataKVPs;
 
-        public ModLogoDisplayData logo;
+        public ImageDisplayData logo;
 
         public UserDisplayData submittedBy;
         public ModfileDisplayData currentBuild;

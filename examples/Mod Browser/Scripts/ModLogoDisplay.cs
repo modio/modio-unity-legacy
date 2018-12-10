@@ -18,7 +18,7 @@ namespace ModIO.UI
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private ModLogoDisplayData m_data;
+        [SerializeField] private ImageDisplayData m_data;
 
         // --- ACCESSORS ---
         public Image image
@@ -31,7 +31,7 @@ namespace ModIO.UI
             get { return m_logoSize; }
             set { m_logoSize = value; }
         }
-        public override ModLogoDisplayData data
+        public override ImageDisplayData data
         {
             get { return m_data; }
             set
@@ -40,7 +40,7 @@ namespace ModIO.UI
                 PresentData(value);
             }
         }
-        private void PresentData(ModLogoDisplayData displayData)
+        private void PresentData(ImageDisplayData displayData)
         {
             if(displayData.texture != null)
             {
@@ -68,7 +68,7 @@ namespace ModIO.UI
         {
             Debug.Assert(locator != null);
 
-            ModLogoDisplayData logoData = new ModLogoDisplayData()
+            ImageDisplayData logoData = new ImageDisplayData()
             {
                 modId = modId,
                 fileName = locator.fileName,
@@ -79,7 +79,7 @@ namespace ModIO.UI
         }
 
         // NOTE(@jackson): Called internally, this is only used when displayData.texture == null
-        private void DisplayInternal(ModLogoDisplayData displayData, LogoImageLocator locator)
+        private void DisplayInternal(ImageDisplayData displayData, LogoImageLocator locator)
         {
             Debug.Assert(displayData.texture == null);
 

@@ -280,7 +280,7 @@ namespace ModIO.UI
             }
 
 
-            ModLogoDisplayData logoData = new ModLogoDisplayData()
+            ImageDisplayData logoData = new ImageDisplayData()
             {
                 modId = profile.id,
                 fileName = null,
