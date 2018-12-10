@@ -43,7 +43,7 @@ namespace ModIO.UI
                     foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
                     {
                         Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
-                        tagToggle.isOn = m_selectedTags.Contains(tagDisplay.tagName);
+                        tagToggle.isOn = m_selectedTags.Contains(tagDisplay.data.tagName);
                     }
 
                     tagContainer.tagClicked += TagClickHandler;
@@ -144,7 +144,7 @@ namespace ModIO.UI
             foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
             {
                 Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
-                tagToggle.isOn = selectedTags.Contains(tagDisplay.tagName);
+                tagToggle.isOn = selectedTags.Contains(tagDisplay.data.tagName);
                 tagToggle.group = toggleGroup;
                 // TODO(@jackson): Need to register?
             }

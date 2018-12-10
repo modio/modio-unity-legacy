@@ -20,6 +20,27 @@ namespace ModIO.UI
         // --- DISPLAY DATA ---
         private int m_modId = -1;
 
+        [Header("Display Data")]
+        [SerializeField] private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
+
+        // --- ACCESSORS ---
+        public override IEnumerable<ModTagDisplayData> data
+        {
+            get { return m_data; }
+            set
+            {
+                if(value == null)
+                {
+                    m_data = new ModTagDisplayData[0];
+                }
+                else
+                {
+                    m_data = value.ToArray();
+                }
+            }
+        }
+
+
         // ---------[ INITIALIZE ]---------
         public override void Initialize()
         {

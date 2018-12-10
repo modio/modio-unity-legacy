@@ -21,13 +21,7 @@ namespace ModIO.UI
         [Header("Display Data")]
         [SerializeField] private ModTagDisplayData m_data = new ModTagDisplayData();
 
-        // --- DISPLAY DATA ---
-        private string m_tag = string.Empty;
-        private string m_category = string.Empty;
-
         // --- ACCESSORS ---
-        public string tagName       { get { return m_tag; } }
-        public string categoryName  { get { return m_category; } }
         public override ModTagDisplayData data
         {
             get { return m_data; }
@@ -39,15 +33,15 @@ namespace ModIO.UI
         }
 
         // ---------[ INTIALIZATION ]---------
-        public override void Initialize()
-        {
-            Debug.Assert(nameDisplay != null);
-        }
+        public override void Initialize() {}
 
         // ---------[ UI FUNCTIONALITY ]---------
         private void PresentData()
         {
-            nameDisplay.text = (capitalizeName ? m_data.tagName.ToUpper() : m_data.tagName);
+            if(nameDisplay != null)
+            {
+                nameDisplay.text = (capitalizeName ? m_data.tagName.ToUpper() : m_data.tagName);
+            }
 
             if(categoryDisplay != null)
             {
@@ -117,6 +111,7 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
+            Initialize();
             PresentData();
         }
         #endif
