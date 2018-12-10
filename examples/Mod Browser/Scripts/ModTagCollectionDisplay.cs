@@ -9,11 +9,9 @@ namespace ModIO.UI
 
         public abstract void Initialize();
 
-        public abstract void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories);
         public abstract void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories);
-        public abstract void DisplayTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories);
-
-        public abstract void DisplayLoading(int modId = -1);
+        public abstract void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories);
+        public abstract void DisplayLoading();
 
         protected static IDictionary<string, string> GenerateTagCategoryMap(IEnumerable<string> tagNames,
                                                                             IEnumerable<ModTagCategory> categories)

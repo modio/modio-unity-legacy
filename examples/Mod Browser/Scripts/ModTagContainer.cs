@@ -19,11 +19,11 @@ namespace ModIO.UI
 
         [Header("Display Data")]
         [SerializeField] private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
-
-        // --- RUNTIME DATA ---
         private List<ModTagDisplayComponent> m_tagDisplays = new List<ModTagDisplayComponent>();
 
         // --- ACCESSORS ---
+        public IEnumerable<ModTagDisplayComponent> tagDisplays { get { return m_tagDisplays; } }
+
         public override IEnumerable<ModTagDisplayData> data
         {
             get { return m_data; }
@@ -50,7 +50,6 @@ namespace ModIO.UI
                 }
             }
         }
-        public IEnumerable<ModTagDisplayComponent> tagDisplays { get { return m_tagDisplays; } }
 
         private void PresentData(IEnumerable<ModTagDisplayData> displayData)
         {
@@ -135,7 +134,6 @@ namespace ModIO.UI
 
                     ModTagDisplayComponent display = displayGO.GetComponent<ModTagDisplayComponent>();
                     display.data = tdata;
-                    display.onClick += NotifyTagClicked;
 
                     m_tagDisplays.Add(display);
                 };
@@ -156,10 +154,7 @@ namespace ModIO.UI
             }
 
             CollectChildTags();
-            if(m_data != null)
-            {
-                PresentData(m_data);
-            }
+            PresentData(m_data);
         }
 
         private void CollectChildTags()
@@ -193,58 +188,24 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
-        {
-            DisplayTags(-1, tags, tagCategories);
-        }
         public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
-            DisplayTags(profile.id, profile.tagNames, tagCategories);
+            DisplayTags(profile.tagNames, tagCategories);
         }
-        public override void DisplayTags(int modId, IEnumerable<string> tags,
-                                            IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
         {
-            Debug.Assert(tags != null);
-
-            if(loadingOverlay != null)
+            if(tags == null)
             {
-                loadingOverlay.SetActive(false);
+                tags = new string[0];
             }
 
-            // clear
-            foreach(ModTagDisplayComponent display in m_tagDisplays)
-            {
-                GameObject.Destroy(display.gameObject);
-            }
-            m_tagDisplays.Clear();
-
-            // create
-            IDictionary<string, string> tagCategoryMap
-                = ModTagCollectionDisplay.GenerateTagCategoryMap(tags, tagCategories);
-
-            foreach(var tagCategory in tagCategoryMap)
-            {
-                GameObject displayGO = GameObject.Instantiate(tagDisplayPrefab,
-                                                              new Vector3(),
-                                                              Quaternion.identity,
-                                                              container);
-
-                ModTagDisplayComponent display = displayGO.GetComponent<ModTagDisplayComponent>();
-                display.Initialize();
-                display.DisplayModTag(tagCategory.Key, tagCategory.Value);
-                display.onClick += NotifyTagClicked;
-
-                m_tagDisplays.Add(display);
-            }
-
-            if(this.isActiveAndEnabled)
-            {
-                StartCoroutine(LateUpdateLayouting());
-            }
+            // create tag data
+            m_data = ModTagDisplayData.GenerateArray(tags, tagCategories);
+            PresentData(m_data);
         }
 
-        public override void DisplayLoading(int modId = -1)
+        public override void DisplayLoading()
         {
             if(loadingOverlay != null)
             {

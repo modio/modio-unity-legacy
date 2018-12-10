@@ -48,22 +48,15 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]--------
-        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
-        {
-            this.DisplayTags(-1, tags, tagCategories);
-        }
-
         public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
-            this.DisplayTags(profile.id, profile.tagNames, tagCategories);
+            this.DisplayTags(profile.tagNames, tagCategories);
         }
 
-        public override void DisplayTags(int modId, IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(tags != null);
-
-            m_modId = modId;
 
             IDictionary<string, string> tagCategoryMap = ModTagCollectionDisplay.GenerateTagCategoryMap(tags,
                                                                                                          tagCategories);
@@ -93,7 +86,7 @@ namespace ModIO.UI
             }
         }
 
-        public override void DisplayLoading(int modId = -1)
+        public override void DisplayLoading()
         {
             text.enabled = false;
 
