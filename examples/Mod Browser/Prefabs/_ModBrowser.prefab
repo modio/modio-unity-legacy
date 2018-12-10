@@ -10318,15 +10318,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 918a09ebb078c4f4faac13aa5b0bd2c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logoSize: 3
-  galleryImageSize: 0
+  m_logoSize: 0
+  m_galleryImageSize: 0
   image: {fileID: 114547393388600906}
-  loadingOverlay: {fileID: 0}
+  fitter: {fileID: 114367437690968534}
+  loadingOverlay: {fileID: 1035376449354654}
   logoOverlay: {fileID: 0}
-  youTubeOverlay: {fileID: 1353639698890002}
   galleryImageOverlay: {fileID: 0}
-  m_modId: 921
-  m_mediaId: Samus_HalfSize.png
+  youTubeOverlay: {fileID: 1353639698890002}
+  m_mediaType: 0
+  m_data:
+    modId: 0
+    imageId: 
+    texture: {fileID: 0}
 --- !u!114 &114837762974921442
 MonoBehaviour:
   m_ObjectHideFlags: 1

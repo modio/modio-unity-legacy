@@ -24,7 +24,7 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ModProfileDisplay profileDisplay;
-        public ModMediaElementDisplay selectedMediaPreview;
+        public ModMediaDisplayComponent selectedMediaPreview;
         public ModStatisticsDisplay statisticsDisplay;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
@@ -56,7 +56,7 @@ namespace ModIO.UI
             if(selectedMediaPreview != null)
             {
                 selectedMediaPreview.Initialize();
-                selectedMediaPreview.youTubeThumbClicked += (c, mId, ytId) => UIUtilities.OpenYouTubeVideoURL(ytId);
+                selectedMediaPreview.youTubeThumbnailClicked += (d) => UIUtilities.OpenYouTubeVideoURL(d.data.youTubeId);
                 // selectedMediaPreview.logoClicked += (c, mId) => Debug.Log("Clicked Logo");
                 // selectedMediaPreview.galleryImageClicked += (c, mId, iFN) => Debug.Log("Clicked Image: " + iFN);
 
@@ -105,7 +105,6 @@ namespace ModIO.UI
             if(selectedMediaPreview != null)
             {
                 selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
-                MediaPreview_UpdateAspectRatio();
             }
 
             // - version history -
@@ -213,21 +212,31 @@ namespace ModIO.UI
 
         private void MediaPreview_Logo(ModLogoDisplayComponent display)
         {
-            selectedMediaPreview.DisplayLogoTexture(display.data.modId, display.data.texture);
-            MediaPreview_UpdateAspectRatio();
+            ImageDisplayData displayData = display.data;
+            selectedMediaPreview.data = displayData;
+            selectedMediaPreview.mediaType = ModMediaDisplayComponent.DataType.Logo;
 
             if(display.logoSize != selectedMediaPreview.logoSize)
             {
                 ModManager.GetModLogo(profile, selectedMediaPreview.logoSize,
                                       (t) =>
-                                      { selectedMediaPreview.DisplayLogoTexture(display.data.modId, t); MediaPreview_UpdateAspectRatio(); },
+                                      {
+                                        if(Application.isPlaying
+                                           && display.data.Equals(displayData))
+                                        {
+                                            displayData.texture = t;
+                                            selectedMediaPreview.data = displayData;
+                                        }
+                                      },
                                       WebRequestError.LogAsWarning);
             }
         }
         private void MediaPreview_GalleryImage(ModGalleryImageDisplayComponent display)
         {
-            selectedMediaPreview.DisplayGalleryImageTexture(display.data.modId, display.data.fileName, display.data.texture);
-            MediaPreview_UpdateAspectRatio();
+            ImageDisplayData displayData = display.data;
+            selectedMediaPreview.data = displayData;
+            selectedMediaPreview.mediaType = ModMediaDisplayComponent.DataType.GalleryImage;
+
 
             if(display.imageSize != selectedMediaPreview.galleryImageSize)
             {
@@ -235,28 +244,21 @@ namespace ModIO.UI
                                               selectedMediaPreview.galleryImageSize,
                                               (t) =>
                                               {
-                                                selectedMediaPreview.DisplayGalleryImageTexture(display.data.modId, display.data.fileName, t);
-                                                MediaPreview_UpdateAspectRatio();
+                                                if(Application.isPlaying
+                                                   && display.data.Equals(displayData))
+                                                {
+                                                    displayData.texture = t;
+                                                    selectedMediaPreview.data = displayData;
+                                                }
                                               },
                                               WebRequestError.LogAsWarning);
             }
         }
         private void MediaPreview_YouTubeThumb(YouTubeThumbnailDisplayComponent display)
         {
-            selectedMediaPreview.DisplayYouTubeThumbTexture(display.data.modId,
-                                                            display.data.youTubeId,
-                                                            display.data.texture);
-            MediaPreview_UpdateAspectRatio();
-        }
-
-        private void MediaPreview_UpdateAspectRatio()
-        {
-            AspectRatioFitter fitter = selectedMediaPreview.image.GetComponent<AspectRatioFitter>();
-            if(fitter != null)
-            {
-                Texture t = selectedMediaPreview.image.mainTexture;
-                fitter.aspectRatio = (float)t.width / (float)t.height;
-            }
+            ImageDisplayData displayData = display.data;
+            selectedMediaPreview.data = displayData;
+            selectedMediaPreview.mediaType = ModMediaDisplayComponent.DataType.YouTubeThumbnail;
         }
     }
 }
