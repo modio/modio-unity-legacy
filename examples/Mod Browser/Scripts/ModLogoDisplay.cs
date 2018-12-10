@@ -64,7 +64,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayModLogo(int modId, LogoImageLocator locator)
+        public override void DisplayLogo(int modId, LogoImageLocator locator)
         {
             Debug.Assert(locator != null);
 

@@ -93,7 +93,7 @@ namespace ModIO.UI
                 GameObject media_go = GameObject.Instantiate(logoPrefab, container);
                 ModLogoDisplay mediaDisplay = media_go.GetComponent<ModLogoDisplay>();
                 mediaDisplay.Initialize();
-                mediaDisplay.DisplayModLogo(modId, logoLocator);
+                mediaDisplay.DisplayLogo(modId, logoLocator);
                 mediaDisplay.onClick += NotifyLogoClicked;
             }
 
