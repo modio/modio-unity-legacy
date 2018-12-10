@@ -213,7 +213,7 @@ namespace ModIO.UI
 
         private void MediaPreview_Logo(ModLogoDisplayComponent display)
         {
-            selectedMediaPreview.DisplayLogoTexture(display.data.modId, display.data.texture as Texture2D);
+            selectedMediaPreview.DisplayLogoTexture(display.data.modId, display.data.texture);
             MediaPreview_UpdateAspectRatio();
 
             if(display.logoSize != selectedMediaPreview.logoSize)
@@ -224,27 +224,28 @@ namespace ModIO.UI
                                       WebRequestError.LogAsWarning);
             }
         }
+        private void MediaPreview_GalleryImage(ModGalleryImageDisplayComponent display)
+        {
+            selectedMediaPreview.DisplayGalleryImageTexture(display.data.modId, display.data.fileName, display.data.texture);
+            MediaPreview_UpdateAspectRatio();
+
+            if(display.imageSize != selectedMediaPreview.galleryImageSize)
+            {
+                ModManager.GetModGalleryImage(profile, display.data.fileName,
+                                              selectedMediaPreview.galleryImageSize,
+                                              (t) =>
+                                              {
+                                                selectedMediaPreview.DisplayGalleryImageTexture(display.data.modId, display.data.fileName, t);
+                                                MediaPreview_UpdateAspectRatio();
+                                              },
+                                              WebRequestError.LogAsWarning);
+            }
+        }
         private void MediaPreview_YouTubeThumb(YouTubeThumbDisplay display, int modId, string youTubeVideoId)
         {
             selectedMediaPreview.DisplayYouTubeThumbTexture(modId, youTubeVideoId,
                                                             display.image.mainTexture as Texture2D);
             MediaPreview_UpdateAspectRatio();
-        }
-        private void MediaPreview_GalleryImage(ModGalleryImageDisplay display, int modId, string imageFileName)
-        {
-            selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, display.image.mainTexture as Texture2D);
-            MediaPreview_UpdateAspectRatio();
-
-            if(display.imageSize != selectedMediaPreview.galleryImageSize)
-            {
-                ModManager.GetModGalleryImage(profile, imageFileName, selectedMediaPreview.galleryImageSize,
-                                              (t) =>
-                                              {
-                                                selectedMediaPreview.DisplayGalleryImageTexture(modId, imageFileName, t);
-                                                MediaPreview_UpdateAspectRatio();
-                                              },
-                                              WebRequestError.LogAsWarning);
-            }
         }
 
         private void MediaPreview_UpdateAspectRatio()

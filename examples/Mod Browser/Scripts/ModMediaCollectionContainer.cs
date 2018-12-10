@@ -10,8 +10,7 @@ namespace ModIO.UI
         public delegate void OnLogoClicked(ModLogoDisplayComponent display);
         public delegate void OnYouTubeThumbClicked(YouTubeThumbDisplay component,
                                                    int modId, string youTubeVideoId);
-        public delegate void OnGalleryImageClicked(ModGalleryImageDisplay component,
-                                                   int modId, string imageFileName);
+        public delegate void OnGalleryImageClicked(ModGalleryImageDisplayComponent display);
 
         public event OnLogoClicked          logoClicked;
         public event OnYouTubeThumbClicked  youTubeThumbClicked;
@@ -119,7 +118,7 @@ namespace ModIO.UI
                     GameObject media_go = GameObject.Instantiate(galleryImagePrefab, container);
                     ModGalleryImageDisplay mediaDisplay = media_go.GetComponent<ModGalleryImageDisplay>();
                     mediaDisplay.Initialize();
-                    mediaDisplay.DisplayGalleryImage(modId, imageLocator);
+                    mediaDisplay.DisplayImage(modId, imageLocator);
                     mediaDisplay.onClick += NotifyGalleryImageClicked;
                 }
             }
@@ -149,21 +148,20 @@ namespace ModIO.UI
             }
         }
 
+        public void NotifyGalleryImageClicked(ModGalleryImageDisplayComponent display)
+        {
+            if(this.galleryImageClicked != null)
+            {
+                this.galleryImageClicked(display);
+            }
+        }
+
         public void NotifyYouTubeThumbnailClicked(YouTubeThumbDisplay component,
                                                   int modId, string youTubeVideoId)
         {
             if(this.youTubeThumbClicked != null)
             {
                 this.youTubeThumbClicked(component, modId, youTubeVideoId);
-            }
-        }
-
-        public void NotifyGalleryImageClicked(ModGalleryImageDisplay component,
-                                              int modId, string imageFileName)
-        {
-            if(this.galleryImageClicked != null)
-            {
-                this.galleryImageClicked(component, modId, imageFileName);
             }
         }
     }

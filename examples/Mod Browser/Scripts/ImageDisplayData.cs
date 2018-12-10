@@ -16,7 +16,7 @@ namespace ModIO.UI
     {
         public abstract event System.Action<ModLogoDisplayComponent> onClick;
 
-        public abstract LogoSize logoSize       { get; set; }
+        public abstract LogoSize logoSize       { get; }
         public abstract ImageDisplayData data   { get; set; }
 
         public abstract void Initialize();
@@ -28,11 +28,11 @@ namespace ModIO.UI
     {
         public abstract event System.Action<ModGalleryImageDisplayComponent> onClick;
 
-        public abstract ModGalleryImageSize logoSize    { get; set; }
+        public abstract ModGalleryImageSize imageSize   { get; }
         public abstract ImageDisplayData data           { get; set; }
 
         public abstract void Initialize();
-        public abstract void DisplayGalleryImage(int modId, GalleryImageLocator locator);
+        public abstract void DisplayImage(int modId, GalleryImageLocator locator);
         public abstract void DisplayLoading();
     }
 

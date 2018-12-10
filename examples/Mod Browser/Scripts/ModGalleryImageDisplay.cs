@@ -4,90 +4,122 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModGalleryImageDisplay : MonoBehaviour
+    [RequireComponent(typeof(Image))]
+    public class ModGalleryImageDisplay : ModGalleryImageDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(ModGalleryImageDisplay component,
-                                             int modId, string fileName);
-        public event OnClickDelegate onClick;
+        public override event Action<ModGalleryImageDisplayComponent> onClick;
 
         [Header("Settings")]
-        public ModGalleryImageSize imageSize;
+        [SerializeField] private ModGalleryImageSize m_imageSize;
 
         [Header("UI Components")]
-        public Image image;
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private int m_modId;
-        [SerializeField] private string m_imageFileName;
+        [SerializeField] private ImageDisplayData m_data;
 
-        // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        // --- ACCESSORS ---
+        public Image image
         {
-            Debug.Assert(image != null);
+            get { return this.gameObject.GetComponent<Image>(); }
         }
 
-        // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayGalleryImage(int modId, GalleryImageLocator imageLocator)
+        public override ModGalleryImageSize imageSize
         {
-            Debug.Assert(modId > 0,
-                         "[mod.io] Mod Id needs to be set to a valid mod profile id.");
-            Debug.Assert(imageLocator != null && !String.IsNullOrEmpty(imageLocator.fileName),
-                         "[mod.io] imageLocator needs to be set and have a fileName.");
-
-            DisplayLoading();
-
-            m_modId = modId;
-            m_imageFileName = imageLocator.fileName;
-
-            ModManager.GetModGalleryImage(modId, imageLocator, imageSize,
-                                          (t) => LoadTexture(t, imageLocator.fileName),
-                                          WebRequestError.LogAsWarning);
+            get { return m_imageSize; }
         }
-
-        public void DisplayTexture(int modId, string imageFileName, Texture2D texture)
+        public override ImageDisplayData data
         {
-            Debug.Assert(modId > 0, "[mod.io] Mod Id needs to be set to a valid mod profile id.");
-            Debug.Assert(texture != null);
-
-            m_modId = modId;
-            m_imageFileName = imageFileName;
-
-            LoadTexture(texture, imageFileName);
-        }
-
-        public void DisplayLoading(int modId = -1)
-        {
-            m_modId = modId;
-
-            if(loadingOverlay != null)
+            get { return m_data; }
+            set
             {
-                loadingOverlay.SetActive(true);
+                m_data = value;
+                PresentData();
             }
-
-            image.enabled = false;
         }
 
-        private void LoadTexture(Texture2D texture, string fileName)
+        private void PresentData()
         {
-            #if UNITY_EDITOR
-            if(!Application.isPlaying) { return; }
-            #endif
-
-            if(fileName != m_imageFileName
-               || this.image == null)
+            if(m_data.texture != null)
             {
-                return;
+                image.sprite = UIUtilities.CreateSpriteFromTexture(m_data.texture);
+            }
+            else
+            {
+                image.sprite = null;
             }
 
             if(loadingOverlay != null)
             {
                 loadingOverlay.SetActive(false);
             }
+        }
 
-            image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
-            image.enabled = true;
+        // ---------[ INITIALIZATION ]---------
+        public override void Initialize()
+        {
+            if(Application.isPlaying)
+            {
+                Debug.Assert(image != null);
+            }
+        }
+
+        // ---------[ UI FUNCTIONALITY ]---------
+        public override void DisplayImage(int modId, GalleryImageLocator locator)
+        {
+            Debug.Assert(locator != null && !String.IsNullOrEmpty(locator.fileName),
+                         "[mod.io] locator needs to be set and have a fileName.");
+
+            ImageDisplayData imageData = new ImageDisplayData()
+            {
+                modId = modId,
+                fileName = locator.fileName,
+                texture = null,
+            };
+
+            DisplayInternal(imageData, locator);
+        }
+
+        // NOTE(@jackson): Called internally, this is only used when displayData.texture == null
+        private void DisplayInternal(ImageDisplayData displayData, GalleryImageLocator locator)
+        {
+            Debug.Assert(displayData.texture == null);
+
+            m_data = displayData;
+
+            if(locator == null)
+            {
+                PresentData();
+            }
+            else
+            {
+                DisplayLoading();
+
+                ModManager.GetModGalleryImage(displayData.modId,
+                                              locator,
+                                              imageSize,
+                                              (t) =>
+                                              {
+                                                if(!Application.isPlaying) { return; }
+                                                if(m_data.Equals(displayData))
+                                                {
+                                                    m_data.texture = t;
+                                                    PresentData();
+                                                }
+                                              },
+                                              WebRequestError.LogAsWarning);
+            }
+        }
+
+        public override void DisplayLoading()
+        {
+            image.sprite = null;
+
+            if(loadingOverlay != null)
+            {
+                loadingOverlay.SetActive(true);
+            }
         }
 
         // ---------[ EVENT HANDLING ]---------
@@ -95,8 +127,20 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_modId, m_imageFileName);
+                this.onClick(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if(image != null)
+            {
+                // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
+                // "Should" be fine.
+                PresentData();
+            }
+        }
+        #endif
     }
 }

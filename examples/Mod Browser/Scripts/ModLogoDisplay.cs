@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-// TODO(@jackson): MERGE!
 namespace ModIO.UI
 {
     [RequireComponent(typeof(Image))]
@@ -29,7 +28,6 @@ namespace ModIO.UI
         public override LogoSize logoSize
         {
             get { return m_logoSize; }
-            set { m_logoSize = value; }
         }
         public override ImageDisplayData data
         {
