@@ -7,11 +7,7 @@ namespace ModIO.UI
     public class ModMediaDisplay : ModMediaDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        // TODO(@jackson): Connect onClick
         public override event Action<IImageDataDisplay> onClick;
-        public override event Action<ModMediaDisplayComponent> logoClicked;
-        public override event Action<ModMediaDisplayComponent> galleryImageClicked;
-        public override event Action<ModMediaDisplayComponent> youTubeThumbnailClicked;
 
         [Header("Settings")]
         [SerializeField] private LogoSize m_logoSize;
@@ -27,7 +23,6 @@ namespace ModIO.UI
 
         [Header("Display Data")]
         [SerializeField] private ImageDisplayData m_data = new ImageDisplayData();
-        private Action m_clickNotifier = null;
 
         // --- ACCESSORS ---
         public override LogoSize logoSize
@@ -41,25 +36,6 @@ namespace ModIO.UI
             set
             {
                 m_data = data;
-
-                switch(data.mediaType)
-                {
-                    case ImageDisplayData.MediaType.ModLogo:
-                    {
-                        m_clickNotifier = NotifyLogoClicked;
-                    }
-                    break;
-                    case ImageDisplayData.MediaType.ModGalleryImage:
-                    {
-                        m_clickNotifier = NotifyImageClicked;
-                    }
-                    break;
-                    case ImageDisplayData.MediaType.ModYouTubeThumbnail:
-                    {
-                        m_clickNotifier = NotifyYouTubeClicked;
-                    }
-                    break;
-                }
 
                 PresentData();
             }
@@ -82,7 +58,7 @@ namespace ModIO.UI
             }
             if(youTubeOverlay != null)
             {
-                youTubeOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.ModYouTubeThumbnail);
+                youTubeOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail);
             }
 
             if(m_data.texture != null)
@@ -142,7 +118,6 @@ namespace ModIO.UI
                 texture = null,
             };
             m_data = displayData;
-            m_clickNotifier = NotifyLogoClicked;
 
             DisplayLoading();
 
@@ -175,7 +150,6 @@ namespace ModIO.UI
                 texture = null,
             };
             m_data = displayData;
-            m_clickNotifier = NotifyImageClicked;
 
             DisplayLoading();
 
@@ -203,12 +177,11 @@ namespace ModIO.UI
             ImageDisplayData displayData = new ImageDisplayData()
             {
                 modId = modId,
-                mediaType = ImageDisplayData.MediaType.ModYouTubeThumbnail,
+                mediaType = ImageDisplayData.MediaType.YouTubeThumbnail,
                 youTubeId = youTubeVideoId,
                 texture = null,
             };
             m_data = displayData;
-            m_clickNotifier = NotifyYouTubeClicked;
 
             DisplayLoading();
 
@@ -252,30 +225,9 @@ namespace ModIO.UI
         // ---------[ EVENT HANDLING ]---------
         public void NotifyClicked()
         {
-            m_clickNotifier();
-        }
-
-        private void NotifyLogoClicked()
-        {
-            if(logoClicked != null)
+            if(onClick != null)
             {
-                logoClicked(this);
-            }
-        }
-
-        private void NotifyImageClicked()
-        {
-            if(galleryImageClicked != null)
-            {
-                galleryImageClicked(this);
-            }
-        }
-
-        private void NotifyYouTubeClicked()
-        {
-            if(youTubeThumbnailClicked != null)
-            {
-                youTubeThumbnailClicked(this);
+                onClick(this);
             }
         }
     }

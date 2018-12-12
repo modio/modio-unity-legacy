@@ -12,7 +12,7 @@ namespace ModIO.UI
         {
             ModLogo,
             ModGalleryImage,
-            ModYouTubeThumbnail,
+            YouTubeThumbnail,
         };
 
         public int modId;
@@ -36,9 +36,6 @@ namespace ModIO.UI
     public abstract class ModMediaDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
         public abstract event Action<IImageDataDisplay> onClick;
-        public abstract event Action<ModMediaDisplayComponent> logoClicked;
-        public abstract event Action<ModMediaDisplayComponent> galleryImageClicked;
-        public abstract event Action<ModMediaDisplayComponent> youTubeThumbnailClicked;
 
         public abstract LogoSize logoSize                       { get; }
         public abstract ModGalleryImageSize galleryImageSize    { get; }

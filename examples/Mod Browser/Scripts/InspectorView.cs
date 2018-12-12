@@ -56,9 +56,13 @@ namespace ModIO.UI
             if(selectedMediaPreview != null)
             {
                 selectedMediaPreview.Initialize();
-                selectedMediaPreview.youTubeThumbnailClicked += (d) => UIUtilities.OpenYouTubeVideoURL(d.data.youTubeId);
-                // selectedMediaPreview.logoClicked += (c, mId) => Debug.Log("Clicked Logo");
-                // selectedMediaPreview.galleryImageClicked += (c, mId, iFN) => Debug.Log("Clicked Image: " + iFN);
+                selectedMediaPreview.onClick += (d) =>
+                {
+                    if(d.data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail)
+                    {
+                        UIUtilities.OpenYouTubeVideoURL(d.data.youTubeId);
+                    }
+                };
 
                 if(profileDisplay != null
                    && profileDisplay.mediaContainer != null)
