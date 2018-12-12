@@ -1,4 +1,6 @@
 using System;
+using MonoBehaviour = UnityEngine.MonoBehaviour;
+using Texture2D = UnityEngine.Texture2D;
 
 namespace ModIO.UI
 {
@@ -15,13 +17,18 @@ namespace ModIO.UI
         public int modId;
         public MediaType mediaType;
         public string imageId;
-        public UnityEngine.Texture2D texture;
+        public Texture2D texture;
 
         public string fileName  { get { return imageId; } set { imageId = value; } }
         public string youTubeId { get { return imageId; } set { imageId = value; } }
     }
 
-    public abstract class ModMediaDisplayComponent : UnityEngine.MonoBehaviour
+    public interface IImageDataDisplay
+    {
+        ImageDisplayData data { get; set; }
+    }
+
+    public abstract class ModMediaDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
         public abstract event Action<ModMediaDisplayComponent> logoClicked;
         public abstract event Action<ModMediaDisplayComponent> galleryImageClicked;
@@ -29,8 +36,6 @@ namespace ModIO.UI
 
         public abstract LogoSize logoSize                       { get; }
         public abstract ModGalleryImageSize galleryImageSize    { get; }
-
-        // public abstract Image image { get; }
 
         public abstract ImageDisplayData data           { get; set; }
 
@@ -41,7 +46,7 @@ namespace ModIO.UI
         public abstract void DisplayLoading();
     }
 
-    public abstract class ModLogoDisplayComponent : UnityEngine.MonoBehaviour
+    public abstract class ModLogoDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
         public abstract event System.Action<ModLogoDisplayComponent> onClick;
 
@@ -53,7 +58,7 @@ namespace ModIO.UI
         public abstract void DisplayLoading();
     }
 
-    public abstract class ModGalleryImageDisplayComponent : UnityEngine.MonoBehaviour
+    public abstract class ModGalleryImageDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
         public abstract event System.Action<ModGalleryImageDisplayComponent> onClick;
 
@@ -65,7 +70,7 @@ namespace ModIO.UI
         public abstract void DisplayLoading();
     }
 
-    public abstract class YouTubeThumbnailDisplayComponent : UnityEngine.MonoBehaviour
+    public abstract class YouTubeThumbnailDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
         public abstract event System.Action<YouTubeThumbnailDisplayComponent> onClick;
 
