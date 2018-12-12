@@ -7,7 +7,7 @@ namespace ModIO.UI
     public class YouTubeThumbnailDisplay : YouTubeThumbnailDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<IImageDataDisplay> onClick;
+        public override event Action<ImageDataDisplayComponent> onClick;
 
         [Header("UI Components")]
         public Image image;

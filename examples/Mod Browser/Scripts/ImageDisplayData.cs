@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using MonoBehaviour = UnityEngine.MonoBehaviour;
-using Texture2D = UnityEngine.Texture2D;
+using UnityEngine;
 
 namespace ModIO.UI
 {
@@ -24,62 +23,41 @@ namespace ModIO.UI
         public string youTubeId { get { return imageId; } set { imageId = value; } }
     }
 
-    public interface IImageDataDisplay
+    public abstract class ImageDataDisplayComponent : MonoBehaviour
     {
-        event Action<IImageDataDisplay> onClick;
-        ImageDisplayData data { get; set; }
-
-        void Initialize();
-        void DisplayLoading();
-    }
-
-    public abstract class ModMediaDisplayComponent : MonoBehaviour, IImageDataDisplay
-    {
-        public abstract event Action<IImageDataDisplay> onClick;
-
-        public abstract LogoSize logoSize                       { get; }
-        public abstract ModGalleryImageSize galleryImageSize    { get; }
-        public abstract ImageDisplayData data                   { get; set; }
+        public abstract event Action<ImageDataDisplayComponent> onClick;
+        public abstract ImageDisplayData data { get; set; }
 
         public abstract void Initialize();
+        public abstract void DisplayLoading();
+    }
+
+    public abstract class ModMediaDisplayComponent : ImageDataDisplayComponent
+    {
+        public abstract LogoSize logoSize                       { get; }
+        public abstract ModGalleryImageSize galleryImageSize    { get; }
+
         public abstract void DisplayLogo(int modId, LogoImageLocator locator);
         public abstract void DisplayGalleryImage(int modId, GalleryImageLocator locator);
         public abstract void DisplayYouTubeThumbnail(int modId, string youTubeVideoId);
-        public abstract void DisplayLoading();
     }
 
-    public abstract class ModLogoDisplayComponent : MonoBehaviour, IImageDataDisplay
+    public abstract class ModLogoDisplayComponent : ImageDataDisplayComponent
     {
-        public abstract event Action<IImageDataDisplay> onClick;
-
         public abstract LogoSize logoSize       { get; }
-        public abstract ImageDisplayData data   { get; set; }
 
-        public abstract void Initialize();
         public abstract void DisplayLogo(int modId, LogoImageLocator locator);
-        public abstract void DisplayLoading();
     }
 
-    public abstract class ModGalleryImageDisplayComponent : MonoBehaviour, IImageDataDisplay
+    public abstract class ModGalleryImageDisplayComponent : ImageDataDisplayComponent
     {
-        public abstract event Action<IImageDataDisplay> onClick;
-
         public abstract ModGalleryImageSize imageSize   { get; }
-        public abstract ImageDisplayData data           { get; set; }
 
-        public abstract void Initialize();
         public abstract void DisplayImage(int modId, GalleryImageLocator locator);
-        public abstract void DisplayLoading();
     }
 
-    public abstract class YouTubeThumbnailDisplayComponent : MonoBehaviour, IImageDataDisplay
+    public abstract class YouTubeThumbnailDisplayComponent : ImageDataDisplayComponent
     {
-        public abstract event Action<IImageDataDisplay> onClick;
-
-        public abstract ImageDisplayData data           { get; set; }
-
-        public abstract void Initialize();
         public abstract void DisplayThumbnail(int modId, string youTubeVideoId);
-        public abstract void DisplayLoading();
     }
 }

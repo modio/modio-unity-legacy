@@ -7,7 +7,7 @@ namespace ModIO.UI
     public class ModMediaDisplay : ModMediaDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<IImageDataDisplay> onClick;
+        public override event Action<ImageDataDisplayComponent> onClick;
 
         [Header("Settings")]
         [SerializeField] private LogoSize m_logoSize;

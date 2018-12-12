@@ -146,7 +146,7 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENT HANDLING ]---------
-        public void NotifyLogoClicked(IImageDataDisplay display)
+        public void NotifyLogoClicked(ImageDataDisplayComponent display)
         {
             Debug.Assert(display is ModLogoDisplay);
             if(this.logoClicked != null)
@@ -155,7 +155,7 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyGalleryImageClicked(IImageDataDisplay display)
+        public void NotifyGalleryImageClicked(ImageDataDisplayComponent display)
         {
             Debug.Assert(display is ModGalleryImageDisplay);
             if(this.galleryImageClicked != null)
@@ -164,7 +164,7 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyYouTubeThumbnailClicked(IImageDataDisplay display)
+        public void NotifyYouTubeThumbnailClicked(ImageDataDisplayComponent display)
         {
             Debug.Assert(display is YouTubeThumbnailDisplay);
             if(this.youTubeThumbnailClicked != null)
