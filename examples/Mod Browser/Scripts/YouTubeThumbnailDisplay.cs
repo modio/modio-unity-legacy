@@ -62,6 +62,7 @@ namespace ModIO.UI
             ImageDisplayData imageData = new ImageDisplayData()
             {
                 modId = modId,
+                mediaType = ImageDisplayData.MediaType.ModYouTubeThumbnail,
                 youTubeId = youTubeVideoId,
                 texture = null,
             };

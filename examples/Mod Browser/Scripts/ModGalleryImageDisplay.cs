@@ -74,6 +74,7 @@ namespace ModIO.UI
             ImageDisplayData imageData = new ImageDisplayData()
             {
                 modId = modId,
+                mediaType = ImageDisplayData.MediaType.ModGalleryImage,
                 fileName = locator.fileName,
                 texture = null,
             };

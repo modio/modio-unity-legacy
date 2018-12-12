@@ -24,7 +24,6 @@ namespace ModIO.UI
         public GameObject youTubeOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private DataType m_mediaType = DataType.Logo;
         [SerializeField] private ImageDisplayData m_data = new ImageDisplayData();
         private Action m_clickNotifier = null;
 
@@ -34,43 +33,32 @@ namespace ModIO.UI
         public override ModGalleryImageSize galleryImageSize
         { get { return this.m_galleryImageSize; } }
 
-        public override DataType mediaType
-        {
-            get { return this.m_mediaType; }
-            set
-            {
-                if(m_mediaType != value)
-                {
-                    m_mediaType = value;
-
-                    switch(m_mediaType)
-                    {
-                        case DataType.Logo:
-                        {
-                            m_clickNotifier = NotifyLogoClicked;
-                        }
-                        break;
-                        case DataType.GalleryImage:
-                        {
-                            m_clickNotifier = NotifyImageClicked;
-                        }
-                        break;
-                        case DataType.YouTubeThumbnail:
-                        {
-                            m_clickNotifier = NotifyYouTubeClicked;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
         public override ImageDisplayData data
         {
             get { return m_data; }
             set
             {
                 m_data = data;
+
+                switch(data.mediaType)
+                {
+                    case ImageDisplayData.MediaType.ModLogo:
+                    {
+                        m_clickNotifier = NotifyLogoClicked;
+                    }
+                    break;
+                    case ImageDisplayData.MediaType.ModGalleryImage:
+                    {
+                        m_clickNotifier = NotifyImageClicked;
+                    }
+                    break;
+                    case ImageDisplayData.MediaType.ModYouTubeThumbnail:
+                    {
+                        m_clickNotifier = NotifyYouTubeClicked;
+                    }
+                    break;
+                }
+
                 PresentData();
             }
         }
@@ -84,15 +72,15 @@ namespace ModIO.UI
 
             if(logoOverlay != null)
             {
-                logoOverlay.SetActive(m_mediaType == DataType.Logo);
+                logoOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.ModLogo);
             }
             if(galleryImageOverlay != null)
             {
-                galleryImageOverlay.SetActive(m_mediaType == DataType.GalleryImage);
+                galleryImageOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.ModGalleryImage);
             }
             if(youTubeOverlay != null)
             {
-                youTubeOverlay.SetActive(m_mediaType == DataType.YouTubeThumbnail);
+                youTubeOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.ModYouTubeThumbnail);
             }
 
             if(m_data.texture != null)
@@ -144,11 +132,10 @@ namespace ModIO.UI
         {
             Debug.Assert(locator != null);
 
-            m_mediaType = DataType.Logo;
-
             ImageDisplayData displayData = new ImageDisplayData()
             {
                 modId = modId,
+                mediaType = ImageDisplayData.MediaType.ModLogo,
                 fileName = locator.fileName,
                 texture = null,
             };
@@ -177,11 +164,11 @@ namespace ModIO.UI
         {
             Debug.Assert(locator != null);
 
-            m_mediaType = DataType.GalleryImage;
 
             ImageDisplayData displayData = new ImageDisplayData()
             {
                 modId = modId,
+                mediaType = ImageDisplayData.MediaType.ModGalleryImage,
                 fileName = locator.fileName,
                 texture = null,
             };
@@ -210,11 +197,11 @@ namespace ModIO.UI
             Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                          "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
 
-            m_mediaType = DataType.YouTubeThumbnail;
 
             ImageDisplayData displayData = new ImageDisplayData()
             {
                 modId = modId,
+                mediaType = ImageDisplayData.MediaType.ModYouTubeThumbnail,
                 youTubeId = youTubeVideoId,
                 texture = null,
             };

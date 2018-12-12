@@ -5,24 +5,24 @@ namespace ModIO.UI
     [System.Serializable]
     public struct ImageDisplayData
     {
-        public int modId;
+        public enum MediaType
+        {
+            ModLogo,
+            ModGalleryImage,
+            ModYouTubeThumbnail,
+        };
 
+        public int modId;
+        public MediaType mediaType;
         public string imageId;
+        public UnityEngine.Texture2D texture;
+
         public string fileName  { get { return imageId; } set { imageId = value; } }
         public string youTubeId { get { return imageId; } set { imageId = value; } }
-
-        public UnityEngine.Texture2D texture;
     }
 
     public abstract class ModMediaDisplayComponent : UnityEngine.MonoBehaviour
     {
-        public enum DataType
-        {
-            Logo,
-            GalleryImage,
-            YouTubeThumbnail
-        };
-
         public abstract event Action<ModMediaDisplayComponent> logoClicked;
         public abstract event Action<ModMediaDisplayComponent> galleryImageClicked;
         public abstract event Action<ModMediaDisplayComponent> youTubeThumbnailClicked;
@@ -32,7 +32,6 @@ namespace ModIO.UI
 
         // public abstract Image image { get; }
 
-        public abstract DataType mediaType              { get; set; }
         public abstract ImageDisplayData data           { get; set; }
 
         public abstract void Initialize();

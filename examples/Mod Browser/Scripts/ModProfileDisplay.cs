@@ -283,6 +283,7 @@ namespace ModIO.UI
             ImageDisplayData logoData = new ImageDisplayData()
             {
                 modId = profile.id,
+                mediaType = ImageDisplayData.MediaType.ModLogo,
                 fileName = null,
                 texture = null,
             };

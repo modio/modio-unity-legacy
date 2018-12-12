@@ -214,7 +214,6 @@ namespace ModIO.UI
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;
-            selectedMediaPreview.mediaType = ModMediaDisplayComponent.DataType.Logo;
 
             if(display.logoSize != selectedMediaPreview.logoSize)
             {
@@ -235,8 +234,6 @@ namespace ModIO.UI
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;
-            selectedMediaPreview.mediaType = ModMediaDisplayComponent.DataType.GalleryImage;
-
 
             if(display.imageSize != selectedMediaPreview.galleryImageSize)
             {
@@ -258,7 +255,6 @@ namespace ModIO.UI
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;
-            selectedMediaPreview.mediaType = ModMediaDisplayComponent.DataType.YouTubeThumbnail;
         }
     }
 }
