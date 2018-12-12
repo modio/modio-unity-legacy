@@ -65,7 +65,7 @@ namespace ModIO.UI
                 {
                     profileDisplay.mediaContainer.logoClicked += MediaPreview_Logo;
                     profileDisplay.mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
-                    profileDisplay.mediaContainer.youTubeThumbClicked += MediaPreview_YouTubeThumb;
+                    profileDisplay.mediaContainer.youTubeThumbnailClicked += MediaPreview_YouTubeThumbnail;
                 }
             }
 
@@ -254,7 +254,7 @@ namespace ModIO.UI
                                               WebRequestError.LogAsWarning);
             }
         }
-        private void MediaPreview_YouTubeThumb(YouTubeThumbnailDisplayComponent display)
+        private void MediaPreview_YouTubeThumbnail(YouTubeThumbnailDisplayComponent display)
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;

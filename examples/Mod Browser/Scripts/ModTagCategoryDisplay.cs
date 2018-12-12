@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [RequireComponent(typeof(ModTagCollectionDisplay))]
+    [RequireComponent(typeof(ModTagCollectionDisplayComponent))]
     public class ModTagCategoryDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
@@ -17,8 +17,8 @@ namespace ModIO.UI
         public Text nameDisplay;
 
         // ---------[ ACCESSORS ]---------
-        public ModTagCollectionDisplay tagDisplay
-        { get { return this.gameObject.GetComponent<ModTagCollectionDisplay>(); } }
+        public ModTagCollectionDisplayComponent tagDisplay
+        { get { return this.gameObject.GetComponent<ModTagCollectionDisplayComponent>(); } }
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()

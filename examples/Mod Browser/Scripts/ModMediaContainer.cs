@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ModIO.UI
 {
-    public class ModMediaCollectionContainer : MonoBehaviour
+    public class ModMediaContainer : ModMediaCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnLogoClicked(ModLogoDisplayComponent display);
-        public delegate void OnGalleryImageClicked(ModGalleryImageDisplayComponent display);
-        public delegate void OnYouTubeThumbClicked(YouTubeThumbnailDisplayComponent display);
-
-        public event OnLogoClicked          logoClicked;
-        public event OnYouTubeThumbClicked  youTubeThumbClicked;
-        public event OnGalleryImageClicked  galleryImageClicked;
+        public event Action<ModLogoDisplayComponent>            logoClicked;
+        public event Action<ModGalleryImageDisplayComponent>    galleryImageClicked;
+        public event Action<YouTubeThumbnailDisplayComponent>   youTubeThumbnailClicked;
 
         [Header("Settings")]
         public GameObject logoPrefab;
@@ -23,14 +20,30 @@ namespace ModIO.UI
         [Header("UI Components")]
         public RectTransform container;
 
+        [Header("Display Data")]
+        [SerializeField] private ImageDisplayData[] m_data = new ImageDisplayData[0];
+
         // --- RUNTIME DATA ---
-        private int m_modId = -1;
         private LogoImageLocator m_logoLocator = null;
         private IEnumerable<string> m_youTubeURLs = null;
         private IEnumerable<GalleryImageLocator> m_galleryImageLocators = null;
 
+        // --- ACCESSORS ---
+        public override IEnumerable<ImageDisplayData> data
+        {
+            get { return m_data; }
+            set
+            {
+                if(value == null)
+                {
+                    value = new ImageDisplayData[0];
+                }
+                m_data = value.ToArray();
+            }
+        }
+
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        public override void Initialize()
         {
             Debug.Assert(container != null);
 
@@ -59,22 +72,19 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayProfileMedia(ModProfile profile)
+        public override void DisplayMedia(ModProfile profile)
         {
             Debug.Assert(profile != null);
             Debug.Assert(profile.media != null);
 
-            DisplayProfileMedia(profile.id, profile.logoLocator, profile.media.youTubeURLs, profile.media.galleryImageLocators);
+            DisplayMedia(profile.id, profile.logoLocator, profile.media.youTubeURLs, profile.media.galleryImageLocators);
         }
 
-        public void DisplayProfileMedia(int modId,
-                                        LogoImageLocator logoLocator,
-                                        IEnumerable<string> youTubeURLs,
-                                        IEnumerable<GalleryImageLocator> galleryImageLocators)
+        public override void DisplayMedia(int modId,
+                                          LogoImageLocator logoLocator,
+                                          IEnumerable<string> youTubeURLs,
+                                          IEnumerable<GalleryImageLocator> galleryImageLocators)
         {
-            Debug.Assert(modId > 0, "[mod.io] modId needs to be set to a valid mod profile id.");
-
-            m_modId = modId;
             m_logoLocator = logoLocator;
             m_youTubeURLs = youTubeURLs;
             m_galleryImageLocators = galleryImageLocators;
@@ -83,7 +93,6 @@ namespace ModIO.UI
             {
                 GameObject.Destroy(t.gameObject);
             }
-
 
             if(logoLocator != null
                && logoPrefab != null)
@@ -128,10 +137,8 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayLoading(int modId = -1)
+        public override void DisplayLoading()
         {
-            m_modId = modId;
-
             foreach(Transform t in container)
             {
                 GameObject.Destroy(t.gameObject);
@@ -157,9 +164,9 @@ namespace ModIO.UI
 
         public void NotifyYouTubeThumbnailClicked(YouTubeThumbnailDisplayComponent display)
         {
-            if(this.youTubeThumbClicked != null)
+            if(this.youTubeThumbnailClicked != null)
             {
-                this.youTubeThumbClicked(display);
+                this.youTubeThumbnailClicked(display);
             }
         }
     }

@@ -40,6 +40,10 @@ namespace ModIO.UI
 
         private void PresentData(UserDisplayData displayData)
         {
+            #if UNITY_EDITOR
+            if(!Application.isPlaying && m_displayMapping == null) { return; }
+            #endif
+
             foreach(var kvp in m_displayMapping)
             {
                 kvp.Key.text = kvp.Value(displayData);

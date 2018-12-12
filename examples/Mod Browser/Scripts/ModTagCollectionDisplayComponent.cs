@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-    public abstract class ModTagCollectionDisplay : MonoBehaviour
+    public abstract class ModTagCollectionDisplayComponent : MonoBehaviour
     {
         public abstract IEnumerable<ModTagDisplayData> data { get; set; }
 

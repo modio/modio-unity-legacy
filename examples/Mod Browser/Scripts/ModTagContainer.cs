@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModTagContainer : ModTagCollectionDisplay
+    public class ModTagContainer : ModTagCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
         public event System.Action<ModTagDisplayComponent> tagClicked;

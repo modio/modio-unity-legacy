@@ -34,12 +34,12 @@ namespace ModIO.UI
         // TODO(@jackson)
         // public MetadataKVP[] metadataKVPs;
 
-        public UserDisplayComponent         creatorDisplay;
-        public ModLogoDisplay               logoDisplay;
-        public ModMediaCollectionContainer  mediaContainer;
-        public ModfileDisplayComponent      buildDisplay;
-        public ModTagCollectionDisplay      tagDisplay;
-        public ModBinaryRequestDisplay      downloadDisplay;
+        public UserDisplayComponent             creatorDisplay;
+        public ModLogoDisplay                   logoDisplay;
+        public ModMediaContainer                mediaContainer;
+        public ModfileDisplayComponent          buildDisplay;
+        public ModTagCollectionDisplayComponent tagDisplay;
+        public ModBinaryRequestDisplay          downloadDisplay;
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();

@@ -7,10 +7,10 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     [RequireComponent(typeof(Text))]
-    public class ModTagCollectionTextDisplay : ModTagCollectionDisplay
+    public class ModTagCollectionTextDisplay : ModTagCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public event System.Action<ModTagCollectionDisplay> onClick;
+        public event System.Action<ModTagCollectionDisplayComponent> onClick;
 
         [Header("Settings")]
         public bool includeCategory = false;

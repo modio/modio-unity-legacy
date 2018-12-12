@@ -26,7 +26,7 @@ namespace ModIO.UI
         [Header("UI Components")]
         public ModProfileDisplay profileDisplay;
         public ModStatisticsDisplay statisticsDisplay;
-        public ModTagCollectionDisplay tagsDisplay;
+        public ModTagCollectionDisplayComponent tagsDisplay;
         public Button subscribeButton;
         public Button unsubscribeButton;
         public Button enableModButton;
