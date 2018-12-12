@@ -8,7 +8,7 @@ namespace ModIO.UI
     public class ModGalleryImageDisplay : ModGalleryImageDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<ModGalleryImageDisplayComponent> onClick;
+        public override event Action<IImageDataDisplay> onClick;
 
         [Header("Settings")]
         [SerializeField] private ModGalleryImageSize m_imageSize;

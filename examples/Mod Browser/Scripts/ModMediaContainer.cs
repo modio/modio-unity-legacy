@@ -146,27 +146,30 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENT HANDLING ]---------
-        public void NotifyLogoClicked(ModLogoDisplayComponent display)
+        public void NotifyLogoClicked(IImageDataDisplay display)
         {
+            Debug.Assert(display is ModLogoDisplay);
             if(this.logoClicked != null)
             {
-                this.logoClicked(display);
+                this.logoClicked(display as ModLogoDisplay);
             }
         }
 
-        public void NotifyGalleryImageClicked(ModGalleryImageDisplayComponent display)
+        public void NotifyGalleryImageClicked(IImageDataDisplay display)
         {
+            Debug.Assert(display is ModGalleryImageDisplay);
             if(this.galleryImageClicked != null)
             {
-                this.galleryImageClicked(display);
+                this.galleryImageClicked(display as ModGalleryImageDisplay);
             }
         }
 
-        public void NotifyYouTubeThumbnailClicked(YouTubeThumbnailDisplayComponent display)
+        public void NotifyYouTubeThumbnailClicked(IImageDataDisplay display)
         {
+            Debug.Assert(display is YouTubeThumbnailDisplay);
             if(this.youTubeThumbnailClicked != null)
             {
-                this.youTubeThumbnailClicked(display);
+                this.youTubeThumbnailClicked(display as YouTubeThumbnailDisplay);
             }
         }
     }

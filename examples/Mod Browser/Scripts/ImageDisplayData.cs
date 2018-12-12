@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MonoBehaviour = UnityEngine.MonoBehaviour;
 using Texture2D = UnityEngine.Texture2D;
 
@@ -25,19 +26,23 @@ namespace ModIO.UI
 
     public interface IImageDataDisplay
     {
+        event Action<IImageDataDisplay> onClick;
         ImageDisplayData data { get; set; }
+
+        void Initialize();
+        void DisplayLoading();
     }
 
     public abstract class ModMediaDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
+        public abstract event Action<IImageDataDisplay> onClick;
         public abstract event Action<ModMediaDisplayComponent> logoClicked;
         public abstract event Action<ModMediaDisplayComponent> galleryImageClicked;
         public abstract event Action<ModMediaDisplayComponent> youTubeThumbnailClicked;
 
         public abstract LogoSize logoSize                       { get; }
         public abstract ModGalleryImageSize galleryImageSize    { get; }
-
-        public abstract ImageDisplayData data           { get; set; }
+        public abstract ImageDisplayData data                   { get; set; }
 
         public abstract void Initialize();
         public abstract void DisplayLogo(int modId, LogoImageLocator locator);
@@ -48,7 +53,7 @@ namespace ModIO.UI
 
     public abstract class ModLogoDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
-        public abstract event System.Action<ModLogoDisplayComponent> onClick;
+        public abstract event Action<IImageDataDisplay> onClick;
 
         public abstract LogoSize logoSize       { get; }
         public abstract ImageDisplayData data   { get; set; }
@@ -60,7 +65,7 @@ namespace ModIO.UI
 
     public abstract class ModGalleryImageDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
-        public abstract event System.Action<ModGalleryImageDisplayComponent> onClick;
+        public abstract event Action<IImageDataDisplay> onClick;
 
         public abstract ModGalleryImageSize imageSize   { get; }
         public abstract ImageDisplayData data           { get; set; }
@@ -72,7 +77,7 @@ namespace ModIO.UI
 
     public abstract class YouTubeThumbnailDisplayComponent : MonoBehaviour, IImageDataDisplay
     {
-        public abstract event System.Action<YouTubeThumbnailDisplayComponent> onClick;
+        public abstract event Action<IImageDataDisplay> onClick;
 
         public abstract ImageDisplayData data           { get; set; }
 

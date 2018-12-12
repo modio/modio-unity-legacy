@@ -7,6 +7,8 @@ namespace ModIO.UI
     public class ModMediaDisplay : ModMediaDisplayComponent
     {
         // ---------[ FIELDS ]---------
+        // TODO(@jackson): Connect onClick
+        public override event Action<IImageDataDisplay> onClick;
         public override event Action<ModMediaDisplayComponent> logoClicked;
         public override event Action<ModMediaDisplayComponent> galleryImageClicked;
         public override event Action<ModMediaDisplayComponent> youTubeThumbnailClicked;
