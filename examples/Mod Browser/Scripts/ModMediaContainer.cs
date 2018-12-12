@@ -14,14 +14,14 @@ namespace ModIO.UI
 
         [Header("Settings")]
         public GameObject logoPrefab;
-        public GameObject youTubeThumbnailPrefab;
         public GameObject galleryImagePrefab;
+        public GameObject youTubeThumbnailPrefab;
 
         [Header("UI Components")]
         public RectTransform container;
 
         [Header("Display Data")]
-        [SerializeField] private ImageDisplayData[] m_data = new ImageDisplayData[0];
+        private List<ImageDataDisplayComponent> m_imageDisplays = new List<ImageDataDisplayComponent>();
 
         // --- RUNTIME DATA ---
         private LogoImageLocator m_logoLocator = null;
@@ -29,16 +29,25 @@ namespace ModIO.UI
         private IEnumerable<GalleryImageLocator> m_galleryImageLocators = null;
 
         // --- ACCESSORS ---
+        public IEnumerable<ImageDataDisplayComponent> imageDisplays { get { return m_imageDisplays; } }
+
         public override IEnumerable<ImageDisplayData> data
         {
-            get { return m_data; }
+            get
+            {
+                foreach(ImageDataDisplayComponent display in m_imageDisplays)
+                {
+                    yield return display.data;
+                }
+            }
             set
             {
                 if(value == null)
                 {
                     value = new ImageDisplayData[0];
                 }
-                m_data = value.ToArray();
+
+                DisplayData(value);
             }
         }
 
@@ -77,61 +86,55 @@ namespace ModIO.UI
             Debug.Assert(profile != null);
             Debug.Assert(profile.media != null);
 
-            DisplayMedia(profile.id, profile.logoLocator, profile.media.youTubeURLs, profile.media.galleryImageLocators);
+            DisplayMedia(profile.id,
+                         profile.logoLocator,
+                         profile.media.galleryImageLocators,
+                         profile.media.youTubeURLs);
         }
 
         public override void DisplayMedia(int modId,
                                           LogoImageLocator logoLocator,
-                                          IEnumerable<string> youTubeURLs,
-                                          IEnumerable<GalleryImageLocator> galleryImageLocators)
+                                          IEnumerable<GalleryImageLocator> galleryImageLocators,
+                                          IEnumerable<string> youTubeURLs)
         {
-            m_logoLocator = logoLocator;
-            m_youTubeURLs = youTubeURLs;
-            m_galleryImageLocators = galleryImageLocators;
-
-            foreach(Transform t in container)
-            {
-                GameObject.Destroy(t.gameObject);
-            }
+            ClearDisplays();
 
             if(logoLocator != null
                && logoPrefab != null)
             {
-                GameObject media_go = GameObject.Instantiate(logoPrefab, container);
-                ModLogoDisplay mediaDisplay = media_go.GetComponent<ModLogoDisplay>();
-                mediaDisplay.Initialize();
-                mediaDisplay.DisplayLogo(modId, logoLocator);
-                mediaDisplay.onClick += NotifyLogoClicked;
-            }
+                ModLogoDisplay display = InstantiatePrefab(logoPrefab) as ModLogoDisplay;
+                display.DisplayLogo(modId, logoLocator);
+                display.onClick += NotifyLogoClicked;
 
-
-            if(youTubeURLs != null
-               && youTubeThumbnailPrefab != null)
-            {
-                foreach(string youTubeURL in youTubeURLs)
-                {
-                    GameObject media_go = GameObject.Instantiate(youTubeThumbnailPrefab, container);
-                    YouTubeThumbnailDisplay mediaDisplay = media_go.GetComponent<YouTubeThumbnailDisplay>();
-                    mediaDisplay.Initialize();
-                    mediaDisplay.DisplayThumbnail(modId, Utility.ExtractYouTubeIdFromURL(youTubeURL));
-                    mediaDisplay.onClick += NotifyYouTubeThumbnailClicked;
-                }
+                m_imageDisplays.Add(display);
             }
 
             if(galleryImageLocators != null
                && galleryImagePrefab != null)
             {
-                foreach(GalleryImageLocator imageLocator in galleryImageLocators)
+                foreach(GalleryImageLocator locator in galleryImageLocators)
                 {
-                    GameObject media_go = GameObject.Instantiate(galleryImagePrefab, container);
-                    ModGalleryImageDisplay mediaDisplay = media_go.GetComponent<ModGalleryImageDisplay>();
-                    mediaDisplay.Initialize();
-                    mediaDisplay.DisplayImage(modId, imageLocator);
-                    mediaDisplay.onClick += NotifyGalleryImageClicked;
+                    ModGalleryImageDisplay display = InstantiatePrefab(galleryImagePrefab) as ModGalleryImageDisplay;
+                    display.DisplayImage(modId, locator);
+                    display.onClick += NotifyGalleryImageClicked;
+
+                    m_imageDisplays.Add(display);
                 }
             }
 
-            if(this.isActiveAndEnabled)
+            if(youTubeURLs != null)
+            {
+                foreach(string url in youTubeURLs)
+                {
+                    YouTubeThumbnailDisplay display = InstantiatePrefab(galleryImagePrefab) as YouTubeThumbnailDisplay;
+                    display.DisplayThumbnail(modId, Utility.ExtractYouTubeIdFromURL(url));
+                    display.onClick += NotifyYouTubeThumbnailClicked;
+
+                    m_imageDisplays.Add(display);
+                }
+            }
+
+            if(Application.isPlaying && this.isActiveAndEnabled)
             {
                 StartCoroutine(LateUpdateLayouting());
             }
@@ -143,6 +146,90 @@ namespace ModIO.UI
             {
                 GameObject.Destroy(t.gameObject);
             }
+        }
+
+        // ---------[ PRIVATE METHODS ]---------
+        private void DisplayData(IEnumerable<ImageDisplayData> displayData)
+        {
+            Debug.Assert(displayData != null);
+
+            ClearDisplays();
+
+            // create
+            foreach(ImageDisplayData imageData in displayData)
+            {
+                GameObject imagePrefab = null;
+                Action<ImageDataDisplayComponent> clickDelegate = null;
+
+                switch(imageData.mediaType)
+                {
+                    case ImageDisplayData.MediaType.ModLogo:
+                    {
+                        imagePrefab = logoPrefab;
+                        clickDelegate = NotifyLogoClicked;
+                    }
+                    break;
+                    case ImageDisplayData.MediaType.ModGalleryImage:
+                    {
+                        imagePrefab = galleryImagePrefab;
+                        clickDelegate = NotifyGalleryImageClicked;
+                    }
+                    break;
+                    case ImageDisplayData.MediaType.YouTubeThumbnail:
+                    {
+                        imagePrefab = youTubeThumbnailPrefab;
+                        clickDelegate = NotifyYouTubeThumbnailClicked;
+                    }
+                    break;
+                }
+
+                if(imagePrefab != null)
+                {
+                    ImageDataDisplayComponent display = InstantiatePrefab(logoPrefab);
+                    display.data = imageData;
+                    display.onClick += clickDelegate;
+
+                    m_imageDisplays.Add(display);
+                }
+            }
+
+            if(Application.isPlaying && this.isActiveAndEnabled)
+            {
+                StartCoroutine(LateUpdateLayouting());
+            }
+        }
+
+        private void ClearDisplays()
+        {
+            #if UNITY_EDITOR
+            if(!Application.isPlaying)
+            {
+                foreach(ImageDataDisplayComponent display in m_imageDisplays)
+                {
+                    GameObject.DestroyImmediate(display.gameObject);
+                }
+            }
+            else
+            #endif
+            {
+                foreach(ImageDataDisplayComponent display in m_imageDisplays)
+                {
+                    GameObject.Destroy(display.gameObject);
+                }
+            }
+
+            m_imageDisplays.Clear();
+        }
+
+        private ImageDataDisplayComponent InstantiatePrefab(GameObject imagePrefab)
+        {
+            Debug.Assert(imagePrefab != null);
+
+            GameObject media_go = GameObject.Instantiate(imagePrefab, container);
+            ImageDataDisplayComponent mediaDisplay = media_go.GetComponent<ImageDataDisplayComponent>();
+            mediaDisplay.Initialize();
+
+            return mediaDisplay;
         }
 
         // ---------[ EVENT HANDLING ]---------

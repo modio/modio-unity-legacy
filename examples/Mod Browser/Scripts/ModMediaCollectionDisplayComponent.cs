@@ -11,8 +11,8 @@ namespace ModIO.UI
         public abstract void DisplayMedia(ModProfile profile);
         public abstract void DisplayMedia(int modId,
                                           LogoImageLocator logoLocator,
-                                          IEnumerable<string> youTubeURLs,
-                                          IEnumerable<GalleryImageLocator> galleryImageLocators);
+                                          IEnumerable<GalleryImageLocator> galleryImageLocators,
+                                          IEnumerable<string> youTubeURLs);
         public abstract void DisplayLoading();
     }
 }
