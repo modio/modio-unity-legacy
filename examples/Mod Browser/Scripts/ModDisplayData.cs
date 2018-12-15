@@ -6,11 +6,14 @@ namespace ModIO.UI
     public struct ModDisplayData
     {
         public int modId;
+
         public ModProfileDisplayData    profile;
         public UserDisplayData          submittedBy;
         public ModfileDisplayData       currentBuild;
         public ImageDisplayData[]       media;
         public ModTagDisplayData[]      tags;
+
+        public ModStatisticsDisplayData statistics;
 
         public ImageDisplayData GetLogo()
         {
