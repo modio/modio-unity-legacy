@@ -20,6 +20,32 @@ namespace ModIO.UI
         public string metadataBlob;
         public string profileURL;
         public MetadataKVP[] metadataKVPs;
+
+        public static ModProfileDisplayData CreateFromProfile(ModProfile profile)
+        {
+            ModProfileDisplayData profileData = new ModProfileDisplayData()
+            {
+                modId               = profile.id,
+                gameId              = profile.gameId,
+                status              = profile.status,
+                visibility          = profile.visibility,
+                dateAdded           = profile.dateAdded,
+                dateUpdated         = profile.dateUpdated,
+                dateLive            = profile.dateLive,
+                contentWarnings     = profile.contentWarnings,
+                homepageURL         = profile.homepageURL,
+                name                = profile.name,
+                nameId              = profile.nameId,
+                summary             = profile.summary,
+                descriptionAsHTML   = profile.descriptionAsHTML,
+                descriptionAsText   = profile.descriptionAsText,
+                metadataBlob        = profile.metadataBlob,
+                profileURL          = profile.profileURL,
+                metadataKVPs        = profile.metadataKVPs,
+            };
+
+            return profileData;
+        }
     }
 
     public abstract class ModProfileDisplayComponent : UnityEngine.MonoBehaviour
