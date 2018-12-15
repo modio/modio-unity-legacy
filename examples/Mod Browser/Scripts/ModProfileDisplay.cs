@@ -35,14 +35,14 @@ namespace ModIO.UI
         // public MetadataKVP[] metadataKVPs;
 
         [Header("Display Data")]
-        [SerializeField] private ModDisplayData m_data = new ModDisplayData();
+        [SerializeField] private ModProfileDisplayData m_data = new ModProfileDisplayData();
         private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
 
         private delegate string GetDisplayString(ModProfileDisplayData data);
         private Dictionary<Text, GetDisplayString> m_displayMapping = null;
 
         // --- ACCESSORS ---
-        public override ModDisplayData data
+        public override ModProfileDisplayData data
         {
             get { return m_data; }
             set
@@ -61,7 +61,7 @@ namespace ModIO.UI
             }
             foreach(var kvp in m_displayMapping)
             {
-                kvp.Key.text = kvp.Value(m_data.profile);
+                kvp.Key.text = kvp.Value(m_data);
             }
         }
 
@@ -183,7 +183,7 @@ namespace ModIO.UI
         public override void DisplayProfile(ModProfile profile)
         {
             Debug.Assert(profile != null);
-            m_data.profile = ModProfileDisplayData.CreateFromProfile(profile);
+            m_data = ModProfileDisplayData.CreateFromProfile(profile);
             PresentData();
         }
 

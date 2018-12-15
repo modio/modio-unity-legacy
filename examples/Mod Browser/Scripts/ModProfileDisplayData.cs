@@ -54,7 +54,7 @@ namespace ModIO.UI
     {
         public abstract event System.Action<ModProfileDisplayComponent> onClick;
 
-        public abstract ModDisplayData data { get; set; }
+        public abstract ModProfileDisplayData data { get; set; }
 
         public abstract void Initialize();
         public abstract void DisplayProfile(ModProfile profile);
