@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [RequireComponent(typeof(Image))]
     public class ModGalleryImageDisplay : ModGalleryImageDisplayComponent
     {
         // ---------[ FIELDS ]---------
@@ -14,17 +13,13 @@ namespace ModIO.UI
         [SerializeField] private ModGalleryImageSize m_imageSize;
 
         [Header("UI Components")]
+        public Image image;
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
         [SerializeField] private ImageDisplayData m_data;
 
         // --- ACCESSORS ---
-        public Image image
-        {
-            get { return this.gameObject.GetComponent<Image>(); }
-        }
-
         public override ModGalleryImageSize imageSize
         {
             get { return m_imageSize; }

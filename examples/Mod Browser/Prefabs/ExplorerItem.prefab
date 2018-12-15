@@ -636,11 +636,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_logoSize: 1
+  image: {fileID: 114146504481294152}
   loadingOverlay: {fileID: 1981002977696124}
   m_data:
     modId: 0
-    fileName: placeholder
-    texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
+    mediaType: 0
+    imageId: 
+    texture: {fileID: 0}
 --- !u!114 &114071733538055860
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1372,9 +1374,8 @@ MonoBehaviour:
   logoDisplay: {fileID: 114045059756690928}
   mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 0}
+  tagDisplay: {fileID: 0}
   downloadDisplay: {fileID: 0}
-  tagContainer: {fileID: 0}
-  tagBadgePrefab: {fileID: 0}
   m_data:
     modId: 0
     gameId: 0
@@ -1393,10 +1394,6 @@ MonoBehaviour:
     metadataBlob: 
     profileURL: 
     metadataKVPs: []
-    logo:
-      modId: 0
-      fileName: placeholder
-      texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
     submittedBy:
       userId: 0
       nameId: 
@@ -1420,6 +1417,7 @@ MonoBehaviour:
       virusScanStatus: 0
       virusScanResult: 0
       virusScanHash: 
+    media: []
     tags: []
 --- !u!114 &114667086780414602
 MonoBehaviour:

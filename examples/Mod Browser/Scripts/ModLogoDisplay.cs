@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [RequireComponent(typeof(Image))]
     public class ModLogoDisplay : ModLogoDisplayComponent
     {
         // ---------[ FIELDS ]---------
@@ -14,17 +13,13 @@ namespace ModIO.UI
         [SerializeField] private LogoSize m_logoSize;
 
         [Header("UI Components")]
+        public Image image;
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
         [SerializeField] private ImageDisplayData m_data;
 
         // --- ACCESSORS ---
-        public Image image
-        {
-            get { return this.gameObject.GetComponent<Image>(); }
-        }
-
         public override LogoSize logoSize
         {
             get { return m_logoSize; }
