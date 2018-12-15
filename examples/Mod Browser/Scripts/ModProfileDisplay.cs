@@ -63,66 +63,6 @@ namespace ModIO.UI
             {
                 kvp.Key.text = kvp.Value(m_data.profile);
             }
-
-            // - nested displays -
-            // if(creatorDisplay != null)
-            // {
-            //     creatorDisplay.data = m_data.profile.submittedBy;
-            // }
-            // if(logoDisplay != null)
-            // {
-            //     ImageDisplayData logoData = new ImageDisplayData()
-            //     {
-            //         modId = m_data.profile.modId,
-            //         mediaType = ImageDisplayData.MediaType.ModLogo,
-            //         imageId = string.Empty,
-            //         texture = null,
-            //     };
-
-            //     if(m_data.profile.media != null
-            //        && m_data.profile.media.Length > 0)
-            //     {
-            //         foreach(ImageDisplayData imageData in m_data.profile.media)
-            //         {
-            //             if(imageData.mediaType == ImageDisplayData.MediaType.ModLogo)
-            //             {
-            //                 logoData = imageData;
-            //                 break;
-            //             }
-            //         }
-            //     }
-
-            //     logoDisplay.data = logoData;
-            // }
-            // if(mediaContainer != null)
-            // {
-            //     mediaContainer.data = m_data.profile.media;
-            // }
-            // if(buildDisplay != null)
-            // {
-            //     buildDisplay.data = m_data.profile.currentBuild;
-            // }
-            // if(tagDisplay != null)
-            // {
-            //     tagDisplay.data = m_data.profile.tags;
-            // }
-            // if(downloadDisplay != null)
-            // {
-            //     // ModBinaryRequest download = null;
-            //     // foreach(ModBinaryRequest request in ModManager.downloadsInProgress)
-            //     // {
-            //     //     if(request.modId == profile.id)
-            //     //     {
-            //     //         download = request;
-            //     //         break;
-            //     //     }
-            //     // }
-
-            //     // downloadDisplay.DisplayRequest(download);
-
-            //     // TODO(@jackson)
-            //     Debug.LogWarning("NOT IMPLEMENTED");
-            // }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -240,106 +180,11 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayProfile(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        public override void DisplayProfile(ModProfile profile)
         {
             Debug.Assert(profile != null);
-
-            List<Action> fetchDelegates = new List<Action>();
-
-            UserDisplayData userData = new UserDisplayData();
-            if(profile.submittedBy != null)
-            {
-                userData.userId          = profile.submittedBy.id;
-                userData.nameId          = profile.submittedBy.nameId;
-                userData.username        = profile.submittedBy.username;
-                userData.lastOnline      = profile.submittedBy.lastOnline;
-                userData.timezone        = profile.submittedBy.timezone;
-                userData.language        = profile.submittedBy.language;
-                userData.profileURL      = profile.submittedBy.profileURL;
-                userData.avatarTexture   = null;
-            }
-            else
-            {
-                userData.userId = -1;
-            }
-
-
-            ImageDisplayData logoData = new ImageDisplayData()
-            {
-                modId = profile.id,
-                mediaType = ImageDisplayData.MediaType.ModLogo,
-                fileName = null,
-                texture = null,
-            };
-            if(profile.logoLocator != null)
-            {
-                logoData.fileName = profile.logoLocator.fileName;
-            }
-
-            // ModMediaDisplayData mediaData = new ModMediaDisplayData()
-            // {
-            //     modId   = profile.id,
-            //     logo    = null,
-            // };
-
-            ModfileDisplayData modfileData = new ModfileDisplayData();
-            if(profile.activeBuild != null)
-            {
-                modfileData.modfileId       = profile.activeBuild.id;
-                modfileData.modId           = profile.activeBuild.modId;
-                modfileData.dateAdded       = profile.activeBuild.dateAdded;
-                modfileData.fileName        = profile.activeBuild.fileName;
-                modfileData.fileSize        = profile.activeBuild.fileSize;
-                modfileData.MD5             = profile.activeBuild.fileHash.md5;
-                modfileData.version         = profile.activeBuild.version;
-                modfileData.changelog       = profile.activeBuild.changelog;
-                modfileData.metadataBlob    = profile.activeBuild.metadataBlob;
-                modfileData.virusScanDate   = profile.activeBuild.dateScanned;
-                modfileData.virusScanStatus = profile.activeBuild.virusScanStatus;
-                modfileData.virusScanResult = profile.activeBuild.virusScanResult;
-                modfileData.virusScanHash   = profile.activeBuild.virusScanHash;
-            }
-            else
-            {
-                modfileData.modfileId       = -1;
-                modfileData.modId           = profile.id;
-            }
-
-            ModTagDisplayData[] tagData = ModTagDisplayData.GenerateArray(profile.tagNames,
-                                                                          tagCategories);
-
-            ModProfileDisplayData profileData = new ModProfileDisplayData()
-            {
-                modId               = profile.id,
-                gameId              = profile.gameId,
-                status              = profile.status,
-                visibility          = profile.visibility,
-                dateAdded           = profile.dateAdded,
-                dateUpdated         = profile.dateUpdated,
-                dateLive            = profile.dateLive,
-                contentWarnings     = profile.contentWarnings,
-                homepageURL         = profile.homepageURL,
-                name                = profile.name,
-                nameId              = profile.nameId,
-                summary             = profile.summary,
-                descriptionAsHTML   = profile.descriptionAsHTML,
-                descriptionAsText   = profile.descriptionAsText,
-                metadataBlob        = profile.metadataBlob,
-                profileURL          = profile.profileURL,
-                metadataKVPs        = profile.metadataKVPs,
-            };
-
-            ModDisplayData modData = new ModDisplayData()
-            {
-                modId = profile.id,
-                profile = profileData,
-            };
-            m_data = modData;
-
+            m_data.profile = ModProfileDisplayData.CreateFromProfile(profile);
             PresentData();
-
-            // TODO(@jackson)
-            Debug.LogWarning("UNFINISHED");
         }
 
         public override void DisplayLoading()

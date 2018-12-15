@@ -23,6 +23,8 @@ namespace ModIO.UI
 
         public static ModProfileDisplayData CreateFromProfile(ModProfile profile)
         {
+            UnityEngine.Debug.Assert(profile != null);
+
             ModProfileDisplayData profileData = new ModProfileDisplayData()
             {
                 modId               = profile.id,
@@ -55,8 +57,7 @@ namespace ModIO.UI
         public abstract ModDisplayData data { get; set; }
 
         public abstract void Initialize();
-        public abstract void DisplayProfile(ModProfile profile,
-                                            System.Collections.Generic.IEnumerable<ModTagCategory> tagCategories);
+        public abstract void DisplayProfile(ModProfile profile);
         public abstract void DisplayLoading();
     }
 }

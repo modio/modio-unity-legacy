@@ -127,7 +127,8 @@ namespace ModIO.UI
                 if(profileDisplay != null)
                 {
                     Debug.LogWarning("categories needed");
-                    profileDisplay.DisplayProfile(profile, null);
+                    // profileDisplay.DisplayProfile(profile, null);
+                    profileDisplay.DisplayProfile(profile);
                 }
             }
             else

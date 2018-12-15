@@ -102,7 +102,8 @@ namespace ModIO.UI
             if(modView.profileDisplay != null)
             {
                 Debug.LogWarning("categories needed");
-                modView.profileDisplay.DisplayProfile(profile, null);
+                // modView.profileDisplay.DisplayProfile(profile, null);
+                modView.profileDisplay.DisplayProfile(profile);
             }
 
             if(selectedMediaPreview != null)
