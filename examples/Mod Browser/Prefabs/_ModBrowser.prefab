@@ -594,9 +594,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224649867307647218}
   - component: {fileID: 114309666271251828}
-  - component: {fileID: 114285306200924632}
-  - component: {fileID: 114683195646928336}
-  - component: {fileID: 114253680568553512}
+  - component: {fileID: 114906444019964150}
   m_Layer: 5
   m_Name: InspectorView
   m_TagString: Untagged
@@ -2223,6 +2221,24 @@ GameObject:
   - component: {fileID: 224216620057270854}
   m_Layer: 5
   m_Name: Dialog
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1673965605989500
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224245351549451378}
+  - component: {fileID: 114434123071762936}
+  - component: {fileID: 114990656916073332}
+  - component: {fileID: 114858047056216386}
+  m_Layer: 5
+  m_Name: _DisplayComponents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5700,41 +5716,6 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
---- !u!114 &114253680568553512
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1159034823061356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a71d6b7b9a36a4640af62ecb0da0641c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  popularityRankDisplay: {fileID: 114481299532562472}
-  popularityModCountDisplay: {fileID: 114769940474173984}
-  downloadCountDisplay: {fileID: 114716484072023130}
-  subscriberCountDisplay: {fileID: 114177974861155250}
-  ratingCountDisplay: {fileID: 114287843128599994}
-  ratingPositiveCountDisplay: {fileID: 0}
-  ratingPositivePercentageDisplay: {fileID: 0}
-  ratingNegativeCountDisplay: {fileID: 0}
-  ratingNegativePercentageDisplay: {fileID: 0}
-  ratingWeightedAggregateDisplay: {fileID: 0}
-  ratingAsTextDisplay: {fileID: 114056756392832284}
-  m_modId: -1
-  m_data:
-    modId: 0
-    popularityRankPosition: 0
-    popularityRankModCount: 0
-    downloadCount: 0
-    subscriberCount: 0
-    ratingCount: 0
-    ratingPositiveCount: 0
-    ratingNegativeCount: 0
-    ratingWeightedAggregate: 0
-    ratingDisplayText: 
-    dateExpires: 0
 --- !u!114 &114262196687110456
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5927,91 +5908,6 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &114285306200924632
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1159034823061356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d31828b99f023475f834e02f5ade45cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  replaceMissingDescriptionWithSummary: 1
-  modIdDisplay: {fileID: 0}
-  gameIdDisplay: {fileID: 0}
-  nameDisplay: {fileID: 114225090533476902}
-  nameIdDisplay: {fileID: 0}
-  statusDisplay: {fileID: 0}
-  visibilityDisplay: {fileID: 0}
-  contentWarningsDisplay: {fileID: 0}
-  dateAddedDisplay: {fileID: 0}
-  dateUpdatedDisplay: {fileID: 0}
-  dateLiveDisplay: {fileID: 114653640694241376}
-  summaryDisplay: {fileID: 0}
-  descriptionAsHTMLDisplay: {fileID: 0}
-  descriptionAsTextDisplay: {fileID: 114613325267765034}
-  homepageURLDisplay: {fileID: 0}
-  profileURLDisplay: {fileID: 0}
-  metadataBlobDisplay: {fileID: 0}
-  creatorDisplay: {fileID: 114683195646928336}
-  logoDisplay: {fileID: 0}
-  mediaContainer: {fileID: 0}
-  buildDisplay: {fileID: 0}
-  tagDisplay: {fileID: 114175658757930552}
-  downloadDisplay: {fileID: 0}
-  m_data:
-    modId: 0
-    gameId: 0
-    status: 0
-    visibility: 0
-    dateAdded: 0
-    dateUpdated: 0
-    dateLive: 0
-    contentWarnings: 0
-    homepageURL: 
-    name: 
-    nameId: 
-    summary: 
-    descriptionAsHTML: 
-    descriptionAsText: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-      erat sapien, venenatis at diam quis, condimentum vestibulum quam. Nunc luctus
-      facilisis bibendum. Ut quis velit et ex blandit laoreet sed nec justo. Vivamus
-      maximus aliquet nunc vel facilisis. Proin vitae mollis neque. Aenean tincidunt
-      libero lectus, eu semper magna aliquet sed. Curabitur a massa elit. Proin ultricies
-      maximus nunc non mollis. Quisque sed fringilla sem. Aenean eu tristique nunc,
-      ut cursus nulla. Quisque elementum euismod commodo. Quisque libero nunc, suscipit
-      vel mauris tincidunt, tristique pretium nunc. Vivamus lacinia dolor a lorem
-      molestie, nec ornare quam laoreet.
-    metadataBlob: 
-    profileURL: 
-    metadataKVPs: []
-    submittedBy:
-      userId: 0
-      nameId: 
-      username: 
-      lastOnline: 0
-      timezone: 
-      language: 
-      profileURL: 
-      avatarTexture: {fileID: 0}
-    currentBuild:
-      modfileId: 0
-      modId: 0
-      dateAdded: 0
-      fileName: 
-      fileSize: 0
-      MD5: 
-      version: 
-      changelog: 
-      metadataBlob: 
-      virusScanDate: 0
-      virusScanStatus: 0
-      virusScanResult: 0
-      virusScanHash: 
-    media: []
-    tags: []
 --- !u!114 &114286777258329790
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -6239,9 +6135,8 @@ MonoBehaviour:
   versionHistoryItemPrefab: {fileID: 1527782458058220, guid: 4bbce4a1378ee49beba7524850931835,
     type: 2}
   missingVersionChangelogText: <i>No changelog recorded.</i>
-  profileDisplay: {fileID: 114285306200924632}
+  modView: {fileID: 114906444019964150}
   selectedMediaPreview: {fileID: 114833834809363262}
-  statisticsDisplay: {fileID: 114253680568553512}
   versionHistoryContainer: {fileID: 224856625327118078}
   scrollView: {fileID: 114798251423014436}
   subscribeButton: {fileID: 114187925485727638}
@@ -7300,6 +7195,79 @@ MonoBehaviour:
     currentModIndex: 2
     lastModIndex: 0
   subscribedModIds: 
+--- !u!114 &114434123071762936
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1673965605989500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d31828b99f023475f834e02f5ade45cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  replaceMissingDescriptionWithSummary: 1
+  modIdDisplay: {fileID: 0}
+  gameIdDisplay: {fileID: 0}
+  nameDisplay: {fileID: 114225090533476902}
+  nameIdDisplay: {fileID: 0}
+  statusDisplay: {fileID: 0}
+  visibilityDisplay: {fileID: 0}
+  contentWarningsDisplay: {fileID: 0}
+  dateAddedDisplay: {fileID: 0}
+  dateUpdatedDisplay: {fileID: 0}
+  dateLiveDisplay: {fileID: 114653640694241376}
+  summaryDisplay: {fileID: 0}
+  descriptionAsHTMLDisplay: {fileID: 0}
+  descriptionAsTextDisplay: {fileID: 114613325267765034}
+  homepageURLDisplay: {fileID: 0}
+  profileURLDisplay: {fileID: 0}
+  metadataBlobDisplay: {fileID: 0}
+  m_data:
+    modId: 0
+    profile:
+      modId: 0
+      gameId: 0
+      status: 0
+      visibility: 0
+      dateAdded: 0
+      dateUpdated: 0
+      dateLive: 0
+      contentWarnings: 0
+      homepageURL: 
+      name: 
+      nameId: 
+      summary: 
+      descriptionAsHTML: 
+      descriptionAsText: 
+      metadataBlob: 
+      profileURL: 
+      metadataKVPs: []
+    submittedBy:
+      userId: 0
+      nameId: 
+      username: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+      avatarTexture: {fileID: 0}
+    currentBuild:
+      modfileId: 0
+      modId: 0
+      dateAdded: 0
+      fileName: 
+      fileSize: 0
+      MD5: 
+      version: 
+      changelog: 
+      metadataBlob: 
+      virusScanDate: 0
+      virusScanStatus: 0
+      virusScanResult: 0
+      virusScanHash: 
+    media: []
+    tags: []
 --- !u!114 &114435840607851232
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -8775,15 +8743,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat sapien,
-    venenatis at diam quis, condimentum vestibulum quam. Nunc luctus facilisis bibendum.
-    Ut quis velit et ex blandit laoreet sed nec justo. Vivamus maximus aliquet nunc
-    vel facilisis. Proin vitae mollis neque. Aenean tincidunt libero lectus, eu semper
-    magna aliquet sed. Curabitur a massa elit. Proin ultricies maximus nunc non mollis.
-    Quisque sed fringilla sem. Aenean eu tristique nunc, ut cursus nulla. Quisque
-    elementum euismod commodo. Quisque libero nunc, suscipit vel mauris tincidunt,
-    tristique pretium nunc. Vivamus lacinia dolor a lorem molestie, nec ornare quam
-    laoreet.
+  m_Text: 
 --- !u!114 &114613965076352262
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9369,34 +9329,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Release Date:'
---- !u!114 &114683195646928336
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1159034823061356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  avatarDisplay: {fileID: 0}
-  userIdDisplay: {fileID: 0}
-  nameIdDisplay: {fileID: 0}
-  usernameDisplay: {fileID: 114929665266779030}
-  lastOnlineDisplay: {fileID: 0}
-  timezoneDisplay: {fileID: 0}
-  languageDisplay: {fileID: 0}
-  profileURLDisplay: {fileID: 0}
-  m_data:
-    userId: 0
-    nameId: 
-    username: 
-    lastOnline: 0
-    timezone: 
-    language: 
-    profileURL: 
-    avatarTexture: {fileID: 0}
 --- !u!114 &114691170274925224
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10487,6 +10419,41 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
+--- !u!114 &114858047056216386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1673965605989500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a71d6b7b9a36a4640af62ecb0da0641c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popularityRankDisplay: {fileID: 114481299532562472}
+  popularityModCountDisplay: {fileID: 114769940474173984}
+  downloadCountDisplay: {fileID: 114716484072023130}
+  subscriberCountDisplay: {fileID: 114177974861155250}
+  ratingCountDisplay: {fileID: 114287843128599994}
+  ratingPositiveCountDisplay: {fileID: 0}
+  ratingPositivePercentageDisplay: {fileID: 0}
+  ratingNegativeCountDisplay: {fileID: 0}
+  ratingNegativePercentageDisplay: {fileID: 0}
+  ratingWeightedAggregateDisplay: {fileID: 0}
+  ratingAsTextDisplay: {fileID: 114056756392832284}
+  m_modId: -1
+  m_data:
+    modId: 0
+    popularityRankPosition: 0
+    popularityRankModCount: 0
+    downloadCount: 0
+    subscriberCount: 0
+    ratingCount: 0
+    ratingPositiveCount: 0
+    ratingNegativeCount: 0
+    ratingWeightedAggregate: 0
+    ratingDisplayText: 
+    dateExpires: 0
 --- !u!114 &114858412142046136
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10828,6 +10795,25 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114906444019964150
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1159034823061356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9eab47e1efcc481a9fb3c8f80af9b78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileDisplay: {fileID: 114434123071762936}
+  logoDisplay: {fileID: 0}
+  mediaContainer: {fileID: 0}
+  creatorDisplay: {fileID: 114990656916073332}
+  statisticsDisplay: {fileID: 114858047056216386}
+  tagsDisplay: {fileID: 0}
+  buildDisplay: {fileID: 0}
+  downloadDisplay: {fileID: 0}
 --- !u!114 &114912886536305320
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11343,6 +11329,34 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: '   ('
+--- !u!114 &114990656916073332
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1673965605989500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avatarDisplay: {fileID: 0}
+  userIdDisplay: {fileID: 0}
+  nameIdDisplay: {fileID: 0}
+  usernameDisplay: {fileID: 114929665266779030}
+  lastOnlineDisplay: {fileID: 0}
+  timezoneDisplay: {fileID: 0}
+  languageDisplay: {fileID: 0}
+  profileURLDisplay: {fileID: 0}
+  m_data:
+    userId: 0
+    nameId: 
+    username: 
+    lastOnline: 0
+    timezone: 
+    language: 
+    profileURL: 
+    avatarTexture: {fileID: 0}
 --- !u!114 &114994411505270454
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -12696,7 +12710,7 @@ RectTransform:
   - {fileID: 224701712076468062}
   - {fileID: 224040534900882764}
   m_Father: {fileID: 224649867307647218}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -13174,6 +13188,24 @@ RectTransform:
   m_AnchoredPosition: {x: 8, y: -20}
   m_SizeDelta: {x: 142, y: 40}
   m_Pivot: {x: 0, y: 0.5}
+--- !u!224 &224245351549451378
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1673965605989500}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 224649867307647218}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224248425461392918
 RectTransform:
   m_ObjectHideFlags: 1
@@ -14355,7 +14387,7 @@ RectTransform:
   - {fileID: 224824402956138098}
   - {fileID: 224398886817678792}
   m_Father: {fileID: 224649867307647218}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -14771,6 +14803,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 224245351549451378}
   - {fileID: 224503341954081772}
   - {fileID: 224073237648810538}
   m_Father: {fileID: 224745065791110092}
