@@ -32,7 +32,7 @@ namespace ModIO
         public EditableStringField name =                           new EditableStringField();
         public EditableStringField nameId =                         new EditableStringField();
         public EditableStringField summary =                        new EditableStringField();
-        public EditableStringField description_HTML =               new EditableStringField();
+        public EditableStringField descriptionAsHTML =              new EditableStringField();
         public EditableStringField homepageURL =                    new EditableStringField();
         public EditableStringArrayField tags =                      new EditableStringArrayField();
         public EditableStringField metadataBlob =                   new EditableStringField();
@@ -45,7 +45,7 @@ namespace ModIO
 
         [Obsolete("Use EditableModProfile.description_HTML instead")]
         public EditableStringField description
-        { get { return this.description_HTML; } set { this.description_HTML = value; } }
+        { get { return this.descriptionAsHTML; } set { this.descriptionAsHTML = value; } }
 
         // ---------[ VALUE DUPLICATION ]---------
         public static EditableModProfile CreateFromProfile(ModProfile profile)
@@ -77,9 +77,9 @@ namespace ModIO
             {
                 this.summary.value = profile.summary;
             }
-            if(!this.description_HTML.isDirty)
+            if(!this.descriptionAsHTML.isDirty)
             {
-                this.description_HTML.value = profile.description_HTML;
+                this.descriptionAsHTML.value = profile.descriptionAsHTML;
             }
             if(!this.homepageURL.isDirty)
             {
