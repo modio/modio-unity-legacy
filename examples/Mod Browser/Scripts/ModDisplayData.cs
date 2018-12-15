@@ -38,4 +38,9 @@ namespace ModIO.UI
                                             System.Collections.Generic.IEnumerable<ModTagCategory> tagCategories);
         public abstract void DisplayLoading();
     }
+
+    public abstract class ModProfileDisplayComponent : UnityEngine.MonoBehaviour
+    {
+
+    }
 }
