@@ -34,13 +34,6 @@ namespace ModIO.UI
         // TODO(@jackson)
         // public MetadataKVP[] metadataKVPs;
 
-        public UserDisplayComponent             creatorDisplay;
-        public ModLogoDisplay                   logoDisplay;
-        public ModMediaContainer                mediaContainer;
-        public ModfileDisplayComponent          buildDisplay;
-        public ModTagCollectionDisplayComponent tagDisplay;
-        public ModBinaryRequestDisplay          downloadDisplay;
-
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
         private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
@@ -137,7 +130,6 @@ namespace ModIO.UI
         {
             BuildDisplayMap();
             CollectLoadingOverlays();
-            InitializeNestedDisplays();
         }
 
         private void BuildDisplayMap()
@@ -244,34 +236,6 @@ namespace ModIO.UI
                 {
                     m_loadingOverlays.Add(loadingOverlay);
                 }
-            }
-        }
-
-        private void InitializeNestedDisplays()
-        {
-            if(creatorDisplay != null)
-            {
-                creatorDisplay.Initialize();
-            }
-            if(logoDisplay != null)
-            {
-                logoDisplay.Initialize();
-            }
-            if(mediaContainer != null)
-            {
-                mediaContainer.Initialize();
-            }
-            if(buildDisplay != null)
-            {
-                buildDisplay.Initialize();
-            }
-            if(tagDisplay != null)
-            {
-                tagDisplay.Initialize();
-            }
-            if(downloadDisplay != null)
-            {
-                downloadDisplay.Initialize();
             }
         }
 
@@ -388,28 +352,6 @@ namespace ModIO.UI
             foreach(Text textComponent in m_displayMapping.Keys)
             {
                 textComponent.text = string.Empty;
-            }
-
-            // - nested displays -
-            if(creatorDisplay != null)
-            {
-                creatorDisplay.DisplayLoading();
-            }
-            if(logoDisplay != null)
-            {
-                logoDisplay.DisplayLoading();
-            }
-            if(mediaContainer != null)
-            {
-                mediaContainer.DisplayLoading();
-            }
-            if(buildDisplay != null)
-            {
-                buildDisplay.DisplayLoading();
-            }
-            if(downloadDisplay != null)
-            {
-                downloadDisplay.DisplayRequest(null);
             }
         }
 

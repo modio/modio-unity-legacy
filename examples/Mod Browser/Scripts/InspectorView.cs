@@ -23,9 +23,8 @@ namespace ModIO.UI
         public string missingVersionChangelogText;
 
         [Header("UI Components")]
-        public ModProfileDisplay profileDisplay;
+        public ModView modView;
         public ModMediaDisplayComponent selectedMediaPreview;
-        public ModStatisticsDisplay statisticsDisplay;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
         public Button subscribeButton;
@@ -48,9 +47,9 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
-            if(profileDisplay != null)
+            if(modView.profileDisplay != null)
             {
-                profileDisplay.Initialize();
+                modView.profileDisplay.Initialize();
             }
 
             if(selectedMediaPreview != null)
@@ -64,18 +63,18 @@ namespace ModIO.UI
                     }
                 };
 
-                if(profileDisplay != null
-                   && profileDisplay.mediaContainer != null)
+                ModMediaContainer container = modView.mediaContainer as ModMediaContainer;
+                if(container != null)
                 {
-                    profileDisplay.mediaContainer.logoClicked += MediaPreview_Logo;
-                    profileDisplay.mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
-                    profileDisplay.mediaContainer.youTubeThumbnailClicked += MediaPreview_YouTubeThumbnail;
+                    container.logoClicked += MediaPreview_Logo;
+                    container.galleryImageClicked += MediaPreview_GalleryImage;
+                    container.youTubeThumbnailClicked += MediaPreview_YouTubeThumbnail;
                 }
             }
 
-            if(statisticsDisplay != null)
+            if(modView.statisticsDisplay != null)
             {
-                statisticsDisplay.Initialize();
+                modView.statisticsDisplay.Initialize();
             }
 
             if((versionHistoryContainer != null && versionHistoryItemPrefab == null)
@@ -100,10 +99,10 @@ namespace ModIO.UI
             Debug.Assert(this.profile != null,
                          "[mod.io] Assign the mod profile before updating the profile UI components.");
 
-            if(profileDisplay != null)
+            if(modView.profileDisplay != null)
             {
                 Debug.LogWarning("categories needed");
-                profileDisplay.DisplayProfile(profile, null);
+                modView.profileDisplay.DisplayProfile(profile, null);
             }
 
             if(selectedMediaPreview != null)
@@ -141,9 +140,9 @@ namespace ModIO.UI
             Debug.Assert(this.statistics != null,
                          "[mod.io] Assign the mod statistics before updating the statistics UI components.");
 
-            if(statisticsDisplay != null)
+            if(modView.statisticsDisplay != null)
             {
-                statisticsDisplay.DisplayStatistics(statistics);
+                modView.statisticsDisplay.DisplayStatistics(statistics);
             }
         }
         public void UpdateIsSubscribedDisplay()
