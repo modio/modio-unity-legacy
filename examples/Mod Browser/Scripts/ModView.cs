@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ModIO.UI
@@ -5,6 +7,8 @@ namespace ModIO.UI
 	public class ModView : MonoBehaviour
 	{
 		// ---------[ FIELDS ]---------
+        public event Action<ModView> onClick;
+
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
         public ModLogoDisplayComponent              logoDisplay;
@@ -32,6 +36,31 @@ namespace ModIO.UI
         public void Initialize()
         {
 
+        }
+
+        public void DisplayProfile(ModProfile profile,
+                                   IEnumerable<ModTagCategory> tagCategories)
+        {
+
+        }
+
+        public void DisplayStatistics(ModStatistics statistics)
+        {
+
+        }
+
+        public void DisplayLoading()
+        {
+
+        }
+
+        // ---------[ EVENTS ]---------
+        public void NotifyClicked()
+        {
+            if(onClick != null)
+            {
+                onClick(this);
+            }
         }
 	}
 }

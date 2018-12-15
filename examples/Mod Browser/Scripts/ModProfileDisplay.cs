@@ -12,7 +12,7 @@ namespace ModIO.UI
 
         [Header("Settings")]
         [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]
-        public bool             replaceMissingDescriptionWithSummary;
+        public bool replaceMissingDescriptionWithSummary;
 
         [Header("UI Components")]
         public Text modIdDisplay;
@@ -78,13 +78,32 @@ namespace ModIO.UI
             }
             if(logoDisplay != null)
             {
-                logoDisplay.data = displayData.logo;
+                ImageDisplayData logoData = new ImageDisplayData()
+                {
+                    modId = displayData.modId,
+                    mediaType = ImageDisplayData.MediaType.ModLogo,
+                    imageId = string.Empty,
+                    texture = null,
+                };
+
+                if(displayData.media != null
+                   && displayData.media.Length > 0)
+                {
+                    foreach(ImageDisplayData imageData in displayData.media)
+                    {
+                        if(imageData.mediaType == ImageDisplayData.MediaType.ModLogo)
+                        {
+                            logoData = imageData;
+                            break;
+                        }
+                    }
+                }
+
+                logoDisplay.data = logoData;
             }
             if(mediaContainer != null)
             {
-                // TODO(@jackson)
-                Debug.LogWarning("NOT IMPLEMENTED");
-                // mediaContainer.DisplayProfileMedia(profile);
+                mediaContainer.data = displayData.media;
             }
             if(buildDisplay != null)
             {
@@ -261,6 +280,8 @@ namespace ModIO.UI
         public override void DisplayProfile(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
+
+            List<Action> fetchDelegates = new List<Action>();
 
             UserDisplayData userData = new UserDisplayData();
             if(profile.submittedBy != null)
