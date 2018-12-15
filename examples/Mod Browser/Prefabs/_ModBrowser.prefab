@@ -4262,9 +4262,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logoPrefab: {fileID: 1541241466415974, guid: d21cc8383f521435298c5472dfb89f10, type: 2}
-  youTubeThumbnailPrefab: {fileID: 1273913918960272, guid: d77171eeab97b45a4b67dc1dbc33f3fa,
-    type: 2}
   galleryImagePrefab: {fileID: 1541241466415974, guid: ff0aee14e37d74315a23feff8aaf39f3,
+    type: 2}
+  youTubeThumbnailPrefab: {fileID: 1273913918960272, guid: d77171eeab97b45a4b67dc1dbc33f3fa,
     type: 2}
   container: {fileID: 224971741684494500}
 --- !u!114 &114087927727621048
@@ -5723,6 +5723,18 @@ MonoBehaviour:
   ratingWeightedAggregateDisplay: {fileID: 0}
   ratingAsTextDisplay: {fileID: 114056756392832284}
   m_modId: -1
+  m_data:
+    modId: 0
+    popularityRankPosition: 0
+    popularityRankModCount: 0
+    downloadCount: 0
+    subscriberCount: 0
+    ratingCount: 0
+    ratingPositiveCount: 0
+    ratingNegativeCount: 0
+    ratingWeightedAggregate: 0
+    ratingDisplayText: 
+    dateExpires: 0
 --- !u!114 &114262196687110456
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5975,10 +5987,6 @@ MonoBehaviour:
     metadataBlob: 
     profileURL: 
     metadataKVPs: []
-    logo:
-      modId: 0
-      imageId: 
-      texture: {fileID: 0}
     submittedBy:
       userId: 0
       nameId: 
@@ -6002,6 +6010,7 @@ MonoBehaviour:
       virusScanStatus: 0
       virusScanResult: 0
       virusScanHash: 
+    media: []
     tags: []
 --- !u!114 &114286777258329790
 MonoBehaviour:
@@ -10326,9 +10335,9 @@ MonoBehaviour:
   logoOverlay: {fileID: 0}
   galleryImageOverlay: {fileID: 0}
   youTubeOverlay: {fileID: 1353639698890002}
-  m_mediaType: 0
   m_data:
     modId: 0
+    mediaType: 0
     imageId: 
     texture: {fileID: 0}
 --- !u!114 &114837762974921442
@@ -13005,10 +13014,10 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -42}
-  m_SizeDelta: {x: 1500, y: 780}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -64, y: -52}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224194505302344104
 RectTransform:

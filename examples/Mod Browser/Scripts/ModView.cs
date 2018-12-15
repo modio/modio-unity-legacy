@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-	public class ModView : MonoBehaviour
-	{
-		// ---------[ FIELDS ]---------
+    public class ModView : MonoBehaviour
+    {
+        // ---------[ FIELDS ]---------
         public event Action<ModView> onClick;
 
         [Header("UI Components")]
@@ -35,24 +35,55 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
-
+            if(profileDisplay != null)
+            {
+                profileDisplay.Initialize();
+            }
+            if(logoDisplay != null)
+            {
+                logoDisplay.Initialize();
+            }
+            if(mediaContainer != null)
+            {
+                mediaContainer.Initialize();
+            }
+            if(creatorDisplay != null)
+            {
+                creatorDisplay.Initialize();
+            }
+            if(statisticsDisplay != null)
+            {
+                statisticsDisplay.Initialize();
+            }
+            if(tagsDisplay != null)
+            {
+                tagsDisplay.Initialize();
+            }
+            if(buildDisplay != null)
+            {
+                buildDisplay.Initialize();
+            }
+            if(downloadDisplay != null)
+            {
+                downloadDisplay.Initialize();
+            }
         }
 
-        public void DisplayProfile(ModProfile profile,
-                                   IEnumerable<ModTagCategory> tagCategories)
-        {
+        // public void DisplayProfile(ModProfile profile,
+        //                            IEnumerable<ModTagCategory> tagCategories)
+        // {
 
-        }
+        // }
 
-        public void DisplayStatistics(ModStatistics statistics)
-        {
+        // public void DisplayStatistics(ModStatistics statistics)
+        // {
 
-        }
+        // }
 
-        public void DisplayLoading()
-        {
+        // public void DisplayLoading()
+        // {
 
-        }
+        // }
 
         // ---------[ EVENTS ]---------
         public void NotifyClicked()
@@ -62,5 +93,5 @@ namespace ModIO.UI
                 onClick(this);
             }
         }
-	}
+    }
 }

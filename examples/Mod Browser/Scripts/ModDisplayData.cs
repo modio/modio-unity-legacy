@@ -41,6 +41,13 @@ namespace ModIO.UI
 
     public abstract class ModProfileDisplayComponent : UnityEngine.MonoBehaviour
     {
+        public abstract event System.Action<ModProfileDisplayComponent> onClick;
 
+        public abstract ModDisplayData data { get; set; }
+
+        public abstract void Initialize();
+        public abstract void DisplayProfile(ModProfile profile,
+                                            System.Collections.Generic.IEnumerable<ModTagCategory> tagCategories);
+        public abstract void DisplayLoading();
     }
 }

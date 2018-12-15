@@ -8,6 +8,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     // TODO(@jackson): Match to new interface
+    [RequireComponent(typeof(ModView))]
     public class ModBrowserItem : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
@@ -24,9 +25,6 @@ namespace ModIO.UI
         public GameObject tagBadgePrefab;
 
         [Header("UI Components")]
-        public ModProfileDisplay profileDisplay;
-        public ModStatisticsDisplay statisticsDisplay;
-        public ModTagCollectionDisplayComponent tagsDisplay;
         public Button subscribeButton;
         public Button unsubscribeButton;
         public Button enableModButton;
@@ -43,6 +41,44 @@ namespace ModIO.UI
         public bool isInitialized = false;
         public int index = -1;
 
+        // --- ACCESSORS ---
+        public ModView view
+        { get { return this.GetComponent<ModView>(); } }
+
+        // TODO(@jackson): Remove
+        public ModProfileDisplayComponent           profileDisplay
+        {
+            get { return this.view.profileDisplay; }
+        }
+        public ModLogoDisplayComponent              logoDisplay
+        {
+            get { return this.view.logoDisplay; }
+        }
+        public ModMediaCollectionDisplayComponent   mediaContainer
+        {
+            get { return this.view.mediaContainer; }
+        }
+        public UserDisplayComponent                 creatorDisplay
+        {
+            get { return this.view.creatorDisplay; }
+        }
+        public ModStatisticsDisplayComponent        statisticsDisplay
+        {
+            get { return this.view.statisticsDisplay; }
+        }
+        public ModTagCollectionDisplayComponent     tagsDisplay
+        {
+            get { return this.view.tagsDisplay; }
+        }
+        public ModfileDisplayComponent              buildDisplay
+        {
+            get { return this.view.buildDisplay; }
+        }
+        public ModBinaryRequestDisplay              downloadDisplay
+        {
+            get { return this.view.downloadDisplay; }
+        }
+
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
@@ -56,17 +92,9 @@ namespace ModIO.UI
                 return;
             }
 
-            if(profileDisplay != null)
+            if(view != null)
             {
-                profileDisplay.Initialize();
-            }
-            if(statisticsDisplay != null)
-            {
-                statisticsDisplay.Initialize();
-            }
-            if(tagsDisplay != null)
-            {
-                tagsDisplay.Initialize();
+                view.Initialize();
             }
 
             // TODO(@jackson): Move to button Prefab

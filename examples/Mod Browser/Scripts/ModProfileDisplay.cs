@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModProfileDisplay : ModDisplayComponent
+    public class ModProfileDisplay : ModProfileDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<ModDisplayComponent> onClick;
+        public override event Action<ModProfileDisplayComponent> onClick;
 
         [Header("Settings")]
         [Tooltip("If the profile has no description, the description display element(s) can be filled with the summary instead.")]

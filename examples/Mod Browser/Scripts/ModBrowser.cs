@@ -1245,10 +1245,10 @@ namespace ModIO.UI
                 if(mbi.profile != null
                    && mbi.profile.id == profile.id
                    && mbi.profileDisplay != null
-                   && mbi.profileDisplay.downloadDisplay != null)
+                   && mbi.downloadDisplay != null)
                 {
-                    mbi.profileDisplay.downloadDisplay.gameObject.SetActive(true);
-                    mbi.profileDisplay.downloadDisplay.DisplayRequest(request);
+                    mbi.downloadDisplay.gameObject.SetActive(true);
+                    mbi.downloadDisplay.DisplayRequest(request);
                 }
             }
 

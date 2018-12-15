@@ -5,12 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModStatisticsDisplay : MonoBehaviour
+    public class ModStatisticsDisplay : ModStatisticsDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public delegate void OnClickDelegate(ModStatisticsDisplay display,
-                                             int modId);
-        public event OnClickDelegate onClick;
+        public override event Action<ModStatisticsDisplayComponent> onClick;
 
         [Header("UI Components")]
         public Text popularityRankDisplay;
@@ -27,6 +25,7 @@ namespace ModIO.UI
 
         [Header("Display Data")]
         [SerializeField] private int m_modId = -1;
+        [SerializeField] private ModStatisticsDisplayData m_data = new ModStatisticsDisplayData();
 
         // ---[ RUNTIME DATA ]---
         private delegate string GetDisplayString(ModStatistics statistics);
@@ -34,8 +33,15 @@ namespace ModIO.UI
         private Dictionary<Text, GetDisplayString> m_displayMapping = null;
         private List<TextLoadingOverlay> m_loadingOverlays = null;
 
+        // --- ACCESSORS ---
+        public override ModStatisticsDisplayData data
+        {
+            get { return m_data; }
+            set { m_data = value; }
+        }
+
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        public override void Initialize()
         {
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
@@ -113,7 +119,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayStatistics(ModStatistics statistics)
+        public override void DisplayStatistics(ModStatistics statistics)
         {
             Debug.Assert(statistics != null);
 
@@ -131,9 +137,9 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayLoading(int modId = -1)
+        public override void DisplayLoading()
         {
-            m_modId = modId;
+            m_modId = -1;
 
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
@@ -151,7 +157,7 @@ namespace ModIO.UI
         {
             if(this.onClick != null)
             {
-                this.onClick(this, m_modId);
+                this.onClick(this);
             }
         }
     }
