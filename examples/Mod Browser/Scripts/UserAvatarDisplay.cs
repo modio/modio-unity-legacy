@@ -3,41 +3,40 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [RequireComponent(typeof(Image))]
-    public class UserAvatarDisplay : UserDisplayComponent
+    public class UserAvatarDisplay : UserAvatarDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event System.Action<UserDisplayComponent> onClick;
+        public override event System.Action<ImageDataDisplayComponent> onClick;
 
         [Header("Settings")]
-        public UserAvatarSize avatarSize;
+        [SerializeField] private UserAvatarSize m_avatarSize;
 
         [Header("UI Components")]
+        public Image image;
         public GameObject loadingOverlay;
 
         [Header("Display Data")]
-        [SerializeField] private UserDisplayData m_data = new UserDisplayData();
+        [SerializeField] private ImageDisplayData m_data = new ImageDisplayData();
 
         // --- ACCESSORS ---
-        public Image image
+        public override UserAvatarSize avatarSize
         {
-            get { return this.gameObject.GetComponent<Image>(); }
+            get { return m_avatarSize; }
         }
-
-        public override UserDisplayData data
+        public override ImageDisplayData data
         {
             get { return m_data; }
             set
             {
                 m_data = value;
-                PresentData(value);
+                PresentData();
             }
         }
-        private void PresentData(UserDisplayData displayData)
+        private void PresentData()
         {
-            if(displayData.avatarTexture != null)
+            if(m_data.texture != null)
             {
-                image.sprite = UIUtilities.CreateSpriteFromTexture(displayData.avatarTexture);
+                image.sprite = UIUtilities.CreateSpriteFromTexture(m_data.texture);
             }
             else
             {
@@ -57,64 +56,47 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayProfile(UserProfile profile)
+        public override void DisplayAvatar(int userId, AvatarImageLocator locator)
         {
-            UserDisplayData userData = new UserDisplayData()
+            Debug.Assert(locator != null);
+
+            ImageDisplayData avatarData = new ImageDisplayData()
             {
-                userId          = profile.id,
-                nameId          = profile.nameId,
-                username        = profile.username,
-                lastOnline      = profile.lastOnline,
-                timezone        = profile.timezone,
-                language        = profile.language,
-                profileURL      = profile.profileURL,
-                avatarTexture   = null,
+                userId = userId,
+                mediaType = ImageDisplayData.MediaType.UserAvatar,
+                imageId = locator.fileName,
+                texture = null,
             };
-            DisplayInternal(userData, profile.avatarLocator);
+
+            DisplayInternal(avatarData, locator);
         }
 
-        public void DisplayAvatar(int userId, AvatarImageLocator avatarLocator)
+        // NOTE(@jackson): Called internally, this is only used when displayData.texture == null
+        private void DisplayInternal(ImageDisplayData displayData, AvatarImageLocator locator)
         {
-            UserDisplayData userData = new UserDisplayData()
+            Debug.Assert(displayData.texture == null);
+
+            m_data = displayData;
+
+            if(locator == null)
             {
-                userId          = userId,
-                nameId          = string.Empty,
-                username        = string.Empty,
-                lastOnline      = 0,
-                timezone        = string.Empty,
-                language        = string.Empty,
-                profileURL      = string.Empty,
-                avatarTexture   = null,
-            };
-            DisplayInternal(userData, avatarLocator);
-        }
-
-        // NOTE(@jackson): Called internally, this is only used when userData.avatarTexture == null
-        private void DisplayInternal(UserDisplayData userData, AvatarImageLocator avatarLocator)
-        {
-            Debug.Assert(userData.avatarTexture != null);
-
-            m_data = userData;
-
-            if(avatarLocator == null)
-            {
-                PresentData(userData);
+                PresentData();
             }
             else
             {
                 DisplayLoading();
 
-                ModManager.GetUserAvatar(userData.userId,
-                                         avatarLocator,
+                ModManager.GetUserAvatar(displayData.userId,
+                                         locator,
                                          avatarSize,
                                          (t) =>
                                          {
                                             if(!Application.isPlaying) { return; }
 
-                                            if(m_data.Equals(userData))
+                                            if(m_data.Equals(displayData))
                                             {
-                                                m_data.avatarTexture = t;
-                                                PresentData(userData);
+                                                m_data.texture = t;
+                                                PresentData();
                                             }
                                          },
                                          WebRequestError.LogAsWarning);
@@ -147,7 +129,7 @@ namespace ModIO.UI
             {
                 // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
                 // "Should" be fine.
-                PresentData(m_data);
+                PresentData();
             }
         }
         #endif

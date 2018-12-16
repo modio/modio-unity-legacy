@@ -18,6 +18,30 @@ namespace ModIO.UI
         public ModfileVirusScanStatus virusScanStatus;
         public ModfileVirusScanResult virusScanResult;
         public string virusScanHash;
+
+        public static ModfileDisplayData CreateFromModfile(Modfile modfile)
+        {
+            UnityEngine.Debug.Assert(modfile != null);
+
+            ModfileDisplayData modfileData = new ModfileDisplayData()
+            {
+                modId           = modfile.modId,
+                modfileId       = modfile.id,
+                dateAdded       = modfile.dateAdded,
+                fileName        = modfile.fileName,
+                fileSize        = modfile.fileSize,
+                MD5             = modfile.fileHash.md5,
+                version         = modfile.version,
+                changelog       = modfile.changelog,
+                metadataBlob    = modfile.metadataBlob,
+                virusScanDate   = modfile.dateScanned,
+                virusScanStatus = modfile.virusScanStatus,
+                virusScanResult = modfile.virusScanResult,
+                virusScanHash   = modfile.virusScanHash,
+            };
+
+            return modfileData;
+        }
     }
 
     public abstract class ModfileDisplayComponent : UnityEngine.MonoBehaviour

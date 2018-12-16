@@ -14,6 +14,26 @@ namespace ModIO.UI
         public float    ratingWeightedAggregate;
         public string   ratingDisplayText;
         public int      dateExpires;
+
+        public static ModStatisticsDisplayData CreateFromStatistics(ModStatistics statistics)
+        {
+            ModStatisticsDisplayData statisticsData = new ModStatisticsDisplayData()
+            {
+                modId                   = statistics.modId,
+                popularityRankPosition  = statistics.popularityRankPosition,
+                popularityRankModCount  = statistics.popularityRankModCount,
+                downloadCount           = statistics.downloadCount,
+                subscriberCount         = statistics.subscriberCount,
+                ratingCount             = statistics.ratingCount,
+                ratingPositiveCount     = statistics.ratingPositiveCount,
+                ratingNegativeCount     = statistics.ratingNegativeCount,
+                ratingWeightedAggregate = statistics.ratingWeightedAggregate,
+                ratingDisplayText       = statistics.ratingDisplayText,
+                dateExpires             = statistics.dateExpires,
+            };
+
+            return statisticsData;
+        }
     }
 
     public abstract class ModStatisticsDisplayComponent : UnityEngine.MonoBehaviour

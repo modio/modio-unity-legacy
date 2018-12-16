@@ -12,12 +12,16 @@ namespace ModIO.UI
             ModLogo,
             ModGalleryImage,
             YouTubeThumbnail,
+            UserAvatar,
         };
 
-        public int modId;
+        public int ownerId;
         public MediaType mediaType;
         public string imageId;
         public Texture2D texture;
+
+        public int modId        { get { return ownerId; } set { ownerId = value; } }
+        public int userId       { get { return ownerId; } set { ownerId = value; } }
 
         public string fileName  { get { return imageId; } set { imageId = value; } }
         public string youTubeId { get { return imageId; } set { imageId = value; } }
@@ -59,5 +63,12 @@ namespace ModIO.UI
     public abstract class YouTubeThumbnailDisplayComponent : ImageDataDisplayComponent
     {
         public abstract void DisplayThumbnail(int modId, string youTubeVideoId);
+    }
+
+    public abstract class UserAvatarDisplayComponent : ImageDataDisplayComponent
+    {
+        public abstract UserAvatarSize avatarSize { get; }
+
+        public abstract void DisplayAvatar(int userId, AvatarImageLocator avatarLocator);
     }
 }

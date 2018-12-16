@@ -11,7 +11,6 @@ namespace ModIO.UI
         public override event Action<UserDisplayComponent> onClick;
 
         [Header("UI Components")]
-        public UserAvatarDisplay avatarDisplay;
         public Text userIdDisplay;
         public Text nameIdDisplay;
         public Text usernameDisplay;
@@ -34,11 +33,11 @@ namespace ModIO.UI
             set
             {
                 m_data = value;
-                PresentData(value);
+                PresentData();
             }
         }
 
-        private void PresentData(UserDisplayData displayData)
+        private void PresentData()
         {
             #if UNITY_EDITOR
             if(!Application.isPlaying && m_displayMapping == null) { return; }
@@ -46,17 +45,12 @@ namespace ModIO.UI
 
             foreach(var kvp in m_displayMapping)
             {
-                kvp.Key.text = kvp.Value(displayData);
+                kvp.Key.text = kvp.Value(m_data);
             }
 
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(false);
-            }
-
-            if(avatarDisplay != null)
-            {
-                avatarDisplay.data = displayData;
             }
         }
 
@@ -65,12 +59,6 @@ namespace ModIO.UI
         {
             BuildDisplayMap();
             CollectLoadingOverlays();
-
-            // avatar
-            if(avatarDisplay != null)
-            {
-                avatarDisplay.Initialize();
-            }
         }
 
         private void BuildDisplayMap()
@@ -126,43 +114,9 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
-            UserDisplayData userData = new UserDisplayData()
-            {
-                userId          = profile.id,
-                nameId          = profile.nameId,
-                username        = profile.username,
-                lastOnline      = profile.lastOnline,
-                timezone        = profile.timezone,
-                language        = profile.language,
-                profileURL      = profile.profileURL,
-                avatarTexture   = null,
-            };
+            UserDisplayData userData = UserDisplayData.CreateFromProfile(profile);
             m_data = userData;
-
-            PresentData(userData);
-
-            if(avatarDisplay != null
-               && profile.avatarLocator != null
-               && !String.IsNullOrEmpty(profile.avatarLocator.fileName))
-            {
-                avatarDisplay.DisplayLoading();
-
-                ModManager.GetUserAvatar(profile.id,
-                                         profile.avatarLocator,
-                                         avatarDisplay.avatarSize,
-                                         (t) =>
-                                         {
-                                            if(!Application.isPlaying) { return; }
-
-                                            if(m_data.Equals(userData))
-                                            {
-                                                m_data.avatarTexture = t;
-
-                                                avatarDisplay.data = m_data;
-                                            }
-                                         },
-                                         WebRequestError.LogAsWarning);
-            }
+            PresentData();
         }
 
         public override void DisplayLoading()
@@ -175,11 +129,6 @@ namespace ModIO.UI
             foreach(Text textComponent in m_displayMapping.Keys)
             {
                 textComponent.text = string.Empty;
-            }
-
-            if(avatarDisplay != null)
-            {
-                avatarDisplay.DisplayLoading();
             }
         }
 
@@ -197,7 +146,7 @@ namespace ModIO.UI
         {
             BuildDisplayMap();
             CollectLoadingOverlays();
-            PresentData(m_data);
+            PresentData();
         }
         #endif
     }

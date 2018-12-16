@@ -11,7 +11,20 @@ namespace ModIO.UI
         public string   language;
         public string   profileURL;
 
-        public UnityEngine.Texture2D avatarTexture;
+        public static UserDisplayData CreateFromProfile(UserProfile profile)
+        {
+            UserDisplayData userData = new UserDisplayData()
+            {
+                userId = profile.id,
+                nameId = profile.nameId,
+                username = profile.username,
+                lastOnline = profile.lastOnline,
+                timezone = profile.timezone,
+                language = profile.language,
+                profileURL = profile.profileURL,
+            };
+            return userData;
+        }
     }
 
     public abstract class UserDisplayComponent : UnityEngine.MonoBehaviour
