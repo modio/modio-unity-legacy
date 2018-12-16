@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class UserProfileDisplay : UserDisplayComponent
+    public class UserProfileDisplay : UserProfileDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<UserDisplayComponent> onClick;
+        public override event Action<UserProfileDisplayComponent> onClick;
 
         [Header("UI Components")]
         public Text userIdDisplay;
@@ -20,14 +20,14 @@ namespace ModIO.UI
         public Text profileURLDisplay;
 
         [Header("Display Data")]
-        [SerializeField] private UserDisplayData m_data = new UserDisplayData();
+        [SerializeField] private UserProfileDisplayData m_data = new UserProfileDisplayData();
         private List<TextLoadingOverlay> m_loadingOverlays = new List<TextLoadingOverlay>();
 
-        private delegate string GetDisplayString(UserDisplayData data);
+        private delegate string GetDisplayString(UserProfileDisplayData data);
         private Dictionary<Text, GetDisplayString> m_displayMapping = null;
 
         // --- ACCESSORS ---
-        public override UserDisplayData data
+        public override UserProfileDisplayData data
         {
             get { return m_data; }
             set
@@ -114,7 +114,7 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
-            UserDisplayData userData = UserDisplayData.CreateFromProfile(profile);
+            UserProfileDisplayData userData = UserProfileDisplayData.CreateFromProfile(profile);
             m_data = userData;
             PresentData();
         }

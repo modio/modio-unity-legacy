@@ -107,7 +107,7 @@ namespace ModIO.UI
         public int gameId = 0;
         public string gameAPIKey = string.Empty;
         public bool isAutomaticUpdateEnabled = false;
-        public UserDisplayData guestData = new UserDisplayData()
+        public UserProfileDisplayData guestData = new UserProfileDisplayData()
         {
             userId = -1,
             username = "Guest",
@@ -117,7 +117,7 @@ namespace ModIO.UI
         public ExplorerView explorerView;
         public SubscriptionsView subscriptionsView;
         public InspectorView inspectorView;
-        public UserDisplayComponent userDisplay;
+        public UserProfileDisplayComponent userDisplay;
         public LoginDialog loginDialog;
         public MessageDialog messageDialog;
         public Button prevPageButton;
@@ -1348,7 +1348,7 @@ namespace ModIO.UI
 
 
         // ---------[ EVENT HANDLING ]---------
-        private void OnUserDisplayClicked(UserDisplayComponent display)
+        private void OnUserDisplayClicked(UserProfileDisplayComponent display)
         {
             OpenLoginDialog();
         }

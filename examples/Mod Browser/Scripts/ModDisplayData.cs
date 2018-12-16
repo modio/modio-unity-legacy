@@ -8,12 +8,15 @@ namespace ModIO.UI
         public int modId;
 
         public ModProfileDisplayData    profile;
-        public UserDisplayData          submittedBy;
+        public UserProfileDisplayData   submittedBy;
         public ModfileDisplayData       currentBuild;
         public ImageDisplayData[]       media;
         public ModTagDisplayData[]      tags;
 
         public ModStatisticsDisplayData statistics;
+
+        public bool isSubscribed;
+        public bool isEnabled;
 
         public ImageDisplayData GetLogo()
         {
