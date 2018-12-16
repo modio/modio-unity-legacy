@@ -100,9 +100,16 @@ namespace ModIO
         [JsonProperty("profile_url")]
         public string profileURL;
 
-        /// <summary> Contains modfile data. </summary>
+
+        /// <summary>[Obsolete] Contains modfile data.</summary>
+        // [System.Obsolete("Use ModProfile.currentBuild instead.")]
+        [JsonIgnore]
+        public Modfile activeBuild
+        { get { return this.currentBuild; } set { this.currentBuild = value; } }
+
+        /// <summary>Contains modfile data.</summary>
         [JsonProperty("modfile")]
-        public Modfile activeBuild;
+        public Modfile currentBuild;
 
         /// <summary> Contains mod media data. </summary>
         [JsonProperty("media")]
