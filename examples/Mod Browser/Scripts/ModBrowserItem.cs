@@ -26,7 +26,6 @@ namespace ModIO.UI
 
         [Header("Display Data")]
         public ModProfile profile = null;
-        public ModStatistics statistics = null;
 
         // ---[ RUNTIME DATA ]---
         [Header("Runtime Data")]
@@ -73,24 +72,7 @@ namespace ModIO.UI
             {
                 Debug.LogWarning("needs categories");
                 view.DisplayMod(profile,
-                                statistics,
                                 null,
-                                false,
-                                true);
-            }
-        }
-
-        public void UpdateStatisticsDisplay()
-        {
-            if(profile == null)
-            {
-                view.DisplayLoading();
-            }
-            else
-            {
-                Debug.LogWarning("needs categories");
-                view.DisplayMod(profile,
-                                statistics,
                                 null,
                                 false,
                                 true);
