@@ -97,22 +97,6 @@ namespace ModIO.UI
             }
         }
 
-        public void UpdateTagsDisplay(IEnumerable<ModTagCategory> tagCategories)
-        {
-            if(profile == null)
-            {
-                view.DisplayLoading();
-            }
-            else
-            {
-                view.DisplayMod(profile,
-                                statistics,
-                                tagCategories,
-                                false,
-                                true);
-            }
-        }
-
         // ---------[ EVENTS ]---------
         public void InspectClicked()
         {
