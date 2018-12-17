@@ -11,10 +11,11 @@ namespace ModIO.UI
     public class SubscriptionsView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public event Action<ModBrowserItem> inspectRequested;
-        public event Action<ModBrowserItem> subscribeRequested;
-        public event Action<ModBrowserItem> unsubscribeRequested;
-        public event Action<ModBrowserItem> toggleModEnabledRequested;
+        public event Action<ModView> inspectRequested;
+        public event Action<ModView> subscribeRequested;
+        public event Action<ModView> unsubscribeRequested;
+        public event Action<ModView> enableModRequested;
+        public event Action<ModView> disableModRequested;
 
         [Header("Settings")]
         public GameObject itemPrefab;
@@ -236,35 +237,35 @@ namespace ModIO.UI
         {
             if(inspectRequested != null)
             {
-                inspectRequested(view.gameObject.GetComponent<ModBrowserItem>());
+                inspectRequested(view);
             }
         }
         public void NotifySubscribeRequested(ModView view)
         {
             if(subscribeRequested != null)
             {
-                subscribeRequested(view.gameObject.GetComponent<ModBrowserItem>());
+                subscribeRequested(view);
             }
         }
         public void NotifyUnsubscribeRequested(ModView view)
         {
             if(unsubscribeRequested != null)
             {
-                unsubscribeRequested(view.gameObject.GetComponent<ModBrowserItem>());
+                unsubscribeRequested(view);
             }
         }
         public void NotifyEnableRequested(ModView view)
         {
-            if(toggleModEnabledRequested != null)
+            if(enableModRequested != null)
             {
-                toggleModEnabledRequested(view.gameObject.GetComponent<ModBrowserItem>());
+                enableModRequested(view);
             }
         }
         public void NotifyDisableRequested(ModView view)
         {
-            if(toggleModEnabledRequested != null)
+            if(disableModRequested != null)
             {
-                toggleModEnabledRequested(view.gameObject.GetComponent<ModBrowserItem>());
+                disableModRequested(view);
             }
         }
     }

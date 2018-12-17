@@ -298,9 +298,10 @@ namespace ModIO.UI
 
             // TODO(@jackson): Hook up events
             subscriptionsView.inspectRequested += InspectSubscriptionItem;
-            subscriptionsView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
-            subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.view.data.profile.modId);
-            subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.view.data.profile.modId);
+            subscriptionsView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
+            subscriptionsView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);
+            subscriptionsView.enableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
+            subscriptionsView.disableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
 
             // - setup ui filter controls -
             // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
@@ -1014,10 +1015,11 @@ namespace ModIO.UI
             ShowInspectorView();
         }
 
-        public void InspectSubscriptionItem(ModBrowserItem item)
+        public void InspectSubscriptionItem(ModView view)
         {
             // TODO(@jackson): Load explorer page
-            inspectorData.currentModIndex = item.index + subscriptionsView.currentPage.resultOffset;
+            inspectorData.currentModIndex = (view.gameObject.GetComponent<ModBrowserItem>().index
+                                             + subscriptionsView.currentPage.resultOffset);
 
             if(inspectorView.backToSubscriptionsButton != null)
             {
@@ -1030,7 +1032,7 @@ namespace ModIO.UI
 
             inspectorView.DisplayLoading();
 
-            ModManager.GetModProfile(item.view.data.profile.modId,
+            ModManager.GetModProfile(view.data.profile.modId,
                                      SetInspectorViewProfile,
                                      WebRequestError.LogAsWarning);
 
