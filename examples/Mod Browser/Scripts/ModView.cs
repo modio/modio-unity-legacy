@@ -15,7 +15,7 @@ namespace ModIO.UI
         public event Action<ModView> disableModRequested;
 
         [Serializable]
-        public struct CreatorDisplay
+        public struct SubmittorDisplay
         {
             public UserProfileDisplayComponent  profile;
             public UserAvatarDisplayComponent   avatar;
@@ -37,7 +37,7 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
-        public CreatorDisplay                       creatorDisplay;
+        public SubmittorDisplay                     submittorDisplay;
         public ModLogoDisplayComponent              logoDisplay;
         public ModMediaCollectionDisplayComponent   mediaContainer;
         public ModfileDisplayComponent              buildDisplay;
@@ -169,38 +169,38 @@ namespace ModIO.UI
                 m_displayDelegates.Add((p) => logoDisplay.DisplayLogo(p.id, p.logoLocator));
                 m_loadingDelegates.Add(( ) => logoDisplay.DisplayLoading());
             }
-            if(creatorDisplay.profile != null)
+            if(submittorDisplay.profile != null)
             {
-                creatorDisplay.profile.Initialize();
+                submittorDisplay.profile.Initialize();
 
                 m_getDelegates.Add((ref ModDisplayData d) =>
                 {
-                    d.submittedBy.profile = creatorDisplay.profile.data;
+                    d.submittorProfile = submittorDisplay.profile.data;
                 });
                 m_setDelegates.Add((d) =>
                 {
-                    creatorDisplay.profile.data = d.submittedBy.profile;
+                    submittorDisplay.profile.data = d.submittorProfile;
                 });
 
-                m_displayDelegates.Add((p) => creatorDisplay.profile.DisplayProfile(p.submittedBy));
-                m_loadingDelegates.Add(( ) => creatorDisplay.profile.DisplayLoading());
+                m_displayDelegates.Add((p) => submittorDisplay.profile.DisplayProfile(p.submittedBy));
+                m_loadingDelegates.Add(( ) => submittorDisplay.profile.DisplayLoading());
             }
-            if(creatorDisplay.avatar != null)
+            if(submittorDisplay.avatar != null)
             {
-                creatorDisplay.avatar.Initialize();
+                submittorDisplay.avatar.Initialize();
 
                 m_getDelegates.Add((ref ModDisplayData d) =>
                 {
-                    d.submittedBy.avatar = creatorDisplay.avatar.data;
+                    d.submittorAvatar = submittorDisplay.avatar.data;
                 });
                 m_setDelegates.Add((d) =>
                 {
-                    creatorDisplay.avatar.data = d.submittedBy.avatar;
+                    submittorDisplay.avatar.data = d.submittorAvatar;
                 });
 
-                m_displayDelegates.Add((p) => creatorDisplay.avatar.DisplayAvatar(p.submittedBy.id,
-                                                                                  p.submittedBy.avatarLocator));
-                m_loadingDelegates.Add(( ) => creatorDisplay.avatar.DisplayLoading());
+                m_displayDelegates.Add((p) => submittorDisplay.avatar.DisplayAvatar(p.submittedBy.id,
+                                                                                    p.submittedBy.avatarLocator));
+                m_loadingDelegates.Add(( ) => submittorDisplay.avatar.DisplayLoading());
             }
             if(buildDisplay != null)
             {

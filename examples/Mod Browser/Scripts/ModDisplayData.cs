@@ -6,7 +6,8 @@ namespace ModIO.UI
     public struct ModDisplayData
     {
         public ModProfileDisplayData    profile;
-        public UserDisplayData          submittedBy;
+        public UserProfileDisplayData   submittorProfile;
+        public ImageDisplayData         submittorAvatar;
         public ModfileDisplayData       currentBuild;
         public ImageDisplayData[]       media;
         public ModTagDisplayData[]      tags;
