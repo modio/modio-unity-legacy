@@ -116,7 +116,10 @@ namespace ModIO.UI
 
         private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
         {
+            #if DEBUG
             if(!Application.isPlaying) { return; }
+            Debug.LogWarning("needs categories");
+            #endif
 
             int i = 0;
 
@@ -126,19 +129,28 @@ namespace ModIO.UI
                 for(; i < TEMP_pageSize && i < page.items.Length; ++i)
                 {
                     Transform itemTransform = pageTransform.GetChild(i);
-                    ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
-                    item.profile = page.items[i];
-                    item.statistics = null;
-                    item.isSubscribed = true;
+                    ModView view = itemTransform.GetComponent<ModView>();
+                    ModProfile profile = page.items[i];
 
-                    item.UpdateProfileDisplay();
-                    item.UpdateStatisticsDisplay();
-                    item.UpdateIsSubscribedDisplay();
-
-                    if(item.profile != null)
+                    if(profile == null)
                     {
-                        ModManager.GetModStatistics(item.profile.id,
-                                                    (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
+                        view.DisplayLoading();
+                    }
+                    else
+                    {
+                        view.DisplayMod(profile,
+                                        null,
+                                        null,
+                                        true, // assume subscribed
+                                        false); // TODO(@jackson): enabled?
+
+                        ModManager.GetModStatistics(profile.id,
+                                                    (s) =>
+                                                    {
+                                                        ModDisplayData data = view.data;
+                                                        data.statistics = ModStatisticsDisplayData.CreateFromStatistics(s);
+                                                        view.data = data;
+                                                    },
                                                     null);
                     }
 

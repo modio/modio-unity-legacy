@@ -371,7 +371,11 @@ namespace ModIO.UI
 
         private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
         {
+            #if DEBUG
+            if(!Application.isPlaying) { return; }
             Debug.LogWarning("needs categories");
+            #endif
+
             int i = 0;
 
             if(page != null
@@ -393,7 +397,7 @@ namespace ModIO.UI
                                         null,
                                         null,
                                         subscribedModIds.Contains(profile.id),
-                                        false);
+                                        false); // TODO(@jackson): enabled?
 
                         ModManager.GetModStatistics(profile.id,
                                                     (s) =>
