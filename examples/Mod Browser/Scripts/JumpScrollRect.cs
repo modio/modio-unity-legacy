@@ -6,14 +6,16 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform))]
 public abstract class JumpScrollRect : MonoBehaviour
 {
-    private RectTransform m_rectTransform;
-    private bool m_isButtonUpdateRequired;
-
+    // ---------[ FIELDS ]---------
     [Header("Settings")]
     [SerializeField] private bool m_autoHideButtons;
     [SerializeField] private Button m_alignPreviousButton;
     [SerializeField] private Button m_alignNextButton;
 
+    private RectTransform m_rectTransform;
+    private bool m_isButtonUpdateRequired;
+
+    // --- ACCESSORS ---
     private IEnumerable<JumpScrollAnchor> GetAnchors()
     {
         return m_rectTransform.GetComponentsInChildren<JumpScrollAnchor>();
@@ -50,22 +52,29 @@ public abstract class JumpScrollRect : MonoBehaviour
     }
 
     // ---------[ UPDATES ]---------
-    protected virtual void Update()
-    {
-        if(m_isButtonUpdateRequired)
-        {
-            UpdateButtonState_Internal(m_rectTransform, GetAnchors(),
-                                       m_alignPreviousButton, m_alignNextButton,
-                                       m_autoHideButtons);
-
-            m_isButtonUpdateRequired = false;
-        }
-    }
-
     public void UpdateButtonState()
     {
         m_isButtonUpdateRequired = true;
     }
+
+    protected virtual void Update()
+    {
+        if(m_isButtonUpdateRequired)
+        {
+            StartCoroutine(LateUpdateButtonState());
+            m_isButtonUpdateRequired = false;
+        }
+    }
+
+    public System.Collections.IEnumerator LateUpdateButtonState()
+    {
+        yield return null;
+
+        UpdateButtonState_Internal(m_rectTransform, GetAnchors(),
+                                   m_alignPreviousButton, m_alignNextButton,
+                                   m_autoHideButtons);
+    }
+
     protected abstract void UpdateButtonState_Internal(RectTransform contentTransform,
                                                        IEnumerable<JumpScrollAnchor> anchors,
                                                        Button previousButton,

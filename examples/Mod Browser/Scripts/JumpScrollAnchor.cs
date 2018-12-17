@@ -5,15 +5,15 @@ public class JumpScrollAnchor : MonoBehaviour
 {
     private void OnEnable()
     {
-        var scrollRectParents = this.GetComponentsInParent<JumpScrollRect>();
-
-        foreach(JumpScrollRect scrollRect in scrollRectParents)
-        {
-            scrollRect.UpdateButtonState();
-        }
+        UpdateParentButtons();
     }
 
     private void OnDisable()
+    {
+        UpdateParentButtons();
+    }
+
+    private void UpdateParentButtons()
     {
         var scrollRectParents = this.GetComponentsInParent<JumpScrollRect>();
 
