@@ -47,9 +47,9 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
-            if(modView.profileDisplay != null)
+            if(modView != null)
             {
-                modView.profileDisplay.Initialize();
+                modView.Initialize();
             }
 
             if(selectedMediaPreview != null)
@@ -99,11 +99,15 @@ namespace ModIO.UI
             Debug.Assert(this.profile != null,
                          "[mod.io] Assign the mod profile before updating the profile UI components.");
 
-            if(modView.profileDisplay != null)
+            if(modView != null)
             {
                 Debug.LogWarning("categories needed");
-                // modView.profileDisplay.DisplayProfile(profile, null);
-                modView.profileDisplay.DisplayProfile(profile);
+
+                modView.DisplayMod(profile,
+                                   statistics,
+                                   null,
+                                   isModSubscribed,
+                                   false);
             }
 
             if(selectedMediaPreview != null)
@@ -141,9 +145,15 @@ namespace ModIO.UI
             Debug.Assert(this.statistics != null,
                          "[mod.io] Assign the mod statistics before updating the statistics UI components.");
 
-            if(modView.statisticsDisplay != null)
+            if(modView != null)
             {
-                modView.statisticsDisplay.DisplayStatistics(statistics);
+                Debug.LogWarning("categories needed");
+
+                modView.DisplayMod(profile,
+                                   statistics,
+                                   null,
+                                   isModSubscribed,
+                                   false);
             }
         }
         public void UpdateIsSubscribedDisplay()
