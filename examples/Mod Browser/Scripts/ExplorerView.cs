@@ -341,11 +341,14 @@ namespace ModIO.UI
             {
                 foreach(Transform itemTransform in currentPageContainer)
                 {
-                    ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
-                    if(item.profile != null)
+                    ModView modView = itemTransform.GetComponent<ModView>();
+                    ModDisplayData modData = modView.data;
+                    bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
+
+                    if(modData.isSubscribed != isSubscribed)
                     {
-                        item.isSubscribed = subscribedModIds.Contains(item.profile.id);
-                        item.UpdateIsSubscribedDisplay();
+                        modData.isSubscribed = isSubscribed;
+                        modView.data = modData;
                     }
                 }
             }
@@ -353,11 +356,14 @@ namespace ModIO.UI
             {
                 foreach(Transform itemTransform in targetPageContainer)
                 {
-                    ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
-                    if(item.profile != null)
+                    ModView modView = itemTransform.GetComponent<ModView>();
+                    ModDisplayData modData = modView.data;
+                    bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
+
+                    if(modData.isSubscribed != isSubscribed)
                     {
-                        item.isSubscribed = subscribedModIds.Contains(item.profile.id);
-                        item.UpdateIsSubscribedDisplay();
+                        modData.isSubscribed = isSubscribed;
+                        modView.data = modData;
                     }
                 }
             }
