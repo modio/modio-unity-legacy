@@ -4203,7 +4203,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 114040931236527216}
+  m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -6177,11 +6177,11 @@ MonoBehaviour:
     name: 
     nameId: 
     summary: 
-    description_HTML: 
-    description_text: 
+    descriptionAsHTML: 
+    descriptionAsText: 
     metadataBlob: 
     profileURL: 
-    activeBuild:
+    currentBuild:
       id: 0
       modId: 0
       dateAdded: 0
@@ -7182,7 +7182,6 @@ MonoBehaviour:
     timezone: 
     language: 
     profileURL: 
-    avatarTexture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
   explorerView: {fileID: 114195835507779204}
   subscriptionsView: {fileID: 114130614508925794}
   inspectorView: {fileID: 114309666271251828}
@@ -7225,49 +7224,22 @@ MonoBehaviour:
   metadataBlobDisplay: {fileID: 0}
   m_data:
     modId: 0
-    profile:
-      modId: 0
-      gameId: 0
-      status: 0
-      visibility: 0
-      dateAdded: 0
-      dateUpdated: 0
-      dateLive: 0
-      contentWarnings: 0
-      homepageURL: 
-      name: 
-      nameId: 
-      summary: 
-      descriptionAsHTML: 
-      descriptionAsText: 
-      metadataBlob: 
-      profileURL: 
-      metadataKVPs: []
-    submittedBy:
-      userId: 0
-      nameId: 
-      username: 
-      lastOnline: 0
-      timezone: 
-      language: 
-      profileURL: 
-      avatarTexture: {fileID: 0}
-    currentBuild:
-      modfileId: 0
-      modId: 0
-      dateAdded: 0
-      fileName: 
-      fileSize: 0
-      MD5: 
-      version: 
-      changelog: 
-      metadataBlob: 
-      virusScanDate: 0
-      virusScanStatus: 0
-      virusScanResult: 0
-      virusScanHash: 
-    media: []
-    tags: []
+    gameId: 0
+    status: 0
+    visibility: 0
+    dateAdded: 0
+    dateUpdated: 0
+    dateLive: 0
+    contentWarnings: 0
+    homepageURL: 
+    name: 
+    nameId: 
+    summary: 
+    descriptionAsHTML: 
+    descriptionAsText: 
+    metadataBlob: 
+    profileURL: 
+    metadataKVPs: []
 --- !u!114 &114435840607851232
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -8423,7 +8395,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  avatarDisplay: {fileID: 114954870979911490}
   userIdDisplay: {fileID: 0}
   nameIdDisplay: {fileID: 0}
   usernameDisplay: {fileID: 114489184015494542}
@@ -8439,7 +8410,6 @@ MonoBehaviour:
     timezone: 
     language: 
     profileURL: 
-    avatarTexture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
 --- !u!114 &114578234792986726
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10268,7 +10238,7 @@ MonoBehaviour:
   galleryImageOverlay: {fileID: 0}
   youTubeOverlay: {fileID: 1353639698890002}
   m_data:
-    modId: 0
+    ownerId: 0
     mediaType: 0
     imageId: 
     texture: {fileID: 0}
@@ -10807,13 +10777,84 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profileDisplay: {fileID: 114434123071762936}
+  creatorDisplay:
+    profile: {fileID: 114990656916073332}
+    avatar: {fileID: 0}
   logoDisplay: {fileID: 0}
   mediaContainer: {fileID: 0}
-  creatorDisplay: {fileID: 114990656916073332}
-  statisticsDisplay: {fileID: 114858047056216386}
-  tagsDisplay: {fileID: 0}
   buildDisplay: {fileID: 0}
+  tagsDisplay: {fileID: 0}
+  statisticsDisplay: {fileID: 114858047056216386}
   downloadDisplay: {fileID: 0}
+  subscriptionDisplay:
+    isSubscribed: {fileID: 1737879366662448}
+    notSubscribed: {fileID: 1417712910375960}
+  modEnabledDisplay:
+    isEnabled: {fileID: 0}
+    isDisabled: {fileID: 0}
+  m_data:
+    profile:
+      modId: 0
+      gameId: 0
+      status: 0
+      visibility: 0
+      dateAdded: 0
+      dateUpdated: 0
+      dateLive: 0
+      contentWarnings: 0
+      homepageURL: 
+      name: 
+      nameId: 
+      summary: 
+      descriptionAsHTML: 
+      descriptionAsText: 
+      metadataBlob: 
+      profileURL: 
+      metadataKVPs: []
+    submittedBy:
+      profile:
+        userId: 0
+        nameId: 
+        username: 
+        lastOnline: 0
+        timezone: 
+        language: 
+        profileURL: 
+      avatar:
+        ownerId: 0
+        mediaType: 0
+        imageId: 
+        texture: {fileID: 0}
+    currentBuild:
+      modfileId: 0
+      modId: 0
+      dateAdded: 0
+      fileName: 
+      fileSize: 0
+      MD5: 
+      version: 
+      changelog: 
+      metadataBlob: 
+      virusScanDate: 0
+      virusScanStatus: 0
+      virusScanResult: 0
+      virusScanHash: 
+    media: []
+    tags: []
+    statistics:
+      modId: 0
+      popularityRankPosition: 0
+      popularityRankModCount: 0
+      downloadCount: 0
+      subscriberCount: 0
+      ratingCount: 0
+      ratingPositiveCount: 0
+      ratingNegativeCount: 0
+      ratingWeightedAggregate: 0
+      ratingDisplayText: 
+      dateExpires: 0
+    isSubscribed: 0
+    isModEnabled: 0
 --- !u!114 &114912886536305320
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11125,17 +11166,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da8b057c369034443977405c9a27a7fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  avatarSize: 1
+  m_avatarSize: 0
+  image: {fileID: 0}
   loadingOverlay: {fileID: 1625314398786034}
   m_data:
-    userId: 0
-    nameId: 
-    username: Guest
-    lastOnline: 0
-    timezone: 
-    language: 
-    profileURL: 
-    avatarTexture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
+    ownerId: 0
+    mediaType: 0
+    imageId: 
+    texture: {fileID: 0}
 --- !u!114 &114962828148981196
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11340,7 +11378,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  avatarDisplay: {fileID: 0}
   userIdDisplay: {fileID: 0}
   nameIdDisplay: {fileID: 0}
   usernameDisplay: {fileID: 114929665266779030}
@@ -11356,7 +11393,6 @@ MonoBehaviour:
     timezone: 
     language: 
     profileURL: 
-    avatarTexture: {fileID: 0}
 --- !u!114 &114994411505270454
 MonoBehaviour:
   m_ObjectHideFlags: 1

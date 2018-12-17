@@ -286,7 +286,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1651470682164352
 GameObject:
   m_ObjectHideFlags: 1
@@ -655,7 +655,7 @@ MonoBehaviour:
   image: {fileID: 114146504481294152}
   loadingOverlay: {fileID: 1981002977696124}
   m_data:
-    modId: 0
+    ownerId: 0
     mediaType: 0
     imageId: 
     texture: {fileID: 0}
@@ -1334,12 +1334,6 @@ MonoBehaviour:
   homepageURLDisplay: {fileID: 0}
   profileURLDisplay: {fileID: 0}
   metadataBlobDisplay: {fileID: 0}
-  creatorDisplay: {fileID: 0}
-  logoDisplay: {fileID: 114045059756690928}
-  mediaContainer: {fileID: 0}
-  buildDisplay: {fileID: 0}
-  tagDisplay: {fileID: 0}
-  downloadDisplay: {fileID: 0}
   m_data:
     modId: 0
     gameId: 0
@@ -1358,31 +1352,6 @@ MonoBehaviour:
     metadataBlob: 
     profileURL: 
     metadataKVPs: []
-    submittedBy:
-      userId: 0
-      nameId: 
-      username: 
-      lastOnline: 0
-      timezone: 
-      language: 
-      profileURL: 
-      avatarTexture: {fileID: 0}
-    currentBuild:
-      modfileId: 0
-      modId: 0
-      dateAdded: 0
-      fileName: 
-      fileSize: 0
-      MD5: 
-      version: 
-      changelog: 
-      metadataBlob: 
-      virusScanDate: 0
-      virusScanStatus: 0
-      virusScanResult: 0
-      virusScanHash: 
-    media: []
-    tags: []
 --- !u!114 &114618335921144808
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1628,13 +1597,84 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profileDisplay: {fileID: 114610492254523942}
-  logoDisplay: {fileID: 0}
+  creatorDisplay:
+    profile: {fileID: 0}
+    avatar: {fileID: 0}
+  logoDisplay: {fileID: 114045059756690928}
   mediaContainer: {fileID: 0}
-  creatorDisplay: {fileID: 0}
-  statisticsDisplay: {fileID: 114162675249873568}
-  tagsDisplay: {fileID: 0}
   buildDisplay: {fileID: 0}
+  tagsDisplay: {fileID: 0}
+  statisticsDisplay: {fileID: 114162675249873568}
   downloadDisplay: {fileID: 0}
+  subscriptionDisplay:
+    isSubscribed: {fileID: 1571898376839960}
+    notSubscribed: {fileID: 1980019541404722}
+  modEnabledDisplay:
+    isEnabled: {fileID: 0}
+    isDisabled: {fileID: 0}
+  m_data:
+    profile:
+      modId: 0
+      gameId: 0
+      status: 0
+      visibility: 0
+      dateAdded: 0
+      dateUpdated: 0
+      dateLive: 0
+      contentWarnings: 0
+      homepageURL: 
+      name: 
+      nameId: 
+      summary: 
+      descriptionAsHTML: 
+      descriptionAsText: 
+      metadataBlob: 
+      profileURL: 
+      metadataKVPs: []
+    submittedBy:
+      profile:
+        userId: 0
+        nameId: 
+        username: 
+        lastOnline: 0
+        timezone: 
+        language: 
+        profileURL: 
+      avatar:
+        ownerId: 0
+        mediaType: 0
+        imageId: 
+        texture: {fileID: 0}
+    currentBuild:
+      modfileId: 0
+      modId: 0
+      dateAdded: 0
+      fileName: 
+      fileSize: 0
+      MD5: 
+      version: 
+      changelog: 
+      metadataBlob: 
+      virusScanDate: 0
+      virusScanStatus: 0
+      virusScanResult: 0
+      virusScanHash: 
+    media: []
+    tags: []
+    statistics:
+      modId: 0
+      popularityRankPosition: 0
+      popularityRankModCount: 0
+      downloadCount: 0
+      subscriberCount: 0
+      ratingCount: 0
+      ratingPositiveCount: 0
+      ratingNegativeCount: 0
+      ratingWeightedAggregate: 0
+      ratingDisplayText: 
+      dateExpires: 0
+    isSubscribed: 0
+    isModEnabled: 0
 --- !u!114 &114910969499360864
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1684,11 +1724,11 @@ MonoBehaviour:
     name: 
     nameId: 
     summary: 
-    description_HTML: 
-    description_text: 
+    descriptionAsHTML: 
+    descriptionAsText: 
     metadataBlob: 
     profileURL: 
-    activeBuild:
+    currentBuild:
       id: 0
       modId: 0
       dateAdded: 0
