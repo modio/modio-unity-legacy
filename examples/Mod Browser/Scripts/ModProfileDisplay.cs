@@ -54,7 +54,6 @@ namespace ModIO.UI
 
         private void PresentData()
         {
-            // - text displays -
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(false);
@@ -189,7 +188,6 @@ namespace ModIO.UI
 
         public override void DisplayLoading()
         {
-            // - text displays -
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(true);

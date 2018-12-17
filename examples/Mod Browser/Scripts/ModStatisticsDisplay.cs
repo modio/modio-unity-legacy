@@ -24,24 +24,43 @@ namespace ModIO.UI
         public Text ratingAsTextDisplay;
 
         [Header("Display Data")]
-        [SerializeField] private int m_modId = -1;
         [SerializeField] private ModStatisticsDisplayData m_data = new ModStatisticsDisplayData();
-
-        // ---[ RUNTIME DATA ]---
-        private delegate string GetDisplayString(ModStatistics statistics);
-
-        private Dictionary<Text, GetDisplayString> m_displayMapping = null;
         private List<TextLoadingOverlay> m_loadingOverlays = null;
+
+        private delegate string GetDisplayString(ModStatisticsDisplayData data);
+        private Dictionary<Text, GetDisplayString> m_displayMapping = null;
 
         // --- ACCESSORS ---
         public override ModStatisticsDisplayData data
         {
             get { return m_data; }
-            set { m_data = value; }
+            set
+            {
+                m_data = value;
+                PresentData();
+            }
+        }
+
+        private void PresentData()
+        {
+            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
+            {
+                loadingOverlay.gameObject.SetActive(false);
+            }
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.text = kvp.Value(m_data);
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
+        {
+            BuildDisplayMap();
+            CollectLoadingOverlays();
+        }
+
+        private void BuildDisplayMap()
         {
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
@@ -104,7 +123,10 @@ namespace ModIO.UI
                 m_displayMapping.Add(ratingAsTextDisplay,
                                      (s) => s.ratingDisplayText);
             }
+        }
 
+        private void CollectLoadingOverlays()
+        {
             TextLoadingOverlay[] childLoadingOverlays = this.gameObject.GetComponentsInChildren<TextLoadingOverlay>(true);
             List<Text> textDisplays = new List<Text>(m_displayMapping.Keys);
 
@@ -123,24 +145,13 @@ namespace ModIO.UI
         {
             Debug.Assert(statistics != null);
 
-            m_modId = statistics.modId;
-
-            foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
-            {
-                loadingOverlay.gameObject.SetActive(false);
-            }
-
-            foreach(var kvp in m_displayMapping)
-            {
-                kvp.Key.text = kvp.Value(statistics);
-                kvp.Key.enabled = true;
-            }
+            ModStatisticsDisplayData statsData = ModStatisticsDisplayData.CreateFromStatistics(statistics);
+            m_data = statsData;
+            PresentData();
         }
 
         public override void DisplayLoading()
         {
-            m_modId = -1;
-
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(true);
@@ -148,7 +159,7 @@ namespace ModIO.UI
 
             foreach(Text textComponent in m_displayMapping.Keys)
             {
-                textComponent.enabled = false;
+                textComponent.text = string.Empty;
             }
         }
 
@@ -160,5 +171,14 @@ namespace ModIO.UI
                 this.onClick(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            BuildDisplayMap();
+            CollectLoadingOverlays();
+            PresentData();
+        }
+        #endif
     }
 }

@@ -900,8 +900,12 @@ namespace ModIO.UI
             // statistics
             inspectorView.statistics = null;
             ModManager.GetModStatistics(inspectorView.profile.id,
-                                        (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsDisplay(); },
-                                        null);
+                                        (s) =>
+                                        {
+                                            inspectorView.statistics = s;
+                                            inspectorView.UpdateStatisticsDisplay();
+                                        },
+                                        WebRequestError.LogAsWarning);
 
             // subscription
             inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
@@ -924,8 +928,12 @@ namespace ModIO.UI
             // statistics
             inspectorView.statistics = null;
             ModManager.GetModStatistics(inspectorView.profile.id,
-                                        (s) => { inspectorView.statistics = s; inspectorView.UpdateStatisticsDisplay(); },
-                                        null);
+                                        (s) =>
+                                        {
+                                            inspectorView.statistics = s;
+                                            inspectorView.UpdateStatisticsDisplay();
+                                        },
+                                        WebRequestError.LogAsWarning);
 
             // subscription
             inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
