@@ -32,7 +32,7 @@ namespace ModIO.UI
         [Header("UI Elements")]
         public Text percentageText;
         public Text byteCountText;
-        public RectTransform progressBar;
+        public HorizontalProgressBar progressBar;
 
         [Header("Display Data")]
         public int modId;
@@ -147,11 +147,9 @@ namespace ModIO.UI
 
         private IEnumerator UpdateDisplayCoroutine()
         {
-            RectTransform barTransform = null;
             if(progressBar != null)
             {
-                barTransform = progressBar.GetChild(0) as RectTransform;
-                barTransform.sizeDelta = new Vector2(0f, 0f);
+                progressBar.percentComplete = 0f;
             }
             if(byteCountText != null)
             {
@@ -170,8 +168,7 @@ namespace ModIO.UI
 
                     if(progressBar != null)
                     {
-                        float barWidth = percentComplete * progressBar.rect.width;
-                        barTransform.sizeDelta = new Vector2(barWidth, 0f);
+                        progressBar.percentComplete = percentComplete;
                     }
 
                     if(byteCountText != null)
@@ -190,12 +187,11 @@ namespace ModIO.UI
 
             if(progressBar != null)
             {
-                barTransform.sizeDelta = new Vector2(progressBar.rect.width, 0f);
+                progressBar.percentComplete = 1f;
             }
 
             if(byteCountText != null)
             {
-
                 try
                 {
                     var info = new System.IO.FileInfo(m_request.binaryFilePath);

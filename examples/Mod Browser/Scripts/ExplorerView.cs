@@ -181,8 +181,7 @@ namespace ModIO.UI
             targetPageContainer.anchorMin = Vector2.zero;
             targetPageContainer.anchorMax = Vector2.zero;
             targetPageContainer.offsetMin = new Vector2(contentPane.rect.width, 0f);
-            targetPageContainer.offsetMax = new Vector2(contentPane.rect.width * 2f,
-                                                   contentPane.rect.height);
+            targetPageContainer.offsetMax = new Vector2(contentPane.rect.width * 2f, contentPane.rect.height);
             InitializePageLayout(targetPageContainer);
 
             targetPageContainer.gameObject.SetActive(false);
