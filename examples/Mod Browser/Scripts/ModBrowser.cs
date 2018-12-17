@@ -283,7 +283,7 @@ namespace ModIO.UI
         private void InitializeInspectorView()
         {
             inspectorView.Initialize();
-            inspectorView.subscribeRequested += SubscribeToMod;
+            inspectorView.subscribeRequested += (p) => SubscribeToMod(p.id);
             inspectorView.unsubscribeRequested += UnsubscribeFromMod;
             // TODO(@jackson): Add Enable/Disable
             inspectorView.gameObject.SetActive(false);
@@ -298,7 +298,7 @@ namespace ModIO.UI
 
             // TODO(@jackson): Hook up events
             subscriptionsView.inspectRequested += InspectSubscriptionItem;
-            subscriptionsView.subscribeRequested += (i) => SubscribeToMod(i.profile);
+            subscriptionsView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
             subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
             subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
 
@@ -362,7 +362,7 @@ namespace ModIO.UI
             explorerView.Initialize();
 
             explorerView.inspectRequested += InspectDiscoverItem;
-            explorerView.subscribeRequested += (i) => SubscribeToMod(i.profile);
+            explorerView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
             explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
             explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
 
@@ -1213,15 +1213,18 @@ namespace ModIO.UI
                                      WebRequestError.LogAsWarning);
         }
 
-        public void SubscribeToMod(ModProfile profile)
+        // TODO(@jackson): THIS IS TERRIBLE, I LIKELY ALREADY HAVE THIS DATA!
+        public void SubscribeToMod(int modId)
         {
             if(this.userProfile == null)
             {
-                OnSubscribedToMod(profile);
+                ModManager.GetModProfile(modId,
+                                         OnSubscribedToMod,
+                                         WebRequestError.LogAsWarning);
             }
             else
             {
-                APIClient.SubscribeToMod(profile.id,
+                APIClient.SubscribeToMod(modId,
                                          OnSubscribedToMod,
                                          WebRequestError.LogAsWarning);
             }
