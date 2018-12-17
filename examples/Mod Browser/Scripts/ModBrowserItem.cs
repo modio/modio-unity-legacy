@@ -60,11 +60,11 @@ namespace ModIO.UI
         }
         public UserProfileDisplayComponent          creatorProfileDisplay
         {
-            get { return this.view.creatorProfileDisplay; }
+            get { return this.view.creatorDisplay.profile; }
         }
         public UserAvatarDisplayComponent           creatorAvatarDisplay
         {
-            get { return this.view.creatorAvatarDisplay; }
+            get { return this.view.creatorDisplay.avatar; }
         }
         public ModStatisticsDisplayComponent        statisticsDisplay
         {
