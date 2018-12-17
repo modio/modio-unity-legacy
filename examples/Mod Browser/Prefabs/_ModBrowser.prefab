@@ -4046,7 +4046,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Unrated
+  m_Text: 
 --- !u!114 &114061305089335482
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5056,7 +5056,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1
+  m_Text: 0
 --- !u!114 &114179050884728086
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7651,7 +7651,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1
+  m_Text: 0
 --- !u!114 &114482736027954178
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9385,7 +9385,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 28
+  m_Text: 0
 --- !u!114 &114717641030747298
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9868,7 +9868,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 17
+  m_Text: 0
 --- !u!114 &114771463325267670
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10411,7 +10411,6 @@ MonoBehaviour:
   ratingNegativePercentageDisplay: {fileID: 0}
   ratingWeightedAggregateDisplay: {fileID: 0}
   ratingAsTextDisplay: {fileID: 114056756392832284}
-  m_modId: -1
   m_data:
     modId: 0
     popularityRankPosition: 0

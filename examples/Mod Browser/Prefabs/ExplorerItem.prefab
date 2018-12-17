@@ -828,7 +828,6 @@ MonoBehaviour:
   ratingNegativePercentageDisplay: {fileID: 0}
   ratingWeightedAggregateDisplay: {fileID: 0}
   ratingAsTextDisplay: {fileID: 0}
-  m_modId: -1
   m_data:
     modId: 0
     popularityRankPosition: 0
@@ -1169,7 +1168,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 2.33M
+  m_Text: 0
 --- !u!114 &114447186838701302
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1516,7 +1515,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 100%
+  m_Text: ~%
 --- !u!114 &114785987474802340
 MonoBehaviour:
   m_ObjectHideFlags: 1
