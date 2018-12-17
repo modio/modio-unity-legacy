@@ -22,22 +22,14 @@ namespace ModIO.UI
         [Header("Settings")]
         [Range(1.0f, 2.0f)]
         public float maximumScaleFactor = 1f;
-        public GameObject tagBadgePrefab;
 
         // ---[ RUNTIME DATA ]---
         [Header("Runtime Data")]
-        public bool isInitialized = false;
         public int index = -1;
 
         // --- ACCESSORS ---
         public ModView view
         { get { return this.GetComponent<ModView>(); } }
-
-        // TODO(@jackson): Remove
-        public ModBinaryDownloadDisplay             downloadDisplay
-        {
-            get { return this.view.downloadDisplay; }
-        }
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()

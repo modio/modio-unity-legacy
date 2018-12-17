@@ -1255,11 +1255,11 @@ namespace ModIO.UI
             ModBrowserItem[] mbiArray = Resources.FindObjectsOfTypeAll<ModBrowserItem>();
             foreach(ModBrowserItem mbi in mbiArray)
             {
-                if(mbi.downloadDisplay != null
-                   && mbi.downloadDisplay.modId == profile.id)
+                if(mbi.view.downloadDisplay != null
+                   && mbi.view.downloadDisplay.modId == profile.id)
                 {
-                    mbi.downloadDisplay.gameObject.SetActive(true);
-                    mbi.downloadDisplay.DisplayRequest(request);
+                    mbi.view.downloadDisplay.gameObject.SetActive(true);
+                    mbi.view.downloadDisplay.DisplayRequest(request);
                 }
             }
 
