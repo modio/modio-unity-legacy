@@ -126,11 +126,14 @@ namespace ModIO.UI
 
             ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
             RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
+            ModView viewPrefabScript = itemPrefab.GetComponent<ModView>();
 
             Debug.Assert(itemPrefabScript != null
-                         && itemPrefabTransform != null,
-                         "[mod.io] The ExplorerView.itemPrefab is missing a ModBrowserItem component"
-                         + " and/or a RectTransform component.");
+                         && itemPrefabTransform != null
+                         && viewPrefabScript != null,
+                         "[mod.io] The ExplorerView.itemPrefab does not have the required "
+                         + "ModBrowserItem, ModView, and RectTransform components.\n"
+                         + "Please ensure these are all present.");
 
             Debug.Assert(itemPrefabTransform.anchorMin == new Vector2(0f, 1f)
                          && itemPrefabTransform.anchorMax == new Vector2(0f, 1f),
@@ -289,6 +292,9 @@ namespace ModIO.UI
                 item.unsubscribeRequested +=        (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
                 item.toggleModEnabledRequested +=   (i) => { if(toggleModEnabledRequested != null) { toggleModEnabledRequested(i); } };
                 item.Initialize();
+
+                ModView view = itemGO.GetComponent<ModView>();
+                view.Initialize();
 
                 itemGO.SetActive(false);
             }
