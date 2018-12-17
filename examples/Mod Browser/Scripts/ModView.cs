@@ -9,6 +9,10 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         public event Action<ModView> onClick;
+        public event Action<ModView> subscribeRequested;
+        public event Action<ModView> unsubscribeRequested;
+        public event Action<ModView> enableModRequested;
+        public event Action<ModView> disableModRequested;
 
         [Serializable]
         public struct SubscriptionStatusDisplay
@@ -296,6 +300,36 @@ namespace ModIO.UI
             if(onClick != null)
             {
                 onClick(this);
+            }
+        }
+
+        public void NotifySubscribeRequested()
+        {
+            if(subscribeRequested != null)
+            {
+                subscribeRequested(this);
+            }
+        }
+        public void NotifyUnsubscribeRequested()
+        {
+            if(unsubscribeRequested != null)
+            {
+                unsubscribeRequested(this);
+            }
+        }
+
+        public void NotifyEnableModRequested()
+        {
+            if(enableModRequested != null)
+            {
+                enableModRequested(this);
+            }
+        }
+        public void NotifyDisableModRequested()
+        {
+            if(disableModRequested != null)
+            {
+                disableModRequested(this);
             }
         }
     }
