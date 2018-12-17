@@ -46,10 +46,6 @@ namespace ModIO.UI
         { get { return this.GetComponent<ModView>(); } }
 
         // TODO(@jackson): Remove
-        public ModTagCollectionDisplayComponent     tagsDisplay
-        {
-            get { return this.view.tagsDisplay; }
-        }
         public ModBinaryDownloadDisplay             downloadDisplay
         {
             get { return this.view.downloadDisplay; }
@@ -188,18 +184,17 @@ namespace ModIO.UI
 
         public void UpdateTagsDisplay(IEnumerable<ModTagCategory> tagCategories)
         {
-            Debug.Assert(tagCategories != null);
-
-            if(tagsDisplay != null)
+            if(profile == null)
             {
-                if(profile != null)
-                {
-                    tagsDisplay.DisplayTags(profile, tagCategories);
-                }
-                else
-                {
-                    tagsDisplay.DisplayLoading();
-                }
+                view.DisplayLoading();
+            }
+            else
+            {
+                view.DisplayMod(profile,
+                                statistics,
+                                tagCategories,
+                                isSubscribed,
+                                isModEnabled);
             }
         }
 
