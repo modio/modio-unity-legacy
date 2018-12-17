@@ -16,7 +16,6 @@ namespace ModIO.UI
         public event Action<ModBrowserItem> inspectRequested;
         public event Action<ModBrowserItem> subscribeRequested;
         public event Action<ModBrowserItem> unsubscribeRequested;
-        public event Action<ModBrowserItem> toggleModEnabledRequested;
 
         // ---[ UI ]---
         [Header("Settings")]
@@ -57,13 +56,6 @@ namespace ModIO.UI
             if(unsubscribeRequested != null)
             {
                 unsubscribeRequested(this);
-            }
-        }
-        public void ModEnabledToggled()
-        {
-            if(toggleModEnabledRequested != null)
-            {
-                toggleModEnabledRequested(this);
             }
         }
     }
