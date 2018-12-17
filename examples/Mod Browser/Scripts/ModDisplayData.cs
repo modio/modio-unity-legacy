@@ -20,7 +20,7 @@ namespace ModIO.UI
 
         public ImageDisplayData GetLogo()
         {
-            if(media == null)
+            if(media != null)
             {
                 foreach(ImageDisplayData imageData in media)
                 {
@@ -31,7 +31,13 @@ namespace ModIO.UI
                 }
             }
 
-            return new ImageDisplayData();
+            return new ImageDisplayData()
+            {
+                modId = profile.modId,
+                mediaType = ImageDisplayData.MediaType.ModLogo,
+                fileName = string.Empty,
+                texture = null,
+            };
         }
         public void SetLogo(ImageDisplayData value)
         {
