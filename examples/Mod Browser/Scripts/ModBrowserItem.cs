@@ -27,7 +27,6 @@ namespace ModIO.UI
         [Header("Display Data")]
         public ModProfile profile = null;
         public ModStatistics statistics = null;
-        public bool isSubscribed = false;
 
         // ---[ RUNTIME DATA ]---
         [Header("Runtime Data")]
@@ -76,7 +75,7 @@ namespace ModIO.UI
                 view.DisplayMod(profile,
                                 statistics,
                                 null,
-                                isSubscribed,
+                                false,
                                 true);
             }
         }
@@ -93,7 +92,7 @@ namespace ModIO.UI
                 view.DisplayMod(profile,
                                 statistics,
                                 null,
-                                isSubscribed,
+                                false,
                                 true);
             }
         }
@@ -109,23 +108,7 @@ namespace ModIO.UI
                 view.DisplayMod(profile,
                                 statistics,
                                 tagCategories,
-                                isSubscribed,
-                                true);
-            }
-        }
-
-        public void UpdateIsSubscribedDisplay()
-        {
-            if(profile == null)
-            {
-                view.DisplayLoading();
-            }
-            else
-            {
-                view.DisplayMod(profile,
-                                statistics,
-                                null,
-                                isSubscribed,
+                                false,
                                 true);
             }
         }
