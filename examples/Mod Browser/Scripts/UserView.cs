@@ -19,39 +19,50 @@ namespace ModIO.UI
         {
             get
             {
-                if(profileDisplay != null)
-                {
-                    m_data.profile = profileDisplay.data;
-
-                    if(m_data.userId <= 0)
-                    {
-                        m_data.userId = profileDisplay.data.userId;
-                    }
-                }
-                if(avatarDisplay != null)
-                {
-                    m_data.avatar = avatarDisplay.data;
-
-                    if(m_data.userId <= 0)
-                    {
-                        m_data.userId = avatarDisplay.data.userId;
-                    }
-                }
-
-                return m_data;
+                return GetData();
             }
+
             set
             {
-                m_data = value;
+                SetData(value);
+            }
+        }
 
-                if(profileDisplay != null)
+        private UserDisplayData GetData()
+        {
+            if(profileDisplay != null)
+            {
+                m_data.profile = profileDisplay.data;
+
+                if(m_data.userId <= 0)
                 {
-                    profileDisplay.data = m_data.profile;
+                    m_data.userId = profileDisplay.data.userId;
                 }
-                if(avatarDisplay != null)
+            }
+            if(avatarDisplay != null)
+            {
+                m_data.avatar = avatarDisplay.data;
+
+                if(m_data.userId <= 0)
                 {
-                    avatarDisplay.data = m_data.avatar;
+                    m_data.userId = avatarDisplay.data.userId;
                 }
+            }
+
+            return m_data;
+        }
+
+        private void SetData(UserDisplayData value)
+        {
+            m_data = value;
+
+            if(profileDisplay != null)
+            {
+                profileDisplay.data = m_data.profile;
+            }
+            if(avatarDisplay != null)
+            {
+                avatarDisplay.data = m_data.avatar;
             }
         }
 
@@ -88,5 +99,21 @@ namespace ModIO.UI
                 avatarDisplay.DisplayAvatar(profile.id, profile.avatarLocator);
             }
         }
+
+        // ---------[ EVENTS ]---------
+        public void NotifyClicked()
+        {
+            if(onClick != null)
+            {
+                onClick(this);
+            }
+        }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            SetData(m_data);
+        }
+        #endif
     }
 }
