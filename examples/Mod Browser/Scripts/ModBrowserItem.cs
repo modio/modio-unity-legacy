@@ -25,8 +25,6 @@ namespace ModIO.UI
         public GameObject tagBadgePrefab;
 
         [Header("UI Components")]
-        public Button subscribeButton;
-        public Button unsubscribeButton;
         public Button enableModButton;
         public Button disableModButton;
 
@@ -70,16 +68,6 @@ namespace ModIO.UI
             }
 
             // TODO(@jackson): Move to button Prefab
-            if(subscribeButton != null)
-            {
-                subscribeButton.onClick.AddListener(SubscribeClicked);
-            }
-
-            if(unsubscribeButton != null)
-            {
-                unsubscribeButton.onClick.AddListener(UnsubscribeClicked);
-            }
-
             if(enableModButton != null)
             {
                 enableModButton.onClick.AddListener(ModEnabledToggled);
@@ -126,31 +114,35 @@ namespace ModIO.UI
             }
         }
 
+        public void UpdateTagsDisplay(IEnumerable<ModTagCategory> tagCategories)
+        {
+            if(profile == null)
+            {
+                view.DisplayLoading();
+            }
+            else
+            {
+                view.DisplayMod(profile,
+                                statistics,
+                                tagCategories,
+                                isSubscribed,
+                                isModEnabled);
+            }
+        }
+
         public void UpdateIsSubscribedDisplay()
         {
-            if(subscribeButton != null)
+            if(profile == null)
             {
-                if(profile == null)
-                {
-                    subscribeButton.interactable = false;
-                    subscribeButton.gameObject.SetActive(true);
-                }
-                else
-                {
-                    subscribeButton.interactable = true;
-                    subscribeButton.gameObject.SetActive(!isSubscribed);
-                }
+                view.DisplayLoading();
             }
-            if(unsubscribeButton != null)
+            else
             {
-                if(profile == null)
-                {
-                    unsubscribeButton.gameObject.SetActive(false);
-                }
-                else
-                {
-                    unsubscribeButton.gameObject.SetActive(isSubscribed);
-                }
+                view.DisplayMod(profile,
+                                statistics,
+                                null,
+                                isSubscribed,
+                                isModEnabled);
             }
         }
 
@@ -168,33 +160,6 @@ namespace ModIO.UI
                     enableModButton.interactable = true;
                     enableModButton.gameObject.SetActive(!isModEnabled);
                 }
-            }
-            if(unsubscribeButton != null)
-            {
-                if(profile == null)
-                {
-                    disableModButton.gameObject.SetActive(false);
-                }
-                else
-                {
-                    disableModButton.gameObject.SetActive(isModEnabled);
-                }
-            }
-        }
-
-        public void UpdateTagsDisplay(IEnumerable<ModTagCategory> tagCategories)
-        {
-            if(profile == null)
-            {
-                view.DisplayLoading();
-            }
-            else
-            {
-                view.DisplayMod(profile,
-                                statistics,
-                                tagCategories,
-                                isSubscribed,
-                                isModEnabled);
             }
         }
 
