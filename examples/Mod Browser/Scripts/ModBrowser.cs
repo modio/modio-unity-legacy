@@ -300,7 +300,7 @@ namespace ModIO.UI
             subscriptionsView.inspectRequested += InspectSubscriptionItem;
             subscriptionsView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
             subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.view.data.profile.modId);
-            subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
+            subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.view.data.profile.modId);
 
             // - setup ui filter controls -
             // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
@@ -364,7 +364,7 @@ namespace ModIO.UI
             explorerView.inspectRequested += InspectDiscoverItem;
             explorerView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
             explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.view.data.profile.modId);
-            explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
+            explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.view.data.profile.modId);
 
             explorerView.subscribedModIds = this.subscribedModIds;
 
@@ -1339,19 +1339,19 @@ namespace ModIO.UI
             return enabledMods.Contains(profile.id);
         }
 
-        public static void ToggleModEnabled(ModProfile profile)
+        public static void ToggleModEnabled(int modId)
         {
             Debug.LogError("[mod.io] This function handle is a placeholder "
                            + "for the enable/disable functionality that the "
                            + "game code may need to execute.");
 
-            if(enabledMods.Contains(profile.id))
+            if(enabledMods.Contains(modId))
             {
-                enabledMods.Remove(profile.id);
+                enabledMods.Remove(modId);
             }
             else
             {
-                enabledMods.Add(profile.id);
+                enabledMods.Add(modId);
             }
         }
 
