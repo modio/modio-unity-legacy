@@ -30,14 +30,14 @@ namespace ModIO.UI
             set
             {
                 m_data = value;
-                PresentData(value);
+                PresentData();
             }
         }
-        private void PresentData(ImageDisplayData displayData)
+        private void PresentData()
         {
-            if(displayData.texture != null)
+            if(m_data.texture != null)
             {
-                image.sprite = UIUtilities.CreateSpriteFromTexture(displayData.texture);
+                image.sprite = UIUtilities.CreateSpriteFromTexture(m_data.texture);
             }
             else
             {
@@ -81,7 +81,7 @@ namespace ModIO.UI
 
             if(locator == null)
             {
-                PresentData(displayData);
+                PresentData();
             }
             else
             {
@@ -97,7 +97,7 @@ namespace ModIO.UI
                                         if(m_data.Equals(displayData))
                                         {
                                             m_data.texture = t;
-                                            PresentData(displayData);
+                                            PresentData();
                                         }
                                       },
                                       WebRequestError.LogAsWarning);
@@ -130,7 +130,7 @@ namespace ModIO.UI
             {
                 // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
                 // "Should" be fine.
-                PresentData(m_data);
+                PresentData();
             }
         }
         #endif

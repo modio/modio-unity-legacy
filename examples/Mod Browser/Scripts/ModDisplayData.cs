@@ -62,6 +62,8 @@ namespace ModIO.UI
             }
 
             mediaItems.Insert(0, value);
+
+            media = mediaItems.ToArray();
         }
     }
 }

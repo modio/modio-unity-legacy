@@ -538,10 +538,7 @@ namespace ModIO
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
         {
-            GetModLogo(profile.id, profile.logoLocator,
-                       size,
-                       onSuccess,
-                       onError);
+            GetModLogo(profile.id, profile.logoLocator, size, onSuccess, onError);
         }
 
         public static void GetModLogo(int modId, LogoImageLocator logoLocator,
