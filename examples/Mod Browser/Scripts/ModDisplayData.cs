@@ -5,8 +5,6 @@ namespace ModIO.UI
     [System.Serializable]
     public struct ModDisplayData
     {
-        public int modId;
-
         public ModProfileDisplayData    profile;
         public UserDisplayData          submittedBy;
         public ModfileDisplayData       currentBuild;

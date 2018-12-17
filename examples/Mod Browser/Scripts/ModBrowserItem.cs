@@ -58,9 +58,13 @@ namespace ModIO.UI
         {
             get { return this.view.mediaContainer; }
         }
-        public UserView                             creatorView
+        public UserProfileDisplayComponent          creatorProfileDisplay
         {
-            get { return this.view.creatorView; }
+            get { return this.view.creatorProfileDisplay; }
+        }
+        public UserAvatarDisplayComponent           creatorAvatarDisplay
+        {
+            get { return this.view.creatorAvatarDisplay; }
         }
         public ModStatisticsDisplayComponent        statisticsDisplay
         {

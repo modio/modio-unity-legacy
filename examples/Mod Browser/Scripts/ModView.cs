@@ -30,7 +30,8 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
-        public UserView                             creatorView;
+        public UserProfileDisplayComponent          creatorProfileDisplay;
+        public UserAvatarDisplayComponent           creatorAvatarDisplay;
         public ModLogoDisplayComponent              logoDisplay;
         public ModMediaCollectionDisplayComponent   mediaContainer;
         public ModfileDisplayComponent              buildDisplay;
@@ -63,25 +64,6 @@ namespace ModIO.UI
             set
             {
                 SetData(value);
-
-
-                if(subscriptionDisplay.isSubscribed != null)
-                {
-                    subscriptionDisplay.isSubscribed.SetActive(m_data.isSubscribed);
-                }
-                if(subscriptionDisplay.notSubscribed != null)
-                {
-                    subscriptionDisplay.notSubscribed.SetActive(!m_data.isSubscribed);
-                }
-
-                if(modEnabledDisplay.isEnabled != null)
-                {
-                    modEnabledDisplay.isEnabled.SetActive(m_data.isModEnabled);
-                }
-                if(modEnabledDisplay.isDisabled != null)
-                {
-                    modEnabledDisplay.isDisabled.SetActive(!m_data.isModEnabled);
-                }
             }
         }
 
@@ -101,6 +83,24 @@ namespace ModIO.UI
             foreach(SetDataDelegate setDelegate in m_setDelegates)
             {
                 setDelegate(value);
+            }
+
+            if(subscriptionDisplay.isSubscribed != null)
+            {
+                subscriptionDisplay.isSubscribed.SetActive(m_data.isSubscribed);
+            }
+            if(subscriptionDisplay.notSubscribed != null)
+            {
+                subscriptionDisplay.notSubscribed.SetActive(!m_data.isSubscribed);
+            }
+
+            if(modEnabledDisplay.isEnabled != null)
+            {
+                modEnabledDisplay.isEnabled.SetActive(m_data.isModEnabled);
+            }
+            if(modEnabledDisplay.isDisabled != null)
+            {
+                modEnabledDisplay.isDisabled.SetActive(!m_data.isModEnabled);
             }
         }
 
@@ -157,20 +157,36 @@ namespace ModIO.UI
 
                 m_displayDelegates.Add((p) => logoDisplay.DisplayLogo(p.id, p.logoLocator));
             }
-            if(creatorView != null)
+            if(creatorProfileDisplay != null)
             {
-                creatorView.Initialize();
+                creatorProfileDisplay.Initialize();
 
                 m_getDelegates.Add((ref ModDisplayData d) =>
                 {
-                    d.submittedBy = creatorView.data;
+                    d.submittedBy.profile = creatorProfileDisplay.data;
                 });
                 m_setDelegates.Add((d) =>
                 {
-                    creatorView.data = d.submittedBy;
+                    creatorProfileDisplay.data = d.submittedBy.profile;
                 });
 
-                m_displayDelegates.Add((p) => creatorView.DisplayUser(p.submittedBy));
+                m_displayDelegates.Add((p) => creatorProfileDisplay.DisplayProfile(p.submittedBy));
+            }
+            if(creatorAvatarDisplay != null)
+            {
+                creatorAvatarDisplay.Initialize();
+
+                m_getDelegates.Add((ref ModDisplayData d) =>
+                {
+                    d.submittedBy.avatar = creatorAvatarDisplay.data;
+                });
+                m_setDelegates.Add((d) =>
+                {
+                    creatorAvatarDisplay.data = d.submittedBy.avatar;
+                });
+
+                m_displayDelegates.Add((p) => creatorAvatarDisplay.DisplayAvatar(p.submittedBy.id,
+                                                                                 p.submittedBy.avatarLocator));
             }
             if(buildDisplay != null)
             {
@@ -243,7 +259,6 @@ namespace ModIO.UI
 
             m_data = new ModDisplayData()
             {
-                modId = profile.id,
                 isSubscribed = isSubscribed,
                 isModEnabled = isModEnabled,
             };
@@ -332,5 +347,12 @@ namespace ModIO.UI
                 disableModRequested(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            SetData(m_data);
+        }
+        #endif
     }
 }

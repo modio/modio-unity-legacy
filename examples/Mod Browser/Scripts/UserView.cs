@@ -33,20 +33,10 @@ namespace ModIO.UI
             if(profileDisplay != null)
             {
                 m_data.profile = profileDisplay.data;
-
-                if(m_data.userId <= 0)
-                {
-                    m_data.userId = profileDisplay.data.userId;
-                }
             }
             if(avatarDisplay != null)
             {
                 m_data.avatar = avatarDisplay.data;
-
-                if(m_data.userId <= 0)
-                {
-                    m_data.userId = avatarDisplay.data.userId;
-                }
             }
 
             return m_data;
@@ -84,10 +74,7 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
-            m_data = new UserDisplayData()
-            {
-                userId = profile.id,
-            };
+            m_data = new UserDisplayData();
 
             if(profileDisplay != null)
             {
