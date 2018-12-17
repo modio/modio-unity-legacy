@@ -1005,7 +1005,12 @@ namespace ModIO.UI
                 inspectorView.backToSubscriptionsButton.gameObject.SetActive(false);
             }
 
-            SetInspectorViewProfile(item.profile);
+            inspectorView.DisplayLoading();
+
+            ModManager.GetModProfile(item.view.data.profile.modId,
+                                     SetInspectorViewProfile,
+                                     WebRequestError.LogAsWarning);
+
             ShowInspectorView();
         }
 
@@ -1023,7 +1028,12 @@ namespace ModIO.UI
                 inspectorView.backToDiscoverButton.gameObject.SetActive(false);
             }
 
-            SetInspectorViewProfile(item.profile);
+            inspectorView.DisplayLoading();
+
+            ModManager.GetModProfile(item.view.data.profile.modId,
+                                     SetInspectorViewProfile,
+                                     WebRequestError.LogAsWarning);
+
             ShowInspectorView();
         }
 

@@ -158,6 +158,12 @@ namespace ModIO.UI
             }
         }
 
+        public void DisplayLoading()
+        {
+            modView.DisplayLoading();
+            selectedMediaPreview.DisplayLoading();
+        }
+
         // ---------[ UI ELEMENT CREATION ]---------
         private void PopulateVersionHistory(int modId, IEnumerable<Modfile> modfiles)
         {
