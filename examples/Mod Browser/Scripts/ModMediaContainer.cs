@@ -122,11 +122,12 @@ namespace ModIO.UI
                 }
             }
 
-            if(youTubeURLs != null)
+            if(youTubeURLs != null
+               && youTubeThumbnailPrefab != null)
             {
                 foreach(string url in youTubeURLs)
                 {
-                    YouTubeThumbnailDisplay display = InstantiatePrefab(galleryImagePrefab) as YouTubeThumbnailDisplay;
+                    YouTubeThumbnailDisplay display = InstantiatePrefab(youTubeThumbnailPrefab) as YouTubeThumbnailDisplay;
                     display.DisplayThumbnail(modId, Utility.ExtractYouTubeIdFromURL(url));
                     display.onClick += NotifyYouTubeThumbnailClicked;
 
@@ -142,10 +143,7 @@ namespace ModIO.UI
 
         public override void DisplayLoading()
         {
-            foreach(Transform t in container)
-            {
-                GameObject.Destroy(t.gameObject);
-            }
+            ClearDisplays();
         }
 
         // ---------[ PRIVATE METHODS ]---------

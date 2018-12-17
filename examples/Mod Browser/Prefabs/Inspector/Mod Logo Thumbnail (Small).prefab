@@ -28,7 +28,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1499550366594428
 GameObject:
   m_ObjectHideFlags: 1
@@ -77,11 +77,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54bb5ff2aba0b48b3aec840fa7492ac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logoSize: 1
+  m_logoSize: 1
   image: {fileID: 114570025219337196}
-  loadingDisplay: {fileID: 1385752765964470}
-  m_modId: 0
-  m_imageFileName: 
+  loadingOverlay: {fileID: 1385752765964470}
+  m_data:
+    ownerId: 0
+    mediaType: 1
+    imageId: 
+    texture: {fileID: 0}
 --- !u!114 &114415024368027130
 MonoBehaviour:
   m_ObjectHideFlags: 1

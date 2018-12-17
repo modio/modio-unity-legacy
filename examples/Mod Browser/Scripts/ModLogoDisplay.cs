@@ -92,7 +92,11 @@ namespace ModIO.UI
                                       logoSize,
                                       (t) =>
                                       {
-                                        if(!Application.isPlaying) { return; }
+                                        if(!Application.isPlaying
+                                           || image == null)
+                                        {
+                                            return;
+                                        }
 
                                         if(m_data.Equals(displayData))
                                         {

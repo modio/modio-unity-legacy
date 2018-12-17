@@ -65,7 +65,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &114125394151841054
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -104,11 +104,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53b736946d2544a2f8d8171af40dd009, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  imageSize: 1
+  m_imageSize: 1
   image: {fileID: 114570025219337196}
-  loadingDisplay: {fileID: 1763408483951822}
-  m_modId: 0
-  m_imageFileName: 
+  loadingOverlay: {fileID: 1763408483951822}
+  m_data:
+    ownerId: 0
+    mediaType: 0
+    imageId: 
+    texture: {fileID: 0}
 --- !u!114 &114570025219337196
 MonoBehaviour:
   m_ObjectHideFlags: 1

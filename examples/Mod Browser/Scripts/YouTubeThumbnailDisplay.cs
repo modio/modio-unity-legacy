@@ -78,11 +78,16 @@ namespace ModIO.UI
             m_data = displayData;
 
             DisplayLoading();
+
             ModManager.GetModYouTubeThumbnail(displayData.modId,
                                               displayData.youTubeId,
                                               (t) =>
                                               {
-                                                if(!Application.isPlaying) { return; }
+                                                if(!Application.isPlaying
+                                                   || image == null)
+                                                {
+                                                    return;
+                                                }
                                                 if(m_data.Equals(displayData))
                                                 {
                                                     m_data.texture = t;

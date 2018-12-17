@@ -97,7 +97,12 @@ namespace ModIO.UI
                                               imageSize,
                                               (t) =>
                                               {
-                                                if(!Application.isPlaying) { return; }
+                                                if(!Application.isPlaying
+                                                   || image == null)
+                                                {
+                                                    return;
+                                                }
+
                                                 if(m_data.Equals(displayData))
                                                 {
                                                     m_data.texture = t;
