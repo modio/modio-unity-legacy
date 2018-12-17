@@ -20,9 +20,11 @@ using UnityEngine.UI;
 // TODO(@jackson): Needs cleanup
 namespace ModIO.UI
 {
-    public class ModBinaryRequestDisplay : MonoBehaviour
+    public class ModBinaryRequestDisplay : DownloadDisplayComponent
     {
         // ---------[ FIELDS ]---------
+        public override event Action<DownloadDisplayComponent> onClick;
+
         [Header("Settings")]
         [Tooltip("If the display component has no download to show, or the download has finished, this gameObject can be set to inactive.")]
         public bool setInactiveIfNotDownloading = true;
@@ -32,12 +34,28 @@ namespace ModIO.UI
         public Text byteCountText;
         public RectTransform progressBar;
 
+        [Header("Display Data")]
+        public int modId;
+        [SerializeField] private DownloadDisplayData m_data;
+
         // --- RUNTIME DATA ---
         private ModBinaryRequest m_request;
         private Coroutine m_updateCoroutine;
 
+        // --- ACCESSORS ---
+        public override DownloadDisplayData data
+        {
+            get { return m_data; }
+            set { m_data = value; }
+        }
+
+        private void PresentData()
+        {
+
+        }
+
         // ---------[ INITIALIZATION ]---------
-        public void Initialize() {}
+        public override void Initialize() {}
 
         private void OnEnable()
         {
@@ -204,5 +222,21 @@ namespace ModIO.UI
                 this.gameObject.SetActive(false);
             }
         }
+
+        // ---------[ EVENTS ]---------
+        public void NotifyClicked()
+        {
+            if(onClick != null)
+            {
+                onClick(this);
+            }
+        }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            PresentData();
+        }
+        #endif
     }
 }
