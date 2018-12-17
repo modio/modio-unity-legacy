@@ -16,7 +16,7 @@ namespace ModIO.UI
         public ModStatisticsDisplayData statistics;
 
         public bool isSubscribed;
-        public bool isEnabled;
+        public bool isModEnabled;
 
         public ImageDisplayData GetLogo()
         {

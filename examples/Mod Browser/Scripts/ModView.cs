@@ -10,6 +10,20 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         public event Action<ModView> onClick;
 
+        [Serializable]
+        public struct SubscriptionStatusDisplay
+        {
+            public GameObject isSubscribed;
+            public GameObject notSubscribed;
+        }
+
+        [Serializable]
+        public struct EnabledStatusDisplay
+        {
+            public GameObject isEnabled;
+            public GameObject isDisabled;
+        }
+
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
         public UserView                             creatorView;
@@ -19,9 +33,21 @@ namespace ModIO.UI
         public ModTagCollectionDisplayComponent     tagsDisplay;
         public ModStatisticsDisplayComponent        statisticsDisplay;
         public ModBinaryRequestDisplay              downloadDisplay;
+        public SubscriptionStatusDisplay            subscriptionDisplay;
+        public EnabledStatusDisplay                 modEnabledDisplay;
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
+
+        // --- FUNCTION DELEGATES ---
+        private delegate void GetDataDelegate(ref ModDisplayData data);
+        private List<GetDataDelegate> m_getDelegates = new List<GetDataDelegate>();
+
+        private delegate void SetDataDelegate(ModDisplayData data);
+        private List<SetDataDelegate> m_setDelegates = new List<SetDataDelegate>();
+
+        private delegate void DisplayProfileDelegate(ModProfile profile);
+        private List<DisplayProfileDelegate> m_displayDelegates = new List<DisplayProfileDelegate>();
 
         // --- ACCESSORS ---
         public ModDisplayData data
@@ -33,14 +59,33 @@ namespace ModIO.UI
             set
             {
                 SetData(value);
+
+
+                if(subscriptionDisplay.isSubscribed != null)
+                {
+                    subscriptionDisplay.isSubscribed.SetActive(m_data.isSubscribed);
+                }
+                if(subscriptionDisplay.notSubscribed != null)
+                {
+                    subscriptionDisplay.notSubscribed.SetActive(!m_data.isSubscribed);
+                }
+
+                if(modEnabledDisplay.isEnabled != null)
+                {
+                    modEnabledDisplay.isEnabled.SetActive(m_data.isModEnabled);
+                }
+                if(modEnabledDisplay.isDisabled != null)
+                {
+                    modEnabledDisplay.isDisabled.SetActive(!m_data.isModEnabled);
+                }
             }
         }
 
         private ModDisplayData GetData()
         {
-            foreach(PullDisplayDataDelegate pullDelegate in m_pullDataDelegates)
+            foreach(GetDataDelegate getDelegate in m_getDelegates)
             {
-                pullDelegate(ref m_data);
+                getDelegate(ref m_data);
             }
 
             return m_data;
@@ -49,39 +94,28 @@ namespace ModIO.UI
         private void SetData(ModDisplayData value)
         {
             m_data = value;
-            foreach(PushDisplayDataDelegate pushDelegate in m_pushDataDelegates)
+            foreach(SetDataDelegate setDelegate in m_setDelegates)
             {
-                pushDelegate(value);
+                setDelegate(value);
             }
         }
-
-        // --- FUNCTION DELEGATES ---
-        private delegate void PullDisplayDataDelegate(ref ModDisplayData data);
-        private List<PullDisplayDataDelegate> m_pullDataDelegates = new List<PullDisplayDataDelegate>();
-
-        private delegate void PushDisplayDataDelegate(ModDisplayData data);
-        private List<PushDisplayDataDelegate> m_pushDataDelegates = new List<PushDisplayDataDelegate>();
-
-        private delegate void DisplayProfileDelegate(ModProfile profile);
-        private List<DisplayProfileDelegate> m_displayDelegates = new List<DisplayProfileDelegate>();
-
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
-            m_pullDataDelegates.Clear();
-            m_pushDataDelegates.Clear();
+            m_getDelegates.Clear();
+            m_setDelegates.Clear();
             m_displayDelegates.Clear();
 
             if(profileDisplay != null)
             {
                 profileDisplay.Initialize();
 
-                m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                m_getDelegates.Add((ref ModDisplayData d) =>
                 {
                     d.profile = profileDisplay.data;
                 });
-                m_pushDataDelegates.Add((d) =>
+                m_setDelegates.Add((d) =>
                 {
                     profileDisplay.data = d.profile;
                 });
@@ -92,11 +126,11 @@ namespace ModIO.UI
             {
                 mediaContainer.Initialize();
 
-                m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                m_getDelegates.Add((ref ModDisplayData d) =>
                 {
                     d.media = mediaContainer.data.ToArray();
                 });
-                m_pushDataDelegates.Add((d) =>
+                m_setDelegates.Add((d) =>
                 {
                     mediaContainer.data = d.media;
                 });
@@ -108,11 +142,11 @@ namespace ModIO.UI
             {
                 logoDisplay.Initialize();
 
-                m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                m_getDelegates.Add((ref ModDisplayData d) =>
                 {
                     d.SetLogo(logoDisplay.data);
                 });
-                m_pushDataDelegates.Add((d) =>
+                m_setDelegates.Add((d) =>
                 {
                     logoDisplay.data = d.GetLogo();
                 });
@@ -123,11 +157,11 @@ namespace ModIO.UI
             {
                 creatorView.Initialize();
 
-                m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                m_getDelegates.Add((ref ModDisplayData d) =>
                 {
                     d.submittedBy = creatorView.data;
                 });
-                m_pushDataDelegates.Add((d) =>
+                m_setDelegates.Add((d) =>
                 {
                     creatorView.data = d.submittedBy;
                 });
@@ -138,11 +172,11 @@ namespace ModIO.UI
             {
                 buildDisplay.Initialize();
 
-                m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                m_getDelegates.Add((ref ModDisplayData d) =>
                 {
                     d.currentBuild = buildDisplay.data;
                 });
-                m_pushDataDelegates.Add((d) =>
+                m_setDelegates.Add((d) =>
                 {
                     buildDisplay.data = d.currentBuild;
                 });
@@ -154,11 +188,11 @@ namespace ModIO.UI
             {
                 tagsDisplay.Initialize();
 
-                m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                m_getDelegates.Add((ref ModDisplayData d) =>
                 {
                     d.tags = tagsDisplay.data.ToArray();
                 });
-                m_pushDataDelegates.Add((d) =>
+                m_setDelegates.Add((d) =>
                 {
                     tagsDisplay.data = d.tags;
                 });
@@ -170,11 +204,11 @@ namespace ModIO.UI
             {
                 statisticsDisplay.Initialize();
 
-                m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                m_getDelegates.Add((ref ModDisplayData d) =>
                 {
                     d.statistics = statisticsDisplay.data;
                 });
-                m_pushDataDelegates.Add((d) =>
+                m_setDelegates.Add((d) =>
                 {
                     statisticsDisplay.data = d.statistics;
                 });
@@ -184,11 +218,11 @@ namespace ModIO.UI
             {
                 downloadDisplay.Initialize();
 
-                // m_pullDataDelegates.Add((ref ModDisplayData d) =>
+                // m_getDelegates.Add((ref ModDisplayData d) =>
                 // {
                 //     d.submittedBy = creatorView.data;
                 // });
-                // m_pushDataDelegates.Add((d) =>
+                // m_setDelegates.Add((d) =>
                 // {
                 //     creatorView.data = d.submittedBy;
                 // });
@@ -197,13 +231,17 @@ namespace ModIO.UI
 
         public void DisplayMod(ModProfile profile,
                                ModStatistics statistics,
-                               IEnumerable<ModTagCategory> tagCategories)
+                               IEnumerable<ModTagCategory> tagCategories,
+                               bool isSubscribed,
+                               bool isModEnabled)
         {
             Debug.Assert(profile != null);
 
             m_data = new ModDisplayData()
             {
                 modId = profile.id,
+                isSubscribed = isSubscribed,
+                isModEnabled = isModEnabled,
             };
 
             foreach(DisplayProfileDelegate displayDelegate in m_displayDelegates)
@@ -232,6 +270,24 @@ namespace ModIO.UI
             }
 
             // TODO(@jackson): DownloadDisplay
+
+            if(subscriptionDisplay.isSubscribed != null)
+            {
+                subscriptionDisplay.isSubscribed.SetActive(isSubscribed);
+            }
+            if(subscriptionDisplay.notSubscribed != null)
+            {
+                subscriptionDisplay.notSubscribed.SetActive(!isSubscribed);
+            }
+
+            if(modEnabledDisplay.isEnabled != null)
+            {
+                modEnabledDisplay.isEnabled.SetActive(isModEnabled);
+            }
+            if(modEnabledDisplay.isDisabled != null)
+            {
+                modEnabledDisplay.isDisabled.SetActive(!isModEnabled);
+            }
         }
 
         // ---------[ EVENTS ]---------
