@@ -46,10 +46,6 @@ namespace ModIO.UI
         { get { return this.GetComponent<ModView>(); } }
 
         // TODO(@jackson): Remove
-        public ModStatisticsDisplayComponent        statisticsDisplay
-        {
-            get { return this.view.statisticsDisplay; }
-        }
         public ModTagCollectionDisplayComponent     tagsDisplay
         {
             get { return this.view.tagsDisplay; }
@@ -119,19 +115,18 @@ namespace ModIO.UI
 
         public void UpdateStatisticsDisplay()
         {
-            if(statistics != null)
+            if(profile == null)
             {
-                if(statisticsDisplay != null)
-                {
-                    statisticsDisplay.DisplayStatistics(statistics);
-                }
+                view.DisplayLoading();
             }
             else
             {
-                if(statisticsDisplay != null)
-                {
-                    statisticsDisplay.DisplayLoading();
-                }
+                Debug.LogWarning("needs categories");
+                view.DisplayMod(profile,
+                                statistics,
+                                null,
+                                isSubscribed,
+                                isModEnabled);
             }
         }
 
