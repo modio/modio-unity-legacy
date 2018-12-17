@@ -10853,6 +10853,9 @@ MonoBehaviour:
       ratingWeightedAggregate: 0
       ratingDisplayText: 
       dateExpires: 0
+    activeDownload:
+      bytesDownloaded: 0
+      fileSize: 0
     isSubscribed: 0
     isModEnabled: 0
 --- !u!114 &114912886536305320

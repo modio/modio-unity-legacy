@@ -38,6 +38,7 @@ GameObject:
   - component: {fileID: 224215965165510086}
   - component: {fileID: 222154670203839918}
   - component: {fileID: 114240110773104370}
+  - component: {fileID: 114108184748084736}
   m_Layer: 5
   m_Name: ProgressBar
   m_TagString: Untagged
@@ -791,6 +792,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 16352.1MB
+--- !u!114 &114108184748084736
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1060410882970348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51d97b94c14124043b9d8ca8b0fe6a61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  barTransform: {fileID: 224577453363135962}
+  m_percentComplete: 0
 --- !u!114 &114109154935669094
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1109,7 +1123,7 @@ MonoBehaviour:
   buildDisplay: {fileID: 114868194789145208}
   tagsDisplay: {fileID: 0}
   statisticsDisplay: {fileID: 0}
-  downloadDisplay: {fileID: 0}
+  downloadDisplay: {fileID: 114618228435171366}
   subscriptionDisplay:
     isSubscribed: {fileID: 0}
     notSubscribed: {fileID: 0}
@@ -1177,6 +1191,9 @@ MonoBehaviour:
       ratingWeightedAggregate: 0
       ratingDisplayText: 
       dateExpires: 0
+    activeDownload:
+      bytesDownloaded: 0
+      fileSize: 0
     isSubscribed: 0
     isModEnabled: 0
 --- !u!114 &114503804929373994
@@ -1425,7 +1442,11 @@ MonoBehaviour:
   setInactiveIfNotDownloading: 1
   percentageText: {fileID: 114557033603824710}
   byteCountText: {fileID: 114701430919161398}
-  progressBar: {fileID: 224215965165510086}
+  progressBar: {fileID: 0}
+  modId: 0
+  m_data:
+    bytesDownloaded: 0
+    fileSize: 0
 --- !u!114 &114629090997802300
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2300,7 +2321,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 190, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224588612557375572
 RectTransform:
