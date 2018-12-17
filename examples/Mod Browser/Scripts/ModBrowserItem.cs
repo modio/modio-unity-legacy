@@ -46,22 +46,6 @@ namespace ModIO.UI
         { get { return this.GetComponent<ModView>(); } }
 
         // TODO(@jackson): Remove
-        public ModLogoDisplayComponent              logoDisplay
-        {
-            get { return this.view.logoDisplay; }
-        }
-        public ModMediaCollectionDisplayComponent   mediaContainer
-        {
-            get { return this.view.mediaContainer; }
-        }
-        public UserProfileDisplayComponent          creatorProfileDisplay
-        {
-            get { return this.view.creatorDisplay.profile; }
-        }
-        public UserAvatarDisplayComponent           creatorAvatarDisplay
-        {
-            get { return this.view.creatorDisplay.avatar; }
-        }
         public ModStatisticsDisplayComponent        statisticsDisplay
         {
             get { return this.view.statisticsDisplay; }
@@ -69,10 +53,6 @@ namespace ModIO.UI
         public ModTagCollectionDisplayComponent     tagsDisplay
         {
             get { return this.view.tagsDisplay; }
-        }
-        public ModfileDisplayComponent              buildDisplay
-        {
-            get { return this.view.buildDisplay; }
         }
         public ModBinaryDownloadDisplay             downloadDisplay
         {
