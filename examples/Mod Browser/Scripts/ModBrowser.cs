@@ -1255,15 +1255,15 @@ namespace ModIO.UI
             // begin download
             ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
 
-            // TODO(@jackson): Dirty hack
-            ModBrowserItem[] mbiArray = Resources.FindObjectsOfTypeAll<ModBrowserItem>();
-            foreach(ModBrowserItem mbi in mbiArray)
+            // TODO(@jackson): Dirty hack (now less dirty???)
+            ModBinaryDownloadDisplay[] sceneDownloadDisplays
+                = Resources.FindObjectsOfTypeAll<ModBinaryDownloadDisplay>();
+            foreach(ModBinaryDownloadDisplay downloadDisplay in sceneDownloadDisplays)
             {
-                if(mbi.view.downloadDisplay != null
-                   && mbi.view.downloadDisplay.modId == profile.id)
+                if(downloadDisplay.modId == profile.id)
                 {
-                    mbi.view.downloadDisplay.gameObject.SetActive(true);
-                    mbi.view.downloadDisplay.DisplayRequest(request);
+                    downloadDisplay.gameObject.SetActive(true);
+                    downloadDisplay.DisplayRequest(request);
                 }
             }
 

@@ -18,9 +18,5 @@ namespace ModIO.UI
         // ---[ RUNTIME DATA ]---
         [Header("Runtime Data")]
         public int index = -1;
-
-        // --- ACCESSORS ---
-        public ModView view
-        { get { return this.GetComponent<ModView>(); } }
     }
 }
