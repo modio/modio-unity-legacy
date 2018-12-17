@@ -43,7 +43,7 @@ namespace ModIO.UI
         public ModfileDisplayComponent              buildDisplay;
         public ModTagCollectionDisplayComponent     tagsDisplay;
         public ModStatisticsDisplayComponent        statisticsDisplay;
-        public ModBinaryRequestDisplay              downloadDisplay;
+        public ModBinaryDownloadDisplay             downloadDisplay;
         public SubscriptionStatusDisplay            subscriptionDisplay;
         public EnabledStatusDisplay                 modEnabledDisplay;
 

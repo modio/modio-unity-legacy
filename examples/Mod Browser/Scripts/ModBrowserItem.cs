@@ -78,7 +78,7 @@ namespace ModIO.UI
         {
             get { return this.view.buildDisplay; }
         }
-        public ModBinaryRequestDisplay              downloadDisplay
+        public ModBinaryDownloadDisplay             downloadDisplay
         {
             get { return this.view.downloadDisplay; }
         }

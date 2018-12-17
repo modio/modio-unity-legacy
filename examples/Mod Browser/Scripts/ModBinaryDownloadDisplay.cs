@@ -20,7 +20,7 @@ using UnityEngine.UI;
 // TODO(@jackson): Needs cleanup
 namespace ModIO.UI
 {
-    public class ModBinaryRequestDisplay : DownloadDisplayComponent
+    public class ModBinaryDownloadDisplay : DownloadDisplayComponent
     {
         // ---------[ FIELDS ]---------
         public override event Action<DownloadDisplayComponent> onClick;
