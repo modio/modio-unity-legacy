@@ -363,9 +363,10 @@ namespace ModIO.UI
             explorerView.Initialize();
 
             explorerView.inspectRequested += InspectDiscoverItem;
-            explorerView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
-            explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.view.data.profile.modId);
-            explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.view.data.profile.modId);
+            explorerView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
+            explorerView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);
+            explorerView.enableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
+            explorerView.disableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
 
             explorerView.subscribedModIds = this.subscribedModIds;
 
@@ -992,10 +993,11 @@ namespace ModIO.UI
             UpdateExplorerViewPageButtonInteractibility();
         }
 
-        public void InspectDiscoverItem(ModBrowserItem item)
+        public void InspectDiscoverItem(ModView view)
         {
             // TODO(@jackson): Load explorer page
-            inspectorData.currentModIndex = item.index + explorerView.currentPage.resultOffset;
+            inspectorData.currentModIndex = (view.gameObject.GetComponent<ModBrowserItem>().index
+                                             + explorerView.currentPage.resultOffset);
 
             if(inspectorView.backToDiscoverButton != null)
             {
@@ -1008,7 +1010,7 @@ namespace ModIO.UI
 
             inspectorView.DisplayLoading();
 
-            ModManager.GetModProfile(item.view.data.profile.modId,
+            ModManager.GetModProfile(view.data.profile.modId,
                                      SetInspectorViewProfile,
                                      WebRequestError.LogAsWarning);
 
