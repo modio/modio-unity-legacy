@@ -284,7 +284,7 @@ namespace ModIO.UI
         {
             inspectorView.Initialize();
             inspectorView.subscribeRequested += (p) => SubscribeToMod(p.id);
-            inspectorView.unsubscribeRequested += UnsubscribeFromMod;
+            inspectorView.unsubscribeRequested += (p) => UnsubscribeFromMod(p.id);
             // TODO(@jackson): Add Enable/Disable
             inspectorView.gameObject.SetActive(false);
 
@@ -299,7 +299,7 @@ namespace ModIO.UI
             // TODO(@jackson): Hook up events
             subscriptionsView.inspectRequested += InspectSubscriptionItem;
             subscriptionsView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
-            subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
+            subscriptionsView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.view.data.profile.modId);
             subscriptionsView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
 
             // - setup ui filter controls -
@@ -363,7 +363,7 @@ namespace ModIO.UI
 
             explorerView.inspectRequested += InspectDiscoverItem;
             explorerView.subscribeRequested += (i) => SubscribeToMod(i.view.data.profile.modId);
-            explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.profile);
+            explorerView.unsubscribeRequested += (i) => UnsubscribeFromMod(i.view.data.profile.modId);
             explorerView.toggleModEnabledRequested += (i) => ToggleModEnabled(i.profile);
 
             explorerView.subscribedModIds = this.subscribedModIds;
@@ -1267,16 +1267,23 @@ namespace ModIO.UI
             UpdateViewSubscriptions();
         }
 
-        public void UnsubscribeFromMod(ModProfile profile)
+        public void UnsubscribeFromMod(int modId)
         {
+            Action continueUnsubProcess = () =>
+            {
+                ModManager.GetModProfile(modId,
+                                         OnUnsubscribedFromMod,
+                                         WebRequestError.LogAsWarning);
+            };
+
             if(this.userProfile == null)
             {
-                OnUnsubscribedFromMod(profile);
+                continueUnsubProcess();
             }
             else
             {
-                APIClient.UnsubscribeFromMod(profile.id,
-                                             () => OnUnsubscribedFromMod(profile),
+                APIClient.UnsubscribeFromMod(modId,
+                                             continueUnsubProcess,
                                              WebRequestError.LogAsWarning);
             }
         }
