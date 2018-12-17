@@ -24,10 +24,6 @@ namespace ModIO.UI
         public float maximumScaleFactor = 1f;
         public GameObject tagBadgePrefab;
 
-        [Header("UI Components")]
-        public Button enableModButton;
-        public Button disableModButton;
-
         [Header("Display Data")]
         public ModProfile profile = null;
         public ModStatistics statistics = null;
@@ -65,17 +61,6 @@ namespace ModIO.UI
             if(view != null)
             {
                 view.Initialize();
-            }
-
-            // TODO(@jackson): Move to button Prefab
-            if(enableModButton != null)
-            {
-                enableModButton.onClick.AddListener(ModEnabledToggled);
-            }
-
-            if(disableModButton != null)
-            {
-                disableModButton.onClick.AddListener(ModEnabledToggled);
             }
         }
 
@@ -148,18 +133,17 @@ namespace ModIO.UI
 
         public void UpdateIsModEnabledDisplay()
         {
-            if(enableModButton != null)
+            if(profile == null)
             {
-                if(profile == null)
-                {
-                    enableModButton.interactable = false;
-                    enableModButton.gameObject.SetActive(true);
-                }
-                else
-                {
-                    enableModButton.interactable = true;
-                    enableModButton.gameObject.SetActive(!isModEnabled);
-                }
+                view.DisplayLoading();
+            }
+            else
+            {
+                view.DisplayMod(profile,
+                                statistics,
+                                null,
+                                isSubscribed,
+                                isModEnabled);
             }
         }
 
