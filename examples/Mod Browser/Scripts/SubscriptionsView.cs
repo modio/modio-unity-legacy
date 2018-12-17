@@ -91,13 +91,13 @@ namespace ModIO.UI
                 ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
                 item.index = index;
                 item.inspectRequested +=            (i) => { if(inspectRequested != null) { inspectRequested(i); } };
-                item.subscribeRequested +=          (i) => { if(subscribeRequested != null) { unsubscribeRequested(i); } };
-                item.unsubscribeRequested +=        (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
                 item.Initialize();
 
                 ModView view = itemGO.GetComponent<ModView>();
-                view.enableModRequested += NotifyEnableRequested;
-                view.disableModRequested += NotifyDisableRequested;
+                view.subscribeRequested +=      NotifySubscribeRequested;
+                view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
+                view.enableModRequested +=      NotifyEnableRequested;
+                view.disableModRequested +=     NotifyDisableRequested;
                 view.Initialize();
 
                 itemGO.SetActive(false);
@@ -234,6 +234,20 @@ namespace ModIO.UI
         // }
 
         // ---------[ EVENTS ]---------
+        public void NotifySubscribeRequested(ModView view)
+        {
+            if(subscribeRequested != null)
+            {
+                subscribeRequested(view.gameObject.GetComponent<ModBrowserItem>());
+            }
+        }
+        public void NotifyUnsubscribeRequested(ModView view)
+        {
+            if(unsubscribeRequested != null)
+            {
+                unsubscribeRequested(view.gameObject.GetComponent<ModBrowserItem>());
+            }
+        }
         public void NotifyEnableRequested(ModView view)
         {
             if(toggleModEnabledRequested != null)

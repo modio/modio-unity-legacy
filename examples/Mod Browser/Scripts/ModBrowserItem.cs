@@ -14,8 +14,6 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         // ---[ EVENTS ]---
         public event Action<ModBrowserItem> inspectRequested;
-        public event Action<ModBrowserItem> subscribeRequested;
-        public event Action<ModBrowserItem> unsubscribeRequested;
 
         // ---[ UI ]---
         [Header("Settings")]
@@ -42,20 +40,6 @@ namespace ModIO.UI
             if(inspectRequested != null)
             {
                 inspectRequested(this);
-            }
-        }
-        public void SubscribeClicked()
-        {
-            if(subscribeRequested != null)
-            {
-                subscribeRequested(this);
-            }
-        }
-        public void UnsubscribeClicked()
-        {
-            if(unsubscribeRequested != null)
-            {
-                unsubscribeRequested(this);
             }
         }
     }
