@@ -287,10 +287,10 @@ namespace ModIO.UI
                 // display mod profile
                 ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
                 item.index = index;
-                item.inspectRequested +=            (i) => { if(inspectRequested != null) { inspectRequested(i); } };
                 item.Initialize();
 
                 ModView view = itemGO.GetComponent<ModView>();
+                view.onClick +=                 NotifyInspectRequested;
                 view.subscribeRequested +=      NotifySubscribeRequested;
                 view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
                 view.enableModRequested +=      NotifyEnableRequested;
@@ -547,6 +547,13 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
+        public void NotifyInspectRequested(ModView view)
+        {
+            if(inspectRequested != null)
+            {
+                inspectRequested(view.gameObject.GetComponent<ModBrowserItem>());
+            }
+        }
         public void NotifySubscribeRequested(ModView view)
         {
             if(subscribeRequested != null)

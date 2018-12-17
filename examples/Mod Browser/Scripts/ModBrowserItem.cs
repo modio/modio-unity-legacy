@@ -12,10 +12,6 @@ namespace ModIO.UI
     public class ModBrowserItem : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        // ---[ EVENTS ]---
-        public event Action<ModBrowserItem> inspectRequested;
-
-        // ---[ UI ]---
         [Header("Settings")]
         [Range(1.0f, 2.0f)]
         public float maximumScaleFactor = 1f;
@@ -32,15 +28,6 @@ namespace ModIO.UI
         public void Initialize()
         {
             Debug.Assert(view != null);
-        }
-
-        // ---------[ EVENTS ]---------
-        public void InspectClicked()
-        {
-            if(inspectRequested != null)
-            {
-                inspectRequested(this);
-            }
         }
     }
 }
