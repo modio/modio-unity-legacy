@@ -10782,7 +10782,7 @@ MonoBehaviour:
   logoDisplay: {fileID: 0}
   mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 0}
-  tagsDisplay: {fileID: 0}
+  tagsDisplay: {fileID: 114175658757930552}
   statisticsDisplay: {fileID: 114858047056216386}
   downloadDisplay: {fileID: 0}
   subscriptionDisplay:
