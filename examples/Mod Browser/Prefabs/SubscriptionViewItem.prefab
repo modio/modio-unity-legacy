@@ -1035,7 +1035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profileDisplay: {fileID: 114955705671663438}
-  creatorDisplay:
+  submittorDisplay:
     profile: {fileID: 0}
     avatar: {fileID: 0}
   logoDisplay: {fileID: 0}
@@ -1069,20 +1069,19 @@ MonoBehaviour:
       metadataBlob: 
       profileURL: 
       metadataKVPs: []
-    submittedBy:
-      profile:
-        userId: 0
-        nameId: 
-        username: 
-        lastOnline: 0
-        timezone: 
-        language: 
-        profileURL: 
-      avatar:
-        ownerId: 0
-        mediaType: 0
-        imageId: 
-        texture: {fileID: 0}
+    submittorProfile:
+      userId: 0
+      nameId: 
+      username: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    submittorAvatar:
+      ownerId: 0
+      mediaType: 0
+      imageId: 
+      texture: {fileID: 0}
     currentBuild:
       modfileId: 0
       modId: 0
