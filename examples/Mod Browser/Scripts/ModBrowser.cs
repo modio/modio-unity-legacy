@@ -1244,7 +1244,6 @@ namespace ModIO.UI
             {
                 if(mbi.profile != null
                    && mbi.profile.id == profile.id
-                   && mbi.profileDisplay != null
                    && mbi.downloadDisplay != null)
                 {
                     mbi.downloadDisplay.gameObject.SetActive(true);

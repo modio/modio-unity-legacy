@@ -46,10 +46,6 @@ namespace ModIO.UI
         { get { return this.GetComponent<ModView>(); } }
 
         // TODO(@jackson): Remove
-        public ModProfileDisplayComponent           profileDisplay
-        {
-            get { return this.view.profileDisplay; }
-        }
         public ModLogoDisplayComponent              logoDisplay
         {
             get { return this.view.logoDisplay; }
@@ -126,21 +122,18 @@ namespace ModIO.UI
         // ---------[ UI UPDATES ]---------
         public void UpdateProfileDisplay()
         {
-            if(profile != null)
+            if(profile == null)
             {
-                if(profileDisplay != null)
-                {
-                    Debug.LogWarning("categories needed");
-                    // profileDisplay.DisplayProfile(profile, null);
-                    profileDisplay.DisplayProfile(profile);
-                }
+                view.DisplayLoading();
             }
             else
             {
-                if(profileDisplay != null)
-                {
-                    profileDisplay.DisplayLoading();
-                }
+                Debug.LogWarning("needs categories");
+                view.DisplayMod(profile,
+                                statistics,
+                                null,
+                                isSubscribed,
+                                isModEnabled);
             }
         }
 
