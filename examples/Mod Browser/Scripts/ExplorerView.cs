@@ -371,6 +371,7 @@ namespace ModIO.UI
 
         private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
         {
+            Debug.LogWarning("needs categories");
             int i = 0;
 
             if(page != null
@@ -379,23 +380,30 @@ namespace ModIO.UI
                 for(; i < ItemCount && i < page.items.Length; ++i)
                 {
                     Transform itemTransform = pageTransform.GetChild(i);
-                    ModBrowserItem item = itemTransform.GetComponent<ModBrowserItem>();
-                    item.profile = page.items[i];
-                    item.statistics = null;
-                    item.isSubscribed = false;
+                    ModView view = itemTransform.GetComponent<ModView>();
+                    ModProfile profile = page.items[i];
 
-                    item.UpdateProfileDisplay();
-                    item.UpdateStatisticsDisplay();
-
-                    if(item.profile != null)
+                    if(profile == null)
                     {
-                        item.isSubscribed = subscribedModIds.Contains(item.profile.id);
+                        view.DisplayLoading();
+                    }
+                    else
+                    {
+                        view.DisplayMod(profile,
+                                        null,
+                                        null,
+                                        subscribedModIds.Contains(profile.id),
+                                        false);
 
-                        ModManager.GetModStatistics(item.profile.id,
-                                                    (s) => { item.statistics = s; item.UpdateStatisticsDisplay(); },
+                        ModManager.GetModStatistics(profile.id,
+                                                    (s) =>
+                                                    {
+                                                        ModDisplayData data = view.data;
+                                                        data.statistics = ModStatisticsDisplayData.CreateFromStatistics(s);
+                                                        view.data = data;
+                                                    },
                                                     null);
                     }
-                    item.UpdateIsSubscribedDisplay();
 
                     itemTransform.gameObject.SetActive(true);
                 }
