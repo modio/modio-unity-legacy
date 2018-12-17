@@ -28,7 +28,6 @@ namespace ModIO.UI
         public ModProfile profile = null;
         public ModStatistics statistics = null;
         public bool isSubscribed = false;
-        public bool isModEnabled = false;
 
         // ---[ RUNTIME DATA ]---
         [Header("Runtime Data")]
@@ -78,7 +77,7 @@ namespace ModIO.UI
                                 statistics,
                                 null,
                                 isSubscribed,
-                                isModEnabled);
+                                true);
             }
         }
 
@@ -95,7 +94,7 @@ namespace ModIO.UI
                                 statistics,
                                 null,
                                 isSubscribed,
-                                isModEnabled);
+                                true);
             }
         }
 
@@ -111,7 +110,7 @@ namespace ModIO.UI
                                 statistics,
                                 tagCategories,
                                 isSubscribed,
-                                isModEnabled);
+                                true);
             }
         }
 
@@ -127,23 +126,7 @@ namespace ModIO.UI
                                 statistics,
                                 null,
                                 isSubscribed,
-                                isModEnabled);
-            }
-        }
-
-        public void UpdateIsModEnabledDisplay()
-        {
-            if(profile == null)
-            {
-                view.DisplayLoading();
-            }
-            else
-            {
-                view.DisplayMod(profile,
-                                statistics,
-                                null,
-                                isSubscribed,
-                                isModEnabled);
+                                true);
             }
         }
 
