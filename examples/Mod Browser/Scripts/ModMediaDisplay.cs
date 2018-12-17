@@ -35,8 +35,7 @@ namespace ModIO.UI
             get { return m_data; }
             set
             {
-                m_data = data;
-
+                m_data = value;
                 PresentData();
             }
         }
@@ -101,8 +100,6 @@ namespace ModIO.UI
             {
                 galleryImageOverlay.SetActive(false);
             }
-
-            // TODO(@jackson): connect onclick
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
@@ -230,5 +227,17 @@ namespace ModIO.UI
                 onClick(this);
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if(image != null)
+            {
+                // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
+                // "Should" be fine.
+                PresentData();
+            }
+        }
+        #endif
     }
 }

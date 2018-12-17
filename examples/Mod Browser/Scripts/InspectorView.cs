@@ -232,8 +232,8 @@ namespace ModIO.UI
 
         private void MediaPreview_Logo(ModLogoDisplayComponent display)
         {
-            ImageDisplayData displayData = display.data;
-            selectedMediaPreview.data = displayData;
+            ImageDisplayData imageData = display.data;
+            selectedMediaPreview.data = imageData;
 
             if(display.logoSize != selectedMediaPreview.logoSize)
             {
@@ -241,10 +241,10 @@ namespace ModIO.UI
                                       (t) =>
                                       {
                                         if(Application.isPlaying
-                                           && display.data.Equals(displayData))
+                                           && selectedMediaPreview.data.Equals(imageData))
                                         {
-                                            displayData.texture = t;
-                                            selectedMediaPreview.data = displayData;
+                                            imageData.texture = t;
+                                            selectedMediaPreview.data = imageData;
                                         }
                                       },
                                       WebRequestError.LogAsWarning);
@@ -252,8 +252,8 @@ namespace ModIO.UI
         }
         private void MediaPreview_GalleryImage(ModGalleryImageDisplayComponent display)
         {
-            ImageDisplayData displayData = display.data;
-            selectedMediaPreview.data = displayData;
+            ImageDisplayData imageData = display.data;
+            selectedMediaPreview.data = imageData;
 
             if(display.imageSize != selectedMediaPreview.galleryImageSize)
             {
@@ -262,10 +262,10 @@ namespace ModIO.UI
                                               (t) =>
                                               {
                                                 if(Application.isPlaying
-                                                   && display.data.Equals(displayData))
+                                                   && selectedMediaPreview.data.Equals(imageData))
                                                 {
-                                                    displayData.texture = t;
-                                                    selectedMediaPreview.data = displayData;
+                                                    imageData.texture = t;
+                                                    selectedMediaPreview.data = imageData;
                                                 }
                                               },
                                               WebRequestError.LogAsWarning);
