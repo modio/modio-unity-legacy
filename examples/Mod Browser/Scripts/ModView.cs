@@ -60,6 +60,9 @@ namespace ModIO.UI
         private delegate void DisplayProfileDelegate(ModProfile profile);
         private List<DisplayProfileDelegate> m_displayDelegates = new List<DisplayProfileDelegate>();
 
+        private delegate void DisplayLoadingDelegate();
+        private List<DisplayLoadingDelegate> m_loadingDelegates = new List<DisplayLoadingDelegate>();
+
         // --- ACCESSORS ---
         public ModDisplayData data
         {
@@ -131,6 +134,7 @@ namespace ModIO.UI
                 });
 
                 m_displayDelegates.Add((p) => profileDisplay.DisplayProfile(p));
+                m_loadingDelegates.Add(() => profileDisplay.DisplayLoading());
             }
             if(mediaContainer != null)
             {
@@ -146,6 +150,7 @@ namespace ModIO.UI
                 });
 
                 m_displayDelegates.Add((p) => mediaContainer.DisplayMedia(p));
+                m_loadingDelegates.Add(( ) => mediaContainer.DisplayLoading());
             }
             // NOTE(@jackson): Logo Data overrides Media Container Logo Data
             if(logoDisplay != null)
@@ -162,6 +167,7 @@ namespace ModIO.UI
                 });
 
                 m_displayDelegates.Add((p) => logoDisplay.DisplayLogo(p.id, p.logoLocator));
+                m_loadingDelegates.Add(( ) => logoDisplay.DisplayLoading());
             }
             if(creatorDisplay.profile != null)
             {
@@ -177,6 +183,7 @@ namespace ModIO.UI
                 });
 
                 m_displayDelegates.Add((p) => creatorDisplay.profile.DisplayProfile(p.submittedBy));
+                m_loadingDelegates.Add(( ) => creatorDisplay.profile.DisplayLoading());
             }
             if(creatorDisplay.avatar != null)
             {
@@ -192,7 +199,8 @@ namespace ModIO.UI
                 });
 
                 m_displayDelegates.Add((p) => creatorDisplay.avatar.DisplayAvatar(p.submittedBy.id,
-                                                                                 p.submittedBy.avatarLocator));
+                                                                                  p.submittedBy.avatarLocator));
+                m_loadingDelegates.Add(( ) => creatorDisplay.avatar.DisplayLoading());
             }
             if(buildDisplay != null)
             {
@@ -208,6 +216,7 @@ namespace ModIO.UI
                 });
 
                 m_displayDelegates.Add((p) => buildDisplay.DisplayModfile(p.currentBuild));
+                m_loadingDelegates.Add(( ) => buildDisplay.DisplayLoading());
             }
 
             if(tagsDisplay != null)
@@ -224,6 +233,7 @@ namespace ModIO.UI
                 });
 
                 // NOTE(@jackson): tags has no display delegate as it requires categories
+                m_loadingDelegates.Add(( ) => tagsDisplay.DisplayLoading());
             }
 
             if(statisticsDisplay != null)
@@ -238,6 +248,8 @@ namespace ModIO.UI
                 {
                     statisticsDisplay.data = d.statistics;
                 });
+
+                m_loadingDelegates.Add(( ) => statisticsDisplay.DisplayLoading());
             }
 
             if(downloadDisplay != null)
@@ -312,6 +324,14 @@ namespace ModIO.UI
             if(modEnabledDisplay.isDisabled != null)
             {
                 modEnabledDisplay.isDisabled.SetActive(!isModEnabled);
+            }
+        }
+
+        public void DisplayLoading()
+        {
+            foreach(DisplayLoadingDelegate loadingDelegate in m_loadingDelegates)
+            {
+                loadingDelegate();
             }
         }
 
