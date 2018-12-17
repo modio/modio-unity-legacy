@@ -24,9 +24,6 @@ namespace ModIO.UI
         public float maximumScaleFactor = 1f;
         public GameObject tagBadgePrefab;
 
-        [Header("Display Data")]
-        public ModProfile profile = null;
-
         // ---[ RUNTIME DATA ]---
         [Header("Runtime Data")]
         public bool isInitialized = false;
@@ -45,38 +42,7 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
-            // asserts
-            if(isInitialized)
-            {
-                #if DEBUG
-                Debug.LogWarning("[mod.io] Once initialized, a ModBrowserItem cannot be re-initialized.");
-                #endif
-
-                return;
-            }
-
-            if(view != null)
-            {
-                view.Initialize();
-            }
-        }
-
-        // ---------[ UI UPDATES ]---------
-        public void UpdateProfileDisplay()
-        {
-            if(profile == null)
-            {
-                view.DisplayLoading();
-            }
-            else
-            {
-                Debug.LogWarning("needs categories");
-                view.DisplayMod(profile,
-                                null,
-                                null,
-                                false,
-                                true);
-            }
+            Debug.Assert(view != null);
         }
 
         // ---------[ EVENTS ]---------

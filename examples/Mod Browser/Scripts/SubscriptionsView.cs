@@ -83,7 +83,6 @@ namespace ModIO.UI
                 // display mod profile
                 ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
                 item.index = index;
-                item.profile = null;
                 item.inspectRequested +=            (i) => { if(inspectRequested != null) { inspectRequested(i); } };
                 item.subscribeRequested +=          (i) => { if(subscribeRequested != null) { unsubscribeRequested(i); } };
                 item.unsubscribeRequested +=        (i) => { if(unsubscribeRequested != null) { unsubscribeRequested(i); } };
