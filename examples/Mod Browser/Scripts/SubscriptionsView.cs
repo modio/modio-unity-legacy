@@ -87,10 +87,8 @@ namespace ModIO.UI
                                                            Quaternion.identity,
                                                            pageTransform);
 
-                // display mod profile
                 ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
                 item.index = index;
-                item.Initialize();
 
                 ModView view = itemGO.GetComponent<ModView>();
                 view.onClick +=                 NotifyInspectRequested;

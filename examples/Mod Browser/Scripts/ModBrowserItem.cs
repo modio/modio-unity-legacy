@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    // TODO(@jackson): Match to new interface
     [RequireComponent(typeof(ModView))]
     public class ModBrowserItem : MonoBehaviour
     {
@@ -23,11 +22,5 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public ModView view
         { get { return this.GetComponent<ModView>(); } }
-
-        // ---------[ INITIALIZATION ]---------
-        public void Initialize()
-        {
-            Debug.Assert(view != null);
-        }
     }
 }

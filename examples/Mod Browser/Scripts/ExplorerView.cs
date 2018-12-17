@@ -284,10 +284,9 @@ namespace ModIO.UI
                 itemTransform.anchoredPosition = itemPos;
                 itemTransform.sizeDelta = itemSize;
 
-                // display mod profile
+                // initialize item
                 ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
                 item.index = index;
-                item.Initialize();
 
                 ModView view = itemGO.GetComponent<ModView>();
                 view.onClick +=                 NotifyInspectRequested;
