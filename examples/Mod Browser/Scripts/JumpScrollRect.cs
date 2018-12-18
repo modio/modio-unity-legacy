@@ -2,117 +2,120 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// TODO(@jackson): Implemented padding
-[RequireComponent(typeof(RectTransform))]
-public abstract class JumpScrollRect : MonoBehaviour
+namespace ModIO.UI
 {
-    // ---------[ FIELDS ]---------
-    [Header("Settings")]
-    [SerializeField] private bool m_autoHideButtons;
-    [SerializeField] private Button m_alignPreviousButton;
-    [SerializeField] private Button m_alignNextButton;
-
-    private RectTransform m_rectTransform;
-    private bool m_isButtonUpdateRequired;
-
-    // --- ACCESSORS ---
-    private IEnumerable<JumpScrollAnchor> GetAnchors()
+    // TODO(@jackson): Implemented padding
+    [RequireComponent(typeof(RectTransform))]
+    public abstract class JumpScrollRect : MonoBehaviour
     {
-        return m_rectTransform.GetComponentsInChildren<JumpScrollAnchor>();
-    }
+        // ---------[ FIELDS ]---------
+        [Header("Settings")]
+        [SerializeField] private bool m_autoHideButtons;
+        [SerializeField] private Button m_alignPreviousButton;
+        [SerializeField] private Button m_alignNextButton;
 
-    // ---------[ INITIALIZATION ]---------
-    protected virtual void OnEnable()
-    {
-        m_rectTransform = this.GetComponent<RectTransform>();
+        private RectTransform m_rectTransform;
+        private bool m_isButtonUpdateRequired;
 
-        if(m_alignPreviousButton != null)
+        // --- ACCESSORS ---
+        private IEnumerable<JumpScrollAnchor> GetAnchors()
         {
-            m_alignPreviousButton.onClick.AddListener(AlignToPreviousAnchor);
-        }
-        if(m_alignNextButton != null)
-        {
-            m_alignNextButton.onClick.AddListener(AlignToNextAnchor);
+            return m_rectTransform.GetComponentsInChildren<JumpScrollAnchor>();
         }
 
-        ResetAlignment();
-        m_isButtonUpdateRequired = true;
-    }
-
-    protected virtual void OnDisable()
-    {
-        if(m_alignPreviousButton != null)
+        // ---------[ INITIALIZATION ]---------
+        protected virtual void OnEnable()
         {
-            m_alignPreviousButton.onClick.RemoveListener(AlignToPreviousAnchor);
+            m_rectTransform = this.GetComponent<RectTransform>();
+
+            if(m_alignPreviousButton != null)
+            {
+                m_alignPreviousButton.onClick.AddListener(AlignToPreviousAnchor);
+            }
+            if(m_alignNextButton != null)
+            {
+                m_alignNextButton.onClick.AddListener(AlignToNextAnchor);
+            }
+
+            ResetAlignment();
+            m_isButtonUpdateRequired = true;
         }
-        if(m_alignNextButton != null)
+
+        protected virtual void OnDisable()
         {
-            m_alignNextButton.onClick.RemoveListener(AlignToNextAnchor);
+            if(m_alignPreviousButton != null)
+            {
+                m_alignPreviousButton.onClick.RemoveListener(AlignToPreviousAnchor);
+            }
+            if(m_alignNextButton != null)
+            {
+                m_alignNextButton.onClick.RemoveListener(AlignToNextAnchor);
+            }
         }
-    }
 
-    // ---------[ UPDATES ]---------
-    public void UpdateButtonState()
-    {
-        m_isButtonUpdateRequired = true;
-    }
-
-    protected virtual void Update()
-    {
-        if(m_isButtonUpdateRequired)
+        // ---------[ UPDATES ]---------
+        public void UpdateButtonState()
         {
-            StartCoroutine(LateUpdateButtonState());
-            m_isButtonUpdateRequired = false;
+            m_isButtonUpdateRequired = true;
         }
-    }
 
-    public System.Collections.IEnumerator LateUpdateButtonState()
-    {
-        yield return null;
+        protected virtual void Update()
+        {
+            if(m_isButtonUpdateRequired)
+            {
+                StartCoroutine(LateUpdateButtonState());
+                m_isButtonUpdateRequired = false;
+            }
+        }
 
-        UpdateButtonState_Internal(m_rectTransform, GetAnchors(),
-                                   m_alignPreviousButton, m_alignNextButton,
-                                   m_autoHideButtons);
-    }
+        public System.Collections.IEnumerator LateUpdateButtonState()
+        {
+            yield return null;
 
-    protected abstract void UpdateButtonState_Internal(RectTransform contentTransform,
-                                                       IEnumerable<JumpScrollAnchor> anchors,
-                                                       Button previousButton,
-                                                       Button nextButton,
-                                                       bool autoHide);
+            UpdateButtonState_Internal(m_rectTransform, GetAnchors(),
+                                       m_alignPreviousButton, m_alignNextButton,
+                                       m_autoHideButtons);
+        }
 
-    // ---------[ SCROLLING ]---------
-    public void ResetAlignment()
-    {
-        Rect rect = m_rectTransform.rect;
-        m_rectTransform.anchoredPosition = Vector2.zero;
-    }
+        protected abstract void UpdateButtonState_Internal(RectTransform contentTransform,
+                                                           IEnumerable<JumpScrollAnchor> anchors,
+                                                           Button previousButton,
+                                                           Button nextButton,
+                                                           bool autoHide);
 
-    public void AlignToNextAnchor()
-    {
-        m_rectTransform.anchoredPosition = GetNextAlignmentPosition(m_rectTransform, GetAnchors());
-        UpdateButtonState();
-    }
-    protected abstract Vector2 GetNextAlignmentPosition(RectTransform contentTransform,
-                                                        IEnumerable<JumpScrollAnchor> anchorList);
+        // ---------[ SCROLLING ]---------
+        public void ResetAlignment()
+        {
+            Rect rect = m_rectTransform.rect;
+            m_rectTransform.anchoredPosition = Vector2.zero;
+        }
 
-    public void AlignToPreviousAnchor()
-    {
-        m_rectTransform.anchoredPosition = GetPreviousAlignmentPosition(m_rectTransform, GetAnchors());
-        UpdateButtonState();
-    }
-    protected abstract Vector2 GetPreviousAlignmentPosition(RectTransform contentTransform,
+        public void AlignToNextAnchor()
+        {
+            m_rectTransform.anchoredPosition = GetNextAlignmentPosition(m_rectTransform, GetAnchors());
+            UpdateButtonState();
+        }
+        protected abstract Vector2 GetNextAlignmentPosition(RectTransform contentTransform,
                                                             IEnumerable<JumpScrollAnchor> anchorList);
 
-    // ---------[ UTILITY ]---------
-    public static Vector2 GetPivotPosition(RectTransform rt)
-    {
-        return new Vector2(rt.pivot.x * rt.rect.width, rt.pivot.y * rt.rect.height);
-    }
+        public void AlignToPreviousAnchor()
+        {
+            m_rectTransform.anchoredPosition = GetPreviousAlignmentPosition(m_rectTransform, GetAnchors());
+            UpdateButtonState();
+        }
+        protected abstract Vector2 GetPreviousAlignmentPosition(RectTransform contentTransform,
+                                                                IEnumerable<JumpScrollAnchor> anchorList);
 
-    public static Vector2 GetAnchorMinPosition(RectTransform rt)
-    {
-        RectTransform parent = rt.parent as RectTransform;
-        return new Vector2(rt.anchorMin.x * parent.rect.width, rt.anchorMin.y * parent.rect.height);
+        // ---------[ UTILITY ]---------
+        public static Vector2 GetPivotPosition(RectTransform rt)
+        {
+            return new Vector2(rt.pivot.x * rt.rect.width, rt.pivot.y * rt.rect.height);
+        }
+
+        public static Vector2 GetAnchorMinPosition(RectTransform rt)
+        {
+            RectTransform parent = rt.parent as RectTransform;
+            return new Vector2(rt.anchorMin.x * parent.rect.width, rt.anchorMin.y * parent.rect.height);
+        }
     }
 }

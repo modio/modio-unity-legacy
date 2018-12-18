@@ -1,25 +1,28 @@
 using UnityEngine;
 
-[RequireComponent(typeof(RectTransform))]
-public class JumpScrollAnchor : MonoBehaviour
+namespace ModIO.UI
 {
-    private void OnEnable()
+    [RequireComponent(typeof(RectTransform))]
+    public class JumpScrollAnchor : MonoBehaviour
     {
-        UpdateParentButtons();
-    }
-
-    private void OnDisable()
-    {
-        UpdateParentButtons();
-    }
-
-    private void UpdateParentButtons()
-    {
-        var scrollRectParents = this.GetComponentsInParent<JumpScrollRect>();
-
-        foreach(JumpScrollRect scrollRect in scrollRectParents)
+        private void OnEnable()
         {
-            scrollRect.UpdateButtonState();
+            UpdateParentButtons();
+        }
+
+        private void OnDisable()
+        {
+            UpdateParentButtons();
+        }
+
+        private void UpdateParentButtons()
+        {
+            var scrollRectParents = this.GetComponentsInParent<JumpScrollRect>();
+
+            foreach(JumpScrollRect scrollRect in scrollRectParents)
+            {
+                scrollRect.UpdateButtonState();
+            }
         }
     }
 }
