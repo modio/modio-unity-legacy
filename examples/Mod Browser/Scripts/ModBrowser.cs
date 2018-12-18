@@ -90,8 +90,8 @@ namespace ModIO.UI
             SubscriptionSortOption.Create("ENABLED",   (a,b) =>
                                                         {
                                                             int diff = 0;
-                                                            diff += (IsModEnabled(a) ? -1 : 0);
-                                                            diff += (IsModEnabled(b) ? 1 : 0);
+                                                            diff += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
+                                                            diff += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
 
                                                             if(diff == 0)
                                                             {
@@ -305,8 +305,8 @@ namespace ModIO.UI
             subscriptionsView.inspectRequested += InspectSubscriptionItem;
             subscriptionsView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
             subscriptionsView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);
-            subscriptionsView.enableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
-            subscriptionsView.disableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
+            subscriptionsView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
+            subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             // - setup ui filter controls -
             // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
@@ -370,8 +370,8 @@ namespace ModIO.UI
             explorerView.inspectRequested += InspectDiscoverItem;
             explorerView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
             explorerView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);
-            explorerView.enableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
-            explorerView.disableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
+            explorerView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
+            explorerView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             // - setup ui filter controls -
             // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
@@ -1332,32 +1332,29 @@ namespace ModIO.UI
             }
         }
 
-        private static List<int> enabledMods = new List<int>();
-        public static bool IsModEnabled(ModProfile profile)
+        public static void EnableMod(int modId)
         {
-            Debug.LogError("[mod.io] This function handle is a placeholder "
-                           + "for the enable/disable functionality that the "
-                           + "game code may need to execute.");
-
-            return enabledMods.Contains(profile.id);
-        }
-
-        public static void ToggleModEnabled(int modId)
-        {
-            Debug.LogError("[mod.io] This function handle is a placeholder "
-                           + "for the enable/disable functionality that the "
-                           + "game code may need to execute.");
-
-            if(enabledMods.Contains(modId))
+            IList<int> mods = ModManager.GetEnabledModIds();
+            if(!mods.Contains(modId))
             {
-                enabledMods.Remove(modId);
-            }
-            else
-            {
-                enabledMods.Add(modId);
+                mods.Add(modId);
+                ModManager.SetEnabledModIds(mods);
+
+                // TODO(@jackson): Fire event
             }
         }
 
+        public static void DisableMod(int modId)
+        {
+            IList<int> mods = ModManager.GetEnabledModIds();
+            if(mods.Contains(modId))
+            {
+                mods.Remove(modId);
+                ModManager.SetEnabledModIds(mods);
+
+                // TODO(@jackson): Fire event
+            }
+        }
 
         // ---------[ EVENT HANDLING ]---------
         private void OnUserDisplayClicked(UserView view)
