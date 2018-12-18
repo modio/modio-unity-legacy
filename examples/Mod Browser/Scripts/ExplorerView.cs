@@ -41,7 +41,6 @@ namespace ModIO.UI
         public Text resultCountText;
 
         [Header("Display Data")]
-        public List<int> subscribedModIds = null;
         public RequestPage<ModProfile> currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
         public List<string> filterTags = new List<string>();
@@ -343,6 +342,8 @@ namespace ModIO.UI
 
         public void UpdateSubscriptionsDisplay()
         {
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
             if(currentPageContainer != null)
             {
                 foreach(Transform itemTransform in currentPageContainer)
@@ -382,6 +383,7 @@ namespace ModIO.UI
             #endif
 
             int i = 0;
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
             if(page != null
                && page.items != null)

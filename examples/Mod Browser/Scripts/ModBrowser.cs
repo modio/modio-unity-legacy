@@ -373,8 +373,6 @@ namespace ModIO.UI
             explorerView.enableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
             explorerView.disableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
 
-            explorerView.subscribedModIds = null;
-
             // - setup ui filter controls -
             // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
             if(explorerView.nameSearchField != null)
@@ -1311,7 +1309,6 @@ namespace ModIO.UI
         private void UpdateViewSubscriptions()
         {
             // - explorerView -
-            explorerView.subscribedModIds = null;
             explorerView.UpdateSubscriptionsDisplay();
 
             // - subscriptionsView -
