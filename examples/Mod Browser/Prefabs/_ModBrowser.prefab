@@ -240,6 +240,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224663419234642436}
+  - component: {fileID: 114617709701451426}
   - component: {fileID: 222356834642859196}
   - component: {fileID: 114489184015494542}
   m_Layer: 5
@@ -1056,7 +1057,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224694753977040656}
-  - component: {fileID: 114572881179706572}
+  - component: {fileID: 114455806020217486}
   - component: {fileID: 114051552194629280}
   - component: {fileID: 222888436981145142}
   - component: {fileID: 114411584983241340}
@@ -3949,7 +3950,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114572881179706572}
+      - m_Target: {fileID: 114455806020217486}
         m_MethodName: NotifyClicked
         m_Mode: 1
         m_Arguments:
@@ -7175,17 +7176,23 @@ MonoBehaviour:
   gameAPIKey: 
   isAutomaticUpdateEnabled: 0
   guestData:
-    userId: -1
-    nameId: 
-    username: Guest
-    lastOnline: 0
-    timezone: 
-    language: 
-    profileURL: 
+    profile:
+      userId: -1
+      nameId: 
+      username: Sync Collection
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    avatar:
+      ownerId: -1
+      mediaType: 3
+      imageId: guest_avatar
+      texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
   explorerView: {fileID: 114195835507779204}
   subscriptionsView: {fileID: 114130614508925794}
   inspectorView: {fileID: 114309666271251828}
-  userDisplay: {fileID: 114572881179706572}
+  loggedUserView: {fileID: 114455806020217486}
   loginDialog: {fileID: 114863113973899486}
   messageDialog: {fileID: 114823163344274638}
   prevPageButton: {fileID: 114317366544080676}
@@ -7425,6 +7432,33 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Rating:'
+--- !u!114 &114455806020217486
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1273654999804132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 572c59d83094f40cc8482602e74c95c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileDisplay: {fileID: 114617709701451426}
+  avatarDisplay: {fileID: 114954870979911490}
+  m_data:
+    profile:
+      userId: 0
+      nameId: 
+      username: Sync Mod Collection
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    avatar:
+      ownerId: 0
+      mediaType: 0
+      imageId: 
+      texture: {fileID: 0}
 --- !u!114 &114456676208425672
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7730,7 +7764,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Guest
+  m_Text: Sync Mod Collection
 --- !u!114 &114489679429652408
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -8384,32 +8418,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &114572881179706572
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1273654999804132}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  userIdDisplay: {fileID: 0}
-  nameIdDisplay: {fileID: 0}
-  usernameDisplay: {fileID: 114489184015494542}
-  lastOnlineDisplay: {fileID: 0}
-  timezoneDisplay: {fileID: 0}
-  languageDisplay: {fileID: 0}
-  profileURLDisplay: {fileID: 0}
-  m_data:
-    userId: 0
-    nameId: 
-    username: Guest
-    lastOnline: 0
-    timezone: 
-    language: 
-    profileURL: 
 --- !u!114 &114578234792986726
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -8747,6 +8755,32 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Sort By:'
+--- !u!114 &114617709701451426
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1077267385911614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6984b9351a59413b9faea1fb759d5f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  userIdDisplay: {fileID: 0}
+  nameIdDisplay: {fileID: 0}
+  usernameDisplay: {fileID: 114489184015494542}
+  lastOnlineDisplay: {fileID: 0}
+  timezoneDisplay: {fileID: 0}
+  languageDisplay: {fileID: 0}
+  profileURLDisplay: {fileID: 0}
+  m_data:
+    userId: 0
+    nameId: 
+    username: Sync Mod Collection
+    lastOnline: 0
+    timezone: 
+    language: 
+    profileURL: 
 --- !u!114 &114619520220957988
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11168,7 +11202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_avatarSize: 0
-  image: {fileID: 0}
+  image: {fileID: 114528342675249982}
   loadingOverlay: {fileID: 1625314398786034}
   m_data:
     ownerId: 0

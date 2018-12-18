@@ -107,17 +107,27 @@ namespace ModIO.UI
         public int gameId = 0;
         public string gameAPIKey = string.Empty;
         public bool isAutomaticUpdateEnabled = false;
-        public UserProfileDisplayData guestData = new UserProfileDisplayData()
+        public UserDisplayData guestData = new UserDisplayData()
         {
-            userId = -1,
-            username = "Guest",
+            profile = new UserProfileDisplayData()
+            {
+                userId = -1,
+                username = "Guest",
+            },
+            avatar = new ImageDisplayData()
+            {
+                userId = -1,
+                imageId = "guest_avatar",
+                mediaType = ImageDisplayData.MediaType.UserAvatar,
+                texture = null,
+            },
         };
 
         [Header("UI Components")]
         public ExplorerView explorerView;
         public SubscriptionsView subscriptionsView;
         public InspectorView inspectorView;
-        public UserProfileDisplayComponent userDisplay;
+        public UserView loggedUserView;
         public LoginDialog loginDialog;
         public MessageDialog messageDialog;
         public Button prevPageButton;
@@ -477,20 +487,20 @@ namespace ModIO.UI
 
         private void InitializeDisplays()
         {
-            if(userDisplay != null)
+            if(loggedUserView != null)
             {
-                userDisplay.Initialize();
+                loggedUserView.Initialize();
 
                 if(userProfile == null)
                 {
-                    userDisplay.data = guestData;
+                    loggedUserView.data = guestData;
                 }
                 else
                 {
-                    userDisplay.DisplayProfile(userProfile);
+                    loggedUserView.DisplayUser(userProfile);
                 }
 
-                userDisplay.onClick += OnUserDisplayClicked;
+                loggedUserView.onClick += OnUserDisplayClicked;
             }
         }
 
@@ -513,9 +523,9 @@ namespace ModIO.UI
                 {
                     this.userProfile = u;
 
-                    if(this.userDisplay != null)
+                    if(this.loggedUserView != null)
                     {
-                        this.userDisplay.DisplayProfile(u);
+                        this.loggedUserView.DisplayUser(u);
                     }
                 };
 
@@ -715,9 +725,9 @@ namespace ModIO.UI
 
             CacheClient.SaveAuthenticatedUserProfile(requestProfile);
             this.userProfile = requestProfile;
-            if(this.userDisplay != null)
+            if(this.loggedUserView != null)
             {
-                userDisplay.DisplayProfile(this.userProfile);
+                loggedUserView.DisplayUser(this.userProfile);
             }
 
 
@@ -825,9 +835,9 @@ namespace ModIO.UI
             CacheClient.SaveAuthenticatedUserSubscriptions(this.subscribedModIds);
 
             this.userProfile = null;
-            if(this.userDisplay != null)
+            if(this.loggedUserView != null)
             {
-                this.userDisplay.data = guestData;
+                this.loggedUserView.data = guestData;
             }
 
             this.subscribedModIds = new List<int>(0);
@@ -1378,7 +1388,7 @@ namespace ModIO.UI
 
 
         // ---------[ EVENT HANDLING ]---------
-        private void OnUserDisplayClicked(UserProfileDisplayComponent display)
+        private void OnUserDisplayClicked(UserView view)
         {
             OpenLoginDialog();
         }
