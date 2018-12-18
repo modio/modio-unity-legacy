@@ -711,7 +711,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 16352.1MB
+  m_Text: 0B
 --- !u!114 &114108184748084736
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1556,7 +1556,7 @@ MonoBehaviour:
     modId: 0
     dateAdded: 0
     fileName: 
-    fileSize: 16777216
+    fileSize: 0
     MD5: 
     version: 
     changelog: 

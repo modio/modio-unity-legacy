@@ -119,6 +119,11 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
+            CollectDelegates();
+        }
+
+        private void CollectDelegates()
+        {
             m_getDelegates.Clear();
             m_setDelegates.Clear();
             m_displayDelegates.Clear();
@@ -538,6 +543,11 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
+            if(!Application.isPlaying)
+            {
+                CollectDelegates();
+            }
+
             SetData(m_data);
         }
         #endif
