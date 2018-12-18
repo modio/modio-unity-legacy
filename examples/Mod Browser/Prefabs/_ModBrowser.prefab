@@ -7458,7 +7458,7 @@ MonoBehaviour:
       ownerId: 0
       mediaType: 0
       imageId: 
-      texture: {fileID: 0}
+      texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
 --- !u!114 &114456676208425672
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11208,7 +11208,7 @@ MonoBehaviour:
     ownerId: 0
     mediaType: 0
     imageId: 
-    texture: {fileID: 0}
+    texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
 --- !u!114 &114962828148981196
 MonoBehaviour:
   m_ObjectHideFlags: 1
