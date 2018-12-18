@@ -265,7 +265,6 @@ namespace ModIO
             public string oAuthToken;
             public int userId;
             public List<int> modIds;
-            public List<int> subscribedModIds;
         }
 
         /// <summary>File path for the authenticated user data.</summary>
@@ -342,36 +341,26 @@ namespace ModIO
         }
 
         /// <summary>Stores the authenticated user's mod subscriptions in the cache.</summary>
+        [Obsolete("Use ModManager.SetSubscribedModIds() instead.")]
         public static bool SaveAuthenticatedUserSubscriptions(List<int> subscribedModIds)
         {
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
-
-            if(au == null)
-            {
-                au = new AuthenticatedUser();
-            }
-
-            au.subscribedModIds = subscribedModIds;
-
-            return CacheClient.WriteJsonObjectFile(userFilePath, au);
+            ModManager.SetSubscribedModIds(subscribedModIds);
+            return true;
         }
 
-        /// <summary>Retrieves the authenticated user's mod subscriptions from the cache.</summary>
+        /// <summary>[Obsolete] Retrieves the authenticated user's mod subscriptions from the cache.</summary>
+        [Obsolete("Use ModManager.GetSubscribedModIds() instead.")]
         public static List<int> LoadAuthenticatedUserSubscriptions()
         {
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
-
-            if(au != null)
-            {
-                return au.subscribedModIds;
-            }
-            return null;
+            return new List<int>(ModManager.GetSubscribedModIds());
         }
 
-        /// <summary>Clears the authenticated user's mod subscriptions from the cache.</summary>
+        /// <summary>[Obsolete] Clears the authenticated user's mod subscriptions from the cache.</summary>
+        [Obsolete("Use ModManager.SetSubscribedModIds(null) instead.")]
         public static bool ClearAuthenticatedUserSubscriptions()
         {
-            return CacheClient.SaveAuthenticatedUserSubscriptions(null);
+            ModManager.SetSubscribedModIds(null);
+            return true;
         }
 
         /// <summary>Stores the authenticated user's mods in the cache.</summary>

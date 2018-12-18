@@ -15,6 +15,50 @@ namespace ModIO
     public static class ModManager
     {
         // ---------[ AUTHENTICATED USER ]---------
+        public const string PLAYERPREFKEY_USERTOKEN         = "modio_userToken";
+        public const string PLAYERPREFKEY_USERID            = "modio_userId";
+        public const string PLAYERPREFKEY_SUBCRIBEDMODIDS   = "modio_subcribedModIds";
+        public const string PLAYERPREFKEY_ENABLEDMODIDS     = "modio_enabledModIds";
+
+        public static IEnumerable<int> EnumerateModIdString(string modIdArrayString)
+        {
+            if(!String.IsNullOrEmpty(modIdArrayString))
+            {
+                string[] stringArray = modIdArrayString.Split(':');
+
+                foreach(string modIdString in stringArray)
+                {
+                    int modId = -1;
+                    if(Int32.TryParse(modIdString, out modId))
+                    {
+                        yield return modId;
+                    }
+                }
+            }
+        }
+
+        public static string CreateModIdArrayString(IEnumerable<int> modIds)
+        {
+            // early out
+            if(modIds == null) { return string.Empty; }
+
+            // create
+            var sb = new System.Text.StringBuilder();
+
+            foreach(int id in modIds)
+            {
+                sb.Append(id.ToString() + ":");
+            }
+
+            // trim final ":"
+            if(sb.Length > 0)
+            {
+                sb.Length -= 1;
+            }
+
+            return sb.ToString();
+        }
+
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
@@ -73,6 +117,30 @@ namespace ModIO
                                                                onGetMods,
                                                                onError);
             }
+        }
+
+        public static IList<int> GetSubscribedModIds()
+        {
+            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_SUBCRIBEDMODIDS,
+                                                       string.Empty);
+            return new List<int>(EnumerateModIdString(valueString));
+        }
+        public static void SetSubscribedModIds(IEnumerable<int> modIds)
+        {
+            string valueString = CreateModIdArrayString(modIds);
+            PlayerPrefs.SetString(PLAYERPREFKEY_SUBCRIBEDMODIDS, valueString);
+        }
+
+        public static IList<int> GetEnabledModIds()
+        {
+            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_ENABLEDMODIDS,
+                                                       string.Empty);
+            return new List<int>(EnumerateModIdString(valueString));
+        }
+        public static void SetEnabledModIds(IEnumerable<int> modIds)
+        {
+            string valueString = CreateModIdArrayString(modIds);
+            PlayerPrefs.SetString(PLAYERPREFKEY_ENABLEDMODIDS, valueString);
         }
 
         // ---------[ GAME PROFILE ]---------
@@ -496,12 +564,11 @@ namespace ModIO
                 }
             }
 
-            List<int> subscriptions = CacheClient.LoadAuthenticatedUserSubscriptions();
-
+            List<int> subscriptions = new List<int>(ModManager.GetSubscribedModIds());
             subscriptions.RemoveAll(s => subscriptionsRemoved.Contains(s));
             subscriptions.AddRange(subscriptionsAdded);
 
-            CacheClient.SaveAuthenticatedUserSubscriptions(subscriptions);
+            ModManager.SetSubscribedModIds(subscriptions);
         }
 
         // ---------[ MOD STATS ]---------
