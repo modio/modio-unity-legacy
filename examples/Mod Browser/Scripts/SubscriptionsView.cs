@@ -132,6 +132,7 @@ namespace ModIO.UI
             #endif
 
             int i = 0;
+            var enabledMods = ModManager.GetEnabledModIds();
 
             if(page != null
                && page.items != null)
@@ -152,7 +153,7 @@ namespace ModIO.UI
                                         null,
                                         tagCategories,
                                         true, // assume subscribed
-                                        false); // TODO(@jackson): enabled?
+                                        enabledMods.Contains(profile.id));
 
                         ModManager.GetModStatistics(profile.id,
                                                     (s) =>

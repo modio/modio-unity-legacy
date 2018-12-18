@@ -39,6 +39,7 @@ namespace ModIO.UI
         public ModProfile profile;
         public ModStatistics statistics;
         public bool isModSubscribed;
+        public bool isModEnabled;
 
         // ---[ TEMP DATA ]---
         [Header("Temp Data")]
@@ -102,13 +103,11 @@ namespace ModIO.UI
 
             if(modView != null)
             {
-                Debug.LogWarning("isenabled needed");
-
                 modView.DisplayMod(profile,
                                    statistics,
                                    tagCategories,
                                    isModSubscribed,
-                                   false);
+                                   isModEnabled);
             }
 
             if(selectedMediaPreview != null)
@@ -148,13 +147,11 @@ namespace ModIO.UI
 
             if(modView != null)
             {
-                Debug.LogWarning("isenabled needed");
-
                 modView.DisplayMod(profile,
                                    statistics,
                                    tagCategories,
                                    isModSubscribed,
-                                   false);
+                                   isModEnabled);
             }
         }
         public void UpdateIsSubscribedDisplay()
