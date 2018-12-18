@@ -48,7 +48,8 @@ namespace ModIO.UI
             StringBuilder builder = new StringBuilder();
             foreach(ModTagDisplayData tag in displayData)
             {
-                if(!System.String.IsNullOrEmpty(tag.categoryName))
+                if(includeCategory
+                   && !System.String.IsNullOrEmpty(tag.categoryName))
                 {
                     builder.Append(tag.categoryName + ": ");
                 }

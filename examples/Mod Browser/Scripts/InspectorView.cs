@@ -43,6 +43,7 @@ namespace ModIO.UI
         // ---[ TEMP DATA ]---
         [Header("Temp Data")]
         public float mediaElementHeight;
+        public IEnumerable<ModTagCategory> tagCategories { get; set; }
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
@@ -101,11 +102,11 @@ namespace ModIO.UI
 
             if(modView != null)
             {
-                Debug.LogWarning("categories needed");
+                Debug.LogWarning("isenabled needed");
 
                 modView.DisplayMod(profile,
                                    statistics,
-                                   null,
+                                   tagCategories,
                                    isModSubscribed,
                                    false);
             }
@@ -147,11 +148,11 @@ namespace ModIO.UI
 
             if(modView != null)
             {
-                Debug.LogWarning("categories needed");
+                Debug.LogWarning("isenabled needed");
 
                 modView.DisplayMod(profile,
                                    statistics,
-                                   null,
+                                   tagCategories,
                                    isModSubscribed,
                                    false);
             }

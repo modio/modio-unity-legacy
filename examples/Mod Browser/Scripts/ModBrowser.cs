@@ -512,6 +512,8 @@ namespace ModIO.UI
             {
                 gameProfile = g;
                 explorerView.tagCategories = g.tagCategories;
+                subscriptionsView.tagCategories = g.tagCategories;
+                inspectorView.tagCategories = g.tagCategories;
             },
             WebRequestError.LogAsWarning);
 

@@ -32,6 +32,8 @@ namespace ModIO.UI
         [Header("Runtime Data")]
         public RectTransform currentPageContainer;
 
+        // --- TEMP ---
+        public IEnumerable<ModTagCategory> tagCategories { get; set; }
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
@@ -127,7 +129,6 @@ namespace ModIO.UI
         {
             #if DEBUG
             if(!Application.isPlaying) { return; }
-            Debug.LogWarning("needs categories");
             #endif
 
             int i = 0;
@@ -149,7 +150,7 @@ namespace ModIO.UI
                     {
                         view.DisplayMod(profile,
                                         null,
-                                        null,
+                                        tagCategories,
                                         true, // assume subscribed
                                         false); // TODO(@jackson): enabled?
 
@@ -173,64 +174,6 @@ namespace ModIO.UI
                 itemTransform.gameObject.SetActive(false);
             }
         }
-
-        // public void InspectProfile(ModProfile profile)
-        // {
-        //     if(_unsubscribeAction != null)
-        //     {
-        //         unsubscribeButton.onClick.RemoveListener(_unsubscribeAction);
-        //     }
-
-        //     _unsubscribeAction = () =>
-        //     {
-        //         if(onUnsubscribeClicked != null)
-        //         {
-        //             onUnsubscribeClicked(profile);
-        //         }
-        //     };
-        //     unsubscribeButton.onClick.AddListener(_unsubscribeAction);
-
-        //     itemInspector_modName.text = profile.name;
-
-        //     ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
-        //     if(request.isDone)
-        //     {
-        //         itemInspector_buttonContainer.gameObject.SetActive(true);
-        //         itemInspector_downloadContainer.gameObject.SetActive(false);
-        //     }
-        //     else
-        //     {
-        //         itemInspector_downloadContainer.gameObject.SetActive(true);
-        //         itemInspector_buttonContainer.gameObject.SetActive(false);
-
-        //         StartCoroutine(UpdateProgressBar(request));
-        //     }
-        // }
-
-        // public IEnumerator UpdateProgressBar(ModBinaryRequest request)
-        // {
-        //     itemInspector_downloadProgressBar.sizeDelta = new Vector2(0f, 0f);
-        //     itemInspector_downloadProgressText.text = "Initializing";
-
-        //     RectTransform progressBarParent = itemInspector_downloadProgressBar.parent.GetComponent<RectTransform>();
-        //     while(!request.isDone)
-        //     {
-        //         if(request.webRequest != null)
-        //         {
-        //             float percentComplete = request.webRequest.downloadProgress;
-
-        //             float barWidth = percentComplete * progressBarParent.rect.width;
-        //             itemInspector_downloadProgressBar.sizeDelta = new Vector2(barWidth, 0f);
-
-        //             itemInspector_downloadProgressText.text = (percentComplete * 100f).ToString("0.0") + "%";
-        //         }
-
-        //         yield return null;
-        //     }
-
-        //     itemInspector_buttonContainer.gameObject.SetActive(true);
-        //     itemInspector_downloadContainer.gameObject.SetActive(false);
-        // }
 
         // ---------[ EVENTS ]---------
         public void NotifyInspectRequested(ModView view)

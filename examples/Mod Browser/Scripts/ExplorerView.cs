@@ -379,7 +379,6 @@ namespace ModIO.UI
         {
             #if DEBUG
             if(!Application.isPlaying) { return; }
-            Debug.LogWarning("needs categories");
             #endif
 
             int i = 0;
@@ -401,7 +400,7 @@ namespace ModIO.UI
                     {
                         view.DisplayMod(profile,
                                         null,
-                                        null,
+                                        m_tagCategories,
                                         subscribedModIds.Contains(profile.id),
                                         false); // TODO(@jackson): enabled?
 
