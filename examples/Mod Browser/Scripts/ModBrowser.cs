@@ -135,7 +135,6 @@ namespace ModIO.UI
 
         [Header("Display Data")]
         public InspectorViewData inspectorData = new InspectorViewData();
-        public List<int> subscribedModIds = new List<int>();
 
         [Header("Runtime Data")]
         private UserProfile userProfile = null;
@@ -166,6 +165,7 @@ namespace ModIO.UI
                                              Action<WebRequestError> onError)
         {
             int offset = pageIndex * subscriptionsView.TEMP_pageSize;
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
             {
@@ -275,11 +275,6 @@ namespace ModIO.UI
 
             // --- UserData ---
             this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
-            this.subscribedModIds = CacheClient.LoadAuthenticatedUserSubscriptions();
-            if(this.subscribedModIds == null)
-            {
-                this.subscribedModIds = new List<int>();
-            }
 
             // --- GameData ---
             this.gameProfile = CacheClient.LoadGameProfile();
@@ -378,7 +373,7 @@ namespace ModIO.UI
             explorerView.enableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
             explorerView.disableModRequested += (v) => ToggleModEnabled(v.data.profile.modId);
 
-            explorerView.subscribedModIds = this.subscribedModIds;
+            explorerView.subscribedModIds = null;
 
             // - setup ui filter controls -
             // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
@@ -534,11 +529,13 @@ namespace ModIO.UI
                 // TODO(@jackson): DO BETTER - (CACHE?! DOWNLOADS?)
                 Action<RequestPage<ModProfile>> onGetSubscriptions = (r) =>
                 {
-                    this.subscribedModIds = new List<int>(r.items.Length);
+                    List<int> subscribedModIds = new List<int>(r.items.Length);
                     foreach(var modProfile in r.items)
                     {
-                        this.subscribedModIds.Add(modProfile.id);
+                        subscribedModIds.Add(modProfile.id);
                     }
+                    ModManager.SetSubscribedModIds(subscribedModIds);
+
                     UpdateViewSubscriptions();
                 };
 
@@ -688,14 +685,13 @@ namespace ModIO.UI
             // NOTE(@jackson): Could be much improved by not deleting matching mod subscription files
             if(clearExistingSubscriptions)
             {
-                foreach(int modId in subscribedModIds)
+                foreach(int modId in ModManager.GetSubscribedModIds())
                 {
                     // remove from disk
                     CacheClient.DeleteAllModfileAndBinaryData(modId);
                 }
-                CacheClient.ClearAuthenticatedUserSubscriptions();
+                ModManager.SetSubscribedModIds(null);
 
-                subscribedModIds = new List<int>(0);
                 subscriptionsView.currentPage = new RequestPage<ModProfile>()
                 {
                     size = subscriptionsView.TEMP_pageSize,
@@ -706,11 +702,9 @@ namespace ModIO.UI
                 subscriptionsView.UpdateCurrentPageDisplay();
             }
 
-
             // - set APIClient and CacheClient vars -
             APIClient.userAuthorizationToken = oAuthToken;
             CacheClient.SaveAuthenticatedUserToken(oAuthToken);
-
 
             // - get the user profile -
             UserProfile requestProfile = null;
@@ -732,9 +726,9 @@ namespace ModIO.UI
                 loggedUserView.DisplayUser(this.userProfile);
             }
 
-
             // - get server subscriptions -
-            List<int> subscriptionsToPush = new List<int>(subscribedModIds);
+            List<int> remoteSubscriptions = new List<int>();
+            IList<int> subscriptionsToPush = ModManager.GetSubscribedModIds();
             bool allPagesReceived = false;
 
             RequestFilter subscriptionFilter = new RequestFilter();
@@ -773,9 +767,9 @@ namespace ModIO.UI
 
                 foreach(ModProfile profile in requestPage.items)
                 {
-                    if(!subscribedModIds.Contains(profile.id))
+                    if(!subscriptionsToPush.Contains(profile.id))
                     {
-                        subscribedModIds.Add(profile.id);
+                        remoteSubscriptions.Add(profile.id);
 
                         // begin download
                         ModBinaryRequest binaryRequest = ModManager.RequestCurrentRelease(profile);
@@ -809,9 +803,6 @@ namespace ModIO.UI
                 }
             }
 
-            CacheClient.SaveAuthenticatedUserSubscriptions(subscribedModIds);
-
-
             // - push missing subscriptions -
             foreach(int modId in subscriptionsToPush)
             {
@@ -820,6 +811,10 @@ namespace ModIO.UI
                                          (e) => Debug.Log("[mod.io] Mod subscription merge failed: " + modId + "\n"
                                                           + e.ToUnityDebugString()));
             }
+
+            List<int> subscribedModIds = new List<int>(ModManager.GetSubscribedModIds());
+            subscribedModIds.AddRange(remoteSubscriptions);
+            ModManager.SetSubscribedModIds(subscribedModIds);
         }
 
         public void LogUserOut()
@@ -828,22 +823,18 @@ namespace ModIO.UI
             APIClient.userAuthorizationToken = null;
             CacheClient.DeleteAuthenticatedUser();
 
-            foreach(int modId in this.subscribedModIds)
+            foreach(int modId in ModManager.GetSubscribedModIds())
             {
                 CacheClient.DeleteAllModfileAndBinaryData(modId);
             }
+            ModManager.SetSubscribedModIds(null);
 
             // - set up guest account -
-            CacheClient.SaveAuthenticatedUserSubscriptions(this.subscribedModIds);
-
             this.userProfile = null;
             if(this.loggedUserView != null)
             {
                 this.loggedUserView.data = guestData;
             }
-
-            this.subscribedModIds = new List<int>(0);
-
 
             // - clear subscription view -
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -884,8 +875,7 @@ namespace ModIO.UI
             int newModIndex = inspectorData.currentModIndex + direction;
             int offsetIndex = newModIndex - firstExplorerIndex;
 
-            // Debug.Assert(newModIndex >= 0);
-            // Debug.Assert(newModIndex <= inspectorData.lastModIndex);
+            ModProfile profile;
 
             // profile
             if(offsetIndex < 0)
@@ -893,42 +883,21 @@ namespace ModIO.UI
                 ChangeExplorerPage(-1);
 
                 offsetIndex += explorerView.ItemCount;
-                inspectorView.profile = explorerView.targetPage.items[offsetIndex];
+                profile = explorerView.targetPage.items[offsetIndex];
             }
             else if(offsetIndex >= explorerView.ItemCount)
             {
                 ChangeExplorerPage(1);
 
                 offsetIndex -= explorerView.ItemCount;
-                inspectorView.profile = explorerView.targetPage.items[offsetIndex];
+                profile = explorerView.targetPage.items[offsetIndex];
             }
             else
             {
-                inspectorView.profile = explorerView.currentPage.items[offsetIndex];
+                profile = explorerView.currentPage.items[offsetIndex];
             }
 
-            inspectorView.UpdateProfileDisplay();
-
-            // statistics
-            inspectorView.statistics = null;
-            ModManager.GetModStatistics(inspectorView.profile.id,
-                                        (s) =>
-                                        {
-                                            inspectorView.statistics = s;
-                                            inspectorView.UpdateStatisticsDisplay();
-                                        },
-                                        WebRequestError.LogAsWarning);
-
-            // subscription
-            inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
-            inspectorView.UpdateIsSubscribedDisplay();
-
-            // inspectorView stuff
-            inspectorData.currentModIndex = newModIndex;
-
-            if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
-
-            UpdateInspectorViewPageButtonInteractibility();
+            SetInspectorViewProfile(profile);
         }
 
         public void SetInspectorViewProfile(ModProfile profile)
@@ -948,13 +917,15 @@ namespace ModIO.UI
                                         WebRequestError.LogAsWarning);
 
             // subscription
-            inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
+            inspectorView.isModSubscribed = ModManager.GetSubscribedModIds().Contains(inspectorView.profile.id);
             inspectorView.UpdateIsSubscribedDisplay();
 
             // inspectorView stuff
             inspectorData.currentModIndex = -1;
 
             if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
+
+            UpdateInspectorViewPageButtonInteractibility();
         }
 
         public void ChangeExplorerPage(int direction)
@@ -1269,8 +1240,9 @@ namespace ModIO.UI
             Debug.Assert(profile != null);
 
             // update collection
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
             subscribedModIds.Add(profile.id);
-            CacheClient.SaveAuthenticatedUserSubscriptions(subscribedModIds);
+            ModManager.SetSubscribedModIds(subscribedModIds);
 
             // begin download
             ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
@@ -1326,8 +1298,9 @@ namespace ModIO.UI
             Debug.Assert(modProfile != null);
 
             // update collection
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
             subscribedModIds.Remove(modProfile.id);
-            CacheClient.SaveAuthenticatedUserSubscriptions(subscribedModIds);
+            ModManager.SetSubscribedModIds(subscribedModIds);
 
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modProfile.id);
@@ -1338,7 +1311,7 @@ namespace ModIO.UI
         private void UpdateViewSubscriptions()
         {
             // - explorerView -
-            explorerView.subscribedModIds = this.subscribedModIds;
+            explorerView.subscribedModIds = null;
             explorerView.UpdateSubscriptionsDisplay();
 
             // - subscriptionsView -
@@ -1357,7 +1330,7 @@ namespace ModIO.UI
             // - inspectorView -
             if(inspectorView.profile != null)
             {
-                inspectorView.isModSubscribed = this.subscribedModIds.Contains(inspectorView.profile.id);
+                inspectorView.isModSubscribed = ModManager.GetSubscribedModIds().Contains(inspectorView.profile.id);
                 inspectorView.UpdateIsSubscribedDisplay();
             }
         }
