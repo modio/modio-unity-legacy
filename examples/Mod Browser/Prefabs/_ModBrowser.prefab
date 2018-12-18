@@ -5230,7 +5230,6 @@ MonoBehaviour:
   pageNumberText: {fileID: 0}
   pageCountText: {fileID: 0}
   resultCountText: {fileID: 114423435185988604}
-  subscribedModIds: 
   filterTags: []
   isTransitioning: 0
   currentPageContainer: {fileID: 0}
@@ -7200,7 +7199,6 @@ MonoBehaviour:
   inspectorData:
     currentModIndex: 2
     lastModIndex: 0
-  subscribedModIds: 
 --- !u!114 &114434123071762936
 MonoBehaviour:
   m_ObjectHideFlags: 1
