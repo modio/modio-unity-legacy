@@ -1276,28 +1276,42 @@ namespace ModIO.UI
         // TODO(@jackson): THIS IS TERRIBLE, I LIKELY ALREADY HAVE THIS DATA!
         public void SubscribeToMod(int modId)
         {
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
+            // early out
+            if(subscribedModIds.Contains(modId)) { return; }
+
+            // update collection
+            subscribedModIds.Add(modId);
+            ModManager.SetSubscribedModIds(subscribedModIds);
+
+            // sub
+            Action<WebRequestError> onSubscribeFailed = (e) =>
+            {
+                WebRequestError.LogAsWarning(e);
+
+                IList<int> subMods = ModManager.GetSubscribedModIds();
+                subMods.Remove(modId);
+                ModManager.SetSubscribedModIds(subMods);
+            };
+
             if(this.userProfile == null)
             {
                 ModManager.GetModProfile(modId,
                                          OnSubscribedToMod,
-                                         WebRequestError.LogAsWarning);
+                                         onSubscribeFailed);
             }
             else
             {
                 APIClient.SubscribeToMod(modId,
                                          OnSubscribedToMod,
-                                         WebRequestError.LogAsWarning);
+                                         onSubscribeFailed);
             }
         }
 
         public void OnSubscribedToMod(ModProfile profile)
         {
             Debug.Assert(profile != null);
-
-            // update collection
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-            subscribedModIds.Add(profile.id);
-            ModManager.SetSubscribedModIds(subscribedModIds);
 
             // begin download
             ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
@@ -1329,36 +1343,41 @@ namespace ModIO.UI
 
         public void UnsubscribeFromMod(int modId)
         {
-            Action continueUnsubProcess = () =>
-            {
-                ModManager.GetModProfile(modId,
-                                         OnUnsubscribedFromMod,
-                                         WebRequestError.LogAsWarning);
-            };
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
+            // early out
+            if(!subscribedModIds.Contains(modId)) { return; }
+
+            // update collection
+            subscribedModIds.Remove(modId);
+            ModManager.SetSubscribedModIds(subscribedModIds);
+
+            // unsub
             if(this.userProfile == null)
             {
-                continueUnsubProcess();
+                OnUnsubscribedFromMod(modId);
             }
             else
             {
+                Action<WebRequestError> onSubscribeFailed = (e) =>
+                {
+                    WebRequestError.LogAsWarning(e);
+
+                    IList<int> subMods = ModManager.GetSubscribedModIds();
+                    subMods.Add(modId);
+                    ModManager.SetSubscribedModIds(subMods);
+                };
+
                 APIClient.UnsubscribeFromMod(modId,
-                                             continueUnsubProcess,
-                                             WebRequestError.LogAsWarning);
+                                             () => OnUnsubscribedFromMod(modId),
+                                             onSubscribeFailed);
             }
         }
 
-        public void OnUnsubscribedFromMod(ModProfile modProfile)
+        public void OnUnsubscribedFromMod(int modId)
         {
-            Debug.Assert(modProfile != null);
-
-            // update collection
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-            subscribedModIds.Remove(modProfile.id);
-            ModManager.SetSubscribedModIds(subscribedModIds);
-
             // remove from disk
-            CacheClient.DeleteAllModfileAndBinaryData(modProfile.id);
+            CacheClient.DeleteAllModfileAndBinaryData(modId);
 
             UpdateViewSubscriptions();
         }
