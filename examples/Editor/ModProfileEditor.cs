@@ -7,11 +7,11 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace ModIO
+namespace ModIO.Editor
 {
     // NOTE(@jackson): Could do with a beauty-pass
     [CustomEditor(typeof(ScriptableModProfile))]
-    public class ModProfileEditor : Editor
+    public class ModProfileEditor : UnityEditor.Editor
     {
         // ------[ NESTED CLASSES ]------
         protected class LoadingProfileViewPart : IModProfileViewPart

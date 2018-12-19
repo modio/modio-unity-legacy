@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
-namespace ModIO
+namespace ModIO.Editor
 {
     public class ModProfileInfoViewPart : IModProfileViewPart
     {

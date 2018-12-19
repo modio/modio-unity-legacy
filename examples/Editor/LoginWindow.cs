@@ -5,7 +5,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace ModIO
+namespace ModIO.Editor
 {
     public class LoginWindow : EditorWindow
     {

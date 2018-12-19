@@ -4,7 +4,7 @@ using UnityEditor;
 
 using UnityEngine;
 
-namespace ModIO
+namespace ModIO.Editor
 {
     [CreateAssetMenu(fileName = "New Mod Profile", menuName = "ModIO/Create Mod Profile")]
     public class ScriptableModProfile : ScriptableObject
