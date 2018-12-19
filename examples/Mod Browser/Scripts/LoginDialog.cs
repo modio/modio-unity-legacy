@@ -6,20 +6,37 @@ namespace ModIO.UI
 {
     public class LoginDialog : MonoBehaviour
     {
+        // ---------[ FIELDS ]---------
         public event Action<APIMessage> onSecurityCodeSent;
         public event Action<string> onUserOAuthTokenReceived;
+        public event Action<string> onInvalidSubmissionAttempted;
         public event Action<WebRequestError> onAPIRequestError;
 
+        [Serializable]
+        public struct InputStateDisplays
+        {
+            public GameObject invalid;
+            public GameObject email;
+            public GameObject securityCode;
+        }
+
         public InputField inputField;
-        public Button submitButton;
+        public InputStateDisplays displayForInputState;
+
+        // --------[ INITIALIZATION ]---------
+        public void Initialize()
+        {
+            inputField.text = string.Empty;
+            OnTextInputUpdated();
+        }
 
         private void Start()
         {
             inputField.onEndEdit.AddListener(val =>
             {
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
-                    OnSubmitButtonClicked();
+                    TrySubmitAuthentication();
                 }
             });
 
@@ -28,62 +45,46 @@ namespace ModIO.UI
             {
                 inputField.text = string.Empty;
                 inputField.interactable = true;
-
-                submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
             };
 
             this.onUserOAuthTokenReceived += (t) =>
             {
                 inputField.text = string.Empty;
                 inputField.interactable = true;
-
-                submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
-
-                Debug.Log("onUserOAuthTokenReceived");
             };
 
             this.onAPIRequestError += (e) =>
             {
                 inputField.interactable = true;
-                submitButton.interactable = true;
             };
         }
 
-        public void Initialize()
-        {
-            inputField.text = string.Empty;
-
-            submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
-            submitButton.interactable = false;
-        }
-
+        // ---------[ EVENTS ]---------
         public void OnTextInputUpdated()
         {
             string trimmedInput = inputField.text.Trim().Replace(" ", "");
+            bool isEmail = Utility.IsEmail(trimmedInput);
+            bool isCode = !isEmail && Utility.IsSecurityCode(trimmedInput);
 
-            if(Utility.IsEmail(trimmedInput))
+            if(displayForInputState.invalid != null)
             {
-                submitButton.GetComponentInChildren<Text>().text = "Request Security Code";
-                submitButton.interactable = true;
+                displayForInputState.invalid.SetActive(!isEmail && !isCode);
             }
-            else if(Utility.IsSecurityCode(trimmedInput))
+            if(displayForInputState.email != null)
             {
-                submitButton.GetComponentInChildren<Text>().text = "Authorize";
-                submitButton.interactable = true;
+                displayForInputState.email.SetActive(isEmail);
             }
-            else
+            if(displayForInputState.securityCode != null)
             {
-                submitButton.GetComponentInChildren<Text>().text = "Invalid Email/Security Code";
-                submitButton.interactable = false;
+                displayForInputState.securityCode.SetActive(isCode);
             }
         }
 
-        public void OnSubmitButtonClicked()
+        public void TrySubmitAuthentication()
         {
             string trimmedInput = inputField.text.Trim();
 
             inputField.interactable = false;
-            submitButton.interactable = false;
 
             if(Utility.IsEmail(trimmedInput))
             {
@@ -93,10 +94,18 @@ namespace ModIO.UI
             }
             else if(Utility.IsSecurityCode(trimmedInput))
             {
-
                 APIClient.GetOAuthToken(trimmedInput.ToUpper(),
                                         (s) => onUserOAuthTokenReceived(s),
                                         (e) => onAPIRequestError(e));
+            }
+            else
+            {
+                inputField.interactable = true;
+
+                if(onInvalidSubmissionAttempted != null)
+                {
+                    onInvalidSubmissionAttempted(trimmedInput);
+                }
             }
         }
     }
