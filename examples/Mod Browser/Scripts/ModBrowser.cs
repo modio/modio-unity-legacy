@@ -131,7 +131,9 @@ namespace ModIO.UI
         public InspectorView inspectorView;
         public UserView loggedUserView;
         public LoginDialog loginDialog;
-        public MessageDialog messageDialog;
+        public MessageDialog errorMessageDialog;
+        public MessageDialog successMessageDialog;
+        public MessageDialog infoMessageDialog;
         public Button prevPageButton;
         public Button nextPageButton;
 
@@ -469,7 +471,9 @@ namespace ModIO.UI
 
         private void InitializeDialogs()
         {
-            messageDialog.gameObject.SetActive(false);
+            errorMessageDialog.gameObject.SetActive(false);
+            successMessageDialog.gameObject.SetActive(false);
+            infoMessageDialog.gameObject.SetActive(false);
 
             loginDialog.gameObject.SetActive(false);
             loginDialog.onSecurityCodeSent += (m) =>
@@ -1102,46 +1106,67 @@ namespace ModIO.UI
         public void OpenMessageDialog_OneButton(string header, string content,
                                                 string buttonText, Action buttonCallback)
         {
-            messageDialog.button01.GetComponentInChildren<Text>().text = buttonText;
+            // messageDialog.button01.GetComponentInChildren<Text>().text = buttonText;
 
-            messageDialog.button01.onClick.RemoveAllListeners();
-            messageDialog.button01.onClick.AddListener(() => buttonCallback());
+            // messageDialog.button01.onClick.RemoveAllListeners();
+            // messageDialog.button01.onClick.AddListener(() => buttonCallback());
 
-            messageDialog.button02.gameObject.SetActive(false);
+            // messageDialog.button02.gameObject.SetActive(false);
 
-            OpenMessageDialog(header, content);
+            // OpenMessageDialog(header, content);
+
+            OpenMessageDialog_Info(content);
         }
 
         public void OpenMessageDialog_TwoButton(string header, string content,
                                                 string button01Text, Action button01Callback,
                                                 string button02Text, Action button02Callback)
         {
-            messageDialog.button01.GetComponentInChildren<Text>().text = button01Text;
+            // messageDialog.button01.GetComponentInChildren<Text>().text = button01Text;
 
-            messageDialog.button01.onClick.RemoveAllListeners();
-            messageDialog.button01.onClick.AddListener(() => button01Callback());
+            // messageDialog.button01.onClick.RemoveAllListeners();
+            // messageDialog.button01.onClick.AddListener(() => button01Callback());
 
-            messageDialog.button02.GetComponentInChildren<Text>().text = button02Text;
+            // messageDialog.button02.GetComponentInChildren<Text>().text = button02Text;
 
-            messageDialog.button02.onClick.RemoveAllListeners();
-            messageDialog.button02.onClick.AddListener(() => button02Callback());
+            // messageDialog.button02.onClick.RemoveAllListeners();
+            // messageDialog.button02.onClick.AddListener(() => button02Callback());
 
-            messageDialog.button02.gameObject.SetActive(true);
+            // messageDialog.button02.gameObject.SetActive(true);
 
-            OpenMessageDialog(header, content);
+            // OpenMessageDialog(header, content);
+
+            OpenMessageDialog_Info(content);
         }
 
         private void OpenMessageDialog(string header, string content)
         {
-            messageDialog.header.text = header;
-            messageDialog.content.text = content;
-
-            messageDialog.gameObject.SetActive(true);
+            OpenMessageDialog_Info(content);
         }
 
-        private void CloseMessageDialog()
+        private void OpenMessageDialog_Error(string message)
         {
-            messageDialog.gameObject.SetActive(false);
+            errorMessageDialog.content.text = message;
+            errorMessageDialog.gameObject.SetActive(true);
+        }
+
+        private void OpenMessageDialog_Success(string message)
+        {
+            successMessageDialog.content.text = message;
+            successMessageDialog.gameObject.SetActive(true);
+        }
+
+        private void OpenMessageDialog_Info(string message)
+        {
+            infoMessageDialog.content.text = message;
+            infoMessageDialog.gameObject.SetActive(true);
+        }
+
+        public void CloseMessageDialog()
+        {
+            errorMessageDialog.gameObject.SetActive(false);
+            successMessageDialog.gameObject.SetActive(false);
+            infoMessageDialog.gameObject.SetActive(false);
         }
 
         public void UpdateExplorerViewPageButtonInteractibility()
