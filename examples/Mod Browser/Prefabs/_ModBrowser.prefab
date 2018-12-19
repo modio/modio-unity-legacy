@@ -5119,7 +5119,7 @@ MonoBehaviour:
   TEMP_pageSize: 10
   contentPane: {fileID: 224469101200689088}
   nameSearchField: {fileID: 114098324929849516}
-  sortByDropdown: {fileID: 0}
+  sortByDropdown: {fileID: 114329862449654002}
   currentPageContainer: {fileID: 224469101200689088}
 --- !u!114 &114139589409531426
 MonoBehaviour:
