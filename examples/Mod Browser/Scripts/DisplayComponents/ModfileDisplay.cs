@@ -69,6 +69,8 @@ namespace ModIO.UI
 
         private void BuildDisplayMap()
         {
+            string dateTimeFormat = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+
             m_displayMapping = new Dictionary<Text, GetDisplayString>();
 
             if(modfileIdDisplay != null)
@@ -81,7 +83,7 @@ namespace ModIO.UI
             }
             if(dateAddedDisplay != null)
             {
-                m_displayMapping.Add(dateAddedDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateAdded).ToString());
+                m_displayMapping.Add(dateAddedDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.dateAdded).ToString(dateTimeFormat));
             }
             if(fileNameDisplay != null)
             {
@@ -109,7 +111,7 @@ namespace ModIO.UI
             }
             if(virusScanDateDisplay != null)
             {
-                m_displayMapping.Add(virusScanDateDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.virusScanDate).ToString());
+                m_displayMapping.Add(virusScanDateDisplay, (d) => ServerTimeStamp.ToLocalDateTime(d.virusScanDate).ToString(dateTimeFormat));
             }
             if(virusScanStatusDisplay != null)
             {
