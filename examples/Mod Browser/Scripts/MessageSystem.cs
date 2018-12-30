@@ -32,7 +32,7 @@ namespace ModIO.UI
         public List<MessageDisplayData> queuedMessages;
 
         // --- RUNTIME DATA ---
-        private Dictionary<MessageDisplayData.Type, MessageDialog> typeDialogMap = new Dictionary<MessageDisplayData.Type, MessageDialog>();
+        private Dictionary<MessageDisplayData.Type, MessageDialog> m_typeDialogMap = new Dictionary<MessageDisplayData.Type, MessageDialog>();
         private Coroutine m_displayRoutine = null;
 
 
@@ -41,46 +41,46 @@ namespace ModIO.UI
         {
             _instance = this;
 
-            typeDialogMap.Clear();
+            m_typeDialogMap.Clear();
 
             if(infoDialog != null)
             {
                 infoDialog.gameObject.SetActive(false);
-                typeDialogMap[MessageDisplayData.Type.Info] = infoDialog;
+                m_typeDialogMap[MessageDisplayData.Type.Info] = infoDialog;
             }
             else
             {
-                typeDialogMap[MessageDisplayData.Type.Info] = null;
+                m_typeDialogMap[MessageDisplayData.Type.Info] = null;
             }
 
             if(successDialog != null)
             {
                 successDialog.gameObject.SetActive(false);
-                typeDialogMap[MessageDisplayData.Type.Success] = successDialog;
+                m_typeDialogMap[MessageDisplayData.Type.Success] = successDialog;
             }
             else
             {
-                typeDialogMap[MessageDisplayData.Type.Success] = null;
+                m_typeDialogMap[MessageDisplayData.Type.Success] = null;
             }
 
             if(warningDialog != null)
             {
                 warningDialog.gameObject.SetActive(false);
-                typeDialogMap[MessageDisplayData.Type.Warning] = warningDialog;
+                m_typeDialogMap[MessageDisplayData.Type.Warning] = warningDialog;
             }
             else
             {
-                typeDialogMap[MessageDisplayData.Type.Warning] = null;
+                m_typeDialogMap[MessageDisplayData.Type.Warning] = null;
             }
 
             if(errorDialog != null)
             {
                 errorDialog.gameObject.SetActive(false);
-                typeDialogMap[MessageDisplayData.Type.Error] = errorDialog;
+                m_typeDialogMap[MessageDisplayData.Type.Error] = errorDialog;
             }
             else
             {
-                typeDialogMap[MessageDisplayData.Type.Error] = null;
+                m_typeDialogMap[MessageDisplayData.Type.Error] = null;
             }
 
             queuedMessages = new List<MessageDisplayData>();
@@ -99,15 +99,20 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public void QueueMessage(MessageDisplayData.Type messageType,
-                                 string messageContent,
-                                 float displayDuration = 0f)
+        public static void QueueMessage(MessageDisplayData.Type messageType,
+                                        string messageContent,
+                                        float displayDuration = 0f)
         {
+            // early out
+            if(instance == null) { return; }
+
+            // check for default duration
             if(displayDuration <= 0f)
             {
-                displayDuration = defaultDuration;
+                displayDuration = instance.defaultDuration;
             }
 
+            // queue message
             MessageDisplayData newMessage = new MessageDisplayData()
             {
                 type = messageType,
@@ -115,7 +120,7 @@ namespace ModIO.UI
                 displayDuration = displayDuration,
             };
 
-            queuedMessages.Add(newMessage);
+            instance.queuedMessages.Add(newMessage);
         }
 
         private System.Collections.IEnumerator DisplayRoutine()
@@ -128,7 +133,7 @@ namespace ModIO.UI
                 }
 
                 MessageDisplayData message = queuedMessages[0];
-                MessageDialog dialog = typeDialogMap[message.type];
+                MessageDialog dialog = m_typeDialogMap[message.type];
 
                 if(dialog != null)
                 {

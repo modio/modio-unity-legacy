@@ -1139,20 +1139,22 @@ namespace ModIO.UI
 
         private void OpenMessageDialog_Error(string message)
         {
-            errorMessageDialog.content.text = message;
-            errorMessageDialog.gameObject.SetActive(true);
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Error, message);
         }
 
         private void OpenMessageDialog_Success(string message)
         {
-            successMessageDialog.content.text = message;
-            successMessageDialog.gameObject.SetActive(true);
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Success, message);
         }
 
         private void OpenMessageDialog_Info(string message)
         {
-            infoMessageDialog.content.text = message;
-            infoMessageDialog.gameObject.SetActive(true);
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+        }
+
+        private void OpenMessageDialog_Warning(string message)
+        {
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning, message);
         }
 
         public void CloseMessageDialog()
