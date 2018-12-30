@@ -7,9 +7,6 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         [Header("UI Components")]
-        public Text header;
         public Text content;
-        public Button button01;
-        public Button button02;
     }
 }
