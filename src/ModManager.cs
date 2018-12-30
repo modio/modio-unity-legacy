@@ -831,7 +831,7 @@ namespace ModIO
             {
                 request = DownloadClient.DownloadModBinary(profile.id,
                                                            profile.activeBuild.id,
-                                                           CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id));
+                                                           zipFilePath);
                 downloadsInProgress.Add(request);
 
                 request.succeeded += (r) => downloadsInProgress.Remove(r);

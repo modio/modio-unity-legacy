@@ -478,16 +478,11 @@ namespace ModIO.UI
             loginDialog.gameObject.SetActive(false);
             loginDialog.onSecurityCodeSent += (m) =>
             {
-                CloseLoginDialog();
-                OpenMessageDialog_OneButton("Security Code Requested",
-                                            m.message,
-                                            "Back",
-                                            () => { CloseMessageDialog(); OpenLoginDialog(); });
+                OpenMessageDialog_Success(m.message);
             };
             loginDialog.onUserOAuthTokenReceived += (t) =>
             {
                 CloseLoginDialog();
-
                 OpenMessageDialog_TwoButton("Login Successful",
                                             "Do you want to merge the local guest account mod subscriptions"
                                             + " with your mod subscriptions on the server?",
@@ -496,8 +491,6 @@ namespace ModIO.UI
             };
             loginDialog.onAPIRequestError += (e) =>
             {
-                CloseLoginDialog();
-
                 OpenMessageDialog_OneButton("Authorization Failed",
                                             e.message,
                                             "Back",
