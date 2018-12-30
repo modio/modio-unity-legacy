@@ -20,7 +20,10 @@ namespace ModIO.UI
         }
 
         [Header("Settings")]
-        public float defaultDuration;
+        [Tooltip("Default base time to display a message (in seconds)")]
+        public float defaultBaseTime = 4.0f;
+        [Tooltip("Additional time per character in the message (in seconds)")]
+        public float defaultCharacterTime = 0.1f;
 
         [Header("UI Components")]
         public MessageDialog successDialog;
@@ -103,13 +106,16 @@ namespace ModIO.UI
                                         string messageContent,
                                         float displayDuration = 0f)
         {
+            Debug.Assert(!System.String.IsNullOrEmpty(messageContent));
+
             // early out
             if(instance == null) { return; }
 
             // check for default duration
             if(displayDuration <= 0f)
             {
-                displayDuration = instance.defaultDuration;
+                displayDuration = (instance.defaultBaseTime
+                                   + messageContent.Length * instance.defaultCharacterTime);
             }
 
             // queue message
