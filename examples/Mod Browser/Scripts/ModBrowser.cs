@@ -131,9 +131,6 @@ namespace ModIO.UI
         public InspectorView inspectorView;
         public UserView loggedUserView;
         public LoginDialog loginDialog;
-        public MessageDialog errorMessageDialog;
-        public MessageDialog successMessageDialog;
-        public MessageDialog infoMessageDialog;
         public Button prevPageButton;
         public Button nextPageButton;
 
@@ -471,30 +468,20 @@ namespace ModIO.UI
 
         private void InitializeDialogs()
         {
-            errorMessageDialog.gameObject.SetActive(false);
-            successMessageDialog.gameObject.SetActive(false);
-            infoMessageDialog.gameObject.SetActive(false);
-
             loginDialog.gameObject.SetActive(false);
             loginDialog.onSecurityCodeSent += (m) =>
             {
-                OpenMessageDialog_Success(m.message);
+                OpenMessageDisplay_Success(m.message);
             };
             loginDialog.onUserOAuthTokenReceived += (t) =>
             {
+                OpenMessageDisplay_Success("Authorization Successful");
                 CloseLoginDialog();
-                OpenMessageDialog_TwoButton("Login Successful",
-                                            "Do you want to merge the local guest account mod subscriptions"
-                                            + " with your mod subscriptions on the server?",
-                                            "Merge Subscriptions", () => { CloseMessageDialog(); LogUserIn(t, false); },
-                                            "Replace Subscriptions", () => { CloseMessageDialog(); LogUserIn(t, true); });
+                LogUserIn(t, false);
             };
             loginDialog.onAPIRequestError += (e) =>
             {
-                OpenMessageDialog_OneButton("Authorization Failed",
-                                            e.message,
-                                            "Back",
-                                            () => { CloseMessageDialog(); OpenLoginDialog(); });
+                OpenMessageDisplay_Error(e.message);
             };
         }
 
@@ -1096,7 +1083,7 @@ namespace ModIO.UI
             loginDialog.gameObject.SetActive(false);
         }
 
-        public void OpenMessageDialog_OneButton(string header, string content,
+        public void OpenMessageDisplay_OneButton(string header, string content,
                                                 string buttonText, Action buttonCallback)
         {
             // messageDialog.button01.GetComponentInChildren<Text>().text = buttonText;
@@ -1106,12 +1093,12 @@ namespace ModIO.UI
 
             // messageDialog.button02.gameObject.SetActive(false);
 
-            // OpenMessageDialog(header, content);
+            // OpenMessageDisplay(header, content);
 
-            OpenMessageDialog_Info(content);
+            OpenMessageDisplay_Info(content);
         }
 
-        public void OpenMessageDialog_TwoButton(string header, string content,
+        public void OpenMessageDisplay_TwoButton(string header, string content,
                                                 string button01Text, Action button01Callback,
                                                 string button02Text, Action button02Callback)
         {
@@ -1127,41 +1114,34 @@ namespace ModIO.UI
 
             // messageDialog.button02.gameObject.SetActive(true);
 
-            // OpenMessageDialog(header, content);
+            // OpenMessageDisplay(header, content);
 
-            OpenMessageDialog_Info(content);
+            OpenMessageDisplay_Info(content);
         }
 
-        private void OpenMessageDialog(string header, string content)
+        private void OpenMessageDisplay(string header, string content)
         {
-            OpenMessageDialog_Info(content);
+            OpenMessageDisplay_Info(content);
         }
 
-        private void OpenMessageDialog_Error(string message)
+        private void OpenMessageDisplay_Error(string message)
         {
             MessageSystem.QueueMessage(MessageDisplayData.Type.Error, message);
         }
 
-        private void OpenMessageDialog_Success(string message)
+        private void OpenMessageDisplay_Success(string message)
         {
             MessageSystem.QueueMessage(MessageDisplayData.Type.Success, message);
         }
 
-        private void OpenMessageDialog_Info(string message)
+        private void OpenMessageDisplay_Info(string message)
         {
             MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
         }
 
-        private void OpenMessageDialog_Warning(string message)
+        private void OpenMessageDisplay_Warning(string message)
         {
             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning, message);
-        }
-
-        public void CloseMessageDialog()
-        {
-            errorMessageDialog.gameObject.SetActive(false);
-            successMessageDialog.gameObject.SetActive(false);
-            infoMessageDialog.gameObject.SetActive(false);
         }
 
         public void UpdateExplorerViewPageButtonInteractibility()

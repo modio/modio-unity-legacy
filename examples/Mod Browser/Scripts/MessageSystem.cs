@@ -26,16 +26,16 @@ namespace ModIO.UI
         public float defaultCharacterTime = 0.1f;
 
         [Header("UI Components")]
-        public MessageDialog successDialog;
-        public MessageDialog warningDialog;
-        public MessageDialog errorDialog;
-        public MessageDialog infoDialog;
+        public MessageDisplay successDialog;
+        public MessageDisplay warningDialog;
+        public MessageDisplay errorDialog;
+        public MessageDisplay infoDialog;
 
         [Header("Display Data")]
         public List<MessageDisplayData> queuedMessages;
 
         // --- RUNTIME DATA ---
-        private Dictionary<MessageDisplayData.Type, MessageDialog> m_typeDialogMap = new Dictionary<MessageDisplayData.Type, MessageDialog>();
+        private Dictionary<MessageDisplayData.Type, MessageDisplay> m_typeDialogMap = new Dictionary<MessageDisplayData.Type, MessageDisplay>();
         private Coroutine m_displayRoutine = null;
 
 
@@ -139,7 +139,7 @@ namespace ModIO.UI
                 }
 
                 MessageDisplayData message = queuedMessages[0];
-                MessageDialog dialog = m_typeDialogMap[message.type];
+                MessageDisplay dialog = m_typeDialogMap[message.type];
 
                 if(dialog != null)
                 {
