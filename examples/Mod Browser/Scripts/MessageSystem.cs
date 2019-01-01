@@ -155,11 +155,14 @@ namespace ModIO.UI
 
                     if(anim != null)
                     {
-                        rectTransform.anchoredPosition = origin + anim.offset;
-
                         float animTimer = 0f;
+
                         while(animTimer < anim.duration)
                         {
+                            rectTransform.anchoredPosition = Vector2.Lerp(origin + anim.offset,
+                                                                          origin,
+                                                                          animTimer / anim.duration);
+
                             yield return null;
 
                             animTimer += Time.deltaTime;
@@ -167,25 +170,28 @@ namespace ModIO.UI
 
                         rectTransform.anchoredPosition = origin;
                     }
+
 
                     yield return new WaitForSeconds(message.displayDuration);
 
                     if(anim != null)
                     {
-                        rectTransform.anchoredPosition = origin;
-
                         float animTimer = 0f;
+
                         while(animTimer < anim.duration)
                         {
+                            rectTransform.anchoredPosition = Vector2.Lerp(origin,
+                                                                          origin + anim.offset,
+                                                                          animTimer / anim.duration);
+
                             yield return null;
 
                             animTimer += Time.deltaTime;
                         }
 
-                        rectTransform.anchoredPosition = origin + anim.offset;
+                        rectTransform.anchoredPosition = origin;
                     }
 
-                    rectTransform.anchoredPosition = origin;
                     dialog.gameObject.SetActive(false);
                 }
 
