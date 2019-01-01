@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO(@jackson): Add click to hide
+// TODO(@jackson): Add animation for toasting
 namespace ModIO.UI
 {
     public class MessageSystem : MonoBehaviour
@@ -140,14 +142,50 @@ namespace ModIO.UI
 
                 MessageDisplayData message = queuedMessages[0];
                 MessageDisplay dialog = m_typeDialogMap[message.type];
+                ToastAnimationSettings anim = dialog.GetComponent<ToastAnimationSettings>();
+                RectTransform rectTransform = dialog.GetComponent<RectTransform>();
+                Vector2 origin = rectTransform.anchoredPosition;
+
 
                 if(dialog != null)
                 {
+                    // TODO(@jackson): early out
                     dialog.content.text = message.content;
                     dialog.gameObject.SetActive(true);
 
+                    if(anim != null)
+                    {
+                        rectTransform.anchoredPosition = origin + anim.offset;
+
+                        float animTimer = 0f;
+                        while(animTimer < anim.duration)
+                        {
+                            yield return null;
+
+                            animTimer += Time.deltaTime;
+                        }
+
+                        rectTransform.anchoredPosition = origin;
+                    }
+
                     yield return new WaitForSeconds(message.displayDuration);
 
+                    if(anim != null)
+                    {
+                        rectTransform.anchoredPosition = origin;
+
+                        float animTimer = 0f;
+                        while(animTimer < anim.duration)
+                        {
+                            yield return null;
+
+                            animTimer += Time.deltaTime;
+                        }
+
+                        rectTransform.anchoredPosition = origin + anim.offset;
+                    }
+
+                    rectTransform.anchoredPosition = origin;
                     dialog.gameObject.SetActive(false);
                 }
 
