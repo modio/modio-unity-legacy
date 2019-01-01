@@ -52,6 +52,9 @@ namespace ModIO.UI
             {
                 infoDialog.gameObject.SetActive(false);
                 m_typeDialogMap[MessageDisplayData.Type.Info] = infoDialog;
+
+                infoDialog.onClick -= OnMessageDisplayClicked;
+                infoDialog.onClick += OnMessageDisplayClicked;
             }
             else
             {
@@ -62,6 +65,9 @@ namespace ModIO.UI
             {
                 successDialog.gameObject.SetActive(false);
                 m_typeDialogMap[MessageDisplayData.Type.Success] = successDialog;
+
+                successDialog.onClick -= OnMessageDisplayClicked;
+                successDialog.onClick += OnMessageDisplayClicked;
             }
             else
             {
@@ -72,6 +78,9 @@ namespace ModIO.UI
             {
                 warningDialog.gameObject.SetActive(false);
                 m_typeDialogMap[MessageDisplayData.Type.Warning] = warningDialog;
+
+                warningDialog.onClick -= OnMessageDisplayClicked;
+                warningDialog.onClick += OnMessageDisplayClicked;
             }
             else
             {
@@ -82,6 +91,9 @@ namespace ModIO.UI
             {
                 errorDialog.gameObject.SetActive(false);
                 m_typeDialogMap[MessageDisplayData.Type.Error] = errorDialog;
+
+                errorDialog.onClick -= OnMessageDisplayClicked;
+                errorDialog.onClick += OnMessageDisplayClicked;
             }
             else
             {
@@ -131,6 +143,7 @@ namespace ModIO.UI
             instance.queuedMessages.Add(newMessage);
         }
 
+        private bool m_cancelCurrentMessage = false;
         private System.Collections.IEnumerator DisplayRoutine()
         {
             while(true)
@@ -149,7 +162,6 @@ namespace ModIO.UI
 
                 if(dialog != null)
                 {
-                    // TODO(@jackson): early out
                     dialog.content.text = message.content;
                     dialog.gameObject.SetActive(true);
 
@@ -171,8 +183,15 @@ namespace ModIO.UI
                         rectTransform.anchoredPosition = origin;
                     }
 
+                    float displayTimer = 0f;
+                    m_cancelCurrentMessage = false;
+                    while(displayTimer < message.displayDuration
+                          && !m_cancelCurrentMessage)
+                    {
+                        yield return null;
 
-                    yield return new WaitForSeconds(message.displayDuration);
+                        displayTimer += Time.deltaTime;
+                    }
 
                     if(anim != null)
                     {
@@ -196,6 +215,15 @@ namespace ModIO.UI
                 }
 
                 queuedMessages.Remove(message);
+            }
+        }
+
+        private void OnMessageDisplayClicked(MessageDisplay display)
+        {
+            if(instance.queuedMessages.Count > 0
+               && instance.queuedMessages[0].content == display.content.text)
+            {
+                m_cancelCurrentMessage = true;
             }
         }
     }
