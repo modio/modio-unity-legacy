@@ -20,8 +20,16 @@ namespace ModIO.UI
             public GameObject securityCode;
         }
 
-        public InputField inputField;
+        [Header("Settings")]
+        // TODO(@jackson): localize
+        [Tooltip("Invalid Submission Message")]
+        public string invalidSubmissionMessage = "Input needs to be either a valid email address or the 5-Digit authentication code.";
+
+        [Header("UI Components")]
+        [Tooltip("Objects to toggle depending on the state of the input field validation.")]
         public InputStateDisplays displayForInputState;
+        public InputField inputField;
+
 
         // --------[ INITIALIZATION ]---------
         public void Initialize()
@@ -100,13 +108,22 @@ namespace ModIO.UI
             }
             else
             {
-                inputField.interactable = true;
+                StartCoroutine(DisableInteractivity(2f));
 
                 if(onInvalidSubmissionAttempted != null)
                 {
-                    onInvalidSubmissionAttempted(trimmedInput);
+                    onInvalidSubmissionAttempted(invalidSubmissionMessage);
                 }
             }
+        }
+
+        private System.Collections.IEnumerator DisableInteractivity(float seconds)
+        {
+            inputField.interactable = false;
+
+            yield return new WaitForSeconds(seconds);
+
+            inputField.interactable = true;
         }
     }
 }

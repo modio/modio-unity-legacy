@@ -483,6 +483,10 @@ namespace ModIO.UI
             {
                 OpenMessageDisplay_Error(e.message);
             };
+            loginDialog.onInvalidSubmissionAttempted += (m) =>
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error, m);
+            };
         }
 
         private void InitializeDisplays()
