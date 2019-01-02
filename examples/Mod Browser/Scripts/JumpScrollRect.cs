@@ -183,9 +183,6 @@ namespace ModIO.UI
             Vector2 newContentPos = scrollRect.content.anchoredPosition;
             newContentPos[axis] -= jumpVector[axis];
 
-            Debug.Log("ContentPos: " + scrollRect.content.anchoredPosition
-                      + "\nnewPos: " + newContentPos);
-
             scrollRect.content.anchoredPosition = newContentPos;
         }
 
@@ -244,8 +241,6 @@ namespace ModIO.UI
                 culmulativeOffset.y += t.pivot.y * t.rect.height;
 
                 jumpAnchorPositionList.Add(culmulativeOffset);
-
-                Debug.Log("FinalPivotOffset [" + t.name + "] = " + culmulativeOffset);
             }
 
             return jumpAnchorPositionList;

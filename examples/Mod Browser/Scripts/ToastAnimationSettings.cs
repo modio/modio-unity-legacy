@@ -18,13 +18,6 @@ namespace ModIO.UI
     [CanEditMultipleObjects]
     public class ToastAnimationEditor : Editor
     {
-        SerializedProperty offsetProperty;
-
-        private void OnEnable()
-        {
-            offsetProperty = serializedObject.FindProperty("offset");
-        }
-
         private void OnSceneGUI()
         {
             ToastAnimationSettings t = target as ToastAnimationSettings;
