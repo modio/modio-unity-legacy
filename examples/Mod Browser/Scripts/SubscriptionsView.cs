@@ -25,6 +25,8 @@ namespace ModIO.UI
         public RectTransform contentPane;
         public InputField nameSearchField;
         public Dropdown sortByDropdown;
+        [Tooltip("Object to display when there are no subscribed mods")]
+        public GameObject noResultsDisplay;
 
         [Header("Display Data")]
         public RequestPage<ModProfile> currentPage;
@@ -130,6 +132,11 @@ namespace ModIO.UI
             #if DEBUG
             if(!Application.isPlaying) { return; }
             #endif
+
+            if(noResultsDisplay != null)
+            {
+                noResultsDisplay.SetActive(page == null || page.items == null || page.items.Length == 0);
+            }
 
             int i = 0;
             var enabledMods = ModManager.GetEnabledModIds();

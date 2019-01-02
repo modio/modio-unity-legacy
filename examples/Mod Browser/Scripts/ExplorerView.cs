@@ -39,6 +39,8 @@ namespace ModIO.UI
         public Text pageNumberText;
         public Text pageCountText;
         public Text resultCountText;
+        [Tooltip("Object to display when there are no subscribed mods")]
+        public GameObject noResultsDisplay;
 
         [Header("Display Data")]
         public RequestPage<ModProfile> currentPage = null;
@@ -316,6 +318,13 @@ namespace ModIO.UI
                                  + " is recommended to not update page displays at this time.");
             }
             #endif
+
+            if(noResultsDisplay != null)
+            {
+                noResultsDisplay.SetActive(currentPage == null
+                                           || currentPage.items == null
+                                           || currentPage.items.Length == 0);
+            }
 
             UpdatePageNumberDisplay();
             UpdatePageDisplay(this.currentPage, this.currentPageContainer);
