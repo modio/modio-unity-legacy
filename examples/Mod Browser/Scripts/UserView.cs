@@ -79,11 +79,27 @@ namespace ModIO.UI
             if(profileDisplay != null)
             {
                 profileDisplay.DisplayProfile(profile);
+                m_data.profile = profileDisplay.data;
+            }
+            else
+            {
+                m_data.profile = UserProfileDisplayData.CreateFromProfile(profile);
             }
 
             if(avatarDisplay != null)
             {
                 avatarDisplay.DisplayAvatar(profile.id, profile.avatarLocator);
+                m_data.avatar = avatarDisplay.data;
+            }
+            else
+            {
+                m_data.avatar = new ImageDisplayData()
+                {
+                    userId = profile.id,
+                    mediaType = ImageDisplayData.MediaType.UserAvatar,
+                    imageId = profile.avatarLocator.fileName,
+                    texture = null,
+                };
             }
         }
 
