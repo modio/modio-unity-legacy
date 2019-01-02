@@ -73,6 +73,12 @@ namespace ModIO.UI
             public int lastModIndex;
         }
 
+        [Serializable]
+        public struct MessageSystemStrings
+        {
+            public string userLoggedOut;
+        }
+
         // ---------[ CONST & STATIC ]---------
         public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
@@ -121,6 +127,10 @@ namespace ModIO.UI
                 mediaType = ImageDisplayData.MediaType.UserAvatar,
                 texture = null,
             },
+        };
+        public MessageSystemStrings messageStrings = new MessageSystemStrings()
+        {
+            userLoggedOut = "Successfully logged out",
         };
 
         [Header("UI Components")]
@@ -855,6 +865,10 @@ namespace ModIO.UI
             };
             subscriptionsView.currentPage = modPage;
             subscriptionsView.UpdateCurrentPageDisplay();
+
+            // - notify -
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
+                                       messageStrings.userLoggedOut);
         }
 
         // ---------[ UI CONTROL ]---------
@@ -1439,7 +1453,14 @@ namespace ModIO.UI
         // ---------[ EVENT HANDLING ]---------
         private void OnUserDisplayClicked(UserView view)
         {
-            OpenLoginDialog();
+            if(userProfile == null)
+            {
+                OpenLoginDialog();
+            }
+            else
+            {
+                LogUserOut();
+            }
         }
 
         // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)

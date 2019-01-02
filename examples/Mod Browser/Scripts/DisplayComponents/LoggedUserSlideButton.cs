@@ -34,6 +34,7 @@ namespace ModIO.UI
         private void OnToggledClick()
         {
             view.NotifyClicked();
+            this.isToggled = false;
         }
     }
 }
