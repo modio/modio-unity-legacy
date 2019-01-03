@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// #define MEEPLESTATION_AUTO_INSTALL
+
+using UnityEngine;
 using UnityEngine.UI;
 
 using System;
@@ -1411,6 +1413,16 @@ namespace ModIO.UI
 
                 request.succeeded += (r) =>
                 {
+                    // TODO(@jackson): TEMP
+                    #if MEEPLESTATION_AUTO_INSTALL
+                    string unzipLocation = (CacheClient.GetCacheDirectory()
+                                            + "_installedMods/"
+                                            + request.modId.ToString() + "/");
+
+                    ModManager.UnzipModBinaryToLocation(request.modId, request.modfileId,
+                                                        unzipLocation);
+                    #endif
+
                     modDownloads.Remove(request);
                 };
             }
@@ -1495,6 +1507,18 @@ namespace ModIO.UI
 
                 // TODO(@jackson): Fire event
             }
+
+            // TODO(@jackson): ugh?
+            ModView[] sceneModViews = Resources.FindObjectsOfTypeAll<ModView>();
+            foreach(ModView view in sceneModViews)
+            {
+                if(view.data.profile.modId == modId)
+                {
+                    ModDisplayData data = view.data;
+                    data.isModEnabled = true;
+                    view.data = data;
+                }
+            }
         }
 
         public static void DisableMod(int modId)
@@ -1506,6 +1530,18 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
 
                 // TODO(@jackson): Fire event
+            }
+
+            // TODO(@jackson): ugh?
+            ModView[] sceneModViews = Resources.FindObjectsOfTypeAll<ModView>();
+            foreach(ModView view in sceneModViews)
+            {
+                if(view.data.profile.modId == modId)
+                {
+                    ModDisplayData data = view.data;
+                    data.isModEnabled = false;
+                    view.data = data;
+                }
             }
         }
 

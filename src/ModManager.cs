@@ -1,4 +1,6 @@
-﻿using System;
+﻿// #define MEEPLESTATION_AUTO_INSTALL
+
+using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +14,14 @@ using ModIO.API;
 
 namespace ModIO
 {
+    #if MEEPLESTATION_AUTO_INSTALL
+    public struct ModInstallInfo
+    {
+        public int modId;
+        public string directory;
+    }
+    #endif
+
     public static class ModManager
     {
         // ---------[ AUTHENTICATED USER ]---------
@@ -137,6 +147,7 @@ namespace ModIO
                                                        string.Empty);
             return new List<int>(EnumerateModIdString(valueString));
         }
+        // TODO(@jackson): Change extracted mods?
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
             string valueString = CreateModIdArrayString(modIds);
@@ -870,7 +881,13 @@ namespace ModIO
         public static void UnzipModBinaryToLocation(Modfile modfile,
                                                     string unzipLocation)
         {
-            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modfile.modId, modfile.id);
+            UnzipModBinaryToLocation(modfile.modId, modfile.id, unzipLocation);
+        }
+
+        public static void UnzipModBinaryToLocation(int modId, int modfileId,
+                                                    string unzipLocation)
+        {
+            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
 
             if(File.Exists(zipFilePath))
             {
@@ -891,6 +908,64 @@ namespace ModIO
                 }
             }
         }
+
+        #if MEEPLESTATION_AUTO_INSTALL
+        public static ModInstallInfo[] GetInstalledMods(bool excludeDisabledMods)
+        {
+            List<int> modIdFilter = null;
+            if(excludeDisabledMods)
+            {
+                modIdFilter = new List<int>(ModManager.GetEnabledModIds());
+            }
+
+            return ModManager.IterateInstalledMods(modIdFilter).ToArray();
+        }
+
+        public static IEnumerable<ModInstallInfo> IterateInstalledMods(IList<int> modIdFilter)
+        {
+            string installDirectory = (CacheClient.GetCacheDirectory()
+                                       + "_installedMods/");
+
+            string[] modDirectories;
+            try
+            {
+                modDirectories = Directory.GetDirectories(installDirectory);
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to read mod installation directory."
+                                      + "\nDirectory: " + installDirectory + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+
+                modDirectories = new string[0];
+            }
+
+            foreach(string modDirectory in modDirectories)
+            {
+                string idString = modDirectory.Substring(installDirectory.Length);
+
+                int modId;
+                if(!Int32.TryParse(idString, out modId))
+                {
+                    modId = -1;
+                }
+
+                if(modIdFilter == null
+                   || modIdFilter.Contains(modId))
+                {
+                    ModInstallInfo info = new ModInstallInfo()
+                    {
+                        modId = modId,
+                        directory = modDirectory,
+                    };
+
+                    yield return info;
+                }
+            }
+        }
+        #endif
 
         // ---------[ MOD TEAMS ]---------
         public static void GetModTeam(int modId,
