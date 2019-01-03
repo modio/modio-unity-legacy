@@ -17,7 +17,7 @@ namespace ModIO.UI
     public class ModBrowser : MonoBehaviour
     {
         // ---------[ NESTED CLASSES ]---------
-        // TODO(@jackson): Replace with inspector dropdown
+        // TODO(@jackson): Add "custom"
         public enum APIServer
         {
             TestServer,
@@ -89,6 +89,7 @@ namespace ModIO.UI
         [Serializable]
         public struct APIData
         {
+            public string apiURL;
             public int gameId;
             public string gameAPIKey;
         }
@@ -125,8 +126,21 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         public APIServer connectTo = APIServer.TestServer;
-        public APIData testServerData = new APIData();
-        public APIData productionServerData = new APIData();
+        // TODO(@jackson): Custom inspector hide
+        public APIData testServerData = new APIData()
+        {
+            // TODO(@jackson): Make read-only in inspector
+            apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
+            gameId = 0,
+            gameAPIKey = string.Empty,
+        };
+        public APIData productionServerData = new APIData()
+        {
+            // TODO(@jackson): Make read-only in inspector
+            apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
+            gameId = 0,
+            gameAPIKey = string.Empty,
+        };
         public bool isAutomaticUpdateEnabled = false;
         public UserDisplayData guestData = new UserDisplayData()
         {
@@ -318,6 +332,7 @@ namespace ModIO.UI
             this.apiData = d;
 
             // --- APIClient ---
+            APIClient.apiURL = apiData.apiURL;
             APIClient.gameId = apiData.gameId;
             APIClient.gameAPIKey = apiData.gameAPIKey;
             APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();
@@ -1733,5 +1748,19 @@ namespace ModIO.UI
         //         // Do install code
         //     }
         // }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if(!Application.isPlaying && this != null)
+                {
+                    testServerData.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
+                    productionServerData.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+                }
+            };
+        }
+        #endif
     }
 }

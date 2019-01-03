@@ -8415,9 +8415,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   connectTo: 0
   testServerData:
+    apiURL: https://api.test.mod.io/v1
     gameId: 0
     gameAPIKey: 
   productionServerData:
+    apiURL: https://api.mod.io/v1
     gameId: 0
     gameAPIKey: 
   isAutomaticUpdateEnabled: 0
