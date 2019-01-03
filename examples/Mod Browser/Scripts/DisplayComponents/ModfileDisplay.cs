@@ -46,7 +46,7 @@ namespace ModIO.UI
         private void PresentData(ModfileDisplayData displayData)
         {
             #if UNITY_EDITOR
-            if(!Application.isPlaying && m_displayMapping == null) { return; }
+            if(m_displayMapping == null) { return; }
             #endif
 
             foreach(var kvp in m_displayMapping)
