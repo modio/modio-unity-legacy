@@ -161,6 +161,7 @@ namespace ModIO.UI
         {
             m_tagDisplays = new List<ModTagDisplayComponent>();
 
+            // TODO(@jackson): Why check isPlaying?
             #if UNITY_EDITOR
             if(Application.isPlaying || container != null)
             #endif
@@ -231,15 +232,21 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            CollectChildTags();
-            if(!Application.isPlaying)
+            UnityEditor.EditorApplication.delayCall += () =>
             {
-                PresentData_Editor(m_data);
-            }
-            else
-            {
-                PresentData(m_data);
-            }
+                if(this != null)
+                {
+                    CollectChildTags();
+                    if(!Application.isPlaying)
+                    {
+                        PresentData_Editor(m_data);
+                    }
+                    else
+                    {
+                        PresentData(m_data);
+                    }
+                }
+            };
         }
         #endif
     }

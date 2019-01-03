@@ -23,11 +23,6 @@ namespace ModIO.UI
         [Header("Display Data")]
         private List<ImageDataDisplayComponent> m_imageDisplays = new List<ImageDataDisplayComponent>();
 
-        // --- RUNTIME DATA ---
-        private LogoImageLocator m_logoLocator = null;
-        private IEnumerable<string> m_youTubeURLs = null;
-        private IEnumerable<GalleryImageLocator> m_galleryImageLocators = null;
-
         // --- ACCESSORS ---
         public IEnumerable<ImageDataDisplayComponent> imageDisplays { get { return m_imageDisplays; } }
 

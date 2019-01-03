@@ -1753,7 +1753,8 @@ namespace ModIO.UI
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(!Application.isPlaying && this != null)
+                if(!Application.isPlaying
+                   && this != null)
                 {
                     testServerData.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
                     productionServerData.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;

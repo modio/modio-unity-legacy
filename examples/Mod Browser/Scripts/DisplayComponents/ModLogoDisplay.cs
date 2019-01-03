@@ -130,12 +130,16 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            if(image != null)
+            UnityEditor.EditorApplication.delayCall += () =>
             {
-                // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
-                // "Should" be fine.
-                PresentData();
-            }
+                if(this != null
+                   && this.image != null)
+                {
+                    // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
+                    // "Should" be fine.
+                    PresentData();
+                }
+            };
         }
         #endif
     }

@@ -17,6 +17,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO(@jackson): INCOMPLETE
 // TODO(@jackson): Needs cleanup
 namespace ModIO.UI
 {
@@ -231,7 +232,13 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            PresentData();
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if(this != null)
+                {
+                    PresentData();
+                }
+            };
         }
         #endif
     }

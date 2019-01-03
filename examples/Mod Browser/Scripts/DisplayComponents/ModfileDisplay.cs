@@ -192,9 +192,15 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            BuildDisplayMap();
-            CollectLoadingOverlays();
-            PresentData(m_data);
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if(this != null)
+                {
+                    BuildDisplayMap();
+                    CollectLoadingOverlays();
+                    PresentData(m_data);
+                }
+            };
         }
         #endif
     }

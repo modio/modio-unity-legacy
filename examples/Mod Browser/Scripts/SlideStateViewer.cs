@@ -164,8 +164,7 @@ namespace ModIO.UI
             UnityEditor.EditorApplication.delayCall += () =>
             {
                 if(this != null
-                   && this.gameObject != null
-                   && scrollRect != null)
+                   && this.scrollRect != null)
                 {
                     UpdateScroll(false);
                 }

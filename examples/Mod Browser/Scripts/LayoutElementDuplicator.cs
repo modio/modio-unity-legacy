@@ -258,6 +258,7 @@ namespace Mod.UI
 
             m_awaitingRebuild = false;
         }
+
     #if UNITY_EDITOR
         protected override void OnValidate()
         {

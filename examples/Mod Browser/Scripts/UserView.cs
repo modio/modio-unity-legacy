@@ -115,7 +115,13 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            SetData(m_data);
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if(this != null)
+                {
+                    SetData(m_data);
+                }
+            };
         }
         #endif
     }

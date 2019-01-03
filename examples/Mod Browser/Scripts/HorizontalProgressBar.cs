@@ -73,15 +73,17 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            if(barTransform != null
-               && barParent != null)
+            UnityEditor.EditorApplication.delayCall += () =>
             {
-                UnityEditor.EditorApplication.delayCall += () =>
+                if(barTransform == null
+                   || barParent == null)
                 {
-                    SetBarTransformValues();
-                    UpdateBarSize();
-                };
-            }
+                    return;
+                }
+
+                SetBarTransformValues();
+                UpdateBarSize();
+            };
         }
         #endif
     }

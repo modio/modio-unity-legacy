@@ -543,12 +543,15 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            if(!Application.isPlaying)
+            UnityEditor.EditorApplication.delayCall += () =>
             {
-                CollectDelegates();
-            }
-
-            SetData(m_data);
+                if(this != null
+                   && m_displayDelegates != null)
+                {
+                    CollectDelegates();
+                    SetData(m_data);
+                }
+            };
         }
         #endif
     }
