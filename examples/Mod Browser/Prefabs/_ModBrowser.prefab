@@ -8413,8 +8413,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbcf13412947141a0816098403a73fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameId: 0
-  gameAPIKey: 
+  connectTo: 0
+  testServerData:
+    gameId: 0
+    gameAPIKey: 
+  productionServerData:
+    gameId: 0
+    gameAPIKey: 
   isAutomaticUpdateEnabled: 0
   guestData:
     profile:

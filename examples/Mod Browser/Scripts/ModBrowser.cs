@@ -17,6 +17,13 @@ namespace ModIO.UI
     public class ModBrowser : MonoBehaviour
     {
         // ---------[ NESTED CLASSES ]---------
+        // TODO(@jackson): Replace with inspector dropdown
+        public enum APIServer
+        {
+            TestServer,
+            ProductionServer,
+        }
+
         [Serializable]
         private class ManifestData
         {
@@ -117,6 +124,7 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("Settings")]
+        public APIServer connectTo = APIServer.TestServer;
         public APIData testServerData = new APIData();
         public APIData productionServerData = new APIData();
         public bool isAutomaticUpdateEnabled = false;
@@ -232,8 +240,28 @@ namespace ModIO.UI
 
         public APIData apiData
         {
-            get { return testServerData; }
-            set { testServerData = value; }
+            get
+            {
+                if(connectTo == APIServer.TestServer)
+                {
+                    return testServerData;
+                }
+                else
+                {
+                    return productionServerData;
+                }
+            }
+            set
+            {
+                if(connectTo == APIServer.TestServer)
+                {
+                    testServerData = value;
+                }
+                else
+                {
+                    productionServerData = value;
+                }
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
