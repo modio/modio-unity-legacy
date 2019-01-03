@@ -548,6 +548,16 @@ namespace ModIO
         public static bool DeleteMod(int modId)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
+
+            // TODO(@jackson): Cleanup
+            string installLocation = (CacheClient.GetCacheDirectory()
+                                      + "_installedMods/"
+                                      + modId.ToString() + "/");
+            if(Directory.Exists(installLocation))
+            {
+                CacheClient.DeleteDirectory(installLocation);
+            }
+
             return CacheClient.DeleteDirectory(modDir);
         }
 
