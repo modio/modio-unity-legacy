@@ -141,6 +141,7 @@ namespace ModIO.UI
             gameId = 0,
             gameAPIKey = string.Empty,
         };
+        [Tooltip("Routinely check servers for new and updated data?")]
         public bool isAutomaticUpdateEnabled = false;
         public UserDisplayData guestData = new UserDisplayData()
         {
@@ -173,10 +174,8 @@ namespace ModIO.UI
         public Button prevPageButton;
         public Button nextPageButton;
 
-        [Header("Display Data")]
-        public InspectorViewData inspectorData = new InspectorViewData();
-
         [Header("Runtime Data")]
+        private InspectorViewData inspectorData = new InspectorViewData();
         private UserProfile userProfile = null;
         private int lastCacheUpdate = -1;
         private RequestFilter explorerViewFilter = new RequestFilter();

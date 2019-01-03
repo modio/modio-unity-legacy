@@ -8422,7 +8422,7 @@ MonoBehaviour:
     apiURL: https://api.mod.io/v1
     gameId: 0
     gameAPIKey: 
-  isAutomaticUpdateEnabled: 0
+  isAutomaticUpdateEnabled: 1
   guestData:
     profile:
       userId: -1
@@ -8448,9 +8448,6 @@ MonoBehaviour:
   loginDialog: {fileID: 114863113973899486}
   prevPageButton: {fileID: 114319778585326076}
   nextPageButton: {fileID: 114347730188017132}
-  inspectorData:
-    currentModIndex: 2
-    lastModIndex: 0
 --- !u!114 &114434123071762936
 MonoBehaviour:
   m_ObjectHideFlags: 1
