@@ -123,7 +123,11 @@ namespace ModIO.UI
             Debug.Assert(!System.String.IsNullOrEmpty(messageContent));
 
             // early out
-            if(instance == null) { return; }
+            if(instance == null)
+            {
+                Debug.LogWarning("[mod.io] No MessageSystem instance found.");
+                return;
+            }
 
             // check for default duration
             if(displayDuration <= 0f)

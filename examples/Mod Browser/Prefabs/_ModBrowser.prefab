@@ -1804,6 +1804,7 @@ GameObject:
   - component: {fileID: 114072989383737986}
   - component: {fileID: 114339607738577402}
   - component: {fileID: 114507269475952492}
+  - component: {fileID: 114019285821219772}
   m_Layer: 5
   m_Name: MediaDisplaySelector
   m_TagString: Untagged
@@ -4262,6 +4263,20 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114019285821219772
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1410543620543370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7d3c6f84e3ec4d9ebe53b6d6c2447dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_buttonInteractivity: 2
+  m_jumpLeftButton: {fileID: 114789561966568954}
+  m_jumpRightButton: {fileID: 114218180089606868}
 --- !u!114 &114020267449692074
 MonoBehaviour:
   m_ObjectHideFlags: 1
