@@ -79,6 +79,13 @@ namespace ModIO.UI
             public string userLoggedOut;
         }
 
+        [Serializable]
+        public struct APIData
+        {
+            public int gameId;
+            public string gameAPIKey;
+        }
+
         // ---------[ CONST & STATIC ]---------
         public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
@@ -110,8 +117,8 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("Settings")]
-        public int gameId = 0;
-        public string gameAPIKey = string.Empty;
+        public APIData testServerData = new APIData();
+        public APIData productionServerData = new APIData();
         public bool isAutomaticUpdateEnabled = false;
         public UserDisplayData guestData = new UserDisplayData()
         {
@@ -223,41 +230,22 @@ namespace ModIO.UI
             }
         }
 
+        public APIData apiData
+        {
+            get { return testServerData; }
+            set { testServerData = value; }
+        }
+
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
             #if MODIO_TESTING
-            if(!(gameId == 0 && String.IsNullOrEmpty(gameAPIKey)))
+            if(!(apiData.gameId == 0 && String.IsNullOrEmpty(apiData.gameAPIKey)))
             {
                 Debug.LogError("OI DOOFUS! YOU SAVED AUTHENTICATION THE DETAILS TO THE PREFAB AGAIN!!!!!!");
                 return;
             }
             #endif
-
-            #pragma warning disable 0162
-            if(this.gameId <= 0)
-            {
-                if(GlobalSettings.GAME_ID <= 0)
-                {
-                    Debug.LogError("[mod.io] Game ID is missing. Save it to GlobalSettings or this MonoBehaviour before starting the app",
-                                   this);
-                    return;
-                }
-
-                this.gameId = GlobalSettings.GAME_ID;
-            }
-            if(String.IsNullOrEmpty(this.gameAPIKey))
-            {
-                if(String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY))
-                {
-                    Debug.LogError("[mod.io] Game API Key is missing. Save it to GlobalSettings or this MonoBehaviour before starting the app",
-                                   this);
-                    return;
-                }
-
-                this.gameAPIKey = GlobalSettings.GAME_APIKEY;
-            }
-            #pragma warning restore 0162
 
             LoadLocalData();
 
@@ -272,9 +260,38 @@ namespace ModIO.UI
 
         private void LoadLocalData()
         {
+            APIData d = this.apiData;
+
+            #pragma warning disable 0162
+            if(d.gameId <= 0)
+            {
+                if(GlobalSettings.GAME_ID <= 0)
+                {
+                    Debug.LogError("[mod.io] Game ID is missing. Save it to GlobalSettings or this MonoBehaviour before starting the app",
+                                   this);
+                    return;
+                }
+
+                d.gameId = GlobalSettings.GAME_ID;
+            }
+            if(String.IsNullOrEmpty(d.gameAPIKey))
+            {
+                if(String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY))
+                {
+                    Debug.LogError("[mod.io] Game API Key is missing. Save it to GlobalSettings or this MonoBehaviour before starting the app",
+                                   this);
+                    return;
+                }
+
+                d.gameAPIKey = GlobalSettings.GAME_APIKEY;
+            }
+            #pragma warning restore 0162
+
+            this.apiData = d;
+
             // --- APIClient ---
-            APIClient.gameId = this.gameId;
-            APIClient.gameAPIKey = this.gameAPIKey;
+            APIClient.gameId = apiData.gameId;
+            APIClient.gameAPIKey = apiData.gameAPIKey;
             APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();
 
             // --- Manifest ---
@@ -292,7 +309,7 @@ namespace ModIO.UI
             if(this.gameProfile == null)
             {
                 this.gameProfile = new GameProfile();
-                this.gameProfile.id = this.gameId;
+                this.gameProfile.id = apiData.gameId;
             }
         }
 
@@ -564,7 +581,7 @@ namespace ModIO.UI
 
                 RequestFilter filter = new RequestFilter();
                 filter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                        new EqualToFilter<int>(){ filterValue = this.gameId });
+                                        new EqualToFilter<int>(){ filterValue = apiData.gameId });
 
                 APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
             }
@@ -752,7 +769,7 @@ namespace ModIO.UI
 
             RequestFilter subscriptionFilter = new RequestFilter();
             subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                                new EqualToFilter<int>() { filterValue = this.gameId });
+                                                new EqualToFilter<int>() { filterValue = apiData.gameId });
 
             APIPaginationParameters pagination = new APIPaginationParameters()
             {
