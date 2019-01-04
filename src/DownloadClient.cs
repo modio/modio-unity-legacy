@@ -176,6 +176,23 @@ namespace ModIO
         public static event Action<ModfileIdPair, WebRequestError> modfileDownloadFailed;
         public static Dictionary<ModfileIdPair, FileDownloadInfo> modfileDownloadMap = new Dictionary<ModfileIdPair, FileDownloadInfo>();
 
+        public static FileDownloadInfo GetActiveModBinaryDownload(int modId, int modfileId)
+        {
+            ModfileIdPair idPair = new ModfileIdPair()
+            {
+                modId = modId,
+                modfileId = modfileId,
+            };
+
+            FileDownloadInfo downloadInfo;
+            if(DownloadClient.modfileDownloadMap.TryGetValue(idPair, out downloadInfo))
+            {
+                return downloadInfo;
+            }
+
+            return null;
+        }
+
         public static void StartModBinaryDownload(int modId, int modfileId,
                                                   string targetFilePath)
         {
@@ -196,6 +213,7 @@ namespace ModIO
                 target = targetFilePath,
                 fileSize = -1,
                 request = null,
+                isDone = false,
             };
 
             // - Acquire Download URL -
@@ -229,6 +247,7 @@ namespace ModIO
                 target = targetFilePath,
                 fileSize = modfile.fileSize,
                 request = null,
+                isDone = false,
             };
 
             DownloadModBinary_Internal(idPair, modfile.downloadLocator.binaryURL);
@@ -293,6 +312,8 @@ namespace ModIO
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
             UnityWebRequest request = downloadInfo.request;
             bool succeeded = false;
+
+            downloadInfo.isDone = true;
 
             if(request.isNetworkError || request.isHttpError)
             {
