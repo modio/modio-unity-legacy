@@ -50,6 +50,9 @@ namespace ModIO.UI
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
 
+        // --- RUNTIME DATA ---
+        private Coroutine m_downloadDisplayCoroutine = null;
+
         // --- FUNCTION DELEGATES ---
         private delegate void GetDataDelegate(ref ModDisplayData data);
         private List<GetDataDelegate> m_getDelegates = new List<GetDataDelegate>();
@@ -117,6 +120,14 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        public void OnEnable()
+        {
+            GetData();
+            FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(m_data.profile.modId,
+                                                                                      m_data.currentBuild.modfileId);
+            DisplayDownload(downloadInfo);
+        }
+
         public void Initialize()
         {
             CollectDelegates();
@@ -495,18 +506,21 @@ namespace ModIO.UI
 
         public void DisplayDownload(FileDownloadInfo downloadInfo)
         {
-            Debug.Assert(downloadInfo != null);
-
-            if(downloadDisplay != null
-               && !downloadInfo.isDone)
+            if(downloadDisplay != null)
             {
-                downloadDisplay.gameObject.SetActive(true);
-                downloadDisplay.DisplayDownload(downloadInfo);
-
-                // TODO(@jackson): Handle inactive
-                if(this.isActiveAndEnabled)
+                if(m_downloadDisplayCoroutine != null)
                 {
-                    this.StartCoroutine(MonitorDownloadCoroutine(data.profile.modId));
+                    this.StopCoroutine(m_downloadDisplayCoroutine);
+                }
+
+                bool activeDownload = (downloadInfo != null && !downloadInfo.isDone);
+                downloadDisplay.gameObject.SetActive(activeDownload);
+
+                if(this.isActiveAndEnabled
+                   && activeDownload)
+                {
+                    downloadDisplay.DisplayDownload(downloadInfo);
+                    m_downloadDisplayCoroutine = this.StartCoroutine(MonitorDownloadCoroutine(data.profile.modId));
                 }
             }
         }

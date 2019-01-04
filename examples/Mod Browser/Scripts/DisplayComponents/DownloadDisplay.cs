@@ -162,6 +162,8 @@ namespace ModIO.UI
             m_data.bytesPerSecond = 0;
             m_data.isActive = false;
 
+            m_downloadInfo = null;
+
             PresentData();
         }
 
