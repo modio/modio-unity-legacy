@@ -147,7 +147,6 @@ namespace ModIO
                                                        string.Empty);
             return new List<int>(EnumerateModIdString(valueString));
         }
-        // TODO(@jackson): Change extracted mods?
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
             string valueString = CreateModIdArrayString(modIds);

@@ -22,7 +22,6 @@ namespace ModIO.UI
             }
             else
             {
-                // TODO(@jackson): Call more directly?
                 view.NotifyClicked();
             }
         }
@@ -31,7 +30,6 @@ namespace ModIO.UI
         {
             if(slider.isAnimating) { return; }
 
-            // TODO(@jackson): Call more directly?
             view.NotifyClicked();
             slider.isToggled = false;
         }

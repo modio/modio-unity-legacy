@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO(@jackson): Add click to hide
-// TODO(@jackson): Add animation for toasting
 namespace ModIO.UI
 {
     public class MessageSystem : MonoBehaviour

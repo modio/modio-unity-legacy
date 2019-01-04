@@ -8,12 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-// TODO(@jackson): Clean up after removing IModBrowserView
-// TODO(@jackson): Queue missed requests? (Unsub fail)
-// TODO(@jackson): Correct subscription loading
-// TODO(@jackson): Add user events
 // TODO(@jackson): Error handling on log in
-// TODO(@jackson): Update view function names (see FilterView)
 namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour
@@ -362,7 +357,6 @@ namespace ModIO.UI
             inspectorView.Initialize();
             inspectorView.subscribeRequested += (p) => SubscribeToMod(p.id);
             inspectorView.unsubscribeRequested += (p) => UnsubscribeFromMod(p.id);
-            // TODO(@jackson): Add Enable/Disable
             inspectorView.gameObject.SetActive(false);
 
             UpdateInspectorViewPageButtonInteractibility();
@@ -370,10 +364,8 @@ namespace ModIO.UI
 
         private void InitializeSubscriptionsView()
         {
-            // TODO(@jackson): Update displays on subscribe/unsubscribe
             subscriptionsView.Initialize();
 
-            // TODO(@jackson): Hook up events
             subscriptionsView.inspectRequested += InspectSubscriptionItem;
             subscriptionsView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
             subscriptionsView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);
@@ -381,7 +373,6 @@ namespace ModIO.UI
             subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             // - setup ui filter controls -
-            // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
             if(subscriptionsView.nameSearchField != null)
             {
                 subscriptionsView.nameSearchField.onEndEdit.AddListener((t) =>
@@ -457,7 +448,6 @@ namespace ModIO.UI
             explorerView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             // - setup ui filter controls -
-            // TODO(@jackson): nameSearchField.onValueChanged.AddListener((t) => {});
             if(explorerView.nameSearchField != null)
             {
                 explorerView.nameSearchField.onEndEdit.AddListener((t) =>
@@ -606,7 +596,6 @@ namespace ModIO.UI
                     }
                 };
 
-                // TODO(@jackson): DO BETTER - (CACHE?! DOWNLOADS?)
                 Action<RequestPage<ModProfile>> onGetSubscriptions = (r) =>
                 {
                     List<int> subscribedModIds = new List<int>(r.items.Length);
@@ -1418,6 +1407,8 @@ namespace ModIO.UI
                     string unzipLocation = (CacheClient.GetCacheDirectory()
                                             + "_installedMods/"
                                             + request.modId.ToString() + "/");
+
+                    CacheClient.DeleteDirectory(unzipLocation);
 
                     ModManager.UnzipModBinaryToLocation(request.modId, request.modfileId,
                                                         unzipLocation);

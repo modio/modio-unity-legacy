@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-// TODO(@jackson): Handle no mods in list inspection
 namespace ModIO.UI
 {
     public class SubscriptionsView : MonoBehaviour

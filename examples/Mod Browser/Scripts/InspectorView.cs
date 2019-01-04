@@ -5,9 +5,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-// TODO(@jackson): Handle guest accounts
-// TODO(@jackson): Handle errors
-// TODO(@jackson): Assert all required object on Initialize()
 namespace ModIO.UI
 {
     public class InspectorView : MonoBehaviour
@@ -49,6 +46,7 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
+            // TODO(@jackson): Asserts
             if(modView != null)
             {
                 modView.Initialize();
@@ -128,7 +126,7 @@ namespace ModIO.UI
                 modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
                 modfileFilter.isSortAscending = false;
 
-                // TODO(@jackson): onError
+                // TODO(@jackson): onError - queue
                 APIClient.GetAllModfiles(profile.id,
                                          modfileFilter,
                                          new APIPaginationParameters(){ limit = 20 },

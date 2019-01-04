@@ -31,8 +31,6 @@ namespace ModIO.UI
         public Text homepageURLDisplay;
         public Text profileURLDisplay;
         public Text metadataBlobDisplay;
-        // TODO(@jackson)
-        // public MetadataKVP[] metadataKVPs;
 
         [Header("Display Data")]
         [SerializeField] private ModProfileDisplayData m_data = new ModProfileDisplayData();

@@ -37,7 +37,7 @@ namespace ModIO.UI
             }
         }
 
-        // TODO(@jackson): Add smallest unit
+        // TODO(@jackson): Add smallest unit param
         public static string ByteCountToDisplayString(Int64 value)
         {
             string[] sizeSuffixes = new string[]{"B", "KB", "MB", "GB"};
