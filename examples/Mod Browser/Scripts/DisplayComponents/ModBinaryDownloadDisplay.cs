@@ -57,6 +57,7 @@ namespace ModIO.UI
 
         // ---------[ INITIALIZATION ]---------
         public override void Initialize() {}
+        public override void DisplayDownload(UnityEngine.Networking.UnityWebRequest request, Int64 downloadSize) {}
 
         private void OnEnable()
         {

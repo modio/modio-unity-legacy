@@ -66,6 +66,14 @@ namespace ModIO.UI
         // ---------[ EVENTS ]---------
         private void UpdateBarSize()
         {
+            #if UNITY_EDITOR
+            if(barTransform == null
+               || barParent == null)
+            {
+                return;
+            }
+            #endif
+
             float barWidth = m_percentComplete * barParent.rect.width;
             barTransform.sizeDelta = new Vector2(barWidth, 0f);
         }
