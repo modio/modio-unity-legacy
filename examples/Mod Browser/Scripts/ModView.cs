@@ -471,7 +471,10 @@ namespace ModIO.UI
                 m_data.statistics = statsData;
             }
 
-            // TODO(@jackson): DownloadDisplay
+            // - download -
+            FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(m_data.profile.modId,
+                                                                                      m_data.currentBuild.modfileId);
+            DisplayDownload(downloadInfo);
 
             // - subscribed -
             if(subscriptionDisplay.isSubscribed != null)
@@ -506,6 +509,8 @@ namespace ModIO.UI
 
         public void DisplayDownload(FileDownloadInfo downloadInfo)
         {
+            bool activeDownload = (downloadInfo != null && !downloadInfo.isDone);
+
             if(downloadDisplay != null)
             {
                 if(m_downloadDisplayCoroutine != null)
@@ -513,7 +518,6 @@ namespace ModIO.UI
                     this.StopCoroutine(m_downloadDisplayCoroutine);
                 }
 
-                bool activeDownload = (downloadInfo != null && !downloadInfo.isDone);
                 downloadDisplay.gameObject.SetActive(activeDownload);
 
                 if(this.isActiveAndEnabled
@@ -521,6 +525,23 @@ namespace ModIO.UI
                 {
                     downloadDisplay.DisplayDownload(downloadInfo);
                     m_downloadDisplayCoroutine = this.StartCoroutine(MonitorDownloadCoroutine(data.profile.modId));
+                }
+
+                m_data.binaryDownload = downloadDisplay.data;
+            }
+            else
+            {
+                DownloadDisplayData data = new DownloadDisplayData();
+                data.bytesReceived = 0;
+                data.bytesPerSecond = 0;
+                data.bytesTotal = 0;
+                data.isActive = activeDownload;
+
+                if(downloadInfo != null)
+                {
+                    data.bytesReceived = (downloadInfo.request == null
+                                          ? 0 : (Int64)downloadInfo.request.downloadedBytes);
+                    data.bytesTotal = downloadInfo.fileSize;
                 }
             }
         }
