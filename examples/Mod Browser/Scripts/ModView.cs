@@ -503,7 +503,29 @@ namespace ModIO.UI
                 downloadDisplay.gameObject.SetActive(true);
                 downloadDisplay.DisplayDownload(downloadInfo);
 
-                // TODO(@jackson): FIX THIS UP
+                // TODO(@jackson): Handle inactive
+                if(this.isActiveAndEnabled)
+                {
+                    this.StartCoroutine(MonitorDownloadCoroutine(data.profile.modId));
+                }
+            }
+        }
+
+        private System.Collections.IEnumerator MonitorDownloadCoroutine(int modId)
+        {
+            while(downloadDisplay.data.isActive)
+            {
+                yield return null;
+            }
+
+            if(data.profile.modId == modId)
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
+                                           data.profile.name + " successfully downloaded");
+
+                yield return new WaitForSeconds(4f);
+
+                downloadDisplay.gameObject.SetActive(false);
             }
         }
 

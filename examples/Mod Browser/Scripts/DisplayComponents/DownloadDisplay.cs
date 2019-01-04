@@ -113,6 +113,7 @@ namespace ModIO.UI
                 bytesReceived = bytesReceived,
                 bytesPerSecond = 0,
                 bytesTotal = downloadInfo.fileSize,
+                isActive = !downloadInfo.isDone,
             };
 
             if(Application.isPlaying && this.isActiveAndEnabled)
@@ -131,6 +132,11 @@ namespace ModIO.UI
             while(m_downloadInfo != null
                   && !m_downloadInfo.isDone)
             {
+                if(m_data.bytesTotal <= 0)
+                {
+                    m_data.bytesTotal = m_downloadInfo.fileSize;
+                }
+
                 if(m_downloadInfo.request != null)
                 {
                     m_data.bytesReceived = (Int64)m_downloadInfo.request.downloadedBytes;
@@ -154,6 +160,9 @@ namespace ModIO.UI
 
             m_data.bytesReceived = m_data.bytesTotal;
             m_data.bytesPerSecond = 0;
+            m_data.isActive = false;
+
+            PresentData();
         }
 
         // ---------[ EVENTS ]---------
