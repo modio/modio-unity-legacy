@@ -9252,7 +9252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1c85660f7128418f90b7173c1e390a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultBaseTime: 4
+  defaultBaseTime: 2
   defaultCharacterTime: 0.1
   successDialog: {fileID: 114897800532475776}
   warningDialog: {fileID: 114607656112544298}
@@ -13111,9 +13111,11 @@ MonoBehaviour:
       ratingWeightedAggregate: 0
       ratingDisplayText: 
       dateExpires: 0
-    activeDownload:
-      bytesDownloaded: 0
-      fileSize: 0
+    binaryDownload:
+      bytesReceived: 0
+      bytesPerSecond: 0
+      bytesTotal: 0
+      isActive: 0
     isSubscribed: 0
     isModEnabled: 0
 --- !u!114 &114908891659772908

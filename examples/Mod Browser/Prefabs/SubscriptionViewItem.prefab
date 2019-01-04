@@ -1203,7 +1203,7 @@ MonoBehaviour:
   buildDisplay: {fileID: 114176632974941104}
   tagsDisplay: {fileID: 0}
   statisticsDisplay: {fileID: 0}
-  downloadDisplay: {fileID: 114618228435171366}
+  downloadDisplay: {fileID: 0}
   subscriptionDisplay:
     isSubscribed: {fileID: 0}
     notSubscribed: {fileID: 0}
@@ -1274,9 +1274,11 @@ MonoBehaviour:
       ratingWeightedAggregate: 0
       ratingDisplayText: 
       dateExpires: 0
-    activeDownload:
-      bytesDownloaded: 0
-      fileSize: 0
+    binaryDownload:
+      bytesReceived: 0
+      bytesPerSecond: 0
+      bytesTotal: 0
+      isActive: 0
     isSubscribed: 0
     isModEnabled: 0
 --- !u!114 &114503804929373994
@@ -1528,8 +1530,9 @@ MonoBehaviour:
   progressBar: {fileID: 0}
   modId: 0
   m_data:
-    bytesDownloaded: 0
-    fileSize: 0
+    bytesReceived: 0
+    bytesPerSecond: 0
+    bytesTotal: 0
 --- !u!114 &114629090997802300
 MonoBehaviour:
   m_ObjectHideFlags: 1

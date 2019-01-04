@@ -894,9 +894,11 @@ MonoBehaviour:
       ratingWeightedAggregate: 0
       ratingDisplayText: 
       dateExpires: 0
-    activeDownload:
-      bytesDownloaded: 0
-      fileSize: 0
+    binaryDownload:
+      bytesReceived: 0
+      bytesPerSecond: 0
+      bytesTotal: 0
+      isActive: 0
     isSubscribed: 0
     isModEnabled: 0
 --- !u!114 &114252801675974234
@@ -1924,7 +1926,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 404, y: -282}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 360, y: 330}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224088497088703176

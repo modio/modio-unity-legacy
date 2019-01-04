@@ -21,7 +21,7 @@ namespace ModIO.UI
 
         [Header("Settings")]
         [Tooltip("Default base time to display a message (in seconds)")]
-        public float defaultBaseTime = 4.0f;
+        public float defaultBaseTime = 2.0f;
         [Tooltip("Additional time per character in the message (in seconds)")]
         public float defaultCharacterTime = 0.1f;
 
