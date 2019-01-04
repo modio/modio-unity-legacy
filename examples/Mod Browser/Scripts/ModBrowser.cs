@@ -177,7 +177,6 @@ namespace ModIO.UI
         private int lastCacheUpdate = -1;
         private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
-        private List<ModBinaryRequest> modDownloads = new List<ModBinaryRequest>();
         private GameProfile gameProfile = null;
 
 
@@ -841,24 +840,7 @@ namespace ModIO.UI
                         remoteSubscriptions.Add(profile.id);
 
                         // begin download
-                        ModBinaryRequest binaryRequest = ModManager.RequestCurrentRelease(profile);
-
-                        if(!binaryRequest.isDone)
-                        {
-                            binaryRequest.succeeded += (r) =>
-                            {
-                                Debug.Log(profile.name + " Downloaded!");
-                                modDownloads.Remove(binaryRequest);
-                            };
-
-                            binaryRequest.failed += (r) =>
-                            {
-                                Debug.Log(profile.name + " Download Failed!");
-                                modDownloads.Remove(binaryRequest);
-                            };
-
-                            modDownloads.Add(binaryRequest);
-                        }
+                        OnSubscribedToMod(profile);
                     }
 
                     subscriptionsToPush.Remove(profile.id);
@@ -1398,8 +1380,6 @@ namespace ModIO.UI
 
             if(!request.isDone)
             {
-                modDownloads.Add(request);
-
                 request.succeeded += (r) =>
                 {
                     // TODO(@jackson): TEMP
@@ -1413,8 +1393,6 @@ namespace ModIO.UI
                     ModManager.UnzipModBinaryToLocation(request.modId, request.modfileId,
                                                         unzipLocation);
                     #endif
-
-                    modDownloads.Remove(request);
                 };
             }
 
