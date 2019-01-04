@@ -80,8 +80,78 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            if(Application.isPlaying && m_request != null
+               && m_updateCoroutine == null)
+            {
+                m_updateCoroutine = this.StartCoroutine(UpdateCoroutine());
+            }
+        }
+
         public override void Initialize() {}
-        public override void DisplayDownload(UnityWebRequest request, Int64 downloadSize) {}
+
+        // ---------[ UI FUNCTIONALITY ]---------
+        public override void DisplayDownload(UnityWebRequest request, Int64 downloadSize)
+        {
+            Debug.Assert(request != null);
+
+            if(m_updateCoroutine != null)
+            {
+                this.StopCoroutine(m_updateCoroutine);
+            }
+
+            m_request = request;
+
+            m_data = new DownloadDisplayData()
+            {
+                bytesReceived = (Int64)request.downloadedBytes,
+                bytesPerSecond = 0,
+                bytesTotal = downloadSize,
+            };
+
+            if(Application.isPlaying
+               && this.isActiveAndEnabled)
+            {
+                m_updateCoroutine = this.StartCoroutine(UpdateCoroutine());
+            }
+        }
+
+        private System.Collections.IEnumerator UpdateCoroutine()
+        {
+            float timeStepElapsed = 0f;
+            Int64 timeStepStartByteCount = (Int64)m_request.downloadedBytes;
+
+            while(m_request != null
+                  && !m_request.isDone)
+            {
+                if(m_data.bytesTotal <= 0
+                   && m_request.downloadProgress >= 0.001f)
+                {
+                    m_data.bytesTotal = (Int64)(m_request.downloadedBytes * m_request.downloadProgress);
+                }
+
+                m_data.bytesReceived = (Int64)m_request.downloadedBytes;
+
+                if(timeStepElapsed >= 1f)
+                {
+                    m_data.bytesPerSecond = (Int64)((m_data.bytesReceived - timeStepStartByteCount)
+                                                    / timeStepElapsed);
+
+                    timeStepElapsed = 0f;
+                    timeStepStartByteCount = m_data.bytesReceived;
+                }
+
+                PresentData();
+
+                yield return null;
+
+                timeStepElapsed += Time.deltaTime;
+            }
+
+            m_data.bytesReceived = m_data.bytesTotal;
+            m_data.bytesPerSecond = 0;
+        }
 
         // ---------[ EVENTS ]---------
         public void NotifyClick()
