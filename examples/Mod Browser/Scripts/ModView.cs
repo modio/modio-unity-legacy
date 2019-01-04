@@ -493,6 +493,20 @@ namespace ModIO.UI
             #endif
         }
 
+        public void DisplayDownload(FileDownloadInfo downloadInfo)
+        {
+            Debug.Assert(downloadInfo != null);
+
+            if(downloadDisplay != null
+               && !downloadInfo.isDone)
+            {
+                downloadDisplay.gameObject.SetActive(true);
+                downloadDisplay.DisplayDownload(downloadInfo);
+
+                // TODO(@jackson): FIX THIS UP
+            }
+        }
+
         public void DisplayLoading()
         {
             foreach(DisplayLoadingDelegate loadingDelegate in m_loadingDelegates)

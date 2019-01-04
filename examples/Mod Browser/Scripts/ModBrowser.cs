@@ -292,6 +292,21 @@ namespace ModIO.UI
             InitializeDialogs();
             InitializeDisplays();
 
+            // TODO(@jackson): TEMP
+            #if MEEPLESTATION_AUTO_INSTALL
+            DownloadClient.modfileDownloadSuceeded += (p, d) =>
+            {
+                string unzipLocation = (CacheClient.GetCacheDirectory()
+                                        + "_installedMods/"
+                                        + request.modId.ToString() + "/");
+
+                CacheClient.DeleteDirectory(unzipLocation);
+
+                ModManager.UnzipModBinaryToLocation(request.modId, request.modfileId,
+                                                    unzipLocation);
+            };
+            #endif
+
             StartFetchRemoteData();
         }
 
@@ -1363,37 +1378,32 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
-            // begin download
-            ModBinaryRequest request = ModManager.RequestCurrentRelease(profile);
-
-            // TODO(@jackson): Dirty hack (now less dirty???)
-            ModBinaryDownloadDisplay[] sceneDownloadDisplays
-                = Resources.FindObjectsOfTypeAll<ModBinaryDownloadDisplay>();
-            foreach(ModBinaryDownloadDisplay downloadDisplay in sceneDownloadDisplays)
+            if(!ModManager.IsBinaryDownloaded(profile.id, profile.activeBuild.id))
             {
-                if(downloadDisplay.modId == profile.id)
+                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
+
+                if(downloadInfo == null)
                 {
-                    downloadDisplay.gameObject.SetActive(true);
-                    downloadDisplay.DisplayRequest(request);
+                    string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id);
+                    DownloadClient.StartModBinaryDownload(profile.id,
+                                                          profile.activeBuild.id,
+                                                          zipFilePath);
+
+                    downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
                 }
-            }
 
-            if(!request.isDone)
-            {
-                request.succeeded += (r) =>
+                if(!downloadInfo.isDone)
                 {
-                    // TODO(@jackson): TEMP
-                    #if MEEPLESTATION_AUTO_INSTALL
-                    string unzipLocation = (CacheClient.GetCacheDirectory()
-                                            + "_installedMods/"
-                                            + request.modId.ToString() + "/");
-
-                    CacheClient.DeleteDirectory(unzipLocation);
-
-                    ModManager.UnzipModBinaryToLocation(request.modId, request.modfileId,
-                                                        unzipLocation);
-                    #endif
-                };
+                    // TODO(@jackson): Dirty hack (now less dirty???)
+                    ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
+                    foreach(ModView modView in sceneViews)
+                    {
+                        if(modView.data.profile.modId == profile.id)
+                        {
+                            modView.DisplayDownload(downloadInfo);
+                        }
+                    }
+                }
             }
 
             UpdateViewSubscriptions();
