@@ -22,7 +22,7 @@ namespace ModIO.UI
         [SerializeField] private DownloadDisplayData m_data;
 
         // --- RUNTIME DATA ---
-        private UnityWebRequest m_request;
+        private FileDownloadInfo m_downloadInfo;
         private Coroutine m_updateCoroutine;
 
         // --- ACCESSORS ---
@@ -82,7 +82,8 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
-            if(Application.isPlaying && m_request != null
+            if(Application.isPlaying
+               && m_downloadInfo != null
                && m_updateCoroutine == null)
             {
                 m_updateCoroutine = this.StartCoroutine(UpdateCoroutine());
@@ -92,26 +93,29 @@ namespace ModIO.UI
         public override void Initialize() {}
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayDownload(UnityWebRequest request, Int64 downloadSize)
+        public override void DisplayDownload(FileDownloadInfo downloadInfo)
         {
-            Debug.Assert(request != null);
+            Debug.Assert(downloadInfo != null);
 
             if(m_updateCoroutine != null)
             {
                 this.StopCoroutine(m_updateCoroutine);
             }
 
-            m_request = request;
+            m_downloadInfo = downloadInfo;
+
+            Int64 bytesReceived = (downloadInfo.request == null
+                                   ? 0
+                                   : (Int64)downloadInfo.request.downloadedBytes);
 
             m_data = new DownloadDisplayData()
             {
-                bytesReceived = (Int64)request.downloadedBytes,
+                bytesReceived = bytesReceived,
                 bytesPerSecond = 0,
-                bytesTotal = downloadSize,
+                bytesTotal = downloadInfo.fileSize,
             };
 
-            if(Application.isPlaying
-               && this.isActiveAndEnabled)
+            if(Application.isPlaying && this.isActiveAndEnabled)
             {
                 m_updateCoroutine = this.StartCoroutine(UpdateCoroutine());
             }
@@ -120,18 +124,17 @@ namespace ModIO.UI
         private System.Collections.IEnumerator UpdateCoroutine()
         {
             float timeStepElapsed = 0f;
-            Int64 timeStepStartByteCount = (Int64)m_request.downloadedBytes;
+            Int64 timeStepStartByteCount = (m_downloadInfo.request == null
+                                            ? 0
+                                            : (Int64)m_downloadInfo.request.downloadedBytes);
 
-            while(m_request != null
-                  && !m_request.isDone)
+            while(m_downloadInfo != null
+                  && !m_downloadInfo.isDone)
             {
-                if(m_data.bytesTotal <= 0
-                   && m_request.downloadProgress >= 0.001f)
+                if(m_downloadInfo.request != null)
                 {
-                    m_data.bytesTotal = (Int64)(m_request.downloadedBytes * m_request.downloadProgress);
+                    m_data.bytesReceived = (Int64)m_downloadInfo.request.downloadedBytes;
                 }
-
-                m_data.bytesReceived = (Int64)m_request.downloadedBytes;
 
                 if(timeStepElapsed >= 1f)
                 {

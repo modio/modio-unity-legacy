@@ -14,7 +14,7 @@ namespace ModIO.UI
 
         public ModStatisticsDisplayData statistics;
 
-        public DownloadDisplayData      activeDownload;
+        public DownloadDisplayData      binaryDownload;
 
         public bool isSubscribed;
         public bool isModEnabled;

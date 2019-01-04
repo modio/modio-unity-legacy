@@ -18,6 +18,21 @@ namespace ModIO.UI
         public abstract DownloadDisplayData data { get; set; }
 
         public abstract void Initialize();
-        public abstract void DisplayDownload(UnityWebRequest request, Int64 downloadSize);
+        public abstract void DisplayDownload(FileDownloadInfo downloadInfo);
+
+        [Obsolete]
+        public void DisplayDownload(UnityWebRequest request, Int64 downloadSize)
+        {
+            UnityEngine.Debug.Assert(request != null);
+
+            FileDownloadInfo download = new FileDownloadInfo()
+            {
+                request = request,
+                target = string.Empty,
+                fileSize = downloadSize,
+            };
+
+            DisplayDownload(download);
+        }
     }
 }
