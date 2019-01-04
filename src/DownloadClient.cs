@@ -191,21 +191,18 @@ namespace ModIO
                 return;
             }
 
-            FileDownloadInfo downloadInfo = new FileDownloadInfo()
+            modfileDownloadMap[idPair] = new FileDownloadInfo()
             {
                 target = targetFilePath,
                 fileSize = -1,
                 request = null,
             };
 
-            modfileDownloadMap[idPair] = downloadInfo;
-
             // - Acquire Download URL -
             APIClient.GetModfile(modId, modfileId,
                                  (mf) =>
                                  {
-                                    downloadInfo.fileSize = mf.fileSize;
-                                    modfileDownloadMap[idPair] = downloadInfo;
+                                    modfileDownloadMap[idPair].fileSize = mf.fileSize;
                                     DownloadModBinary_Internal(idPair, mf.downloadLocator.binaryURL);
                                  },
                                  (e) => { if(modfileDownloadFailed != null) { modfileDownloadFailed(idPair, e); } });

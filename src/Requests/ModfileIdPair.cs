@@ -8,7 +8,7 @@ namespace ModIO
     }
 
     [System.Serializable]
-    public struct FileDownloadInfo
+    public class FileDownloadInfo
     {
         public UnityEngine.Networking.UnityWebRequest request;
         public string target;

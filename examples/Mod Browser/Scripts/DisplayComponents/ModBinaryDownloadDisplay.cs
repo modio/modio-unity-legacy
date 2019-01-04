@@ -21,6 +21,7 @@ using UnityEngine.UI;
 // TODO(@jackson): Needs cleanup
 namespace ModIO.UI
 {
+    [Obsolete]
     public class ModBinaryDownloadDisplay : DownloadDisplayComponent
     {
         // ---------[ FIELDS ]---------

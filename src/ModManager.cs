@@ -728,6 +728,7 @@ namespace ModIO
 
         // ---------[ MODFILES ]---------
         // TODO(@jackson): Add Profile Ids for when inProgressRequest hasn't yet got a modfile
+        [Obsolete]
         public static List<ModBinaryRequest> downloadsInProgress = new List<ModBinaryRequest>();
 
         public static void GetModfile(int modId, int modfileId,
@@ -817,6 +818,7 @@ namespace ModIO
         // NOTE(@jackson): A ModBinaryRequest that is found in the cache will never trigger the
         // succeeded event, and so (until this is fixed) it's important to check isDone to see if
         // the ModBinaryRequest has been located locally.
+        [Obsolete]
         public static ModBinaryRequest RequestCurrentRelease(ModProfile profile)
         {
             foreach(ModBinaryRequest inProgressRequest in downloadsInProgress)
@@ -829,22 +831,27 @@ namespace ModIO
 
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
                                                                           profile.activeBuild.id);
-            ModBinaryRequest request = new ModBinaryRequest()
-            {
-                modId = profile.id,
-                modfileId = profile.activeBuild.id,
-                binaryFilePath = zipFilePath,
-                isDone = false,
-            };
+            ModBinaryRequest request;
 
             if(File.Exists(zipFilePath))
             {
-                request.isDone = true;
+                FileDownloadInfo downloadInfo = new FileDownloadInfo()
+                {
+                    target = zipFilePath,
+                    request = null,
+                    fileSize = profile.activeBuild.fileSize,
+                };
+
+                request = new ModBinaryRequest()
+                {
+                    downloadInfo = downloadInfo,
+                    isDone = true,
+                    modId = profile.id,
+                    modfileId = profile.activeBuild.id,
+                };
             }
             else
             {
-                request.isDone = false;
-
                 ModfileIdPair idPair = new ModfileIdPair()
                 {
                     modId = profile.id,
@@ -861,29 +868,33 @@ namespace ModIO
                     downloadInfo = DownloadClient.modfileDownloadMap[idPair];
                 }
 
-                request.webRequest = downloadInfo.request;
-                if(request.webRequest != null)
-                {
-                    request.isDone = downloadInfo.request.isDone;
-                }
+                request = ModBinaryRequest.Create(profile.id,
+                                                  profile.activeBuild.id,
+                                                  downloadInfo);
 
-                downloadsInProgress.Add(request);
-
-                request.succeeded += (r) => downloadsInProgress.Remove(r);
+                request.isDone = false;
             }
 
             return request;
         }
 
+        public static bool IsBinaryDownloaded(int modId, int modfileId)
+        {
+            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+            return File.Exists(zipFilePath);
+        }
+
+        [Obsolete("Use DownloadClient.modfileDownloadMap instead.")]
         public static ModBinaryRequest GetDownloadInProgress(int modfileId)
         {
-            foreach(ModBinaryRequest inProgressRequest in downloadsInProgress)
+            foreach(var kvp in DownloadClient.modfileDownloadMap)
             {
-                if(inProgressRequest.modfileId == modfileId)
+                if(kvp.Key.modfileId == modfileId)
                 {
-                    return inProgressRequest;
+                    return ModBinaryRequest.Create(-1, modfileId, kvp.Value);
                 }
             }
+
             return null;
         }
 
