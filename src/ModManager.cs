@@ -829,19 +829,44 @@ namespace ModIO
 
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id,
                                                                           profile.activeBuild.id);
-            ModBinaryRequest request;
+            ModBinaryRequest request = new ModBinaryRequest()
+            {
+                modId = profile.id,
+                modfileId = profile.activeBuild.id,
+                binaryFilePath = zipFilePath,
+                isDone = false,
+            };
 
             if(File.Exists(zipFilePath))
             {
-                request = new ModBinaryRequest();
                 request.isDone = true;
-                request.binaryFilePath = zipFilePath;
             }
             else
             {
-                request = DownloadClient.DownloadModBinary(profile.id,
-                                                           profile.activeBuild.id,
-                                                           zipFilePath);
+                request.isDone = false;
+
+                ModfileIdPair idPair = new ModfileIdPair()
+                {
+                    modId = profile.id,
+                    modfileId = profile.activeBuild.id,
+                };
+
+                FileDownloadInfo downloadInfo;
+                if(!DownloadClient.modfileDownloadMap.TryGetValue(idPair, out downloadInfo))
+                {
+                    DownloadClient.StartModBinaryDownload(profile.id,
+                                                          profile.activeBuild.id,
+                                                          zipFilePath);
+
+                    downloadInfo = DownloadClient.modfileDownloadMap[idPair];
+                }
+
+                request.webRequest = downloadInfo.request;
+                if(request.webRequest != null)
+                {
+                    request.isDone = downloadInfo.request.isDone;
+                }
+
                 downloadsInProgress.Add(request);
 
                 request.succeeded += (r) => downloadsInProgress.Remove(r);

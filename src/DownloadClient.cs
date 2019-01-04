@@ -1,6 +1,7 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 using UnityEngine;
 using UnityEngine.Networking;
@@ -171,49 +172,96 @@ namespace ModIO
         }
 
         // ---------[ BINARY DOWNLOADS ]---------
-        public static ModBinaryRequest DownloadModBinary(int modId, int modfileId,
-                                                         string downloadFilePath)
+        public static event Action<ModfileIdPair, FileDownloadInfo> modfileDownloadSucceeded;
+        public static event Action<ModfileIdPair, WebRequestError> modfileDownloadFailed;
+        public static Dictionary<ModfileIdPair, FileDownloadInfo> modfileDownloadMap = new Dictionary<ModfileIdPair, FileDownloadInfo>();
+
+        public static void StartModBinaryDownload(int modId, int modfileId,
+                                                  string targetFilePath)
         {
-            ModBinaryRequest request = new ModBinaryRequest();
-
-            request.modId = modId;
-            request.modfileId = modfileId;
-            request.isDone = false;
-            request.binaryFilePath = downloadFilePath;
-
-            // - Acquire Download URL -
-            APIClient.GetModfile(modId, modfileId,
-                                 (mf) => DownloadClient.OnGetModfile(mf, request),
-                                 (e) => { request.error = e; request.NotifyFailed(); });
-
-            return request;
-        }
-
-        private static void OnGetModfile(Modfile modfile, ModBinaryRequest request)
-        {
-            string tempFilePath = request.binaryFilePath + ".download";
-
-            UnityWebRequest webRequest = UnityWebRequest.Get(modfile.downloadLocator.binaryURL);
-            request.webRequest = webRequest;
-
-            try
+            ModfileIdPair idPair = new ModfileIdPair()
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
-                request.webRequest.downloadHandler = new DownloadHandlerFile(tempFilePath);
-            }
-            catch(Exception e)
+                modId = modId,
+                modfileId = modfileId,
+            };
+
+            if(modfileDownloadMap.Keys.Contains(idPair))
             {
-                string warningInfo = ("[mod.io] Failed to create download file on disk."
-                                      + "\nFile: " + tempFilePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                request.NotifyFailed();
-
+                Debug.LogWarning("[mod.io] Mod Binary with matching ids already downloading. TargetFilePath was not updated.");
                 return;
             }
 
+            FileDownloadInfo downloadInfo = new FileDownloadInfo()
+            {
+                target = targetFilePath,
+                fileSize = -1,
+                request = null,
+            };
+
+            modfileDownloadMap[idPair] = downloadInfo;
+
+            // - Acquire Download URL -
+            APIClient.GetModfile(modId, modfileId,
+                                 (mf) =>
+                                 {
+                                    downloadInfo.fileSize = mf.fileSize;
+                                    modfileDownloadMap[idPair] = downloadInfo;
+                                    DownloadModBinary_Internal(idPair, mf.downloadLocator.binaryURL);
+                                 },
+                                 (e) => { if(modfileDownloadFailed != null) { modfileDownloadFailed(idPair, e); } });
+        }
+
+        public static void StartModBinaryDownload(Modfile modfile, string targetFilePath)
+        {
+            Debug.Assert(modfile.downloadLocator.dateExpires > ServerTimeStamp.Now);
+
+            ModfileIdPair idPair = new ModfileIdPair()
+            {
+                modId = modfile.modId,
+                modfileId = modfile.id,
+            };
+
+            if(modfileDownloadMap.Keys.Contains(idPair))
+            {
+                Debug.LogWarning("[mod.io] Mod Binary for modfile is already downloading. TargetFilePath was not updated.");
+                return;
+            }
+
+            modfileDownloadMap[idPair] = new FileDownloadInfo()
+            {
+                target = targetFilePath,
+                fileSize = modfile.fileSize,
+                request = null,
+            };
+
+            DownloadModBinary_Internal(idPair, modfile.downloadLocator.binaryURL);
+        }
+
+        private static void DownloadModBinary_Internal(ModfileIdPair idPair, string downloadURL)
+        {
+            FileDownloadInfo downloadInfo = modfileDownloadMap[idPair];
+            downloadInfo.request = UnityWebRequest.Get(downloadURL);
+
+            string tempFilePath = downloadInfo.target + ".download";
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
+                downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("Failed to create download file on disk."
+                                      + "\nFile: " + tempFilePath + "\n\n");
+
+                Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
+
+                if(modfileDownloadFailed != null)
+                {
+                    modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
+                }
+
+                return;
+            }
 
             #if DEBUG
             #pragma warning disable 0162 // ignore unreachable code warning
@@ -225,7 +273,7 @@ namespace ModIO
 
                 foreach(string headerKey in requestKeys)
                 {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
+                    string headerValue = downloadInfo.request.GetRequestHeader(headerKey);
                     if(headerValue != null)
                     {
                         requestHeaders += "\n" + headerKey + ": " + headerValue;
@@ -233,30 +281,57 @@ namespace ModIO
                 }
 
                 Debug.Log("GENERATING DOWNLOAD REQUEST"
-                          + "\nURL: " + webRequest.url
+                          + "\nURL: " + downloadInfo.request.url
                           + "\nHeaders: " + requestHeaders);
             }
             #pragma warning restore 0162
             #endif
 
-            var operation = request.webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(operation,
-                                                                                     request);
+            var operation = downloadInfo.request.SendWebRequest();
+            operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
         }
 
-        private static void OnModBinaryRequestCompleted(UnityWebRequestAsyncOperation operation,
-                                                        ModBinaryRequest request)
+        private static void OnModBinaryRequestCompleted(ModfileIdPair idPair)
         {
-            UnityWebRequest webRequest = operation.webRequest;
-            request.isDone = true;
+            FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
+            UnityWebRequest request = downloadInfo.request;
+            bool succeeded = false;
 
-            if(webRequest.isNetworkError || webRequest.isHttpError)
+            if(request.isNetworkError || request.isHttpError)
             {
-                request.error = WebRequestError.GenerateFromWebRequest(webRequest);
-
-                request.NotifyFailed();
+                if(modfileDownloadFailed != null)
+                {
+                    modfileDownloadFailed(idPair, WebRequestError.GenerateFromWebRequest(request));
+                }
             }
             else
+            {
+                try
+                {
+                    if(File.Exists(downloadInfo.target))
+                    {
+                        File.Delete(downloadInfo.target);
+                    }
+
+                    File.Move(downloadInfo.target + ".download", downloadInfo.target);
+
+                    succeeded = true;
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("Failed to save mod binary."
+                                          + "\nFile: " + downloadInfo.target + "\n\n");
+
+                    Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
+
+                    if(modfileDownloadFailed != null)
+                    {
+                        modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
+                    }
+                }
+            }
+
+            if(succeeded)
             {
                 #if DEBUG
                 #pragma warning disable 0162 // ignore unreachable code warning
@@ -265,34 +340,19 @@ namespace ModIO
                     var responseTimeStamp = ServerTimeStamp.Now;
                     Debug.Log("DOWNLOAD SUCEEDED"
                               + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                              + "\nURL: " + webRequest.url
-                              + "\nFilePath: " + request.binaryFilePath);
+                              + "\nURL: " + request.url
+                              + "\nFilePath: " + downloadInfo.target);
                 }
                 #pragma warning restore 0162
                 #endif
 
-                try
+                if(modfileDownloadSucceeded != null)
                 {
-                    if(File.Exists(request.binaryFilePath))
-                    {
-                        File.Delete(request.binaryFilePath);
-                    }
-
-                    File.Move(request.binaryFilePath + ".download", request.binaryFilePath);
+                    modfileDownloadSucceeded(idPair, downloadInfo);
                 }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to save mod binary."
-                                          + "\nFile: " + request.binaryFilePath + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    request.NotifyFailed();
-                }
-
-                request.NotifySucceeded();
             }
+
+            modfileDownloadMap.Remove(idPair);
         }
     }
 }
