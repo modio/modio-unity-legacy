@@ -94,6 +94,7 @@ namespace ModIO.Editor
                     {
                         logoTexture = CacheClient.ReadImageFile(logoLocation);
                         lastLogoWriteTime = imageInfo.LastWriteTime;
+                        isRepaintRequired = true;
                     }
                 }
                 catch(Exception e)
