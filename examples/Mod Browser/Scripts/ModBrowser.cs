@@ -673,7 +673,27 @@ namespace ModIO.UI
                                          (me) => { this.ProcessUpdates(me, updateStartTimeStamp); },
                                          (e) => { WebRequestError.LogAsWarning(e); this.isUpdateRunning = false; });
 
-            // TODO(@jackson): Add User Events
+            Action<WebRequestError> onUserUpdateError = (e) =>
+            {
+                // TODO(@jackson): Localize
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           "Error synchronizing user data.\n"
+                                           + e.message);
+            };
+
+            // TODO(@jackson): Implement lastUserUpdate
+            ModManager.FetchAllUserEvents(0, updateStartTimeStamp,
+                                          this.ProcessUserUpdates,
+                                          onUserUpdateError);
+
+        }
+
+        protected void ProcessUserUpdates(List<UserEvent> userEvents)
+        {
+            foreach(UserEvent ue in userEvents)
+            {
+                Debug.Log("UE: " + ue.eventType.ToString());
+            }
         }
 
         protected void ProcessUpdates(List<ModEvent> modEvents, int updateStartTimeStamp)
@@ -749,6 +769,10 @@ namespace ModIO.UI
 
                 CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
             }
+        }
+
+        protected void OnUpdateError(WebRequestError error)
+        {
         }
 
         // ---------[ USER CONTROL ]---------
