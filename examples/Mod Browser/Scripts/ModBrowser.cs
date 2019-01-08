@@ -708,46 +708,86 @@ namespace ModIO.UI
 
         // ---------[ UPDATES ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
-        private bool isUpdateRunning = false;
+        // private bool isUpdateRunning = false;
 
         private System.Collections.IEnumerator PollForUpdatesCoroutine()
         {
             while(true)
             {
-                Debug.Log("UPDATING");
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
+
+                Debug.Log("UPDATING");
+
+                int updateStartTimeStamp = ServerTimeStamp.Now;
+
+                bool isRequestDone = false;
+                WebRequestError requestError = null;
+
+                // --- MOD EVENTS ---
+                List<ModEvent> modEventResponse = null;
+                ModManager.FetchAllModEvents(this.lastCacheUpdate,
+                                             updateStartTimeStamp,
+                                             (me) =>
+                                             {
+                                                modEventResponse = me;
+                                                isRequestDone = true;
+                                             },
+                                             (e) =>
+                                             {
+                                                requestError = e;
+                                                isRequestDone = true;
+                                             });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(requestError != null)
+                {
+                    // TODO(@jackson): Localize
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               "Error fetching mod updates.\n"
+                                               + requestError.message);
+                }
+                else
+                {
+                    ProcessUpdates(modEventResponse, updateStartTimeStamp);
+                    this.lastCacheUpdate = updateStartTimeStamp;
+                    WriteManifest();
+                }
+
+                isRequestDone = false;
+                requestError = null;
+
+                // --- USER EVENTS ---
+                List<UserEvent> userEventReponse = null;
+                ModManager.FetchAllUserEvents(lastUserUpdate,
+                                              updateStartTimeStamp,
+                                              (ue) =>
+                                              {
+                                                userEventReponse = ue;
+                                                isRequestDone = true;
+                                              },
+                                              (e) =>
+                                              {
+                                                 requestError = e;
+                                                 isRequestDone = true;
+                                              });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(requestError != null)
+                {
+                    // TODO(@jackson): Localize
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               "Error synchronizing user data.\n"
+                                               + requestError.message);
+                }
+                else
+                {
+                    ProcessUserUpdates(userEventReponse);
+                    this.lastUserUpdate = updateStartTimeStamp;
+                    WriteManifest();
+                }
             }
-        }
-
-        protected void PollForServerUpdates()
-        {
-            Debug.Assert(!isUpdateRunning);
-
-            this.isUpdateRunning = true;
-
-            int updateStartTimeStamp = ServerTimeStamp.Now;
-
-            ModManager.FetchAllModEvents(this.lastCacheUpdate, updateStartTimeStamp,
-                                         (me) => { this.ProcessUpdates(me, updateStartTimeStamp); },
-                                         (e) => { WebRequestError.LogAsWarning(e); this.isUpdateRunning = false; });
-
-            Action<WebRequestError> onUserUpdateError = (e) =>
-            {
-                // TODO(@jackson): Localize
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                           "Error synchronizing user data.\n"
-                                           + e.message);
-            };
-
-            ModManager.FetchAllUserEvents(lastUserUpdate,
-                                          updateStartTimeStamp,
-                                          (ue) =>
-                                          {
-                                            ProcessUserUpdates(ue);
-                                            lastUserUpdate = updateStartTimeStamp;
-                                            WriteManifest();
-                                          },
-                                          onUserUpdateError);
         }
 
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
@@ -845,7 +885,7 @@ namespace ModIO.UI
                 Action onSuccess = () =>
                 {
                     this.lastCacheUpdate = updateStartTimeStamp;
-                    this.isUpdateRunning = false;
+                    // this.isUpdateRunning = false;
 
                     WriteManifest();
 
@@ -862,7 +902,7 @@ namespace ModIO.UI
                 Action<WebRequestError> onError = (error) =>
                 {
                     WebRequestError.LogAsWarning(error);
-                    this.isUpdateRunning = false;
+                    // this.isUpdateRunning = false;
                 };
 
                 ModManager.ApplyModEventsToCache(modEvents,
@@ -875,7 +915,7 @@ namespace ModIO.UI
             else
             {
                 this.lastCacheUpdate = updateStartTimeStamp;
-                this.isUpdateRunning = false;
+                // this.isUpdateRunning = false;
 
                 WriteManifest();
             }
