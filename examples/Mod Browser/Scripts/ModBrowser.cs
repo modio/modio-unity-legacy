@@ -708,7 +708,6 @@ namespace ModIO.UI
                     {
                         if(!subscribedModIds.Contains(ue.modId))
                         {
-                            Debug.Log("SUB ADDED: " + ue.modId);
                             addedSubscriptions.Add(ue.modId);
                             subscribedModIds.Add(ue.modId);
                         }
@@ -733,12 +732,29 @@ namespace ModIO.UI
 
                 // TODO(@jackson): StringBuilder feedbackMessage = new StringBuilder();
 
-                // TODO(@jackson): Handle Error
-                ModManager.GetModProfiles(addedSubscriptions,
-                                          OnSubscriptionsAdded,
-                                          WebRequestError.LogAsWarning);
+                foreach(int modId in removedSubscriptions)
+                {
+                    // remove from disk
+                    CacheClient.DeleteAllModfileAndBinaryData(modId);
+                }
 
-                // TODO(@jackson): Process removed subs
+                if(addedSubscriptions.Count > 0)
+                {
+                    Action<List<ModProfile>> assertBinariesAreDownloaded = (addedProfiles) =>
+                    {
+                        foreach(ModProfile profile in addedProfiles)
+                        {
+                            AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
+                        }
+                    };
+
+                    // TODO(@jackson): Handle Error
+                    ModManager.GetModProfiles(addedSubscriptions,
+                                              assertBinariesAreDownloaded,
+                                              WebRequestError.LogAsWarning);
+                }
+
+                UpdateViewSubscriptions();
             }
         }
 
@@ -1452,18 +1468,23 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
-            if(!ModManager.IsBinaryDownloaded(profile.id, profile.activeBuild.id))
+            AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
+
+            UpdateViewSubscriptions();
+        }
+
+        private void AssertModBinaryIsDownloaded(int modId, int modfileId)
+        {
+            if(!ModManager.IsBinaryDownloaded(modId, modfileId))
             {
-                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
+                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
 
                 if(downloadInfo == null)
                 {
-                    string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id);
-                    DownloadClient.StartModBinaryDownload(profile.id,
-                                                          profile.activeBuild.id,
-                                                          zipFilePath);
+                    string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+                    DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
 
-                    downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
+                    downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
                 }
 
                 if(!downloadInfo.isDone)
@@ -1472,53 +1493,13 @@ namespace ModIO.UI
                     ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
                     foreach(ModView modView in sceneViews)
                     {
-                        if(modView.data.profile.modId == profile.id)
+                        if(modView.data.profile.modId == modId)
                         {
                             modView.DisplayDownload(downloadInfo);
                         }
                     }
                 }
             }
-
-            UpdateViewSubscriptions();
-        }
-
-        public void OnSubscriptionsAdded(IEnumerable<ModProfile> profilesAdded)
-        {
-            Debug.Assert(profilesAdded != null);
-
-            foreach(ModProfile profile in profilesAdded)
-            {
-                if(!ModManager.IsBinaryDownloaded(profile.id, profile.activeBuild.id))
-                {
-                    FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
-
-                    if(downloadInfo == null)
-                    {
-                        string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id);
-                        DownloadClient.StartModBinaryDownload(profile.id,
-                                                              profile.activeBuild.id,
-                                                              zipFilePath);
-
-                        downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
-                    }
-
-                    if(!downloadInfo.isDone)
-                    {
-                        // TODO(@jackson): Dirty hack (now less dirty???)
-                        ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
-                        foreach(ModView modView in sceneViews)
-                        {
-                            if(modView.data.profile.modId == profile.id)
-                            {
-                                modView.DisplayDownload(downloadInfo);
-                            }
-                        }
-                    }
-                }
-            }
-
-            UpdateViewSubscriptions();
         }
 
         public void UnsubscribeFromMod(int modId)
