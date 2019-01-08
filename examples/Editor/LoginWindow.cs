@@ -99,10 +99,11 @@ namespace ModIO.Editor
                         }
                         else
                         {
-                            Action<UserProfile> onGetUserProfile = (u) =>
+                            Action<UserProfile, string> onGetUserProfile = (userProfile, token) =>
                             {
-                                CacheClient.SaveAuthenticatedUserProfile(u);
-                                helpMessage = ("Welcome " + u.username
+                                ModManager.SetUserData(userProfile.id, token);
+
+                                helpMessage = ("Welcome " + userProfile.username
                                                + "! You have successfully logged in."
                                                + " Feel free to close this window.");
                                 isLoggedIn = true;
@@ -112,17 +113,20 @@ namespace ModIO.Editor
 
                                 if(userLoggedIn != null)
                                 {
-                                    userLoggedIn(u);
+                                    userLoggedIn(userProfile);
                                 }
                             };
 
                             Action<string> onTokenReceived = (token) =>
                             {
-                                CacheClient.SaveAuthenticatedUserToken(token);
                                 APIClient.userAuthorizationToken = token;
 
-                                APIClient.GetAuthenticatedUser(onGetUserProfile,
-                                                               e => endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error));
+                                APIClient.GetAuthenticatedUser((u) => onGetUserProfile(u, token),
+                                                               e =>
+                                                               {
+                                                                APIClient.userAuthorizationToken = string.Empty;
+                                                                endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error);
+                                                               });
                             };
 
                             APIClient.GetOAuthToken(securityCodeInput,

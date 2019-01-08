@@ -262,7 +262,6 @@ namespace ModIO
         [Serializable]
         private class AuthenticatedUser
         {
-            public string oAuthToken;
             public int userId;
             public List<int> modIds;
         }
@@ -272,36 +271,27 @@ namespace ModIO
         { get { return CacheClient._cacheDirectory + "user.data"; } }
 
         /// <summary>Stores the authenticated user token in the cache.</summary>
+        [Obsolete("Use ModManager.SetUserData() instead.")]
         public static bool SaveAuthenticatedUserToken(string oAuthToken)
         {
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
-
-            if(au == null)
-            {
-                au = new AuthenticatedUser();
-            }
-
-            au.oAuthToken = oAuthToken;
-
-            return CacheClient.WriteJsonObjectFile(userFilePath, au);
+            int userId = ModManager.GetUserData().userId;
+            ModManager.SetUserData(userId, oAuthToken);
+            return true;
         }
 
         /// <summary>Retrieves the authenticated user token from the cache.</summary>
+        [Obsolete("Use ModManager.GetUserData() instead.")]
         public static string LoadAuthenticatedUserToken()
         {
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
-
-            if(au != null)
-            {
-                return au.oAuthToken;
-            }
-            return null;
+            return ModManager.GetUserData().token;
         }
 
         /// <summary>Clears the authenticated user token from the cache.</summary>
+        [Obsolete("Use ModManager.ClearUserData() instead.")]
         public static bool ClearAuthenticatedUserToken()
         {
-            return CacheClient.SaveAuthenticatedUserToken(string.Empty);
+            ModManager.ClearUserData();
+            return true;
         }
 
         /// <summary>Stores the authenticated user's profile in the cache.</summary>

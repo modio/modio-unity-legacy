@@ -175,10 +175,19 @@ namespace ModIO
 
             return userData;
         }
-        public static void SetUserData(UserAuthenticationData userData)
+        public static void SetUserData(int userId, string authenticationToken)
         {
-            string valueString = (userData.userId.ToString() + ":" + userData.token);
+            if(authenticationToken == null)
+            {
+                authenticationToken = string.Empty;
+            }
+
+            string valueString = (userId.ToString() + ":" + authenticationToken);
             PlayerPrefs.SetString(PLAYERPREFKEY_USERDATA, valueString);
+        }
+        public static void ClearUserData()
+        {
+            ModManager.SetUserData(USERID_GUEST, string.Empty);
         }
 
         // ---------[ GAME PROFILE ]---------

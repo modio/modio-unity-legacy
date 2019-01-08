@@ -346,7 +346,7 @@ namespace ModIO.UI
             APIClient.apiURL = apiData.apiURL;
             APIClient.gameId = apiData.gameId;
             APIClient.gameAPIKey = apiData.gameAPIKey;
-            APIClient.userAuthorizationToken = CacheClient.LoadAuthenticatedUserToken();
+            APIClient.userAuthorizationToken = ModManager.GetUserData().token;
 
             // --- Manifest ---
             ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -686,7 +686,6 @@ namespace ModIO.UI
             ModManager.FetchAllUserEvents(0, updateStartTimeStamp,
                                           this.ProcessUserUpdates,
                                           onUserUpdateError);
-
         }
 
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
@@ -812,6 +811,7 @@ namespace ModIO.UI
             }
         }
 
+        // TODO(@jackson): Incomplete
         protected void OnUpdateError(WebRequestError error)
         {
         }
@@ -829,6 +829,9 @@ namespace ModIO.UI
         {
             bool isRequestDone = false;
             WebRequestError requestError = null;
+
+            // - set APIClient var -
+            APIClient.userAuthorizationToken = oAuthToken;
 
             // NOTE(@jackson): Could be much improved by not deleting matching mod subscription files
             if(clearExistingSubscriptions)
@@ -850,10 +853,6 @@ namespace ModIO.UI
                 subscriptionsView.UpdateCurrentPageDisplay();
             }
 
-            // - set APIClient and CacheClient vars -
-            APIClient.userAuthorizationToken = oAuthToken;
-            CacheClient.SaveAuthenticatedUserToken(oAuthToken);
-
             // - get the user profile -
             UserProfile requestProfile = null;
             APIClient.GetAuthenticatedUser((p) => { isRequestDone = true; requestProfile = p; },
@@ -863,9 +862,13 @@ namespace ModIO.UI
 
             if(requestError != null)
             {
+                APIClient.userAuthorizationToken = string.Empty;
                 throw new System.NotImplementedException();
                 // return;
             }
+
+            // - save user data -
+            ModManager.SetUserData(requestProfile.id, oAuthToken);
 
             CacheClient.SaveAuthenticatedUserProfile(requestProfile);
             this.userProfile = requestProfile;

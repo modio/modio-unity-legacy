@@ -42,7 +42,7 @@ namespace ModIO.Editor
             uploadSucceededMessage = null;
             uploadFailedMessage = null;
 
-            string authToken = CacheClient.LoadAuthenticatedUserToken();
+            string authToken = ModManager.GetUserData().token;
             if(!String.IsNullOrEmpty(authToken))
             {
                 APIClient.userAuthorizationToken = authToken;
