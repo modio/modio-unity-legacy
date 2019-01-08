@@ -123,26 +123,31 @@ namespace ModIO
                 string headerValue = webRequest.GetRequestHeader(headerKey);
                 if(headerValue != null)
                 {
-                    if(headerKey == "Authorization"
-                       && headerValue.Length > 8) // Contains more than "Bearer "
+                    if(headerKey == "Authorization")
                     {
-                        requestHeaders += "\n" + headerKey + ": "
-                                + headerValue.Substring(0, 6);
+                        requestHeaders += "\n  " + headerKey + ": " + headerValue.Substring(0, 6);
 
-                        #if DEBUG
-                        if(GlobalSettings.INCLUDE_USEROAUTHTOKEN_IN_LOG)
+                        if(headerValue.Length > 8) // Contains more than "Bearer "
                         {
-                            requestHeaders += " " + APIClient.userAuthorizationToken;
+                            #if DEBUG
+                            if(GlobalSettings.INCLUDE_USEROAUTHTOKEN_IN_LOG)
+                            {
+                                requestHeaders += " " + APIClient.userAuthorizationToken;
+                            }
+                            else
+                            #endif
+                            {
+                                requestHeaders += " [OAUTH TOKEN]";
+                            }
                         }
-                        else
-                        #endif
+                        else // NULL
                         {
-                            requestHeaders += " [OAUTH TOKEN]";
+                            requestHeaders += " [NULL]";
                         }
                     }
                     else
                     {
-                        requestHeaders += "\n" + headerKey + ": " + headerValue;
+                        requestHeaders += "\n  " + headerKey + ": " + headerValue;
                     }
                 }
             }
@@ -175,16 +180,17 @@ namespace ModIO
                                + "?" + filterString
                                + paginationString);
 
-            if(APIClient.userAuthorizationToken == null)
-            {
-                queryURL += "&api_key=" + APIClient.gameAPIKey;
-            }
-
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
-            if(APIClient.userAuthorizationToken != null)
+
+            if(String.IsNullOrEmpty(APIClient.userAuthorizationToken))
+            {
+                webRequest.url += "&api_key=" + APIClient.gameAPIKey;
+            }
+            else
             {
                 webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
             }
+
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
