@@ -24,12 +24,14 @@ namespace ModIO
 
     public static class ModManager
     {
-        // ---------[ AUTHENTICATED USER ]---------
-        public const string PLAYERPREFKEY_USERTOKEN         = "modio_userToken";
-        public const string PLAYERPREFKEY_USERID            = "modio_userId";
+        // ---------[ CONSTANTS ]---------
+        public const string PLAYERPREFKEY_USERDATA          = "modio_userData";
         public const string PLAYERPREFKEY_SUBCRIBEDMODIDS   = "modio_subcribedModIds";
         public const string PLAYERPREFKEY_ENABLEDMODIDS     = "modio_enabledModIds";
 
+        public const int USERID_GUEST = -1;
+
+        // ---------[ AUTHENTICATED USER ]---------
         public static IEnumerable<int> EnumerateModIdString(string modIdArrayString)
         {
             if(!String.IsNullOrEmpty(modIdArrayString))
@@ -151,6 +153,32 @@ namespace ModIO
         {
             string valueString = CreateModIdArrayString(modIds);
             PlayerPrefs.SetString(PLAYERPREFKEY_ENABLEDMODIDS, valueString);
+        }
+
+        public static UserAuthenticationData GetUserData()
+        {
+            UserAuthenticationData userData = new UserAuthenticationData();
+
+            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_USERDATA,
+                                                       USERID_GUEST.ToString() + ":");
+            string[] dataStrings = valueString.Split(':');
+
+            if(dataStrings.Length == 2)
+            {
+                if(!Int32.TryParse(dataStrings[0], out userData.userId))
+                {
+                    userData.userId = USERID_GUEST;
+                }
+
+                userData.token = dataStrings[1];
+            }
+
+            return userData;
+        }
+        public static void SetUserData(UserAuthenticationData userData)
+        {
+            string valueString = (userData.userId.ToString() + ":" + userData.token);
+            PlayerPrefs.SetString(PLAYERPREFKEY_USERDATA, valueString);
         }
 
         // ---------[ GAME PROFILE ]---------

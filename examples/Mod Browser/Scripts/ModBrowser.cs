@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+// TODO(@jackson): Use ModManager.USERID_GUEST
 // TODO(@jackson): Error handling on log in
 namespace ModIO.UI
 {
