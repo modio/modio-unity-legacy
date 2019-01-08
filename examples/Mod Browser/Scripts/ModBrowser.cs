@@ -82,6 +82,7 @@ namespace ModIO.UI
         public struct MessageSystemStrings
         {
             public string userLoggedOut;
+            public string subscriptionsRetrieved;
         }
 
         [Serializable]
@@ -159,6 +160,7 @@ namespace ModIO.UI
         public MessageSystemStrings messageStrings = new MessageSystemStrings()
         {
             userLoggedOut = "Successfully logged out",
+            subscriptionsRetrieved = "$UPDATE_COUNT$ new subscription(s) synchronized with the server",
         };
 
         [Header("UI Components")]
@@ -176,6 +178,7 @@ namespace ModIO.UI
         private InspectorViewData inspectorData = new InspectorViewData();
         private UserProfile userProfile = null;
         private int lastCacheUpdate = -1;
+        private int lastUserUpdate = -1;
         private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private GameProfile gameProfile = null;
@@ -357,6 +360,7 @@ namespace ModIO.UI
             {
                 this.lastCacheUpdate = manifest.lastCacheUpdate;
             }
+            // TODO(@jackson): load lastUserUpdate
 
             // --- UserData ---
             if(userData.userId > 0)
@@ -606,6 +610,8 @@ namespace ModIO.UI
             // --- UserData ---
             if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
             {
+                int requestTimeStamp = ServerTimeStamp.Now;
+
                 // callbacks
                 Action<UserProfile> onGetUserProfile = (u) =>
                 {
@@ -617,27 +623,69 @@ namespace ModIO.UI
                     }
                 };
 
-                Action<RequestPage<ModProfile>> onGetSubscriptions = (r) =>
-                {
-                    List<int> subscribedModIds = new List<int>(r.items.Length);
-                    foreach(var modProfile in r.items)
-                    {
-                        subscribedModIds.Add(modProfile.id);
-                    }
-                    ModManager.SetSubscribedModIds(subscribedModIds);
-
-                    UpdateViewSubscriptions();
-                };
-
                 // requests
-                ModManager.GetAuthenticatedUserProfile(onGetUserProfile,
-                                                       null);
+                ModManager.GetAuthenticatedUserProfile(onGetUserProfile, null);
 
                 RequestFilter filter = new RequestFilter();
                 filter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
                                         new EqualToFilter<int>(){ filterValue = apiData.gameId });
 
-                APIClient.GetUserSubscriptions(filter, null, onGetSubscriptions, null);
+                APIClient.GetUserSubscriptions(filter, null,
+                                               (r) =>
+                                               {
+                                                ApplyRetrievedSubscriptions(r);
+                                                this.lastUserUpdate = requestTimeStamp;
+                                                // TODO(@jackson): Write manifest
+                                               },
+                                               null);
+            }
+        }
+
+        private void ApplyRetrievedSubscriptions(RequestPage<ModProfile> response)
+        {
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
+            // - filter for added / removed -
+            List<int> removedSubscriptions = new List<int>(subscribedModIds);
+            List<ModProfile> addedSubscriptions = new List<ModProfile>();
+
+            foreach(var modProfile in response.items)
+            {
+                if(!subscribedModIds.Contains(modProfile.id))
+                {
+                    addedSubscriptions.Add(modProfile);
+                    subscribedModIds.Add(modProfile.id);
+                }
+                removedSubscriptions.Remove(modProfile.id);
+            }
+
+            // TODO(@jackson): Optimize?
+            foreach(int modId in removedSubscriptions)
+            {
+                subscribedModIds.Remove(modId);
+            }
+
+            // - apply added / removed -
+            if(addedSubscriptions.Count > 0 || removedSubscriptions.Count > 0)
+            {
+                ModManager.SetSubscribedModIds(subscribedModIds);
+
+                foreach(int modId in removedSubscriptions)
+                {
+                    // remove from disk
+                    CacheClient.DeleteAllModfileAndBinaryData(modId);
+                }
+
+                foreach(ModProfile profile in addedSubscriptions)
+                {
+                    AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
+                }
+
+                int subscriptionUpdateCount = (addedSubscriptions.Count + removedSubscriptions.Count);
+                string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$", subscriptionUpdateCount.ToString());
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+
+                UpdateViewSubscriptions();
             }
         }
 
@@ -730,8 +778,6 @@ namespace ModIO.UI
             {
                 ModManager.SetSubscribedModIds(subscribedModIds);
 
-                // TODO(@jackson): StringBuilder feedbackMessage = new StringBuilder();
-
                 foreach(int modId in removedSubscriptions)
                 {
                     // remove from disk
@@ -753,6 +799,10 @@ namespace ModIO.UI
                                               assertBinariesAreDownloaded,
                                               WebRequestError.LogAsWarning);
                 }
+
+                int subscriptionUpdateCount = (addedSubscriptions.Count + removedSubscriptions.Count);
+                string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$", subscriptionUpdateCount.ToString());
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
 
                 UpdateViewSubscriptions();
             }
