@@ -26,6 +26,7 @@ namespace ModIO.UI
         private class ManifestData
         {
             public int lastCacheUpdate = -1;
+            public int lastUserUpdate = -1;
         }
 
         [Serializable]
@@ -88,9 +89,9 @@ namespace ModIO.UI
         [Serializable]
         public struct APIData
         {
-            public string apiURL;
-            public int gameId;
-            public string gameAPIKey;
+            public string   apiURL;
+            public int      gameId;
+            public string   gameAPIKey;
         }
 
         // ---------[ CONST & STATIC ]---------
@@ -359,8 +360,8 @@ namespace ModIO.UI
             if(manifest != null)
             {
                 this.lastCacheUpdate = manifest.lastCacheUpdate;
+                this.lastUserUpdate = manifest.lastUserUpdate;
             }
-            // TODO(@jackson): load lastUserUpdate
 
             // --- UserData ---
             if(userData.userId > 0)
@@ -635,7 +636,7 @@ namespace ModIO.UI
                                                {
                                                 ApplyRetrievedSubscriptions(r);
                                                 this.lastUserUpdate = requestTimeStamp;
-                                                // TODO(@jackson): Write manifest
+                                                WriteManifest();
                                                },
                                                null);
             }
@@ -695,6 +696,7 @@ namespace ModIO.UI
 
         private void Update()
         {
+            // TODO(@jackson): REPLACE WITH COROUTINES!!!
             if(this.isAutomaticUpdateEnabled)
             {
                 if(!isUpdateRunning
@@ -736,14 +738,13 @@ namespace ModIO.UI
                                            + e.message);
             };
 
-            // TODO(@jackson): Implement lastUserUpdate
             ModManager.FetchAllUserEvents(lastUserUpdate,
                                           updateStartTimeStamp,
                                           (ue) =>
                                           {
                                             ProcessUserUpdates(ue);
                                             lastUserUpdate = updateStartTimeStamp;
-                                            // TODO(@jackson): Write manifest
+                                            WriteManifest();
                                           },
                                           onUserUpdateError);
         }
@@ -845,12 +846,7 @@ namespace ModIO.UI
                     this.lastCacheUpdate = updateStartTimeStamp;
                     this.isUpdateRunning = false;
 
-                    ManifestData manifest = new ManifestData()
-                    {
-                        lastCacheUpdate = this.lastCacheUpdate,
-                    };
-
-                    CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
+                    WriteManifest();
 
                     // #if DEBUG
                     // if(Application.isPlaying)
@@ -880,13 +876,19 @@ namespace ModIO.UI
                 this.lastCacheUpdate = updateStartTimeStamp;
                 this.isUpdateRunning = false;
 
-                ManifestData manifest = new ManifestData()
-                {
-                    lastCacheUpdate = this.lastCacheUpdate,
-                };
-
-                CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
+                WriteManifest();
             }
+        }
+
+        protected void WriteManifest()
+        {
+            ManifestData manifest = new ManifestData()
+            {
+                lastCacheUpdate = this.lastCacheUpdate,
+                lastUserUpdate = this.lastUserUpdate,
+            };
+
+            CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
         }
 
         // TODO(@jackson): Incomplete
