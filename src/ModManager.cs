@@ -74,22 +74,27 @@ namespace ModIO
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserProfile cachedProfile = CacheClient.LoadAuthenticatedUserProfile();
+            UserAuthenticationData userData = ModManager.GetUserData();
+            UserProfile cachedProfile = CacheClient.LoadUserProfile(userData.userId);
 
             if(cachedProfile != null)
             {
                 if(onSuccess != null) { onSuccess(cachedProfile); }
             }
-            else
+            else if(userData.userId > 0)
             {
                 // - Fetch from Server -
                 Action<UserProfile> onGetUser = (profile) =>
                 {
-                    CacheClient.SaveAuthenticatedUserProfile(profile);
+                    CacheClient.SaveUserProfile(profile);
                     if(onSuccess != null) { onSuccess(profile); }
                 };
 
                 APIClient.GetAuthenticatedUser(onGetUser, onError);
+            }
+            else
+            {
+                onSuccess(null);
             }
         }
 

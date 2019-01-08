@@ -262,7 +262,6 @@ namespace ModIO
         [Serializable]
         private class AuthenticatedUser
         {
-            public int userId;
             public List<int> modIds;
         }
 
@@ -295,39 +294,37 @@ namespace ModIO
         }
 
         /// <summary>Stores the authenticated user's profile in the cache.</summary>
+        [Obsolete("Use ModManager.SetUserData() and CacheClient.SaveUserProfile() instead.")]
         public static bool SaveAuthenticatedUserProfile(UserProfile userProfile)
         {
             CacheClient.SaveUserProfile(userProfile);
 
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+            string token = ModManager.GetUserData().token;
+            ModManager.SetUserData(userProfile.id, token);
 
-            if(au == null)
-            {
-                au = new AuthenticatedUser();
-            }
-
-            au.userId = userProfile.id;
-
-            return CacheClient.WriteJsonObjectFile(userFilePath, au);
+            return true;
         }
 
         /// <summary>Retrieves the authenticated user's profile from the cache.</summary>
+        [Obsolete("Use ModManager.GetUserData() and CacheClient.LoadUserProfile() instead.")]
         public static UserProfile LoadAuthenticatedUserProfile()
         {
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+            int userId = ModManager.GetUserData().userId;
+            UserProfile profile = CacheClient.LoadUserProfile(userId);
 
-            if(au != null
-               && au.userId > 0)
-            {
-                return LoadUserProfile(au.userId);
-            }
-            return null;
+            return profile;
         }
 
         /// <summary>Clears the authenticated user's profile from the cache.</summary>
+        [Obsolete("Use ModManager.ClearUserData() and CacheClient.DeleteUserProfile() instead.")]
         public static bool ClearAuthenticatedUserProfile()
         {
-            return CacheClient.SaveUserProfile(null);
+            int userId = ModManager.GetUserData().userId;
+
+            CacheClient.DeleteUserProfile(userId);
+            ModManager.ClearUserData();
+
+            return true;
         }
 
         /// <summary>Stores the authenticated user's mod subscriptions in the cache.</summary>

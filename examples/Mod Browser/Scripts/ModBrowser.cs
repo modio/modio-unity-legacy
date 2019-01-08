@@ -342,11 +342,14 @@ namespace ModIO.UI
 
             this.apiData = d;
 
+            // --- User Data ---
+            UserAuthenticationData userData = ModManager.GetUserData();
+
             // --- APIClient ---
             APIClient.apiURL = apiData.apiURL;
             APIClient.gameId = apiData.gameId;
             APIClient.gameAPIKey = apiData.gameAPIKey;
-            APIClient.userAuthorizationToken = ModManager.GetUserData().token;
+            APIClient.userAuthorizationToken = userData.token;
 
             // --- Manifest ---
             ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -356,7 +359,10 @@ namespace ModIO.UI
             }
 
             // --- UserData ---
-            this.userProfile = CacheClient.LoadAuthenticatedUserProfile();
+            if(userData.userId > 0)
+            {
+                this.userProfile = CacheClient.LoadUserProfile(userData.userId);
+            }
 
             // --- GameData ---
             this.gameProfile = CacheClient.LoadGameProfile();
@@ -870,7 +876,7 @@ namespace ModIO.UI
             // - save user data -
             ModManager.SetUserData(requestProfile.id, oAuthToken);
 
-            CacheClient.SaveAuthenticatedUserProfile(requestProfile);
+            CacheClient.SaveUserProfile(requestProfile);
             this.userProfile = requestProfile;
             if(this.loggedUserView != null)
             {
