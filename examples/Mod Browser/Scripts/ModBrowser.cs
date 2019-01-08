@@ -737,8 +737,14 @@ namespace ModIO.UI
             };
 
             // TODO(@jackson): Implement lastUserUpdate
-            ModManager.FetchAllUserEvents(0, updateStartTimeStamp,
-                                          this.ProcessUserUpdates,
+            ModManager.FetchAllUserEvents(lastUserUpdate,
+                                          updateStartTimeStamp,
+                                          (ue) =>
+                                          {
+                                            ProcessUserUpdates(ue);
+                                            lastUserUpdate = updateStartTimeStamp;
+                                            // TODO(@jackson): Write manifest
+                                          },
                                           onUserUpdateError);
         }
 
