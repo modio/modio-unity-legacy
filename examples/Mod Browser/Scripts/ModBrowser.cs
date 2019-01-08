@@ -183,7 +183,7 @@ namespace ModIO.UI
         private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private GameProfile gameProfile = null;
-
+        private Coroutine m_updatesCoroutine = null;
 
         // ---------[ ACCESSORS ]---------
         public void RequestExplorerPage(int pageIndex,
@@ -279,6 +279,22 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            if(isAutomaticUpdateEnabled)
+            {
+                m_updatesCoroutine = StartCoroutine(PollForUpdatesCoroutine());
+            }
+        }
+
+        private void OnDisable()
+        {
+            if(m_updatesCoroutine != null)
+            {
+                StopCoroutine(m_updatesCoroutine);
+            }
+        }
+
         private void Start()
         {
             #if MODIO_TESTING
@@ -694,28 +710,13 @@ namespace ModIO.UI
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
         private bool isUpdateRunning = false;
 
-        private void Update()
+        private System.Collections.IEnumerator PollForUpdatesCoroutine()
         {
-            // TODO(@jackson): REPLACE WITH COROUTINES!!!
-            if(this.isAutomaticUpdateEnabled)
+            while(true)
             {
-                if(!isUpdateRunning
-                   && (ServerTimeStamp.Now - this.lastCacheUpdate) >= AUTOMATIC_UPDATE_INTERVAL)
-                {
-                    PollForServerUpdates();
-                }
+                Debug.Log("UPDATING");
+                yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }
-
-            // if(activeDownload != null)
-            // {
-            //     float downloaded = 0f;
-            //     if(activeDownload.webRequest != null)
-            //     {
-            //         downloaded = activeDownload.webRequest.downloadProgress * 100f;
-            //     }
-
-            //     inspectorView.installButtonText.text = "Downloading [" + downloaded.ToString("00.00") + "%]";
-            // }
         }
 
         protected void PollForServerUpdates()
@@ -1924,6 +1925,19 @@ namespace ModIO.UI
                 {
                     testServerData.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
                     productionServerData.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+                }
+
+                if(Application.isPlaying
+                   && this.isActiveAndEnabled)
+                {
+                    if(isAutomaticUpdateEnabled && m_updatesCoroutine == null)
+                    {
+                        m_updatesCoroutine = StartCoroutine(PollForUpdatesCoroutine());
+                    }
+                    else if(!isAutomaticUpdateEnabled && m_updatesCoroutine != null)
+                    {
+                        StopCoroutine(m_updatesCoroutine);
+                    }
                 }
             };
         }
