@@ -95,6 +95,8 @@ namespace ModIO.UI
         }
 
         // ---------[ CONST & STATIC ]---------
+        private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
+
         public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
         {
@@ -707,9 +709,6 @@ namespace ModIO.UI
         }
 
         // ---------[ UPDATES ]---------
-        private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
-        // private bool isUpdateRunning = false;
-
         private System.Collections.IEnumerator PollForUpdatesCoroutine()
         {
             while(true)
@@ -758,34 +757,37 @@ namespace ModIO.UI
                 requestError = null;
 
                 // --- USER EVENTS ---
-                List<UserEvent> userEventReponse = null;
-                ModManager.FetchAllUserEvents(lastUserUpdate,
-                                              updateStartTimeStamp,
-                                              (ue) =>
-                                              {
-                                                userEventReponse = ue;
-                                                isRequestDone = true;
-                                              },
-                                              (e) =>
-                                              {
-                                                 requestError = e;
-                                                 isRequestDone = true;
-                                              });
-
-                while(!isRequestDone) { yield return null; }
-
-                if(requestError != null)
+                if(userProfile != null)
                 {
-                    // TODO(@jackson): Localize
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                               "Error synchronizing user data.\n"
-                                               + requestError.message);
-                }
-                else
-                {
-                    ProcessUserUpdates(userEventReponse);
-                    this.lastUserUpdate = updateStartTimeStamp;
-                    WriteManifest();
+                    List<UserEvent> userEventReponse = null;
+                    ModManager.FetchAllUserEvents(lastUserUpdate,
+                                                  updateStartTimeStamp,
+                                                  (ue) =>
+                                                  {
+                                                    userEventReponse = ue;
+                                                    isRequestDone = true;
+                                                  },
+                                                  (e) =>
+                                                  {
+                                                     requestError = e;
+                                                     isRequestDone = true;
+                                                  });
+
+                    while(!isRequestDone) { yield return null; }
+
+                    if(requestError != null)
+                    {
+                        // TODO(@jackson): Localize
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Error synchronizing user data.\n"
+                                                   + requestError.message);
+                    }
+                    else
+                    {
+                        ProcessUserUpdates(userEventReponse);
+                        this.lastUserUpdate = updateStartTimeStamp;
+                        WriteManifest();
+                    }
                 }
             }
         }
@@ -1968,6 +1970,7 @@ namespace ModIO.UI
                 }
 
                 if(Application.isPlaying
+                   && this != null
                    && this.isActiveAndEnabled)
                 {
                     if(isAutomaticUpdateEnabled && m_updatesCoroutine == null)
