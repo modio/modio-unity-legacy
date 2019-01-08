@@ -350,6 +350,7 @@ namespace ModIO
             return true;
         }
 
+        // TODO(@jackson): Remove these functions
         /// <summary>Stores the authenticated user's mods in the cache.</summary>
         public static bool SaveAuthenticatedUserMods(List<int> modIds)
         {

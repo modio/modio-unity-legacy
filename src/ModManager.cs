@@ -136,6 +136,47 @@ namespace ModIO
             }
         }
 
+        // ---------[ USER DATA ]---------
+        public static UserAuthenticationData GetUserData()
+        {
+            UserAuthenticationData userData = new UserAuthenticationData();
+
+            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_USERDATA,
+                                                       USERID_GUEST.ToString() + ":");
+            string[] dataStrings = valueString.Split(':');
+
+            if(dataStrings.Length == 2)
+            {
+                if(!Int32.TryParse(dataStrings[0], out userData.userId))
+                {
+                    userData.userId = USERID_GUEST;
+                }
+
+                userData.token = dataStrings[1];
+            }
+
+            return userData;
+        }
+
+        public static void SetUserData(UserAuthenticationData userData)
+        {
+            SetUserData(userData.userId, userData.token);
+        }
+        public static void SetUserData(int userId, string authenticationToken)
+        {
+            if(authenticationToken == null)
+            {
+                authenticationToken = string.Empty;
+            }
+
+            string valueString = (userId.ToString() + ":" + authenticationToken);
+            PlayerPrefs.SetString(PLAYERPREFKEY_USERDATA, valueString);
+        }
+        public static void ClearUserData()
+        {
+            ModManager.SetUserData(USERID_GUEST, string.Empty);
+        }
+
         public static IList<int> GetSubscribedModIds()
         {
             string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_SUBCRIBEDMODIDS,
@@ -158,41 +199,6 @@ namespace ModIO
         {
             string valueString = CreateModIdArrayString(modIds);
             PlayerPrefs.SetString(PLAYERPREFKEY_ENABLEDMODIDS, valueString);
-        }
-
-        public static UserAuthenticationData GetUserData()
-        {
-            UserAuthenticationData userData = new UserAuthenticationData();
-
-            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_USERDATA,
-                                                       USERID_GUEST.ToString() + ":");
-            string[] dataStrings = valueString.Split(':');
-
-            if(dataStrings.Length == 2)
-            {
-                if(!Int32.TryParse(dataStrings[0], out userData.userId))
-                {
-                    userData.userId = USERID_GUEST;
-                }
-
-                userData.token = dataStrings[1];
-            }
-
-            return userData;
-        }
-        public static void SetUserData(int userId, string authenticationToken)
-        {
-            if(authenticationToken == null)
-            {
-                authenticationToken = string.Empty;
-            }
-
-            string valueString = (userId.ToString() + ":" + authenticationToken);
-            PlayerPrefs.SetString(PLAYERPREFKEY_USERDATA, valueString);
-        }
-        public static void ClearUserData()
-        {
-            ModManager.SetUserData(USERID_GUEST, string.Empty);
         }
 
         // ---------[ GAME PROFILE ]---------
