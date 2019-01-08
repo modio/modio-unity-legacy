@@ -690,9 +690,49 @@ namespace ModIO.UI
 
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
         {
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+            List<int> addedSubscriptions = new List<int>(userEvents.Count / 2);
+            List<int> removedSubscriptions = new List<int>(userEvents.Count / 2);
+
             foreach(UserEvent ue in userEvents)
             {
-                Debug.Log("UE: " + ue.eventType.ToString());
+                switch(ue.eventType)
+                {
+                    case UserEventType.ModSubscribed:
+                    {
+                        if(!subscribedModIds.Contains(ue.modId))
+                        {
+                            Debug.Log("SUB ADDED: " + ue.modId);
+                            addedSubscriptions.Add(ue.modId);
+                            subscribedModIds.Add(ue.modId);
+                        }
+                    }
+                    break;
+
+                    case UserEventType.ModUnsubscribed:
+                    {
+                        if(!subscribedModIds.Contains(ue.modId))
+                        {
+                            removedSubscriptions.Add(ue.modId);
+                            subscribedModIds.Remove(ue.modId);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if(addedSubscriptions.Count > 0 || removedSubscriptions.Count > 0)
+            {
+                ModManager.SetSubscribedModIds(subscribedModIds);
+
+                // TODO(@jackson): StringBuilder feedbackMessage = new StringBuilder();
+
+                // TODO(@jackson): Handle Error
+                ModManager.GetModProfiles(addedSubscriptions,
+                                          OnSubscriptionsAdded,
+                                          WebRequestError.LogAsWarning);
+
+                // TODO(@jackson): Process removed subs
             }
         }
 
@@ -1425,6 +1465,44 @@ namespace ModIO.UI
                         if(modView.data.profile.modId == profile.id)
                         {
                             modView.DisplayDownload(downloadInfo);
+                        }
+                    }
+                }
+            }
+
+            UpdateViewSubscriptions();
+        }
+
+        public void OnSubscriptionsAdded(IEnumerable<ModProfile> profilesAdded)
+        {
+            Debug.Assert(profilesAdded != null);
+
+            foreach(ModProfile profile in profilesAdded)
+            {
+                if(!ModManager.IsBinaryDownloaded(profile.id, profile.activeBuild.id))
+                {
+                    FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
+
+                    if(downloadInfo == null)
+                    {
+                        string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(profile.id, profile.activeBuild.id);
+                        DownloadClient.StartModBinaryDownload(profile.id,
+                                                              profile.activeBuild.id,
+                                                              zipFilePath);
+
+                        downloadInfo = DownloadClient.GetActiveModBinaryDownload(profile.id, profile.activeBuild.id);
+                    }
+
+                    if(!downloadInfo.isDone)
+                    {
+                        // TODO(@jackson): Dirty hack (now less dirty???)
+                        ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
+                        foreach(ModView modView in sceneViews)
+                        {
+                            if(modView.data.profile.modId == profile.id)
+                            {
+                                modView.DisplayDownload(downloadInfo);
+                            }
                         }
                     }
                 }
