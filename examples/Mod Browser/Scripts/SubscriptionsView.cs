@@ -24,14 +24,12 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ScrollRect scrollView;
-        public RectTransform contentPane;
         public InputField nameSearchField;
         public Dropdown sortByDropdown;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noResultsDisplay;
 
         [Header("Runtime Data")]
-        public RectTransform currentPageContainer;
         private int m_itemsPerScreen;
         private int m_itemsPerScreenStep;
         private List<ModView> m_modViews = new List<ModView>();
@@ -56,16 +54,6 @@ namespace ModIO.UI
                          "[mod.io] The SubscriptionView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
-
-            // currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
-            // currentPageContainer.SetParent(contentPane);
-            // currentPageContainer.anchorMin = Vector2.zero;
-            // currentPageContainer.anchorMax = Vector2.zero;
-            // currentPageContainer.offsetMin = Vector2.zero;
-            // currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
-            // TODO(@jackson): FIX!
-            Debug.LogWarning("@jackson FAKING PAGES HERE!");
-            currentPageContainer = contentPane;
 
             CalculateLayoutingValues();
 
