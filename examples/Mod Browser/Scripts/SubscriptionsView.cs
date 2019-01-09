@@ -7,6 +7,9 @@ using UnityEngine.Events;
 
 namespace ModIO.UI
 {
+    // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
+    // to be displayed is low enough that it does not cause memory issues. Safeguards against this
+    // will be made in a future update, but is currently not a priority.
     public class SubscriptionsView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
@@ -35,6 +38,7 @@ namespace ModIO.UI
         public RectTransform currentPageContainer;
         private int m_itemsPerScreen;
         private int m_itemsPerScreenStep;
+        private List<ModView> m_modViews = new List<ModView>();
 
         // --- TEMP ---
         public IEnumerable<ModTagCategory> tagCategories { get; set; }
@@ -68,49 +72,8 @@ namespace ModIO.UI
             Debug.LogWarning("@jackson FAKING PAGES HERE!");
             currentPageContainer = contentPane;
 
-            InitializePageLayout(currentPageContainer);
-
             CalculateLayoutingValues();
-        }
 
-        private void InitializePageLayout(RectTransform pageTransform)
-        {
-            foreach(Transform t in pageTransform)
-            {
-                #if DEBUG
-                if(!Application.isPlaying)
-                {
-                    UnityEngine.Object.DestroyImmediate(t.gameObject);
-                }
-                else
-                #endif
-                {
-                    UnityEngine.Object.Destroy(t.gameObject);
-                }
-            }
-
-            for(int index = 0;
-                index < this.TEMP_pageSize;
-                ++index)
-            {
-                GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                                           new Vector3(),
-                                                           Quaternion.identity,
-                                                           pageTransform);
-
-                ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-                item.index = index;
-
-                ModView view = itemGO.GetComponent<ModView>();
-                view.onClick +=                 NotifyInspectRequested;
-                view.subscribeRequested +=      NotifySubscribeRequested;
-                view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
-                view.enableModRequested +=      NotifyEnableRequested;
-                view.disableModRequested +=     NotifyDisableRequested;
-                view.Initialize();
-
-                itemGO.SetActive(false);
-            }
         }
 
         // NOTE(@jackson): This code seems fragile and may need to be updated to handle more situations
@@ -158,57 +121,81 @@ namespace ModIO.UI
 
         private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
         {
+            ModProfile[] items = null;
+            if(page != null
+               && page.items != null)
+            {
+                items = page.items;
+            }
+            else
+            {
+                items = new ModProfile[0];
+            }
+
+            DisplayProfiles(items);
+        }
+
+        public void DisplayProfiles(IEnumerable<ModProfile> profileCollection)
+        {
             #if DEBUG
             if(!Application.isPlaying) { return; }
             #endif
 
-            if(noResultsDisplay != null)
-            {
-                noResultsDisplay.SetActive(page == null || page.items == null || page.items.Length == 0);
-            }
-
-            int i = 0;
             var enabledMods = ModManager.GetEnabledModIds();
 
-            if(page != null
-               && page.items != null)
+            // clear
+            foreach(ModView view in m_modViews)
             {
-                for(; i < TEMP_pageSize && i < page.items.Length; ++i)
+                GameObject.Destroy(view.gameObject);
+            }
+            m_modViews.Clear();
+
+            // create
+            if(profileCollection != null)
+            {
+                foreach(ModProfile profile in profileCollection)
                 {
-                    Transform itemTransform = pageTransform.GetChild(i);
-                    ModView view = itemTransform.GetComponent<ModView>();
-                    ModProfile profile = page.items[i];
+                    GameObject viewGO = GameObject.Instantiate(itemPrefab,
+                                                               new Vector3(),
+                                                               Quaternion.identity,
+                                                               scrollView.content);
+                    ModView view = viewGO.GetComponent<ModView>();
+                    view.onClick +=                 NotifyInspectRequested;
+                    view.subscribeRequested +=      NotifySubscribeRequested;
+                    view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
+                    view.enableModRequested +=      NotifyEnableRequested;
+                    view.disableModRequested +=     NotifyDisableRequested;
+                    view.Initialize();
 
-                    if(profile == null)
-                    {
-                        view.DisplayLoading();
-                    }
-                    else
-                    {
-                        view.DisplayMod(profile,
-                                        null,
-                                        tagCategories,
-                                        true, // assume subscribed
-                                        enabledMods.Contains(profile.id));
+                    view.DisplayMod(profile,
+                                    null,
+                                    tagCategories,
+                                    true, // assume subscribed
+                                    enabledMods.Contains(profile.id));
 
-                        ModManager.GetModStatistics(profile.id,
-                                                    (s) =>
-                                                    {
-                                                        ModDisplayData data = view.data;
-                                                        data.statistics = ModStatisticsDisplayData.CreateFromStatistics(s);
-                                                        view.data = data;
-                                                    },
-                                                    null);
-                    }
+                    ModManager.GetModStatistics(profile.id,
+                                                (s) =>
+                                                {
+                                                    ModDisplayData data = view.data;
+                                                    data.statistics = ModStatisticsDisplayData.CreateFromStatistics(s);
+                                                    view.data = data;
+                                                },
+                                                null);
 
-                    itemTransform.gameObject.SetActive(true);
+                    m_modViews.Add(view);
                 }
             }
 
-            for(; i < TEMP_pageSize; ++i)
+            // null results
+            if(noResultsDisplay != null)
             {
-                Transform itemTransform = pageTransform.GetChild(i);
-                itemTransform.gameObject.SetActive(false);
+                noResultsDisplay.SetActive(m_modViews.Count == 0);
+            }
+
+            // fix layouting
+            if(this.isActiveAndEnabled)
+            {
+                LayoutRebuilder.MarkLayoutForRebuild(scrollView.GetComponent<RectTransform>());
             }
         }
 

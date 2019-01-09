@@ -1319,9 +1319,10 @@ namespace ModIO.UI
 
         public void InspectSubscriptionItem(ModView view)
         {
-            // TODO(@jackson): Load explorer page
-            inspectorData.currentModIndex = (view.gameObject.GetComponent<ModBrowserItem>().index
-                                             + subscriptionsView.currentPage.resultOffset);
+            // TOOD(@jackson): Will be factored out
+            // inspectorData.currentModIndex = (view.gameObject.GetComponent<ModBrowserItem>().index
+            //                                  + subscriptionsView.currentPage.resultOffset);
+            inspectorData.currentModIndex = 0;
 
             if(inspectorView.backToSubscriptionsButton != null)
             {
