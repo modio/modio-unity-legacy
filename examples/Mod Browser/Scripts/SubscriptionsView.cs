@@ -21,7 +21,6 @@ namespace ModIO.UI
 
         [Header("Settings")]
         public GameObject itemPrefab;
-        public int TEMP_pageSize = 10;
 
         [Header("UI Components")]
         public ScrollRect scrollView;
@@ -57,7 +56,6 @@ namespace ModIO.UI
                          "[mod.io] The SubscriptionView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
-            Debug.Assert(TEMP_pageSize > 0);
 
             // currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
             // currentPageContainer.SetParent(contentPane);

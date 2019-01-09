@@ -212,22 +212,12 @@ namespace ModIO.UI
                                  onSuccess, onError);
         }
 
-        public void RequestSubscriptionsPage(int pageIndex,
-                                             Action<RequestPage<ModProfile>> onSuccess,
-                                             Action<WebRequestError> onError)
+        public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
+                                                 Action<WebRequestError> onError)
         {
-            int offset = pageIndex * subscriptionsView.TEMP_pageSize;
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
-            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
-            {
-                size = subscriptionsView.TEMP_pageSize,
-                resultOffset = offset,
-                resultTotal = subscribedModIds.Count,
-                items = null,
-            };
-
-            if(subscribedModIds.Count > offset)
+            if(subscribedModIds.Count > 0)
             {
                 Action<List<ModProfile>> onGetModProfiles = (list) =>
                 {
@@ -240,27 +230,14 @@ namespace ModIO.UI
                         }
                     }
 
-                    int remainingModCount = filteredList.Count - offset;
-                    if(remainingModCount > 0)
-                    {
-                        int arraySize = (int)Mathf.Min(modPage.size, remainingModCount);
-                        modPage.items = new ModProfile[arraySize];
-
-                        filteredList.Sort(subscriptionViewFilter.sortDelegate);
-                        filteredList.CopyTo(0, modPage.items, 0, arraySize);
-                    }
-
-                    onSuccess(modPage);
+                    onSuccess(filteredList);
                 };
 
-                ModManager.GetModProfiles(subscribedModIds,
-                                          onGetModProfiles, onError);
+                ModManager.GetModProfiles(subscribedModIds, onGetModProfiles, onError);
             }
             else
             {
-                modPage.items = new ModProfile[0];
-
-                onSuccess(modPage);
+                onSuccess(new List<ModProfile>(0));
             }
         }
 
@@ -462,12 +439,8 @@ namespace ModIO.UI
             // get page
             subscriptionsView.DisplayProfiles(null);
 
-            RequestSubscriptionsPage(0,
-                                     (page) =>
-                                     {
-                                        subscriptionsView.DisplayProfiles(page.items);
-                                     },
-                                     null);
+            RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
+                                         (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
 
             subscriptionsView.gameObject.SetActive(false);
 
@@ -1506,12 +1479,8 @@ namespace ModIO.UI
             }
 
             // request page
-            RequestSubscriptionsPage(0,
-                                     (page) =>
-                                     {
-                                        subscriptionsView.DisplayProfiles(page.items);
-                                     },
-                                     WebRequestError.LogAsWarning);
+            RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
+                                         (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
         }
 
         // TODO(@jackson): THIS IS TERRIBLE, I LIKELY ALREADY HAVE THIS DATA!
@@ -1635,12 +1604,8 @@ namespace ModIO.UI
             explorerView.UpdateSubscriptionsDisplay();
 
             // - subscriptionsView -
-            RequestSubscriptionsPage(0,
-                                     (page) =>
-                                     {
-                                        subscriptionsView.DisplayProfiles(page.items);
-                                     },
-                                     null);
+            RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
+                                         (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
 
             // - inspectorView -
             if(inspectorView.profile != null)
