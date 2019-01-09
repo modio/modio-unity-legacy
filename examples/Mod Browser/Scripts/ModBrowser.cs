@@ -14,6 +14,16 @@ namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour
     {
+        // ---------[ SINGLETON ]---------
+        private static ModBrowser _instance = null;
+        public static ModBrowser instance
+        {
+            get
+            {
+                return _instance;
+            }
+        }
+
         // ---------[ NESTED CLASSES ]---------
         // TODO(@jackson): Add "custom"
         public enum APIServer
@@ -283,6 +293,8 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
+            _instance = this;
+
             if(isAutomaticUpdateEnabled)
             {
                 m_updatesCoroutine = StartCoroutine(PollForUpdatesCoroutine());
@@ -295,6 +307,8 @@ namespace ModIO.UI
             {
                 StopCoroutine(m_updatesCoroutine);
             }
+
+            _instance = null;
         }
 
         private void Start()
