@@ -30,8 +30,6 @@ namespace ModIO.UI
         public GameObject noResultsDisplay;
 
         [Header("Runtime Data")]
-        private int m_itemsPerScreen;
-        private int m_itemsPerScreenStep;
         private List<ModView> m_modViews = new List<ModView>();
 
         // --- TEMP ---
@@ -54,32 +52,6 @@ namespace ModIO.UI
                          "[mod.io] The SubscriptionView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
-
-            CalculateLayoutingValues();
-
-        }
-
-        // NOTE(@jackson): This code seems fragile and may need to be updated to handle more situations
-        private void CalculateLayoutingValues()
-        {
-            Debug.Assert(scrollView.content.GetComponent<LayoutGroup>() != null,
-                         "[mod.io] SubscriptionsView requires a LayoutGroup component attached to"
-                         + " the ScrollView.Content GameObject for layouting purposes");
-
-            Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
-            Rect viewportRect = scrollView.viewport.GetComponent<RectTransform>().rect;
-            LayoutGroup layouter = scrollView.content.GetComponent<LayoutGroup>();
-
-            if(layouter is VerticalLayoutGroup)
-            {
-                VerticalLayoutGroup vlg = layouter as VerticalLayoutGroup;
-                m_itemsPerScreen = (int)Mathf.Ceil((viewportRect.height + vlg.spacing) / itemRect.height);
-                m_itemsPerScreenStep = 1;
-            }
-            else
-            {
-                throw new System.NotImplementedException();
-            }
         }
 
         // ---------[ UI FUNCTIONALITY ]------------
