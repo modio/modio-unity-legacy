@@ -30,7 +30,7 @@ namespace ModIO.UI
         public GameObject noResultsDisplay;
 
         [Header("Runtime Data")]
-        private List<ModView> m_modViews = new List<ModView>();
+        private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
 
         // --- TEMP ---
         public IEnumerable<ModTagCategory> tagCategories { get; set; }
@@ -61,33 +61,61 @@ namespace ModIO.UI
             if(!Application.isPlaying) { return; }
             #endif
 
-            var enabledMods = ModManager.GetEnabledModIds();
+            // sort lists
+            List<ModProfile> orderedProfileList = new List<ModProfile>();
+            List<int> removedProfiles = new List<int>(m_viewMap.Keys);
 
-            // clear
-            foreach(ModView view in m_modViews)
-            {
-                GameObject.Destroy(view.gameObject);
-            }
-            m_modViews.Clear();
-
-            // create
             if(profileCollection != null)
             {
                 foreach(ModProfile profile in profileCollection)
                 {
-                    GameObject viewGO = GameObject.Instantiate(itemPrefab,
-                                                               new Vector3(),
-                                                               Quaternion.identity,
-                                                               scrollView.content);
-                    ModView view = viewGO.GetComponent<ModView>();
-                    view.onClick +=                 NotifyInspectRequested;
-                    view.subscribeRequested +=      NotifySubscribeRequested;
-                    view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
-                    view.enableModRequested +=      NotifyEnableRequested;
-                    view.disableModRequested +=     NotifyDisableRequested;
-                    view.Initialize();
+                    orderedProfileList.Add(profile);
+                    removedProfiles.Remove(profile.id);
+                }
+            }
 
-                    view.DisplayMod(profile,
+            // ensure there are enough game objects
+            int excessProfileCount = orderedProfileList.Count - m_viewMap.Count;
+            for(int i = 0; i < excessProfileCount; ++i)
+            {
+                // create GameObject
+                GameObject viewGO = GameObject.Instantiate(itemPrefab,
+                                                           new Vector3(),
+                                                           Quaternion.identity,
+                                                           scrollView.content);
+                ModView view = viewGO.GetComponent<ModView>();
+                view.onClick +=                 NotifyInspectRequested;
+                view.subscribeRequested +=      NotifySubscribeRequested;
+                view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
+                view.enableModRequested +=      NotifyEnableRequested;
+                view.disableModRequested +=     NotifyDisableRequested;
+                view.Initialize();
+
+                // register in map
+                int fakeModId = -i - 1;
+                m_viewMap.Add(fakeModId, view);
+                removedProfiles.Add(fakeModId);
+            }
+
+            // order the game objects
+            var enabledMods = ModManager.GetEnabledModIds();
+            for(int i = 0; i < orderedProfileList.Count; ++i)
+            {
+                ModProfile profile = orderedProfileList[i];
+                ModView view;
+                if(!m_viewMap.TryGetValue(profile.id, out view))
+                {
+                    // collect unused view
+                    int oldModId = removedProfiles[0];
+                    removedProfiles.RemoveAt(0);
+
+                    view = m_viewMap[oldModId];
+
+                    m_viewMap.Remove(oldModId);
+                    m_viewMap.Add(profile.id, view);
+
+                    // display mod
+                    view.DisplayMod(orderedProfileList[i],
                                     null,
                                     tagCategories,
                                     true, // assume subscribed
@@ -101,15 +129,22 @@ namespace ModIO.UI
                                                     view.data = data;
                                                 },
                                                 null);
-
-                    m_modViews.Add(view);
                 }
+
+                view.transform.SetSiblingIndex(i);
+            }
+
+            // remove unused profiles
+            foreach(int removedId in removedProfiles)
+            {
+                GameObject.Destroy(m_viewMap[removedId].gameObject);
+                m_viewMap.Remove(removedId);
             }
 
             // null results
             if(noResultsDisplay != null)
             {
-                noResultsDisplay.SetActive(m_modViews.Count == 0);
+                noResultsDisplay.SetActive(m_viewMap.Count == 0);
             }
 
             // fix layouting
