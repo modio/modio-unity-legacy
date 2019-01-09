@@ -460,27 +460,15 @@ namespace ModIO.UI
             subscriptionViewFilter.titleFilterDelegate = (p) => true;
 
             // get page
-            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
-            {
-                size = subscriptionsView.TEMP_pageSize,
-                resultOffset = 0,
-                resultTotal = 0,
-                items = new ModProfile[0],
-            };
-            subscriptionsView.currentPage = modPage;
+            subscriptionsView.DisplayProfiles(null);
 
             RequestSubscriptionsPage(0,
                                      (page) =>
                                      {
-                                        if(subscriptionsView.currentPage == modPage)
-                                        {
-                                            subscriptionsView.currentPage = page;
-                                            subscriptionsView.UpdateCurrentPageDisplay();
-                                        }
-                                    },
-                                    null);
+                                        subscriptionsView.DisplayProfiles(page.items);
+                                     },
+                                     null);
 
-            subscriptionsView.UpdateCurrentPageDisplay();
             subscriptionsView.gameObject.SetActive(false);
 
 
@@ -980,14 +968,7 @@ namespace ModIO.UI
                 }
                 ModManager.SetSubscribedModIds(null);
 
-                subscriptionsView.currentPage = new RequestPage<ModProfile>()
-                {
-                    size = subscriptionsView.TEMP_pageSize,
-                    items = new ModProfile[0],
-                    resultOffset = 0,
-                    resultTotal = 0,
-                };
-                subscriptionsView.UpdateCurrentPageDisplay();
+                UpdateViewSubscriptions();
             }
 
             // - get the user profile -
@@ -1099,6 +1080,7 @@ namespace ModIO.UI
                 CacheClient.DeleteAllModfileAndBinaryData(modId);
             }
             ModManager.SetSubscribedModIds(null);
+            UpdateViewSubscriptions();
 
             // - set up guest account -
             this.userProfile = null;
@@ -1106,17 +1088,6 @@ namespace ModIO.UI
             {
                 this.loggedUserView.data = guestData;
             }
-
-            // - clear subscription view -
-            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
-            {
-                size = subscriptionsView.TEMP_pageSize,
-                resultOffset = 0,
-                resultTotal = 0,
-                items = new ModProfile[0],
-            };
-            subscriptionsView.currentPage = modPage;
-            subscriptionsView.UpdateCurrentPageDisplay();
 
             // - notify -
             MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
@@ -1538,8 +1509,7 @@ namespace ModIO.UI
             RequestSubscriptionsPage(0,
                                      (page) =>
                                      {
-                                        subscriptionsView.currentPage = page;
-                                        subscriptionsView.UpdateCurrentPageDisplay();
+                                        subscriptionsView.DisplayProfiles(page.items);
                                      },
                                      WebRequestError.LogAsWarning);
         }
@@ -1665,17 +1635,12 @@ namespace ModIO.UI
             explorerView.UpdateSubscriptionsDisplay();
 
             // - subscriptionsView -
-            RequestPage<ModProfile> modPage = subscriptionsView.currentPage;
-            RequestSubscriptionsPage(modPage.resultOffset,
+            RequestSubscriptionsPage(0,
                                      (page) =>
                                      {
-                                        if(subscriptionsView.currentPage == modPage)
-                                        {
-                                            subscriptionsView.currentPage = page;
-                                            subscriptionsView.UpdateCurrentPageDisplay();
-                                        }
-                                    },
-                                    null);
+                                        subscriptionsView.DisplayProfiles(page.items);
+                                     },
+                                     null);
 
             // - inspectorView -
             if(inspectorView.profile != null)

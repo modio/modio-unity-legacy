@@ -31,9 +31,6 @@ namespace ModIO.UI
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noResultsDisplay;
 
-        [Header("Display Data")]
-        public RequestPage<ModProfile> currentPage;
-
         [Header("Runtime Data")]
         public RectTransform currentPageContainer;
         private int m_itemsPerScreen;
@@ -100,41 +97,6 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]------------
-        public void UpdateCurrentPageDisplay()
-        {
-            Debug.Assert(currentPageContainer != null,
-                         "[mod.io] ExplorerView.Initialize has not yet been called");
-            Debug.Assert(TEMP_pageSize > 0,
-                         "[mod.io] TEMP_pageSize has an invalid value. This is because either the columnCount"
-                         + " or rowCount has been calculated to be less than 1.");
-
-            // #if DEBUG
-            // if(isTransitioning)
-            // {
-            //     Debug.LogWarning("[mod.io] Explorer View is currently transitioning between pages. It"
-            //                      + " is recommended to not update page displays at this time.");
-            // }
-            // #endif
-
-            UpdatePageDisplay(this.currentPage, this.currentPageContainer);
-        }
-
-        private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
-        {
-            ModProfile[] items = null;
-            if(page != null
-               && page.items != null)
-            {
-                items = page.items;
-            }
-            else
-            {
-                items = new ModProfile[0];
-            }
-
-            DisplayProfiles(items);
-        }
-
         public void DisplayProfiles(IEnumerable<ModProfile> profileCollection)
         {
             #if DEBUG
