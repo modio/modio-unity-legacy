@@ -21,6 +21,7 @@ namespace ModIO.UI
         public int TEMP_pageSize = 10;
 
         [Header("UI Components")]
+        public ScrollRect scrollView;
         public RectTransform contentPane;
         public InputField nameSearchField;
         public Dropdown sortByDropdown;
@@ -32,6 +33,8 @@ namespace ModIO.UI
 
         [Header("Runtime Data")]
         public RectTransform currentPageContainer;
+        private int m_itemsPerScreen;
+        private int m_itemsPerScreenStep;
 
         // --- TEMP ---
         public IEnumerable<ModTagCategory> tagCategories { get; set; }
@@ -40,6 +43,8 @@ namespace ModIO.UI
         public void Initialize()
         {
             Debug.Assert(itemPrefab != null);
+            Debug.Assert(scrollView != null);
+            Debug.Assert(scrollView.viewport != null && scrollView.content != null);
 
             ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
             RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
@@ -64,6 +69,8 @@ namespace ModIO.UI
             currentPageContainer = contentPane;
 
             InitializePageLayout(currentPageContainer);
+
+            CalculateLayoutingValues();
         }
 
         private void InitializePageLayout(RectTransform pageTransform)
@@ -103,6 +110,29 @@ namespace ModIO.UI
                 view.Initialize();
 
                 itemGO.SetActive(false);
+            }
+        }
+
+        // NOTE(@jackson): This code seems fragile and may need to be updated to handle more situations
+        private void CalculateLayoutingValues()
+        {
+            Debug.Assert(scrollView.content.GetComponent<LayoutGroup>() != null,
+                         "[mod.io] SubscriptionsView requires a LayoutGroup component attached to"
+                         + " the ScrollView.Content GameObject for layouting purposes");
+
+            Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
+            Rect viewportRect = scrollView.viewport.GetComponent<RectTransform>().rect;
+            LayoutGroup layouter = scrollView.content.GetComponent<LayoutGroup>();
+
+            if(layouter is VerticalLayoutGroup)
+            {
+                VerticalLayoutGroup vlg = layouter as VerticalLayoutGroup;
+                m_itemsPerScreen = (int)Mathf.Ceil((viewportRect.height + vlg.spacing) / itemRect.height);
+                m_itemsPerScreenStep = 1;
+            }
+            else
+            {
+                throw new System.NotImplementedException();
             }
         }
 
