@@ -2132,7 +2132,6 @@ GameObject:
   m_Component:
   - component: {fileID: 224107691734349446}
   - component: {fileID: 114130614508925794}
-  - component: {fileID: 114847843757506494}
   m_Layer: 5
   m_Name: SubscriptionsView
   m_TagString: Untagged
@@ -3431,6 +3430,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224485494997858380}
+  - component: {fileID: 114549700727417704}
   m_Layer: 5
   m_Name: MainPanel
   m_TagString: Untagged
@@ -5390,12 +5390,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefab: {fileID: 1397625784812400, guid: 6d6023c94d9954c1b91501defdcfce07, type: 2}
-  TEMP_pageSize: 10
-  contentPane: {fileID: 224469101200689088}
+  scrollView: {fileID: 114549700727417704}
   nameSearchField: {fileID: 114098324929849516}
   sortByDropdown: {fileID: 114329862449654002}
   noResultsDisplay: {fileID: 1338033130210044}
-  currentPageContainer: {fileID: 224469101200689088}
 --- !u!114 &114139589409531426
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5435,7 +5433,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224351581681209836}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.6307822
+  m_Size: 0.63246423
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8454,6 +8452,8 @@ MonoBehaviour:
       texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
   messageStrings:
     userLoggedOut: Successfully logged out
+    subscriptionsRetrieved: $UPDATE_COUNT$ new subscription(s) synchronized with the
+      server
   explorerView: {fileID: 114195835507779204}
   explorerViewButton: {fileID: 114644346153496478}
   subscriptionsView: {fileID: 114130614508925794}
@@ -8496,9 +8496,9 @@ MonoBehaviour:
     gameId: 0
     status: 0
     visibility: 0
-    dateAdded: 0
-    dateUpdated: 0
-    dateLive: 0
+    dateAdded: 1546594878
+    dateUpdated: 1546594878
+    dateLive: 1546594878
     contentWarnings: 0
     homepageURL: 
     name: 
@@ -9715,6 +9715,37 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114549700727417704
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1858351850347402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1367256648, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Content: {fileID: 224469101200689088}
+  m_Horizontal: 0
+  m_Vertical: 1
+  m_MovementType: 1
+  m_Elasticity: 0.1
+  m_Inertia: 1
+  m_DecelerationRate: 0.135
+  m_ScrollSensitivity: 1
+  m_Viewport: {fileID: 224130078710404298}
+  m_HorizontalScrollbar: {fileID: 0}
+  m_VerticalScrollbar: {fileID: 114746929246132570}
+  m_HorizontalScrollbarVisibility: 0
+  m_VerticalScrollbarVisibility: 0
+  m_HorizontalScrollbarSpacing: 0
+  m_VerticalScrollbarSpacing: 0
+  m_OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114551982784710072
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10756,7 +10787,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 01/01/1970 11:00:00
+  m_Text: 01/04/2019 20:41:18
 --- !u!114 &114658077016478246
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -12558,37 +12589,6 @@ MonoBehaviour:
   m_FlexibleWidth: 1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &114847843757506494
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1508867004243712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1367256648, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Content: {fileID: 224469101200689088}
-  m_Horizontal: 0
-  m_Vertical: 1
-  m_MovementType: 1
-  m_Elasticity: 0.1
-  m_Inertia: 1
-  m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
-  m_Viewport: {fileID: 224130078710404298}
-  m_HorizontalScrollbar: {fileID: 0}
-  m_VerticalScrollbar: {fileID: 114746929246132570}
-  m_HorizontalScrollbarVisibility: 0
-  m_VerticalScrollbarVisibility: 0
-  m_HorizontalScrollbarSpacing: 0
-  m_VerticalScrollbarSpacing: 0
-  m_OnValueChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114853957521086594
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -13057,9 +13057,9 @@ MonoBehaviour:
       gameId: 0
       status: 0
       visibility: 0
-      dateAdded: 0
-      dateUpdated: 0
-      dateLive: 0
+      dateAdded: 1546594878
+      dateUpdated: 1546594878
+      dateLive: 1546594878
       contentWarnings: 0
       homepageURL: 
       name: 
@@ -16641,7 +16641,7 @@ RectTransform:
   m_Father: {fileID: 224998444883005980}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.3692178}
+  m_AnchorMin: {x: 0, y: 0.36753577}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
