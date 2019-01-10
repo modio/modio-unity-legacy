@@ -247,24 +247,6 @@ namespace ModIO.UI
                 index < itemCount;
                 ++index)
             {
-                GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                                           new Vector3(),
-                                                           Quaternion.identity,
-                                                           pageTransform);
-
-                // initialize item
-                ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-                item.index = index;
-
-                ModView view = itemGO.GetComponent<ModView>();
-                view.onClick +=                 NotifyInspectRequested;
-                view.subscribeRequested +=      NotifySubscribeRequested;
-                view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
-                view.enableModRequested +=      NotifyEnableRequested;
-                view.disableModRequested +=     NotifyDisableRequested;
-                view.Initialize();
-
-                itemGO.SetActive(false);
             }
         }
 
@@ -327,7 +309,7 @@ namespace ModIO.UI
             }
 
             UpdatePageNumberDisplay();
-            UpdatePageDisplay(this.currentPage, this.currentPageContainer);
+            DisplayProfiles(this.currentPage.items, this.currentPageContainer);
         }
 
         public void UpdateTargetPageDisplay()
@@ -346,7 +328,7 @@ namespace ModIO.UI
             }
             #endif
 
-            UpdatePageDisplay(this.targetPage, this.targetPageContainer);
+            DisplayProfiles(this.targetPage.items, this.targetPageContainer);
         }
 
         public void UpdateSubscriptionsDisplay()
@@ -385,24 +367,42 @@ namespace ModIO.UI
             }
         }
 
-        private void UpdatePageDisplay(RequestPage<ModProfile> page, RectTransform pageTransform)
+        private void DisplayProfiles(IEnumerable<ModProfile> profileCollection, RectTransform pageTransform)
         {
             #if DEBUG
             if(!Application.isPlaying) { return; }
             #endif
 
-            int i = 0;
-            int itemCount = pageTransform.childCount;
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-
-            if(page != null
-               && page.items != null)
+            foreach(Transform t in pageTransform)
             {
-                for(; i < itemCount && i < page.items.Length; ++i)
+                GameObject.Destroy(t.gameObject);
+            }
+
+            int itemCount = 0;
+            if(profileCollection != null)
+            {
+                IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+                IList<int> enabledModIds = ModManager.GetEnabledModIds();
+
+                foreach(ModProfile profile in profileCollection)
                 {
-                    Transform itemTransform = pageTransform.GetChild(i);
-                    ModView view = itemTransform.GetComponent<ModView>();
-                    ModProfile profile = page.items[i];
+                    GameObject itemGO = GameObject.Instantiate(itemPrefab,
+                                                               new Vector3(),
+                                                               Quaternion.identity,
+                                                               pageTransform);
+
+                    // initialize item
+                    // TODO(@jackson): Remove
+                    ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
+                    item.index = itemCount;
+
+                    ModView view = itemGO.GetComponent<ModView>();
+                    view.onClick +=                 NotifyInspectRequested;
+                    view.subscribeRequested +=      NotifySubscribeRequested;
+                    view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
+                    view.enableModRequested +=      NotifyEnableRequested;
+                    view.disableModRequested +=     NotifyDisableRequested;
+                    view.Initialize();
 
                     if(profile == null)
                     {
@@ -414,7 +414,7 @@ namespace ModIO.UI
                                         null,
                                         m_tagCategories,
                                         subscribedModIds.Contains(profile.id),
-                                        false); // TODO(@jackson): enabled?
+                                        enabledModIds.Contains(profile.id));
 
                         ModManager.GetModStatistics(profile.id,
                                                     (s) =>
@@ -426,14 +426,27 @@ namespace ModIO.UI
                                                     null);
                     }
 
-                    itemTransform.gameObject.SetActive(true);
+                    ++itemCount;
+                }
+
+
+                if(itemCount > 0)
+                {
+                    int pageSize = CalculateItemsPerPage();
+
+                    for(int i = itemCount; i < pageSize; ++i)
+                    {
+                        GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
+                                                           typeof(RectTransform));
+                        spacer.transform.SetParent(pageTransform);
+                    }
                 }
             }
 
-            for(; i < itemCount; ++i)
+            // fix layouting
+            if(this.isActiveAndEnabled)
             {
-                Transform itemTransform = pageTransform.GetChild(i);
-                itemTransform.gameObject.SetActive(false);
+                LayoutRebuilder.MarkLayoutForRebuild(pageTransform);
             }
         }
 
