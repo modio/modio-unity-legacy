@@ -219,12 +219,15 @@ namespace ModIO.UI
 
         private void ApplyPageLayouter(RectTransform pageTransform)
         {
-            Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
+            RectTransform t = itemPrefab.GetComponent<RectTransform>();
+            Rect scaledItemRect = t.rect;
+            scaledItemRect.width *= t.localScale.x;
+            scaledItemRect.height *= t.localScale.y;
 
             GridLayoutGroup layouter = pageTransform.gameObject.AddComponent<GridLayoutGroup>();
             layouter.spacing = new Vector2(itemSpacing, itemSpacing);
             layouter.padding = new RectOffset();
-            layouter.cellSize = new Vector2(itemRect.width, itemRect.height);
+            layouter.cellSize = new Vector2(scaledItemRect.width, scaledItemRect.height);
             layouter.startCorner = GridLayoutGroup.Corner.UpperLeft;
             layouter.startAxis = GridLayoutGroup.Axis.Horizontal;
             layouter.childAlignment = TextAnchor.MiddleCenter;
@@ -233,11 +236,15 @@ namespace ModIO.UI
 
         public void RecalculateItemsPerPage()
         {
+            RectTransform t = itemPrefab.GetComponent<RectTransform>();
+            Rect scaledItemRect = t.rect;
+            scaledItemRect.width *= t.localScale.x;
+            scaledItemRect.height *= t.localScale.y;
+
             Rect containerDimensions = contentPane.GetComponent<RectTransform>().rect;
-            Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
 
             float gridWidth = (containerDimensions.width + itemSpacing);
-            float columnWidth = (itemRect.width + itemSpacing);
+            float columnWidth = (scaledItemRect.width + itemSpacing);
             int columnsPerPage = (int)Mathf.Floor(gridWidth / columnWidth);
             if(columnsPerPage < 0)
             {
@@ -245,7 +252,7 @@ namespace ModIO.UI
             }
 
             float gridHeight = (containerDimensions.height + itemSpacing);
-            float rowHeight = (itemRect.height + itemSpacing);
+            float rowHeight = (scaledItemRect.height + itemSpacing);
             int rowsPerPage = (int)Mathf.Floor(gridHeight / rowHeight);
             if(rowsPerPage < 0)
             {
@@ -404,6 +411,24 @@ namespace ModIO.UI
 
                 if(viewList.Count > 0)
                 {
+                    if(!itemPrefab.transform.localScale.Equals(Vector3.one))
+                    {
+                        foreach(ModView view in viewList)
+                        {
+                            GameObject resizeWrapper = new GameObject("Mod Tile", typeof(RectTransform));
+                            resizeWrapper.transform.SetParent(pageTransform);
+                            resizeWrapper.transform.localScale = Vector3.one;
+
+                            Vector2 centerVector = new Vector2(0.5f, 0.5f);
+                            RectTransform t = view.transform as RectTransform;
+                            t.SetParent(resizeWrapper.transform);
+                            t.pivot = centerVector;
+                            t.anchorMin = centerVector;
+                            t.anchorMax = centerVector;
+                            t.anchoredPosition = Vector2.zero;
+                        }
+                    }
+
                     for(int i = viewList.Count; i < m_itemsPerPage; ++i)
                     {
                         GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
