@@ -308,15 +308,15 @@ namespace ModIO.UI
 
             // TODO(@jackson): TEMP
             #if MEEPLESTATION_AUTO_INSTALL
-            DownloadClient.modfileDownloadSuceeded += (p, d) =>
+            DownloadClient.modfileDownloadSucceeded += (p, d) =>
             {
                 string unzipLocation = (CacheClient.GetCacheDirectory()
                                         + "_installedMods/"
-                                        + request.modId.ToString() + "/");
+                                        + p.modId.ToString() + "/");
 
                 CacheClient.DeleteDirectory(unzipLocation);
 
-                ModManager.UnzipModBinaryToLocation(request.modId, request.modfileId,
+                ModManager.UnzipModBinaryToLocation(p.modId, p.modfileId,
                                                     unzipLocation);
             };
             #endif
