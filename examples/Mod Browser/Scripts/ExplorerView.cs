@@ -24,7 +24,7 @@ namespace ModIO.UI
 
         [Header("Settings")]
         public GameObject itemPrefab = null;
-        public int itemSpacing = 2;
+        public int itemSpacing = 8;
         public float pageTransitionTimeSeconds = 0.4f;
 
         [Header("UI Components")]
