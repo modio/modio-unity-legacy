@@ -25,6 +25,7 @@ namespace ModIO.UI
 
         [Header("Settings")]
         public GameObject itemPrefab;
+        public GameObject pagePrefab;
         public RectOffset minPadding;
         public float minRowSpacing;
         public float minColumnSpacing;
@@ -87,7 +88,6 @@ namespace ModIO.UI
         }
 
         // ---[ CALCULATED VARS ]----
-        public int ItemCount { get { return this.columnCount * this.rowCount; } }
         public int CurrentPageNumber
         {
             get
@@ -125,6 +125,8 @@ namespace ModIO.UI
         public void Initialize()
         {
             Debug.Assert(itemPrefab != null);
+            Debug.Assert(pagePrefab != null);
+            Debug.Assert(pagePrefab.GetComponent<LayoutGroup>() != null);
 
             ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
             RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
@@ -173,16 +175,22 @@ namespace ModIO.UI
                 GameObject.Destroy(t.gameObject);
             }
 
-            currentPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
-            currentPageContainer.SetParent(contentPane);
+            currentPageContainer = GameObject.Instantiate(pagePrefab,
+                                                          new Vector3(),
+                                                          Quaternion.identity,
+                                                          contentPane).transform as RectTransform;
+            currentPageContainer.gameObject.name = "Mod Page";
             currentPageContainer.anchorMin = Vector2.zero;
             currentPageContainer.anchorMax = Vector2.zero;
             currentPageContainer.offsetMin = Vector2.zero;
             currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
             InitializePageLayout(currentPageContainer);
 
-            targetPageContainer = (new GameObject("Mod Page")).AddComponent<RectTransform>();
-            targetPageContainer.SetParent(contentPane);
+            targetPageContainer = GameObject.Instantiate(pagePrefab,
+                                                         new Vector3(),
+                                                         Quaternion.identity,
+                                                         contentPane).transform as RectTransform;
+            targetPageContainer.gameObject.name = "Mod Page";
             targetPageContainer.anchorMin = Vector2.zero;
             targetPageContainer.anchorMax = Vector2.zero;
             targetPageContainer.offsetMin = new Vector2(contentPane.rect.width, 0f);
@@ -265,26 +273,15 @@ namespace ModIO.UI
                 }
             }
 
+            int itemCount = CalculateItemsPerPage();
             for(int index = 0;
-                index < this.ItemCount;
+                index < itemCount;
                 ++index)
             {
                 GameObject itemGO = GameObject.Instantiate(itemPrefab,
                                                            new Vector3(),
                                                            Quaternion.identity,
                                                            pageTransform);
-
-                // calculate layout
-                int itemX = index % this.columnCount;
-                int itemY = index / this.columnCount;
-
-                Vector2 itemPos = new Vector2();
-                itemPos.x = (this.minPadding.left + this.itemOffset.x + itemX * this.columnWidth);
-                itemPos.y = (this.minPadding.top  + this.itemOffset.y + itemY * this.rowHeight) * -1;
-
-                RectTransform itemTransform = itemGO.GetComponent<RectTransform>();
-                itemTransform.anchoredPosition = itemPos;
-                itemTransform.sizeDelta = itemSize;
 
                 // initialize item
                 ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
@@ -303,13 +300,47 @@ namespace ModIO.UI
         }
 
         // ----------[ PAGE DISPLAY ]---------
+        // TODO(@jackson): Incomplete
+        public int CalculateItemsPerPage()
+        {
+            Rect dimensions = currentPageContainer.GetComponent<RectTransform>().rect;
+            LayoutGroup layouter = currentPageContainer.GetComponent<LayoutGroup>();
+
+            if(layouter is GridLayoutGroup)
+            {
+                GridLayoutGroup g = layouter as GridLayoutGroup;
+
+                float gridWidth = (dimensions.width - g.padding.left - g.padding.right + g.spacing.x);
+                float cellWidth = (g.cellSize.x + g.spacing.x);
+                int columnsPerPage = (int)Mathf.Floor(gridWidth / cellWidth);
+                if(columnsPerPage < 0)
+                {
+                    columnsPerPage = 0;
+                }
+
+                float gridHeight = (dimensions.height - g.padding.top - g.padding.bottom + g.spacing.y);
+                float cellHeight = (g.cellSize.y + g.spacing.y);
+                int rowsPerPage = (int)Mathf.Floor(gridHeight / cellHeight);
+                if(rowsPerPage < 0)
+                {
+                    rowsPerPage = 0;
+                }
+
+                return columnsPerPage * rowsPerPage;
+            }
+            else
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
         public void UpdateCurrentPageDisplay()
         {
             Debug.Assert(currentPageContainer != null,
                          "[mod.io] ExplorerView.Initialize has not yet been called");
-            Debug.Assert(ItemCount > 0,
-                         "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
-                         + " or rowCount has been calculated to be less than 1.");
+            // Debug.Assert(ItemCount > 0,
+            //              "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
+            //              + " or rowCount has been calculated to be less than 1.");
 
             #if DEBUG
             if(isTransitioning)
@@ -334,9 +365,9 @@ namespace ModIO.UI
         {
             Debug.Assert(targetPageContainer != null,
                          "[mod.io] ExplorerView.Initialize has not yet been called");
-            Debug.Assert(ItemCount > 0,
-                         "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
-                         + " or rowCount has been calculated to be less than 1.");
+            // Debug.Assert(ItemCount > 0,
+            //              "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
+            //              + " or rowCount has been calculated to be less than 1.");
 
             #if DEBUG
             if(isTransitioning)
@@ -392,12 +423,13 @@ namespace ModIO.UI
             #endif
 
             int i = 0;
+            int itemCount = pageTransform.childCount;
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
             if(page != null
                && page.items != null)
             {
-                for(; i < ItemCount && i < page.items.Length; ++i)
+                for(; i < itemCount && i < page.items.Length; ++i)
                 {
                     Transform itemTransform = pageTransform.GetChild(i);
                     ModView view = itemTransform.GetComponent<ModView>();
@@ -429,7 +461,7 @@ namespace ModIO.UI
                 }
             }
 
-            for(; i < ItemCount; ++i)
+            for(; i < itemCount; ++i)
             {
                 Transform itemTransform = pageTransform.GetChild(i);
                 itemTransform.gameObject.SetActive(false);

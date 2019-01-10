@@ -204,8 +204,9 @@ namespace ModIO.UI
         {
             // PaginationParameters
             APIPaginationParameters pagination = new APIPaginationParameters();
-            pagination.limit = explorerView.ItemCount;
-            pagination.offset = pageIndex * explorerView.ItemCount;
+            int pageSize = explorerView.CalculateItemsPerPage();
+            pagination.limit = pageSize;
+            pagination.offset = pageIndex * pageSize;
 
             // Send Request
             APIClient.GetAllMods(explorerViewFilter, pagination,
@@ -500,10 +501,11 @@ namespace ModIO.UI
             explorerViewFilter.sortFieldName = sortOption.apiFieldName;
             explorerViewFilter.isSortAscending = sortOption.isSortAscending;
 
+            int pageSize = explorerView.CalculateItemsPerPage();
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
             {
-                size = explorerView.ItemCount,
-                items = new ModProfile[explorerView.ItemCount],
+                size = pageSize,
+                items = new ModProfile[pageSize],
                 resultOffset = 0,
                 resultTotal = 0,
             };
@@ -1124,7 +1126,8 @@ namespace ModIO.UI
 
         public void ChangeInspectorPage(int direction)
         {
-            int firstExplorerIndex = (explorerView.CurrentPageNumber-1) * explorerView.ItemCount;
+            int pageSize = explorerView.CalculateItemsPerPage();
+            int firstExplorerIndex = (explorerView.CurrentPageNumber-1) * pageSize;
             int newModIndex = inspectorData.currentModIndex + direction;
             int offsetIndex = newModIndex - firstExplorerIndex;
 
@@ -1135,14 +1138,14 @@ namespace ModIO.UI
             {
                 ChangeExplorerPage(-1);
 
-                offsetIndex += explorerView.ItemCount;
+                offsetIndex += pageSize;
                 profile = explorerView.targetPage.items[offsetIndex];
             }
-            else if(offsetIndex >= explorerView.ItemCount)
+            else if(offsetIndex >= pageSize)
             {
                 ChangeExplorerPage(1);
 
-                offsetIndex -= explorerView.ItemCount;
+                offsetIndex -= pageSize;
                 profile = explorerView.targetPage.items[offsetIndex];
             }
             else
@@ -1190,18 +1193,19 @@ namespace ModIO.UI
                 return;
             }
 
+            int pageSize = explorerView.CalculateItemsPerPage();
             int targetPageIndex = explorerView.CurrentPageNumber - 1 + direction;
-            int targetPageProfileOffset = targetPageIndex * explorerView.ItemCount;
+            int targetPageProfileOffset = targetPageIndex * pageSize;
 
             Debug.Assert(targetPageIndex >= 0);
             Debug.Assert(targetPageIndex < explorerView.CurrentPageCount);
 
-            int pageItemCount = (int)Mathf.Min(explorerView.ItemCount,
+            int pageItemCount = (int)Mathf.Min(pageSize,
                                                explorerView.currentPage.resultTotal - targetPageProfileOffset);
 
             RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
             {
-                size = explorerView.ItemCount,
+                size = pageSize,
                 items = new ModProfile[pageItemCount],
                 resultOffset = targetPageProfileOffset,
                 resultTotal = explorerView.currentPage.resultTotal,
@@ -1426,11 +1430,12 @@ namespace ModIO.UI
                     = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
             }
 
+            int pageSize = explorerView.CalculateItemsPerPage();
             // TODO(@jackson): BAD ZERO?
             RequestPage<ModProfile> filteredPage = new RequestPage<ModProfile>()
             {
-                size = explorerView.ItemCount,
-                items = new ModProfile[explorerView.ItemCount],
+                size = pageSize,
+                items = new ModProfile[pageSize],
                 resultOffset = 0,
                 resultTotal = 0,
             };
