@@ -402,14 +402,22 @@ namespace ModIO.UI
                 GameObject.Destroy(t.gameObject);
             }
 
-            int itemCount = 0;
             if(profileCollection != null)
             {
+                List<ModView> viewList = new List<ModView>();
+                int pageSize = CalculateItemsPerPage();
                 IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
                 IList<int> enabledModIds = ModManager.GetEnabledModIds();
 
                 foreach(ModProfile profile in profileCollection)
                 {
+                    if(viewList.Count >= pageSize)
+                    {
+                        // Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
+                        //                  + "can be displayed per page");
+                        break;
+                    }
+
                     GameObject itemGO = GameObject.Instantiate(itemPrefab,
                                                                new Vector3(),
                                                                Quaternion.identity,
@@ -418,7 +426,7 @@ namespace ModIO.UI
                     // initialize item
                     // TODO(@jackson): Remove
                     ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-                    item.index = itemCount;
+                    item.index = viewList.Count;
 
                     ModView view = itemGO.GetComponent<ModView>();
                     view.onClick +=                 NotifyInspectRequested;
@@ -450,15 +458,27 @@ namespace ModIO.UI
                                                     null);
                     }
 
-                    ++itemCount;
+                    viewList.Add(view);
                 }
 
 
-                if(itemCount > 0)
+                if(viewList.Count > 0)
                 {
-                    int pageSize = CalculateItemsPerPage();
+                    Vector3 itemScale = CalculateItemScale();
+                    if(!itemScale.Equals(Vector3.one))
+                    {
+                        foreach(ModView view in viewList)
+                        {
+                            GameObject resizeWrapper = new GameObject("Mod Tile", typeof(RectTransform));
+                            resizeWrapper.transform.SetParent(pageTransform);
 
-                    for(int i = itemCount; i < pageSize; ++i)
+                            RectTransform t = view.transform as RectTransform;
+                            t.SetParent(resizeWrapper.transform);
+                            t.localScale = itemScale;
+                        }
+                    }
+
+                    for(int i = viewList.Count; i < pageSize; ++i)
                     {
                         GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
                                                            typeof(RectTransform));
