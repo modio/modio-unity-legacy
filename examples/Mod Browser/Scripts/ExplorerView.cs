@@ -12,7 +12,6 @@ namespace ModIO.UI
         FromRight,
     }
 
-    // TODO(@jackson): The padding/spacing maths might need work?
     public class ExplorerView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
@@ -24,13 +23,9 @@ namespace ModIO.UI
         public event Action onFilterTagsChanged;
 
         [Header("Settings")]
-        public GameObject itemPrefab;
-        public GameObject pagePrefab;
-        public RectOffset minPadding;
-        public float minRowSpacing;
-        public float minColumnSpacing;
-        public float pageTransitionTimeSeconds;
-        public bool enableItemScaling;
+        public GameObject itemPrefab = null;
+        public int itemSpacing = 2;
+        public float pageTransitionTimeSeconds = 0.4f;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -120,8 +115,6 @@ namespace ModIO.UI
         public void Initialize()
         {
             Debug.Assert(itemPrefab != null);
-            Debug.Assert(pagePrefab != null);
-            Debug.Assert(pagePrefab.GetComponent<LayoutGroup>() != null);
 
             ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
             RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
@@ -145,27 +138,21 @@ namespace ModIO.UI
                 GameObject.Destroy(t.gameObject);
             }
 
-            currentPageContainer = GameObject.Instantiate(pagePrefab,
-                                                          new Vector3(),
-                                                          Quaternion.identity,
-                                                          contentPane).transform as RectTransform;
-            currentPageContainer.gameObject.name = "Mod Page";
+            currentPageContainer = new GameObject("Mod Page", typeof(RectTransform)).transform as RectTransform;
+            currentPageContainer.SetParent(contentPane);
             currentPageContainer.anchorMin = Vector2.zero;
             currentPageContainer.anchorMax = Vector2.zero;
             currentPageContainer.offsetMin = Vector2.zero;
             currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
-            InitializePageLayout(currentPageContainer);
+            ApplyPageLayouter(currentPageContainer);
 
-            targetPageContainer = GameObject.Instantiate(pagePrefab,
-                                                         new Vector3(),
-                                                         Quaternion.identity,
-                                                         contentPane).transform as RectTransform;
-            targetPageContainer.gameObject.name = "Mod Page";
+            targetPageContainer = new GameObject("Mod Page", typeof(RectTransform)).transform as RectTransform;
+            targetPageContainer.SetParent(contentPane);
             targetPageContainer.anchorMin = Vector2.zero;
             targetPageContainer.anchorMax = Vector2.zero;
             targetPageContainer.offsetMin = new Vector2(contentPane.rect.width, 0f);
             targetPageContainer.offsetMax = new Vector2(contentPane.rect.width * 2f, contentPane.rect.height);
-            InitializePageLayout(targetPageContainer);
+            ApplyPageLayouter(targetPageContainer);
 
             targetPageContainer.gameObject.SetActive(false);
 
@@ -227,37 +214,25 @@ namespace ModIO.UI
             }
         }
 
-        private void InitializePageLayout(RectTransform pageTransform)
+        private void ApplyPageLayouter(RectTransform pageTransform)
         {
-            foreach(Transform t in pageTransform)
-            {
-                #if DEBUG
-                if(!Application.isPlaying)
-                {
-                    UnityEngine.Object.DestroyImmediate(t.gameObject);
-                }
-                else
-                #endif
-                {
-                    UnityEngine.Object.Destroy(t.gameObject);
-                }
-            }
+            Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
 
-            int itemCount = CalculateItemsPerPage();
-            for(int index = 0;
-                index < itemCount;
-                ++index)
-            {
-            }
+            GridLayoutGroup layouter = pageTransform.gameObject.AddComponent<GridLayoutGroup>();
+            layouter.spacing = new Vector2(itemSpacing, itemSpacing);
+            layouter.padding = new RectOffset();
+            layouter.cellSize = new Vector2(itemRect.width, itemRect.height);
+            layouter.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            layouter.startAxis = GridLayoutGroup.Axis.Horizontal;
+            layouter.childAlignment = TextAnchor.MiddleLeft;
+            layouter.constraint = GridLayoutGroup.Constraint.Flexible;
         }
 
         // ----------[ PAGE DISPLAY ]---------
-        // TODO(@jackson): Incomplete
+        // TODO(@jackson): Remove -> calculate in InitializePageLayout
         public int CalculateItemsPerPage()
         {
-            LayoutGroup layouter = pagePrefab.GetComponent<LayoutGroup>();
-            Debug.Assert(layouter != null);
-
+            LayoutGroup layouter = currentPageContainer.GetComponent<GridLayoutGroup>();
             Rect containerDimensions = contentPane.GetComponent<RectTransform>().rect;
             int itemCount = 0;
 
@@ -292,30 +267,10 @@ namespace ModIO.UI
             return itemCount;
         }
 
-        public Vector3 CalculateItemScale()
-        {
-            GridLayoutGroup layouter = pagePrefab.GetComponent<GridLayoutGroup>();
-            Vector3 scale = Vector3.one;
-
-            if(enableItemScaling && layouter != null)
-            {
-                Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
-                float scaleValue = Mathf.Min(layouter.cellSize.x / itemRect.width,
-                                             layouter.cellSize.y / itemRect.height);
-                scale.x = scaleValue;
-                scale.y = scaleValue;
-            }
-
-            return scale;
-        }
-
         public void UpdateCurrentPageDisplay()
         {
             Debug.Assert(currentPageContainer != null,
                          "[mod.io] ExplorerView.Initialize has not yet been called");
-            // Debug.Assert(ItemCount > 0,
-            //              "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
-            //              + " or rowCount has been calculated to be less than 1.");
 
             #if DEBUG
             if(isTransitioning)
@@ -340,9 +295,6 @@ namespace ModIO.UI
         {
             Debug.Assert(targetPageContainer != null,
                          "[mod.io] ExplorerView.Initialize has not yet been called");
-            // Debug.Assert(ItemCount > 0,
-            //              "[mod.io] ItemCount has an invalid value. This is because either the columnCount"
-            //              + " or rowCount has been calculated to be less than 1.");
 
             #if DEBUG
             if(isTransitioning)
@@ -464,20 +416,6 @@ namespace ModIO.UI
 
                 if(viewList.Count > 0)
                 {
-                    Vector3 itemScale = CalculateItemScale();
-                    if(!itemScale.Equals(Vector3.one))
-                    {
-                        foreach(ModView view in viewList)
-                        {
-                            GameObject resizeWrapper = new GameObject("Mod Tile", typeof(RectTransform));
-                            resizeWrapper.transform.SetParent(pageTransform);
-
-                            RectTransform t = view.transform as RectTransform;
-                            t.SetParent(resizeWrapper.transform);
-                            t.localScale = itemScale;
-                        }
-                    }
-
                     for(int i = viewList.Count; i < pageSize; ++i)
                     {
                         GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
