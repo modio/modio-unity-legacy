@@ -51,6 +51,7 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
+        private int m_itemsPerPage = -1;
 
         // --- ACCESSORS ---
         public IEnumerable<ModTagCategory> tagCategories
@@ -75,6 +76,10 @@ namespace ModIO.UI
                     tagFilterBar.DisplayTags(filterTags, value);
                 }
             }
+        }
+        public int itemsPerPage
+        {
+            get { return m_itemsPerPage; }
         }
 
         // ---[ CALCULATED VARS ]----
@@ -156,6 +161,8 @@ namespace ModIO.UI
 
             targetPageContainer.gameObject.SetActive(false);
 
+            m_itemsPerPage = CalculateItemsPerPage();
+
             // - nested views -
             if(tagFilterView != null)
             {
@@ -228,45 +235,32 @@ namespace ModIO.UI
             layouter.constraint = GridLayoutGroup.Constraint.Flexible;
         }
 
-        // ----------[ PAGE DISPLAY ]---------
-        // TODO(@jackson): Remove -> calculate in InitializePageLayout
         public int CalculateItemsPerPage()
         {
-            LayoutGroup layouter = currentPageContainer.GetComponent<GridLayoutGroup>();
             Rect containerDimensions = contentPane.GetComponent<RectTransform>().rect;
-            int itemCount = 0;
+            Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
 
-            if(layouter is GridLayoutGroup)
+            float gridWidth = (containerDimensions.width + itemSpacing);
+            float columnWidth = (itemRect.width + itemSpacing);
+            int columnsPerPage = (int)Mathf.Floor(gridWidth / columnWidth);
+            if(columnsPerPage < 0)
             {
-                GridLayoutGroup g = layouter as GridLayoutGroup;
-
-                float gridWidth = (containerDimensions.width - g.padding.left - g.padding.right + g.spacing.x);
-                float cellWidth = (g.cellSize.x + g.spacing.x);
-                int columnsPerPage = (int)Mathf.Floor(gridWidth / cellWidth);
-                if(columnsPerPage < 0)
-                {
-                    columnsPerPage = 0;
-                }
-
-                float gridHeight = (containerDimensions.height - g.padding.top - g.padding.bottom + g.spacing.y);
-                float cellHeight = (g.cellSize.y + g.spacing.y);
-                int rowsPerPage = (int)Mathf.Floor(gridHeight / cellHeight);
-                if(rowsPerPage < 0)
-                {
-                    rowsPerPage = 0;
-                }
-
-                itemCount = columnsPerPage * rowsPerPage;
-            }
-            else
-            {
-                Debug.LogError("[mod.io] Support for LayoutGroup components of type "
-                               + layouter.GetType().ToString() + " has not been implemented.");
+                columnsPerPage = 0;
             }
 
+            float gridHeight = (containerDimensions.height + itemSpacing);
+            float rowHeight = (itemRect.height + itemSpacing);
+            int rowsPerPage = (int)Mathf.Floor(gridHeight / rowHeight);
+            if(rowsPerPage < 0)
+            {
+                rowsPerPage = 0;
+            }
+
+            int itemCount = columnsPerPage * rowsPerPage;
             return itemCount;
         }
 
+        // ----------[ PAGE DISPLAY ]---------
         public void UpdateCurrentPageDisplay()
         {
             Debug.Assert(currentPageContainer != null,
