@@ -30,6 +30,7 @@ namespace ModIO.UI
         public float minRowSpacing;
         public float minColumnSpacing;
         public float pageTransitionTimeSeconds;
+        public bool enableItemScaling;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -254,14 +255,17 @@ namespace ModIO.UI
         // TODO(@jackson): Incomplete
         public int CalculateItemsPerPage()
         {
-            Rect dimensions = currentPageContainer.GetComponent<RectTransform>().rect;
-            LayoutGroup layouter = currentPageContainer.GetComponent<LayoutGroup>();
+            LayoutGroup layouter = pagePrefab.GetComponent<LayoutGroup>();
+            Debug.Assert(layouter != null);
+
+            Rect containerDimensions = contentPane.GetComponent<RectTransform>().rect;
+            int itemCount = 0;
 
             if(layouter is GridLayoutGroup)
             {
                 GridLayoutGroup g = layouter as GridLayoutGroup;
 
-                float gridWidth = (dimensions.width - g.padding.left - g.padding.right + g.spacing.x);
+                float gridWidth = (containerDimensions.width - g.padding.left - g.padding.right + g.spacing.x);
                 float cellWidth = (g.cellSize.x + g.spacing.x);
                 int columnsPerPage = (int)Mathf.Floor(gridWidth / cellWidth);
                 if(columnsPerPage < 0)
@@ -269,7 +273,7 @@ namespace ModIO.UI
                     columnsPerPage = 0;
                 }
 
-                float gridHeight = (dimensions.height - g.padding.top - g.padding.bottom + g.spacing.y);
+                float gridHeight = (containerDimensions.height - g.padding.top - g.padding.bottom + g.spacing.y);
                 float cellHeight = (g.cellSize.y + g.spacing.y);
                 int rowsPerPage = (int)Mathf.Floor(gridHeight / cellHeight);
                 if(rowsPerPage < 0)
@@ -277,12 +281,32 @@ namespace ModIO.UI
                     rowsPerPage = 0;
                 }
 
-                return columnsPerPage * rowsPerPage;
+                itemCount = columnsPerPage * rowsPerPage;
             }
             else
             {
-                throw new System.NotImplementedException();
+                Debug.LogError("[mod.io] Support for LayoutGroup components of type "
+                               + layouter.GetType().ToString() + " has not been implemented.");
             }
+
+            return itemCount;
+        }
+
+        public Vector3 CalculateItemScale()
+        {
+            GridLayoutGroup layouter = pagePrefab.GetComponent<GridLayoutGroup>();
+            Vector3 scale = Vector3.one;
+
+            if(enableItemScaling && layouter != null)
+            {
+                Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
+                float scaleValue = Mathf.Min(layouter.cellSize.x / itemRect.width,
+                                             layouter.cellSize.y / itemRect.height);
+                scale.x = scaleValue;
+                scale.y = scaleValue;
+            }
+
+            return scale;
         }
 
         public void UpdateCurrentPageDisplay()
