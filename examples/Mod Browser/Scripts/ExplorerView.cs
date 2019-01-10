@@ -143,25 +143,21 @@ namespace ModIO.UI
                 GameObject.Destroy(t.gameObject);
             }
 
+            // create mod pages
             currentPageContainer = new GameObject("Mod Page", typeof(RectTransform)).transform as RectTransform;
             currentPageContainer.SetParent(contentPane);
             currentPageContainer.anchorMin = Vector2.zero;
-            currentPageContainer.anchorMax = Vector2.zero;
             currentPageContainer.offsetMin = Vector2.zero;
-            currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
+            currentPageContainer.anchorMax = Vector2.one;
+            currentPageContainer.offsetMax = Vector2.zero;
+            currentPageContainer.localScale = Vector2.one;
+            currentPageContainer.pivot = Vector2.zero;
             ApplyPageLayouter(currentPageContainer);
 
-            targetPageContainer = new GameObject("Mod Page", typeof(RectTransform)).transform as RectTransform;
-            targetPageContainer.SetParent(contentPane);
-            targetPageContainer.anchorMin = Vector2.zero;
-            targetPageContainer.anchorMax = Vector2.zero;
-            targetPageContainer.offsetMin = new Vector2(contentPane.rect.width, 0f);
-            targetPageContainer.offsetMax = new Vector2(contentPane.rect.width * 2f, contentPane.rect.height);
-            ApplyPageLayouter(targetPageContainer);
-
+            targetPageContainer = GameObject.Instantiate(currentPageContainer, contentPane).transform as RectTransform;
             targetPageContainer.gameObject.SetActive(false);
 
-            m_itemsPerPage = CalculateItemsPerPage();
+            RecalculateItemsPerPage();
 
             // - nested views -
             if(tagFilterView != null)
@@ -231,11 +227,11 @@ namespace ModIO.UI
             layouter.cellSize = new Vector2(itemRect.width, itemRect.height);
             layouter.startCorner = GridLayoutGroup.Corner.UpperLeft;
             layouter.startAxis = GridLayoutGroup.Axis.Horizontal;
-            layouter.childAlignment = TextAnchor.MiddleLeft;
+            layouter.childAlignment = TextAnchor.MiddleCenter;
             layouter.constraint = GridLayoutGroup.Constraint.Flexible;
         }
 
-        public int CalculateItemsPerPage()
+        public void RecalculateItemsPerPage()
         {
             Rect containerDimensions = contentPane.GetComponent<RectTransform>().rect;
             Rect itemRect = itemPrefab.GetComponent<RectTransform>().rect;
@@ -256,8 +252,7 @@ namespace ModIO.UI
                 rowsPerPage = 0;
             }
 
-            int itemCount = columnsPerPage * rowsPerPage;
-            return itemCount;
+            m_itemsPerPage = columnsPerPage * rowsPerPage;
         }
 
         // ----------[ PAGE DISPLAY ]---------
@@ -351,13 +346,12 @@ namespace ModIO.UI
             if(profileCollection != null)
             {
                 List<ModView> viewList = new List<ModView>();
-                int pageSize = CalculateItemsPerPage();
                 IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
                 IList<int> enabledModIds = ModManager.GetEnabledModIds();
 
                 foreach(ModProfile profile in profileCollection)
                 {
-                    if(viewList.Count >= pageSize)
+                    if(viewList.Count >= m_itemsPerPage)
                     {
                         // Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
                         //                  + "can be displayed per page");
@@ -410,7 +404,7 @@ namespace ModIO.UI
 
                 if(viewList.Count > 0)
                 {
-                    for(int i = viewList.Count; i < pageSize; ++i)
+                    for(int i = viewList.Count; i < m_itemsPerPage; ++i)
                     {
                         GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
                                                            typeof(RectTransform));
@@ -450,12 +444,8 @@ namespace ModIO.UI
                 float mainPaneTargetX = contentPane.rect.width * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
                 float transPaneStartX = mainPaneTargetX * -1f;
 
-                currentPageContainer.offsetMin = Vector2.zero;
-                currentPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
-
-                targetPageContainer.offsetMin = new Vector2(transPaneStartX, 0f);
-                targetPageContainer.offsetMax = new Vector2(transPaneStartX + contentPane.rect.width,
-                                                       contentPane.rect.height);
+                currentPageContainer.anchoredPosition = Vector2.zero;
+                targetPageContainer.anchoredPosition = new Vector2(transPaneStartX, 0f);
 
                 StartCoroutine(TransitionPageCoroutine(mainPaneTargetX, transPaneStartX,
                                                        this.pageTransitionTimeSeconds, onTransitionCompleted));
@@ -482,27 +472,15 @@ namespace ModIO.UI
             {
                 float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / transitionLength);
 
-                currentPageContainer.offsetMin = new Vector2(transPos,
-                                                 0f);
-                currentPageContainer.offsetMax = new Vector2(transPos + contentPane.rect.width,
-                                                 contentPane.rect.height);
-
-                targetPageContainer.offsetMin = new Vector2(transPos + transitionPaneStartX,
-                                                       0f);
-                targetPageContainer.offsetMax = new Vector2(transPos + transitionPaneStartX + contentPane.rect.width,
-                                                       contentPane.rect.height);
+                currentPageContainer.anchoredPosition = new Vector2(transPos, 0f);
+                targetPageContainer.anchoredPosition = new Vector2(transPos + transitionPaneStartX, 0f);
 
                 transitionTime += Time.deltaTime;
 
                 yield return null;
             }
 
-            // finalize
-            targetPageContainer.offsetMin = Vector2.zero;
-            targetPageContainer.offsetMax = new Vector2(contentPane.rect.width, contentPane.rect.height);
-
-            currentPageContainer.gameObject.SetActive(false);
-
+            // flip
             var tempContainer = currentPageContainer;
             currentPageContainer = targetPageContainer;
             targetPageContainer = tempContainer;
@@ -510,6 +488,10 @@ namespace ModIO.UI
             var tempPage = currentPage;
             currentPage = targetPage;
             targetPage = tempPage;
+
+            // finalize
+            currentPageContainer.anchoredPosition = Vector2.zero;
+            targetPageContainer.gameObject.SetActive(false);
 
             UpdatePageNumberDisplay();
 

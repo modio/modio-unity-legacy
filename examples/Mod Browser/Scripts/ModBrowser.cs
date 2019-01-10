@@ -204,7 +204,7 @@ namespace ModIO.UI
         {
             // PaginationParameters
             APIPaginationParameters pagination = new APIPaginationParameters();
-            int pageSize = explorerView.CalculateItemsPerPage();
+            int pageSize = explorerView.itemsPerPage;
             pagination.limit = pageSize;
             pagination.offset = pageIndex * pageSize;
 
@@ -501,7 +501,7 @@ namespace ModIO.UI
             explorerViewFilter.sortFieldName = sortOption.apiFieldName;
             explorerViewFilter.isSortAscending = sortOption.isSortAscending;
 
-            int pageSize = explorerView.CalculateItemsPerPage();
+            int pageSize = explorerView.itemsPerPage;
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
             {
                 size = pageSize,
@@ -1126,7 +1126,7 @@ namespace ModIO.UI
 
         public void ChangeInspectorPage(int direction)
         {
-            int pageSize = explorerView.CalculateItemsPerPage();
+            int pageSize = explorerView.itemsPerPage;
             int firstExplorerIndex = (explorerView.CurrentPageNumber-1) * pageSize;
             int newModIndex = inspectorData.currentModIndex + direction;
             int offsetIndex = newModIndex - firstExplorerIndex;
@@ -1193,7 +1193,7 @@ namespace ModIO.UI
                 return;
             }
 
-            int pageSize = explorerView.CalculateItemsPerPage();
+            int pageSize = explorerView.itemsPerPage;
             int targetPageIndex = explorerView.CurrentPageNumber - 1 + direction;
             int targetPageProfileOffset = targetPageIndex * pageSize;
 
@@ -1430,7 +1430,7 @@ namespace ModIO.UI
                     = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
             }
 
-            int pageSize = explorerView.CalculateItemsPerPage();
+            int pageSize = explorerView.itemsPerPage;
             // TODO(@jackson): BAD ZERO?
             RequestPage<ModProfile> filteredPage = new RequestPage<ModProfile>()
             {
