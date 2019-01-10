@@ -52,12 +52,6 @@ namespace ModIO.UI
         public bool isTransitioning = false;
         public RectTransform currentPageContainer = null;
         public RectTransform targetPageContainer = null;
-        public int columnCount = -1;
-        public float columnWidth = -1f;
-        public int rowCount = -1;
-        public float rowHeight = -1f;
-        public Vector2 itemSize = Vector2.zero;
-        public Vector2 itemOffset = Vector2.zero;
 
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
@@ -143,31 +137,6 @@ namespace ModIO.UI
                          && itemPrefabTransform.anchorMax == new Vector2(0f, 1f),
                          "[mod.io] The ExplorerView.itemPrefab's transfrom needs a top-left anchor."
                          + " Please ensure the both the anchor min and anchor max are at [0, 1].");
-
-            // - calculate size vars -
-            // TODO(@jackson): WHOLE PIXELS!
-            this.itemOffset = Vector2.zero;
-
-            // width
-            float baseItemWidth = itemPrefabTransform.rect.width;
-            float contentWidth = contentPane.rect.width - minPadding.horizontal + minColumnSpacing;
-            this.columnCount = (int)Mathf.Floor(contentWidth / (baseItemWidth + minColumnSpacing));
-            this.columnWidth = (contentPane.rect.width - minPadding.horizontal) / (float)this.columnCount;
-
-            // height
-            float baseItemHeight = itemPrefabTransform.rect.height;
-            float contentHeight = contentPane.rect.height - minPadding.vertical + minRowSpacing;
-            this.rowCount = (int)Mathf.Floor(contentHeight / (baseItemHeight + minRowSpacing));
-            this.rowHeight = (contentPane.rect.height - minPadding.vertical) / (float)this.rowCount;
-
-            // item dimension
-            float maxWidthScale = (this.columnWidth - minColumnSpacing) / itemPrefabTransform.rect.width;
-            float maxHeightScale = (this.rowHeight - minRowSpacing) / itemPrefabTransform.rect.height;
-            float itemScaling = Mathf.Min(itemPrefabScript.maximumScaleFactor, maxWidthScale, maxHeightScale);
-            this.itemSize.x = itemPrefabTransform.rect.width * itemScaling;
-            this.itemOffset.x = 0.5f * (this.columnWidth - this.itemSize.x);
-            this.itemSize.y = itemPrefabTransform.rect.height * itemScaling;
-            this.itemOffset.y = 0.5f * (this.rowHeight - this.itemSize.y);
 
             // - initialize pages -
             foreach(Transform t in contentPane)
