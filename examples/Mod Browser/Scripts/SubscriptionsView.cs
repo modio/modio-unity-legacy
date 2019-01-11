@@ -26,6 +26,7 @@ namespace ModIO.UI
         public ScrollRect scrollView;
         public InputField nameSearchField;
         public Dropdown sortByDropdown;
+        public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noResultsDisplay;
 
@@ -139,6 +140,12 @@ namespace ModIO.UI
             {
                 GameObject.Destroy(m_viewMap[removedId].gameObject);
                 m_viewMap.Remove(removedId);
+            }
+
+            // result count
+            if(resultCount != null)
+            {
+                resultCount.text = m_viewMap.Count.ToString();
             }
 
             // null results
