@@ -53,6 +53,7 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
         private Vector2 m_gridCellSize = Vector2.one;
+        private Vector3 m_tileScale = Vector3.one;
         private int m_columnCount = 0;
 
         // --- ACCESSORS ---
@@ -279,6 +280,7 @@ namespace ModIO.UI
 
             this.m_columnCount = (int)Mathf.Floor(columnCount);
             this.m_gridCellSize = new Vector2(columnWidth, rowHeight);
+            this.m_tileScale = new Vector3(itemScaleValue, itemScaleValue, 1f);
         }
 
         private void ApplyGridLayoutValues(GridLayoutGroup layoutGroup)
@@ -385,6 +387,7 @@ namespace ModIO.UI
                 List<ModView> viewList = new List<ModView>();
                 IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
                 IList<int> enabledModIds = ModManager.GetEnabledModIds();
+                Vector2 centerVector = new Vector2(0.5f, 0.5f);
 
                 foreach(ModProfile profile in profileCollection)
                 {
@@ -395,10 +398,21 @@ namespace ModIO.UI
                         break;
                     }
 
+                    GameObject resizeWrapper = new GameObject("Mod Tile", typeof(RectTransform));
+                    resizeWrapper.transform.SetParent(pageTransform);
+                    resizeWrapper.transform.localScale = Vector3.one;
+
                     GameObject itemGO = GameObject.Instantiate(itemPrefab,
                                                                new Vector3(),
                                                                Quaternion.identity,
-                                                               pageTransform);
+                                                               resizeWrapper.transform);
+
+                    RectTransform itemTransform = itemGO.transform as RectTransform;
+                    itemTransform.pivot = centerVector;
+                    itemTransform.anchorMin = centerVector;
+                    itemTransform.anchorMax = centerVector;
+                    itemTransform.anchoredPosition = Vector2.zero;
+                    itemTransform.localScale = this.m_tileScale;
 
                     // initialize item
                     // TODO(@jackson): Remove
@@ -441,24 +455,6 @@ namespace ModIO.UI
 
                 if(viewList.Count > 0)
                 {
-                    if(!itemPrefab.transform.localScale.Equals(Vector3.one))
-                    {
-                        foreach(ModView view in viewList)
-                        {
-                            GameObject resizeWrapper = new GameObject("Mod Tile", typeof(RectTransform));
-                            resizeWrapper.transform.SetParent(pageTransform);
-                            resizeWrapper.transform.localScale = Vector3.one;
-
-                            Vector2 centerVector = new Vector2(0.5f, 0.5f);
-                            RectTransform t = view.transform as RectTransform;
-                            t.SetParent(resizeWrapper.transform);
-                            t.pivot = centerVector;
-                            t.anchorMin = centerVector;
-                            t.anchorMax = centerVector;
-                            t.anchoredPosition = Vector2.zero;
-                        }
-                    }
-
                     for(int i = viewList.Count; i < itemsPerPage; ++i)
                     {
                         GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
