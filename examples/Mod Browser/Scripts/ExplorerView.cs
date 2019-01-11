@@ -24,8 +24,9 @@ namespace ModIO.UI
 
         [Header("Settings")]
         public GameObject itemPrefab = null;
-        public int itemSpacing = 8;
+        public float gridSpacing = 8f;
         public float pageTransitionTimeSeconds = 0.4f;
+        public int rowCount = 2;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -51,7 +52,8 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
-        private int m_itemsPerPage = -1;
+        private Vector2 m_gridCellSize = Vector2.one;
+        private int m_columnCount = 0;
 
         // --- ACCESSORS ---
         public IEnumerable<ModTagCategory> tagCategories
@@ -79,7 +81,7 @@ namespace ModIO.UI
         }
         public int itemsPerPage
         {
-            get { return m_itemsPerPage; }
+            get { return this.rowCount * this.m_columnCount; }
         }
 
         // ---[ CALCULATED VARS ]----
@@ -143,6 +145,8 @@ namespace ModIO.UI
                 GameObject.Destroy(t.gameObject);
             }
 
+            RecalculateColumnCountAndCellDimensions();
+
             // create mod pages
             currentPageContainer = new GameObject("Mod Page", typeof(RectTransform)).transform as RectTransform;
             currentPageContainer.SetParent(contentPane);
@@ -152,12 +156,12 @@ namespace ModIO.UI
             currentPageContainer.offsetMax = Vector2.zero;
             currentPageContainer.localScale = Vector2.one;
             currentPageContainer.pivot = Vector2.zero;
-            ApplyPageLayouter(currentPageContainer);
+            GridLayoutGroup layouter = currentPageContainer.gameObject.AddComponent<GridLayoutGroup>();
+            ApplyGridLayoutValues(layouter);
 
             targetPageContainer = GameObject.Instantiate(currentPageContainer, contentPane).transform as RectTransform;
             targetPageContainer.gameObject.SetActive(false);
 
-            RecalculateItemsPerPage();
 
             // - nested views -
             if(tagFilterView != null)
@@ -215,51 +219,77 @@ namespace ModIO.UI
                     }
                 };
             }
+
         }
 
-        private void ApplyPageLayouter(RectTransform pageTransform)
+        // TODO(@jackson): Encapsulate (could work with ratio rather than itemDim)
+        // TODO(@jackson): Check for zero divides
+        public void RecalculateColumnCountAndCellDimensions()
         {
-            RectTransform t = itemPrefab.GetComponent<RectTransform>();
-            Rect scaledItemRect = t.rect;
-            scaledItemRect.width *= t.localScale.x;
-            scaledItemRect.height *= t.localScale.y;
+            Rect itemDim = itemPrefab.GetComponent<RectTransform>().rect;
+            Rect containerDim = contentPane.GetComponent<RectTransform>().rect;
 
-            GridLayoutGroup layouter = pageTransform.gameObject.AddComponent<GridLayoutGroup>();
-            layouter.spacing = new Vector2(itemSpacing, itemSpacing);
-            layouter.padding = new RectOffset();
-            layouter.cellSize = new Vector2(scaledItemRect.width, scaledItemRect.height);
-            layouter.startCorner = GridLayoutGroup.Corner.UpperLeft;
-            layouter.startAxis = GridLayoutGroup.Axis.Horizontal;
-            layouter.childAlignment = TextAnchor.MiddleCenter;
-            layouter.constraint = GridLayoutGroup.Constraint.Flexible;
+            // initial calcs
+            float rowCount_f = (float)rowCount;
+            float rowHeight = (containerDim.height - gridSpacing * (rowCount_f-1f)) / rowCount_f;
+            float vertSpacingTotal = gridSpacing * (rowCount_f-1f);
+            float itemScaleValue = (rowHeight / itemDim.height);
+            float columnCount = Mathf.Floor((containerDim.width + gridSpacing)
+                                            / (itemScaleValue * itemDim.width + gridSpacing));
+            float columnWidth = itemScaleValue * itemDim.width;
+            float horzSpacingTotal = gridSpacing * (columnCount-1f);
+
+            // case where only one item fits width-wise
+            if(columnCount < 1f)
+            {
+                itemScaleValue = itemDim.width / containerDim.width;
+                columnCount = 1f;
+            }
+            else
+            {
+                int calcIterations = 0;
+
+                // are the items wide enough?
+                bool moreColumnsNeeded = (columnWidth*columnCount+horzSpacingTotal) < containerDim.width;
+
+                while(moreColumnsNeeded
+                      && calcIterations < 100)
+                {
+                    ++calcIterations;
+
+                    columnCount += 1f;
+
+                    horzSpacingTotal = gridSpacing * (columnCount - 1f);
+
+                    // set values using width data
+                    columnWidth = (containerDim.width - horzSpacingTotal) / columnCount;
+                    itemScaleValue = columnWidth / itemDim.width;
+                    rowHeight = itemScaleValue * itemDim.height;
+
+                    // check if the values create a grid that is too tall
+                    moreColumnsNeeded = (vertSpacingTotal + (rowHeight * rowCount_f) > containerDim.height);
+                }
+
+                if(calcIterations >= 100)
+                {
+                    Debug.LogWarning("[mod.io] Calculating the grid layout for the ExplorerView"
+                                     + " failed as it required too many iterations to solve", this);
+                }
+            }
+
+            this.m_columnCount = (int)Mathf.Floor(columnCount);
+            this.m_gridCellSize = new Vector2(columnWidth, rowHeight);
         }
 
-        public void RecalculateItemsPerPage()
+        private void ApplyGridLayoutValues(GridLayoutGroup layoutGroup)
         {
-            RectTransform t = itemPrefab.GetComponent<RectTransform>();
-            Rect scaledItemRect = t.rect;
-            scaledItemRect.width *= t.localScale.x;
-            scaledItemRect.height *= t.localScale.y;
-
-            Rect containerDimensions = contentPane.GetComponent<RectTransform>().rect;
-
-            float gridWidth = (containerDimensions.width + itemSpacing);
-            float columnWidth = (scaledItemRect.width + itemSpacing);
-            int columnsPerPage = (int)Mathf.Floor(gridWidth / columnWidth);
-            if(columnsPerPage < 0)
-            {
-                columnsPerPage = 0;
-            }
-
-            float gridHeight = (containerDimensions.height + itemSpacing);
-            float rowHeight = (scaledItemRect.height + itemSpacing);
-            int rowsPerPage = (int)Mathf.Floor(gridHeight / rowHeight);
-            if(rowsPerPage < 0)
-            {
-                rowsPerPage = 0;
-            }
-
-            m_itemsPerPage = columnsPerPage * rowsPerPage;
+            layoutGroup.spacing = new Vector2(this.gridSpacing, this.gridSpacing);
+            layoutGroup.padding = new RectOffset();
+            layoutGroup.cellSize = this.m_gridCellSize;
+            layoutGroup.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            layoutGroup.startAxis = GridLayoutGroup.Axis.Horizontal;
+            layoutGroup.childAlignment = TextAnchor.MiddleCenter;
+            layoutGroup.constraint = GridLayoutGroup.Constraint.Flexible;
         }
 
         // ----------[ PAGE DISPLAY ]---------
@@ -358,7 +388,7 @@ namespace ModIO.UI
 
                 foreach(ModProfile profile in profileCollection)
                 {
-                    if(viewList.Count >= m_itemsPerPage)
+                    if(viewList.Count >= itemsPerPage)
                     {
                         // Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
                         //                  + "can be displayed per page");
@@ -429,7 +459,7 @@ namespace ModIO.UI
                         }
                     }
 
-                    for(int i = viewList.Count; i < m_itemsPerPage; ++i)
+                    for(int i = viewList.Count; i < itemsPerPage; ++i)
                     {
                         GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
                                                            typeof(RectTransform));
