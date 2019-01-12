@@ -692,8 +692,6 @@ namespace ModIO.UI
             {
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
 
-                Debug.Log("UPDATING");
-
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
                 bool isRequestDone = false;
@@ -1071,24 +1069,6 @@ namespace ModIO.UI
 
         // ---------[ UI CONTROL ]---------
         // ---[ VIEW MANAGEMENT ]---
-        public void ShowInspectorView()
-        {
-            inspectorView.gameObject.SetActive(true);
-            explorerView.gameObject.SetActive(false);
-            subscriptionsView.gameObject.SetActive(false);
-
-            if(explorerViewButton != null)
-            {
-                explorerViewButton.isOn = false;
-                explorerViewButton.interactable = true;
-            }
-            if(subscriptionsViewButton != null)
-            {
-                subscriptionsViewButton.isOn = false;
-                subscriptionsViewButton.interactable = true;
-            }
-        }
-
         public void ShowExplorerView()
         {
             explorerView.gameObject.SetActive(true);
@@ -1124,47 +1104,26 @@ namespace ModIO.UI
             }
         }
 
-        public void ChangeInspectorPage(int direction)
+        public void InspectMod(int modId)
         {
-            int pageSize = explorerView.itemsPerPage;
-            int firstExplorerIndex = (explorerView.CurrentPageNumber-1) * pageSize;
-            int newModIndex = inspectorData.currentModIndex + direction;
-            int offsetIndex = newModIndex - firstExplorerIndex;
+            inspectorView.DisplayLoading();
+            inspectorView.profile = null;
+            inspectorView.statistics = null;
 
-            ModProfile profile;
+            inspectorView.gameObject.SetActive(true);
 
             // profile
-            if(offsetIndex < 0)
-            {
-                ChangeExplorerPage(-1);
+            ModManager.GetModProfile(modId,
+                                     (p) =>
+                                     {
+                                        inspectorView.profile = p;
+                                        inspectorView.UpdateProfileDisplay();
+                                     },
+                                     WebRequestError.LogAsWarning);
 
-                offsetIndex += pageSize;
-                profile = explorerView.targetPage.items[offsetIndex];
-            }
-            else if(offsetIndex >= pageSize)
-            {
-                ChangeExplorerPage(1);
-
-                offsetIndex -= pageSize;
-                profile = explorerView.targetPage.items[offsetIndex];
-            }
-            else
-            {
-                profile = explorerView.currentPage.items[offsetIndex];
-            }
-
-            SetInspectorViewProfile(profile);
-        }
-
-        public void SetInspectorViewProfile(ModProfile profile)
-        {
-            // profile
-            inspectorView.profile = profile;
-            inspectorView.UpdateProfileDisplay();
 
             // statistics
-            inspectorView.statistics = null;
-            ModManager.GetModStatistics(inspectorView.profile.id,
+            ModManager.GetModStatistics(modId,
                                         (s) =>
                                         {
                                             inspectorView.statistics = s;
@@ -1173,16 +1132,50 @@ namespace ModIO.UI
                                         WebRequestError.LogAsWarning);
 
             // subscription
-            inspectorView.isModSubscribed = ModManager.GetSubscribedModIds().Contains(inspectorView.profile.id);
+            inspectorView.isModSubscribed = ModManager.GetSubscribedModIds().Contains(modId);
             inspectorView.UpdateIsSubscribedDisplay();
-
-            // inspectorView stuff
-            inspectorData.currentModIndex = -1;
 
             if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
 
             UpdateInspectorViewPageButtonInteractibility();
         }
+
+        public void CloseInspector()
+        {
+            inspectorView.gameObject.SetActive(false);
+        }
+
+        // public void ChangeInspectorPage(int direction)
+        // {
+        //     int pageSize = explorerView.itemsPerPage;
+        //     int firstExplorerIndex = (explorerView.CurrentPageNumber-1) * pageSize;
+        //     int newModIndex = inspectorData.currentModIndex + direction;
+        //     int offsetIndex = newModIndex - firstExplorerIndex;
+
+        //     ModProfile profile;
+
+        //     // profile
+        //     if(offsetIndex < 0)
+        //     {
+        //         ChangeExplorerPage(-1);
+
+        //         offsetIndex += pageSize;
+        //         profile = explorerView.targetPage.items[offsetIndex];
+        //     }
+        //     else if(offsetIndex >= pageSize)
+        //     {
+        //         ChangeExplorerPage(1);
+
+        //         offsetIndex -= pageSize;
+        //         profile = explorerView.targetPage.items[offsetIndex];
+        //     }
+        //     else
+        //     {
+        //         profile = explorerView.currentPage.items[offsetIndex];
+        //     }
+
+        //     SetInspectorViewProfile(profile);
+        // }
 
         public void ChangeExplorerPage(int direction)
         {
@@ -1243,51 +1236,12 @@ namespace ModIO.UI
 
         public void InspectDiscoverItem(ModView view)
         {
-            // TODO(@jackson): Load explorer page
-            inspectorData.currentModIndex = (view.gameObject.GetComponent<ModBrowserItem>().index
-                                             + explorerView.currentPage.resultOffset);
-
-            if(inspectorView.backToDiscoverButton != null)
-            {
-                inspectorView.backToDiscoverButton.gameObject.SetActive(true);
-            }
-            if(inspectorView.backToSubscriptionsButton != null)
-            {
-                inspectorView.backToSubscriptionsButton.gameObject.SetActive(false);
-            }
-
-            inspectorView.DisplayLoading();
-
-            ModManager.GetModProfile(view.data.profile.modId,
-                                     SetInspectorViewProfile,
-                                     WebRequestError.LogAsWarning);
-
-            ShowInspectorView();
+            InspectMod(view.data.profile.modId);
         }
 
         public void InspectSubscriptionItem(ModView view)
         {
-            // TOOD(@jackson): Will be factored out
-            // inspectorData.currentModIndex = (view.gameObject.GetComponent<ModBrowserItem>().index
-            //                                  + subscriptionsView.currentPage.resultOffset);
-            inspectorData.currentModIndex = 0;
-
-            if(inspectorView.backToSubscriptionsButton != null)
-            {
-                inspectorView.backToSubscriptionsButton.gameObject.SetActive(true);
-            }
-            if(inspectorView.backToDiscoverButton != null)
-            {
-                inspectorView.backToDiscoverButton.gameObject.SetActive(false);
-            }
-
-            inspectorView.DisplayLoading();
-
-            ModManager.GetModProfile(view.data.profile.modId,
-                                     SetInspectorViewProfile,
-                                     WebRequestError.LogAsWarning);
-
-            ShowInspectorView();
+            InspectMod(view.data.profile.modId);
         }
 
         // ---[ DIALOGS ]---
