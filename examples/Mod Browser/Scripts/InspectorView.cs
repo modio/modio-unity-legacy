@@ -24,8 +24,6 @@ namespace ModIO.UI
         public ModMediaDisplayComponent selectedMediaPreview;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
-        public Button subscribeButton;
-        public Button unsubscribeButton;
         public Button previousModButton;
         public Button nextModButton;
         public Button backToDiscoverButton;
@@ -154,14 +152,9 @@ namespace ModIO.UI
         }
         public void UpdateIsSubscribedDisplay()
         {
-            if(subscribeButton != null)
-            {
-                subscribeButton.gameObject.SetActive(!isModSubscribed);
-            }
-            if(unsubscribeButton != null)
-            {
-                unsubscribeButton.gameObject.SetActive(isModSubscribed);
-            }
+            ModDisplayData data = modView.data;
+            data.isSubscribed = isModSubscribed;
+            modView.data = data;
         }
 
         public void DisplayLoading()
