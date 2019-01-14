@@ -1042,13 +1042,6 @@ namespace ModIO.UI
             APIClient.userAuthorizationToken = null;
             CacheClient.DeleteAuthenticatedUser();
 
-            foreach(int modId in ModManager.GetSubscribedModIds())
-            {
-                CacheClient.DeleteAllModfileAndBinaryData(modId);
-            }
-            ModManager.SetSubscribedModIds(null);
-            UpdateViewSubscriptions();
-
             // - set up guest account -
             this.userProfile = null;
             if(this.loggedUserView != null)
