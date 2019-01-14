@@ -55,8 +55,13 @@ namespace ModIO.UI
         private Vector2 m_gridCellSize = Vector2.one;
         private Vector3 m_tileScale = Vector3.one;
         private int m_columnCount = 0;
+        private List<ModView> m_modViews = new List<ModView>();
 
         // --- ACCESSORS ---
+        public int itemsPerPage
+        {
+            get { return this.rowCount * this.m_columnCount; }
+        }
         public IEnumerable<ModTagCategory> tagCategories
         {
             get { return m_tagCategories; }
@@ -81,9 +86,12 @@ namespace ModIO.UI
                 }
             }
         }
-        public int itemsPerPage
+        public IEnumerable<ModView> modViews
         {
-            get { return this.rowCount * this.m_columnCount; }
+            get
+            {
+                return this.m_modViews;
+            }
         }
 
         // ---[ CALCULATED VARS ]----
@@ -332,34 +340,15 @@ namespace ModIO.UI
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
-            if(currentPageContainer != null)
+            foreach(ModView view in m_modViews)
             {
-                foreach(Transform itemTransform in currentPageContainer)
-                {
-                    ModView modView = itemTransform.GetComponent<ModView>();
-                    ModDisplayData modData = modView.data;
-                    bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
+                ModDisplayData modData = view.data;
+                bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
 
-                    if(modData.isSubscribed != isSubscribed)
-                    {
-                        modData.isSubscribed = isSubscribed;
-                        modView.data = modData;
-                    }
-                }
-            }
-            if(targetPageContainer != null)
-            {
-                foreach(Transform itemTransform in targetPageContainer)
+                if(modData.isSubscribed != isSubscribed)
                 {
-                    ModView modView = itemTransform.GetComponent<ModView>();
-                    ModDisplayData modData = modView.data;
-                    bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
-
-                    if(modData.isSubscribed != isSubscribed)
-                    {
-                        modData.isSubscribed = isSubscribed;
-                        modView.data = modData;
-                    }
+                    modData.isSubscribed = isSubscribed;
+                    view.data = modData;
                 }
             }
         }
@@ -372,19 +361,24 @@ namespace ModIO.UI
 
             foreach(Transform t in pageTransform)
             {
+                ModView view = t.GetComponent<ModView>();
+                if(view != null)
+                {
+                    m_modViews.Remove(view);
+                }
                 GameObject.Destroy(t.gameObject);
             }
 
+            List<ModView> pageModViews = new List<ModView>();
             if(profileCollection != null)
             {
-                List<ModView> viewList = new List<ModView>();
                 IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
                 IList<int> enabledModIds = ModManager.GetEnabledModIds();
                 Vector2 centerVector = new Vector2(0.5f, 0.5f);
 
                 foreach(ModProfile profile in profileCollection)
                 {
-                    if(viewList.Count >= itemsPerPage)
+                    if(pageModViews.Count >= itemsPerPage)
                     {
                         // Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
                         //                  + "can be displayed per page");
@@ -410,7 +404,7 @@ namespace ModIO.UI
                     // initialize item
                     // TODO(@jackson): Remove
                     ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-                    item.index = viewList.Count;
+                    item.index = pageModViews.Count;
 
                     ModView view = itemGO.GetComponent<ModView>();
                     view.onClick +=                 NotifyInspectRequested;
@@ -442,13 +436,12 @@ namespace ModIO.UI
                                                     null);
                     }
 
-                    viewList.Add(view);
+                    pageModViews.Add(view);
                 }
 
-
-                if(viewList.Count > 0)
+                if(pageModViews.Count > 0)
                 {
-                    for(int i = viewList.Count; i < itemsPerPage; ++i)
+                    for(int i = pageModViews.Count; i < itemsPerPage; ++i)
                     {
                         GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
                                                            typeof(RectTransform));
@@ -456,6 +449,7 @@ namespace ModIO.UI
                     }
                 }
             }
+            m_modViews.AddRange(pageModViews);
 
             // fix layouting
             if(this.isActiveAndEnabled)
