@@ -553,7 +553,7 @@ namespace ModIO.UI
             {
                 OpenMessageDisplay_Success("Authorization Successful");
                 CloseLoginDialog();
-                LogUserIn(t, false);
+                LogUserIn(t);
             };
             loginDialog.onAPIRequestError += (e) =>
             {
@@ -909,34 +909,21 @@ namespace ModIO.UI
         }
 
         // ---------[ USER CONTROL ]---------
-        public void LogUserIn(string oAuthToken, bool clearExistingSubscriptions)
+        public void LogUserIn(string oAuthToken)
         {
             Debug.Assert(!String.IsNullOrEmpty(oAuthToken),
                          "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
 
-            StartCoroutine(UserLoginCoroutine(oAuthToken, clearExistingSubscriptions));
+            StartCoroutine(UserLoginCoroutine(oAuthToken));
         }
 
-        private IEnumerator UserLoginCoroutine(string oAuthToken, bool clearExistingSubscriptions)
+        private IEnumerator UserLoginCoroutine(string oAuthToken)
         {
             bool isRequestDone = false;
             WebRequestError requestError = null;
 
             // - set APIClient var -
             APIClient.userAuthorizationToken = oAuthToken;
-
-            // NOTE(@jackson): Could be much improved by not deleting matching mod subscription files
-            if(clearExistingSubscriptions)
-            {
-                foreach(int modId in ModManager.GetSubscribedModIds())
-                {
-                    // remove from disk
-                    CacheClient.DeleteAllModfileAndBinaryData(modId);
-                }
-                ModManager.SetSubscribedModIds(null);
-
-                UpdateViewSubscriptions();
-            }
 
             // - get the user profile -
             UserProfile requestProfile = null;

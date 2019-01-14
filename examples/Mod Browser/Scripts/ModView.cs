@@ -93,8 +93,6 @@ namespace ModIO.UI
 
             if(modEnabledDisplay != null)
             {
-                Debug.Log("Toggling Mod Active: " + m_data.profile.name
-                          + " - " + m_data.isModEnabled, this);
                 modEnabledDisplay.isOn = m_data.isModEnabled;
             }
         }
