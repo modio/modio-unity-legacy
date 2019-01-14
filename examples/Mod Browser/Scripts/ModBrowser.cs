@@ -1476,6 +1476,13 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
+            var enabledMods = ModManager.GetEnabledModIds();
+            if(!enabledMods.Contains(profile.id))
+            {
+                enabledMods.Add(profile.id);
+                ModManager.SetEnabledModIds(enabledMods);
+            }
+
             AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
 
             UpdateViewSubscriptions();
