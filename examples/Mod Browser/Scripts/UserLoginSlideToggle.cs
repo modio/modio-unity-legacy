@@ -4,12 +4,12 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     [RequireComponent(typeof(UserView))]
-    [RequireComponent(typeof(SlideStateViewer))]
-    public class LoggedUserSlideViewer : MonoBehaviour
+    [RequireComponent(typeof(SlideToggle))]
+    public class UserLoginSlideToggle : MonoBehaviour
     {
         private UserView view { get { return this.gameObject.GetComponent<UserView>(); } }
-        private SlideStateViewer slider
-        { get { return this.gameObject.GetComponent<SlideStateViewer>(); } }
+        private SlideToggle slider
+        { get { return this.gameObject.GetComponent<SlideToggle>(); } }
 
         // ---------[ EVENTS ]---------
         public void OnUserClicked()

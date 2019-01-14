@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class SlideStateViewer : StateToggleDisplay, UnityEngine.EventSystems.IPointerExitHandler
+    public class SlideToggle : StateToggleDisplay, UnityEngine.EventSystems.IPointerExitHandler
     {
         public enum SlideAxis
         {
@@ -99,26 +99,26 @@ namespace ModIO.UI
             {
                 if(m_isOn)
                 {
-                    startPos = SlideStateViewer.GetLeftPos(content);
-                    targetPos = SlideStateViewer.GetRightPos(content);
+                    startPos = SlideToggle.GetLeftPos(content);
+                    targetPos = SlideToggle.GetRightPos(content);
                 }
                 else
                 {
-                    startPos = SlideStateViewer.GetRightPos(content);
-                    targetPos = SlideStateViewer.GetLeftPos(content);
+                    startPos = SlideToggle.GetRightPos(content);
+                    targetPos = SlideToggle.GetLeftPos(content);
                 }
             }
             else
             {
                 if(m_isOn)
                 {
-                    startPos = SlideStateViewer.GetBottomPos(content);
-                    targetPos = SlideStateViewer.GetTopPos(content);
+                    startPos = SlideToggle.GetBottomPos(content);
+                    targetPos = SlideToggle.GetTopPos(content);
                 }
                 else
                 {
-                    startPos = SlideStateViewer.GetTopPos(content);
-                    targetPos = SlideStateViewer.GetBottomPos(content);
+                    startPos = SlideToggle.GetTopPos(content);
+                    targetPos = SlideToggle.GetBottomPos(content);
                 }
             }
 
