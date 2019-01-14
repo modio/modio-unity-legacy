@@ -3983,6 +3983,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224445713180870938}
+  - component: {fileID: 114573621612601718}
   m_Layer: 5
   m_Name: SubscribedButtonGroup
   m_TagString: Untagged
@@ -10234,6 +10235,19 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114573621612601718
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1944939220077846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 929dd3e39e2654b78823b8c378dd9ee9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onDisplay: {fileID: 1192544799153522}
+  offDisplay: {fileID: 1510903381889784}
 --- !u!114 &114574157810039332
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11159,10 +11173,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36ea91d988594caeaa2ef69906927b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isToggled: 0
   m_untoggleOnMouseExit: 1
   m_slideAxis: 0
   m_slideDuration: 0.15
+  content: {fileID: 0}
+  m_isOn: 0
 --- !u!114 &114672246982697692
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -13267,12 +13282,8 @@ MonoBehaviour:
   tagsDisplay: {fileID: 114761650757908350}
   statisticsDisplay: {fileID: 114858047056216386}
   downloadDisplay: {fileID: 0}
-  subscriptionDisplay:
-    isSubscribed: {fileID: 1192544799153522}
-    notSubscribed: {fileID: 1510903381889784}
-  modEnabledDisplay:
-    isEnabled: {fileID: 0}
-    isDisabled: {fileID: 0}
+  subscriptionDisplay: {fileID: 114573621612601718}
+  modEnabledDisplay: {fileID: 0}
   m_data:
     profile:
       modId: 0
