@@ -361,7 +361,7 @@ namespace ModIO.UI
 
             foreach(Transform t in pageTransform)
             {
-                ModView view = t.GetComponent<ModView>();
+                ModView view = t.GetComponentInChildren<ModView>();
                 if(view != null)
                 {
                     m_modViews.Remove(view);
