@@ -4886,8 +4886,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114309666271251828}
-        m_MethodName: NotifyUnsubscribeRequested
+      - m_Target: {fileID: 114433127020849870}
+        m_MethodName: ShowSubscriptionsView
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -1513,7 +1513,7 @@ MonoBehaviour:
   m_untoggleOnMouseExit: 1
   m_slideAxis: 0
   m_slideDuration: 0.15
-  content: {fileID: 0}
+  content: {fileID: 224870561490506028}
   m_isOn: 0
 --- !u!114 &114284060485333278
 MonoBehaviour:
@@ -3297,7 +3297,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 140, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224236582719304080
 RectTransform:
@@ -3455,7 +3455,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 2, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -140, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224383500809258048
