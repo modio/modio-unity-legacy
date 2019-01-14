@@ -1,4 +1,4 @@
-﻿#define MEEPLESTATION_AUTO_INSTALL
+﻿// #define MEEPLESTATION_AUTO_INSTALL
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -1529,6 +1529,12 @@ namespace ModIO.UI
         {
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
+
+            var enabledMods = ModManager.GetEnabledModIds();
+            if(enabledMods.Remove(modId))
+            {
+                ModManager.SetEnabledModIds(enabledMods);
+            }
 
             UpdateViewSubscriptions();
         }
