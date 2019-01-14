@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [RequireComponent(typeof(ScrollRect))]
     public class SlideStateViewer : StateToggleDisplay, UnityEngine.EventSystems.IPointerExitHandler
     {
         public enum SlideAxis
@@ -14,11 +13,17 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
-        [SerializeField] private bool m_isOn = false;
+        [Header("Settings")]
         [Tooltip("Should the slide button untoggle when the user moves the mouse away?")]
         [SerializeField] private bool m_untoggleOnMouseExit = false;
         [SerializeField] private SlideAxis m_slideAxis = SlideAxis.Horizontal;
         [SerializeField] private float m_slideDuration = 0.15f;
+
+        [Header("UI Components")]
+        [SerializeField] private RectTransform content = null;
+
+        [Header("Display Data")]
+        [SerializeField] private bool m_isOn = false;
 
         private Coroutine m_animation = null;
 
@@ -54,98 +59,147 @@ namespace ModIO.UI
             get { return m_animation != null; }
         }
 
+        // ---------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            StartCoroutine(LateEnable());
+        }
+        private System.Collections.IEnumerator LateEnable()
+        {
+            yield return null;
+            UpdateScroll(false);
+        }
+
         private void UpdateScroll(bool animate)
         {
-            float pos = (m_isOn ? 1f : 0f);
+            if(content == null) { return; }
 
-            if(animate && m_slideDuration > 0f)
+            Vector2 startPos;
+            Vector2 targetPos;
+            if(m_slideAxis == SlideAxis.Horizontal)
+            {
+                if(m_isOn)
+                {
+                    startPos = SlideStateViewer.GetLeftPos(content);
+                    targetPos = SlideStateViewer.GetRightPos(content);
+                }
+                else
+                {
+                    startPos = SlideStateViewer.GetRightPos(content);
+                    targetPos = SlideStateViewer.GetLeftPos(content);
+                }
+            }
+            else
+            {
+                if(m_isOn)
+                {
+                    startPos = SlideStateViewer.GetBottomPos(content);
+                    targetPos = SlideStateViewer.GetTopPos(content);
+                }
+                else
+                {
+                    startPos = SlideStateViewer.GetTopPos(content);
+                    targetPos = SlideStateViewer.GetBottomPos(content);
+                }
+            }
+
+
+            animate &= (this.isActiveAndEnabled && m_slideDuration > 0f);
+            if(animate)
             {
                 if(m_animation != null)
                 {
                     StopCoroutine(m_animation);
                 }
 
-                if(m_slideAxis == SlideAxis.Horizontal)
-                {
-                    m_animation = StartCoroutine(AnimateScroll_H(pos));
-                }
-                else
-                {
-                    m_animation = StartCoroutine(AnimateScroll_V(pos));
-                }
+                this.m_animation = StartCoroutine(AnimateScroll(startPos, targetPos));
             }
             else
             {
-                if(m_slideAxis == SlideAxis.Horizontal)
-                {
-                    scrollRect.horizontalNormalizedPosition = pos;
-                }
-                else
-                {
-                    scrollRect.verticalNormalizedPosition = pos;
-                }
+                content.anchoredPosition = targetPos;
             }
         }
 
-        private System.Collections.IEnumerator AnimateScroll_H(float targetPos)
+        private System.Collections.IEnumerator AnimateScroll(Vector2 startPos, Vector2 targetPos)
         {
-            float elapsed = 0f;
-            float startPos = scrollRect.horizontalNormalizedPosition;
+            Vector2 currentPos = content.anchoredPosition;
 
-            float factoredDuration = m_slideDuration;
-            if(startPos < targetPos)
-            {
-                factoredDuration *= (targetPos - startPos);
-            }
-            else
-            {
-                factoredDuration *= (startPos - targetPos);
-            }
+            float elapsed = 0f;
+            float distance = Vector2.Distance(startPos, targetPos);
+            float factoredDuration = (Vector2.Distance(currentPos, targetPos) / distance) * m_slideDuration;
 
             while(elapsed < factoredDuration)
             {
-                scrollRect.horizontalNormalizedPosition = Mathf.Lerp(startPos, targetPos, elapsed / factoredDuration);
-
+                currentPos = Vector2.LerpUnclamped(startPos, targetPos, elapsed / factoredDuration);
+                content.anchoredPosition = currentPos;
                 elapsed += Time.deltaTime;
 
                 yield return null;
             }
 
-            scrollRect.horizontalNormalizedPosition = targetPos;
-            m_animation = null;
-        }
-
-        private System.Collections.IEnumerator AnimateScroll_V(float targetPos)
-        {
-            float elapsed = 0f;
-            float startPos = scrollRect.verticalNormalizedPosition;
-
-            float factoredDuration = m_slideDuration;
-            if(startPos < targetPos)
-            {
-                factoredDuration *= (targetPos - startPos);
-            }
-            else
-            {
-                factoredDuration *= (startPos - targetPos);
-            }
-
-            while(elapsed < factoredDuration)
-            {
-                scrollRect.verticalNormalizedPosition = Mathf.Lerp(startPos, targetPos, elapsed / factoredDuration);
-
-                elapsed += Time.deltaTime;
-
-                yield return null;
-            }
-
-            scrollRect.verticalNormalizedPosition = targetPos;
+            content.anchoredPosition = targetPos;
             m_animation = null;
         }
 
         private ScrollRect scrollRect
         {
             get { return this.gameObject.GetComponent<ScrollRect>(); }
+        }
+
+        // ---------[ UTILITY ]---------
+        private static Vector2 GetLeftPos(RectTransform content)
+        {
+            Rect pDim = content.parent.GetComponent<RectTransform>().rect;
+
+            // placement of offsetMin.x to left-align
+            float offsetPos = -content.anchorMin.x * pDim.width;
+
+            // offset -> pivot
+            float pivotDiff = content.anchoredPosition.x - content.offsetMin.x;
+
+            Vector2 pos = new Vector2(offsetPos + pivotDiff, content.anchoredPosition.y);
+            return pos;
+        }
+
+        private static Vector2 GetRightPos(RectTransform content)
+        {
+            Rect pDim = content.parent.GetComponent<RectTransform>().rect;
+
+            // placement of offsetMax.x to right-align
+            float offsetPos = (1f-content.anchorMax.x) * pDim.width;
+
+            // offset -> pivot
+            float pivotDiff = content.anchoredPosition.x - content.offsetMax.x;
+
+            Vector2 pos = new Vector2(offsetPos + pivotDiff, content.anchoredPosition.y);
+            return pos;
+        }
+        private static Vector2 GetBottomPos(RectTransform content)
+        {
+            Rect pDim = content.parent.GetComponent<RectTransform>().rect;
+
+            // placement of offsetMin.y to bottom-align
+            float offsetPos = -content.anchorMin.y * pDim.height;
+
+            // offset -> pivot
+            float pivotDiff = content.anchoredPosition.y - content.offsetMin.y;
+
+            Vector2 pos = new Vector2(content.anchoredPosition.x, offsetPos + pivotDiff);
+            return pos;
+        }
+
+        private static Vector2 GetTopPos(RectTransform content)
+        {
+            Rect pDim = content.parent.GetComponent<RectTransform>().rect;
+
+            // placement of offsetMax.y to top-align
+            float offsetPos = (1f-content.anchorMax.y) * pDim.height;
+
+            // offset -> pivot
+            float pivotDiff = content.anchoredPosition.y - content.offsetMax.y;
+
+            Vector2 pos = new Vector2(content.anchoredPosition.x, offsetPos + pivotDiff);
+            return pos;
         }
 
         // ---------[ EVENTS ]---------
@@ -163,8 +217,7 @@ namespace ModIO.UI
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(this != null
-                   && this.scrollRect != null)
+                if(this != null)
                 {
                     UpdateScroll(false);
                 }
