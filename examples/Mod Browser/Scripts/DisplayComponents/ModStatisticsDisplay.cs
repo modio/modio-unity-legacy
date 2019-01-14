@@ -99,7 +99,7 @@ namespace ModIO.UI
                 m_displayMapping.Add(ratingPositivePercentageDisplay,
                                      (s) => (s.ratingCount > 0
                                              ? (100f * (float)s.ratingPositiveCount / (float)s.ratingCount).ToString("0") + "%"
-                                             : "~%"));
+                                             : "--"));
             }
             if(ratingNegativeCountDisplay != null)
             {
@@ -111,7 +111,7 @@ namespace ModIO.UI
                 m_displayMapping.Add(ratingNegativePercentageDisplay,
                                      (s) => (s.ratingCount > 0
                                              ? (100f * (float)s.ratingNegativeCount / (float)s.ratingCount).ToString("0") + "%"
-                                             : "~%"));
+                                             : "--"));
             }
             if(ratingWeightedAggregateDisplay != null)
             {
