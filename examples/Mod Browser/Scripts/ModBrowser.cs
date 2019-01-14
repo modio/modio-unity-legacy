@@ -413,10 +413,7 @@ namespace ModIO.UI
             {
                 subscriptionsView.nameSearchField.onEndEdit.AddListener((t) =>
                 {
-                    if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                    {
-                        UpdateSubscriptionFilters();
-                    }
+                    UpdateSubscriptionFilters();
                 });
             }
 
@@ -472,10 +469,7 @@ namespace ModIO.UI
             {
                 explorerView.nameSearchField.onEndEdit.AddListener((t) =>
                 {
-                    if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                    {
-                        UpdateExplorerFilters();
-                    }
+                    UpdateExplorerFilters();
                 } );
             }
 
