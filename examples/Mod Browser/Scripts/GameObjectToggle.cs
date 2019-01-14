@@ -42,6 +42,12 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ INITIALIZATION ]---------
+        private void Start()
+        {
+            UpdateDisplay();
+        }
+
         // ---------[ EVENTS ]---------
         #if UNITY_EDITOR
         private void OnValidate()
