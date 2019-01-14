@@ -1,4 +1,4 @@
-﻿// #define MEEPLESTATION_AUTO_INSTALL
+﻿#define MEEPLESTATION_AUTO_INSTALL
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -1469,12 +1469,7 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
-            var enabledMods = ModManager.GetEnabledModIds();
-            if(!enabledMods.Contains(profile.id))
-            {
-                enabledMods.Add(profile.id);
-                ModManager.SetEnabledModIds(enabledMods);
-            }
+            EnableMod(profile.id);
 
             AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
 

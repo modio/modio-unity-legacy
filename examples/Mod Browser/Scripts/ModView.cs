@@ -21,20 +21,6 @@ namespace ModIO.UI
             public UserAvatarDisplayComponent   avatar;
         }
 
-        [Serializable]
-        public struct SubscriptionStatusDisplay
-        {
-            public GameObject isSubscribed;
-            public GameObject notSubscribed;
-        }
-
-        [Serializable]
-        public struct EnabledStatusDisplay
-        {
-            public GameObject isEnabled;
-            public GameObject isDisabled;
-        }
-
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
         public SubmittorDisplay                     submittorDisplay;
@@ -44,8 +30,8 @@ namespace ModIO.UI
         public ModTagCollectionDisplayComponent     tagsDisplay;
         public ModStatisticsDisplayComponent        statisticsDisplay;
         public DownloadDisplayComponent             downloadDisplay;
-        public SubscriptionStatusDisplay            subscriptionDisplay;
-        public EnabledStatusDisplay                 modEnabledDisplay;
+        public StateToggleDisplay                   subscriptionDisplay;
+        public StateToggleDisplay                   modEnabledDisplay;
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
@@ -100,22 +86,16 @@ namespace ModIO.UI
                 setDelegate(value);
             }
 
-            if(subscriptionDisplay.isSubscribed != null)
+            if(subscriptionDisplay != null)
             {
-                subscriptionDisplay.isSubscribed.SetActive(m_data.isSubscribed);
-            }
-            if(subscriptionDisplay.notSubscribed != null)
-            {
-                subscriptionDisplay.notSubscribed.SetActive(!m_data.isSubscribed);
+                subscriptionDisplay.isOn = m_data.isSubscribed;
             }
 
-            if(modEnabledDisplay.isEnabled != null)
+            if(modEnabledDisplay != null)
             {
-                modEnabledDisplay.isEnabled.SetActive(m_data.isModEnabled);
-            }
-            if(modEnabledDisplay.isDisabled != null)
-            {
-                modEnabledDisplay.isDisabled.SetActive(!m_data.isModEnabled);
+                Debug.Log("Toggling Mod Active: " + m_data.profile.name
+                          + " - " + m_data.isModEnabled, this);
+                modEnabledDisplay.isOn = m_data.isModEnabled;
             }
         }
 
@@ -477,24 +457,16 @@ namespace ModIO.UI
             DisplayDownload(downloadInfo);
 
             // - subscribed -
-            if(subscriptionDisplay.isSubscribed != null)
+            if(subscriptionDisplay != null)
             {
-                subscriptionDisplay.isSubscribed.SetActive(isSubscribed);
-            }
-            if(subscriptionDisplay.notSubscribed != null)
-            {
-                subscriptionDisplay.notSubscribed.SetActive(!isSubscribed);
+                subscriptionDisplay.isOn = isSubscribed;
             }
             m_data.isSubscribed = isSubscribed;
 
             // - enabled -
-            if(modEnabledDisplay.isEnabled != null)
+            if(modEnabledDisplay != null)
             {
-                modEnabledDisplay.isEnabled.SetActive(isModEnabled);
-            }
-            if(modEnabledDisplay.isDisabled != null)
-            {
-                modEnabledDisplay.isDisabled.SetActive(!isModEnabled);
+                modEnabledDisplay.isOn = isModEnabled;
             }
             m_data.isModEnabled = isModEnabled;
 
