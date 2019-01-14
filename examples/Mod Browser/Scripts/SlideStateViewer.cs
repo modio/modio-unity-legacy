@@ -25,6 +25,8 @@ namespace ModIO.UI
         [Header("Display Data")]
         [SerializeField] private bool m_isOn = false;
 
+        // --- RUNTIME DATA ---
+        private GameObject clickBlocker = null;
         private Coroutine m_animation = null;
 
         // --- ACCESSORS ---
@@ -70,6 +72,23 @@ namespace ModIO.UI
             UpdateScroll(false);
         }
 
+        private void Start()
+        {
+            clickBlocker = new GameObject("Click Blocker", typeof(RectTransform));
+
+            RectTransform t = clickBlocker.GetComponent<RectTransform>();
+            t.SetParent(content);
+            t.localScale = Vector3.one;
+            t.anchorMin = Vector2.zero;
+            t.anchorMax = Vector2.one;
+            t.offsetMin = Vector2.zero;
+            t.offsetMax = Vector2.zero;
+
+            clickBlocker.AddComponent<Touchable>();
+            clickBlocker.SetActive(false);
+        }
+
+        // ---------[ UI FUNCTIONALITY ]---------
         private void UpdateScroll(bool animate)
         {
             if(content == null) { return; }
@@ -128,6 +147,8 @@ namespace ModIO.UI
             float distance = Vector2.Distance(startPos, targetPos);
             float factoredDuration = (Vector2.Distance(currentPos, targetPos) / distance) * m_slideDuration;
 
+            clickBlocker.SetActive(true);
+
             while(elapsed < factoredDuration)
             {
                 currentPos = Vector2.LerpUnclamped(startPos, targetPos, elapsed / factoredDuration);
@@ -138,12 +159,12 @@ namespace ModIO.UI
             }
 
             content.anchoredPosition = targetPos;
-            m_animation = null;
-        }
 
-        private ScrollRect scrollRect
-        {
-            get { return this.gameObject.GetComponent<ScrollRect>(); }
+            // delay enabling buttons
+            yield return new WaitForSeconds(0.1f);
+            clickBlocker.SetActive(false);
+
+            m_animation = null;
         }
 
         // ---------[ UTILITY ]---------
