@@ -18,7 +18,7 @@ namespace ModIO.UI
 
             if(view.data.profile.userId > 0)
             {
-                slider.isToggled = true;
+                slider.isOn = true;
             }
             else
             {
@@ -31,7 +31,7 @@ namespace ModIO.UI
             if(slider.isAnimating) { return; }
 
             view.NotifyClicked();
-            slider.isToggled = false;
+            slider.isOn = false;
         }
     }
 }

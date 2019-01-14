@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     [RequireComponent(typeof(ScrollRect))]
-    public class SlideStateViewer : MonoBehaviour, UnityEngine.EventSystems.IPointerExitHandler
+    public class SlideStateViewer : StateToggleDisplay, UnityEngine.EventSystems.IPointerExitHandler
     {
         public enum SlideAxis
         {
@@ -14,7 +14,7 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
-        [SerializeField] private bool m_isToggled = false;
+        [SerializeField] private bool m_isOn = false;
         [Tooltip("Should the slide button untoggle when the user moves the mouse away?")]
         [SerializeField] private bool m_untoggleOnMouseExit = false;
         [SerializeField] private SlideAxis m_slideAxis = SlideAxis.Horizontal;
@@ -23,14 +23,14 @@ namespace ModIO.UI
         private Coroutine m_animation = null;
 
         // --- ACCESSORS ---
-        public bool isToggled
+        public override bool isOn
         {
-            get { return m_isToggled; }
+            get { return m_isOn; }
             set
             {
-                if(m_isToggled != value)
+                if(m_isOn != value)
                 {
-                    m_isToggled = value;
+                    m_isOn = value;
                     UpdateScroll(true);
                 }
             }
@@ -56,7 +56,7 @@ namespace ModIO.UI
 
         private void UpdateScroll(bool animate)
         {
-            float pos = (m_isToggled ? 1f : 0f);
+            float pos = (m_isOn ? 1f : 0f);
 
             if(animate && m_slideDuration > 0f)
             {
@@ -154,7 +154,7 @@ namespace ModIO.UI
         {
             if(m_untoggleOnMouseExit)
             {
-                isToggled = false;
+                isOn = false;
             }
         }
 

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-namespace Mod.UI
+namespace ModIO.UI
 {
     [RequireComponent(typeof(RectTransform))]
     [ExecuteInEditMode]
