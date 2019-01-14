@@ -77,6 +77,7 @@ namespace ModIO.UI
                 if(tagFilterBar != null)
                 {
                     tagFilterBar.DisplayTags(filterTags, value);
+                    tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
                 }
             }
         }
@@ -175,6 +176,7 @@ namespace ModIO.UI
 
                     if(tagFilterBar != null)
                     {
+                        tagFilterBar.gameObject.SetActive(true);
                         tagFilterBar.DisplayTags(filterTags, m_tagCategories);
                     }
 
@@ -183,44 +185,35 @@ namespace ModIO.UI
                         onFilterTagsChanged();
                     }
                 };
-                tagFilterView.tagFilterRemoved += (tag) =>
-                {
-                    filterTags.Remove(tag);
-
-                    if(tagFilterBar != null)
-                    {
-                        tagFilterBar.DisplayTags(filterTags, m_tagCategories);
-                    }
-
-                    if(onFilterTagsChanged != null)
-                    {
-                        onFilterTagsChanged();
-                    }
-                };
+                tagFilterView.tagFilterRemoved += RemoveTag;
             }
 
             if(tagFilterBar != null)
             {
                 tagFilterBar.Initialize();
+                tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
 
                 tagFilterBar.tagClicked += (display) =>
                 {
-                    filterTags.Remove(display.data.tagName);
-
-                    tagFilterBar.DisplayTags(filterTags, m_tagCategories);
-
-                    if(tagFilterView != null)
-                    {
-                        tagFilterView.selectedTags = filterTags;
-                    }
-
-                    if(onFilterTagsChanged != null)
-                    {
-                        onFilterTagsChanged();
-                    }
+                    RemoveTag(display.data.tagName);
                 };
             }
+        }
 
+        private void RemoveTag(string tag)
+        {
+            filterTags.Remove(tag);
+
+            if(tagFilterBar != null)
+            {
+                tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+                tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
+            }
+
+            if(onFilterTagsChanged != null)
+            {
+                onFilterTagsChanged();
+            }
         }
 
         // TODO(@jackson): Encapsulate (could work with ratio rather than itemDim)
@@ -571,6 +564,7 @@ namespace ModIO.UI
             if(tagFilterBar != null)
             {
                 tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+                tagFilterBar.gameObject.SetActive(false);
             }
 
             if(onFilterTagsChanged != null)
