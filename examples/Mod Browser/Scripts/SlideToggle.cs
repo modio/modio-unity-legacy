@@ -64,6 +64,22 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
+            if(clickBlocker == null)
+            {
+                clickBlocker = new GameObject("Click Blocker", typeof(RectTransform));
+
+                RectTransform t = clickBlocker.GetComponent<RectTransform>();
+                t.SetParent(content);
+                t.localScale = Vector3.one;
+                t.anchorMin = Vector2.zero;
+                t.anchorMax = Vector2.one;
+                t.offsetMin = Vector2.zero;
+                t.offsetMax = Vector2.zero;
+
+                clickBlocker.AddComponent<Touchable>();
+                clickBlocker.SetActive(false);
+            }
+
             StartCoroutine(LateEnable());
         }
         private System.Collections.IEnumerator LateEnable()
@@ -74,18 +90,6 @@ namespace ModIO.UI
 
         private void Start()
         {
-            clickBlocker = new GameObject("Click Blocker", typeof(RectTransform));
-
-            RectTransform t = clickBlocker.GetComponent<RectTransform>();
-            t.SetParent(content);
-            t.localScale = Vector3.one;
-            t.anchorMin = Vector2.zero;
-            t.anchorMax = Vector2.one;
-            t.offsetMin = Vector2.zero;
-            t.offsetMax = Vector2.zero;
-
-            clickBlocker.AddComponent<Touchable>();
-            clickBlocker.SetActive(false);
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
