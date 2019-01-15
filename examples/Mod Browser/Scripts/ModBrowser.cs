@@ -37,6 +37,8 @@ namespace ModIO.UI
         {
             public int lastCacheUpdate = -1;
             public int lastUserUpdate = -1;
+            public List<int> failedUnsubscribes = new List<int>();
+            public List<int> failedSubscribes = new List<int>();
         }
 
         [Serializable]
@@ -196,6 +198,8 @@ namespace ModIO.UI
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private GameProfile gameProfile = null;
         private Coroutine m_updatesCoroutine = null;
+        private List<int> m_failedUnsubscribes = new List<int>();
+        private List<int> m_failedSubscribes = new List<int>();
 
         // ---------[ ACCESSORS ]---------
         public void RequestExplorerPage(int pageIndex,
@@ -783,7 +787,7 @@ namespace ModIO.UI
 
                     case UserEventType.ModUnsubscribed:
                     {
-                        if(!subscribedModIds.Contains(ue.modId))
+                        if(subscribedModIds.Contains(ue.modId))
                         {
                             removedSubscriptions.Add(ue.modId);
                             subscribedModIds.Remove(ue.modId);
@@ -898,6 +902,8 @@ namespace ModIO.UI
             {
                 lastCacheUpdate = this.lastCacheUpdate,
                 lastUserUpdate = this.lastUserUpdate,
+                failedUnsubscribes = this.m_failedUnsubscribes,
+                failedSubscribes = this.m_failedSubscribes,
             };
 
             CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
@@ -995,7 +1001,7 @@ namespace ModIO.UI
                         remoteSubscriptions.Add(profile.id);
 
                         // begin download
-                        OnSubscribedToMod(profile);
+                        OnSubscribedToMod(profile.id);
                     }
 
                     subscriptionsToPush.Remove(profile.id);
@@ -1416,7 +1422,6 @@ namespace ModIO.UI
                                          (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
         }
 
-        // TODO(@jackson): THIS IS TERRIBLE, I LIKELY ALREADY HAVE THIS DATA!
         public void SubscribeToMod(int modId)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
@@ -1427,40 +1432,37 @@ namespace ModIO.UI
             // update collection
             subscribedModIds.Add(modId);
             ModManager.SetSubscribedModIds(subscribedModIds);
+            OnSubscribedToMod(modId);
 
-            // sub
-            Action<WebRequestError> onSubscribeFailed = (e) =>
+            // push sub
+            if(this.userProfile != null)
             {
-                WebRequestError.LogAsWarning(e);
+                Action<WebRequestError> onSubscribeFailed = (e) =>
+                {
+                    WebRequestError.LogAsWarning(e);
 
-                IList<int> subMods = ModManager.GetSubscribedModIds();
-                subMods.Remove(modId);
-                ModManager.SetSubscribedModIds(subMods);
-            };
+                    m_failedSubscribes.Add(modId);
+                    WriteManifest();
+                };
 
-            if(this.userProfile == null)
-            {
-                ModManager.GetModProfile(modId,
-                                         OnSubscribedToMod,
-                                         onSubscribeFailed);
-            }
-            else
-            {
-                APIClient.SubscribeToMod(modId,
-                                         OnSubscribedToMod,
+                APIClient.SubscribeToMod(modId, null,
                                          onSubscribeFailed);
             }
         }
 
-        public void OnSubscribedToMod(ModProfile profile)
+        public void OnSubscribedToMod(int modId)
         {
-            Debug.Assert(profile != null);
-
-            EnableMod(profile.id);
-
-            AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
-
+            EnableMod(modId);
             UpdateViewSubscriptions();
+
+            // TODO(@jackson): Record missing binary
+            ModManager.GetModProfile(modId,
+                                     (p) =>
+                                     {
+                                        AssertModBinaryIsDownloaded(p.id, p.activeBuild.id);
+                                     },
+                                     WebRequestError.LogAsWarning);
+
         }
 
         private void AssertModBinaryIsDownloaded(int modId, int modfileId)
@@ -1502,26 +1504,21 @@ namespace ModIO.UI
             // update collection
             subscribedModIds.Remove(modId);
             ModManager.SetSubscribedModIds(subscribedModIds);
+            OnUnsubscribedFromMod(modId);
 
-            // unsub
-            if(this.userProfile == null)
+            // push unsub
+            if(this.userProfile != null)
             {
-                OnUnsubscribedFromMod(modId);
-            }
-            else
-            {
-                Action<WebRequestError> onSubscribeFailed = (e) =>
+                Action<WebRequestError> onUnsubscribeFailed = (e) =>
                 {
                     WebRequestError.LogAsWarning(e);
 
-                    IList<int> subMods = ModManager.GetSubscribedModIds();
-                    subMods.Add(modId);
-                    ModManager.SetSubscribedModIds(subMods);
+                    m_failedUnsubscribes.Add(modId);
+                    WriteManifest();
                 };
 
-                APIClient.UnsubscribeFromMod(modId,
-                                             () => OnUnsubscribedFromMod(modId),
-                                             onSubscribeFailed);
+                APIClient.UnsubscribeFromMod(modId, null,
+                                             onUnsubscribeFailed);
             }
         }
 
@@ -1529,13 +1526,7 @@ namespace ModIO.UI
         {
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
-
-            var enabledMods = ModManager.GetEnabledModIds();
-            if(enabledMods.Remove(modId))
-            {
-                ModManager.SetEnabledModIds(enabledMods);
-            }
-
+            DisableMod(modId);
             UpdateViewSubscriptions();
         }
 
