@@ -178,7 +178,7 @@ namespace ModIO.UI
 
                 if(imagePrefab != null)
                 {
-                    ImageDataDisplayComponent display = InstantiatePrefab(logoPrefab);
+                    ImageDataDisplayComponent display = InstantiatePrefab(imagePrefab);
                     display.data = imageData;
                     display.onClick += clickDelegate;
 
