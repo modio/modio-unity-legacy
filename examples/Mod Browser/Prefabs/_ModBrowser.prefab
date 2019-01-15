@@ -888,6 +888,7 @@ GameObject:
   - component: {fileID: 224652146278928912}
   - component: {fileID: 222099363353870208}
   - component: {fileID: 114972274715094736}
+  - component: {fileID: 114730661364741192}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -3524,7 +3525,6 @@ GameObject:
   - component: {fileID: 224959197692135604}
   - component: {fileID: 114756240219111780}
   - component: {fileID: 114172370674849886}
-  - component: {fileID: 114031006891493836}
   - component: {fileID: 114234412438405728}
   m_Layer: 5
   m_Name: MediaElementPreview
@@ -4475,19 +4475,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Sync Collection
---- !u!114 &114031006891493836
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1833652826701346}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1254083943, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AspectMode: 1
-  m_AspectRatio: 1.777778
 --- !u!114 &114035502239823422
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5646,7 +5633,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224461127012161008}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.6765995
+  m_Size: 0.624014
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -11702,6 +11689,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
+--- !u!114 &114730661364741192
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1172526192962112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1254083943, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 4
+  m_AspectRatio: 1.7777778
 --- !u!114 &114733314757319498
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11993,7 +11993,7 @@ MonoBehaviour:
   m_logoSize: 0
   m_galleryImageSize: 0
   image: {fileID: 114972274715094736}
-  fitter: {fileID: 0}
+  fitter: {fileID: 114730661364741192}
   loadingOverlay: {fileID: 1925837920472082}
   logoOverlay: {fileID: 0}
   galleryImageOverlay: {fileID: 0}
@@ -17696,8 +17696,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 52}
-  m_SizeDelta: {x: 0, y: -40}
+  m_AnchoredPosition: {x: 0, y: 10}
+  m_SizeDelta: {x: 0, y: -100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224449040670793274
 RectTransform:
@@ -17767,7 +17767,7 @@ RectTransform:
   m_Father: {fileID: 224415381369848950}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.3234005}
+  m_AnchorMin: {x: 0, y: 0.37598598}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -18541,7 +18541,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0.000061035156}
+  m_SizeDelta: {x: 0, y: 0.25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224654598687922754
 RectTransform:
