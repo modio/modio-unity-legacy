@@ -982,7 +982,7 @@ MonoBehaviour:
       virusScanHash: 
     media:
     - ownerId: 0
-      mediaType: 0
+      mediaType: 1
       imageId: 
       texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
     tags:
@@ -1651,7 +1651,7 @@ MonoBehaviour:
   loadingOverlay: {fileID: 1434857753398972}
   m_data:
     ownerId: 0
-    mediaType: 0
+    mediaType: 1
     imageId: 
     texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
 --- !u!114 &114812686542338304

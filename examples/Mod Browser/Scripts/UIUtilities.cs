@@ -43,9 +43,11 @@ namespace ModIO.UI
             string[] sizeSuffixes = new string[]{"B", "KB", "MB", "GB"};
             int sizeIndex = 0;
             Int64 adjustedSize = value;
+            Int64 lastSize = 0;
             while(adjustedSize > 0x0400
                   && (sizeIndex+1) < sizeSuffixes.Length)
             {
+                lastSize = adjustedSize;
                 adjustedSize /= 0x0400;
                 ++sizeIndex;
             }
@@ -53,7 +55,7 @@ namespace ModIO.UI
             if(sizeIndex > 0
                && adjustedSize < 100)
             {
-                decimal displayValue = (decimal)value / (decimal)(0x0400^sizeIndex);
+                decimal displayValue = (decimal)lastSize / (decimal)0x0400;
                 return displayValue.ToString("0.0") + sizeSuffixes[sizeIndex];
             }
             else
