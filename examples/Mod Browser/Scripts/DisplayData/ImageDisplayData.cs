@@ -9,6 +9,7 @@ namespace ModIO.UI
     {
         public enum MediaType
         {
+            None,
             ModLogo,
             ModGalleryImage,
             YouTubeThumbnail,

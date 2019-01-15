@@ -104,19 +104,6 @@ namespace ModIO.UI
                 m_imageDisplays.Add(display);
             }
 
-            if(galleryImageLocators != null
-               && galleryImagePrefab != null)
-            {
-                foreach(GalleryImageLocator locator in galleryImageLocators)
-                {
-                    ModGalleryImageDisplay display = InstantiatePrefab(galleryImagePrefab) as ModGalleryImageDisplay;
-                    display.DisplayImage(modId, locator);
-                    display.onClick += NotifyGalleryImageClicked;
-
-                    m_imageDisplays.Add(display);
-                }
-            }
-
             if(youTubeURLs != null
                && youTubeThumbnailPrefab != null)
             {
@@ -125,6 +112,19 @@ namespace ModIO.UI
                     YouTubeThumbnailDisplay display = InstantiatePrefab(youTubeThumbnailPrefab) as YouTubeThumbnailDisplay;
                     display.DisplayThumbnail(modId, Utility.ExtractYouTubeIdFromURL(url));
                     display.onClick += NotifyYouTubeThumbnailClicked;
+
+                    m_imageDisplays.Add(display);
+                }
+            }
+
+            if(galleryImageLocators != null
+               && galleryImagePrefab != null)
+            {
+                foreach(GalleryImageLocator locator in galleryImageLocators)
+                {
+                    ModGalleryImageDisplay display = InstantiatePrefab(galleryImagePrefab) as ModGalleryImageDisplay;
+                    display.DisplayImage(modId, locator);
+                    display.onClick += NotifyGalleryImageClicked;
 
                     m_imageDisplays.Add(display);
                 }
@@ -148,40 +148,61 @@ namespace ModIO.UI
 
             ClearDisplays();
 
-            // create
+            // sort
+            ImageDisplayData logoData = new ImageDisplayData()
+            {
+                mediaType = ImageDisplayData.MediaType.None,
+            };
+            List<ImageDisplayData> youTubeThumbs = new List<ImageDisplayData>();
+            List<ImageDisplayData> galleryImages = new List<ImageDisplayData>();
             foreach(ImageDisplayData imageData in displayData)
             {
-                GameObject imagePrefab = null;
-                Action<ImageDataDisplayComponent> clickDelegate = null;
-
                 switch(imageData.mediaType)
                 {
                     case ImageDisplayData.MediaType.ModLogo:
                     {
-                        imagePrefab = logoPrefab;
-                        clickDelegate = NotifyLogoClicked;
+                        logoData = imageData;
                     }
                     break;
                     case ImageDisplayData.MediaType.ModGalleryImage:
                     {
-                        imagePrefab = galleryImagePrefab;
-                        clickDelegate = NotifyGalleryImageClicked;
+                        galleryImages.Add(imageData);
                     }
                     break;
                     case ImageDisplayData.MediaType.YouTubeThumbnail:
                     {
-                        imagePrefab = youTubeThumbnailPrefab;
-                        clickDelegate = NotifyYouTubeThumbnailClicked;
+                        youTubeThumbs.Add(imageData);
                     }
                     break;
                 }
+            }
 
-                if(imagePrefab != null)
+            // create
+            if(logoData.mediaType != ImageDisplayData.MediaType.None
+               && logoPrefab != null)
+            {
+                ModLogoDisplay display = InstantiatePrefab(logoPrefab) as ModLogoDisplay;
+                display.data = logoData;
+                display.onClick += NotifyLogoClicked;
+                m_imageDisplays.Add(display);
+            }
+            if(youTubeThumbnailPrefab != null)
+            {
+                foreach(var imageData in youTubeThumbs)
                 {
-                    ImageDataDisplayComponent display = InstantiatePrefab(imagePrefab);
+                    YouTubeThumbnailDisplay display = InstantiatePrefab(youTubeThumbnailPrefab) as YouTubeThumbnailDisplay;
                     display.data = imageData;
-                    display.onClick += clickDelegate;
-
+                    display.onClick += NotifyYouTubeThumbnailClicked;
+                    m_imageDisplays.Add(display);
+                }
+            }
+            if(galleryImagePrefab != null)
+            {
+                foreach(var imageData in galleryImages)
+                {
+                    ModGalleryImageDisplay display = InstantiatePrefab(galleryImagePrefab) as ModGalleryImageDisplay;
+                    display.data = imageData;
+                    display.onClick += NotifyGalleryImageClicked;
                     m_imageDisplays.Add(display);
                 }
             }
