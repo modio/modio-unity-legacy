@@ -37,8 +37,8 @@ namespace ModIO.UI
         {
             public int lastCacheUpdate = -1;
             public int lastUserUpdate = -1;
-            public List<int> failedUnsubscribes = new List<int>();
-            public List<int> failedSubscribes = new List<int>();
+            public List<int> queuedUnsubscribes = new List<int>();
+            public List<int> queuedSubscribes = new List<int>();
         }
 
         [Serializable]
@@ -198,8 +198,8 @@ namespace ModIO.UI
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private GameProfile gameProfile = null;
         private Coroutine m_updatesCoroutine = null;
-        private List<int> m_failedUnsubscribes = new List<int>();
-        private List<int> m_failedSubscribes = new List<int>();
+        private List<int> m_queuedUnsubscribes = new List<int>();
+        private List<int> m_queuedSubscribes = new List<int>();
 
         // ---------[ ACCESSORS ]---------
         public void RequestExplorerPage(int pageIndex,
@@ -375,6 +375,8 @@ namespace ModIO.UI
             {
                 this.lastCacheUpdate = manifest.lastCacheUpdate;
                 this.lastUserUpdate = manifest.lastUserUpdate;
+                this.m_queuedSubscribes = manifest.queuedSubscribes;
+                this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
             }
 
             // --- UserData ---
@@ -732,6 +734,29 @@ namespace ModIO.UI
                 // --- USER EVENTS ---
                 if(userProfile != null)
                 {
+                    // push subs/unsubs
+                    foreach(int modId in m_queuedSubscribes)
+                    {
+                        APIClient.SubscribeToMod(modId,
+                                                 (p) =>
+                                                 {
+                                                    m_queuedSubscribes.Remove(p.id);
+                                                    WriteManifest();
+                                                 },
+                                                 WebRequestError.LogAsWarning);
+                    }
+                    foreach(int modId in m_queuedUnsubscribes)
+                    {
+                        APIClient.UnsubscribeFromMod(modId,
+                                                     () =>
+                                                     {
+                                                        m_queuedUnsubscribes.Remove(modId);
+                                                        WriteManifest();
+                                                     },
+                                                     WebRequestError.LogAsWarning);
+                    }
+
+                    // fetch user events
                     List<UserEvent> userEventReponse = null;
                     ModManager.FetchAllUserEvents(lastUserUpdate,
                                                   updateStartTimeStamp,
@@ -777,7 +802,8 @@ namespace ModIO.UI
                 {
                     case UserEventType.ModSubscribed:
                     {
-                        if(!subscribedModIds.Contains(ue.modId))
+                        if(!subscribedModIds.Contains(ue.modId)
+                           && !m_queuedSubscribes.Contains(ue.modId))
                         {
                             addedSubscriptions.Add(ue.modId);
                             subscribedModIds.Add(ue.modId);
@@ -787,7 +813,8 @@ namespace ModIO.UI
 
                     case UserEventType.ModUnsubscribed:
                     {
-                        if(subscribedModIds.Contains(ue.modId))
+                        if(subscribedModIds.Contains(ue.modId)
+                           && !m_queuedUnsubscribes.Contains(ue.modId))
                         {
                             removedSubscriptions.Add(ue.modId);
                             subscribedModIds.Remove(ue.modId);
@@ -902,8 +929,8 @@ namespace ModIO.UI
             {
                 lastCacheUpdate = this.lastCacheUpdate,
                 lastUserUpdate = this.lastUserUpdate,
-                failedUnsubscribes = this.m_failedUnsubscribes,
-                failedSubscribes = this.m_failedSubscribes,
+                queuedUnsubscribes = this.m_queuedUnsubscribes,
+                queuedSubscribes = this.m_queuedSubscribes,
             };
 
             CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
@@ -1437,16 +1464,8 @@ namespace ModIO.UI
             // push sub
             if(this.userProfile != null)
             {
-                Action<WebRequestError> onSubscribeFailed = (e) =>
-                {
-                    WebRequestError.LogAsWarning(e);
-
-                    m_failedSubscribes.Add(modId);
-                    WriteManifest();
-                };
-
-                APIClient.SubscribeToMod(modId, null,
-                                         onSubscribeFailed);
+                m_queuedSubscribes.Add(modId);
+                WriteManifest();
             }
         }
 
@@ -1509,16 +1528,8 @@ namespace ModIO.UI
             // push unsub
             if(this.userProfile != null)
             {
-                Action<WebRequestError> onUnsubscribeFailed = (e) =>
-                {
-                    WebRequestError.LogAsWarning(e);
-
-                    m_failedUnsubscribes.Add(modId);
-                    WriteManifest();
-                };
-
-                APIClient.UnsubscribeFromMod(modId, null,
-                                             onUnsubscribeFailed);
+                m_queuedUnsubscribes.Add(modId);
+                WriteManifest();
             }
         }
 
