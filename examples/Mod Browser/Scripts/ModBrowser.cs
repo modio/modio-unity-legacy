@@ -983,7 +983,6 @@ namespace ModIO.UI
             }
 
             // - get server subscriptions -
-            List<int> remoteSubscriptions = new List<int>();
             IList<int> subscriptionsToPush = ModManager.GetSubscribedModIds();
             bool allPagesReceived = false;
 
@@ -1021,18 +1020,23 @@ namespace ModIO.UI
 
                 CacheClient.SaveModProfiles(requestPage.items);
 
+                List<int> remoteSubscriptions = new List<int>();
                 foreach(ModProfile profile in requestPage.items)
                 {
                     if(!subscriptionsToPush.Contains(profile.id))
                     {
                         remoteSubscriptions.Add(profile.id);
-
-                        // begin download
-                        OnSubscribedToMod(profile.id);
+                        EnableMod(profile.id);
+                        AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
                     }
 
                     subscriptionsToPush.Remove(profile.id);
                 }
+
+                List<int> subscribedModIds = new List<int>(ModManager.GetSubscribedModIds());
+                subscribedModIds.AddRange(remoteSubscriptions);
+                ModManager.SetSubscribedModIds(subscribedModIds);
+                UpdateViewSubscriptions();
 
                 allPagesReceived = (requestPage.items.Length < requestPage.size);
 
@@ -1050,10 +1054,6 @@ namespace ModIO.UI
                                          (e) => Debug.Log("[mod.io] Mod subscription merge failed: " + modId + "\n"
                                                           + e.ToUnityDebugString()));
             }
-
-            List<int> subscribedModIds = new List<int>(ModManager.GetSubscribedModIds());
-            subscribedModIds.AddRange(remoteSubscriptions);
-            ModManager.SetSubscribedModIds(subscribedModIds);
         }
 
         public void LogUserOut()
