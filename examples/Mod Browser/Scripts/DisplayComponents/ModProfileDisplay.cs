@@ -107,19 +107,19 @@ namespace ModIO.UI
             }
             if(homepageURLDisplay != null)
             {
-                m_displayMapping.Add(homepageURLDisplay, (d) => d.homepageURL);
+                m_displayMapping.Add(homepageURLDisplay, (d) => d.homepageURL.Trim());
             }
             if(nameDisplay != null)
             {
-                m_displayMapping.Add(nameDisplay, (d) => d.name);
+                m_displayMapping.Add(nameDisplay, (d) => d.name.Trim());
             }
             if(nameIdDisplay != null)
             {
-                m_displayMapping.Add(nameIdDisplay, (d) => d.nameId);
+                m_displayMapping.Add(nameIdDisplay, (d) => d.nameId.Trim());
             }
             if(summaryDisplay != null)
             {
-                m_displayMapping.Add(summaryDisplay, (d) => d.summary);
+                m_displayMapping.Add(summaryDisplay, (d) => d.summary.Trim());
             }
             if(descriptionAsHTMLDisplay != null)
             {
@@ -133,7 +133,7 @@ namespace ModIO.UI
                         description = d.summary;
                     }
 
-                    return description;
+                    return description.Trim();
                 });
             }
             if(descriptionAsTextDisplay != null)
@@ -148,7 +148,7 @@ namespace ModIO.UI
                         description = d.summary;
                     }
 
-                    return description;
+                    return description.Trim();
                 });
             }
             if(metadataBlobDisplay != null)
@@ -157,7 +157,7 @@ namespace ModIO.UI
             }
             if(profileURLDisplay != null)
             {
-                m_displayMapping.Add(profileURLDisplay, (d) => d.profileURL);
+                m_displayMapping.Add(profileURLDisplay, (d) => d.profileURL.Trim());
             }
         }
 

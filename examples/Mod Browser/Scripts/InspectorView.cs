@@ -111,6 +111,16 @@ namespace ModIO.UI
                 selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
             }
 
+            if(modView.mediaContainer != null)
+            {
+                ModMediaCollection media = profile.media;
+                bool hasMedia = media != null;
+                hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
+                             || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
+
+                modView.mediaContainer.gameObject.SetActive(hasMedia);
+            }
+
             // - version history -
             if(versionHistoryContainer != null
                && versionHistoryItemPrefab != null)
@@ -150,6 +160,8 @@ namespace ModIO.UI
                                    isModEnabled);
             }
         }
+
+        // TODO(@jackson): Remove!
         public void UpdateIsSubscribedDisplay()
         {
             ModDisplayData data = modView.data;
