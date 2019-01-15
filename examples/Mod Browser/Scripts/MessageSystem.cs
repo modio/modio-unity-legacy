@@ -38,7 +38,6 @@ namespace ModIO.UI
         private Dictionary<MessageDisplayData.Type, MessageDisplay> m_typeDialogMap = new Dictionary<MessageDisplayData.Type, MessageDisplay>();
         private Coroutine m_displayRoutine = null;
 
-
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
@@ -99,13 +98,15 @@ namespace ModIO.UI
             }
 
             queuedMessages = new List<MessageDisplayData>();
-            m_displayRoutine = this.StartCoroutine(DisplayRoutine());
         }
 
         private void OnDisable()
         {
-            this.StopCoroutine(m_displayRoutine);
-            m_displayRoutine = null;
+            if(m_displayRoutine != null)
+            {
+                this.StopCoroutine(m_displayRoutine);
+                m_displayRoutine = null;
+            }
 
             if(_instance == this)
             {
@@ -143,6 +144,12 @@ namespace ModIO.UI
             };
 
             instance.queuedMessages.Add(newMessage);
+
+            if(instance.m_displayRoutine == null)
+            {
+                Debug.Assert(instance.isActiveAndEnabled);
+                instance.m_displayRoutine = instance.StartCoroutine(instance.DisplayNextMessageRoutine());
+            }
         }
 
         public static void QueueWebRequestError(string prefixedString,
@@ -165,77 +172,74 @@ namespace ModIO.UI
         }
 
         private bool m_cancelCurrentMessage = false;
-        private System.Collections.IEnumerator DisplayRoutine()
+        private System.Collections.IEnumerator DisplayNextMessageRoutine()
         {
-            while(true)
+            MessageDisplayData message = queuedMessages[0];
+            MessageDisplay dialog = m_typeDialogMap[message.type];
+            ToastAnimationSettings anim = dialog.GetComponent<ToastAnimationSettings>();
+            RectTransform rectTransform = dialog.GetComponent<RectTransform>();
+            Vector2 origin = rectTransform.anchoredPosition;
+
+            if(dialog != null)
             {
-                while(queuedMessages.Count == 0)
+                dialog.content.text = message.content;
+                dialog.gameObject.SetActive(true);
+
+                if(anim != null)
                 {
-                    yield return null;
-                }
+                    float animTimer = 0f;
 
-                MessageDisplayData message = queuedMessages[0];
-                MessageDisplay dialog = m_typeDialogMap[message.type];
-                ToastAnimationSettings anim = dialog.GetComponent<ToastAnimationSettings>();
-                RectTransform rectTransform = dialog.GetComponent<RectTransform>();
-                Vector2 origin = rectTransform.anchoredPosition;
-
-
-                if(dialog != null)
-                {
-                    dialog.content.text = message.content;
-                    dialog.gameObject.SetActive(true);
-
-                    if(anim != null)
+                    while(animTimer < anim.duration)
                     {
-                        float animTimer = 0f;
+                        rectTransform.anchoredPosition = Vector2.Lerp(origin + anim.offset,
+                                                                      origin,
+                                                                      animTimer / anim.duration);
 
-                        while(animTimer < anim.duration)
-                        {
-                            rectTransform.anchoredPosition = Vector2.Lerp(origin + anim.offset,
-                                                                          origin,
-                                                                          animTimer / anim.duration);
-
-                            yield return null;
-
-                            animTimer += Time.deltaTime;
-                        }
-
-                        rectTransform.anchoredPosition = origin;
-                    }
-
-                    float displayTimer = 0f;
-                    m_cancelCurrentMessage = false;
-                    while(displayTimer < message.displayDuration
-                          && !m_cancelCurrentMessage)
-                    {
                         yield return null;
 
-                        displayTimer += Time.deltaTime;
+                        animTimer += Time.deltaTime;
                     }
 
-                    if(anim != null)
-                    {
-                        float animTimer = 0f;
-
-                        while(animTimer < anim.duration)
-                        {
-                            rectTransform.anchoredPosition = Vector2.Lerp(origin,
-                                                                          origin + anim.offset,
-                                                                          animTimer / anim.duration);
-
-                            yield return null;
-
-                            animTimer += Time.deltaTime;
-                        }
-
-                        rectTransform.anchoredPosition = origin;
-                    }
-
-                    dialog.gameObject.SetActive(false);
+                    rectTransform.anchoredPosition = origin;
                 }
 
-                queuedMessages.Remove(message);
+                float displayTimer = 0f;
+                m_cancelCurrentMessage = false;
+                while(displayTimer < message.displayDuration
+                      && !m_cancelCurrentMessage)
+                {
+                    yield return null;
+
+                    displayTimer += Time.deltaTime;
+                }
+
+                if(anim != null)
+                {
+                    float animTimer = 0f;
+
+                    while(animTimer < anim.duration)
+                    {
+                        rectTransform.anchoredPosition = Vector2.Lerp(origin,
+                                                                      origin + anim.offset,
+                                                                      animTimer / anim.duration);
+
+                        yield return null;
+
+                        animTimer += Time.deltaTime;
+                    }
+
+                    rectTransform.anchoredPosition = origin;
+                }
+
+                dialog.gameObject.SetActive(false);
+            }
+
+            queuedMessages.Remove(message);
+            m_displayRoutine = null;
+
+            if(queuedMessages.Count > 0)
+            {
+                m_displayRoutine = StartCoroutine(DisplayNextMessageRoutine());
             }
         }
 
