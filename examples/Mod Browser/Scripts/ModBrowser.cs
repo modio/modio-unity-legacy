@@ -1557,6 +1557,15 @@ namespace ModIO.UI
         {
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
+
+            #if MEEPLESTATION_AUTO_INSTALL
+            string installDirectory = (CacheClient.GetCacheDirectory()
+                                       + "_installedMods/"
+                                       + modId.ToString() + "/");
+
+            CacheClient.DeleteDirectory(installDirectory);
+            #endif
+
             DisableMod(modId);
             UpdateViewSubscriptions();
         }
