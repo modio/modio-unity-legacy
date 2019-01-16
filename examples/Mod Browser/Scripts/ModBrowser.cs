@@ -155,8 +155,6 @@ namespace ModIO.UI
             gameId = 0,
             gameAPIKey = string.Empty,
         };
-        [Tooltip("Routinely check servers for new and updated data?")]
-        public bool isAutomaticUpdateEnabled = false;
         public UserDisplayData guestData = new UserDisplayData()
         {
             profile = new UserProfileDisplayData()
@@ -276,11 +274,7 @@ namespace ModIO.UI
         private void OnEnable()
         {
             _instance = this;
-
-            if(isAutomaticUpdateEnabled)
-            {
-                m_updatesCoroutine = StartCoroutine(PollForUpdatesCoroutine());
-            }
+            m_updatesCoroutine = StartCoroutine(PollForUpdatesCoroutine());
         }
 
         private void OnDisable()
@@ -1870,20 +1864,6 @@ namespace ModIO.UI
                 {
                     testServerData.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
                     productionServerData.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
-                }
-
-                if(Application.isPlaying
-                   && this != null
-                   && this.isActiveAndEnabled)
-                {
-                    if(isAutomaticUpdateEnabled && m_updatesCoroutine == null)
-                    {
-                        m_updatesCoroutine = StartCoroutine(PollForUpdatesCoroutine());
-                    }
-                    else if(!isAutomaticUpdateEnabled && m_updatesCoroutine != null)
-                    {
-                        StopCoroutine(m_updatesCoroutine);
-                    }
                 }
             };
         }
