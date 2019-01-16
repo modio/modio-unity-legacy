@@ -266,7 +266,10 @@ namespace ModIO.UI
                 StopCoroutine(m_updatesCoroutine);
             }
 
-            PushSubscriptionChanges();
+            if(userProfile != null)
+            {
+                PushSubscriptionChanges();
+            }
 
             _instance = null;
         }
@@ -789,6 +792,23 @@ namespace ModIO.UI
 
         private void PushSubscriptionChanges()
         {
+            // NOTE(@jackson): This is due to the response of an unsub request on an non-subbed
+            // mod being an error.
+            Debug.Assert(APIClient.API_VERSION == "v1");
+            Action<WebRequestError, int> onUnsubFail = (e, modId) =>
+            {
+                if(e.responseCode == 400)
+                {
+                    // Mod is already unsubscribed
+                    m_queuedUnsubscribes.Remove(modId);
+                    WriteManifest();
+                }
+
+                WebRequestError.LogAsWarning(e);
+            };
+
+            Debug.Assert(userProfile != null);
+
             // push subs/unsubs
             foreach(int modId in m_queuedSubscribes)
             {
@@ -808,7 +828,7 @@ namespace ModIO.UI
                                                 m_queuedUnsubscribes.Remove(modId);
                                                 WriteManifest();
                                              },
-                                             WebRequestError.LogAsWarning);
+                                             (e) => onUnsubFail(e, modId));
             }
         }
 
