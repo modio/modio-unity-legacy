@@ -808,7 +808,8 @@ namespace ModIO.UI
                     case UserEventType.ModSubscribed:
                     {
                         if(!subscribedModIds.Contains(ue.modId)
-                           && !m_queuedSubscribes.Contains(ue.modId))
+                           && !m_queuedSubscribes.Contains(ue.modId)
+                           && !m_queuedUnsubscribes.Contains(ue.modId))
                         {
                             addedSubscriptions.Add(ue.modId);
                             subscribedModIds.Add(ue.modId);
@@ -819,6 +820,7 @@ namespace ModIO.UI
                     case UserEventType.ModUnsubscribed:
                     {
                         if(subscribedModIds.Contains(ue.modId)
+                           && !m_queuedSubscribes.Contains(ue.modId)
                            && !m_queuedUnsubscribes.Contains(ue.modId))
                         {
                             removedSubscriptions.Add(ue.modId);
