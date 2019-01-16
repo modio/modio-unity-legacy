@@ -36,11 +36,11 @@ namespace ModIO.UI
         [Serializable]
         private class ManifestData
         {
-            public Version lastRunVersion = new Version(0, 0, 0);
-            public int lastCacheUpdate = -1;
-            public int lastUserUpdate = -1;
-            public List<int> queuedUnsubscribes = new List<int>();
-            public List<int> queuedSubscribes = new List<int>();
+            public ModBrowserVersion lastRunVersion;
+            public int lastCacheUpdate;
+            public int lastUserUpdate;
+            public List<int> queuedUnsubscribes;
+            public List<int> queuedSubscribes;
         }
 
         [Serializable]
@@ -102,7 +102,7 @@ namespace ModIO.UI
 
         // ---------[ CONST & STATIC ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
-        public static readonly Version VERSION = new Version(0, 9);
+        public static readonly ModBrowserVersion VERSION = new ModBrowserVersion(0, 9);
 
         public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
 
@@ -406,11 +406,19 @@ namespace ModIO.UI
                 this.m_queuedSubscribes = manifest.queuedSubscribes;
                 this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
 
-                if(manifest.lastRunVersion == null
-                   || manifest.lastRunVersion < ModBrowser.VERSION)
+                if(manifest.lastRunVersion < ModBrowser.VERSION)
                 {
                     ModBrowserPatcher.Run(manifest.lastRunVersion);
+                    WriteManifest();
                 }
+            }
+            else
+            {
+                this.lastCacheUpdate = 0;
+                this.lastUserUpdate = 0;
+                this.m_queuedSubscribes = new List<int>();
+                this.m_queuedUnsubscribes = new List<int>();
+                WriteManifest();
             }
         }
 
