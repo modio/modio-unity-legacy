@@ -166,6 +166,8 @@ namespace ModIO.UI
             gameId = 0,
             gameAPIKey = string.Empty,
         };
+        [Tooltip("Debug All API Requests")]
+        public bool debugAllAPIRequests = false;
         private UserDisplayData guestData = new UserDisplayData()
         {
             profile = new UserProfileDisplayData()
@@ -357,10 +359,13 @@ namespace ModIO.UI
                 return;
             }
 
+            // APIClient Data
             APIClient.apiURL = settings.apiURL;
             APIClient.gameId = settings.gameId;
             APIClient.gameAPIKey = settings.gameAPIKey;
+            APIClient.logAllRequests = debugAllAPIRequests;
 
+            // CacheClient Data
             string[] cacheDirParts = settings.cacheDir.Split('\\', '/');
             for(int i = 0; i < cacheDirParts.Length; ++i)
             {
@@ -372,6 +377,9 @@ namespace ModIO.UI
 
             string cacheDir = Utility.CombinePath(cacheDirParts);
             CacheClient.TrySetCacheDirectory(cacheDir);
+
+            // DownloadClient
+            DownloadClient.logAllRequests = debugAllAPIRequests;
 
             // --- Manifest ---
             ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
