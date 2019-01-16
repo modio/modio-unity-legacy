@@ -10,6 +10,10 @@ namespace ModIO
 {
     public static class DownloadClient
     {
+        // ---------[ SETTINGS ]---------
+        /// <summary>Enable logging of all download requests</summary>
+        public static bool logAllRequests = false;
+
         // ---------[ IMAGE DOWNLOADS ]---------
         public static ImageRequest DownloadModLogo(ModProfile profile, LogoSize size)
         {
@@ -107,8 +111,7 @@ namespace ModIO
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             #if DEBUG
-            #pragma warning disable 0162 // ignore unreachable code warning
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            if(DownloadClient.logAllRequests)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
@@ -129,7 +132,6 @@ namespace ModIO
                           + "\n"
                           );
             }
-            #pragma warning restore 0162
             #endif
 
             var operation = webRequest.SendWebRequest();
@@ -152,8 +154,7 @@ namespace ModIO
             else
             {
                 #if DEBUG
-                #pragma warning disable 0162 // ignore unreachable code warning
-                if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+                if(DownloadClient.logAllRequests)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
                     Debug.Log(String.Format("{0} REQUEST SUCEEDED\nResponse received at: {1} [{2}]\nURL: {3}\nResponse: {4}\n",
@@ -163,7 +164,6 @@ namespace ModIO
                                             webRequest.url,
                                             webRequest.downloadHandler.text));
                 }
-                #pragma warning restore 0162
                 #endif
 
                 request.imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
@@ -280,8 +280,7 @@ namespace ModIO
             }
 
             #if DEBUG
-            #pragma warning disable 0162 // ignore unreachable code warning
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            if(DownloadClient.logAllRequests)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
@@ -300,7 +299,6 @@ namespace ModIO
                           + "\nURL: " + downloadInfo.request.url
                           + "\nHeaders: " + requestHeaders);
             }
-            #pragma warning restore 0162
             #endif
 
             var operation = downloadInfo.request.SendWebRequest();
@@ -317,9 +315,16 @@ namespace ModIO
 
             if(request.isNetworkError || request.isHttpError)
             {
+                var e = WebRequestError.GenerateFromWebRequest(request);
+
+                if(DownloadClient.logAllRequests)
+                {
+                    WebRequestError.LogAsWarning(e);
+                }
+
                 if(modfileDownloadFailed != null)
                 {
-                    modfileDownloadFailed(idPair, WebRequestError.GenerateFromWebRequest(request));
+                    modfileDownloadFailed(idPair, e);
                 }
             }
             else
@@ -352,8 +357,7 @@ namespace ModIO
             if(succeeded)
             {
                 #if DEBUG
-                #pragma warning disable 0162 // ignore unreachable code warning
-                if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+                if(DownloadClient.logAllRequests)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
                     Debug.Log("DOWNLOAD SUCEEDED"
@@ -361,7 +365,6 @@ namespace ModIO
                               + "\nURL: " + request.url
                               + "\nFilePath: " + downloadInfo.target);
                 }
-                #pragma warning restore 0162
                 #endif
 
                 if(modfileDownloadSucceeded != null)

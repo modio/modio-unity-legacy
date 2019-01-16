@@ -65,7 +65,7 @@ namespace ModIO
             "Accept-Language",
         };
 
-        // ---------[ MEMBERS ]---------
+        // ---------[ SETTINGS ]---------
         /// <summary>The base URL for the web API that the APIClient should use.</summary>
         public static string apiURL = (GlobalSettings.USE_TEST_SERVER
                                        ? "https://api.test.mod.io/"
@@ -82,6 +82,9 @@ namespace ModIO
 
         /// <summary>Requested language for the API response messages.</summary>
         public static string languageCode = "en";
+
+        /// <summary>Enable logging of all web requests</summary>
+        public static bool logAllRequests = false;
 
         // ---------[ DEBUG ASSERTS ]---------
         /// <summary>Asserts that the required authorization data for making API requests is set.</summary>
@@ -194,14 +197,12 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            #pragma warning disable 0162 // ignore unreachable code warning
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            if(APIClient.logAllRequests)
             {
                 Debug.Log("GENERATED GET REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
-            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -234,14 +235,12 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            #pragma warning disable 0162 // ignore unreachable code warning
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            if(APIClient.logAllRequests)
             {
                 Debug.Log("GENERATED GET REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
-            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -268,8 +267,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            #pragma warning disable 0162 // ignore unreachable code warning
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            if(APIClient.logAllRequests)
             {
                 string formFields = "";
                 foreach(StringValueParameter svf in valueFields)
@@ -282,7 +280,6 @@ namespace ModIO
                           + "\nFields: " + formFields
                           + "\n");
             }
-            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -317,8 +314,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            #pragma warning disable 0162 // ignore unreachable code warning
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            if(APIClient.logAllRequests)
             {
                 string formFields = "";
                 if(valueFields != null)
@@ -344,7 +340,6 @@ namespace ModIO
                           + "\nFields: " + formFields
                           + "\n");
             }
-            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -371,8 +366,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            #pragma warning disable 0162 // ignore unreachable code warning
-            if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+            if(APIClient.logAllRequests)
             {
                 string formFields = "";
                 if(valueFields != null)
@@ -388,7 +382,6 @@ namespace ModIO
                           + "\nFields: " + formFields
                           + "\n");
             }
-            #pragma warning restore 0162
             #endif
 
             return webRequest;
@@ -404,8 +397,7 @@ namespace ModIO
             requestOperation.completed += (operation) =>
             {
                 #if DEBUG
-                #pragma warning disable 0162 // ignore unreachable code warning
-                if(GlobalSettings.LOG_ALL_WEBREQUESTS)
+                if(APIClient.logAllRequests)
                 {
                     var headerString = new System.Text.StringBuilder();
                     headerString.Append("\nHeaders:");
@@ -434,7 +426,6 @@ namespace ModIO
                         Debug.Log(logString);
                     }
                 }
-                #pragma warning restore 0162
                 #endif
 
                 if(webRequest.isNetworkError || webRequest.isHttpError)
