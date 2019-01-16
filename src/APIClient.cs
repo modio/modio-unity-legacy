@@ -116,7 +116,6 @@ namespace ModIO
         /// <summary>Generates a debug-friendly string of web request details.</summary>
         public static string GenerateRequestDebugString(UnityWebRequest webRequest)
         {
-            #pragma warning disable 0162
             string requestHeaders = "";
             List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
             requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
@@ -132,11 +131,13 @@ namespace ModIO
 
                         if(headerValue.Length > 8) // Contains more than "Bearer "
                         {
-                            #if DEBUG
-                            if(GlobalSettings.INCLUDE_USEROAUTHTOKEN_IN_LOG)
+                            #if MODIO_TESTING
+                            #pragma warning disable 0162
+                            if(ModIO_Testing.LOG_OAUTH_TOKEN)
                             {
                                 requestHeaders += " " + APIClient.userAuthorizationToken;
                             }
+                            #pragma warning restore 0162
                             else
                             #endif
                             {
@@ -154,7 +155,6 @@ namespace ModIO
                     }
                 }
             }
-            #pragma warning restore 0162
 
             return("\nEndpoint: " + webRequest.url
                    + "\nHeaders: " + requestHeaders);
