@@ -8829,29 +8829,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connectTo: 0
-  testServerData:
+  testServerSettings:
     apiURL: https://api.test.mod.io/v1
+    cacheDir: $PERSISTENT_DATA_PATH$/modio_test/
     gameId: 0
     gameAPIKey: 
-  productionServerData:
+  productionServerSettings:
     apiURL: https://api.mod.io/v1
+    cacheDir: $PERSISTENT_DATA_PATH$/modio/
     gameId: 0
     gameAPIKey: 
-  isAutomaticUpdateEnabled: 1
-  guestData:
-    profile:
-      userId: -1
-      nameId: 
-      username: Sync Collection
-      lastOnline: 0
-      timezone: 
-      language: 
-      profileURL: 
-    avatar:
-      ownerId: -1
-      mediaType: 3
-      imageId: guest_avatar
-      texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
+  customServerSettings:
+    apiURL: 
+    cacheDir: $PERSISTENT_DATA_PATH$/modio_custom/
+    gameId: 0
+    gameAPIKey: 
+  debugAllAPIRequests: 1
   messageStrings:
     userLoggedOut: Successfully logged out
     subscriptionsRetrieved: $UPDATE_COUNT$ new subscription(s) synchronized with the

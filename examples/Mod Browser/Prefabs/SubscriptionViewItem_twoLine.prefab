@@ -909,9 +909,9 @@ MonoBehaviour:
   m_data:
     modfileId: 0
     modId: 0
-    dateAdded: 0
+    dateAdded: 1519280093
     fileName: 
-    fileSize: 0
+    fileSize: 25794969
     MD5: 
     version: v.123412312312341233123
     changelog: 
@@ -1132,16 +1132,16 @@ MonoBehaviour:
   m_data:
     modId: 0
     gameId: 0
-    status: 0
-    visibility: 0
-    dateAdded: 0
-    dateUpdated: 0
-    dateLive: 0
+    status: 1
+    visibility: 1
+    dateAdded: 3428
+    dateUpdated: 3428
+    dateLive: 3428
     contentWarnings: 0
     homepageURL: 
-    name: Excavator Mod
+    name: A magical Mod
     nameId: 
-    summary: 
+    summary: What's a mod? Who's a mod? How's a mod?
     descriptionAsHTML: 
     descriptionAsText: 
     metadataBlob: 
@@ -1353,7 +1353,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0B
+  m_Text: 24.6MB
 --- !u!114 &114173561278529646
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1396,9 +1396,9 @@ MonoBehaviour:
   loadingOverlay: {fileID: 0}
   m_data:
     ownerId: 0
-    mediaType: 0
+    mediaType: 1
     imageId: 
-    texture: {fileID: 2800000, guid: bb5ddb6d375ce4616bb606fbf3d030e2, type: 3}
+    texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
 --- !u!114 &114201073603898236
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1498,7 +1498,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 01/01/1970
+  m_Text: 02/22/2018
 --- !u!114 &114279777036097016
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2296,16 +2296,16 @@ MonoBehaviour:
     profile:
       modId: 0
       gameId: 0
-      status: 0
-      visibility: 0
-      dateAdded: 0
-      dateUpdated: 0
-      dateLive: 0
+      status: 1
+      visibility: 1
+      dateAdded: 3428
+      dateUpdated: 3428
+      dateLive: 3428
       contentWarnings: 0
       homepageURL: 
-      name: Excavator Mod
+      name: A magical Mod
       nameId: 
-      summary: 
+      summary: What's a mod? Who's a mod? How's a mod?
       descriptionAsHTML: 
       descriptionAsText: 
       metadataBlob: 
@@ -2327,9 +2327,9 @@ MonoBehaviour:
     currentBuild:
       modfileId: 0
       modId: 0
-      dateAdded: 0
+      dateAdded: 1519280093
       fileName: 
-      fileSize: 0
+      fileSize: 25794969
       MD5: 
       version: v.123412312312341233123
       changelog: 
@@ -2340,9 +2340,9 @@ MonoBehaviour:
       virusScanHash: 
     media:
     - ownerId: 0
-      mediaType: 0
+      mediaType: 1
       imageId: 
-      texture: {fileID: 2800000, guid: bb5ddb6d375ce4616bb606fbf3d030e2, type: 3}
+      texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
     tags: []
     statistics:
       modId: 0
@@ -2507,7 +2507,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Excavator Mod
+  m_Text: A magical Mod
 --- !u!114 &114837422460264530
 MonoBehaviour:
   m_ObjectHideFlags: 1
