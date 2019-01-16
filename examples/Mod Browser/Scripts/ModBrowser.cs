@@ -36,6 +36,7 @@ namespace ModIO.UI
         [Serializable]
         private class ManifestData
         {
+            public Version lastRunVersion = new Version(0, 0, 0);
             public int lastCacheUpdate = -1;
             public int lastUserUpdate = -1;
             public List<int> queuedUnsubscribes = new List<int>();
@@ -101,8 +102,10 @@ namespace ModIO.UI
 
         // ---------[ CONST & STATIC ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
+        public static readonly Version VERSION = new Version(0, 9);
 
         public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
+
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
         {
             ExplorerSortOption.Create("NEWEST",         ModIO.API.GetAllModsFilterFields.dateLive, false),
@@ -159,6 +162,7 @@ namespace ModIO.UI
         };
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
+        // TODO(@jackson): Remove. No longer in use
         private UserDisplayData guestData = new UserDisplayData()
         {
             profile = new UserProfileDisplayData()
@@ -261,6 +265,8 @@ namespace ModIO.UI
             {
                 StopCoroutine(m_updatesCoroutine);
             }
+
+            PushSubscriptionChanges();
 
             _instance = null;
         }
@@ -372,16 +378,6 @@ namespace ModIO.UI
             // DownloadClient
             DownloadClient.logAllRequests = debugAllAPIRequests;
 
-            // --- Manifest ---
-            ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
-            if(manifest != null)
-            {
-                this.lastCacheUpdate = manifest.lastCacheUpdate;
-                this.lastUserUpdate = manifest.lastUserUpdate;
-                this.m_queuedSubscribes = manifest.queuedSubscribes;
-                this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
-            }
-
             // --- UserData ---
             UserAuthenticationData userData = ModManager.GetUserData();
             APIClient.userAuthorizationToken = userData.token;
@@ -396,6 +392,22 @@ namespace ModIO.UI
             {
                 this.gameProfile = new GameProfile();
                 this.gameProfile.id = settings.gameId;
+            }
+
+            // --- Manifest ---
+            ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
+            if(manifest != null)
+            {
+                this.lastCacheUpdate = manifest.lastCacheUpdate;
+                this.lastUserUpdate = manifest.lastUserUpdate;
+                this.m_queuedSubscribes = manifest.queuedSubscribes;
+                this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
+
+                if(manifest.lastRunVersion == null
+                   || manifest.lastRunVersion < ModBrowser.VERSION)
+                {
+                    ModBrowserPatcher.Run(manifest.lastRunVersion);
+                }
             }
         }
 
@@ -739,27 +751,7 @@ namespace ModIO.UI
                 // --- USER EVENTS ---
                 if(userProfile != null)
                 {
-                    // push subs/unsubs
-                    foreach(int modId in m_queuedSubscribes)
-                    {
-                        APIClient.SubscribeToMod(modId,
-                                                 (p) =>
-                                                 {
-                                                    m_queuedSubscribes.Remove(p.id);
-                                                    WriteManifest();
-                                                 },
-                                                 WebRequestError.LogAsWarning);
-                    }
-                    foreach(int modId in m_queuedUnsubscribes)
-                    {
-                        APIClient.UnsubscribeFromMod(modId,
-                                                     () =>
-                                                     {
-                                                        m_queuedUnsubscribes.Remove(modId);
-                                                        WriteManifest();
-                                                     },
-                                                     WebRequestError.LogAsWarning);
-                    }
+                    PushSubscriptionChanges();
 
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -792,6 +784,31 @@ namespace ModIO.UI
                         WriteManifest();
                     }
                 }
+            }
+        }
+
+        private void PushSubscriptionChanges()
+        {
+            // push subs/unsubs
+            foreach(int modId in m_queuedSubscribes)
+            {
+                APIClient.SubscribeToMod(modId,
+                                         (p) =>
+                                         {
+                                            m_queuedSubscribes.Remove(p.id);
+                                            WriteManifest();
+                                         },
+                                         WebRequestError.LogAsWarning);
+            }
+            foreach(int modId in m_queuedUnsubscribes)
+            {
+                APIClient.UnsubscribeFromMod(modId,
+                                             () =>
+                                             {
+                                                m_queuedUnsubscribes.Remove(modId);
+                                                WriteManifest();
+                                             },
+                                             WebRequestError.LogAsWarning);
             }
         }
 
@@ -934,6 +951,7 @@ namespace ModIO.UI
         {
             ManifestData manifest = new ManifestData()
             {
+                lastRunVersion = ModBrowser.VERSION,
                 lastCacheUpdate = this.lastCacheUpdate,
                 lastUserUpdate = this.lastUserUpdate,
                 queuedUnsubscribes = this.m_queuedUnsubscribes,
