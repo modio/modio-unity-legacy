@@ -26,10 +26,11 @@ namespace ModIO.UI
 
         // ---------[ NESTED CLASSES ]---------
         // TODO(@jackson): Add "custom"
-        public enum APIServer
+        public enum ServerType
         {
             TestServer,
             ProductionServer,
+            CustomServer,
         }
 
         [Serializable]
@@ -99,9 +100,10 @@ namespace ModIO.UI
         }
 
         [Serializable]
-        public struct APIData
+        public struct ServerSettings
         {
             public string   apiURL;
+            public string   cacheDir;
             public int      gameId;
             public string   gameAPIKey;
         }
@@ -139,23 +141,32 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("Settings")]
-        public APIServer connectTo = APIServer.TestServer;
+        public ServerType connectTo = ServerType.TestServer;
         // TODO(@jackson): Custom inspector hide
-        public APIData testServerData = new APIData()
+        public ServerSettings testServerSettings = new ServerSettings()
         {
             // TODO(@jackson): Make read-only in inspector
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
+            cacheDir = "$PERSISTENT_DATA_PATH$/modio_test",
             gameId = 0,
             gameAPIKey = string.Empty,
         };
-        public APIData productionServerData = new APIData()
+        public ServerSettings productionServerSettings = new ServerSettings()
         {
             // TODO(@jackson): Make read-only in inspector
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
+            cacheDir = "$PERSISTENT_DATA_PATH$/modio",
             gameId = 0,
             gameAPIKey = string.Empty,
         };
-        public UserDisplayData guestData = new UserDisplayData()
+        public ServerSettings customServerSettings = new ServerSettings()
+        {
+            apiURL = string.Empty,
+            cacheDir = "$PERSISTENT_DATA_PATH$/modio_custom",
+            gameId = 0,
+            gameAPIKey = string.Empty,
+        };
+        private UserDisplayData guestData = new UserDisplayData()
         {
             profile = new UserProfileDisplayData()
             {
@@ -244,32 +255,6 @@ namespace ModIO.UI
             }
         }
 
-        public APIData apiData
-        {
-            get
-            {
-                if(connectTo == APIServer.TestServer)
-                {
-                    return testServerData;
-                }
-                else
-                {
-                    return productionServerData;
-                }
-            }
-            set
-            {
-                if(connectTo == APIServer.TestServer)
-                {
-                    testServerData = value;
-                }
-                else
-                {
-                    productionServerData = value;
-                }
-            }
-        }
-
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
@@ -290,7 +275,9 @@ namespace ModIO.UI
         private void Start()
         {
             #if MODIO_TESTING
-            if(!(apiData.gameId == 0 && String.IsNullOrEmpty(apiData.gameAPIKey)))
+            if(testServerSettings.gameId > 0
+               || productionServerSettings.gameId > 0
+               || customServerSettings.gameId > 0)
             {
                 Debug.LogError("OI DOOFUS! YOU SAVED AUTHENTICATION THE DETAILS TO THE PREFAB AGAIN!!!!!!");
                 return;
@@ -325,43 +312,66 @@ namespace ModIO.UI
 
         private void LoadLocalData()
         {
-            APIData d = this.apiData;
-
-            #pragma warning disable 0162
-            if(d.gameId <= 0)
+            ServerSettings settings;
+            switch(connectTo)
             {
-                if(GlobalSettings.GAME_ID <= 0)
+                case ServerType.TestServer:
                 {
-                    Debug.LogError("[mod.io] Game ID is missing. Save it to GlobalSettings or this MonoBehaviour before starting the app",
-                                   this);
-                    return;
+                    settings = testServerSettings;
                 }
-
-                d.gameId = GlobalSettings.GAME_ID;
+                break;
+                case ServerType.ProductionServer:
+                {
+                    settings = productionServerSettings;
+                }
+                break;
+                case ServerType.CustomServer:
+                {
+                    settings = customServerSettings;
+                }
+                break;
+                default:
+                {
+                    settings = new ServerSettings();
+                }
+                break;
             }
-            if(String.IsNullOrEmpty(d.gameAPIKey))
+
+            #if MODIO_TESTING
+            settings.gameId = ModIO_Testing.GAME_ID;
+            settings.gameAPIKey = ModIO_Testing.GAME_APIKEY;
+            #endif
+
+            if(settings.gameId <= 0)
             {
-                if(String.IsNullOrEmpty(GlobalSettings.GAME_APIKEY))
-                {
-                    Debug.LogError("[mod.io] Game API Key is missing. Save it to GlobalSettings or this MonoBehaviour before starting the app",
-                                   this);
-                    return;
-                }
-
-                d.gameAPIKey = GlobalSettings.GAME_APIKEY;
+                Debug.LogError("[mod.io] Game ID is missing. Ensure that the appropriate server is"
+                               + " selected in \'connectTo\', and the server settings have been stored.",
+                               this);
+                return;
             }
-            #pragma warning restore 0162
+            if(String.IsNullOrEmpty(settings.gameAPIKey))
+            {
+                Debug.LogError("[mod.io] Game API Key is missing. Ensure that the appropriate server is"
+                               + " selected in \'connectTo\', and the server settings have been stored.",
+                               this);
+                return;
+            }
 
-            this.apiData = d;
+            APIClient.apiURL = settings.apiURL;
+            APIClient.gameId = settings.gameId;
+            APIClient.gameAPIKey = settings.gameAPIKey;
 
-            // --- User Data ---
-            UserAuthenticationData userData = ModManager.GetUserData();
+            string[] cacheDirParts = settings.cacheDir.Split('\\', '/');
+            for(int i = 0; i < cacheDirParts.Length; ++i)
+            {
+                if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                {
+                    cacheDirParts[i] = Application.persistentDataPath;
+                }
+            }
 
-            // --- APIClient ---
-            APIClient.apiURL = apiData.apiURL;
-            APIClient.gameId = apiData.gameId;
-            APIClient.gameAPIKey = apiData.gameAPIKey;
-            APIClient.userAuthorizationToken = userData.token;
+            string cacheDir = Utility.CombinePath(cacheDirParts);
+            CacheClient.TrySetCacheDirectory(cacheDir);
 
             // --- Manifest ---
             ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
@@ -374,6 +384,8 @@ namespace ModIO.UI
             }
 
             // --- UserData ---
+            UserAuthenticationData userData = ModManager.GetUserData();
+            APIClient.userAuthorizationToken = userData.token;
             if(userData.userId > 0)
             {
                 this.userProfile = CacheClient.LoadUserProfile(userData.userId);
@@ -384,7 +396,7 @@ namespace ModIO.UI
             if(this.gameProfile == null)
             {
                 this.gameProfile = new GameProfile();
-                this.gameProfile.id = apiData.gameId;
+                this.gameProfile.id = settings.gameId;
             }
         }
 
@@ -618,7 +630,7 @@ namespace ModIO.UI
 
                 RequestFilter filter = new RequestFilter();
                 filter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                        new EqualToFilter<int>(){ filterValue = apiData.gameId });
+                                        new EqualToFilter<int>(){ filterValue = gameProfile.id });
 
                 APIClient.GetUserSubscriptions(filter, null,
                                                (r) =>
@@ -982,7 +994,7 @@ namespace ModIO.UI
 
             RequestFilter subscriptionFilter = new RequestFilter();
             subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                                new EqualToFilter<int>() { filterValue = apiData.gameId });
+                                                new EqualToFilter<int>() { filterValue = gameProfile.id });
 
             APIPaginationParameters pagination = new APIPaginationParameters()
             {
@@ -1862,8 +1874,8 @@ namespace ModIO.UI
                 if(!Application.isPlaying
                    && this != null)
                 {
-                    testServerData.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
-                    productionServerData.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+                    testServerSettings.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
+                    productionServerSettings.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
                 }
             };
         }

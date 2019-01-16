@@ -57,7 +57,9 @@ namespace ModIO
                 return false;
             }
 
-            CacheClient._cacheDirectory = directory;
+            // TODO(@jackson): Hack until Path.Combine is implemented
+            Debug.LogWarning("HACK HERE");
+            CacheClient._cacheDirectory = directory + "/";
             return true;
         }
 
