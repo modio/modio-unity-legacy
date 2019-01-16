@@ -20,25 +20,6 @@ namespace ModIO
         private static string _cacheDirectory = null;
 
         // ---------[ INITIALIZATION ]---------
-        static CacheClient()
-        {
-            string dir;
-            #pragma warning disable 0162
-            #if DEBUG
-            if(GlobalSettings.USE_TEST_SERVER)
-            {
-                dir = Application.persistentDataPath + "/modio_testServer/";
-            }
-            else
-            #endif
-            {
-                dir = Application.persistentDataPath + "/modio/";
-            }
-            #pragma warning restore 0162
-
-            TrySetCacheDirectory(dir);
-        }
-
         /// <summary>Attempts to set the cache directory.</summary>
         public static bool TrySetCacheDirectory(string directory)
         {

@@ -67,15 +67,13 @@ namespace ModIO
 
         // ---------[ SETTINGS ]---------
         /// <summary>The base URL for the web API that the APIClient should use.</summary>
-        public static string apiURL = (GlobalSettings.USE_TEST_SERVER
-                                       ? "https://api.test.mod.io/"
-                                       : "https://api.mod.io/") + API_VERSION;
+        public static string apiURL = string.Empty;
 
         /// <summary>Game ID that the APIClient should use when contacting the API.</summary>
-        public static int gameId = GlobalSettings.GAME_ID;
+        public static int gameId = -1;
 
         /// <summary>Game API Key that the APIClient should use when contacting the API.</summary>
-        public static string gameAPIKey = GlobalSettings.GAME_APIKEY;
+        public static string gameAPIKey = string.Empty;
 
         /// <summary>User OAuthToken that the APIClient submits in requests.</summary>
         public static string userAuthorizationToken = null;
@@ -95,7 +93,6 @@ namespace ModIO
             {
                 Debug.LogError("[mod.io] No API requests can be executed without a"
                                + " valid Game Id and Game API Key. These need to be"
-                               + " saved in ModIO.GlobalSettings or"
                                + " set directly on the ModIO.APIClient before"
                                + " any requests can be sent to the API.");
                 return false;

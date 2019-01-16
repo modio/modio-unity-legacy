@@ -99,15 +99,6 @@ namespace ModIO.UI
             public string subscriptionsRetrieved;
         }
 
-        [Serializable]
-        public struct ServerSettings
-        {
-            public string   apiURL;
-            public string   cacheDir;
-            public int      gameId;
-            public string   gameAPIKey;
-        }
-
         // ---------[ CONST & STATIC ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
 
