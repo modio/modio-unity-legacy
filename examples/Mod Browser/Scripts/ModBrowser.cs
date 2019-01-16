@@ -641,19 +641,6 @@ namespace ModIO.UI
 
                 // requests
                 ModManager.GetAuthenticatedUserProfile(onGetUserProfile, null);
-
-                RequestFilter filter = new RequestFilter();
-                filter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                        new EqualToFilter<int>(){ filterValue = gameProfile.id });
-
-                APIClient.GetUserSubscriptions(filter, null,
-                                               (r) =>
-                                               {
-                                                ApplyRetrievedSubscriptions(r);
-                                                this.lastUserUpdate = requestTimeStamp;
-                                                WriteManifest();
-                                               },
-                                               null);
             }
         }
 
@@ -708,10 +695,11 @@ namespace ModIO.UI
         // ---------[ UPDATES ]---------
         private System.Collections.IEnumerator PollForUpdatesCoroutine()
         {
+            // Ensure Start() has been called
+            yield return null;
+
             while(true)
             {
-                yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
-
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
                 bool isRequestDone = false;
@@ -787,6 +775,8 @@ namespace ModIO.UI
                         WriteManifest();
                     }
                 }
+
+                yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }
         }
 
@@ -1094,10 +1084,7 @@ namespace ModIO.UI
             // - push missing subscriptions -
             foreach(int modId in subscriptionsToPush)
             {
-                APIClient.SubscribeToMod(modId,
-                                         (p) => Debug.Log("[mod.io] Mod subscription merged: " + p.id + "-" + p.name),
-                                         (e) => Debug.Log("[mod.io] Mod subscription merge failed: " + modId + "\n"
-                                                          + e.ToUnityDebugString()));
+                m_queuedSubscribes.AddRange(subscriptionsToPush);
             }
         }
 
