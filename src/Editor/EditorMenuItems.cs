@@ -40,7 +40,7 @@ namespace ModIO
         [MenuItem("mod.io/Clear Cache/Game Data", false, 1)]
         public static void ClearCachedGameProfile()
         {
-            if(CacheClient.DeleteFile(CacheClient.gameProfileFilePath))
+            if(IOUtilities.DeleteFile(CacheClient.gameProfileFilePath))
             {
                 Debug.Log("[mod.io] Cached Game Data Deleted.");
             }

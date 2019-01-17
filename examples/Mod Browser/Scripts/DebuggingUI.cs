@@ -46,7 +46,7 @@ public class DebuggingUI : MonoBehaviour
     }
     public void ClearCachedGameProfile()
     {
-        if(CacheClient.DeleteFile(CacheClient.gameProfileFilePath))
+        if(IOUtilities.DeleteFile(CacheClient.gameProfileFilePath))
         {
             string message = "[mod.io] Cached Game Data Deleted.";
             Debug.Log(message);

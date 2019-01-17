@@ -307,7 +307,7 @@ namespace ModIO
         /// <summary>Deletes the authenticated user's data from the cache.</summary>
         public static bool DeleteAuthenticatedUser()
         {
-            return CacheClient.DeleteFile(CacheClient.userFilePath);
+            return IOUtilities.DeleteFile(CacheClient.userFilePath);
         }
 
 
@@ -549,8 +549,8 @@ namespace ModIO
         /// <summary>Deletes a modfile and binary from the cache.</summary>
         public static bool DeleteModfileAndBinaryZip(int modId, int modfileId)
         {
-            bool isSuccessful = CacheClient.DeleteFile(CacheClient.GenerateModfileFilePath(modId, modfileId));
-            isSuccessful = CacheClient.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId)) && isSuccessful;
+            bool isSuccessful = IOUtilities.DeleteFile(CacheClient.GenerateModfileFilePath(modId, modfileId));
+            isSuccessful = IOUtilities.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId)) && isSuccessful;
             return isSuccessful;
         }
 
@@ -738,7 +738,7 @@ namespace ModIO
         /// <summary>Deletes a mod team's data from the cache.</summary>
         public static bool DeleteModTeam(int modId)
         {
-            return CacheClient.DeleteFile(CacheClient.GenerateModTeamFilePath(modId));
+            return IOUtilities.DeleteFile(CacheClient.GenerateModTeamFilePath(modId));
         }
 
         // ---------[ USERS ]---------
@@ -784,7 +784,7 @@ namespace ModIO
         /// <summary>Deletes a user's profile from the cache.</summary>
         public static bool DeleteUserProfile(int userId)
         {
-            return CacheClient.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
+            return IOUtilities.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
         }
 
         /// <summary>Iterates through all the user profiles in the cache.</summary>

@@ -956,7 +956,7 @@ namespace ModIO
                 if(Path.GetFileNameWithoutExtension(buildFile)
                    != profile.activeBuild.id.ToString())
                 {
-                    CacheClient.DeleteFile(buildFile);
+                    IOUtilities.DeleteFile(buildFile);
                 }
             }
         }
