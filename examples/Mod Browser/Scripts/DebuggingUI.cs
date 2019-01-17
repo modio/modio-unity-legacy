@@ -57,7 +57,8 @@ public class DebuggingUI : MonoBehaviour
     }
     public void ClearCachedModData()
     {
-        if(IOUtilities.DeleteDirectory(CacheClient.settings.directory + "mods/"))
+        string modsDir = IOUtilities.CombinePath(CacheClient.settings.directory, "mods");
+        if(IOUtilities.DeleteDirectory(modsDir))
         {
             string message = "[mod.io] Cached Mod Data Deleted.";
             Debug.Log(message);
@@ -69,7 +70,8 @@ public class DebuggingUI : MonoBehaviour
     }
     public void ClearCachedUserProfiles()
     {
-        if(IOUtilities.DeleteDirectory(CacheClient.settings.directory + "users/"))
+        string usersDir = IOUtilities.CombinePath(CacheClient.settings.directory, "users");
+        if(IOUtilities.DeleteDirectory(usersDir))
         {
             string message = "[mod.io] Cached User Profiles Deleted.";
             Debug.Log(message);

@@ -46,7 +46,8 @@ namespace ModIO
         [MenuItem("mod.io/Clear Cache/Mod Data", false, 1)]
         public static void ClearCachedModData()
         {
-            if(IOUtilities.DeleteDirectory(CacheClient.settings.directory + "mods/"))
+            string modDir = IOUtilities.CombinePath(CacheClient.settings.directory, "mods");
+            if(IOUtilities.DeleteDirectory(modDir))
             {
                 Debug.Log("[mod.io] Cached Mod Data Deleted.");
             }
@@ -54,7 +55,8 @@ namespace ModIO
         [MenuItem("mod.io/Clear Cache/User Profiles", false, 1)]
         public static void ClearCachedUserProfiles()
         {
-            if(IOUtilities.DeleteDirectory(CacheClient.settings.directory + "users/"))
+            string usersDir = IOUtilities.CombinePath(CacheClient.settings.directory, "users");
+            if(IOUtilities.DeleteDirectory(usersDir))
             {
                 Debug.Log("[mod.io] Cached User Profiles Deleted.");
             }

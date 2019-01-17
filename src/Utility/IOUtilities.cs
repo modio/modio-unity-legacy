@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -12,6 +13,8 @@ namespace ModIO
         /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
         public static T ReadJsonObjectFile<T>(string filePath)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             T jsonObject;
             TryReadJsonObjectFile(filePath, out jsonObject);
             return jsonObject;
@@ -20,6 +23,8 @@ namespace ModIO
         /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
         public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             if(File.Exists(filePath))
             {
                 try
@@ -45,6 +50,8 @@ namespace ModIO
         public static bool WriteJsonObjectFile<T>(string filePath,
                                                   T jsonObject)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
@@ -66,6 +73,8 @@ namespace ModIO
         /// <summary>Loads an entire binary file as a byte array.</summary>
         public static byte[] LoadBinaryFile(string filePath)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             byte[] fileData = null;
             TryLoadBinaryFile(filePath, out fileData);
             return fileData;
@@ -74,6 +83,8 @@ namespace ModIO
         /// <summary>Loads an entire binary file as a byte array.</summary>
         public static bool TryLoadBinaryFile(string filePath, out byte[] output)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             if(File.Exists(filePath))
             {
                 try
@@ -99,6 +110,8 @@ namespace ModIO
         public static bool WriteBinaryFile(string filePath,
                                            byte[] data)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
@@ -120,6 +133,8 @@ namespace ModIO
         /// <summary>Loads the image data from a file into a new Texture.</summary>
         public static Texture2D ReadImageFile(string filePath)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             Texture2D texture = null;
             TryReadImageFile(filePath, out texture);
             return texture;
@@ -128,6 +143,8 @@ namespace ModIO
         /// <summary>Loads the image data from a file into a new Texture.</summary>
         public static bool TryReadImageFile(string filePath, out Texture2D texture)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             if(File.Exists(filePath))
             {
                 byte[] imageData;
@@ -151,6 +168,8 @@ namespace ModIO
         public static bool WritePNGFile(string filePath,
                                         Texture2D texture)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             Debug.Assert(Path.GetExtension(filePath).Equals(".png"),
                          "[mod.io] Images can only be saved in PNG format."
                          + "\n" + filePath
@@ -162,6 +181,8 @@ namespace ModIO
         /// <summary>Deletes a file.</summary>
         public static bool DeleteFile(string filePath)
         {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
             try
             {
                 if(File.Exists(filePath)) { File.Delete(filePath); }
@@ -182,6 +203,8 @@ namespace ModIO
         /// <summary>Deletes a directory.</summary>
         public static bool DeleteDirectory(string directoryPath)
         {
+            Debug.Assert(!String.IsNullOrEmpty(directoryPath));
+
             try
             {
                 if(Directory.Exists(directoryPath))
@@ -206,6 +229,8 @@ namespace ModIO
         /// <summary>Creates a path using System.IO.Path.Combine()</summary>
         public static string CombinePath(params string[] pathElements)
         {
+            Debug.Assert(pathElements != null);
+
             string retVal = string.Empty;
 
             foreach(string pathElem in pathElements)
