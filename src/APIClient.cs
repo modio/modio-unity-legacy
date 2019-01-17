@@ -398,11 +398,16 @@ namespace ModIO
                 {
                     var headerString = new System.Text.StringBuilder();
                     headerString.Append("\nHeaders:");
-                    foreach(var requestHeader in webRequest.GetResponseHeaders())
-                    {
-                        headerString.Append("\n  " + requestHeader.Key + "=" + requestHeader.Value);
-                    }
 
+                    var responseHeaders = webRequest.GetResponseHeaders();
+                    if(responseHeaders != null)
+                    {
+                        foreach(var requestHeader in responseHeaders)
+                        {
+                            headerString.Append("\n  " + requestHeader.Key + "=" + requestHeader.Value);
+                        }
+
+                    }
                     var responseTimeStamp = ServerTimeStamp.Now;
                     string logString = (webRequest.method.ToUpper() + " REQUEST RESPONSE"
                                         + "\nResponse received at: "
@@ -414,6 +419,7 @@ namespace ModIO
                                         + headerString.ToString()
                                         + "\nResponse: " + webRequest.downloadHandler.text
                                         + "\n");
+
                     if(webRequest.isNetworkError || webRequest.isHttpError)
                     {
                         Debug.LogWarning(logString);
