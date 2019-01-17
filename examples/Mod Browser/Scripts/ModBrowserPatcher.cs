@@ -24,21 +24,9 @@ namespace ModIO
                 int modId = p.id;
                 int modfileId = p.activeBuild.id;
 
-                Action unzip = () =>
-                {
-                    string unzipLocation = IOUtilities.CombinePath(CacheClient.settings.directory,
-                                                                   "_installedMods",
-                                                                   modId.ToString() + "/");
-
-                    IOUtilities.DeleteDirectory(unzipLocation);
-
-                    ModManager.UnzipModBinaryToLocation(modId, modfileId,
-                                                        unzipLocation);
-                };
-
                 if(ModManager.IsBinaryDownloaded(modId, modfileId))
                 {
-                    unzip();
+                    ModManager.TryInstallMod(modId, modfileId);
                 }
                 else
                 {
@@ -63,11 +51,11 @@ namespace ModIO
                             }
                         }
 
-                        // unzip is attached to DownloadClient in ModBrowser.Start
+                        // installing is handled in ModBrowser
                     }
                     else
                     {
-                        unzip();
+                        ModManager.TryInstallMod(modId, modfileId);
                     }
                 }
             };
