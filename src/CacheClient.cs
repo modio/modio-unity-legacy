@@ -444,15 +444,16 @@ namespace ModIO
 
             // - Ensure the logo is the correct version -
             var versionInfo = CacheClient.LoadModLogoFilePaths(modId);
-            if(versionInfo == null
-               || !versionInfo[size].ToUpper().Equals(fileName.ToUpper()))
+            if(versionInfo != null)
             {
-                return null;
+                string logoVersionFileName = string.Empty;
+                if(versionInfo.TryGetValue(size, out logoVersionFileName)
+                   && logoVersionFileName.ToUpper().Equals(fileName.ToUpper()))
+                {
+                    return CacheClient.LoadModLogo(modId, size);
+                }
             }
-            else
-            {
-                return CacheClient.LoadModLogo(modId, size);
-            }
+            return null;
         }
 
         /// <summary>Stores a mod gallery image in the cache.</summary>
