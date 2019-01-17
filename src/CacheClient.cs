@@ -23,7 +23,7 @@ namespace ModIO
                 "modio",
                 "cache_settings.data" });
 
-            CacheClient.settings = ReadJsonObjectFile<Settings>(m_settingsLocation);
+            CacheClient.settings = IOUtilities.ReadJsonObjectFile<Settings>(m_settingsLocation);
         }
 
         // ---------[ MEMBERS ]---------
@@ -535,14 +535,14 @@ namespace ModIO
                          "[mod.io] Cannot cache a mod binary without a modfile id");
 
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            return CacheClient.WriteBinaryFile(filePath, modBinary);
+            return IOUtilities.WriteBinaryFile(filePath, modBinary);
         }
 
         /// <summary>Retrieves a mod binary's ZipFile data from the cache.</summary>
         public static byte[] LoadModBinaryZip(int modId, int modfileId)
         {
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
-            byte[] zipData = CacheClient.LoadBinaryFile(filePath);
+            byte[] zipData = IOUtilities.LoadBinaryFile(filePath);
             return zipData;
         }
 
