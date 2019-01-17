@@ -102,13 +102,12 @@ namespace ModIO
         /// <summary>[Obsolete] Generates the path for a cached mod build directory.</summary>
         [Obsolete("Use CacheClient.GenerateModBinariesDirectoryPath() instead.")]
         public static string GenerateModBuildsDirectoryPath(int modId)
-        { return CacheClient.GenerateModBinariesDirectoryPath(modId); }
+        { return CacheClient.GenerateModBinariesDirectoryPath(modId) + "/"; }
 
         /// <summary>Generates the path for a cached mod build directory.</summary>
         public static string GenerateModBinariesDirectoryPath(int modId)
         {
-            return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "/binaries/");
+            return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId), "binaries");
         }
 
 
@@ -492,15 +491,15 @@ namespace ModIO
         /// <summary>Generates the file path for a modfile.</summary>
         public static string GenerateModfileFilePath(int modId, int modfileId)
         {
-            return(CacheClient.GenerateModBinariesDirectoryPath(modId)
-                   + modfileId + ".data");
+            return IOUtilities.CombinePath(CacheClient.GenerateModBinariesDirectoryPath(modId),
+                                           modfileId.ToString() + ".data");
         }
 
         /// <summary>Generates the file path for a mod binary.</summary>
         public static string GenerateModBinaryZipFilePath(int modId, int modfileId)
         {
-            return(CacheClient.GenerateModBinariesDirectoryPath(modId)
-                   + modfileId + ".zip");
+            return IOUtilities.CombinePath(CacheClient.GenerateModBinariesDirectoryPath(modId),
+                                           modfileId.ToString() + ".zip");
         }
 
         /// <summary>Stores a modfile in the cache.</summary>
