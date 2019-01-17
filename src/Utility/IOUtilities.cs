@@ -204,13 +204,7 @@ namespace ModIO
         }
 
         /// <summary>Creates a path using System.IO.Path.Combine()</summary>
-        public static string CombinePath(params string[] paths)
-        {
-            return IOUtilities.CombinePath(paths);
-        }
-
-        /// <summary>Creates a path using System.IO.Path.Combine()</summary>
-        public static string CombinePath(System.Collections.Generic.IEnumerable<string> pathElements)
+        public static string CombinePath(params string[] pathElements)
         {
             string retVal = string.Empty;
 
