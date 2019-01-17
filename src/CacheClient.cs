@@ -110,68 +110,6 @@ namespace ModIO
             return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId), "binaries");
         }
 
-
-        // ---------[ BASIC FILE I/O ]---------
-        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
-        [Obsolete("Use IOUtilities.ReadJsonObjectFile() instead.")]
-        public static T ReadJsonObjectFile<T>(string filePath)
-        {
-            return IOUtilities.ReadJsonObjectFile<T>(filePath);
-        }
-
-        /// <summary>Writes an object to a file in the JSON Object format.</summary>
-        [Obsolete("Use IOUtilities.WriteJsonObjectFile() instead.")]
-        public static bool WriteJsonObjectFile<T>(string filePath,
-                                                  T jsonObject)
-        {
-            return IOUtilities.WriteJsonObjectFile(filePath, jsonObject);
-        }
-
-        /// <summary>Loads an entire binary file as a byte array.</summary>
-        [Obsolete("Use IOUtilities.LoadBinaryFile() instead.")]
-        public static byte[] LoadBinaryFile(string filePath)
-        {
-            return IOUtilities.LoadBinaryFile(filePath);
-        }
-
-        /// <summary>Writes an entire binary file.</summary>
-        [Obsolete("Use IOUtilities.WriteBinaryFile() instead.")]
-        public static bool WriteBinaryFile(string filePath,
-                                           byte[] data)
-        {
-            return IOUtilities.WriteBinaryFile(filePath, data);
-        }
-
-        /// <summary>Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use IOUtilities.ReadImageFile() instead.")]
-        public static Texture2D ReadImageFile(string filePath)
-        {
-            return IOUtilities.ReadImageFile(filePath);
-        }
-
-        /// <summary>Writes a texture to a PNG file.</summary>
-        [Obsolete("Use IOUtilities.WritePNGFile() instead.")]
-        public static bool WritePNGFile(string filePath,
-                                        Texture2D texture)
-        {
-            return IOUtilities.WritePNGFile(filePath, texture);
-        }
-
-        /// <summary>Deletes a file.</summary>
-        [Obsolete("Use IOUtilities.DeleteFile() instead.")]
-        public static bool DeleteFile(string filePath)
-        {
-            return IOUtilities.DeleteFile(filePath);
-        }
-
-        /// <summary>Deletes a directory.</summary>
-        [Obsolete("Use IOUtilities.DeleteDirectory() instead.")]
-        public static bool DeleteDirectory(string directoryPath)
-        {
-            return IOUtilities.DeleteDirectory(directoryPath);
-        }
-
-
         // ---------[ AUTHENTICATED USER ]---------
         /// <summary>Wrapper object for managing the authenticated user's information.</summary>
         [Serializable]
@@ -841,6 +779,67 @@ namespace ModIO
         public static bool DeleteUserAvatar(int userId)
         {
             return IOUtilities.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
+        }
+
+
+        // ---------[ BASIC FILE I/O ]---------
+        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
+        [Obsolete("Use IOUtilities.ReadJsonObjectFile() instead.")]
+        public static T ReadJsonObjectFile<T>(string filePath)
+        {
+            return IOUtilities.ReadJsonObjectFile<T>(filePath);
+        }
+
+        /// <summary>Writes an object to a file in the JSON Object format.</summary>
+        [Obsolete("Use IOUtilities.WriteJsonObjectFile() instead.")]
+        public static bool WriteJsonObjectFile<T>(string filePath,
+                                                  T jsonObject)
+        {
+            return IOUtilities.WriteJsonObjectFile(filePath, jsonObject);
+        }
+
+        /// <summary>Loads an entire binary file as a byte array.</summary>
+        [Obsolete("Use IOUtilities.LoadBinaryFile() instead.")]
+        public static byte[] LoadBinaryFile(string filePath)
+        {
+            return IOUtilities.LoadBinaryFile(filePath);
+        }
+
+        /// <summary>Writes an entire binary file.</summary>
+        [Obsolete("Use IOUtilities.WriteBinaryFile() instead.")]
+        public static bool WriteBinaryFile(string filePath,
+                                           byte[] data)
+        {
+            return IOUtilities.WriteBinaryFile(filePath, data);
+        }
+
+        /// <summary>Loads the image data from a file into a new Texture.</summary>
+        [Obsolete("Use IOUtilities.ReadImageFile() instead.")]
+        public static Texture2D ReadImageFile(string filePath)
+        {
+            return IOUtilities.ReadImageFile(filePath);
+        }
+
+        /// <summary>Writes a texture to a PNG file.</summary>
+        [Obsolete("Use IOUtilities.WritePNGFile() instead.")]
+        public static bool WritePNGFile(string filePath,
+                                        Texture2D texture)
+        {
+            return IOUtilities.WritePNGFile(filePath, texture);
+        }
+
+        /// <summary>Deletes a file.</summary>
+        [Obsolete("Use IOUtilities.DeleteFile() instead.")]
+        public static bool DeleteFile(string filePath)
+        {
+            return IOUtilities.DeleteFile(filePath);
+        }
+
+        /// <summary>Deletes a directory.</summary>
+        [Obsolete("Use IOUtilities.DeleteDirectory() instead.")]
+        public static bool DeleteDirectory(string directoryPath)
+        {
+            return IOUtilities.DeleteDirectory(directoryPath);
         }
     }
 }
