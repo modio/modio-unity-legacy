@@ -207,6 +207,7 @@ namespace ModIO.UI
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
         private bool m_onlineMode = true;
+        private bool m_validOAuthToken = false;
 
         // ---------[ ACCESSORS ]---------
         public void RequestExplorerPage(int pageIndex,
@@ -366,6 +367,7 @@ namespace ModIO.UI
             if(userData.userId > 0)
             {
                 this.userProfile = CacheClient.LoadUserProfile(userData.userId);
+                m_validOAuthToken = true;
             }
 
             // - GameData -
@@ -665,7 +667,6 @@ namespace ModIO.UI
             yield return null;
 
             bool cancelUpdates = false;
-            bool userAuthenticationFailed = false;
 
             while(m_onlineMode && !cancelUpdates)
             {
@@ -707,6 +708,10 @@ namespace ModIO.UI
                         yield return new WaitForSeconds(secondsUntilRetry + 1);
                         continue;
                     }
+                    if(cancelUpdates)
+                    {
+                        break;
+                    }
                 }
                 else
                 {
@@ -720,7 +725,7 @@ namespace ModIO.UI
 
                 // --- USER EVENTS ---
                 if(userProfile != null
-                   && !userAuthenticationFailed)
+                   && m_validOAuthToken)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -744,7 +749,7 @@ namespace ModIO.UI
                         int secondsUntilRetry;
                         string displayMessage;
 
-                        ProcessRequestError(requestError, out userAuthenticationFailed,
+                        ProcessRequestError(requestError, out cancelUpdates,
                                             out secondsUntilRetry, out displayMessage);
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -754,6 +759,10 @@ namespace ModIO.UI
                         {
                             yield return new WaitForSeconds(secondsUntilRetry + 1);
                             continue;
+                        }
+                        if(cancelUpdates)
+                        {
+                            break;
                         }
                     }
                     else
@@ -788,6 +797,30 @@ namespace ModIO.UI
                 }
                 break;
 
+                // Bad authorization
+                case 401:
+                {
+                    reattemptDelaySeconds = -1;
+                    displayMessage = ("Your mod.io user authorization details have changed."
+                                      + "\nLogging out and in again should correct this issue.");
+                    cancelFurtherAttempts = true;
+
+                    m_validOAuthToken = false;
+                }
+                break;
+
+                // Not found
+                case 404:
+                // Gone
+                case 410:
+                {
+                    reattemptDelaySeconds = -1;
+                    displayMessage = requestError.message;
+
+                    cancelFurtherAttempts = true;
+                }
+                break;
+
                 // Over limit
                 case 429:
                 {
@@ -810,7 +843,7 @@ namespace ModIO.UI
                 // Internal server error
                 case 500:
                 {
-                    reattemptDelaySeconds = 30;
+                    reattemptDelaySeconds = -1;
                     displayMessage = ("There was an error with the mod.io servers. Staff have been"
                                       + " notified, and will attempt to fix the issue as soon as possible.");
                     cancelFurtherAttempts = true;
@@ -820,9 +853,10 @@ namespace ModIO.UI
                 // Service Unavailable
                 case 503:
                 {
-                    reattemptDelaySeconds = 120;
+                    reattemptDelaySeconds = -1;
                     displayMessage = ("The mod.io servers are currently offline. Please try again later.");
                     cancelFurtherAttempts = true;
+
                     m_onlineMode = false;
                 }
                 break;
@@ -1067,6 +1101,10 @@ namespace ModIO.UI
                 APIClient.userAuthorizationToken = string.Empty;
                 throw new System.NotImplementedException();
                 // return;
+            }
+            else
+            {
+                m_validOAuthToken = true;
             }
 
             // - save user data -
