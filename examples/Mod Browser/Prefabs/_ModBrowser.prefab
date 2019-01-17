@@ -8845,6 +8845,7 @@ MonoBehaviour:
     gameAPIKey: 
     cacheDir: $PERSISTENT_DATA_PATH$/modio_custom/
   debugAllAPIRequests: 1
+  modInstallDirectory: $PERSISTENT_DATA_PATH$/modio/_installedMods
   messageStrings:
     userLoggedOut: Successfully logged out
     subscriptionsRetrieved: $UPDATE_COUNT$ new subscription(s) synchronized with the

@@ -160,7 +160,7 @@ namespace ModIO.UI
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
 
-        public string modInstallDirectory = "$PERSISTENT_DATA_PATH$/_installedMods";
+        public string modInstallDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods";
 
         private UserDisplayData guestData = new UserDisplayData()
         {
@@ -366,7 +366,7 @@ namespace ModIO.UI
 
             // - Installation Data -
             DownloadClient.logAllRequests = debugAllAPIRequests;
-            string[] installDirParts = settings.cacheDir.Split('\\', '/');
+            string[] installDirParts = modInstallDirectory.Split('\\', '/');
             for(int i = 0; i < installDirParts.Length; ++i)
             {
                 if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
@@ -1610,54 +1610,62 @@ namespace ModIO.UI
 
             // try and get the modfile
             Modfile modfile = CacheClient.LoadModfile(modId, modfileId);
-            if(modfile == null
-               && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now)
+            if(modfile != null
+               && (modfile.downloadLocator == null
+                   || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now))
             {
-                while(m_onlineMode
-                      && this.isActiveAndEnabled)
+                modfile = null;
+            }
+
+            while(modfile == null
+                  && m_onlineMode
+                  && this.isActiveAndEnabled)
+            {
+                APIClient.GetModfile(modId, modfileId,
+                                     (mf) =>
+                                     {
+                                        modfile = mf;
+                                        isRequestDone = true;
+                                     },
+                                     (e) =>
+                                     {
+                                        requestError = e;
+                                        isRequestDone = true;
+                                     });
+
+                while(!isRequestDone) { yield return null; }
+                isRequestDone = false;
+
+                if(requestError != null)
                 {
-                    ModManager.GetModfile(modId, modfileId,
-                                          (mf) =>
-                                          {
-                                            modfile = mf;
-                                            isRequestDone = true;
-                                          },
-                                          (e) =>
-                                          {
-                                            requestError = e;
-                                            isRequestDone = true;
-                                          });
+                    bool cancel;
+                    int reattemptDelay;
+                    string message;
 
-                    while(!isRequestDone) { yield return null; }
-                    isRequestDone = false;
+                    ProcessRequestError(requestError, out cancel,
+                                        out reattemptDelay, out message);
 
-                    if(requestError != null)
+                    if(reattemptDelay > 0)
                     {
-                        bool cancel;
-                        int reattemptDelay;
-                        string message;
-
-                        ProcessRequestError(requestError, out cancel,
-                                            out reattemptDelay, out message);
-
-                        if(reattemptDelay > 0)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       "Mods have failed to download.\n"
-                                                       + message
-                                                       + "\nRetrying in "
-                                                       + reattemptDelay.ToString()
-                                                       + " seconds");
-                            yield return new WaitForSeconds(reattemptDelay + 1);
-                        }
-                        else if(cancel)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       "Mods have failed to download.\n"
-                                                       + message);
-                            yield break;
-                        }
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
+                        yield return new WaitForSeconds(reattemptDelay + 1);
                     }
+                    else if(cancel)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message);
+                        yield break;
+                    }
+                }
+                else if(modfile != null)
+                {
+                    CacheClient.SaveModfile(modfile);
                 }
             }
 
