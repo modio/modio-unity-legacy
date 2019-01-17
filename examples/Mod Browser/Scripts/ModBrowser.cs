@@ -1146,8 +1146,6 @@ namespace ModIO.UI
                     if(!subscriptionsToPush.Contains(profile.id))
                     {
                         remoteSubscriptions.Add(profile.id);
-                        EnableMod(profile.id);
-                        AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
                     }
 
                     subscriptionsToPush.Remove(profile.id);
@@ -1156,7 +1154,8 @@ namespace ModIO.UI
                 List<int> subscribedModIds = new List<int>(ModManager.GetSubscribedModIds());
                 subscribedModIds.AddRange(remoteSubscriptions);
                 ModManager.SetSubscribedModIds(subscribedModIds);
-                UpdateViewSubscriptions();
+
+                OnSubscriptionsChanged(remoteSubscriptions, null);
 
                 allPagesReceived = (requestPage.items.Length < requestPage.size);
 
@@ -1601,12 +1600,6 @@ namespace ModIO.UI
             }
         }
 
-        [Obsolete]
-        private void AssertModBinaryIsDownloaded(int modId, int modfileId)
-        {
-            this.StartCoroutine(AssertDownloadedAndInstalledCoroutine(modId, modfileId));
-        }
-
         private System.Collections.IEnumerator AssertDownloadedAndInstalledCoroutine(int modId, int modfileId)
         {
             string installDir = ModManager.GetModInstallDirectory(modId, modfileId);
@@ -1776,11 +1769,14 @@ namespace ModIO.UI
             UpdateViewSubscriptions();
 
             ModManager.GetModProfile(modId,
-                                     (p) =>
-                                     {
-                                        AssertModBinaryIsDownloaded(p.id, p.activeBuild.id);
-                                     },
-                                     WebRequestError.LogAsWarning);
+            (p) =>
+            {
+                if(this.isActiveAndEnabled)
+                {
+                    this.StartCoroutine(AssertDownloadedAndInstalledCoroutine(p.id, p.activeBuild.id));
+                }
+            },
+            WebRequestError.LogAsWarning);
         }
 
         public void OnUnsubscribedFromMod(int modId)
@@ -1811,11 +1807,14 @@ namespace ModIO.UI
                     }
 
                     ModManager.GetModProfile(modId,
-                                             (p) =>
-                                             {
-                                                AssertModBinaryIsDownloaded(p.id, p.activeBuild.id);
-                                             },
-                                             WebRequestError.LogAsWarning);
+                    (p) =>
+                    {
+                        if(this.isActiveAndEnabled)
+                        {
+                            this.StartCoroutine(AssertDownloadedAndInstalledCoroutine(p.id, p.activeBuild.id));
+                        }
+                    },
+                    WebRequestError.LogAsWarning);
                 }
             }
 
