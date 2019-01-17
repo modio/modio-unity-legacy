@@ -241,18 +241,19 @@ namespace ModIO
             if(modfileDownloadMap.Keys.Contains(idPair))
             {
                 Debug.LogWarning("[mod.io] Mod Binary for modfile is already downloading. TargetFilePath was not updated.");
-                return;
             }
-
-            modfileDownloadMap[idPair] = new FileDownloadInfo()
+            else
             {
-                target = targetFilePath,
-                fileSize = modfile.fileSize,
-                request = null,
-                isDone = false,
-            };
+                modfileDownloadMap[idPair] = new FileDownloadInfo()
+                {
+                    target = targetFilePath,
+                    fileSize = modfile.fileSize,
+                    request = null,
+                    isDone = false,
+                };
 
-            DownloadModBinary_Internal(idPair, modfile.downloadLocator.binaryURL);
+                DownloadModBinary_Internal(idPair, modfile.downloadLocator.binaryURL);
+            }
 
             return modfileDownloadMap[idPair];
         }
@@ -319,16 +320,16 @@ namespace ModIO
 
             if(request.isNetworkError || request.isHttpError)
             {
-                var e = WebRequestError.GenerateFromWebRequest(request);
+                downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
 
                 if(DownloadClient.logAllRequests)
                 {
-                    WebRequestError.LogAsWarning(e);
+                    WebRequestError.LogAsWarning(downloadInfo.error);
                 }
 
                 if(modfileDownloadFailed != null)
                 {
-                    modfileDownloadFailed(idPair, e);
+                    modfileDownloadFailed(idPair, downloadInfo.error);
                 }
             }
             else
@@ -351,9 +352,11 @@ namespace ModIO
 
                     Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
 
+                    downloadInfo.error = WebRequestError.GenerateLocal(warningInfo);
+
                     if(modfileDownloadFailed != null)
                     {
-                        modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
+                        modfileDownloadFailed(idPair, downloadInfo.error);
                     }
                 }
             }

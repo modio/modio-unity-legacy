@@ -364,7 +364,7 @@ namespace ModIO.UI
             APIClient.logAllRequests = debugAllAPIRequests;
             APIClient.userAuthorizationToken = userData.token;
 
-            // - DownloadClient Data -
+            // - Installation Data -
             DownloadClient.logAllRequests = debugAllAPIRequests;
             string[] installDirParts = settings.cacheDir.Split('\\', '/');
             for(int i = 0; i < installDirParts.Length; ++i)
@@ -375,14 +375,6 @@ namespace ModIO.UI
                 }
             }
             ModManager.modInstallDirectory = IOUtilities.CombinePath(installDirParts);
-
-            DownloadClient.modfileDownloadSucceeded += (p, d) =>
-            {
-                if(this.isActiveAndEnabled)
-                {
-                    ModManager.TryInstallMod(p.modId, p.modfileId, true);
-                }
-            };
         }
 
         private void InitializeInspectorView()
@@ -1609,32 +1601,151 @@ namespace ModIO.UI
             }
         }
 
+        [Obsolete]
         private void AssertModBinaryIsDownloaded(int modId, int modfileId)
         {
-            if(!ModManager.IsBinaryDownloaded(modId, modfileId))
+            this.StartCoroutine(AssertDownloadedAndInstalledCoroutine(modId, modfileId));
+        }
+
+        private System.Collections.IEnumerator AssertDownloadedAndInstalledCoroutine(int modId, int modfileId)
+        {
+            string installDir = ModManager.GetModInstallDirectory(modId, modfileId);
+            if(System.IO.Directory.Exists(installDir)) { yield break; }
+
+            bool isRequestDone = false;
+            WebRequestError requestError = null;
+
+            // try and get the modfile
+            Modfile modfile = CacheClient.LoadModfile(modId, modfileId);
+            if(modfile == null
+               && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now)
             {
-                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
-
-                if(downloadInfo == null)
+                while(m_onlineMode
+                      && this.isActiveAndEnabled)
                 {
-                    string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
-                    DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
+                    ModManager.GetModfile(modId, modfileId,
+                                          (mf) =>
+                                          {
+                                            modfile = mf;
+                                            isRequestDone = true;
+                                          },
+                                          (e) =>
+                                          {
+                                            requestError = e;
+                                            isRequestDone = true;
+                                          });
 
-                    downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
-                }
+                    while(!isRequestDone) { yield return null; }
+                    isRequestDone = false;
 
-                if(!downloadInfo.isDone)
-                {
-                    // TODO(@jackson): Dirty hack (now less dirty???)
-                    ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
-                    foreach(ModView modView in sceneViews)
+                    if(requestError != null)
                     {
-                        if(modView.data.profile.modId == modId)
+                        bool cancel;
+                        int reattemptDelay;
+                        string message;
+
+                        ProcessRequestError(requestError, out cancel,
+                                            out reattemptDelay, out message);
+
+                        if(reattemptDelay > 0)
                         {
-                            modView.DisplayDownload(downloadInfo);
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       "Mods have failed to download.\n"
+                                                       + message
+                                                       + "\nRetrying in "
+                                                       + reattemptDelay.ToString()
+                                                       + " seconds");
+                            yield return new WaitForSeconds(reattemptDelay + 1);
+                        }
+                        else if(cancel)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       "Mods have failed to download.\n"
+                                                       + message);
+                            yield break;
                         }
                     }
                 }
+            }
+
+            if(modfile == null)
+            {
+                yield break;
+            }
+
+            // assert that the mod is downloaded and valid
+            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+            bool isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
+                                     && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                     && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+
+            while(!isBinaryZipValid
+                  && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now
+                  && m_onlineMode
+                  && this.isActiveAndEnabled)
+            {
+                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
+                if(downloadInfo == null)
+                {
+                    downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
+                }
+
+                ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
+                foreach(ModView modView in sceneViews)
+                {
+                    if(modView.data.profile.modId == modId)
+                    {
+                        modView.DisplayDownload(downloadInfo);
+                    }
+                }
+
+                while(!downloadInfo.isDone) { yield return null; }
+
+                if(downloadInfo.error != null)
+                {
+                    bool cancel;
+                    int reattemptDelay;
+                    string message;
+
+                    ProcessRequestError(downloadInfo.error, out cancel,
+                                        out reattemptDelay, out message);
+
+                    if(reattemptDelay > 0)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
+                        yield return new WaitForSeconds(reattemptDelay + 1);
+                    }
+                    else if(cancel)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message);
+                        yield break;
+                    }
+                }
+                else
+                {
+                    isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
+                                        && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                        && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+
+                    if(!isBinaryZipValid)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download correctly.");
+                        yield break;
+                    }
+                }
+            }
+
+            if(isBinaryZipValid)
+            {
+                ModManager.TryInstallMod(modId, modfileId, true);
             }
         }
 

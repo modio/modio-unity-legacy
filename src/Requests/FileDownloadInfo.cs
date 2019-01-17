@@ -13,5 +13,6 @@ namespace ModIO
         public UnityEngine.Networking.UnityWebRequest request;
         public string target;
         public System.Int64 fileSize;
+        public WebRequestError error;
     }
 }
