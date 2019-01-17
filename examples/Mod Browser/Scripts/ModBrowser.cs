@@ -301,7 +301,7 @@ namespace ModIO.UI
             {
                 string unzipLocation = IOUtilities.CombinePath(CacheClient.settings.directory,
                                                                "_installedMods",
-                                                               p.modId.ToString() + "/");
+                                                               p.modId.ToString());
                 IOUtilities.DeleteDirectory(unzipLocation);
 
                 ModManager.UnzipModBinaryToLocation(p.modId, p.modfileId,

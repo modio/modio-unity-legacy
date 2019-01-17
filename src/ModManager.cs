@@ -1287,8 +1287,9 @@ namespace ModIO
                     // - Create Images.Zip -
                     if(addedImageFilePaths.Count > 0)
                     {
-                        string galleryZipLocation
-                        = Application.temporaryCachePath + "/modio/imageGallery_" + DateTime.Now.ToFileTime() + ".zip";
+                        string galleryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
+                                                                            "modio",
+                                                                            "imageGallery_" + DateTime.Now.ToFileTime() + ".zip");
 
                         try
                         {
@@ -1478,7 +1479,9 @@ namespace ModIO
             }
 
             string folderName = binaryDirectory.Substring(binaryDirectory.LastIndexOf('/') + 1);
-            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + folderName + "_" + DateTime.Now.ToFileTime() + ".zip";
+            string binaryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
+                                                               "modio",
+                                                               folderName + "_" + DateTime.Now.ToFileTime() + ".zip");
             bool zipSucceeded = false;
             int binaryDirectoryPathLength = binaryDirectory.Length + 1;
 
@@ -1532,7 +1535,9 @@ namespace ModIO
                                                     Action<Modfile> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            string binaryZipLocation = Application.temporaryCachePath + "/modio/" + Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip";
+            string binaryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
+                                                               "modio",
+                                                               Path.GetFileNameWithoutExtension(unzippedBinaryLocation) + "_" + DateTime.Now.ToFileTime() + ".zip");
             bool zipSucceeded = false;
 
             try

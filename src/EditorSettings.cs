@@ -6,14 +6,14 @@ namespace ModIO.InEditor
         public static readonly ServerSettings TEST_SERVER = new ServerSettings()
         {
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
-            cacheDir = System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "modio_test"),
+            cacheDir = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio_test"),
             gameId = 0,
             gameAPIKey = string.Empty,
         };
         public static readonly ServerSettings PRODUCTION_SERVER = new ServerSettings()
         {
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-            cacheDir = System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "modio"),
+            cacheDir = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio"),
             gameId = 0,
             gameAPIKey = string.Empty,
         };
