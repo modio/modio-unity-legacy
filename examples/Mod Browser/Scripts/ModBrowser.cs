@@ -663,8 +663,7 @@ namespace ModIO.UI
                                          + "\nPlease report this to mod.io staff.");
                     }
 
-                    displayMessage = ("Too many requests have been made to the mod.io servers."
-                                      + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                    displayMessage = requestError.message;
                 }
                 break;
 
@@ -695,8 +694,7 @@ namespace ModIO.UI
                     if(requestError.responseCode <= 0)
                     {
                         reattemptDelaySeconds = 60;
-                        displayMessage = ("Unable to connect to the mod.io servers.\n"
-                                          + "Retrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                        displayMessage = ("Unable to connect to the mod.io servers.");
                     }
                     else
                     {
@@ -706,8 +704,7 @@ namespace ModIO.UI
 
                         reattemptDelaySeconds = 15;
                         displayMessage = ("Error synchronizing with the mod.io servers.\n"
-                                          + requestError.message
-                                          + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                                          + requestError.message);
                     }
                 }
                 break;
@@ -798,14 +795,24 @@ namespace ModIO.UI
                     ProcessRequestError(requestError, out cancelUpdates,
                                         out secondsUntilRetry, out displayMessage);
 
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                               displayMessage);
 
                     if(secondsUntilRetry > 0)
                     {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage
+                                                   + "\nRetrying in "
+                                                   + secondsUntilRetry.ToString()
+                                                   + " seconds");
+
                         yield return new WaitForSeconds(secondsUntilRetry + 1);
                         continue;
                     }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage);
+                    }
+
                     if(cancelUpdates)
                     {
                         break;
@@ -850,14 +857,23 @@ namespace ModIO.UI
                         ProcessRequestError(requestError, out cancelUpdates,
                                             out secondsUntilRetry, out displayMessage);
 
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage);
-
                         if(secondsUntilRetry > 0)
                         {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       displayMessage
+                                                       + "\nRetrying in "
+                                                       + secondsUntilRetry.ToString()
+                                                       + " seconds");
+
                             yield return new WaitForSeconds(secondsUntilRetry + 1);
                             continue;
                         }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       displayMessage);
+                        }
+
                         if(cancelUpdates)
                         {
                             break;
@@ -1048,11 +1064,6 @@ namespace ModIO.UI
             };
 
             IOUtilities.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
-        }
-
-        // TODO(@jackson): Incomplete
-        protected void OnUpdateError(WebRequestError error)
-        {
         }
 
         // ---------[ USER CONTROL ]---------
