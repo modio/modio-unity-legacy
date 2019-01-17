@@ -1,6 +1,4 @@
-﻿// #define MEEPLESTATION_AUTO_INSTALL
-
-using System;
+﻿using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,14 +12,6 @@ using ModIO.API;
 
 namespace ModIO
 {
-    #if MEEPLESTATION_AUTO_INSTALL
-    public struct ModInstallInfo
-    {
-        public int modId;
-        public string directory;
-    }
-    #endif
-
     public static class ModManager
     {
         // ---------[ CONSTANTS ]---------
@@ -33,6 +23,7 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         public static string modInstallDirectory = IOUtilities.CombinePath(CacheClient.settings.directory,
+                                                                           "modio",
                                                                            "_installedMods");
 
         // ---------[ AUTHENTICATED USER ]---------
