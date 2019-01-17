@@ -281,7 +281,7 @@ namespace ModIO
 
             au.modIds = modIds;
 
-            return CacheClient.WriteJsonObjectFile(userFilePath, au);
+            return IOUtilities.WriteJsonObjectFile(userFilePath, au);
         }
 
         /// <summary>Retrieves the authenticated user's mods from the cache.</summary>
@@ -319,7 +319,7 @@ namespace ModIO
         /// <summary>Stores the game's profile in the cache.</summary>
         public static bool SaveGameProfile(GameProfile profile)
         {
-            return CacheClient.WriteJsonObjectFile(gameProfileFilePath, profile);
+            return IOUtilities.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
         /// <summary>Retrieves the game's profile from the cache.</summary>
@@ -343,7 +343,7 @@ namespace ModIO
             Debug.Assert(profile.id > 0,
                          "[mod.io] Cannot cache a mod without a mod id");
 
-            return CacheClient.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id),
+            return IOUtilities.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id),
                                                    profile);
         }
 
@@ -487,7 +487,7 @@ namespace ModIO
                          "[mod.io] Cannot cache a mod without a mod id");
 
             string statsFilePath = GenerateModStatisticsFilePath(stats.modId);
-            return CacheClient.WriteJsonObjectFile(statsFilePath, stats);
+            return IOUtilities.WriteJsonObjectFile(statsFilePath, stats);
         }
 
         // ---------[ MODFILES ]---------
@@ -513,7 +513,7 @@ namespace ModIO
             Debug.Assert(modfile.id > 0,
                          "[mod.io] Cannot cache a modfile without a modfile id");
 
-            return CacheClient.WriteJsonObjectFile(GenerateModfileFilePath(modfile.modId, modfile.id),
+            return IOUtilities.WriteJsonObjectFile(GenerateModfileFilePath(modfile.modId, modfile.id),
                                                    modfile);
         }
 
@@ -643,7 +643,7 @@ namespace ModIO
             }
 
             versionInfo[size] = fileName;
-            return CacheClient.WriteJsonObjectFile(GenerateModLogoVersionInfoFilePath(modId),
+            return IOUtilities.WriteJsonObjectFile(GenerateModLogoVersionInfoFilePath(modId),
                                                    versionInfo);
         }
 
@@ -724,7 +724,7 @@ namespace ModIO
                          "[mod.io] Cannot cache a mod team without a mod id");
 
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
-            return CacheClient.WriteJsonObjectFile(filePath, modTeam);
+            return IOUtilities.WriteJsonObjectFile(filePath, modTeam);
         }
 
         /// <summary>Retrieves a mod team's data from the cache.</summary>
@@ -770,7 +770,7 @@ namespace ModIO
                          "[mod.io] Cannot cache a user profile without a user id");
 
             string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
-            return CacheClient.WriteJsonObjectFile(filePath, userProfile);
+            return IOUtilities.WriteJsonObjectFile(filePath, userProfile);
         }
 
         /// <summary>Retrieves a user's profile from the cache.</summary>

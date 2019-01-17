@@ -978,7 +978,7 @@ namespace ModIO.UI
                 queuedSubscribes = this.m_queuedSubscribes,
             };
 
-            CacheClient.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
+            IOUtilities.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
         }
 
         // TODO(@jackson): Incomplete
