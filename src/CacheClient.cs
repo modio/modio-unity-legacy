@@ -94,9 +94,9 @@ namespace ModIO
         /// <summary>Generates the path for a mod cache directory.</summary>
         public static string GenerateModDirectoryPath(int modId)
         {
-            return(CacheClient.settings.directory
-                   + "mods/"
-                   + modId.ToString() + "/");
+            return IOUtilities.CombinePath(CacheClient.settings.directory,
+                                           "mods",
+                                           modId.ToString());
         }
 
         /// <summary>[Obsolete] Generates the path for a cached mod build directory.</summary>
@@ -108,7 +108,7 @@ namespace ModIO
         public static string GenerateModBinariesDirectoryPath(int modId)
         {
             return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "binaries/");
+                   + "/binaries/");
         }
 
 
@@ -331,8 +331,8 @@ namespace ModIO
         /// <summary>Generates the file path for a mod's profile data.</summary>
         public static string GenerateModProfileFilePath(int modId)
         {
-            return (CacheClient.GenerateModDirectoryPath(modId)
-                    + "profile.data");
+            return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId),
+                                           "profile.data");
         }
 
         /// <summary>Stores a mod's profile in the cache.</summary>
@@ -454,9 +454,9 @@ namespace ModIO
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
 
             // TODO(@jackson): Cleanup
-            string installLocation = (CacheClient.settings.directory
-                                      + "_installedMods/"
-                                      + modId.ToString() + "/");
+            string installLocation = IOUtilities.CombinePath(CacheClient.settings.directory,
+                                                             "_installedMods",
+                                                             modId.ToString());
             if(Directory.Exists(installLocation))
             {
                 IOUtilities.DeleteDirectory(installLocation);
@@ -468,8 +468,8 @@ namespace ModIO
         // ---------[ MOD STATISTICS ]---------
         public static string GenerateModStatisticsFilePath(int modId)
         {
-            return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "stats.data");
+            return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId),
+                                           "stats.data");
         }
 
         public static ModStatistics LoadModStatistics(int modId)
@@ -563,7 +563,7 @@ namespace ModIO
         public static string GenerateModLogoCollectionDirectoryPath(int modId)
         {
             return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "logo/");
+                   + "/logo/");
         }
 
         /// <summary>Generates the file path for a mod logo.</summary>
@@ -591,7 +591,7 @@ namespace ModIO
         public static string GenerateModMediaDirectoryPath(int modId)
         {
             return(GenerateModDirectoryPath(modId)
-                   + "mod_media/");
+                   + "/mod_media/");
         }
 
         /// <summary>Generates the file path for a mod galley image.</summary>
@@ -710,8 +710,8 @@ namespace ModIO
         /// <summary>Generates the file path for a mod team's data.</summary>
         public static string GenerateModTeamFilePath(int modId)
         {
-            return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "team.data");
+            return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId),
+                                           "team.data");
         }
 
         /// <summary>Stores a mod team's data in the cache.</summary>
