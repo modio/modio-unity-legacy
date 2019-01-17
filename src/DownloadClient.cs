@@ -228,7 +228,7 @@ namespace ModIO
             return modfileDownloadMap[idPair];
         }
 
-        public static void StartModBinaryDownload(Modfile modfile, string targetFilePath)
+        public static FileDownloadInfo StartModBinaryDownload(Modfile modfile, string targetFilePath)
         {
             Debug.Assert(modfile.downloadLocator.dateExpires > ServerTimeStamp.Now);
 
@@ -253,6 +253,8 @@ namespace ModIO
             };
 
             DownloadModBinary_Internal(idPair, modfile.downloadLocator.binaryURL);
+
+            return modfileDownloadMap[idPair];
         }
 
         private static void DownloadModBinary_Internal(ModfileIdPair idPair, string downloadURL)
