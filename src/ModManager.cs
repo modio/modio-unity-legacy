@@ -31,6 +31,10 @@ namespace ModIO
 
         public const int USERID_GUEST = -1;
 
+        // ---------[ FIELDS ]---------
+        public static string modInstallDirectory = IOUtilities.CombinePath(CacheClient.settings.directory,
+                                                                           "_installedMods");
+
         // ---------[ AUTHENTICATED USER ]---------
         public static IEnumerable<int> EnumerateModIdString(string modIdArrayString)
         {
@@ -177,8 +181,7 @@ namespace ModIO
 
         public static IList<int> GetEnabledModIds()
         {
-            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_ENABLEDMODIDS,
-                                                       string.Empty);
+            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_ENABLEDMODIDS, string.Empty);
             return new List<int>(EnumerateModIdString(valueString));
         }
         public static void SetEnabledModIds(IEnumerable<int> modIds)
@@ -928,50 +931,46 @@ namespace ModIO
             return null;
         }
 
-        public static void DeleteInactiveBuilds(ModProfile profile)
-        {
-            string buildDir = CacheClient.GenerateModBinariesDirectoryPath(profile.id);
-            string[] buildFilePaths = Directory.GetFiles(buildDir, "*.*");
-
-            foreach(string buildFile in buildFilePaths)
-            {
-                if(Path.GetFileNameWithoutExtension(buildFile)
-                   != profile.activeBuild.id.ToString())
-                {
-                    IOUtilities.DeleteFile(buildFile);
-                }
-            }
-        }
-
-        public static void UnzipModBinaryToLocation(Modfile modfile,
-                                                    string unzipLocation)
-        {
-            UnzipModBinaryToLocation(modfile.modId, modfile.id, unzipLocation);
-        }
-
-        public static void UnzipModBinaryToLocation(int modId, int modfileId,
-                                                    string unzipLocation)
+        public static bool TryInstallMod(int modId, int modfileId)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+            string unzipLocation = IOUtilities.CombinePath(modInstallDirectory, modId.ToString());
 
-            if(File.Exists(zipFilePath))
+            if(!File.Exists(zipFilePath))
             {
-                try
-                {
-                    Directory.CreateDirectory(unzipLocation);
-
-                    using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
-                    {
-                        zip.ExtractAll(unzipLocation);
-                    }
-                }
-                catch(Exception e)
-                {
-                    Debug.LogError("[mod.io] Unable to extract binary to given location."
-                                   + "\nLocation: " + unzipLocation + "\n\n"
-                                   + Utility.GenerateExceptionDebugString(e));
-                }
+                return false;
             }
+
+            if(!IOUtilities.DeleteDirectory(unzipLocation))
+            {
+                return false;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(unzipLocation);
+
+                using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
+                {
+                    zip.ExtractAll(unzipLocation);
+                }
+
+                return true;
+            }
+            catch(Exception e)
+            {
+                Debug.LogError("[mod.io] Unable to extract binary to the mod install folder."
+                               + "\nLocation: " + unzipLocation + "\n\n"
+                               + Utility.GenerateExceptionDebugString(e));
+
+                return false;
+            }
+        }
+
+        public static bool TryUninstallMod(int modId)
+        {
+            string unzipLocation = IOUtilities.CombinePath(modInstallDirectory, modId.ToString());
+            return IOUtilities.DeleteDirectory(unzipLocation);
         }
 
         #if MEEPLESTATION_AUTO_INSTALL
@@ -988,17 +987,15 @@ namespace ModIO
 
         public static IEnumerable<ModInstallInfo> IterateInstalledMods(IList<int> modIdFilter)
         {
-            string installDirectory = IOUtilities.CombinePath(CacheClient.settings.directory, "_installedMods");
-
             string[] modDirectories;
             try
             {
-                modDirectories = Directory.GetDirectories(installDirectory);
+                modDirectories = Directory.GetDirectories(modInstallDirectory);
             }
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to read mod installation directory."
-                                      + "\nDirectory: " + installDirectory + "\n\n");
+                                      + "\nDirectory: " + modInstallDirectory + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
@@ -1008,7 +1005,7 @@ namespace ModIO
 
             foreach(string modDirectory in modDirectories)
             {
-                string idString = modDirectory.Substring(installDirectory.Length);
+                string idString = modDirectory.Substring(modInstallDirectory.Length);
 
                 int modId;
                 if(!Int32.TryParse(idString, out modId))
