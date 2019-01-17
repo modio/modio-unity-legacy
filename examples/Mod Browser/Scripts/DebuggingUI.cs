@@ -34,14 +34,13 @@ public class DebuggingUI : MonoBehaviour
 
     public void ClearCachedAuthenticatedUserData()
     {
-        if(CacheClient.DeleteAuthenticatedUser())
+        ModManager.SetUserData(new UserAuthenticationData());
+
+        string message = "[mod.io] Cached User Data Deleted.";
+        Debug.Log(message);
+        if(messageDisplay != null)
         {
-            string message = "[mod.io] Cached User Data Deleted.";
-            Debug.Log(message);
-            if(messageDisplay != null)
-            {
-                messageDisplay.text = message;
-            }
+            messageDisplay.text = message;
         }
     }
     public void ClearCachedGameProfile()

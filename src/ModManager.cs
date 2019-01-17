@@ -101,39 +101,25 @@ namespace ModIO
         public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
                                                     Action<WebRequestError> onError)
         {
-            List<int> cachedModIds = CacheClient.LoadAuthenticatedUserMods();
+            RequestFilter userModsFilter = new RequestFilter();
+            userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
+            = new EqualToFilter<int>() { filterValue = APIClient.gameId };
 
-            if(cachedModIds != null)
+            Action<List<ModProfile>> onGetMods = (modProfiles) =>
             {
-                ModManager.GetModProfiles(cachedModIds,
-                                          onSuccess,
-                                          onError);
-            }
-            else
-            {
-                RequestFilter userModsFilter = new RequestFilter();
-                userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
-                = new EqualToFilter<int>() { filterValue = APIClient.gameId };
-
-                Action<List<ModProfile>> onGetMods = (modProfiles) =>
+                List<int> modIds = new List<int>(modProfiles.Count);
+                foreach(ModProfile profile in modProfiles)
                 {
-                    CacheClient.SaveModProfiles(modProfiles);
+                    modIds.Add(profile.id);
+                }
 
-                    List<int> modIds = new List<int>(modProfiles.Count);
-                    foreach(ModProfile profile in modProfiles)
-                    {
-                        modIds.Add(profile.id);
-                    }
-                    CacheClient.SaveAuthenticatedUserMods(modIds);
+                if(onSuccess != null) { onSuccess(modProfiles); }
+            };
 
-                    if(onSuccess != null) { onSuccess(modProfiles); }
-                };
-
-                // - Get All Events -
-                ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetUserMods(userModsFilter, p, s, e),
-                                                               onGetMods,
-                                                               onError);
-            }
+            // - Get All Events -
+            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetUserMods(userModsFilter, p, s, e),
+                                                           onGetMods,
+                                                           onError);
         }
 
         // ---------[ USER DATA ]---------

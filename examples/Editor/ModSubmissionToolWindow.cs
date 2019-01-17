@@ -105,7 +105,7 @@ namespace ModIO.Editor
                                     this.user = null;
 
                                     APIClient.userAuthorizationToken = null;
-                                    CacheClient.DeleteAuthenticatedUser();
+                                    ModManager.SetUserData(new UserAuthenticationData());
 
                                     isAwaitingServerResponse = false;
 

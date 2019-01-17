@@ -1117,7 +1117,7 @@ namespace ModIO.UI
 
             // - clear current user -
             APIClient.userAuthorizationToken = null;
-            CacheClient.DeleteAuthenticatedUser();
+            ModManager.SetUserData(UserAuthenticationData.NONE);
 
             // - set up guest account -
             this.userProfile = null;

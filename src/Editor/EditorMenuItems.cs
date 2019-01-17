@@ -32,10 +32,8 @@ namespace ModIO
         [MenuItem("mod.io/Clear Cache/User Data", false, 1)]
         public static void ClearCachedAuthenticatedUserData()
         {
-            if(CacheClient.DeleteAuthenticatedUser())
-            {
-                Debug.Log("[mod.io] Cached User Data Deleted.");
-            }
+            ModManager.SetUserData(new UserAuthenticationData());
+            Debug.Log("[mod.io] Cached User Data Deleted.");
         }
         [MenuItem("mod.io/Clear Cache/Game Data", false, 1)]
         public static void ClearCachedGameProfile()
