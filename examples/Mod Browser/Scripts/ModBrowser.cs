@@ -25,7 +25,6 @@ namespace ModIO.UI
         }
 
         // ---------[ NESTED CLASSES ]---------
-        // TODO(@jackson): Add "custom"
         public enum ServerType
         {
             TestServer,
@@ -137,10 +136,8 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         public ServerType connectTo = ServerType.TestServer;
-        // TODO(@jackson): Custom inspector hide
         public ServerSettings testServerSettings = new ServerSettings()
         {
-            // TODO(@jackson): Make read-only in inspector
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
             cacheDir = "$PERSISTENT_DATA_PATH$/modio_test",
             gameId = 0,
@@ -148,7 +145,6 @@ namespace ModIO.UI
         };
         public ServerSettings productionServerSettings = new ServerSettings()
         {
-            // TODO(@jackson): Make read-only in inspector
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
             cacheDir = "$PERSISTENT_DATA_PATH$/modio",
             gameId = 0,
@@ -181,6 +177,7 @@ namespace ModIO.UI
                 texture = null,
             },
         };
+
         public MessageSystemStrings messageStrings = new MessageSystemStrings()
         {
             userLoggedOut = "Successfully logged out",
@@ -659,54 +656,6 @@ namespace ModIO.UI
 
                 // requests
                 ModManager.GetAuthenticatedUserProfile(onGetUserProfile, null);
-            }
-        }
-
-        private void ApplyRetrievedSubscriptions(RequestPage<ModProfile> response)
-        {
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-
-            // - filter for added / removed -
-            List<int> removedSubscriptions = new List<int>(subscribedModIds);
-            List<ModProfile> addedSubscriptions = new List<ModProfile>();
-
-            foreach(var modProfile in response.items)
-            {
-                if(!subscribedModIds.Contains(modProfile.id))
-                {
-                    addedSubscriptions.Add(modProfile);
-                    subscribedModIds.Add(modProfile.id);
-                }
-                removedSubscriptions.Remove(modProfile.id);
-            }
-
-            // TODO(@jackson): Optimize?
-            foreach(int modId in removedSubscriptions)
-            {
-                subscribedModIds.Remove(modId);
-            }
-
-            // - apply added / removed -
-            if(addedSubscriptions.Count > 0 || removedSubscriptions.Count > 0)
-            {
-                ModManager.SetSubscribedModIds(subscribedModIds);
-
-                foreach(int modId in removedSubscriptions)
-                {
-                    // remove from disk
-                    CacheClient.DeleteAllModfileAndBinaryData(modId);
-                }
-
-                foreach(ModProfile profile in addedSubscriptions)
-                {
-                    AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
-                }
-
-                int subscriptionUpdateCount = (addedSubscriptions.Count + removedSubscriptions.Count);
-                string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$", subscriptionUpdateCount.ToString());
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
-
-                UpdateViewSubscriptions();
             }
         }
 
