@@ -58,7 +58,7 @@ namespace ModIO.Editor
             if(logoProperty.FindPropertyRelative("isDirty").boolValue == true)
             {
                 logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
-                logoTexture = CacheClient.ReadImageFile(logoLocation);
+                logoTexture = IOUtilities.ReadImageFile(logoLocation);
                 if(logoTexture != null)
                 {
                     lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
@@ -92,7 +92,7 @@ namespace ModIO.Editor
                     FileInfo imageInfo = new FileInfo(logoLocation);
                     if(lastLogoWriteTime < imageInfo.LastWriteTime)
                     {
-                        logoTexture = CacheClient.ReadImageFile(logoLocation);
+                        logoTexture = IOUtilities.ReadImageFile(logoLocation);
                         lastLogoWriteTime = imageInfo.LastWriteTime;
                         isRepaintRequired = true;
                     }
@@ -316,7 +316,7 @@ namespace ModIO.Editor
                     string path = EditorUtility.OpenFilePanelWithFilters("Select Mod Logo",
                                                                          "",
                                                                          IMAGE_FILE_FILTER);
-                    Texture2D newLogoTexture = CacheClient.ReadImageFile(path);
+                    Texture2D newLogoTexture = IOUtilities.ReadImageFile(path);
 
                     if(newLogoTexture)
                     {

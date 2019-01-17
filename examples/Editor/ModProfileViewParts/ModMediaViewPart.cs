@@ -126,7 +126,7 @@ namespace ModIO.Editor
                     }
                     else
                     {
-                        this.textureCache[imageFileName] = CacheClient.ReadImageFile(imageURL);
+                        this.textureCache[imageFileName] = IOUtilities.ReadImageFile(imageURL);
                     }
                 }
             }
@@ -239,7 +239,7 @@ namespace ModIO.Editor
                     string path = EditorUtility.OpenFilePanelWithFilters("Select Gallery Image",
                                                                          "",
                                                                          ModMediaViewPart.IMAGE_FILE_FILTER);
-                    Texture2D newTexture = CacheClient.ReadImageFile(path);
+                    Texture2D newTexture = IOUtilities.ReadImageFile(path);
 
                     if(newTexture != null)
                     {
@@ -303,7 +303,7 @@ namespace ModIO.Editor
             else
             {
                 string imageSource = GetGalleryImageSource(index);
-                this.textureCache.Add(imageFileName, CacheClient.ReadImageFile(imageSource));
+                this.textureCache.Add(imageFileName, IOUtilities.ReadImageFile(imageSource));
 
                 return this.textureCache[imageFileName];
             }

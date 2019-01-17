@@ -651,7 +651,7 @@ namespace ModIO
         public static Texture2D LoadModLogo(int modId, LogoSize size)
         {
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            Texture2D logoTexture = CacheClient.ReadImageFile(logoFilePath);
+            Texture2D logoTexture = IOUtilities.ReadImageFile(logoFilePath);
             return(logoTexture);
         }
 
@@ -678,7 +678,7 @@ namespace ModIO
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
-            Texture2D imageTexture = CacheClient.ReadImageFile(imageFilePath);
+            Texture2D imageTexture = IOUtilities.ReadImageFile(imageFilePath);
 
             return(imageTexture);
         }
@@ -703,7 +703,7 @@ namespace ModIO
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
 
-            Texture2D thumbnailTexture = CacheClient.ReadImageFile(thumbnailFilePath);
+            Texture2D thumbnailTexture = IOUtilities.ReadImageFile(thumbnailFilePath);
 
             return(thumbnailTexture);
         }
@@ -836,7 +836,7 @@ namespace ModIO
         public static Texture2D LoadUserAvatar(int userId, UserAvatarSize size)
         {
             string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
-            Texture2D avatarTexture = CacheClient.ReadImageFile(avatarFilePath);
+            Texture2D avatarTexture = IOUtilities.ReadImageFile(avatarFilePath);
             return(avatarTexture);
         }
 
