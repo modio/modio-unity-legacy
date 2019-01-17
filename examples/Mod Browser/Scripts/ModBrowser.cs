@@ -745,6 +745,54 @@ namespace ModIO.UI
             }
         }
 
+        private void ProcessRequestError(WebRequestError requestError,
+                                         out int reattemptDelaySeconds,
+                                         out string displayMessage)
+        {
+            switch(requestError.responseCode)
+            {
+                // Cannot connect resolve destination host
+                case 0:
+                {
+                    reattemptDelaySeconds = 60;
+                    displayMessage = ("Unable to connec to the mod.io servers.\n"
+                                      + "Retrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                }
+                break;
+
+                case 429:
+                {
+                    string sur_string;
+                    if(!(requestError.responseHeaders.TryGetValue("X-Ratelimit-RetryAfter", out sur_string)
+                         && Int32.TryParse(sur_string, out reattemptDelaySeconds)))
+                    {
+                        reattemptDelaySeconds = 60;
+
+                        Debug.LogWarning("[mod.io] Too many APIRequests have been made, however"
+                                         + " no valid X-Ratelimit-RetryAfter header was detected."
+                                         + "\nPlease report this to mod.io staff.");
+                    }
+
+                    displayMessage = ("Too many requests have been made to the mod.io servers."
+                                      + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                }
+                break;
+
+                default:
+                {
+                    Debug.LogWarning("[mod.io] An unhandled error was returned when retrieving mod updates."
+                                     + "\nPlease report this to mod.io staff with the following information:\n"
+                                     + requestError.ToUnityDebugString());
+
+                    reattemptDelaySeconds = 60;
+                    displayMessage = ("Error synchronizing with the mod.io servers.\n"
+                                      + requestError.message
+                                      + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                }
+                break;
+            }
+        }
+
         private void PushSubscriptionChanges()
         {
             // NOTE(@jackson): This is due to the response of an unsub request on an non-subbed
