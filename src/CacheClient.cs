@@ -85,9 +85,9 @@ namespace ModIO
         /// <summary>Initialzes the CacheClient settings.</summary>
         static CacheClient()
         {
-            CacheClient.m_settingsLocation = Utility.CombinePath(new string[] { Application.persistentDataPath,
-                                                                                "modio",
-                                                                                "cache_settings.data" });
+            CacheClient.m_settingsLocation = IOUtilities.CombinePath(new string[] { Application.persistentDataPath,
+                "modio",
+                "cache_settings.data" });
 
             CacheClient.settings = ReadJsonObjectFile<Settings>(m_settingsLocation);
         }

@@ -110,17 +110,5 @@ namespace ModIO
 
             return yt_id;
         }
-
-        public static string CombinePath(IEnumerable<string> pathElements)
-        {
-            string retVal = string.Empty;
-
-            foreach(string pathElem in pathElements)
-            {
-                retVal = System.IO.Path.Combine(retVal, pathElem);
-            }
-
-            return retVal;
-        }
     }
 }

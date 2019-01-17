@@ -202,5 +202,24 @@ namespace ModIO
 
             return false;
         }
+
+        /// <summary>Creates a path using System.IO.Path.Combine()</summary>
+        public static string CombinePath(params string[] paths)
+        {
+            return IOUtilities.CombinePath(paths);
+        }
+
+        /// <summary>Creates a path using System.IO.Path.Combine()</summary>
+        public static string CombinePath(System.Collections.Generic.IEnumerable<string> pathElements)
+        {
+            string retVal = string.Empty;
+
+            foreach(string pathElem in pathElements)
+            {
+                retVal = System.IO.Path.Combine(retVal, pathElem);
+            }
+
+            return retVal;
+        }
     }
 }
