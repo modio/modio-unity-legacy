@@ -299,6 +299,7 @@ namespace ModIO.UI
 
         private void LoadLocalData()
         {
+            // - Server Settings -
             ServerSettings settings;
             switch(connectTo)
             {
@@ -344,13 +345,7 @@ namespace ModIO.UI
                 return;
             }
 
-            // APIClient Data
-            APIClient.apiURL = settings.apiURL;
-            APIClient.gameId = settings.gameId;
-            APIClient.gameAPIKey = settings.gameAPIKey;
-            APIClient.logAllRequests = debugAllAPIRequests;
-
-            // CacheClient Data
+            // - CacheClient Data -
             string[] cacheDirParts = settings.cacheDir.Split('\\', '/');
             for(int i = 0; i < cacheDirParts.Length; ++i)
             {
@@ -365,18 +360,14 @@ namespace ModIO.UI
             cacheSettings.directory = cacheDir;
             CacheClient.settings = cacheSettings;
 
-            // DownloadClient
-            DownloadClient.logAllRequests = debugAllAPIRequests;
-
-            // --- UserData ---
+            // - UserData -
             UserAuthenticationData userData = ModManager.GetUserData();
-            APIClient.userAuthorizationToken = userData.token;
             if(userData.userId > 0)
             {
                 this.userProfile = CacheClient.LoadUserProfile(userData.userId);
             }
 
-            // --- GameData ---
+            // - GameData -
             this.gameProfile = CacheClient.LoadGameProfile();
             if(this.gameProfile == null)
             {
@@ -384,7 +375,7 @@ namespace ModIO.UI
                 this.gameProfile.id = settings.gameId;
             }
 
-            // --- Manifest ---
+            // - Manifest -
             ManifestData manifest = IOUtilities.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
             if(manifest != null)
             {
@@ -408,8 +399,15 @@ namespace ModIO.UI
                 WriteManifest();
             }
 
-            // --- Auto-Install Mods ---
-            // Install Directory Data
+            // - APIClient Data -
+            APIClient.apiURL = settings.apiURL;
+            APIClient.gameId = settings.gameId;
+            APIClient.gameAPIKey = settings.gameAPIKey;
+            APIClient.logAllRequests = debugAllAPIRequests;
+            APIClient.userAuthorizationToken = userData.token;
+
+            // - DownloadClient Data -
+            DownloadClient.logAllRequests = debugAllAPIRequests;
             string[] installDirParts = settings.cacheDir.Split('\\', '/');
             for(int i = 0; i < installDirParts.Length; ++i)
             {
