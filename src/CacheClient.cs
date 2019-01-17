@@ -83,14 +83,24 @@ namespace ModIO
             }
         }
 
-        // ---------[ GET DIRECTORIES ]---------
-        /// <summary>[Obsolete] Retrieves the directory the CacheClient uses.</summary>
-        [Obsolete("Use CacheClient.settings.directory instead.")]
-        public static string GetCacheDirectory()
+        // ---------[ GAME PROFILE ]---------
+        /// <summary>File path for the game profile data.</summary>
+        public static string gameProfileFilePath
+        { get { return IOUtilities.CombinePath(CacheClient.settings.directory, "game_profile.data"); } }
+
+        /// <summary>Stores the game's profile in the cache.</summary>
+        public static bool SaveGameProfile(GameProfile profile)
         {
-            return CacheClient.settings.directory;
+            return IOUtilities.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
+        /// <summary>Retrieves the game's profile from the cache.</summary>
+        public static GameProfile LoadGameProfile()
+        {
+            return IOUtilities.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
+        }
+
+        // ---------[ GET DIRECTORIES ]---------
         /// <summary>Generates the path for a mod cache directory.</summary>
         public static string GenerateModDirectoryPath(int modId)
         {
@@ -108,24 +118,6 @@ namespace ModIO
         public static string GenerateModBinariesDirectoryPath(int modId)
         {
             return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId), "binaries");
-        }
-
-
-        // ---------[ GAME PROFILE ]---------
-        /// <summary>File path for the game profile data.</summary>
-        public static string gameProfileFilePath
-        { get { return CacheClient.settings.directory + "game_profile.data"; } }
-
-        /// <summary>Stores the game's profile in the cache.</summary>
-        public static bool SaveGameProfile(GameProfile profile)
-        {
-            return IOUtilities.WriteJsonObjectFile(gameProfileFilePath, profile);
-        }
-
-        /// <summary>Retrieves the game's profile from the cache.</summary>
-        public static GameProfile LoadGameProfile()
-        {
-            return IOUtilities.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
         }
 
 
@@ -705,6 +697,13 @@ namespace ModIO
         public static bool DeleteDirectory(string directoryPath)
         {
             return IOUtilities.DeleteDirectory(directoryPath);
+        }
+
+        /// <summary>[Obsolete] Retrieves the directory the CacheClient uses.</summary>
+        [Obsolete("Use CacheClient.settings.directory instead.")]
+        public static string GetCacheDirectory()
+        {
+            return CacheClient.settings.directory;
         }
     }
 }
