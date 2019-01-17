@@ -8831,19 +8831,19 @@ MonoBehaviour:
   connectTo: 0
   testServerSettings:
     apiURL: https://api.test.mod.io/v1
-    cacheDir: $PERSISTENT_DATA_PATH$/modio_test/
     gameId: 0
     gameAPIKey: 
+    cacheDir: $PERSISTENT_DATA_PATH$/modio_test/
   productionServerSettings:
     apiURL: https://api.mod.io/v1
-    cacheDir: $PERSISTENT_DATA_PATH$/modio/
     gameId: 0
     gameAPIKey: 
+    cacheDir: $PERSISTENT_DATA_PATH$/modio/
   customServerSettings:
     apiURL: 
-    cacheDir: $PERSISTENT_DATA_PATH$/modio_custom/
     gameId: 0
     gameAPIKey: 
+    cacheDir: $PERSISTENT_DATA_PATH$/modio_custom/
   debugAllAPIRequests: 1
   messageStrings:
     userLoggedOut: Successfully logged out
