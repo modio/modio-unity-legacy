@@ -689,10 +689,19 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    // TODO(@jackson): Localize
+                    int secondsUntilRetry;
+                    string displayMessage;
+
+                    ProcessRequestError(requestError, out secondsUntilRetry, out displayMessage);
+
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                               "Error fetching mod updates.\n"
-                                               + requestError.message);
+                                               displayMessage);
+
+                    if(secondsUntilRetry > 0)
+                    {
+                        yield return new WaitForSeconds(secondsUntilRetry + 1);
+                        continue;
+                    }
                 }
                 else
                 {
@@ -707,8 +716,6 @@ namespace ModIO.UI
                 // --- USER EVENTS ---
                 if(userProfile != null)
                 {
-                    PushSubscriptionChanges();
-
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
                     ModManager.FetchAllUserEvents(lastUserUpdate,
@@ -728,10 +735,19 @@ namespace ModIO.UI
 
                     if(requestError != null)
                     {
-                        // TODO(@jackson): Localize
+                        int secondsUntilRetry;
+                        string displayMessage;
+
+                        ProcessRequestError(requestError, out secondsUntilRetry, out displayMessage);
+
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Error synchronizing user data.\n"
-                                                   + requestError.message);
+                                                   displayMessage);
+
+                        if(secondsUntilRetry > 0)
+                        {
+                            yield return new WaitForSeconds(secondsUntilRetry + 1);
+                            continue;
+                        }
                     }
                     else
                     {
@@ -755,7 +771,7 @@ namespace ModIO.UI
                 case 0:
                 {
                     reattemptDelaySeconds = 60;
-                    displayMessage = ("Unable to connec to the mod.io servers.\n"
+                    displayMessage = ("Unable to connect to the mod.io servers.\n"
                                       + "Retrying in " + reattemptDelaySeconds.ToString() + " seconds");
                 }
                 break;
@@ -784,7 +800,7 @@ namespace ModIO.UI
                                      + "\nPlease report this to mod.io staff with the following information:\n"
                                      + requestError.ToUnityDebugString());
 
-                    reattemptDelaySeconds = 60;
+                    reattemptDelaySeconds = 15;
                     displayMessage = ("Error synchronizing with the mod.io servers.\n"
                                       + requestError.message
                                       + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
@@ -1022,7 +1038,6 @@ namespace ModIO.UI
 
             // - save user data -
             ModManager.SetUserData(requestProfile.id, oAuthToken);
-
             CacheClient.SaveUserProfile(requestProfile);
             this.userProfile = requestProfile;
             if(this.loggedUserView != null)
