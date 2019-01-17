@@ -19,26 +19,23 @@ namespace ModIO
         /// <summary>Initialzes the CacheClient settings.</summary>
         static CacheClient()
         {
-            CacheClient.m_settingsLocation = IOUtilities.CombinePath(new string[] { Application.persistentDataPath,
-                "modio",
-                "cache_settings.data" });
-
             CacheClient.settings = IOUtilities.ReadJsonObjectFile<Settings>(m_settingsLocation);
         }
 
         // ---------[ MEMBERS ]---------
+        /// <summary>Location of the settings file.</summary>
+        private static readonly string m_settingsLocation = IOUtilities.CombinePath(Application.persistentDataPath,
+                                                                                    "modio",
+                                                                                    "cache_settings.data");
+
         /// <summary>Structure for holding the settings.</summary>
         [Serializable]
         public struct Settings
         {
             public string directory;
         }
-
         /// <summary>Settings used by the CacheClient.</summary>
         private static Settings m_settings;
-
-        /// <summary>Location of the settings file.</summary>
-        private static readonly string m_settingsLocation;
 
         // --- ACCESSORS ---
         /// <summary>Settings used by the CacheClient.</summary>
@@ -62,10 +59,11 @@ namespace ModIO
                                        + Utility.GenerateExceptionDebugString(e));
                     }
 
+                    CacheClient.m_settings = value;
+
                     // TODO(@jackson): Hack until Path.Combine is implemented
                     Debug.LogWarning("HACK HERE");
-
-                    CacheClient.m_settings = value;
+                    CacheClient.m_settings.directory += "/";
 
                     try
                     {
