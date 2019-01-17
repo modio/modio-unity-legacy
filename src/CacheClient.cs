@@ -345,26 +345,26 @@ namespace ModIO
             return IOUtilities.DeleteDirectory(CacheClient.GenerateModBinariesDirectoryPath(modId));
         }
 
-        // ---------[ MOD MEDIA ]---------
+        // ------[ MEDIA ]------
         /// <summary>Generates the directory path for a mod logo collection.</summary>
         public static string GenerateModLogoCollectionDirectoryPath(int modId)
         {
-            return(CacheClient.GenerateModDirectoryPath(modId)
-                   + "/logo/");
+            return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId),
+                                           "logo");
         }
 
         /// <summary>Generates the file path for a mod logo.</summary>
         public static string GenerateModLogoFilePath(int modId, LogoSize size)
         {
-            return (GenerateModLogoCollectionDirectoryPath(modId)
-                    + size.ToString() + ".png");
+            return IOUtilities.CombinePath(GenerateModLogoCollectionDirectoryPath(modId),
+                                           size.ToString() + ".png");
         }
 
         /// <summary>Generates the file path for a mod logo's cached version information.</summary>
         public static string GenerateModLogoVersionInfoFilePath(int modId)
         {
-            return(CacheClient.GenerateModLogoCollectionDirectoryPath(modId)
-                   + "versionInfo.data");
+            return IOUtilities.CombinePath(CacheClient.GenerateModLogoCollectionDirectoryPath(modId),
+                                           "versionInfo.data");
         }
 
         /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
@@ -377,8 +377,8 @@ namespace ModIO
         /// <summary>Generates the directory path for the cached mod media.</summary>
         public static string GenerateModMediaDirectoryPath(int modId)
         {
-            return(GenerateModDirectoryPath(modId)
-                   + "/mod_media/");
+            return IOUtilities.CombinePath(GenerateModDirectoryPath(modId),
+                                           "mod_media");
         }
 
         /// <summary>Generates the file path for a mod galley image.</summary>
@@ -386,19 +386,18 @@ namespace ModIO
                                                              string imageFileName,
                                                              ModGalleryImageSize size)
         {
-            return(GenerateModMediaDirectoryPath(modId)
-                   + "images_" + size.ToString() + "/"
-                   + Path.GetFileNameWithoutExtension(imageFileName)
-                   + ".png");
+            return IOUtilities.CombinePath(GenerateModMediaDirectoryPath(modId),
+                                           "images_" + size.ToString(),
+                                           Path.GetFileNameWithoutExtension(imageFileName) + ".png");
         }
 
         /// <summary>Generates the file path for a YouTube thumbnail.</summary>
         public static string GenerateModYouTubeThumbnailFilePath(int modId,
                                                                  string youTubeId)
         {
-            return(GenerateModMediaDirectoryPath(modId)
-                   + "youTube/"
-                   + youTubeId + ".png");
+            return IOUtilities.CombinePath(GenerateModMediaDirectoryPath(modId),
+                                           "youTube",
+                                           youTubeId + ".png");
         }
 
         /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
@@ -408,14 +407,12 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod logo in the cache.</summary>
+        // TOOD(@jackson): Replace
         public static bool SaveModLogo(int modId, string fileName,
                                        LogoSize size, Texture2D logoTexture)
         {
-            Debug.Assert(modId > 0,
-                         "[mod.io] Cannot cache a mod logo without a mod id");
-            Debug.Assert(!String.IsNullOrEmpty(fileName),
-                         "[mod.io] Cannot cache a mod logo without file name as it"
-                         + " is used for versioning purposes");
+            Debug.Assert(!String.IsNullOrEmpty(fileName));
+            Debug.Assert(logoTexture != null);
 
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
             IOUtilities.WritePNGFile(logoFilePath, logoTexture);
@@ -446,8 +443,8 @@ namespace ModIO
                                                ModGalleryImageSize size,
                                                Texture2D imageTexture)
         {
-            Debug.Assert(modId > 0,
-                         "[mod.io] Cannot cache a mod image without a mod id");
+            Debug.Assert(!String.IsNullOrEmpty(imageFileName));
+            Debug.Assert(imageTexture != null);
 
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
@@ -460,6 +457,8 @@ namespace ModIO
                                                     string imageFileName,
                                                     ModGalleryImageSize size)
         {
+            Debug.Assert(!String.IsNullOrEmpty(imageFileName));
+
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
@@ -473,8 +472,8 @@ namespace ModIO
                                                    string youTubeId,
                                                    Texture2D thumbnail)
         {
-            Debug.Assert(modId > 0,
-                         "[mod.io] Cannot cache a mod image without a mod id");
+            Debug.Assert(!String.IsNullOrEmpty(youTubeId));
+            Debug.Assert(thumbnail != null);
 
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
@@ -485,6 +484,8 @@ namespace ModIO
         public static Texture2D LoadModYouTubeThumbnail(int modId,
                                                         string youTubeId)
         {
+            Debug.Assert(!String.IsNullOrEmpty(youTubeId));
+
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
 
