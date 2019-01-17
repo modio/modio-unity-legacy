@@ -890,8 +890,10 @@ namespace ModIO.UI
                     m_queuedUnsubscribes.Remove(modId);
                     WriteManifest();
                 }
-
-                WebRequestError.LogAsWarning(e);
+                else
+                {
+                    WebRequestError.LogAsWarning(e);
+                }
             };
 
             Debug.Assert(userProfile != null);
@@ -959,27 +961,7 @@ namespace ModIO.UI
             {
                 ModManager.SetSubscribedModIds(subscribedModIds);
 
-                foreach(int modId in removedSubscriptions)
-                {
-                    // remove from disk
-                    CacheClient.DeleteAllModfileAndBinaryData(modId);
-                }
-
-                if(addedSubscriptions.Count > 0)
-                {
-                    Action<List<ModProfile>> assertBinariesAreDownloaded = (addedProfiles) =>
-                    {
-                        foreach(ModProfile profile in addedProfiles)
-                        {
-                            AssertModBinaryIsDownloaded(profile.id, profile.activeBuild.id);
-                        }
-                    };
-
-                    // TODO(@jackson): Handle Error
-                    ModManager.GetModProfiles(addedSubscriptions,
-                                              assertBinariesAreDownloaded,
-                                              WebRequestError.LogAsWarning);
-                }
+                OnSubscriptionsChanged(addedSubscriptions, removedSubscriptions);
 
                 int subscriptionUpdateCount = (addedSubscriptions.Count + removedSubscriptions.Count);
                 string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$", subscriptionUpdateCount.ToString());
@@ -1616,21 +1598,6 @@ namespace ModIO.UI
             }
         }
 
-        public void OnSubscribedToMod(int modId)
-        {
-            EnableMod(modId);
-            UpdateViewSubscriptions();
-
-            // TODO(@jackson): Record missing binary
-            ModManager.GetModProfile(modId,
-                                     (p) =>
-                                     {
-                                        AssertModBinaryIsDownloaded(p.id, p.activeBuild.id);
-                                     },
-                                     WebRequestError.LogAsWarning);
-
-        }
-
         private void AssertModBinaryIsDownloaded(int modId, int modfileId)
         {
             if(!ModManager.IsBinaryDownloaded(modId, modfileId))
@@ -1680,6 +1647,20 @@ namespace ModIO.UI
             }
         }
 
+
+        public void OnSubscribedToMod(int modId)
+        {
+            EnableMod(modId);
+            UpdateViewSubscriptions();
+
+            ModManager.GetModProfile(modId,
+                                     (p) =>
+                                     {
+                                        AssertModBinaryIsDownloaded(p.id, p.activeBuild.id);
+                                     },
+                                     WebRequestError.LogAsWarning);
+        }
+
         public void OnUnsubscribedFromMod(int modId)
         {
             // remove from disk
@@ -1689,6 +1670,49 @@ namespace ModIO.UI
 
             DisableMod(modId);
 
+            UpdateViewSubscriptions();
+        }
+
+        public void OnSubscriptionsChanged(IList<int> addedSubscriptions,
+                                           IList<int> removedSubscriptions)
+        {
+            var enabledMods = ModManager.GetEnabledModIds();
+
+            if(addedSubscriptions != null
+               && addedSubscriptions.Count > 0)
+            {
+                foreach(int modId in addedSubscriptions)
+                {
+                    if(!enabledMods.Contains(modId))
+                    {
+                        enabledMods.Add(modId);
+                    }
+
+                    ModManager.GetModProfile(modId,
+                                             (p) =>
+                                             {
+                                                AssertModBinaryIsDownloaded(p.id, p.activeBuild.id);
+                                             },
+                                             WebRequestError.LogAsWarning);
+                }
+            }
+
+            if(removedSubscriptions != null
+               && removedSubscriptions.Count > 0)
+            {
+                foreach(int modId in removedSubscriptions)
+                {
+                    // remove from disk
+                    CacheClient.DeleteAllModfileAndBinaryData(modId);
+
+                    ModManager.TryUninstallMod(modId);
+
+                    // disable
+                    enabledMods.Remove(modId);
+                }
+            }
+
+            ModManager.SetEnabledModIds(enabledMods);
             UpdateViewSubscriptions();
         }
 
