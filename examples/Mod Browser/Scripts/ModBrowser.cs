@@ -206,6 +206,7 @@ namespace ModIO.UI
         private Coroutine m_updatesCoroutine = null;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
+        private bool m_onlineMode = true;
 
         // ---------[ ACCESSORS ]---------
         public void RequestExplorerPage(int pageIndex,
@@ -663,7 +664,10 @@ namespace ModIO.UI
             // Ensure Start() has been called
             yield return null;
 
-            while(true)
+            bool cancelUpdates = false;
+            bool userAuthenticationFailed = false;
+
+            while(m_onlineMode && !cancelUpdates)
             {
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
@@ -692,7 +696,8 @@ namespace ModIO.UI
                     int secondsUntilRetry;
                     string displayMessage;
 
-                    ProcessRequestError(requestError, out secondsUntilRetry, out displayMessage);
+                    ProcessRequestError(requestError, out cancelUpdates,
+                                        out secondsUntilRetry, out displayMessage);
 
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                displayMessage);
@@ -714,7 +719,8 @@ namespace ModIO.UI
                 requestError = null;
 
                 // --- USER EVENTS ---
-                if(userProfile != null)
+                if(userProfile != null
+                   && !userAuthenticationFailed)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -738,7 +744,8 @@ namespace ModIO.UI
                         int secondsUntilRetry;
                         string displayMessage;
 
-                        ProcessRequestError(requestError, out secondsUntilRetry, out displayMessage);
+                        ProcessRequestError(requestError, out userAuthenticationFailed,
+                                            out secondsUntilRetry, out displayMessage);
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    displayMessage);
@@ -754,6 +761,8 @@ namespace ModIO.UI
                         ProcessUserUpdates(userEventReponse);
                         this.lastUserUpdate = updateStartTimeStamp;
                         WriteManifest();
+
+                        PushSubscriptionChanges();
                     }
                 }
 
@@ -762,9 +771,12 @@ namespace ModIO.UI
         }
 
         private void ProcessRequestError(WebRequestError requestError,
+                                         out bool cancelFurtherAttempts,
                                          out int reattemptDelaySeconds,
                                          out string displayMessage)
         {
+            cancelFurtherAttempts = false;
+
             switch(requestError.responseCode)
             {
                 // Cannot connect resolve destination host
@@ -776,6 +788,7 @@ namespace ModIO.UI
                 }
                 break;
 
+                // Over limit
                 case 429:
                 {
                     string sur_string;
@@ -791,6 +804,26 @@ namespace ModIO.UI
 
                     displayMessage = ("Too many requests have been made to the mod.io servers."
                                       + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                }
+                break;
+
+                // Internal server error
+                case 500:
+                {
+                    reattemptDelaySeconds = 30;
+                    displayMessage = ("There was an error with the mod.io servers. Staff have been"
+                                      + " notified, and will attempt to fix the issue as soon as possible.");
+                    cancelFurtherAttempts = true;
+                }
+                break;
+
+                // Service Unavailable
+                case 503:
+                {
+                    reattemptDelaySeconds = 120;
+                    displayMessage = ("The mod.io servers are currently offline. Please try again later.");
+                    cancelFurtherAttempts = true;
+                    m_onlineMode = false;
                 }
                 break;
 
