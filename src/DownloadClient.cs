@@ -193,8 +193,8 @@ namespace ModIO
             return null;
         }
 
-        public static void StartModBinaryDownload(int modId, int modfileId,
-                                                  string targetFilePath)
+        public static FileDownloadInfo StartModBinaryDownload(int modId, int modfileId,
+                                                              string targetFilePath)
         {
             ModfileIdPair idPair = new ModfileIdPair()
             {
@@ -205,25 +205,27 @@ namespace ModIO
             if(modfileDownloadMap.Keys.Contains(idPair))
             {
                 Debug.LogWarning("[mod.io] Mod Binary with matching ids already downloading. TargetFilePath was not updated.");
-                return;
             }
-
-            modfileDownloadMap[idPair] = new FileDownloadInfo()
+            else
             {
-                target = targetFilePath,
-                fileSize = -1,
-                request = null,
-                isDone = false,
-            };
+                modfileDownloadMap[idPair] = new FileDownloadInfo()
+                {
+                    target = targetFilePath,
+                    fileSize = -1,
+                    request = null,
+                    isDone = false,
+                };
 
-            // - Acquire Download URL -
-            APIClient.GetModfile(modId, modfileId,
-                                 (mf) =>
-                                 {
-                                    modfileDownloadMap[idPair].fileSize = mf.fileSize;
-                                    DownloadModBinary_Internal(idPair, mf.downloadLocator.binaryURL);
-                                 },
-                                 (e) => { if(modfileDownloadFailed != null) { modfileDownloadFailed(idPair, e); } });
+                // - Acquire Download URL -
+                APIClient.GetModfile(modId, modfileId,
+                                     (mf) =>
+                                     {
+                                        modfileDownloadMap[idPair].fileSize = mf.fileSize;
+                                        DownloadModBinary_Internal(idPair, mf.downloadLocator.binaryURL);
+                                     },
+                                     (e) => { if(modfileDownloadFailed != null) { modfileDownloadFailed(idPair, e); } });
+            }
+            return modfileDownloadMap[idPair];
         }
 
         public static void StartModBinaryDownload(Modfile modfile, string targetFilePath)
