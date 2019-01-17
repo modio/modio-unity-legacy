@@ -931,21 +931,25 @@ namespace ModIO
             return null;
         }
 
+        public static string GetModInstallDirectory(int modId, int modfileId)
+        {
+            return IOUtilities.CombinePath(ModManager.modInstallDirectory,
+                                           modId.ToString() + "_" + modfileId.ToString());
+        }
+
         public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
-            string unzipLocation = IOUtilities.CombinePath(modInstallDirectory, modId.ToString());
-
             if(!File.Exists(zipFilePath))
             {
                 return false;
             }
-
             if(!ModManager.TryUninstallMod(modId))
             {
                 return false;
             }
 
+            string unzipLocation = GetModInstallDirectory(modId, modfileId);
             try
             {
                 Directory.CreateDirectory(unzipLocation);
