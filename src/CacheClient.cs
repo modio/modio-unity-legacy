@@ -91,6 +91,7 @@ namespace ModIO
         /// <summary>Stores the game's profile in the cache.</summary>
         public static bool SaveGameProfile(GameProfile profile)
         {
+            Debug.Assert(profile != null);
             return IOUtilities.WriteJsonObjectFile(gameProfileFilePath, profile);
         }
 
@@ -109,17 +110,7 @@ namespace ModIO
                                            modId.ToString());
         }
 
-        /// <summary>[Obsolete] Generates the path for a cached mod build directory.</summary>
-        [Obsolete("Use CacheClient.GenerateModBinariesDirectoryPath() instead.")]
-        public static string GenerateModBuildsDirectoryPath(int modId)
-        { return CacheClient.GenerateModBinariesDirectoryPath(modId) + "/"; }
-
-        /// <summary>Generates the path for a cached mod build directory.</summary>
-        public static string GenerateModBinariesDirectoryPath(int modId)
-        {
-            return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId), "binaries");
-        }
-
+        // ------[ PROFILES ]------
         /// <summary>Generates the file path for a mod's profile data.</summary>
         public static string GenerateModProfileFilePath(int modId)
         {
@@ -130,6 +121,7 @@ namespace ModIO
         /// <summary>Stores a mod's profile in the cache.</summary>
         public static bool SaveModProfile(ModProfile profile)
         {
+            Debug.Assert(profile != null);
             return IOUtilities.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id), profile);
         }
 
@@ -144,6 +136,8 @@ namespace ModIO
         /// <summary>Stores a collection of mod profiles in the cache.</summary>
         public static bool SaveModProfiles(IEnumerable<ModProfile> modProfiles)
         {
+            Debug.Assert(modProfiles != null);
+
             bool isSuccessful = true;
             foreach(ModProfile profile in modProfiles)
             {
@@ -254,11 +248,18 @@ namespace ModIO
             return IOUtilities.DeleteDirectory(modDir);
         }
 
-        // ---------[ MOD STATISTICS ]---------
+        // ------[ STATISTICS ]------
         public static string GenerateModStatisticsFilePath(int modId)
         {
             return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId),
                                            "stats.data");
+        }
+
+        public static bool SaveModStatistics(ModStatistics stats)
+        {
+            Debug.Assert(stats != null);
+            string statsFilePath = GenerateModStatisticsFilePath(stats.modId);
+            return IOUtilities.WriteJsonObjectFile(statsFilePath, stats);
         }
 
         public static ModStatistics LoadModStatistics(int modId)
@@ -268,16 +269,18 @@ namespace ModIO
             return(stats);
         }
 
-        public static bool SaveModStatistics(ModStatistics stats)
-        {
-            Debug.Assert(stats.modId > 0,
-                         "[mod.io] Cannot cache a mod without a mod id");
+        // ------[ MODFILES ]------
+        /// <summary>[Obsolete] Generates the path for a cached mod build directory.</summary>
+        [Obsolete("Use CacheClient.GenerateModBinariesDirectoryPath() instead.")]
+        public static string GenerateModBuildsDirectoryPath(int modId)
+        { return CacheClient.GenerateModBinariesDirectoryPath(modId) + "/"; }
 
-            string statsFilePath = GenerateModStatisticsFilePath(stats.modId);
-            return IOUtilities.WriteJsonObjectFile(statsFilePath, stats);
+        /// <summary>Generates the path for a cached mod build directory.</summary>
+        public static string GenerateModBinariesDirectoryPath(int modId)
+        {
+            return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId), "binaries");
         }
 
-        // ---------[ MODFILES ]---------
         /// <summary>Generates the file path for a modfile.</summary>
         public static string GenerateModfileFilePath(int modId, int modfileId)
         {
@@ -295,11 +298,7 @@ namespace ModIO
         /// <summary>Stores a modfile in the cache.</summary>
         public static bool SaveModfile(Modfile modfile)
         {
-            Debug.Assert(modfile.modId > 0,
-                         "[mod.io] Cannot cache a modfile without a mod id");
-            Debug.Assert(modfile.id > 0,
-                         "[mod.io] Cannot cache a modfile without a modfile id");
-
+            Debug.Assert(modfile != null);
             return IOUtilities.WriteJsonObjectFile(GenerateModfileFilePath(modfile.modId, modfile.id),
                                                    modfile);
         }
@@ -316,10 +315,8 @@ namespace ModIO
         public static bool SaveModBinaryZip(int modId, int modfileId,
                                             byte[] modBinary)
         {
-            Debug.Assert(modId > 0,
-                         "[mod.io] Cannot cache a mod binary without a mod id");
-            Debug.Assert(modfileId > 0,
-                         "[mod.io] Cannot cache a mod binary without a modfile id");
+            Debug.Assert(modBinary != null);
+            Debug.Assert(modBinary.Length > 0);
 
             string filePath = GenerateModBinaryZipFilePath(modId, modfileId);
             return IOUtilities.WriteBinaryFile(filePath, modBinary);
@@ -337,7 +334,8 @@ namespace ModIO
         public static bool DeleteModfileAndBinaryZip(int modId, int modfileId)
         {
             bool isSuccessful = IOUtilities.DeleteFile(CacheClient.GenerateModfileFilePath(modId, modfileId));
-            isSuccessful = IOUtilities.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId)) && isSuccessful;
+            isSuccessful = (IOUtilities.DeleteFile(CacheClient.GenerateModBinaryZipFilePath(modId, modfileId))
+                            && isSuccessful);
             return isSuccessful;
         }
 
