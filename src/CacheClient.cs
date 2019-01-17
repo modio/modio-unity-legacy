@@ -100,7 +100,7 @@ namespace ModIO
             return IOUtilities.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
         }
 
-        // ---------[ GET DIRECTORIES ]---------
+        // ---------[ MODS ]---------
         /// <summary>Generates the path for a mod cache directory.</summary>
         public static string GenerateModDirectoryPath(int modId)
         {
@@ -120,8 +120,6 @@ namespace ModIO
             return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId), "binaries");
         }
 
-
-        // ---------[ MOD PROFILES ]---------
         /// <summary>Generates the file path for a mod's profile data.</summary>
         public static string GenerateModProfileFilePath(int modId)
         {
@@ -132,11 +130,7 @@ namespace ModIO
         /// <summary>Stores a mod's profile in the cache.</summary>
         public static bool SaveModProfile(ModProfile profile)
         {
-            Debug.Assert(profile.id > 0,
-                         "[mod.io] Cannot cache a mod without a mod id");
-
-            return IOUtilities.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id),
-                                                   profile);
+            return IOUtilities.WriteJsonObjectFile(GenerateModProfileFilePath(profile.id), profile);
         }
 
         /// <summary>Retrieves a mod's profile from the cache.</summary>
@@ -172,7 +166,7 @@ namespace ModIO
         /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
         public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
         {
-            string profileDirectory = CacheClient.settings.directory + "mods/";
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.settings.directory, "mods");
 
             if(Directory.Exists(profileDirectory))
             {
@@ -202,7 +196,8 @@ namespace ModIO
 
                     foreach(string modDirectory in offsetModDirectories)
                     {
-                        ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(modDirectory + "/profile.data");
+                        string profilePath = IOUtilities.CombinePath(modDirectory + "profile.data");
+                        ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profilePath);
 
                         if(profile != null)
                         {
@@ -216,7 +211,7 @@ namespace ModIO
         /// <summary>Determines how many ModProfiles are currently stored in the cache.</summary>
         public static int CountModProfiles()
         {
-            string profileDirectory = CacheClient.settings.directory + "mods/";
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.settings.directory, "mods");
 
             if(Directory.Exists(profileDirectory))
             {
