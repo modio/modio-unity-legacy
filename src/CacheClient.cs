@@ -512,7 +512,7 @@ namespace ModIO
             return(thumbnailTexture);
         }
 
-        // ---------[ MOD TEAM ]---------
+        // ---------[ MOD TEAMS ]---------
         /// <summary>Generates the file path for a mod team's data.</summary>
         public static string GenerateModTeamFilePath(int modId)
         {
@@ -524,8 +524,7 @@ namespace ModIO
         public static bool SaveModTeam(int modId,
                                        List<ModTeamMember> modTeam)
         {
-            Debug.Assert(modId > 0,
-                         "[mod.io] Cannot cache a mod team without a mod id");
+            Debug.Assert(modTeam != null);
 
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
             return IOUtilities.WriteJsonObjectFile(filePath, modTeam);
@@ -549,29 +548,31 @@ namespace ModIO
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserProfileFilePath(int userId)
         {
-            return(CacheClient.settings.directory
-                   + "users/" + userId + "/profile.data");
+            return IOUtilities.CombinePath(CacheClient.settings.directory,
+                                           "users",
+                                           userId.ToString(),
+                                           "profile.data");
         }
 
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserAvatarDirectoryPath(int userId)
         {
-            return(CacheClient.settings.directory
-                   + "users/" + userId + "_avatar/");
+            return IOUtilities.CombinePath(CacheClient.settings.directory,
+                                           "users",
+                                           userId + "_avatar");
         }
 
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserAvatarFilePath(int userId, UserAvatarSize size)
         {
-            return(CacheClient.GenerateUserAvatarDirectoryPath(userId)
-                   + size.ToString() + ".png");
+            return IOUtilities.CombinePath(CacheClient.GenerateUserAvatarDirectoryPath(userId),
+                                           size.ToString() + ".png");
         }
 
         /// <summary>Stores a user's profile in the cache.</summary>
         public static bool SaveUserProfile(UserProfile userProfile)
         {
-            Debug.Assert(userProfile.id > 0,
-                         "[mod.io] Cannot cache a user profile without a user id");
+            Debug.Assert(userProfile != null);
 
             string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
             return IOUtilities.WriteJsonObjectFile(filePath, userProfile);
@@ -594,7 +595,8 @@ namespace ModIO
         /// <summary>Iterates through all the user profiles in the cache.</summary>
         public static IEnumerable<UserProfile> IterateAllUserProfiles()
         {
-            string profileDirectory = CacheClient.settings.directory + "users/";
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.settings.directory,
+                                                              "users");
 
             if(Directory.Exists(profileDirectory))
             {
@@ -629,8 +631,7 @@ namespace ModIO
         public static bool SaveUserAvatar(int userId, UserAvatarSize size,
                                           Texture2D avatarTexture)
         {
-            Debug.Assert(userId > 0,
-                         "[mod.io] Cannot cache a user avatar without a user id");
+            Debug.Assert(avatarTexture != null);
 
             string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
             return IOUtilities.WritePNGFile(avatarFilePath, avatarTexture);
