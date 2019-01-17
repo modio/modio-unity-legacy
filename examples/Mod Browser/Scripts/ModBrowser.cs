@@ -209,51 +209,6 @@ namespace ModIO.UI
         private bool m_onlineMode = true;
         private bool m_validOAuthToken = false;
 
-        // ---------[ ACCESSORS ]---------
-        public void RequestExplorerPage(int pageIndex,
-                                        Action<RequestPage<ModProfile>> onSuccess,
-                                        Action<WebRequestError> onError)
-        {
-            // PaginationParameters
-            APIPaginationParameters pagination = new APIPaginationParameters();
-            int pageSize = explorerView.itemsPerPage;
-            pagination.limit = pageSize;
-            pagination.offset = pageIndex * pageSize;
-
-            // Send Request
-            APIClient.GetAllMods(explorerViewFilter, pagination,
-                                 onSuccess, onError);
-        }
-
-        public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
-                                                 Action<WebRequestError> onError)
-        {
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-
-            if(subscribedModIds.Count > 0)
-            {
-                Action<List<ModProfile>> onGetModProfiles = (list) =>
-                {
-                    List<ModProfile> filteredList = new List<ModProfile>(list.Count);
-                    foreach(ModProfile profile in list)
-                    {
-                        if(subscriptionViewFilter.titleFilterDelegate(profile))
-                        {
-                            filteredList.Add(profile);
-                        }
-                    }
-
-                    onSuccess(filteredList);
-                };
-
-                ModManager.GetModProfiles(subscribedModIds, onGetModProfiles, onError);
-            }
-            else
-            {
-                onSuccess(new List<ModProfile>(0));
-            }
-        }
-
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
@@ -660,6 +615,149 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ REQUESTS ]---------
+        private void ProcessRequestError(WebRequestError requestError,
+                                         out bool cancelFurtherAttempts,
+                                         out int reattemptDelaySeconds,
+                                         out string displayMessage)
+        {
+            cancelFurtherAttempts = false;
+
+            switch(requestError.responseCode)
+            {
+                // Bad authorization
+                case 401:
+                {
+                    reattemptDelaySeconds = -1;
+                    displayMessage = ("Your mod.io user authorization details have changed."
+                                      + "\nLogging out and in again should correct this issue.");
+                    cancelFurtherAttempts = true;
+
+                    m_validOAuthToken = false;
+                }
+                break;
+
+                // Not found
+                case 404:
+                // Gone
+                case 410:
+                {
+                    reattemptDelaySeconds = -1;
+                    displayMessage = requestError.message;
+
+                    cancelFurtherAttempts = true;
+                }
+                break;
+
+                // Over limit
+                case 429:
+                {
+                    string sur_string;
+                    if(!(requestError.responseHeaders.TryGetValue("X-Ratelimit-RetryAfter", out sur_string)
+                         && Int32.TryParse(sur_string, out reattemptDelaySeconds)))
+                    {
+                        reattemptDelaySeconds = 60;
+
+                        Debug.LogWarning("[mod.io] Too many APIRequests have been made, however"
+                                         + " no valid X-Ratelimit-RetryAfter header was detected."
+                                         + "\nPlease report this to mod.io staff.");
+                    }
+
+                    displayMessage = ("Too many requests have been made to the mod.io servers."
+                                      + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                }
+                break;
+
+                // Internal server error
+                case 500:
+                {
+                    reattemptDelaySeconds = -1;
+                    displayMessage = ("There was an error with the mod.io servers. Staff have been"
+                                      + " notified, and will attempt to fix the issue as soon as possible.");
+                    cancelFurtherAttempts = true;
+                }
+                break;
+
+                // Service Unavailable
+                case 503:
+                {
+                    reattemptDelaySeconds = -1;
+                    displayMessage = ("The mod.io servers are currently offline. Please try again later.");
+                    cancelFurtherAttempts = true;
+
+                    m_onlineMode = false;
+                }
+                break;
+
+                default:
+                {
+                    // Cannot connect resolve destination host
+                    if(requestError.responseCode <= 0)
+                    {
+                        reattemptDelaySeconds = 60;
+                        displayMessage = ("Unable to connect to the mod.io servers.\n"
+                                          + "Retrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[mod.io] An unhandled error was returned when retrieving mod updates."
+                                         + "\nPlease report this to mod.io staff with the following information:\n"
+                                         + requestError.ToUnityDebugString());
+
+                        reattemptDelaySeconds = 15;
+                        displayMessage = ("Error synchronizing with the mod.io servers.\n"
+                                          + requestError.message
+                                          + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
+                    }
+                }
+                break;
+            }
+        }
+
+        public void RequestExplorerPage(int pageIndex,
+                                        Action<RequestPage<ModProfile>> onSuccess,
+                                        Action<WebRequestError> onError)
+        {
+            // PaginationParameters
+            APIPaginationParameters pagination = new APIPaginationParameters();
+            int pageSize = explorerView.itemsPerPage;
+            pagination.limit = pageSize;
+            pagination.offset = pageIndex * pageSize;
+
+            // Send Request
+            APIClient.GetAllMods(explorerViewFilter, pagination,
+                                 onSuccess, onError);
+        }
+
+        public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
+                                                 Action<WebRequestError> onError)
+        {
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
+            if(subscribedModIds.Count > 0)
+            {
+                Action<List<ModProfile>> onGetModProfiles = (list) =>
+                {
+                    List<ModProfile> filteredList = new List<ModProfile>(list.Count);
+                    foreach(ModProfile profile in list)
+                    {
+                        if(subscriptionViewFilter.titleFilterDelegate(profile))
+                        {
+                            filteredList.Add(profile);
+                        }
+                    }
+
+                    onSuccess(filteredList);
+                };
+
+                ModManager.GetModProfiles(subscribedModIds, onGetModProfiles, onError);
+            }
+            else
+            {
+                onSuccess(new List<ModProfile>(0));
+            }
+        }
+
         // ---------[ UPDATES ]---------
         private System.Collections.IEnumerator PollForUpdatesCoroutine()
         {
@@ -776,103 +874,6 @@ namespace ModIO.UI
                 }
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
-            }
-        }
-
-        private void ProcessRequestError(WebRequestError requestError,
-                                         out bool cancelFurtherAttempts,
-                                         out int reattemptDelaySeconds,
-                                         out string displayMessage)
-        {
-            cancelFurtherAttempts = false;
-
-            switch(requestError.responseCode)
-            {
-                // Cannot connect resolve destination host
-                case 0:
-                {
-                    reattemptDelaySeconds = 60;
-                    displayMessage = ("Unable to connect to the mod.io servers.\n"
-                                      + "Retrying in " + reattemptDelaySeconds.ToString() + " seconds");
-                }
-                break;
-
-                // Bad authorization
-                case 401:
-                {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = ("Your mod.io user authorization details have changed."
-                                      + "\nLogging out and in again should correct this issue.");
-                    cancelFurtherAttempts = true;
-
-                    m_validOAuthToken = false;
-                }
-                break;
-
-                // Not found
-                case 404:
-                // Gone
-                case 410:
-                {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = requestError.message;
-
-                    cancelFurtherAttempts = true;
-                }
-                break;
-
-                // Over limit
-                case 429:
-                {
-                    string sur_string;
-                    if(!(requestError.responseHeaders.TryGetValue("X-Ratelimit-RetryAfter", out sur_string)
-                         && Int32.TryParse(sur_string, out reattemptDelaySeconds)))
-                    {
-                        reattemptDelaySeconds = 60;
-
-                        Debug.LogWarning("[mod.io] Too many APIRequests have been made, however"
-                                         + " no valid X-Ratelimit-RetryAfter header was detected."
-                                         + "\nPlease report this to mod.io staff.");
-                    }
-
-                    displayMessage = ("Too many requests have been made to the mod.io servers."
-                                      + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
-                }
-                break;
-
-                // Internal server error
-                case 500:
-                {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = ("There was an error with the mod.io servers. Staff have been"
-                                      + " notified, and will attempt to fix the issue as soon as possible.");
-                    cancelFurtherAttempts = true;
-                }
-                break;
-
-                // Service Unavailable
-                case 503:
-                {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = ("The mod.io servers are currently offline. Please try again later.");
-                    cancelFurtherAttempts = true;
-
-                    m_onlineMode = false;
-                }
-                break;
-
-                default:
-                {
-                    Debug.LogWarning("[mod.io] An unhandled error was returned when retrieving mod updates."
-                                     + "\nPlease report this to mod.io staff with the following information:\n"
-                                     + requestError.ToUnityDebugString());
-
-                    reattemptDelaySeconds = 15;
-                    displayMessage = ("Error synchronizing with the mod.io servers.\n"
-                                      + requestError.message
-                                      + "\nRetrying in " + reattemptDelaySeconds.ToString() + " seconds");
-                }
-                break;
             }
         }
 
