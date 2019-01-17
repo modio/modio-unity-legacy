@@ -163,7 +163,9 @@ namespace ModIO.UI
         };
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
-        // TODO(@jackson): Remove. No longer in use
+
+        public string modInstallDirectory = "$PERSISTENT_DATA_PATH$/_installedMods";
+
         private UserDisplayData guestData = new UserDisplayData()
         {
             profile = new UserProfileDisplayData()
@@ -295,20 +297,6 @@ namespace ModIO.UI
             InitializeDialogs();
             InitializeDisplays();
 
-            // TODO(@jackson): TEMP
-            #if MEEPLESTATION_AUTO_INSTALL
-            DownloadClient.modfileDownloadSucceeded += (p, d) =>
-            {
-                string unzipLocation = IOUtilities.CombinePath(CacheClient.settings.directory,
-                                                               "_installedMods",
-                                                               p.modId.ToString());
-                IOUtilities.DeleteDirectory(unzipLocation);
-
-                ModManager.UnzipModBinaryToLocation(p.modId, p.modfileId,
-                                                    unzipLocation);
-            };
-            #endif
-
             StartFetchRemoteData();
         }
 
@@ -422,6 +410,26 @@ namespace ModIO.UI
                 this.m_queuedUnsubscribes = new List<int>();
                 WriteManifest();
             }
+
+            // --- Auto-Install Mods ---
+            // Install Directory Data
+            string[] installDirParts = settings.cacheDir.Split('\\', '/');
+            for(int i = 0; i < installDirParts.Length; ++i)
+            {
+                if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                {
+                    installDirParts[i] = Application.persistentDataPath;
+                }
+            }
+            ModManager.modInstallDirectory = IOUtilities.CombinePath(installDirParts);
+
+            DownloadClient.modfileDownloadSucceeded += (p, d) =>
+            {
+                if(this.isActiveAndEnabled)
+                {
+                    ModManager.TryInstallMod(p.modId, p.modfileId);
+                }
+            };
         }
 
         private void InitializeInspectorView()
@@ -1595,14 +1603,10 @@ namespace ModIO.UI
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-            #if MEEPLESTATION_AUTO_INSTALL
-            string installDirectory = IOUtilities.CombinePath(CacheClient.settings.directory,
-                                                              "_installedMods",
-                                                              modId.ToString());
-            IOUtilities.DeleteDirectory(installDirectory);
-            #endif
+            ModManager.TryUninstallMod(modId);
 
             DisableMod(modId);
+
             UpdateViewSubscriptions();
         }
 
@@ -1654,8 +1658,6 @@ namespace ModIO.UI
             {
                 mods.Remove(modId);
                 ModManager.SetEnabledModIds(mods);
-
-                // TODO(@jackson): Fire event
             }
 
             // TODO(@jackson): ugh?
