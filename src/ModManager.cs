@@ -659,16 +659,12 @@ namespace ModIO
         {
             Debug.Assert(onSuccess != null);
 
-            var logoTexture = CacheClient.LoadModLogo(modId, size);
+            var logoTexture = CacheClient.LoadModLogo(modId, logoLocator.fileName, size);
             if(logoTexture != null)
             {
                 onSuccess(logoTexture);
             }
-
-            var versionFilePaths = CacheClient.LoadModLogoFilePaths(modId);
-
-            if(logoTexture == null
-               || versionFilePaths[size] != logoLocator.GetFileName())
+            else
             {
                 var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
 

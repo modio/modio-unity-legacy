@@ -406,8 +406,7 @@ namespace ModIO
             return IOUtilities.ReadJsonObjectFile<Dictionary<LogoSize, string>>(CacheClient.GenerateModLogoVersionInfoFilePath(modId));
         }
 
-        /// <summary>Stores a mod logo in the cache.</summary>
-        // TOOD(@jackson): Replace
+        /// <summary>Stores a mod logo in the cache with the given fileName.</summary>
         public static bool SaveModLogo(int modId, string fileName,
                                        LogoSize size, Texture2D logoTexture)
         {
@@ -415,18 +414,19 @@ namespace ModIO
             Debug.Assert(logoTexture != null);
 
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            IOUtilities.WritePNGFile(logoFilePath, logoTexture);
+            bool isSuccessful = IOUtilities.WritePNGFile(logoFilePath, logoTexture);
 
-            // - Version Info -
+            // - Update the versioning info -
             var versionInfo = CacheClient.LoadModLogoFilePaths(modId);
             if(versionInfo == null)
             {
                 versionInfo = new Dictionary<LogoSize, string>();
             }
-
             versionInfo[size] = fileName;
-            return IOUtilities.WriteJsonObjectFile(GenerateModLogoVersionInfoFilePath(modId),
-                                                   versionInfo);
+            isSuccessful = (IOUtilities.WriteJsonObjectFile(GenerateModLogoVersionInfoFilePath(modId), versionInfo)
+                            && isSuccessful);
+
+            return isSuccessful;
         }
 
         /// <summary>Retrieves a mod logo from the cache.</summary>
@@ -435,6 +435,24 @@ namespace ModIO
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
             Texture2D logoTexture = IOUtilities.ReadImageFile(logoFilePath);
             return(logoTexture);
+        }
+
+        /// <summary>Retrieves a mod logo from the cache if it matches the given fileName.</summary>
+        public static Texture2D LoadModLogo(int modId, string fileName, LogoSize size)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(fileName));
+
+            // - Ensure the logo is the correct version -
+            var versionInfo = CacheClient.LoadModLogoFilePaths(modId);
+            if(versionInfo == null
+               || !versionInfo[size].ToUpper().Equals(fileName.ToUpper()))
+            {
+                return null;
+            }
+            else
+            {
+                return CacheClient.LoadModLogo(modId, size);
+            }
         }
 
         /// <summary>Stores a mod gallery image in the cache.</summary>
