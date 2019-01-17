@@ -941,7 +941,7 @@ namespace ModIO
                 return false;
             }
 
-            if(!IOUtilities.DeleteDirectory(unzipLocation))
+            if(!ModManager.TryUninstallMod(modId))
             {
                 return false;
             }
@@ -974,8 +974,15 @@ namespace ModIO
 
         public static bool TryUninstallMod(int modId)
         {
-            string unzipLocation = IOUtilities.CombinePath(modInstallDirectory, modId.ToString());
-            return IOUtilities.DeleteDirectory(unzipLocation);
+            List<string> installedDirectories = new List<string>(IterateInstalledModDirectories(new int[] { modId }));
+
+            bool succeeded = true;
+            foreach(string installDir in installedDirectories)
+            {
+                succeeded = IOUtilities.DeleteDirectory(installDir) && succeeded;
+            }
+
+            return succeeded;
         }
 
         public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
