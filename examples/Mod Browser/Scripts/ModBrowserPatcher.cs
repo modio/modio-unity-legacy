@@ -16,7 +16,7 @@ namespace ModIO
 
             // Clear downloads
             string installDirectory = (CacheClient.settings.directory + "_installedMods/");
-            CacheClient.DeleteDirectory(installDirectory);
+            IOUtilities.DeleteDirectory(installDirectory);
 
             // ensure all subscribed mods are otherwise up-to-date
             Action<ModProfile> assertBinaryIsDownloaded = (p) =>
@@ -30,7 +30,7 @@ namespace ModIO
                                             + "_installedMods/"
                                             + modId.ToString() + "/");
 
-                    CacheClient.DeleteDirectory(unzipLocation);
+                    IOUtilities.DeleteDirectory(unzipLocation);
 
                     ModManager.UnzipModBinaryToLocation(modId, modfileId,
                                                         unzipLocation);

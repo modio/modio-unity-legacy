@@ -15,6 +15,17 @@ namespace ModIO
     /// <summary>An interface for storing/loading data retrieved for the mod.io servers on disk.</summary>
     public static class CacheClient
     {
+        // ---------[ INITIALIZATION ]---------
+        /// <summary>Initialzes the CacheClient settings.</summary>
+        static CacheClient()
+        {
+            CacheClient.m_settingsLocation = IOUtilities.CombinePath(new string[] { Application.persistentDataPath,
+                "modio",
+                "cache_settings.data" });
+
+            CacheClient.settings = ReadJsonObjectFile<Settings>(m_settingsLocation);
+        }
+
         // ---------[ MEMBERS ]---------
         /// <summary>Structure for holding the settings.</summary>
         [Serializable]
@@ -28,7 +39,6 @@ namespace ModIO
 
         /// <summary>Location of the settings file.</summary>
         private static readonly string m_settingsLocation;
-
 
         // --- ACCESSORS ---
         /// <summary>Settings used by the CacheClient.</summary>
@@ -73,17 +83,6 @@ namespace ModIO
                     }
                 }
             }
-        }
-
-        // ---------[ INITIALIZATION ]---------
-        /// <summary>Initialzes the CacheClient settings.</summary>
-        static CacheClient()
-        {
-            CacheClient.m_settingsLocation = IOUtilities.CombinePath(new string[] { Application.persistentDataPath,
-                "modio",
-                "cache_settings.data" });
-
-            CacheClient.settings = ReadJsonObjectFile<Settings>(m_settingsLocation);
         }
 
         // ---------[ GET DIRECTORIES ]---------
@@ -462,10 +461,10 @@ namespace ModIO
                                       + modId.ToString() + "/");
             if(Directory.Exists(installLocation))
             {
-                CacheClient.DeleteDirectory(installLocation);
+                IOUtilities.DeleteDirectory(installLocation);
             }
 
-            return CacheClient.DeleteDirectory(modDir);
+            return IOUtilities.DeleteDirectory(modDir);
         }
 
         // ---------[ MOD STATISTICS ]---------
@@ -558,7 +557,7 @@ namespace ModIO
         /// <summary>Deletes all modfiles and binaries from the cache.</summary>
         public static bool DeleteAllModfileAndBinaryData(int modId)
         {
-            return CacheClient.DeleteDirectory(CacheClient.GenerateModBinariesDirectoryPath(modId));
+            return IOUtilities.DeleteDirectory(CacheClient.GenerateModBinariesDirectoryPath(modId));
         }
 
         // ---------[ MOD MEDIA ]---------
@@ -844,7 +843,7 @@ namespace ModIO
         /// <summary>Delete's a user's avatars from the cache.</summary>
         public static bool DeleteUserAvatar(int userId)
         {
-            return CacheClient.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
+            return IOUtilities.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
         }
     }
 }

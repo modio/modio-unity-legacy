@@ -302,7 +302,7 @@ namespace ModIO.UI
                                         + "_installedMods/"
                                         + p.modId.ToString() + "/");
 
-                CacheClient.DeleteDirectory(unzipLocation);
+                IOUtilities.DeleteDirectory(unzipLocation);
 
                 ModManager.UnzipModBinaryToLocation(p.modId, p.modfileId,
                                                     unzipLocation);
@@ -1600,7 +1600,7 @@ namespace ModIO.UI
                                        + "_installedMods/"
                                        + modId.ToString() + "/");
 
-            CacheClient.DeleteDirectory(installDirectory);
+            IOUtilities.DeleteDirectory(installDirectory);
             #endif
 
             DisableMod(modId);
