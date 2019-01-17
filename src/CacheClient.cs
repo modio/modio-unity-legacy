@@ -123,169 +123,62 @@ namespace ModIO
 
         // ---------[ BASIC FILE I/O ]---------
         /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
+        [Obsolete("Use IOUtilities.ReadJsonObjectFile() instead.")]
         public static T ReadJsonObjectFile<T>(string filePath)
         {
-            if(File.Exists(filePath))
-            {
-                try
-                {
-                    return JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath));
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read json object from file."
-                                          + "\nFile: " + filePath + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-                }
-            }
-            return default(T);
+            return IOUtilities.ReadJsonObjectFile<T>(filePath);
         }
 
         /// <summary>Writes an object to a file in the JSON Object format.</summary>
+        [Obsolete("Use IOUtilities.WriteJsonObjectFile() instead.")]
         public static bool WriteJsonObjectFile<T>(string filePath,
                                                   T jsonObject)
         {
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonObject));
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to write json object to file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
+            return IOUtilities.WriteJsonObjectFile(filePath, jsonObject);
         }
 
         /// <summary>Loads an entire binary file as a byte array.</summary>
+        [Obsolete("Use IOUtilities.LoadBinaryFile() instead.")]
         public static byte[] LoadBinaryFile(string filePath)
         {
-            byte[] fileData = null;
-
-            if(File.Exists(filePath))
-            {
-                try
-                {
-                    fileData = File.ReadAllBytes(filePath);
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read binary file."
-                                          + "\nFile: " + filePath + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    fileData = null;
-                }
-            }
-
-            return fileData;
+            return IOUtilities.LoadBinaryFile(filePath);
         }
 
         /// <summary>Writes an entire binary file.</summary>
+        [Obsolete("Use IOUtilities.WriteBinaryFile() instead.")]
         public static bool WriteBinaryFile(string filePath,
                                            byte[] data)
         {
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllBytes(filePath, data);
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to write binary file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
+            return IOUtilities.WriteBinaryFile(filePath, data);
         }
 
         /// <summary>Loads the image data from a file into a new Texture.</summary>
+        [Obsolete("Use IOUtilities.ReadImageFile() instead.")]
         public static Texture2D ReadImageFile(string filePath)
         {
-            Texture2D texture = null;
-
-            if(File.Exists(filePath))
-            {
-                byte[] imageData = CacheClient.LoadBinaryFile(filePath);
-
-                if(imageData != null)
-                {
-                    texture = new Texture2D(0,0);
-                    texture.LoadImage(imageData);
-                }
-            }
-
-            return texture;
+            return IOUtilities.ReadImageFile(filePath);
         }
 
         /// <summary>Writes a texture to a PNG file.</summary>
+        [Obsolete("Use IOUtilities.WritePNGFile() instead.")]
         public static bool WritePNGFile(string filePath,
                                         Texture2D texture)
         {
-            Debug.Assert(Path.GetExtension(filePath).Equals(".png"),
-                         "[mod.io] Images can only be saved in PNG format."
-                         + "\n" + filePath
-                         + " is an invalid file path.");
-
-            return CacheClient.WriteBinaryFile(filePath, texture.EncodeToPNG());
+            return IOUtilities.WritePNGFile(filePath, texture);
         }
 
         /// <summary>Deletes a file.</summary>
+        [Obsolete("Use IOUtilities.DeleteFile() instead.")]
         public static bool DeleteFile(string filePath)
         {
-            try
-            {
-                if(File.Exists(filePath)) { File.Delete(filePath); }
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to delete file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
+            return IOUtilities.DeleteFile(filePath);
         }
 
         /// <summary>Deletes a directory.</summary>
+        [Obsolete("Use IOUtilities.DeleteDirectory() instead.")]
         public static bool DeleteDirectory(string directoryPath)
         {
-            try
-            {
-                if(Directory.Exists(directoryPath))
-                {
-                    Directory.Delete(directoryPath, true);
-                }
-
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to delete directory."
-                                      + "\nDirectory: " + directoryPath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
+            return IOUtilities.DeleteDirectory(directoryPath);
         }
 
 
