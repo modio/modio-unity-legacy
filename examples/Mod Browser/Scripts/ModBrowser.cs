@@ -1596,6 +1596,7 @@ namespace ModIO.UI
             if(this.userProfile != null)
             {
                 m_queuedSubscribes.Add(modId);
+                m_queuedUnsubscribes.Remove(modId);
                 WriteManifest();
             }
         }
@@ -1766,10 +1767,10 @@ namespace ModIO.UI
             if(this.userProfile != null)
             {
                 m_queuedUnsubscribes.Add(modId);
+                m_queuedSubscribes.Remove(modId);
                 WriteManifest();
             }
         }
-
 
         public void OnSubscribedToMod(int modId)
         {
