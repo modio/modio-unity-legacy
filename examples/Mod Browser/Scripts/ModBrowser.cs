@@ -1,4 +1,4 @@
-﻿// #define MEEPLESTATION_AUTO_INSTALL
+﻿#define MEEPLESTATION_AUTO_INSTALL
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -104,7 +104,7 @@ namespace ModIO.UI
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
         public static readonly ModBrowserVersion VERSION = new ModBrowserVersion(0, 9);
 
-        public static string manifestFilePath { get { return CacheClient.GetCacheDirectory() + "browser_manifest.data"; } }
+        public static string manifestFilePath { get { return CacheClient.settings.directory + "browser_manifest.data"; } }
 
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
         {
@@ -298,7 +298,7 @@ namespace ModIO.UI
             #if MEEPLESTATION_AUTO_INSTALL
             DownloadClient.modfileDownloadSucceeded += (p, d) =>
             {
-                string unzipLocation = (CacheClient.GetCacheDirectory()
+                string unzipLocation = (CacheClient.settings.directory
                                         + "_installedMods/"
                                         + p.modId.ToString() + "/");
 
@@ -1596,7 +1596,7 @@ namespace ModIO.UI
             CacheClient.DeleteAllModfileAndBinaryData(modId);
 
             #if MEEPLESTATION_AUTO_INSTALL
-            string installDirectory = (CacheClient.GetCacheDirectory()
+            string installDirectory = (CacheClient.settings.directory
                                        + "_installedMods/"
                                        + modId.ToString() + "/");
 

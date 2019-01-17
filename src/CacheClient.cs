@@ -463,7 +463,7 @@ namespace ModIO
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
 
             // TODO(@jackson): Cleanup
-            string installLocation = (CacheClient.GetCacheDirectory()
+            string installLocation = (CacheClient.settings.directory
                                       + "_installedMods/"
                                       + modId.ToString() + "/");
             if(Directory.Exists(installLocation))
@@ -752,14 +752,14 @@ namespace ModIO
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserProfileFilePath(int userId)
         {
-            return(CacheClient.GetCacheDirectory()
+            return(CacheClient.settings.directory
                    + "users/" + userId + "/profile.data");
         }
 
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserAvatarDirectoryPath(int userId)
         {
-            return(CacheClient.GetCacheDirectory()
+            return(CacheClient.settings.directory
                    + "users/" + userId + "_avatar/");
         }
 
@@ -797,7 +797,7 @@ namespace ModIO
         /// <summary>Iterates through all the user profiles in the cache.</summary>
         public static IEnumerable<UserProfile> IterateAllUserProfiles()
         {
-            string profileDirectory = CacheClient.GetCacheDirectory() + "users/";
+            string profileDirectory = CacheClient.settings.directory + "users/";
 
             if(Directory.Exists(profileDirectory))
             {

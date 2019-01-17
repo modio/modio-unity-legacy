@@ -14,13 +14,13 @@ namespace ModIO
         [MenuItem("mod.io/Locate Cache...", false, 0)]
         public static void LocateCache()
         {
-            EditorUtility.RevealInFinder(CacheClient.GetCacheDirectory());
+            EditorUtility.RevealInFinder(CacheClient.settings.directory);
         }
 
         [MenuItem("mod.io/Clear Cache/ALL", false, 0)]
         public static void ClearCache()
         {
-            if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory()))
+            if(CacheClient.DeleteDirectory(CacheClient.settings.directory))
             {
                 Debug.Log("[mod.io] Cache Cleared.");
             }
@@ -48,7 +48,7 @@ namespace ModIO
         [MenuItem("mod.io/Clear Cache/Mod Data", false, 1)]
         public static void ClearCachedModData()
         {
-            if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory() + "mods/"))
+            if(CacheClient.DeleteDirectory(CacheClient.settings.directory + "mods/"))
             {
                 Debug.Log("[mod.io] Cached Mod Data Deleted.");
             }
@@ -56,7 +56,7 @@ namespace ModIO
         [MenuItem("mod.io/Clear Cache/User Profiles", false, 1)]
         public static void ClearCachedUserProfiles()
         {
-            if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory() + "users/"))
+            if(CacheClient.DeleteDirectory(CacheClient.settings.directory + "users/"))
             {
                 Debug.Log("[mod.io] Cached User Profiles Deleted.");
             }

@@ -1006,7 +1006,7 @@ namespace ModIO
 
         public static IEnumerable<ModInstallInfo> IterateInstalledMods(IList<int> modIdFilter)
         {
-            string installDirectory = (CacheClient.GetCacheDirectory()
+            string installDirectory = (CacheClient.settings.directory
                                        + "_installedMods/");
 
             string[] modDirectories;

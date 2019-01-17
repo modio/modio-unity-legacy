@@ -15,7 +15,7 @@ namespace ModIO
             Debug.Log("[mod.io] Applying Jan16_2019 Patch");
 
             // Clear downloads
-            string installDirectory = (CacheClient.GetCacheDirectory() + "_installedMods/");
+            string installDirectory = (CacheClient.settings.directory + "_installedMods/");
             CacheClient.DeleteDirectory(installDirectory);
 
             // ensure all subscribed mods are otherwise up-to-date
@@ -26,7 +26,7 @@ namespace ModIO
 
                 Action unzip = () =>
                 {
-                    string unzipLocation = (CacheClient.GetCacheDirectory()
+                    string unzipLocation = (CacheClient.settings.directory
                                             + "_installedMods/"
                                             + modId.ToString() + "/");
 

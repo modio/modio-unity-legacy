@@ -11,13 +11,14 @@ public class DebuggingUI : MonoBehaviour
     {
         if(cacheDirectoryDisplay != null)
         {
-            cacheDirectoryDisplay.text = CacheClient.GetCacheDirectory();
+            cacheDirectoryDisplay.text = CacheClient.settings.directory;
         }
     }
 
     public void ClearCache()
     {
-        if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory()))
+        string cacheDir = CacheClient.settings.directory;
+        if(CacheClient.DeleteDirectory(cacheDir))
         {
             string message = "[mod.io] Cache Cleared.";
             Debug.Log(message);
@@ -28,7 +29,7 @@ public class DebuggingUI : MonoBehaviour
         }
 
         // NOTE(@jackson): Can throw an exception but I don't care?
-        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(CacheClient.settings.directory));
+        System.IO.Directory.CreateDirectory(cacheDir);
     }
 
     public void ClearCachedAuthenticatedUserData()
@@ -57,7 +58,7 @@ public class DebuggingUI : MonoBehaviour
     }
     public void ClearCachedModData()
     {
-        if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory() + "mods/"))
+        if(CacheClient.DeleteDirectory(CacheClient.settings.directory + "mods/"))
         {
             string message = "[mod.io] Cached Mod Data Deleted.";
             Debug.Log(message);
@@ -69,7 +70,7 @@ public class DebuggingUI : MonoBehaviour
     }
     public void ClearCachedUserProfiles()
     {
-        if(CacheClient.DeleteDirectory(CacheClient.GetCacheDirectory() + "users/"))
+        if(CacheClient.DeleteDirectory(CacheClient.settings.directory + "users/"))
         {
             string message = "[mod.io] Cached User Profiles Deleted.";
             Debug.Log(message);
