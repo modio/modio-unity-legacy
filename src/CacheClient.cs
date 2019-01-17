@@ -31,12 +31,6 @@ namespace ModIO
 
 
         // --- ACCESSORS ---
-        /// <summary>[Obsolete] Directory for the cache.</summary>
-        private static string _cacheDirectory
-        {
-            get { return m_settings.directory; }
-        }
-
         /// <summary>Settings used by the CacheClient.</summary>
         public static Settings settings
         {
@@ -97,13 +91,13 @@ namespace ModIO
         [Obsolete("Use CacheClient.settings.directory instead.")]
         public static string GetCacheDirectory()
         {
-            return CacheClient._cacheDirectory;
+            return CacheClient.settings.directory;
         }
 
         /// <summary>Generates the path for a mod cache directory.</summary>
         public static string GenerateModDirectoryPath(int modId)
         {
-            return(CacheClient._cacheDirectory
+            return(CacheClient.settings.directory
                    + "mods/"
                    + modId.ToString() + "/");
         }
@@ -192,7 +186,7 @@ namespace ModIO
 
         /// <summary>File path for the authenticated user data.</summary>
         public static string userFilePath
-        { get { return CacheClient._cacheDirectory + "user.data"; } }
+        { get { return CacheClient.settings.directory + "user.data"; } }
 
         /// <summary>Stores the authenticated user token in the cache.</summary>
         [Obsolete("Use ModManager.SetUserData() instead.")]
@@ -321,7 +315,7 @@ namespace ModIO
         // ---------[ GAME PROFILE ]---------
         /// <summary>File path for the game profile data.</summary>
         public static string gameProfileFilePath
-        { get { return CacheClient._cacheDirectory + "game_profile.data"; } }
+        { get { return CacheClient.settings.directory + "game_profile.data"; } }
 
         /// <summary>Stores the game's profile in the cache.</summary>
         public static bool SaveGameProfile(GameProfile profile)
@@ -387,7 +381,7 @@ namespace ModIO
         /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
         public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
         {
-            string profileDirectory = CacheClient._cacheDirectory + "mods/";
+            string profileDirectory = CacheClient.settings.directory + "mods/";
 
             if(Directory.Exists(profileDirectory))
             {
@@ -431,7 +425,7 @@ namespace ModIO
         /// <summary>Determines how many ModProfiles are currently stored in the cache.</summary>
         public static int CountModProfiles()
         {
-            string profileDirectory = CacheClient._cacheDirectory + "mods/";
+            string profileDirectory = CacheClient.settings.directory + "mods/";
 
             if(Directory.Exists(profileDirectory))
             {
