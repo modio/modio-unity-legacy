@@ -400,7 +400,7 @@ namespace ModIO.UI
             }
 
             // --- Manifest ---
-            ManifestData manifest = CacheClient.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
+            ManifestData manifest = IOUtilities.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
             if(manifest != null)
             {
                 this.lastCacheUpdate = manifest.lastCacheUpdate;

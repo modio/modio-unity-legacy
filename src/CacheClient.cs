@@ -272,7 +272,7 @@ namespace ModIO
         /// <summary>Stores the authenticated user's mods in the cache.</summary>
         public static bool SaveAuthenticatedUserMods(List<int> modIds)
         {
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+            AuthenticatedUser au = IOUtilities.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
 
             if(au == null)
             {
@@ -287,7 +287,7 @@ namespace ModIO
         /// <summary>Retrieves the authenticated user's mods from the cache.</summary>
         public static List<int> LoadAuthenticatedUserMods()
         {
-            AuthenticatedUser au = CacheClient.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
+            AuthenticatedUser au = IOUtilities.ReadJsonObjectFile<AuthenticatedUser>(userFilePath);
 
             if(au != null)
             {
@@ -325,7 +325,7 @@ namespace ModIO
         /// <summary>Retrieves the game's profile from the cache.</summary>
         public static GameProfile LoadGameProfile()
         {
-            return CacheClient.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
+            return IOUtilities.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
         }
 
 
@@ -351,7 +351,7 @@ namespace ModIO
         public static ModProfile LoadModProfile(int modId)
         {
             string profileFilePath = GenerateModProfileFilePath(modId);
-            ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(profileFilePath);
+            ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profileFilePath);
             return(profile);
         }
 
@@ -410,7 +410,7 @@ namespace ModIO
 
                     foreach(string modDirectory in offsetModDirectories)
                     {
-                        ModProfile profile = CacheClient.ReadJsonObjectFile<ModProfile>(modDirectory + "/profile.data");
+                        ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(modDirectory + "/profile.data");
 
                         if(profile != null)
                         {
@@ -477,7 +477,7 @@ namespace ModIO
         public static ModStatistics LoadModStatistics(int modId)
         {
             string statsFilePath = GenerateModStatisticsFilePath(modId);
-            ModStatistics stats = CacheClient.ReadJsonObjectFile<ModStatistics>(statsFilePath);
+            ModStatistics stats = IOUtilities.ReadJsonObjectFile<ModStatistics>(statsFilePath);
             return(stats);
         }
 
@@ -521,7 +521,7 @@ namespace ModIO
         public static Modfile LoadModfile(int modId, int modfileId)
         {
             string modfileFilePath = GenerateModfileFilePath(modId, modfileId);
-            var modfile = CacheClient.ReadJsonObjectFile<Modfile>(modfileFilePath);
+            var modfile = IOUtilities.ReadJsonObjectFile<Modfile>(modfileFilePath);
             return modfile;
         }
 
@@ -619,7 +619,7 @@ namespace ModIO
         /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
         public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
         {
-            return CacheClient.ReadJsonObjectFile<Dictionary<LogoSize, string>>(CacheClient.GenerateModLogoVersionInfoFilePath(modId));
+            return IOUtilities.ReadJsonObjectFile<Dictionary<LogoSize, string>>(CacheClient.GenerateModLogoVersionInfoFilePath(modId));
         }
 
         /// <summary>Stores a mod logo in the cache.</summary>
@@ -731,7 +731,7 @@ namespace ModIO
         public static List<ModTeamMember> LoadModTeam(int modId)
         {
             string filePath = CacheClient.GenerateModTeamFilePath(modId);
-            var modTeam = CacheClient.ReadJsonObjectFile<List<ModTeamMember>>(filePath);
+            var modTeam = IOUtilities.ReadJsonObjectFile<List<ModTeamMember>>(filePath);
             return modTeam;
         }
 
@@ -777,7 +777,7 @@ namespace ModIO
         public static UserProfile LoadUserProfile(int userId)
         {
             string filePath = CacheClient.GenerateUserProfileFilePath(userId);
-            var userProfile = CacheClient.ReadJsonObjectFile<UserProfile>(filePath);
+            var userProfile = IOUtilities.ReadJsonObjectFile<UserProfile>(filePath);
             return(userProfile);
         }
 
@@ -812,7 +812,7 @@ namespace ModIO
 
                 foreach(string profileFilePath in userFiles)
                 {
-                    var profile = CacheClient.ReadJsonObjectFile<UserProfile>(profileFilePath);
+                    var profile = IOUtilities.ReadJsonObjectFile<UserProfile>(profileFilePath);
                     if(profile != null)
                     {
                         yield return profile;
