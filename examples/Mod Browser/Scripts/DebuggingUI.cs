@@ -27,7 +27,8 @@ public class DebuggingUI : MonoBehaviour
             }
         }
 
-        CacheClient.TrySetCacheDirectory(CacheClient.GetCacheDirectory());
+        // NOTE(@jackson): Can throw an exception but I don't care?
+        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(CacheClient.settings.directory));
     }
 
     public void ClearCachedAuthenticatedUserData()

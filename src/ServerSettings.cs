@@ -4,8 +4,8 @@ namespace ModIO
     public struct ServerSettings
     {
         public string   apiURL;
-        public string   cacheDir;
         public int      gameId;
         public string   gameAPIKey;
+        public string   cacheDir;
     }
 }

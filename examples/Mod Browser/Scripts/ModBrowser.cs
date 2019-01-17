@@ -376,7 +376,9 @@ namespace ModIO.UI
             }
 
             string cacheDir = Utility.CombinePath(cacheDirParts);
-            CacheClient.TrySetCacheDirectory(cacheDir);
+            var cacheSettings = CacheClient.settings;
+            cacheSettings.directory = cacheDir;
+            CacheClient.settings = cacheSettings;
 
             // DownloadClient
             DownloadClient.logAllRequests = debugAllAPIRequests;

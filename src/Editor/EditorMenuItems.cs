@@ -25,7 +25,8 @@ namespace ModIO
                 Debug.Log("[mod.io] Cache Cleared.");
             }
 
-            CacheClient.TrySetCacheDirectory(CacheClient.GetCacheDirectory());
+            // NOTE(@jackson): Can throw an exception but I don't care?
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(CacheClient.settings.directory));
         }
 
         [MenuItem("mod.io/Clear Cache/User Data", false, 1)]

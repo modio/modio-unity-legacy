@@ -16,36 +16,85 @@ namespace ModIO
     public static class CacheClient
     {
         // ---------[ MEMBERS ]---------
-        /// <summary>Directory for the cache.</summary>
-        private static string _cacheDirectory = null;
+        /// <summary>Structure for holding the settings.</summary>
+        [Serializable]
+        public struct Settings
+        {
+            public string directory;
+        }
+
+        /// <summary>Settings used by the CacheClient.</summary>
+        private static Settings m_settings;
+
+        /// <summary>Location of the settings file.</summary>
+        private static readonly string m_settingsLocation;
+
+
+        // --- ACCESSORS ---
+        /// <summary>[Obsolete] Directory for the cache.</summary>
+        private static string _cacheDirectory
+        {
+            get { return m_settings.directory; }
+        }
+
+        /// <summary>Settings used by the CacheClient.</summary>
+        public static Settings settings
+        {
+            get { return CacheClient.m_settings; }
+            set
+            {
+                if(!CacheClient.m_settings.Equals(value))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(value.directory);
+                    }
+                    catch(Exception e)
+                    {
+                        string warningInfo = ("[mod.io] Failed to create cache directory."
+                                              + "\nDirectory: " + value.directory + "\n\n");
+
+                        Debug.LogError(warningInfo
+                                       + Utility.GenerateExceptionDebugString(e));
+                    }
+
+                    // TODO(@jackson): Hack until Path.Combine is implemented
+                    Debug.LogWarning("HACK HERE");
+
+                    CacheClient.m_settings = value;
+
+                    try
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(CacheClient.m_settingsLocation));
+                        File.WriteAllText(CacheClient.m_settingsLocation,
+                                          JsonConvert.SerializeObject(CacheClient.m_settings));
+                    }
+                    catch(Exception e)
+                    {
+                        string warningInfo = ("[mod.io] Failed to create CacheClient settings file."
+                                              + "\nFile: " + CacheClient.m_settingsLocation + "\n\n");
+
+                        Debug.LogWarning(warningInfo
+                                         + Utility.GenerateExceptionDebugString(e));
+                    }
+                }
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
-        /// <summary>Attempts to set the cache directory.</summary>
-        public static bool TrySetCacheDirectory(string directory)
+        /// <summary>Initialzes the CacheClient settings.</summary>
+        static CacheClient()
         {
-            try
-            {
-                Directory.CreateDirectory(directory);
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to set cache directory."
-                                      + "\nDirectory: " + directory + "\n\n");
+            CacheClient.m_settingsLocation = Utility.CombinePath(new string[] { Application.persistentDataPath,
+                                                                                "modio",
+                                                                                "cache_settings.data" });
 
-                Debug.LogError(warningInfo
-                               + Utility.GenerateExceptionDebugString(e));
-
-                return false;
-            }
-
-            // TODO(@jackson): Hack until Path.Combine is implemented
-            Debug.LogWarning("HACK HERE");
-            CacheClient._cacheDirectory = directory + "/";
-            return true;
+            CacheClient.settings = ReadJsonObjectFile<Settings>(m_settingsLocation);
         }
 
         // ---------[ GET DIRECTORIES ]---------
-        /// <summary>Retrieves the directory the CacheClient uses.</summary>
+        /// <summary>[Obsolete] Retrieves the directory the CacheClient uses.</summary>
+        [Obsolete("Use CacheClient.settings.directory instead.")]
         public static string GetCacheDirectory()
         {
             return CacheClient._cacheDirectory;
