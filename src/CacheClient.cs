@@ -633,7 +633,7 @@ namespace ModIO
                          + " is used for versioning purposes");
 
             string logoFilePath = CacheClient.GenerateModLogoFilePath(modId, size);
-            CacheClient.WritePNGFile(logoFilePath, logoTexture);
+            IOUtilities.WritePNGFile(logoFilePath, logoTexture);
 
             // - Version Info -
             var versionInfo = CacheClient.LoadModLogoFilePaths(modId);
@@ -667,7 +667,7 @@ namespace ModIO
             string imageFilePath = CacheClient.GenerateModGalleryImageFilePath(modId,
                                                                                imageFileName,
                                                                                size);
-            return CacheClient.WritePNGFile(imageFilePath, imageTexture);
+            return IOUtilities.WritePNGFile(imageFilePath, imageTexture);
         }
 
         /// <summary>Retrieves a mod gallery image from the cache.</summary>
@@ -693,7 +693,7 @@ namespace ModIO
 
             string thumbnailFilePath = CacheClient.GenerateModYouTubeThumbnailFilePath(modId,
                                                                                        youTubeId);
-            return CacheClient.WritePNGFile(thumbnailFilePath, thumbnail);
+            return IOUtilities.WritePNGFile(thumbnailFilePath, thumbnail);
         }
 
         /// <summary>Retrieves a YouTube thumbnail from the cache.</summary>
@@ -829,7 +829,7 @@ namespace ModIO
                          "[mod.io] Cannot cache a user avatar without a user id");
 
             string avatarFilePath = CacheClient.GenerateUserAvatarFilePath(userId, size);
-            return CacheClient.WritePNGFile(avatarFilePath, avatarTexture);
+            return IOUtilities.WritePNGFile(avatarFilePath, avatarTexture);
         }
 
         /// <summary>Retrieves a user's avatar from the cache.</summary>
