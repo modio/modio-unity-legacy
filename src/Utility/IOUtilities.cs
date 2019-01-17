@@ -9,7 +9,6 @@ namespace ModIO
 {
     public static class IOUtilities
     {
-        // ---------[ BASIC FILE I/O ]---------
         /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
         public static T ReadJsonObjectFile<T>(string filePath)
         {
@@ -226,7 +225,7 @@ namespace ModIO
             return false;
         }
 
-        /// <summary>Creates a path using System.IO.Path.Combine()</summary>
+        /// <summary>Creates a path using System.IO.Path.Combine().</summary>
         public static string CombinePath(params string[] pathElements)
         {
             Debug.Assert(pathElements != null);
@@ -239,6 +238,55 @@ namespace ModIO
             }
 
             return retVal;
+        }
+
+        /// <summary>Gets the size (in bytes) of a given file.</summary>
+        public static Int64 GetFileSize(string filePath)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            Debug.Assert(File.Exists(filePath));
+
+            try
+            {
+                return (new FileInfo(filePath)).Length;
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to calculate file size."
+                                      + "\nFile: " + filePath + "\n\n");
+
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+            }
+            return -1;
+        }
+
+        /// <summary>Calculates the MD5 Hash for a given file.</summary>
+        public static string CalculateFileMD5Hash(string filePath)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            Debug.Assert(File.Exists(filePath));
+
+            try
+            {
+                using (var md5 = System.Security.Cryptography.MD5.Create())
+                {
+                    using (var stream = System.IO.File.OpenRead(filePath))
+                    {
+                        var hash = md5.ComputeHash(stream);
+                        string hashString = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                        return hashString;
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to calculate file hash."
+                                      + "\nFile: " + filePath + "\n\n");
+
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return null;
         }
     }
 }
