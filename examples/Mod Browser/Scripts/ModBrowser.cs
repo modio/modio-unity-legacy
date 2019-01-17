@@ -427,7 +427,7 @@ namespace ModIO.UI
             {
                 if(this.isActiveAndEnabled)
                 {
-                    ModManager.TryInstallMod(p.modId, p.modfileId);
+                    ModManager.TryInstallMod(p.modId, p.modfileId, true);
                 }
             };
         }

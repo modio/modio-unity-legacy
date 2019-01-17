@@ -931,7 +931,7 @@ namespace ModIO
             return null;
         }
 
-        public static bool TryInstallMod(int modId, int modfileId)
+        public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
         {
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
             string unzipLocation = IOUtilities.CombinePath(modInstallDirectory, modId.ToString());
@@ -953,6 +953,11 @@ namespace ModIO
                 using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
                 {
                     zip.ExtractAll(unzipLocation);
+                }
+
+                if(removeArchiveOnSuccess)
+                {
+                    IOUtilities.DeleteFile(zipFilePath);
                 }
 
                 return true;

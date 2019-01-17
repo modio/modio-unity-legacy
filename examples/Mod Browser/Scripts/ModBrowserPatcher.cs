@@ -26,7 +26,7 @@ namespace ModIO
 
                 if(ModManager.IsBinaryDownloaded(modId, modfileId))
                 {
-                    ModManager.TryInstallMod(modId, modfileId);
+                    ModManager.TryInstallMod(modId, modfileId, true);
                 }
                 else
                 {
@@ -55,7 +55,7 @@ namespace ModIO
                     }
                     else
                     {
-                        ModManager.TryInstallMod(modId, modfileId);
+                        ModManager.TryInstallMod(modId, modfileId, true);
                     }
                 }
             };
