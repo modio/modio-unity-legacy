@@ -978,24 +978,28 @@ namespace ModIO
             return IOUtilities.DeleteDirectory(unzipLocation);
         }
 
-        #if MEEPLESTATION_AUTO_INSTALL
-        public static ModInstallInfo[] GetInstalledMods(bool excludeDisabledMods)
+        public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
         {
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
                 modIdFilter = new List<int>(ModManager.GetEnabledModIds());
+                // Include drop-ins
+                modIdFilter.Add(0);
             }
 
-            return ModManager.IterateInstalledMods(modIdFilter).ToArray();
+            return new List<string>(ModManager.IterateInstalledModDirectories(modIdFilter));
         }
 
-        public static IEnumerable<ModInstallInfo> IterateInstalledMods(IList<int> modIdFilter)
+        public static IEnumerable<string> IterateInstalledModDirectories(IList<int> modIdFilter)
         {
-            string[] modDirectories;
+            string[] modDirectories = new string[0];
             try
             {
-                modDirectories = Directory.GetDirectories(modInstallDirectory);
+                if(Directory.Exists(modInstallDirectory))
+                {
+                    modDirectories = Directory.GetDirectories(modInstallDirectory);
+                }
             }
             catch(Exception e)
             {
@@ -1004,34 +1008,36 @@ namespace ModIO
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
-
-                modDirectories = new string[0];
             }
 
-            foreach(string modDirectory in modDirectories)
+            if(modIdFilter == null)
             {
-                string idString = modDirectory.Substring(modInstallDirectory.Length);
-
-                int modId;
-                if(!Int32.TryParse(idString, out modId))
+                foreach(string modDirectory in modDirectories)
                 {
-                    modId = -1;
+                    yield return modDirectory;
                 }
-
-                if(modIdFilter == null
-                   || modIdFilter.Contains(modId))
+            }
+            else
+            {
+                foreach(string modDirectory in modDirectories)
                 {
-                    ModInstallInfo info = new ModInstallInfo()
-                    {
-                        modId = modId,
-                        directory = modDirectory,
-                    };
+                    string folderName = modDirectory.Substring(modInstallDirectory.Length);
+                    string[] folderNameParts = folderName.Split('_');
 
-                    yield return info;
+                    int modId;
+                    if(!(folderNameParts.Length > 0
+                         && Int32.TryParse(folderNameParts[0], out modId)))
+                    {
+                        modId = 0;
+                    }
+
+                    if(modIdFilter.Contains(modId))
+                    {
+                        yield return modDirectory;
+                    }
                 }
             }
         }
-        #endif
 
         // ---------[ MOD TEAMS ]---------
         public static void GetModTeam(int modId,
