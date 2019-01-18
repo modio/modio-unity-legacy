@@ -71,18 +71,6 @@ namespace ModIO
             }
         }
 
-        [Obsolete]
-        public static string modInstallDirectory
-        {
-            get { return ModManager.settings.installDirectory; }
-            set
-            {
-                Settings s = settings;
-                s.installDirectory = value;
-                settings = s;
-            }
-        }
-
         // ---------[ AUTHENTICATED USER ]---------
         public static IEnumerable<int> EnumerateModIdString(string modIdArrayString)
         {
@@ -981,7 +969,8 @@ namespace ModIO
 
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(ModManager.modInstallDirectory,
+            Debug.Log("modInstallDirectory = " + ModManager.settings.installDirectory);
+            return IOUtilities.CombinePath(ModManager.settings.installDirectory,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -1052,18 +1041,19 @@ namespace ModIO
 
         public static IEnumerable<string> IterateInstalledModDirectories(IList<int> modIdFilter)
         {
+            string installDirectory = ModManager.settings.installDirectory;
             string[] modDirectories = new string[0];
             try
             {
-                if(Directory.Exists(modInstallDirectory))
+                if(Directory.Exists(installDirectory))
                 {
-                    modDirectories = Directory.GetDirectories(modInstallDirectory);
+                    modDirectories = Directory.GetDirectories(installDirectory);
                 }
             }
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to read mod installation directory."
-                                      + "\nDirectory: " + modInstallDirectory + "\n\n");
+                                      + "\nDirectory: " + installDirectory + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
@@ -1080,7 +1070,7 @@ namespace ModIO
             {
                 foreach(string modDirectory in modDirectories)
                 {
-                    string folderName = modDirectory.Substring(modInstallDirectory.Length);
+                    string folderName = modDirectory.Substring(installDirectory.Length);
                     string[] folderNameParts = folderName.Split('_');
 
                     int modId;

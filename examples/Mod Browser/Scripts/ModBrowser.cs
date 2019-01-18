@@ -374,7 +374,9 @@ namespace ModIO.UI
                     installDirParts[i] = Application.persistentDataPath;
                 }
             }
-            ModManager.modInstallDirectory = IOUtilities.CombinePath(installDirParts);
+            var modioSettings = ModManager.settings;
+            modioSettings.installDirectory = IOUtilities.CombinePath(installDirParts);
+            ModManager.settings = modioSettings;
         }
 
         private void InitializeInspectorView()
