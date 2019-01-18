@@ -1738,7 +1738,10 @@ namespace ModIO.UI
             // push sub
             if(this.userProfile != null)
             {
-                m_queuedSubscribes.Add(modId);
+                if(!m_queuedSubscribes.Contains(modId))
+                {
+                    m_queuedSubscribes.Add(modId);
+                }
                 m_queuedUnsubscribes.Remove(modId);
                 WriteManifest();
             }
@@ -1909,7 +1912,10 @@ namespace ModIO.UI
             // push unsub
             if(this.userProfile != null)
             {
-                m_queuedUnsubscribes.Add(modId);
+                if(!m_queuedUnsubscribes.Contains(modId))
+                {
+                    m_queuedUnsubscribes.Add(modId);
+                }
                 m_queuedSubscribes.Remove(modId);
                 WriteManifest();
             }
