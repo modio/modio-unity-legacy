@@ -203,7 +203,7 @@ namespace ModIO
             ModManager.SetUserData(UserProfile.NULL_ID, string.Empty);
         }
 
-        public static IList<int> GetSubscribedModIds()
+        public static List<int> GetSubscribedModIds()
         {
             string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_SUBCRIBEDMODIDS,
                                                        string.Empty);
@@ -215,7 +215,7 @@ namespace ModIO
             PlayerPrefs.SetString(PLAYERPREFKEY_SUBCRIBEDMODIDS, valueString);
         }
 
-        public static IList<int> GetEnabledModIds()
+        public static List<int> GetEnabledModIds()
         {
             string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_ENABLEDMODIDS, string.Empty);
             return new List<int>(EnumerateModIdString(valueString));

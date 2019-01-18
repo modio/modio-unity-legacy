@@ -583,7 +583,8 @@ namespace ModIO.UI
 
             if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
             {
-                this.StartCoroutine(FetchUserProfilesAndSubscriptions());
+                yield return this.StartCoroutine(FetchUserProfile());
+                yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
             }
 
             m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
@@ -645,13 +646,12 @@ namespace ModIO.UI
             }
         }
 
-        private System.Collections.IEnumerator FetchUserProfilesAndSubscriptions()
+        private System.Collections.IEnumerator FetchUserProfile()
         {
             Debug.Assert(!String.IsNullOrEmpty(APIClient.userAuthorizationToken));
 
             bool succeeded = false;
             bool cancelRequest = false;
-            // bool getSubs = false;
 
             // get user profile
             while(!cancelRequest
@@ -665,6 +665,8 @@ namespace ModIO.UI
                 APIClient.GetAuthenticatedUser(
                 (u) =>
                 {
+                    CacheClient.SaveUserProfile(u);
+
                     this.userProfile = u;
 
                     if(this.loggedUserView != null)
@@ -705,6 +707,123 @@ namespace ModIO.UI
                                                    displayMessage);
                     }
                 }
+            }
+
+            m_validOAuthToken = succeeded;
+        }
+
+        private System.Collections.IEnumerator FetchAllUserSubscriptionsAndUpdate()
+        {
+            Debug.Assert(!String.IsNullOrEmpty(APIClient.userAuthorizationToken));
+
+            int updateStartTimeStamp = ServerTimeStamp.Now;
+
+            // set up initial vars
+            bool cancelRequest = false;
+            bool allPagesReceived = false;
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            RequestFilter subscriptionFilter = new RequestFilter();
+            subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+                                                new EqualToFilter<int>() { filterValue = gameProfile.id });
+
+            List<int> localSubscriptions = new List<int>(ModManager.GetSubscribedModIds());
+
+            // loop until done or broken
+            while(m_validOAuthToken
+                  && m_onlineMode
+                  && !cancelRequest
+                  && !allPagesReceived)
+            {
+                bool isRequestDone = false;
+                WebRequestError error = null;
+                RequestPage<ModProfile> requestPage = null;
+
+                APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
+                                               (r) => { isRequestDone = true; requestPage = r; },
+                                               (e) => { isRequestDone = true; error = e; });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(error != null)
+                {
+                    // handle error
+                    int secondsUntilRetry;
+                    string displayMessage;
+
+                    ProcessRequestError(error, out cancelRequest,
+                                        out secondsUntilRetry, out displayMessage);
+
+                    if(cancelRequest)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage);
+                    }
+                    else if(secondsUntilRetry > 0)
+                    {
+                        yield return new WaitForSeconds(secondsUntilRetry + 1);
+                        continue;
+                    }
+                }
+                else
+                {
+                    // check which profiles are new
+                    List<int> newSubs = new List<int>();
+                    foreach(ModProfile profile in requestPage.items)
+                    {
+                        if(!localSubscriptions.Contains(profile.id)
+                           && !m_queuedUnsubscribes.Contains(profile.id)
+                           && !m_queuedSubscribes.Contains(profile.id))
+                        {
+                            newSubs.Add(profile.id);
+                        }
+
+                        localSubscriptions.Remove(profile.id);
+                    }
+
+                    // add new subs
+                    CacheClient.SaveModProfiles(requestPage.items);
+                    if(newSubs.Count > 0)
+                    {
+                        var subscribedModIds = ModManager.GetSubscribedModIds();
+                        subscribedModIds.AddRange(newSubs);
+                        ModManager.SetSubscribedModIds(subscribedModIds);
+                        OnSubscriptionsChanged(newSubs, null);
+                    }
+
+                    // check pages
+                    allPagesReceived = (requestPage.items.Length < requestPage.size);
+                    if(!allPagesReceived)
+                    {
+                        pagination.offset += pagination.limit;
+                    }
+                }
+            }
+
+            // handle removed ids
+            if(allPagesReceived && localSubscriptions.Count > 0)
+            {
+                var subscribedModIds = ModManager.GetSubscribedModIds();
+                foreach(int modId in localSubscriptions)
+                {
+                    if(m_queuedSubscribes.Contains(modId))
+                    {
+                        localSubscriptions.Remove(modId);
+                    }
+                    else
+                    {
+                        subscribedModIds.Remove(modId);
+                    }
+                }
+                ModManager.SetSubscribedModIds(subscribedModIds);
+                OnSubscriptionsChanged(null, localSubscriptions);
+
+                this.lastUserUpdate = updateStartTimeStamp;
             }
         }
 
@@ -1169,106 +1288,15 @@ namespace ModIO.UI
 
         private IEnumerator UserLoginCoroutine(string oAuthToken)
         {
-            bool isRequestDone = false;
-            WebRequestError requestError = null;
-
-            // - set APIClient var -
             APIClient.userAuthorizationToken = oAuthToken;
 
-            // - get the user profile -
-            UserProfile requestProfile = null;
-            APIClient.GetAuthenticatedUser((p) => { isRequestDone = true; requestProfile = p; },
-                                           (e) => { isRequestDone = true; requestError = e; });
+            yield return this.StartCoroutine(FetchUserProfile());
 
-            while(!isRequestDone) { yield return null; }
-
-            if(requestError != null)
+            if(this.userProfile != null)
             {
-                APIClient.userAuthorizationToken = string.Empty;
-                throw new System.NotImplementedException();
-                // return;
-            }
-            else
-            {
-                m_validOAuthToken = true;
-            }
-
-            // - save user data -
-            ModManager.SetUserData(requestProfile.id, oAuthToken);
-            CacheClient.SaveUserProfile(requestProfile);
-            this.userProfile = requestProfile;
-            if(this.loggedUserView != null)
-            {
-                loggedUserView.DisplayUser(this.userProfile);
-            }
-
-            // - get server subscriptions -
-            IList<int> subscriptionsToPush = ModManager.GetSubscribedModIds();
-            bool allPagesReceived = false;
-
-            RequestFilter subscriptionFilter = new RequestFilter();
-            subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                                new EqualToFilter<int>() { filterValue = gameProfile.id });
-
-            APIPaginationParameters pagination = new APIPaginationParameters()
-            {
-                limit = APIPaginationParameters.LIMIT_MAX,
-                offset = 0,
-            };
-
-            RequestPage<ModProfile> requestPage = null;
-            while(!allPagesReceived)
-            {
-                isRequestDone = false;
-                requestError = null;
-                requestPage = null;
-
-                APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
-                                               (r) => { isRequestDone = true; requestPage = r; },
-                                               (e) => { isRequestDone = true; requestError = e; });
-
-                while(!isRequestDone)
-                {
-                    yield return null;
-                }
-
-                if(requestError != null)
-                {
-                    throw new System.NotImplementedException();
-                    // return?
-                }
-
-                CacheClient.SaveModProfiles(requestPage.items);
-
-                List<int> remoteSubscriptions = new List<int>();
-                foreach(ModProfile profile in requestPage.items)
-                {
-                    if(!subscriptionsToPush.Contains(profile.id))
-                    {
-                        remoteSubscriptions.Add(profile.id);
-                    }
-
-                    subscriptionsToPush.Remove(profile.id);
-                }
-
-                List<int> subscribedModIds = new List<int>(ModManager.GetSubscribedModIds());
-                subscribedModIds.AddRange(remoteSubscriptions);
-                ModManager.SetSubscribedModIds(subscribedModIds);
-
-                OnSubscriptionsChanged(remoteSubscriptions, null);
-
-                allPagesReceived = (requestPage.items.Length < requestPage.size);
-
-                if(!allPagesReceived)
-                {
-                    pagination.offset += pagination.limit;
-                }
-            }
-
-            // - push missing subscriptions -
-            foreach(int modId in subscriptionsToPush)
-            {
-                m_queuedSubscribes.AddRange(subscriptionsToPush);
+                // - save user data -
+                ModManager.SetUserData(this.userProfile.id, oAuthToken);
+                yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
             }
         }
 
