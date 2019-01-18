@@ -37,7 +37,7 @@ namespace ModIO.UI
         {
             public ModBrowserVersion lastRunVersion;
             public int lastCacheUpdate;
-            public int lastUserUpdate;
+            public int lastSubscriptionSync;
             public List<int> queuedUnsubscribes;
             public List<int> queuedSubscribes;
         }
@@ -199,7 +199,7 @@ namespace ModIO.UI
         private InspectorViewData inspectorData = new InspectorViewData();
         private UserProfile userProfile = null;
         private int lastCacheUpdate = -1;
-        private int lastUserUpdate = -1;
+        private int lastSubscriptionSync = -1;
         private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private GameProfile gameProfile = null;
@@ -339,7 +339,7 @@ namespace ModIO.UI
             if(manifest != null)
             {
                 this.lastCacheUpdate = manifest.lastCacheUpdate;
-                this.lastUserUpdate = manifest.lastUserUpdate;
+                this.lastSubscriptionSync = manifest.lastSubscriptionSync;
                 this.m_queuedSubscribes = manifest.queuedSubscribes;
                 this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
 
@@ -352,7 +352,7 @@ namespace ModIO.UI
             else
             {
                 this.lastCacheUpdate = 0;
-                this.lastUserUpdate = 0;
+                this.lastSubscriptionSync = 0;
                 this.m_queuedSubscribes = new List<int>();
                 this.m_queuedUnsubscribes = new List<int>();
                 WriteManifest();
@@ -833,7 +833,7 @@ namespace ModIO.UI
                     updateCount += localSubscriptions.Count;
                 }
 
-                this.lastUserUpdate = updateStartTimeStamp;
+                this.lastSubscriptionSync = updateStartTimeStamp;
             }
 
             if(updateCount > 0)
@@ -1059,7 +1059,7 @@ namespace ModIO.UI
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
-                    ModManager.FetchAllUserEvents(lastUserUpdate,
+                    ModManager.FetchAllUserEvents(lastSubscriptionSync,
                                                   updateStartTimeStamp,
                                                   (ue) =>
                                                   {
@@ -1107,7 +1107,7 @@ namespace ModIO.UI
                     else
                     {
                         ProcessUserUpdates(userEventReponse);
-                        this.lastUserUpdate = updateStartTimeStamp;
+                        this.lastSubscriptionSync = updateStartTimeStamp;
                         WriteManifest();
 
                         PushSubscriptionChanges();
@@ -1283,7 +1283,7 @@ namespace ModIO.UI
             {
                 lastRunVersion = ModBrowser.VERSION,
                 lastCacheUpdate = this.lastCacheUpdate,
-                lastUserUpdate = this.lastUserUpdate,
+                lastSubscriptionSync = this.lastSubscriptionSync,
                 queuedUnsubscribes = this.m_queuedUnsubscribes,
                 queuedSubscribes = this.m_queuedSubscribes,
             };
