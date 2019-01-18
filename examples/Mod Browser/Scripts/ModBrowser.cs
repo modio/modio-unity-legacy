@@ -214,6 +214,9 @@ namespace ModIO.UI
         {
             _instance = this;
 
+            this.m_validOAuthToken = false;
+            this.m_onlineMode = true;
+
             this.StartCoroutine(StartFetchRemoteData());
         }
 
@@ -321,7 +324,6 @@ namespace ModIO.UI
             if(userData.userId > 0)
             {
                 this.userProfile = CacheClient.LoadUserProfile(userData.userId);
-                m_validOAuthToken = true;
             }
 
             // - GameData -
@@ -717,6 +719,7 @@ namespace ModIO.UI
             Debug.Assert(!String.IsNullOrEmpty(APIClient.userAuthorizationToken));
 
             int updateStartTimeStamp = ServerTimeStamp.Now;
+            int updateCount = 0;
 
             // set up initial vars
             bool cancelRequest = false;
@@ -796,6 +799,8 @@ namespace ModIO.UI
                         OnSubscriptionsChanged(newSubs, null);
                     }
 
+                    updateCount += newSubs.Count;
+
                     // check pages
                     allPagesReceived = (requestPage.items.Length < requestPage.size);
                     if(!allPagesReceived)
@@ -806,24 +811,36 @@ namespace ModIO.UI
             }
 
             // handle removed ids
-            if(allPagesReceived && localSubscriptions.Count > 0)
+            if(allPagesReceived)
             {
-                var subscribedModIds = ModManager.GetSubscribedModIds();
-                foreach(int modId in localSubscriptions)
+                if(localSubscriptions.Count > 0)
                 {
-                    if(m_queuedSubscribes.Contains(modId))
+                    var subscribedModIds = ModManager.GetSubscribedModIds();
+                    foreach(int modId in localSubscriptions)
                     {
-                        localSubscriptions.Remove(modId);
+                        if(m_queuedSubscribes.Contains(modId))
+                        {
+                            localSubscriptions.Remove(modId);
+                        }
+                        else
+                        {
+                            subscribedModIds.Remove(modId);
+                        }
                     }
-                    else
-                    {
-                        subscribedModIds.Remove(modId);
-                    }
+                    ModManager.SetSubscribedModIds(subscribedModIds);
+                    OnSubscriptionsChanged(null, localSubscriptions);
+
+                    updateCount += localSubscriptions.Count;
                 }
-                ModManager.SetSubscribedModIds(subscribedModIds);
-                OnSubscriptionsChanged(null, localSubscriptions);
 
                 this.lastUserUpdate = updateStartTimeStamp;
+            }
+
+            if(updateCount > 0)
+            {
+                string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$",
+                                                                               updateCount.ToString());
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
             }
         }
 
@@ -1038,8 +1055,7 @@ namespace ModIO.UI
                 requestError = null;
 
                 // --- USER EVENTS ---
-                if(userProfile != null
-                   && m_validOAuthToken)
+                if(m_validOAuthToken)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -1106,8 +1122,10 @@ namespace ModIO.UI
 
         private void PushSubscriptionChanges()
         {
-            // NOTE(@jackson): This is due to the response of an unsub request on an non-subbed
-            // mod being an error.
+            Debug.Assert(userProfile != null);
+
+            // NOTE(@jackson): This is workaround is due to the response of an unsub request
+            // on an non-subbed mod being an error.
             Debug.Assert(APIClient.API_VERSION == "v1");
             Action<WebRequestError, int> onUnsubFail = (e, modId) =>
             {
@@ -1122,8 +1140,6 @@ namespace ModIO.UI
                     WebRequestError.LogAsWarning(e);
                 }
             };
-
-            Debug.Assert(userProfile != null);
 
             // push subs/unsubs
             foreach(int modId in m_queuedSubscribes)
@@ -1193,8 +1209,6 @@ namespace ModIO.UI
                 int subscriptionUpdateCount = (addedSubscriptions.Count + removedSubscriptions.Count);
                 string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$", subscriptionUpdateCount.ToString());
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
-
-                UpdateViewSubscriptions();
             }
         }
 
@@ -1327,6 +1341,7 @@ namespace ModIO.UI
             {
                 this.loggedUserView.data = guestData;
             }
+            m_validOAuthToken = false;
 
             // - notify -
             MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
