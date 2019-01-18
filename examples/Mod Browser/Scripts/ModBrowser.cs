@@ -581,24 +581,9 @@ namespace ModIO.UI
 
             this.StartCoroutine(FetchGameProfile());
 
-            // --- UserData ---
             if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
             {
-                int requestTimeStamp = ServerTimeStamp.Now;
-
-                // callbacks
-                Action<UserProfile> onGetUserProfile = (u) =>
-                {
-                    this.userProfile = u;
-
-                    if(this.loggedUserView != null)
-                    {
-                        this.loggedUserView.DisplayUser(u);
-                    }
-                };
-
-                // requests
-                ModManager.GetAuthenticatedUserProfile(onGetUserProfile, null);
+                this.StartCoroutine(FetchUserProfilesAndSubscriptions());
             }
 
             m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
@@ -617,7 +602,7 @@ namespace ModIO.UI
                 WebRequestError error = null;
 
                 // --- GameProfile ---
-                ModManager.GetGameProfile(
+                APIClient.GetGame(
                 (g) =>
                 {
                     this.gameProfile = g;
@@ -659,6 +644,70 @@ namespace ModIO.UI
                 }
             }
         }
+
+        private System.Collections.IEnumerator FetchUserProfilesAndSubscriptions()
+        {
+            Debug.Assert(!String.IsNullOrEmpty(APIClient.userAuthorizationToken));
+
+            bool succeeded = false;
+            bool cancelRequest = false;
+            // bool getSubs = false;
+
+            // get user profile
+            while(!cancelRequest
+                  && !succeeded
+                  && m_onlineMode)
+            {
+                bool isRequestDone = false;
+                WebRequestError error = null;
+
+                // requests
+                APIClient.GetAuthenticatedUser(
+                (u) =>
+                {
+                    this.userProfile = u;
+
+                    if(this.loggedUserView != null)
+                    {
+                        this.loggedUserView.DisplayUser(u);
+                    }
+
+                    error = null;
+                    succeeded = true;
+                    isRequestDone = true;
+                },
+                (e) =>
+                {
+                    error = e;
+                    succeeded = false;
+                    isRequestDone = true;
+                });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(error != null)
+                {
+                    int secondsUntilRetry;
+                    string displayMessage;
+
+                    ProcessRequestError(error, out cancelRequest,
+                                        out secondsUntilRetry, out displayMessage);
+
+                    if(secondsUntilRetry > 0)
+                    {
+                        yield return new WaitForSeconds(secondsUntilRetry + 1);
+                        continue;
+                    }
+
+                    if(cancelRequest)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage);
+                    }
+                }
+            }
+        }
+
         // ---------[ REQUESTS ]---------
         private void ProcessRequestError(WebRequestError requestError,
                                          out bool cancelFurtherAttempts,
