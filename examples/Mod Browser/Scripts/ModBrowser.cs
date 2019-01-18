@@ -579,16 +579,7 @@ namespace ModIO.UI
             // Ensure Start() has been finished
             yield return null;
 
-            // --- GameProfile ---
-            ModManager.GetGameProfile(
-            (g) =>
-            {
-                gameProfile = g;
-                explorerView.tagCategories = g.tagCategories;
-                subscriptionsView.tagCategories = g.tagCategories;
-                inspectorView.tagCategories = g.tagCategories;
-            },
-            WebRequestError.LogAsWarning);
+            this.StartCoroutine(FetchGameProfile());
 
             // --- UserData ---
             if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
@@ -613,6 +604,61 @@ namespace ModIO.UI
             m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
         }
 
+        private System.Collections.IEnumerator FetchGameProfile()
+        {
+            bool succeeded = false;
+            bool cancelRequest = false;
+
+            while(!cancelRequest
+                  && !succeeded
+                  && m_onlineMode)
+            {
+                bool isRequestDone = false;
+                WebRequestError error = null;
+
+                // --- GameProfile ---
+                ModManager.GetGameProfile(
+                (g) =>
+                {
+                    this.gameProfile = g;
+                    explorerView.tagCategories = g.tagCategories;
+                    subscriptionsView.tagCategories = g.tagCategories;
+                    inspectorView.tagCategories = g.tagCategories;
+
+                    succeeded = true;
+                    isRequestDone = true;
+                },
+                (e) =>
+                {
+                    error = e;
+                    succeeded = false;
+                    isRequestDone = true;
+                });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(error != null)
+                {
+                    int secondsUntilRetry;
+                    string displayMessage;
+
+                    ProcessRequestError(error, out cancelRequest,
+                                        out secondsUntilRetry, out displayMessage);
+
+                    if(secondsUntilRetry > 0)
+                    {
+                        yield return new WaitForSeconds(secondsUntilRetry + 1);
+                        continue;
+                    }
+
+                    if(cancelRequest)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage);
+                    }
+                }
+            }
+        }
         // ---------[ REQUESTS ]---------
         private void ProcessRequestError(WebRequestError requestError,
                                          out bool cancelFurtherAttempts,
