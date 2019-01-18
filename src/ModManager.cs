@@ -19,7 +19,6 @@ namespace ModIO
         public const string PLAYERPREFKEY_SUBCRIBEDMODIDS   = "modio_subcribedModIds";
         public const string PLAYERPREFKEY_ENABLEDMODIDS     = "modio_enabledModIds";
 
-        public const int USERID_GUEST = -1;
 
         // ---------[ FIELDS ]---------
         public static string modInstallDirectory = IOUtilities.CombinePath(CacheClient.settings.directory,
@@ -123,14 +122,14 @@ namespace ModIO
             UserAuthenticationData userData = new UserAuthenticationData();
 
             string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_USERDATA,
-                                                       USERID_GUEST.ToString() + ":");
+                                                       UserProfile.NULL_ID.ToString() + ":");
             string[] dataStrings = valueString.Split(':');
 
             if(dataStrings.Length == 2)
             {
                 if(!Int32.TryParse(dataStrings[0], out userData.userId))
                 {
-                    userData.userId = USERID_GUEST;
+                    userData.userId = UserProfile.NULL_ID;
                 }
 
                 userData.token = dataStrings[1];
@@ -155,7 +154,7 @@ namespace ModIO
         }
         public static void ClearUserData()
         {
-            ModManager.SetUserData(USERID_GUEST, string.Empty);
+            ModManager.SetUserData(UserProfile.NULL_ID, string.Empty);
         }
 
         public static IList<int> GetSubscribedModIds()

@@ -5,9 +5,12 @@ namespace ModIO
     [System.Serializable]
     public class UserProfile
     {
-        // ---------[ API LIMITS ]---------
+        // ---------[ CONSTANTS ]---------
         /// <summary>Maximum length for the username supported.</summary>
         public const int USERNAME_MAXLENGTH = 20;
+
+        /// <summary>An id value indicating this profile is not valid.</summary>
+        public const int NULL_ID = 0;
 
         // ---------[ FIELDS ]---------
         /// <summary>Unique id for the user.</summary>
