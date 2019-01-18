@@ -213,7 +213,8 @@ namespace ModIO.UI
         private void OnEnable()
         {
             _instance = this;
-            m_updatesCoroutine = StartCoroutine(PollForUpdatesCoroutine());
+
+            this.StartCoroutine(StartFetchRemoteData());
         }
 
         private void OnDisable()
@@ -250,8 +251,6 @@ namespace ModIO.UI
             InitializeExplorerView();
             InitializeDialogs();
             InitializeDisplays();
-
-            StartFetchRemoteData();
         }
 
         private void LoadLocalData()
@@ -575,8 +574,11 @@ namespace ModIO.UI
             }
         }
 
-        private void StartFetchRemoteData()
+        private System.Collections.IEnumerator StartFetchRemoteData()
         {
+            // Ensure Start() has been finished
+            yield return null;
+
             // --- GameProfile ---
             ModManager.GetGameProfile(
             (g) =>
@@ -607,6 +609,8 @@ namespace ModIO.UI
                 // requests
                 ModManager.GetAuthenticatedUserProfile(onGetUserProfile, null);
             }
+
+            m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
         }
 
         // ---------[ REQUESTS ]---------
@@ -752,9 +756,6 @@ namespace ModIO.UI
         // ---------[ UPDATES ]---------
         private System.Collections.IEnumerator PollForUpdatesCoroutine()
         {
-            // Ensure Start() has been called
-            yield return null;
-
             bool cancelUpdates = false;
 
             while(m_onlineMode && !cancelUpdates)
@@ -885,6 +886,8 @@ namespace ModIO.UI
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }
+
+            m_updatesCoroutine = null;
         }
 
         private void PushSubscriptionChanges()
