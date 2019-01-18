@@ -23,11 +23,6 @@ namespace ModIO
         }
 
         // ---------[ MEMBERS ]---------
-        /// <summary>Location of the settings file.</summary>
-        private static readonly string m_settingsLocation = IOUtilities.CombinePath(Application.persistentDataPath,
-                                                                                    "modio",
-                                                                                    "cache_settings.data");
-
         /// <summary>Structure for holding the settings.</summary>
         [Serializable]
         public struct Settings
@@ -36,6 +31,11 @@ namespace ModIO
         }
         /// <summary>Settings used by the CacheClient.</summary>
         private static Settings m_settings;
+
+        /// <summary>Location of the settings file.</summary>
+        private static readonly string m_settingsLocation = IOUtilities.CombinePath(Application.persistentDataPath,
+                                                                                    "modio",
+                                                                                    "cache_settings.data");
 
         // --- ACCESSORS ---
         /// <summary>Settings used by the CacheClient.</summary>
@@ -60,10 +60,6 @@ namespace ModIO
                     }
 
                     CacheClient.m_settings = value;
-
-                    // TODO(@jackson): Hack until Path.Combine is implemented
-                    Debug.LogWarning("HACK HERE");
-                    CacheClient.m_settings.directory += "/";
 
                     try
                     {

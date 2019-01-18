@@ -19,11 +19,69 @@ namespace ModIO
         public const string PLAYERPREFKEY_SUBCRIBEDMODIDS   = "modio_subcribedModIds";
         public const string PLAYERPREFKEY_ENABLEDMODIDS     = "modio_enabledModIds";
 
+        /// <summary>Location of the settings file.</summary>
+        private static readonly string _SETTINGS_LOCATION = IOUtilities.CombinePath(Application.persistentDataPath,
+                                                                                    "modio",
+                                                                                    "settings.data");
 
-        // ---------[ FIELDS ]---------
-        public static string modInstallDirectory = IOUtilities.CombinePath(CacheClient.settings.directory,
-                                                                           "modio",
-                                                                           "_installedMods");
+        // ---------[ NESTED CLASSES ]---------
+        /// <summary>Structure for holding the ModManager settings.</summary>
+        [Serializable]
+        public struct Settings
+        {
+            public string installDirectory;
+        }
+
+        // ---------[ SETTINGS ]---------
+        /// <summary>Settings used by the ModManager.</summary>
+        private static Settings m_settings;
+
+        /// <summary>Initialzes the ModManager settings.</summary>
+        static ModManager()
+        {
+            ModManager.settings = IOUtilities.ReadJsonObjectFile<Settings>(ModManager._SETTINGS_LOCATION);
+        }
+
+        // --- ACCESSORS ---
+        /// <summary>Settings used by the CacheClient.</summary>
+        public static Settings settings
+        {
+            get { return ModManager.m_settings; }
+            set
+            {
+                if(!ModManager.m_settings.Equals(value))
+                {
+                    ModManager.m_settings = value;
+
+                    try
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(ModManager._SETTINGS_LOCATION));
+                        File.WriteAllText(ModManager._SETTINGS_LOCATION,
+                                          JsonConvert.SerializeObject(ModManager.m_settings));
+                    }
+                    catch(Exception e)
+                    {
+                        string warningInfo = ("[mod.io] Failed to create ModManager settings file."
+                                              + "\nFile: " + ModManager._SETTINGS_LOCATION + "\n\n");
+
+                        Debug.LogWarning(warningInfo
+                                         + Utility.GenerateExceptionDebugString(e));
+                    }
+                }
+            }
+        }
+
+        [Obsolete]
+        public static string modInstallDirectory
+        {
+            get { return ModManager.settings.installDirectory; }
+            set
+            {
+                Settings s = settings;
+                s.installDirectory = value;
+                settings = s;
+            }
+        }
 
         // ---------[ AUTHENTICATED USER ]---------
         public static IEnumerable<int> EnumerateModIdString(string modIdArrayString)
