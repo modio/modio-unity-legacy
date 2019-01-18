@@ -1,19 +1,19 @@
 namespace ModIO.UI
 {
     [System.Serializable]
-    public struct ModBrowserVersion : System.IComparable<ModBrowserVersion>
+    public struct SimpleVersion : System.IComparable<SimpleVersion>
     {
         public int major;
         public int minor;
 
-        public ModBrowserVersion(int majorVersion = 0, int minorVersion = 0)
+        public SimpleVersion(int majorVersion = 0, int minorVersion = 0)
         {
             this.major = majorVersion;
             this.minor = minorVersion;
         }
 
         // - IComparable -
-        public int CompareTo(ModBrowserVersion other)
+        public int CompareTo(SimpleVersion other)
         {
             if(this.major != other.major)
             {
@@ -25,22 +25,22 @@ namespace ModIO.UI
             }
         }
 
-        public static bool operator >  (ModBrowserVersion operand1, ModBrowserVersion operand2)
+        public static bool operator >  (SimpleVersion operand1, SimpleVersion operand2)
         {
            return operand1.CompareTo(operand2) == 1;
         }
 
-        public static bool operator <  (ModBrowserVersion operand1, ModBrowserVersion operand2)
+        public static bool operator <  (SimpleVersion operand1, SimpleVersion operand2)
         {
            return operand1.CompareTo(operand2) == -1;
         }
 
-        public static bool operator >=  (ModBrowserVersion operand1, ModBrowserVersion operand2)
+        public static bool operator >=  (SimpleVersion operand1, SimpleVersion operand2)
         {
            return operand1.CompareTo(operand2) >= 0;
         }
 
-        public static bool operator <=  (ModBrowserVersion operand1, ModBrowserVersion operand2)
+        public static bool operator <=  (SimpleVersion operand1, SimpleVersion operand2)
         {
            return operand1.CompareTo(operand2) <= 0;
         }

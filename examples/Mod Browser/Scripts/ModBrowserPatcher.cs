@@ -9,7 +9,7 @@ namespace ModIO
 {
     public static class ModBrowserPatcher
     {
-        public static readonly ModBrowserVersion Jan16_2019 = new ModBrowserVersion(0, 9);
+        public static readonly SimpleVersion Jan16_2019 = new SimpleVersion(0, 9);
         public static void Patch_2019_Jan16()
         {
             Debug.Log("[mod.io] Applying Jan16_2019 Patch");
@@ -69,7 +69,7 @@ namespace ModIO
             }
         }
 
-        public static void Run(ModBrowserVersion currentVersion)
+        public static void Run(SimpleVersion currentVersion)
         {
             if(currentVersion < Jan16_2019)
             {

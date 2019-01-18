@@ -35,7 +35,7 @@ namespace ModIO.UI
         [Serializable]
         private class ManifestData
         {
-            public ModBrowserVersion lastRunVersion;
+            public SimpleVersion lastRunVersion;
             public int lastCacheUpdate;
             public int lastSubscriptionSync;
             public List<int> queuedUnsubscribes;
@@ -101,7 +101,7 @@ namespace ModIO.UI
 
         // ---------[ CONST & STATIC ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
-        public static readonly ModBrowserVersion VERSION = new ModBrowserVersion(0, 9);
+        public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
 
         public static string manifestFilePath
         { get { return IOUtilities.CombinePath(CacheClient.settings.directory, "browser_manifest.data"); } }
