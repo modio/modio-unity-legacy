@@ -976,12 +976,15 @@ namespace ModIO
 
         public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
         {
+            // Needs to have a valid mod id otherwise we mess with player-added mods!
+            Debug.Assert(modId > 0);
+
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
             if(!File.Exists(zipFilePath))
             {
                 return false;
             }
-            if(!ModManager.TryUninstallMod(modId))
+            if(!ModManager.TryUninstallAllModVersions(modId))
             {
                 return false;
             }
@@ -1013,14 +1016,36 @@ namespace ModIO
             }
         }
 
-        public static bool TryUninstallMod(int modId)
+        public static bool TryUninstallAllModVersions(int modId)
         {
-            var installedDirectories = ModManager.IterateInstalledMods(new int[] { modId });
+            // Don't accidentally uninstall player-added mods!
+            Debug.Assert(modId > 0);
+
+            var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
 
             bool succeeded = true;
-            foreach(var installInfo in installedDirectories)
+            foreach(var installInfo in installedMods)
             {
                 succeeded = IOUtilities.DeleteDirectory(installInfo.Value) && succeeded;
+            }
+
+            return succeeded;
+        }
+
+        public static bool TryUninstallModVersion(int modId, int modfileId)
+        {
+            // Don't accidentally uninstall player-added mods!
+            Debug.Assert(modId > 0);
+
+            var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
+
+            bool succeeded = true;
+            foreach(var installInfo in installedMods)
+            {
+                if(installInfo.Key.modfileId == modfileId)
+                {
+                    succeeded = IOUtilities.DeleteDirectory(installInfo.Value) && succeeded;
+                }
             }
 
             return succeeded;

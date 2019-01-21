@@ -2061,7 +2061,7 @@ namespace ModIO.UI
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-            ModManager.TryUninstallMod(modId);
+            ModManager.TryUninstallAllModVersions(modId);
 
             DisableMod(modId);
 
@@ -2103,7 +2103,7 @@ namespace ModIO.UI
                     // remove from disk
                     CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-                    ModManager.TryUninstallMod(modId);
+                    ModManager.TryUninstallAllModVersions(modId);
 
                     // disable
                     enabledMods.Remove(modId);
