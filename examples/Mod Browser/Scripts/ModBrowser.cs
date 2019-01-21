@@ -715,7 +715,7 @@ namespace ModIO.UI
                 }
             }
 
-            m_validOAuthToken = succeeded;
+            this.m_validOAuthToken = succeeded;
         }
 
         private System.Collections.IEnumerator FetchAllUserSubscriptionsAndUpdate()
@@ -1240,7 +1240,8 @@ namespace ModIO.UI
 
         private void PushSubscriptionChanges()
         {
-            Debug.Assert(userProfile != null);
+            Debug.Assert(this.userProfile != null);
+            Debug.Assert(this.m_validOAuthToken);
 
             // NOTE(@jackson): This is workaround is due to the response of an unsub request
             // on an non-subbed mod being an error.
@@ -1451,6 +1452,7 @@ namespace ModIO.UI
 
             // - clear current user -
             APIClient.userAuthorizationToken = null;
+            this.m_validOAuthToken = false;
             ModManager.SetUserData(UserAuthenticationData.NONE);
 
             // - set up guest account -
@@ -1459,7 +1461,6 @@ namespace ModIO.UI
             {
                 this.loggedUserView.data = guestData;
             }
-            m_validOAuthToken = false;
 
             // - notify -
             MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
