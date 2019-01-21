@@ -1015,12 +1015,12 @@ namespace ModIO
 
         public static bool TryUninstallMod(int modId)
         {
-            List<string> installedDirectories = new List<string>(IterateInstalledModDirectories(new int[] { modId }));
+            var installedDirectories = ModManager.IterateInstalledMods(new int[] { modId });
 
             bool succeeded = true;
-            foreach(string installDir in installedDirectories)
+            foreach(var installInfo in installedDirectories)
             {
-                succeeded = IOUtilities.DeleteDirectory(installDir) && succeeded;
+                succeeded = IOUtilities.DeleteDirectory(installInfo.Value) && succeeded;
             }
 
             return succeeded;
@@ -1036,10 +1036,35 @@ namespace ModIO
                 modIdFilter.Add(0);
             }
 
-            return new List<string>(ModManager.IterateInstalledModDirectories(modIdFilter));
+            List<string> directories = new List<string>();
+            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
+            foreach(var kvp in installedModInfo)
+            {
+                directories.Add(kvp.Value);
+            }
+
+            return directories;
         }
 
-        public static IEnumerable<string> IterateInstalledModDirectories(IList<int> modIdFilter)
+        public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
+        {
+            List<int> modIdFilter = null;
+            if(excludeDisabledMods)
+            {
+                modIdFilter = new List<int>(ModManager.GetEnabledModIds());
+            }
+
+            List<ModfileIdPair> versions = new List<ModfileIdPair>();
+            var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
+            foreach(var kvp in installedModInfo)
+            {
+                versions.Add(kvp.Key);
+            }
+
+            return versions;
+        }
+
+        public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
         {
             string installDirectory = ModManager.settings.installDirectory;
             string[] modDirectories = new string[0];
@@ -1059,31 +1084,37 @@ namespace ModIO
                                  + Utility.GenerateExceptionDebugString(e));
             }
 
-            if(modIdFilter == null)
+            foreach(string modDirectory in modDirectories)
             {
-                foreach(string modDirectory in modDirectories)
+                string folderName = modDirectory.Substring(installDirectory.Length);
+                string[] folderNameParts = folderName.Split('_');
+
+                int modId;
+                int modfileId;
+                if(!(folderNameParts.Length > 0
+                     && Int32.TryParse(folderNameParts[0], out modId)))
                 {
-                    yield return modDirectory;
+                    modId = 0;
                 }
-            }
-            else
-            {
-                foreach(string modDirectory in modDirectories)
+
+                if(modIdFilter == null
+                   || modIdFilter.Contains(modId))
                 {
-                    string folderName = modDirectory.Substring(installDirectory.Length);
-                    string[] folderNameParts = folderName.Split('_');
-
-                    int modId;
-                    if(!(folderNameParts.Length > 0
-                         && Int32.TryParse(folderNameParts[0], out modId)))
+                    if(!(folderNameParts.Length > 1
+                         && Int32.TryParse(folderNameParts[1], out modfileId)))
                     {
-                        modId = 0;
+                        modfileId = 0;
                     }
 
-                    if(modIdFilter.Contains(modId))
+                    ModfileIdPair idPair = new ModfileIdPair()
                     {
-                        yield return modDirectory;
-                    }
+                        modId = modId,
+                        modfileId = modfileId,
+                    };
+
+                    var info = new KeyValuePair<ModfileIdPair, string>(idPair, modDirectory);
+
+                    yield return info;
                 }
             }
         }
