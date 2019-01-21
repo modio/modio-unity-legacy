@@ -198,8 +198,8 @@ namespace ModIO.UI
         [Header("Runtime Data")]
         private InspectorViewData inspectorData = new InspectorViewData();
         private UserProfile userProfile = null;
-        private int lastCacheUpdate = -1;
         private int lastSubscriptionSync = -1;
+        private int lastCacheUpdate = -1;
         private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private GameProfile gameProfile = null;
@@ -588,6 +588,10 @@ namespace ModIO.UI
                 yield return this.StartCoroutine(FetchUserProfile());
                 yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
             }
+            else
+            {
+                yield return this.StartCoroutine(FetchAllSubscribedModProfiles());
+            }
 
             m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
         }
@@ -834,6 +838,7 @@ namespace ModIO.UI
                 }
 
                 this.lastSubscriptionSync = updateStartTimeStamp;
+                this.lastCacheUpdate = updateStartTimeStamp;
             }
 
             if(updateCount > 0)
@@ -841,6 +846,119 @@ namespace ModIO.UI
                 string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$",
                                                                                updateCount.ToString());
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+            }
+        }
+
+        private System.Collections.IEnumerator FetchAllSubscribedModProfiles()
+        {
+            int updateStartTimeStamp = ServerTimeStamp.Now;
+            List<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
+            // early out
+            if(subscribedModIds.Count == 0)
+            {
+                this.lastSubscriptionSync = updateStartTimeStamp;
+                this.lastCacheUpdate = updateStartTimeStamp;
+                yield break;
+            }
+
+            // set up initial vars
+            bool cancelRequest = false;
+            bool allPagesReceived = false;
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            RequestFilter subscriptionFilter = new RequestFilter();
+            subscriptionFilter.fieldFilters.Add(ModIO.API.GetAllModsFilterFields.gameId,
+                                                new EqualToFilter<int>() { filterValue = gameProfile.id });
+            subscriptionFilter.fieldFilters.Add(ModIO.API.GetAllModsFilterFields.id,
+                                                new InArrayFilter<int>()
+                                                {
+                                                    filterArray = subscribedModIds.ToArray()
+                                                });
+
+            // loop until done or broken
+            while(m_onlineMode
+                  && !cancelRequest
+                  && !allPagesReceived)
+            {
+                bool isRequestDone = false;
+                WebRequestError error = null;
+                RequestPage<ModProfile> requestPage = null;
+
+                APIClient.GetAllMods(subscriptionFilter, pagination,
+                                     (r) => { isRequestDone = true; requestPage = r; },
+                                     (e) => { isRequestDone = true; error = e; });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(error != null)
+                {
+                    // handle error
+                    int secondsUntilRetry;
+                    string displayMessage;
+
+                    ProcessRequestError(error, out cancelRequest,
+                                        out secondsUntilRetry, out displayMessage);
+
+                    if(cancelRequest)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage);
+                    }
+                    else if(secondsUntilRetry > 0)
+                    {
+                        yield return new WaitForSeconds(secondsUntilRetry + 1);
+                        continue;
+                    }
+                }
+                else
+                {
+                    // add new subs
+                    CacheClient.SaveModProfiles(requestPage.items);
+
+                    // remove from the list (for the purpose of determining missing/deleted mods)
+                    foreach(ModProfile profile in requestPage.items)
+                    {
+                        while(subscribedModIds.Remove(profile.id)) {}
+                    }
+
+                    // check pages
+                    allPagesReceived = (requestPage.items.Length < requestPage.size);
+                    if(!allPagesReceived)
+                    {
+                        pagination.offset += pagination.limit;
+                    }
+                }
+            }
+
+            // handle removed ids
+            if(allPagesReceived)
+            {
+                if(subscribedModIds.Count > 0)
+                {
+                    List<int> removedModIds = subscribedModIds;
+
+                    subscribedModIds = ModManager.GetSubscribedModIds();
+                    foreach(int modId in removedModIds)
+                    {
+                        subscribedModIds.Remove(modId);
+                    }
+                    ModManager.SetSubscribedModIds(subscribedModIds);
+
+                    OnSubscriptionsChanged(null, removedModIds);
+
+                    string message = (removedModIds.Count.ToString() + " subscribed mods have become"
+                                      + " unavailable and have been removed from your subscriptions.");
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+                }
+
+                this.lastSubscriptionSync = updateStartTimeStamp;
+                this.lastCacheUpdate = updateStartTimeStamp;
             }
         }
 
@@ -1055,7 +1173,7 @@ namespace ModIO.UI
                 requestError = null;
 
                 // --- USER EVENTS ---
-                if(m_validOAuthToken)
+                if(this.m_validOAuthToken)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
