@@ -962,6 +962,63 @@ namespace ModIO.UI
             }
         }
 
+        private void UpdateInstalledModsUsingSubscriptions()
+        {
+            var subscribedModIds = ModManager.GetSubscribedModIds();
+            var installedModVersions = ModManager.GetInstalledModVersions(false);
+
+            foreach(ModfileIdPair idPair in installedModVersions)
+            {
+                if(!subscribedModIds.Contains(idPair.modId))
+                {
+                    ModManager.TryUninstallAllModVersions(idPair.modId);
+                }
+            }
+
+            foreach(int modId in subscribedModIds)
+            {
+                ModProfile profile = CacheClient.LoadModProfile(modId);
+
+                if(profile == null)
+                {
+                    Debug.LogWarning("[mod.io] Subscribed mod profile not found in cache. (Id: " + modId + ")");
+                    ModManager.GetModProfile(modId, null, null);
+                }
+                else
+                {
+                    bool isInstalled = false;
+                    List<ModfileIdPair> wrongVersions = new List<ModfileIdPair>();
+                    foreach(ModfileIdPair idPair in installedModVersions)
+                    {
+                        if(idPair.modId == profile.id)
+                        {
+                            if(idPair.modfileId == profile.activeBuild.id)
+                            {
+                                isInstalled = true;
+                            }
+                            else if(!wrongVersions.Contains(idPair))
+                            {
+                                wrongVersions.Add(idPair);
+                            }
+                        }
+                    }
+
+                    if(!isInstalled)
+                    {
+                        this.StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.activeBuild.id));
+                    }
+                    // isInstalled &&
+                    else if(wrongVersions.Count > 0)
+                    {
+                        foreach(ModfileIdPair idPair in wrongVersions)
+                        {
+                            ModManager.TryUninstallModVersion(idPair.modId, idPair.modfileId);
+                        }
+                    }
+                }
+            }
+        }
+
         private System.Collections.IEnumerator DownloadAndInstallModVersion(int modId, int modfileId)
         {
             bool isRequestDone = false;
