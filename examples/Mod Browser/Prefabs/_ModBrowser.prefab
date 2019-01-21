@@ -993,7 +993,6 @@ GameObject:
   - component: {fileID: 222621147733746760}
   - component: {fileID: 114168544885101114}
   - component: {fileID: 114156903628368184}
-  - component: {fileID: 114895526302557370}
   m_Layer: 5
   m_Name: Blur
   m_TagString: Untagged
@@ -5917,12 +5916,12 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1214458995497246}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 7a4642732a5244ea797a64ce648ca633, type: 2}
+  m_Material: {fileID: 2100000, guid: 091e7bbaa5df64c21a2827ba9693faad, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -13138,25 +13137,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114895526302557370
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1214458995497246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0738a4cd58af4d038fddf25513d0243, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  renderMode: 0
-  kernelSize: 0
-  interpolation: 1
-  downsample: 1
-  iterations: 1
-  gammaCorrection: 1
-  blurMaterial: {fileID: 2100000, guid: 7a4642732a5244ea797a64ce648ca633, type: 2}
-  UIMaterial: {fileID: 2100000, guid: 7a4642732a5244ea797a64ce648ca633, type: 2}
 --- !u!114 &114897800532475776
 MonoBehaviour:
   m_ObjectHideFlags: 1
