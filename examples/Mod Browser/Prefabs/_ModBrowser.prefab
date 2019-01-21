@@ -1746,6 +1746,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1380462310753902
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224569261556285924}
+  - component: {fileID: 114308481988713776}
+  m_Layer: 5
+  m_Name: Info
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1381394441879662
 GameObject:
   m_ObjectHideFlags: 1
@@ -2347,6 +2363,23 @@ GameObject:
   - component: {fileID: 114552689576096598}
   m_Layer: 5
   m_Name: Placeholder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1518136646441108
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224615070949588228}
+  - component: {fileID: 222175745273522690}
+  - component: {fileID: 114626817203211502}
+  m_Layer: 5
+  m_Name: _Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3165,6 +3198,24 @@ GameObject:
   - component: {fileID: 114666478155946970}
   m_Layer: 5
   m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1749751160850120
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224389666093407752}
+  - component: {fileID: 222068386288254272}
+  - component: {fileID: 114552491196111720}
+  - component: {fileID: 114579476828790222}
+  m_Layer: 5
+  m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4426,7 +4477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -4569,7 +4620,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -4911,7 +4962,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.05882353}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.101960786}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -5006,7 +5057,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -5026,7 +5077,31 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vulputate odio
+    porta dictum mollis. Donec faucibus ac nunc sit amet molestie. Pellentesque nec
+    imperdiet urna. Nulla maximus tortor eget lorem faucibus egestas. In volutpat
+    ante sit amet nibh accumsan, et ultricies mi mollis. Nam sed erat sit amet eros
+    malesuada fringilla id vitae nunc. Nulla tristique nulla tristique auctor elementum.
+    Integer tincidunt nunc eget eleifend accumsan. Class aptent taciti sociosqu ad
+    litora torquent per conubia nostra, per inceptos himenaeos. Aliquam quis tincidunt
+    tortor, sit amet lacinia magna. Duis lacinia auctor ullamcorper. Duis consequat
+    purus tincidunt dolor pellentesque, at luctus ante scelerisque. Maecenas ac risus
+    placerat, pellentesque lectus in, facilisis ligula. Vivamus tempus ornare imperdiet.  Quisque
+    a sem malesuada, suscipit risus ut, egestas lectus. Ut rhoncus nulla sed efficitur
+    pharetra. Quisque odio massa, facilisis non elit sed, vehicula euismod turpis.
+    Vivamus pellentesque sit amet arcu nec egestas. Aliquam in vestibulum orci. Donec
+    a tristique quam, ac condimentum erat. Fusce non ante quam. Curabitur ante ligula,
+    dictum id dignissim non, mattis in libero.  Donec purus risus, posuere in elementum
+    sed, vestibulum quis diam. Curabitur fermentum elementum ligula. Nam vitae ultrices
+    metus, laoreet tempus sem. Nam tempus elementum eros, eu ornare diam. Sed in dui
+    rhoncus, rutrum neque ut, rutrum lectus. Curabitur ultrices sagittis leo a iaculis.
+    Nam rutrum risus ut ipsum bibendum, ac rutrum tortor imperdiet. Curabitur tempus,
+    neque nec aliquet elementum, ipsum nunc lobortis turpis, et pulvinar lectus arcu
+    nec eros. Nunc consequat urna interdum, volutpat ante fermentum, placerat nisi.
+    Vivamus lacus libero, feugiat sit amet suscipit eu, faucibus vitae velit. Duis
+    congue lectus libero. Cras lobortis vestibulum dui, at varius nisl volutpat ac.
+    Aenean vestibulum arcu in urna viverra ultrices. Duis euismod maximus quam, ac
+    laoreet magna viverra eu. Curabitur luctus justo finibus dui viverra ultricies.
 --- !u!114 &114096478224023222
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5188,7 +5263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -5243,7 +5318,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.18039216}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.019607844}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -5270,7 +5345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -5338,7 +5413,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -5545,7 +5620,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224461127012161008}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.7102116
+  m_Size: 0.5564342
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5636,7 +5711,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6023,7 +6098,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6249,7 +6324,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6453,7 +6528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6508,7 +6583,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6568,7 +6643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6634,7 +6709,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.18039216}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.019607844}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6768,7 +6843,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6813,7 +6888,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.05882353}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.101960786}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6930,12 +7005,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 24
-    m_Right: 24
-    m_Top: 24
-    m_Bottom: 96
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: 8
+  m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -6952,7 +7027,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -7039,7 +7114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -7164,6 +7239,28 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114308481988713776
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1380462310753902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1297475563, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 24
+    m_Right: 24
+    m_Top: 12
+    m_Bottom: 48
+  m_ChildAlignment: 0
+  m_Spacing: 12
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
 --- !u!114 &114309666271251828
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7219,7 +7316,32 @@ MonoBehaviour:
     nameId: 
     summary: 
     descriptionAsHTML: 
-    descriptionAsText: 
+    descriptionAsText: ' Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      Ut vulputate odio porta dictum mollis. Donec faucibus ac nunc sit amet molestie.
+      Pellentesque nec imperdiet urna. Nulla maximus tortor eget lorem faucibus egestas.
+      In volutpat ante sit amet nibh accumsan, et ultricies mi mollis. Nam sed erat
+      sit amet eros malesuada fringilla id vitae nunc. Nulla tristique nulla tristique
+      auctor elementum. Integer tincidunt nunc eget eleifend accumsan. Class aptent
+      taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+      Aliquam quis tincidunt tortor, sit amet lacinia magna. Duis lacinia auctor ullamcorper.
+      Duis consequat purus tincidunt dolor pellentesque, at luctus ante scelerisque.
+      Maecenas ac risus placerat, pellentesque lectus in, facilisis ligula. Vivamus
+      tempus ornare imperdiet.  Quisque a sem malesuada, suscipit risus ut, egestas
+      lectus. Ut rhoncus nulla sed efficitur pharetra. Quisque odio massa, facilisis
+      non elit sed, vehicula euismod turpis. Vivamus pellentesque sit amet arcu nec
+      egestas. Aliquam in vestibulum orci. Donec a tristique quam, ac condimentum
+      erat. Fusce non ante quam. Curabitur ante ligula, dictum id dignissim non, mattis
+      in libero.  Donec purus risus, posuere in elementum sed, vestibulum quis diam.
+      Curabitur fermentum elementum ligula. Nam vitae ultrices metus, laoreet tempus
+      sem. Nam tempus elementum eros, eu ornare diam. Sed in dui rhoncus, rutrum neque
+      ut, rutrum lectus. Curabitur ultrices sagittis leo a iaculis. Nam rutrum risus
+      ut ipsum bibendum, ac rutrum tortor imperdiet. Curabitur tempus, neque nec aliquet
+      elementum, ipsum nunc lobortis turpis, et pulvinar lectus arcu nec eros. Nunc
+      consequat urna interdum, volutpat ante fermentum, placerat nisi. Vivamus lacus
+      libero, feugiat sit amet suscipit eu, faucibus vitae velit. Duis congue lectus
+      libero. Cras lobortis vestibulum dui, at varius nisl volutpat ac. Aenean vestibulum
+      arcu in urna viverra ultrices. Duis euismod maximus quam, ac laoreet magna viverra
+      eu. Curabitur luctus justo finibus dui viverra ultricies.'
     metadataBlob: 
     profileURL: 
     currentBuild:
@@ -7825,7 +7947,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -8163,7 +8285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -8653,7 +8775,32 @@ MonoBehaviour:
     nameId: 
     summary: 
     descriptionAsHTML: 
-    descriptionAsText: 
+    descriptionAsText: ' Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      Ut vulputate odio porta dictum mollis. Donec faucibus ac nunc sit amet molestie.
+      Pellentesque nec imperdiet urna. Nulla maximus tortor eget lorem faucibus egestas.
+      In volutpat ante sit amet nibh accumsan, et ultricies mi mollis. Nam sed erat
+      sit amet eros malesuada fringilla id vitae nunc. Nulla tristique nulla tristique
+      auctor elementum. Integer tincidunt nunc eget eleifend accumsan. Class aptent
+      taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+      Aliquam quis tincidunt tortor, sit amet lacinia magna. Duis lacinia auctor ullamcorper.
+      Duis consequat purus tincidunt dolor pellentesque, at luctus ante scelerisque.
+      Maecenas ac risus placerat, pellentesque lectus in, facilisis ligula. Vivamus
+      tempus ornare imperdiet.  Quisque a sem malesuada, suscipit risus ut, egestas
+      lectus. Ut rhoncus nulla sed efficitur pharetra. Quisque odio massa, facilisis
+      non elit sed, vehicula euismod turpis. Vivamus pellentesque sit amet arcu nec
+      egestas. Aliquam in vestibulum orci. Donec a tristique quam, ac condimentum
+      erat. Fusce non ante quam. Curabitur ante ligula, dictum id dignissim non, mattis
+      in libero.  Donec purus risus, posuere in elementum sed, vestibulum quis diam.
+      Curabitur fermentum elementum ligula. Nam vitae ultrices metus, laoreet tempus
+      sem. Nam tempus elementum eros, eu ornare diam. Sed in dui rhoncus, rutrum neque
+      ut, rutrum lectus. Curabitur ultrices sagittis leo a iaculis. Nam rutrum risus
+      ut ipsum bibendum, ac rutrum tortor imperdiet. Curabitur tempus, neque nec aliquet
+      elementum, ipsum nunc lobortis turpis, et pulvinar lectus arcu nec eros. Nunc
+      consequat urna interdum, volutpat ante fermentum, placerat nisi. Vivamus lacus
+      libero, feugiat sit amet suscipit eu, faucibus vitae velit. Duis congue lectus
+      libero. Cras lobortis vestibulum dui, at varius nisl volutpat ac. Aenean vestibulum
+      arcu in urna viverra ultrices. Duis euismod maximus quam, ac laoreet magna viverra
+      eu. Curabitur luctus justo finibus dui viverra ultricies. '
     metadataBlob: 
     profileURL: 
     metadataKVPs: []
@@ -8855,7 +9002,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -9073,7 +9220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -9426,7 +9573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
+  m_Color: {r: 0.9137255, g: 0.9137255, b: 0.9137255, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -9655,7 +9802,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.18039216}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.019607844}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -9984,6 +10131,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 0
+--- !u!114 &114552491196111720
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1749751160850120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -98529514, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
+  m_RaycastTarget: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!114 &114552689576096598
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10149,7 +10322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -10182,7 +10355,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -10270,6 +10443,25 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114579476828790222
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1749751160850120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1679637790, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &114583558517237634
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10561,7 +10753,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -10683,6 +10875,33 @@ MonoBehaviour:
   m_Text: No sure exactly what has happened to my friends but they've all up and left,
     and now I'm just sitting here feeling alone.  I'd rather appreciate a good hug
     every now and then.  How about you?
+--- !u!114 &114626817203211502
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1518136646441108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
+  m_RaycastTarget: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 21300000, guid: 0f6e8122090cd408d8a81ac7594d7f75, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 0
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
 --- !u!114 &114630106841720970
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11029,7 +11248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12278,10 +12497,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
+    m_Left: 12
+    m_Right: 12
+    m_Top: 12
+    m_Bottom: 12
   m_ChildAlignment: 0
   m_Spacing: -2
   m_ChildForceExpandWidth: 1
@@ -12300,7 +12519,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12427,7 +12646,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12606,7 +12825,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.18039216}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.019607844}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12655,7 +12874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12882,7 +13101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.05882353}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.101960786}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12962,7 +13181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -13062,7 +13281,33 @@ MonoBehaviour:
       nameId: 
       summary: 
       descriptionAsHTML: 
-      descriptionAsText: 
+      descriptionAsText: ' Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Ut vulputate odio porta dictum mollis. Donec faucibus ac nunc sit amet molestie.
+        Pellentesque nec imperdiet urna. Nulla maximus tortor eget lorem faucibus
+        egestas. In volutpat ante sit amet nibh accumsan, et ultricies mi mollis.
+        Nam sed erat sit amet eros malesuada fringilla id vitae nunc. Nulla tristique
+        nulla tristique auctor elementum. Integer tincidunt nunc eget eleifend accumsan.
+        Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
+        himenaeos. Aliquam quis tincidunt tortor, sit amet lacinia magna. Duis lacinia
+        auctor ullamcorper. Duis consequat purus tincidunt dolor pellentesque, at
+        luctus ante scelerisque. Maecenas ac risus placerat, pellentesque lectus in,
+        facilisis ligula. Vivamus tempus ornare imperdiet.  Quisque a sem malesuada,
+        suscipit risus ut, egestas lectus. Ut rhoncus nulla sed efficitur pharetra.
+        Quisque odio massa, facilisis non elit sed, vehicula euismod turpis. Vivamus
+        pellentesque sit amet arcu nec egestas. Aliquam in vestibulum orci. Donec
+        a tristique quam, ac condimentum erat. Fusce non ante quam. Curabitur ante
+        ligula, dictum id dignissim non, mattis in libero.  Donec purus risus, posuere
+        in elementum sed, vestibulum quis diam. Curabitur fermentum elementum ligula.
+        Nam vitae ultrices metus, laoreet tempus sem. Nam tempus elementum eros, eu
+        ornare diam. Sed in dui rhoncus, rutrum neque ut, rutrum lectus. Curabitur
+        ultrices sagittis leo a iaculis. Nam rutrum risus ut ipsum bibendum, ac rutrum
+        tortor imperdiet. Curabitur tempus, neque nec aliquet elementum, ipsum nunc
+        lobortis turpis, et pulvinar lectus arcu nec eros. Nunc consequat urna interdum,
+        volutpat ante fermentum, placerat nisi. Vivamus lacus libero, feugiat sit
+        amet suscipit eu, faucibus vitae velit. Duis congue lectus libero. Cras lobortis
+        vestibulum dui, at varius nisl volutpat ac. Aenean vestibulum arcu in urna
+        viverra ultrices. Duis euismod maximus quam, ac laoreet magna viverra eu.
+        Curabitur luctus justo finibus dui viverra ultricies. '
       metadataBlob: 
       profileURL: 
       metadataKVPs: []
@@ -13306,7 +13551,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.05882353}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.101960786}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -13751,7 +13996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -13811,7 +14056,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -13990,6 +14235,13 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1116530386766162}
   m_CullTransparentMesh: 0
+--- !u!222 &222068386288254272
+CanvasRenderer:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1749751160850120}
+  m_CullTransparentMesh: 0
 --- !u!222 &222072655486982150
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -14094,6 +14346,13 @@ CanvasRenderer:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1912594307868998}
+  m_CullTransparentMesh: 0
+--- !u!222 &222175745273522690
+CanvasRenderer:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1518136646441108}
   m_CullTransparentMesh: 0
 --- !u!222 &222187602062270592
 CanvasRenderer:
@@ -15340,13 +15599,13 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 224876616882956488}
-  m_RootOrder: 1
+  m_Father: {fileID: 224569261556285924}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -552}
-  m_SizeDelta: {x: 772, y: 17}
+  m_AnchoredPosition: {x: 410, y: -12}
+  m_SizeDelta: {x: 772, y: 341}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224033406983067366
 RectTransform:
@@ -15555,16 +15814,16 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1265018930759408}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 224876616882956488}
-  m_RootOrder: 2
+  m_Father: {fileID: 224569261556285924}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -577}
+  m_AnchoredPosition: {x: 410, y: -365}
   m_SizeDelta: {x: 772, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224107456378159242
@@ -15708,6 +15967,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 224389666093407752}
   - {fileID: 224959197692135604}
   - {fileID: 224865534233176124}
   m_Father: {fileID: 224876616882956488}
@@ -15715,8 +15975,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -284}
-  m_SizeDelta: {x: 772, y: 520}
+  m_AnchoredPosition: {x: 410, y: -272}
+  m_SizeDelta: {x: 820, y: 544}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224130078710404298
 RectTransform:
@@ -16281,12 +16541,12 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 224876616882956488}
-  m_RootOrder: 5
+  m_Father: {fileID: 224569261556285924}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -948}
+  m_AnchoredPosition: {x: 410, y: -748}
   m_SizeDelta: {x: 772, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224242878944299960
@@ -16944,6 +17204,24 @@ RectTransform:
   m_AnchoredPosition: {x: 154, y: -20}
   m_SizeDelta: {x: 8, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!224 &224389666093407752
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1749751160850120}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 224129849892807800}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224391174225915556
 RectTransform:
   m_ObjectHideFlags: 1
@@ -17053,8 +17331,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -30}
-  m_SizeDelta: {x: 0, y: 60}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224411516548117522
 RectTransform:
@@ -17176,12 +17454,12 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 224876616882956488}
-  m_RootOrder: 6
+  m_Father: {fileID: 224569261556285924}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -956}
+  m_AnchoredPosition: {x: 410, y: -760}
   m_SizeDelta: {x: 772, y: 27}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224438501871376302
@@ -17194,12 +17472,12 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 224876616882956488}
-  m_RootOrder: 7
+  m_Father: {fileID: 224569261556285924}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -991}
+  m_AnchoredPosition: {x: 410, y: -799}
   m_SizeDelta: {x: 772, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224439041461089904
@@ -17276,8 +17554,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -20}
-  m_SizeDelta: {x: 0, y: -40}
+  m_AnchoredPosition: {x: 0, y: -29}
+  m_SizeDelta: {x: 0, y: -58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224449040670793274
 RectTransform:
@@ -17347,7 +17625,7 @@ RectTransform:
   m_Father: {fileID: 224415381369848950}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.28978842}
+  m_AnchorMin: {x: 0, y: 0.4435658}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -17670,13 +17948,14 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224296887275602840}
+  - {fileID: 224615070949588228}
   m_Father: {fileID: 224649867307647218}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 820, y: 0}
+  m_AnchoredPosition: {x: 0, y: 2}
+  m_SizeDelta: {x: 820, y: -40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224517358256111650
 RectTransform:
@@ -17836,6 +18115,31 @@ RectTransform:
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -2, y: -2}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!224 &224569261556285924
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1380462310753902}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 224028222861782812}
+  - {fileID: 224104377148028844}
+  - {fileID: 224838278919483698}
+  - {fileID: 224680909603849810}
+  - {fileID: 224239959750332188}
+  - {fileID: 224429618889383950}
+  - {fileID: 224438501871376302}
+  m_Father: {fileID: 224876616882956488}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 410, y: -967.5}
+  m_SizeDelta: {x: 820, y: 847}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224574695113542776
 RectTransform:
@@ -18046,6 +18350,24 @@ RectTransform:
   m_AnchoredPosition: {x: 8, y: 0}
   m_SizeDelta: {x: 142, y: -8}
   m_Pivot: {x: 0, y: 0.5}
+--- !u!224 &224615070949588228
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1518136646441108}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 224516608085733940}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 2, y: 2}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224617803761998136
 RectTransform:
   m_ObjectHideFlags: 1
@@ -18159,8 +18481,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 30}
-  m_SizeDelta: {x: 0, y: -60}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224652146278928912
 RectTransform:
@@ -18178,7 +18500,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0.25}
+  m_SizeDelta: {x: 0, y: 13.75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224654598687922754
 RectTransform:
@@ -18296,12 +18618,12 @@ RectTransform:
   - {fileID: 224656527240674750}
   - {fileID: 224971478542827182}
   - {fileID: 224904310864636814}
-  m_Father: {fileID: 224876616882956488}
-  m_RootOrder: 4
+  m_Father: {fileID: 224569261556285924}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -620}
+  m_AnchoredPosition: {x: 410, y: -416}
   m_SizeDelta: {x: 772, y: 320}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224681085448584648
@@ -19039,12 +19361,12 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 224876616882956488}
-  m_RootOrder: 3
+  m_Father: {fileID: 224569261556285924}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -585}
+  m_AnchoredPosition: {x: 410, y: -377}
   m_SizeDelta: {x: 772, y: 27}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224841977857597114
@@ -19246,12 +19568,12 @@ RectTransform:
   - {fileID: 224033406983067366}
   - {fileID: 224841977857597114}
   m_Father: {fileID: 224129849892807800}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 386, y: -520}
-  m_SizeDelta: {x: 772, y: 88}
+  m_AnchoredPosition: {x: 410, y: -532}
+  m_SizeDelta: {x: 796, y: 88}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!224 &224871814725625296
 RectTransform:
@@ -19319,20 +19641,14 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224129849892807800}
-  - {fileID: 224028222861782812}
-  - {fileID: 224104377148028844}
-  - {fileID: 224838278919483698}
-  - {fileID: 224680909603849810}
-  - {fileID: 224239959750332188}
-  - {fileID: 224429618889383950}
-  - {fileID: 224438501871376302}
+  - {fileID: 224569261556285924}
   m_Father: {fileID: 224065784715278870}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000030517578}
-  m_SizeDelta: {x: 0, y: 1087}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 1391}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224877803887457754
 RectTransform:
@@ -19620,12 +19936,12 @@ RectTransform:
   - {fileID: 224787409936031394}
   - {fileID: 224144671512096346}
   m_Father: {fileID: 224129849892807800}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 386, y: 0}
-  m_SizeDelta: {x: 772, y: 434}
+  m_AnchoredPosition: {x: 410, y: -12}
+  m_SizeDelta: {x: 796, y: 434}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224960291416943322
 RectTransform:
