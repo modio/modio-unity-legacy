@@ -962,6 +962,166 @@ namespace ModIO.UI
             }
         }
 
+        private System.Collections.IEnumerator DownloadAndInstallModVersion(int modId, int modfileId)
+        {
+            bool isRequestDone = false;
+            WebRequestError requestError = null;
+
+            // try and get the modfile
+            Modfile modfile = CacheClient.LoadModfile(modId, modfileId);
+            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+            bool isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
+                                     && modfile != null
+                                     && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                     && modfile.fileHash != null
+                                     && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+
+            if(modfile == null
+               || modfile.fileHash == null
+               || modfile.downloadLocator == null
+               || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now)
+            {
+                modfile = null;
+            }
+
+            while(modfile == null
+                  && m_onlineMode
+                  && this.isActiveAndEnabled)
+            {
+                APIClient.GetModfile(modId, modfileId,
+                                     (mf) =>
+                                     {
+                                        modfile = mf;
+                                        isRequestDone = true;
+                                     },
+                                     (e) =>
+                                     {
+                                        requestError = e;
+                                        isRequestDone = true;
+                                     });
+
+                while(!isRequestDone) { yield return null; }
+                isRequestDone = false;
+
+                if(requestError != null)
+                {
+                    bool cancel;
+                    int reattemptDelay;
+                    string message;
+
+                    ProcessRequestError(requestError, out cancel,
+                                        out reattemptDelay, out message);
+
+                    if(reattemptDelay > 0)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
+                        yield return new WaitForSeconds(reattemptDelay + 1);
+                    }
+                    else if(cancel)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message);
+                        yield break;
+                    }
+                }
+                else if(modfile != null)
+                {
+                    CacheClient.SaveModfile(modfile);
+
+                    // recheck binary
+                    isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
+                                        && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                        && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+                }
+            }
+
+            if(modfile == null)
+            {
+                Debug.LogWarning("[mod.io] Failed to retrieve the Modfile and thus cannot download"
+                                 + " the mod binary. (ModId: " + modId.ToString() + " - ModfileId: "
+                                 + modfileId.ToString());
+                yield break;
+            }
+
+
+            while(!isBinaryZipValid
+                  && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now
+                  && m_onlineMode)
+            {
+                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
+                if(downloadInfo == null)
+                {
+                    downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
+                }
+
+                ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
+                foreach(ModView modView in sceneViews)
+                {
+                    if(modView.data.profile.modId == modId)
+                    {
+                        modView.DisplayDownload(downloadInfo);
+                    }
+                }
+
+                while(!downloadInfo.isDone) { yield return null; }
+
+                if(downloadInfo.error != null)
+                {
+                    bool cancel;
+                    int reattemptDelay;
+                    string message;
+
+                    ProcessRequestError(downloadInfo.error, out cancel,
+                                        out reattemptDelay, out message);
+
+                    if(reattemptDelay > 0)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
+                        yield return new WaitForSeconds(reattemptDelay + 1);
+                    }
+                    else if(cancel)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message);
+                        yield break;
+                    }
+                }
+                else
+                {
+                    isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
+                                        && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                        && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+
+                    if(!isBinaryZipValid)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download correctly.");
+                        yield break;
+                    }
+                }
+            }
+
+            // NOTE(@jackson): Do not uninstall/install unless the ModBrowser is active!
+            if(isBinaryZipValid
+               && this.isActiveAndEnabled)
+            {
+                ModManager.TryUninstallAllModVersions(modId);
+                ModManager.TryInstallMod(modId, modfileId, true);
+            }
+        }
+
         // ---------[ REQUESTS ]---------
         private void ProcessRequestError(WebRequestError requestError,
                                          out bool cancelFurtherAttempts,
@@ -1866,156 +2026,6 @@ namespace ModIO.UI
             }
         }
 
-        private System.Collections.IEnumerator AssertDownloadedAndInstalledCoroutine(int modId, int modfileId)
-        {
-            string installDir = ModManager.GetModInstallDirectory(modId, modfileId);
-            if(System.IO.Directory.Exists(installDir)) { yield break; }
-
-            bool isRequestDone = false;
-            WebRequestError requestError = null;
-
-            // try and get the modfile
-            Modfile modfile = CacheClient.LoadModfile(modId, modfileId);
-            if(modfile != null
-               && (modfile.downloadLocator == null
-                   || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now))
-            {
-                modfile = null;
-            }
-
-            while(modfile == null
-                  && m_onlineMode
-                  && this.isActiveAndEnabled)
-            {
-                APIClient.GetModfile(modId, modfileId,
-                                     (mf) =>
-                                     {
-                                        modfile = mf;
-                                        isRequestDone = true;
-                                     },
-                                     (e) =>
-                                     {
-                                        requestError = e;
-                                        isRequestDone = true;
-                                     });
-
-                while(!isRequestDone) { yield return null; }
-                isRequestDone = false;
-
-                if(requestError != null)
-                {
-                    bool cancel;
-                    int reattemptDelay;
-                    string message;
-
-                    ProcessRequestError(requestError, out cancel,
-                                        out reattemptDelay, out message);
-
-                    if(reattemptDelay > 0)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
-                        yield return new WaitForSeconds(reattemptDelay + 1);
-                    }
-                    else if(cancel)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message);
-                        yield break;
-                    }
-                }
-                else if(modfile != null)
-                {
-                    CacheClient.SaveModfile(modfile);
-                }
-            }
-
-            if(modfile == null)
-            {
-                yield break;
-            }
-
-            // assert that the mod is downloaded and valid
-            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
-            bool isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
-                                     && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
-                                     && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
-
-            while(!isBinaryZipValid
-                  && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now
-                  && m_onlineMode
-                  && this.isActiveAndEnabled)
-            {
-                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
-                if(downloadInfo == null)
-                {
-                    downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
-                }
-
-                ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
-                foreach(ModView modView in sceneViews)
-                {
-                    if(modView.data.profile.modId == modId)
-                    {
-                        modView.DisplayDownload(downloadInfo);
-                    }
-                }
-
-                while(!downloadInfo.isDone) { yield return null; }
-
-                if(downloadInfo.error != null)
-                {
-                    bool cancel;
-                    int reattemptDelay;
-                    string message;
-
-                    ProcessRequestError(downloadInfo.error, out cancel,
-                                        out reattemptDelay, out message);
-
-                    if(reattemptDelay > 0)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
-                        yield return new WaitForSeconds(reattemptDelay + 1);
-                    }
-                    else if(cancel)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message);
-                        yield break;
-                    }
-                }
-                else
-                {
-                    isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
-                                        && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
-                                        && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
-
-                    if(!isBinaryZipValid)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download correctly.");
-                        yield break;
-                    }
-                }
-            }
-
-            if(isBinaryZipValid)
-            {
-                ModManager.TryInstallMod(modId, modfileId, true);
-            }
-        }
-
         public void UnsubscribeFromMod(int modId)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
@@ -2050,7 +2060,7 @@ namespace ModIO.UI
             {
                 if(this.isActiveAndEnabled)
                 {
-                    this.StartCoroutine(AssertDownloadedAndInstalledCoroutine(p.id, p.activeBuild.id));
+                    this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
                 }
             },
             WebRequestError.LogAsWarning);
@@ -2088,7 +2098,7 @@ namespace ModIO.UI
                     {
                         if(this.isActiveAndEnabled)
                         {
-                            this.StartCoroutine(AssertDownloadedAndInstalledCoroutine(p.id, p.activeBuild.id));
+                            this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
                         }
                     },
                     WebRequestError.LogAsWarning);
