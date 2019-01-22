@@ -595,6 +595,8 @@ namespace ModIO.UI
                 yield return this.StartCoroutine(FetchAllSubscribedModProfiles());
             }
 
+            UpdateInstalledModsUsingSubscriptions();
+
             m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
         }
 
