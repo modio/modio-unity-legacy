@@ -8,6 +8,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using Directory = System.IO.Directory;
+
 // TODO(@jackson): Use ModManager.USERID_GUEST
 // TODO(@jackson): Error handling on log in
 namespace ModIO.UI
@@ -2117,7 +2119,11 @@ namespace ModIO.UI
             {
                 if(this.isActiveAndEnabled)
                 {
-                    this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
+                    string installDir = ModManager.GetModInstallDirectory(p.id, p.activeBuild.id);
+                    if(!Directory.Exists(installDir))
+                    {
+                        this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
+                    }
                 }
             },
             WebRequestError.LogAsWarning);
@@ -2155,7 +2161,11 @@ namespace ModIO.UI
                     {
                         if(this.isActiveAndEnabled)
                         {
-                            this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
+                            string installDir = ModManager.GetModInstallDirectory(p.id, p.activeBuild.id);
+                            if(!Directory.Exists(installDir))
+                            {
+                                this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
+                            }
                         }
                     },
                     WebRequestError.LogAsWarning);
@@ -2205,11 +2215,8 @@ namespace ModIO.UI
             {
                 mods.Add(modId);
                 ModManager.SetEnabledModIds(mods);
-
-                // TODO(@jackson): Fire event
             }
 
-            // TODO(@jackson): ugh?
             ModView[] sceneModViews = Resources.FindObjectsOfTypeAll<ModView>();
             foreach(ModView view in sceneModViews)
             {
@@ -2231,7 +2238,6 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            // TODO(@jackson): ugh?
             ModView[] sceneModViews = Resources.FindObjectsOfTypeAll<ModView>();
             foreach(ModView view in sceneModViews)
             {
