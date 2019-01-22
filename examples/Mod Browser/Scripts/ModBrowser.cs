@@ -1180,8 +1180,7 @@ namespace ModIO.UI
             if(isBinaryZipValid
                && this.isActiveAndEnabled)
             {
-                if(!(ModManager.TryUninstallAllModVersions(modId)
-                     && ModManager.TryInstallMod(modId, modfileId, true)) )
+                if(!ModManager.TryInstallMod(modId, modfileId, true) )
                 {
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                "Mods have failed to install. Restarting may resolve this issue.");

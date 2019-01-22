@@ -1110,7 +1110,7 @@ namespace ModIO
 
             foreach(string modDirectory in modDirectories)
             {
-                string folderName = IOUtilities.GetPathItemName(installDirectory);
+                string folderName = IOUtilities.GetPathItemName(modDirectory);
                 string[] folderNameParts = folderName.Split('_');
 
                 int modId;
