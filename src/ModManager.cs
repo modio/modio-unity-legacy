@@ -969,7 +969,6 @@ namespace ModIO
 
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            Debug.Log("modInstallDirectory = " + ModManager.settings.installDirectory);
             return IOUtilities.CombinePath(ModManager.settings.installDirectory,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
@@ -1111,7 +1110,7 @@ namespace ModIO
 
             foreach(string modDirectory in modDirectories)
             {
-                string folderName = modDirectory.Substring(installDirectory.Length);
+                string folderName = modDirectory.Substring(installDirectory.Length + 1);
                 string[] folderNameParts = folderName.Split('_');
 
                 int modId;
@@ -1125,7 +1124,8 @@ namespace ModIO
                 if(modIdFilter == null
                    || modIdFilter.Contains(modId))
                 {
-                    if(!(folderNameParts.Length > 1
+                    if(!(modId > 0
+                         && folderNameParts.Length > 1
                          && Int32.TryParse(folderNameParts[1], out modfileId)))
                     {
                         modfileId = 0;
@@ -1138,7 +1138,6 @@ namespace ModIO
                     };
 
                     var info = new KeyValuePair<ModfileIdPair, string>(idPair, modDirectory);
-
                     yield return info;
                 }
             }
