@@ -1023,6 +1023,8 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Downloads (if necessary) the modfile and installs it, removing other installed versions.</summary>
+        // NOTE(@jackson): Checks 'this.isActiveAndEnabled' before unzipping.
         private System.Collections.IEnumerator DownloadAndInstallModVersion(int modId, int modfileId)
         {
             bool isRequestDone = false;
@@ -1178,8 +1180,12 @@ namespace ModIO.UI
             if(isBinaryZipValid
                && this.isActiveAndEnabled)
             {
-                ModManager.TryUninstallAllModVersions(modId);
-                ModManager.TryInstallMod(modId, modfileId, true);
+                if(!(ModManager.TryUninstallAllModVersions(modId)
+                     && ModManager.TryInstallMod(modId, modfileId, true)) )
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                               "Mods have failed to install. Restarting may resolve this issue.");
+                }
             }
         }
 
