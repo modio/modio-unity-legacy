@@ -1110,7 +1110,7 @@ namespace ModIO
 
             foreach(string modDirectory in modDirectories)
             {
-                string folderName = modDirectory.Substring(installDirectory.Length + 1);
+                string folderName = IOUtilities.GetPathItemName(installDirectory);
                 string[] folderNameParts = folderName.Split('_');
 
                 int modId;
@@ -1584,13 +1584,15 @@ namespace ModIO
                 return;
             }
 
-            // - Zip Directory -
-            if(binaryDirectory[binaryDirectory.Length - 1] == '/')
+            char lastCharacter = binaryDirectory[binaryDirectory.Length - 1];
+            if(lastCharacter == Path.DirectorySeparatorChar
+               || lastCharacter == Path.DirectorySeparatorChar)
             {
                 binaryDirectory = binaryDirectory.Remove(binaryDirectory.Length - 1);
             }
 
-            string folderName = binaryDirectory.Substring(binaryDirectory.LastIndexOf('/') + 1);
+            // - Zip Directory -
+            string folderName = IOUtilities.GetPathItemName(binaryDirectory);
             string binaryZipLocation = IOUtilities.CombinePath(Application.temporaryCachePath,
                                                                "modio",
                                                                folderName + "_" + DateTime.Now.ToFileTime() + ".zip");

@@ -288,5 +288,32 @@ namespace ModIO
 
             return null;
         }
+
+        /// <summary>Gets the name of the item (file/folder) at the given path.</summary>
+        public static string GetPathItemName(string path)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(path));
+
+            // remove any separators
+            char lastCharacter = path[path.Length - 1];
+
+            while(path.Length > 1
+                  && (lastCharacter == Path.DirectorySeparatorChar
+                      || lastCharacter == Path.DirectorySeparatorChar))
+            {
+                path = path.Remove(path.Length - 1);
+                lastCharacter = path[path.Length - 1];
+            }
+
+            // get parent directory and remove
+            string folderName = path;
+            string parentDirectory = Path.GetDirectoryName(path);
+            if(!String.IsNullOrEmpty(parentDirectory))
+            {
+                folderName = path.Substring(parentDirectory.Length + 1);
+            }
+
+            return folderName;
+        }
     }
 }
