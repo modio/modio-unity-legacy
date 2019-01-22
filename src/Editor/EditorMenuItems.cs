@@ -23,10 +23,10 @@ namespace ModIO
             if(IOUtilities.DeleteDirectory(CacheClient.settings.directory))
             {
                 Debug.Log("[mod.io] Cache Cleared.");
-            }
 
-            // NOTE(@jackson): Can throw an exception but I don't care?
-            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(CacheClient.settings.directory));
+                // NOTE(@jackson): Can throw an exception but I don't care?
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(CacheClient.settings.directory));
+            }
         }
 
         [MenuItem("mod.io/Clear Cache/User Data", false, 1)]
@@ -59,6 +59,16 @@ namespace ModIO
             if(IOUtilities.DeleteDirectory(usersDir))
             {
                 Debug.Log("[mod.io] Cached User Profiles Deleted.");
+            }
+        }
+
+        [MenuItem("mod.io/Remove Installed Mod Data", false, 1)]
+        public static void RemoveAllInstalledMods()
+        {
+            string installDirectory = ModManager.settings.installDirectory;
+            if(IOUtilities.DeleteDirectory(installDirectory))
+            {
+                Debug.Log("[mod.io] Mod Intallation Data removed.");
             }
         }
     }
