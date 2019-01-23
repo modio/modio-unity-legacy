@@ -1,6 +1,4 @@
-﻿#define MEEPLESTATION_AUTO_INSTALL
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 using System;
@@ -1772,7 +1770,8 @@ namespace ModIO.UI
 
         private IEnumerable<ModView> IterateModViews()
         {
-            if(this.inspectorView != null)
+            if(this.inspectorView != null
+               && this.inspectorView.modView != null)
             {
                 yield return this.inspectorView.modView;
             }
