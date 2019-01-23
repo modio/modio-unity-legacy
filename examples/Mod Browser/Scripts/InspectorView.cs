@@ -88,22 +88,29 @@ namespace ModIO.UI
         }
 
         // ---------[ UPDATE VIEW ]---------
+        [Obsolete]
         public void UpdateProfileDisplay()
         {
-            #if UNITY_EDITOR
-            if(!Application.isPlaying) { return; }
-            #endif
+            DisplayMod(profile, statistics, tagCategories, isModSubscribed, isModEnabled);
+        }
 
-            Debug.Assert(this.profile != null,
-                         "[mod.io] Assign the mod profile before updating the profile UI components.");
+        [Obsolete]
+        public void UpdateStatisticsDisplay()
+        {
+            DisplayMod(profile, statistics, tagCategories, isModSubscribed, isModEnabled);
+        }
+
+        public void DisplayMod(ModProfile profile, ModStatistics statistics,
+                               IEnumerable<ModTagCategory> tagCategories,
+                               bool isModSubscribed, bool isModEnabled)
+        {
+            Debug.Assert(profile != null);
 
             if(modView != null)
             {
-                modView.DisplayMod(profile,
-                                   statistics,
+                modView.DisplayMod(profile, statistics,
                                    tagCategories,
-                                   isModSubscribed,
-                                   isModEnabled);
+                                   isModSubscribed, isModEnabled);
             }
 
             if(selectedMediaPreview != null)
@@ -141,32 +148,6 @@ namespace ModIO.UI
                                          (r) => PopulateVersionHistory(profile.id, r.items),
                                          WebRequestError.LogAsWarning);
             }
-        }
-        public void UpdateStatisticsDisplay()
-        {
-            #if UNITY_EDITOR
-            if(!Application.isPlaying) { return; }
-            #endif
-
-            Debug.Assert(this.statistics != null,
-                         "[mod.io] Assign the mod statistics before updating the statistics UI components.");
-
-            if(modView != null)
-            {
-                modView.DisplayMod(profile,
-                                   statistics,
-                                   tagCategories,
-                                   isModSubscribed,
-                                   isModEnabled);
-            }
-        }
-
-        // TODO(@jackson): Remove!
-        public void UpdateIsSubscribedDisplay()
-        {
-            ModDisplayData data = modView.data;
-            data.isSubscribed = isModSubscribed;
-            modView.data = data;
         }
 
         public void DisplayLoading()
