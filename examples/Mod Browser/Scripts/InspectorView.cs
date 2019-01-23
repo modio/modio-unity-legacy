@@ -100,6 +100,13 @@ namespace ModIO.UI
             DisplayMod(profile, statistics, tagCategories, isModSubscribed, isModEnabled);
         }
 
+        public void UpdateIsSubscribedDisplay()
+        {
+            ModDisplayData data = modView.data;
+            data.isSubscribed = isModSubscribed;
+            modView.data = data;
+        }
+
         public void DisplayMod(ModProfile profile, ModStatistics statistics,
                                IEnumerable<ModTagCategory> tagCategories,
                                bool isModSubscribed, bool isModEnabled)
