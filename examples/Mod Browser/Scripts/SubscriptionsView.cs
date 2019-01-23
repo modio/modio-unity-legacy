@@ -36,6 +36,12 @@ namespace ModIO.UI
         // --- TEMP ---
         public IEnumerable<ModTagCategory> tagCategories { get; set; }
 
+        // --- ACCESSORS ---
+        public IEnumerable<ModView> modViews
+        {
+            get { return m_viewMap.Values; }
+        }
+
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {

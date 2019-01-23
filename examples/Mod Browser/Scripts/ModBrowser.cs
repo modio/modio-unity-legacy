@@ -1123,8 +1123,7 @@ namespace ModIO.UI
                     downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
                 }
 
-                ModView[] sceneViews = Resources.FindObjectsOfTypeAll<ModView>();
-                foreach(ModView modView in sceneViews)
+                foreach(ModView modView in IterateModViews())
                 {
                     if(modView.data.profile.modId == modId)
                     {
@@ -1771,6 +1770,30 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
         }
 
+        private IEnumerable<ModView> IterateModViews()
+        {
+            if(this.inspectorView != null)
+            {
+                yield return this.inspectorView.modView;
+            }
+
+            if(this.explorerView != null)
+            {
+                foreach(var modView in this.explorerView.modViews)
+                {
+                    yield return modView;
+                }
+            }
+
+            if(this.subscriptionsView != null)
+            {
+                foreach(var modView in this.subscriptionsView.modViews)
+                {
+                    yield return modView;
+                }
+            }
+        }
+
         // public void ChangeInspectorPage(int direction)
         // {
         //     int pageSize = explorerView.itemsPerPage;
@@ -2224,14 +2247,17 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            ModView[] sceneModViews = Resources.FindObjectsOfTypeAll<ModView>();
-            foreach(ModView view in sceneModViews)
+            if(instance != null
+               && instance.isActiveAndEnabled)
             {
-                if(view.data.profile.modId == modId)
+                foreach(ModView view in ModBrowser.instance.IterateModViews())
                 {
-                    ModDisplayData data = view.data;
-                    data.isModEnabled = true;
-                    view.data = data;
+                    if(view.data.profile.modId == modId)
+                    {
+                        ModDisplayData data = view.data;
+                        data.isModEnabled = true;
+                        view.data = data;
+                    }
                 }
             }
         }
@@ -2245,14 +2271,17 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            ModView[] sceneModViews = Resources.FindObjectsOfTypeAll<ModView>();
-            foreach(ModView view in sceneModViews)
+            if(instance != null
+               && instance.isActiveAndEnabled)
             {
-                if(view.data.profile.modId == modId)
+                foreach(ModView view in ModBrowser.instance.IterateModViews())
                 {
-                    ModDisplayData data = view.data;
-                    data.isModEnabled = false;
-                    view.data = data;
+                    if(view.data.profile.modId == modId)
+                    {
+                        ModDisplayData data = view.data;
+                        data.isModEnabled = false;
+                        view.data = data;
+                    }
                 }
             }
         }
