@@ -111,7 +111,10 @@ namespace ModIO.UI
                                IEnumerable<ModTagCategory> tagCategories,
                                bool isModSubscribed, bool isModEnabled)
         {
-            Debug.Assert(profile != null);
+            if(profile == null)
+            {
+                return;
+            }
 
             if(modView != null)
             {
@@ -172,6 +175,11 @@ namespace ModIO.UI
 
             // inspector has closed/changed mods since call was made
             if(profile.id != modId) { return; }
+
+            foreach(Transform t in versionHistoryContainer)
+            {
+                GameObject.Destroy(t.gameObject);
+            }
 
             foreach(Modfile modfile in modfiles)
             {
