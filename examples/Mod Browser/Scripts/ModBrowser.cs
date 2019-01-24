@@ -162,7 +162,7 @@ namespace ModIO.UI
 
         public string modInstallDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods";
 
-        private UserDisplayData guestData = new UserDisplayData()
+        [SerializeField] private UserDisplayData m_guestData = new UserDisplayData()
         {
             profile = new UserProfileDisplayData()
             {
@@ -565,7 +565,7 @@ namespace ModIO.UI
 
                 if(userProfile == null)
                 {
-                    loggedUserView.data = guestData;
+                    loggedUserView.data = m_guestData;
                 }
                 else
                 {
@@ -1682,7 +1682,7 @@ namespace ModIO.UI
             this.userProfile = null;
             if(this.loggedUserView != null)
             {
-                this.loggedUserView.data = guestData;
+                this.loggedUserView.data = m_guestData;
             }
 
             // - notify -
