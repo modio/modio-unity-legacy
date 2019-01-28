@@ -7892,10 +7892,10 @@ RectTransform:
   m_Father: {fileID: 224865534233176124}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 796, y: -44}
-  m_SizeDelta: {x: 48, y: 88}
+  m_AnchoredPosition: {x: 796, y: 0}
+  m_SizeDelta: {x: 48, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &222158203629007606
 CanvasRenderer:
@@ -12250,10 +12250,10 @@ RectTransform:
   m_Father: {fileID: 224865534233176124}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -44}
-  m_SizeDelta: {x: 48, y: 88}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 48, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &222404275061152718
 CanvasRenderer:
@@ -12573,10 +12573,10 @@ RectTransform:
   m_Father: {fileID: 224865534233176124}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 398, y: -44}
-  m_SizeDelta: {x: 712, y: 88}
+  m_AnchoredPosition: {x: 398, y: 0}
+  m_SizeDelta: {x: 712, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &114273512580032918
 MonoBehaviour:
@@ -14048,7 +14048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbcf13412947141a0816098403a73fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  connectTo: 1
+  connectTo: 0
   testServerSettings:
     apiURL: https://api.test.mod.io/v1
     gameId: 0
@@ -21094,7 +21094,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 410, y: -522}
-  m_SizeDelta: {x: 796, y: 88}
+  m_SizeDelta: {x: 796, y: 62}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &114428302299885758
 MonoBehaviour:
