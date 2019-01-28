@@ -1763,6 +1763,26 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114302316280223688, guid: df954dfebde1c4fdda2233d14d2bf4cd,
+        type: 3}
+      propertyPath: m_ScrollSensitivity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114415609448727154, guid: df954dfebde1c4fdda2233d14d2bf4cd,
+        type: 3}
+      propertyPath: m_ScrollSensitivity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114546500240049834, guid: df954dfebde1c4fdda2233d14d2bf4cd,
+        type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114407920810748112, guid: df954dfebde1c4fdda2233d14d2bf4cd,
+        type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df954dfebde1c4fdda2233d14d2bf4cd, type: 3}
 --- !u!1 &1145443526
