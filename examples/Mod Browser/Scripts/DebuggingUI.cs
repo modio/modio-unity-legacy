@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using ModIO;
@@ -26,15 +27,17 @@ public class DebuggingUI : MonoBehaviour
             {
                 messageDisplay.text = message;
             }
-        }
 
-        // NOTE(@jackson): Can throw an exception but I don't care?
-        System.IO.Directory.CreateDirectory(cacheDir);
+            // NOTE(@jackson): Can throw an exception but I don't care?
+            System.IO.Directory.CreateDirectory(cacheDir);
+        }
     }
 
     public void ClearCachedAuthenticatedUserData()
     {
         ModManager.SetUserData(new UserAuthenticationData());
+        ModManager.SetSubscribedModIds(new List<int>());
+        ModManager.SetEnabledModIds(new List<int>());
 
         string message = "[mod.io] Cached User Data Deleted.";
         Debug.Log(message);

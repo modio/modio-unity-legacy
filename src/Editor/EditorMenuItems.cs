@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -33,6 +34,9 @@ namespace ModIO
         public static void ClearCachedAuthenticatedUserData()
         {
             ModManager.SetUserData(new UserAuthenticationData());
+            ModManager.SetSubscribedModIds(new List<int>());
+            ModManager.SetEnabledModIds(new List<int>());
+
             Debug.Log("[mod.io] Cached User Data Deleted.");
         }
         [MenuItem("mod.io/Clear Cache/Game Data", false, 1)]
