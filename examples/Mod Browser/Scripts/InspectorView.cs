@@ -37,8 +37,6 @@ namespace ModIO.UI
         public bool isModEnabled;
 
         // ---[ TEMP DATA ]---
-        [Header("Temp Data")]
-        public float mediaElementHeight;
         public IEnumerable<ModTagCategory> tagCategories { get; set; }
 
         // ---------[ INITIALIZATION ]---------
