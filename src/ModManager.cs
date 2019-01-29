@@ -43,7 +43,7 @@ namespace ModIO
         }
 
         // --- ACCESSORS ---
-        /// <summary>Settings used by the CacheClient.</summary>
+        /// <summary>Settings used by the ModManager.</summary>
         public static Settings settings
         {
             get { return ModManager.m_settings; }
@@ -55,6 +55,8 @@ namespace ModIO
 
                     try
                     {
+                        AssertUniqueBundleIdentifier();
+
                         Directory.CreateDirectory(Path.GetDirectoryName(ModManager._SETTINGS_LOCATION));
                         File.WriteAllText(ModManager._SETTINGS_LOCATION,
                                           JsonConvert.SerializeObject(ModManager.m_settings));
@@ -70,6 +72,29 @@ namespace ModIO
                 }
             }
         }
+
+        // ---------[ ASSERTS ]---------
+        private static void AssertUniqueBundleIdentifier()
+        {
+            #if DEBUG
+            if(Application.isPlaying)
+            {
+                if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
+                    && Application.identifier.ToUpper().Contains("COMPANY"))
+                   || (ModManager._SETTINGS_LOCATION.ToUpper().Contains("PRODUCTNAME")
+                       && ModManager._SETTINGS_LOCATION.ToUpper().Contains("COMPANY")))
+                {
+                    Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
+                                   + " bundle identifier will cause conflicts with other projects"
+                                   + " using mod.io. Please open \'Build Settings' > \'Player Settings\'"
+                                   + " and assign a unique Company Name, Project Name, and Bundle"
+                                   + " Identifier (under \'Other Settings\') to utilize the mod.io "
+                                   + " Unity Plugin.");
+                }
+            }
+            #endif
+        }
+
 
         // ---------[ AUTHENTICATED USER ]---------
         public static IEnumerable<int> EnumerateModIdString(string modIdArrayString)
@@ -165,6 +190,8 @@ namespace ModIO
         // ---------[ USER DATA ]---------
         public static UserAuthenticationData GetUserData()
         {
+            AssertUniqueBundleIdentifier();
+
             UserAuthenticationData userData = new UserAuthenticationData();
 
             string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_USERDATA,
@@ -190,6 +217,8 @@ namespace ModIO
         }
         public static void SetUserData(int userId, string authenticationToken)
         {
+            AssertUniqueBundleIdentifier();
+
             if(authenticationToken == null)
             {
                 authenticationToken = string.Empty;
@@ -205,23 +234,31 @@ namespace ModIO
 
         public static List<int> GetSubscribedModIds()
         {
+            AssertUniqueBundleIdentifier();
+
             string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_SUBCRIBEDMODIDS,
                                                        string.Empty);
             return new List<int>(EnumerateModIdString(valueString));
         }
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
+            AssertUniqueBundleIdentifier();
+
             string valueString = CreateModIdArrayString(modIds);
             PlayerPrefs.SetString(PLAYERPREFKEY_SUBCRIBEDMODIDS, valueString);
         }
 
         public static List<int> GetEnabledModIds()
         {
+            AssertUniqueBundleIdentifier();
+
             string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_ENABLEDMODIDS, string.Empty);
             return new List<int>(EnumerateModIdString(valueString));
         }
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
+            AssertUniqueBundleIdentifier();
+
             string valueString = CreateModIdArrayString(modIds);
             PlayerPrefs.SetString(PLAYERPREFKEY_ENABLEDMODIDS, valueString);
         }
