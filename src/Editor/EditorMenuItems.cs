@@ -69,8 +69,7 @@ namespace ModIO
         [MenuItem("mod.io/Remove Installed Mod Data", false, 1)]
         public static void RemoveAllInstalledMods()
         {
-            string installDirectory = ModManager.settings.installDirectory;
-            if(IOUtilities.DeleteDirectory(installDirectory))
+            if(IOUtilities.DeleteDirectory(ModManager.installDirectory))
             {
                 Debug.Log("[mod.io] Mod Intallation Data removed.");
             }

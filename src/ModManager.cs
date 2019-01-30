@@ -19,56 +19,33 @@ namespace ModIO
         public const string PLAYERPREFKEY_SUBCRIBEDMODIDS   = "modio_subcribedModIds";
         public const string PLAYERPREFKEY_ENABLEDMODIDS     = "modio_enabledModIds";
 
-        /// <summary>Location of the settings file.</summary>
-        private static readonly string _SETTINGS_LOCATION = IOUtilities.CombinePath(Application.persistentDataPath,
-                                                                                    "modio",
-                                                                                    "settings.data");
-
         // ---------[ NESTED CLASSES ]---------
-        /// <summary>Structure for holding the ModManager settings.</summary>
-        [Serializable]
-        public struct Settings
-        {
-            public string installDirectory;
-        }
-
-        // ---------[ SETTINGS ]---------
-        /// <summary>Settings used by the ModManager.</summary>
-        private static Settings m_settings;
+        /// <summary>Install directory used by the ModManager.</summary>
+        private static string m_installDirectory;
 
         /// <summary>Initialzes the ModManager settings.</summary>
         static ModManager()
         {
-            ModManager.settings = IOUtilities.ReadJsonObjectFile<Settings>(ModManager._SETTINGS_LOCATION);
+            AssertUniqueBundleIdentifier();
+
+            ServerSettings settings = ServerSettings.Load();
+            ModManager.m_installDirectory = settings.installDirectory;
         }
 
         // --- ACCESSORS ---
         /// <summary>Settings used by the ModManager.</summary>
-        public static Settings settings
+        public static string installDirectory
         {
-            get { return ModManager.m_settings; }
+            get { return ModManager.m_installDirectory; }
             set
             {
-                if(!ModManager.m_settings.Equals(value))
+                if(!ModManager.m_installDirectory.Equals(value))
                 {
-                    ModManager.m_settings = value;
+                    ModManager.m_installDirectory = value;
 
-                    try
-                    {
-                        AssertUniqueBundleIdentifier();
-
-                        Directory.CreateDirectory(Path.GetDirectoryName(ModManager._SETTINGS_LOCATION));
-                        File.WriteAllText(ModManager._SETTINGS_LOCATION,
-                                          JsonConvert.SerializeObject(ModManager.m_settings));
-                    }
-                    catch(Exception e)
-                    {
-                        string warningInfo = ("[mod.io] Failed to create ModManager settings file."
-                                              + "\nFile: " + ModManager._SETTINGS_LOCATION + "\n\n");
-
-                        Debug.LogWarning(warningInfo
-                                         + Utility.GenerateExceptionDebugString(e));
-                    }
+                    ServerSettings settings = ServerSettings.Load();
+                    settings.installDirectory = value;
+                    ServerSettings.Save(settings);
                 }
             }
         }
@@ -81,8 +58,8 @@ namespace ModIO
             {
                 if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
                     && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (ModManager._SETTINGS_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && ModManager._SETTINGS_LOCATION.ToUpper().Contains("COMPANY")))
+                   || (ServerSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
+                       && ServerSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
                 {
                     Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
                                    + " bundle identifier will cause conflicts with other projects"
@@ -1006,7 +983,7 @@ namespace ModIO
 
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(ModManager.settings.installDirectory,
+            return IOUtilities.CombinePath(ModManager.installDirectory,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -1127,19 +1104,18 @@ namespace ModIO
 
         public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
         {
-            string installDirectory = ModManager.settings.installDirectory;
             string[] modDirectories = new string[0];
             try
             {
-                if(Directory.Exists(installDirectory))
+                if(Directory.Exists(ModManager.installDirectory))
                 {
-                    modDirectories = Directory.GetDirectories(installDirectory);
+                    modDirectories = Directory.GetDirectories(ModManager.installDirectory);
                 }
             }
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to read mod installation directory."
-                                      + "\nDirectory: " + installDirectory + "\n\n");
+                                      + "\nDirectory: " + ModManager.installDirectory + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));

@@ -6,14 +6,14 @@ namespace ModIO.InEditor
         public static readonly ServerSettings TEST_SERVER = new ServerSettings()
         {
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
-            cacheDir = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio_test"),
+            cacheDirectory = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio_test"),
             gameId = 0,
             gameAPIKey = string.Empty,
         };
         public static readonly ServerSettings PRODUCTION_SERVER = new ServerSettings()
         {
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-            cacheDir = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio"),
+            cacheDirectory = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio"),
             gameId = 0,
             gameAPIKey = string.Empty,
         };
@@ -44,7 +44,7 @@ namespace ModIO.InEditor
             DownloadClient.logAllRequests = DEBUG_ALL_REQUESTS;
 
             var cacheSettings = CacheClient.settings;
-            cacheSettings.directory = settings.cacheDir;
+            cacheSettings.directory = settings.cacheDirectory;
             CacheClient.settings = cacheSettings;
         }
     }

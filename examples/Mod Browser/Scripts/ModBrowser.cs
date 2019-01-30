@@ -139,21 +139,21 @@ namespace ModIO.UI
         public ServerSettings testServerSettings = new ServerSettings()
         {
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
-            cacheDir = "$PERSISTENT_DATA_PATH$/modio_test",
+            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_test",
             gameId = 0,
             gameAPIKey = string.Empty,
         };
         public ServerSettings productionServerSettings = new ServerSettings()
         {
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-            cacheDir = "$PERSISTENT_DATA_PATH$/modio",
+            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio",
             gameId = 0,
             gameAPIKey = string.Empty,
         };
         public ServerSettings customServerSettings = new ServerSettings()
         {
             apiURL = string.Empty,
-            cacheDir = "$PERSISTENT_DATA_PATH$/modio_custom",
+            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_custom",
             gameId = 0,
             gameAPIKey = string.Empty,
         };
@@ -305,7 +305,7 @@ namespace ModIO.UI
             }
 
             // - CacheClient Data -
-            string[] cacheDirParts = settings.cacheDir.Split('\\', '/');
+            string[] cacheDirParts = settings.cacheDirectory.Split('\\', '/');
             for(int i = 0; i < cacheDirParts.Length; ++i)
             {
                 if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
@@ -375,9 +375,10 @@ namespace ModIO.UI
                     installDirParts[i] = Application.persistentDataPath;
                 }
             }
-            var modioSettings = ModManager.settings;
-            modioSettings.installDirectory = IOUtilities.CombinePath(installDirParts);
-            ModManager.settings = modioSettings;
+
+            settings.installDirectory = IOUtilities.CombinePath(installDirParts);
+
+            ServerSettings.Save(settings);
         }
 
         private void InitializeInspectorView()
