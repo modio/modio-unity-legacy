@@ -136,7 +136,7 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         public ServerType connectTo = ServerType.TestServer;
-        public ServerSettings testServerSettings = new ServerSettings()
+        public PluginSettings testPluginSettings = new PluginSettings()
         {
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
             gameId = 0,
@@ -144,7 +144,7 @@ namespace ModIO.UI
             cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_test",
             installDirectory = "$PERSISTENT_DATA_PATH$/modio_test/_installedMods",
         };
-        public ServerSettings productionServerSettings = new ServerSettings()
+        public PluginSettings productionPluginSettings = new PluginSettings()
         {
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
             gameId = 0,
@@ -152,7 +152,7 @@ namespace ModIO.UI
             cacheDirectory = "$PERSISTENT_DATA_PATH$/modio",
             installDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods",
         };
-        public ServerSettings customServerSettings = new ServerSettings()
+        public PluginSettings customPluginSettings = new PluginSettings()
         {
             apiURL = string.Empty,
             gameId = 0,
@@ -239,9 +239,9 @@ namespace ModIO.UI
         private void Start()
         {
             #if MODIO_TESTING
-            if(testServerSettings.gameId > 0
-               || productionServerSettings.gameId > 0
-               || customServerSettings.gameId > 0)
+            if(testPluginSettings.gameId > 0
+               || productionPluginSettings.gameId > 0
+               || customPluginSettings.gameId > 0)
             {
                 Debug.LogError("OI DOOFUS! YOU SAVED AUTHENTICATION THE DETAILS TO THE PREFAB AGAIN!!!!!!");
                 return;
@@ -260,27 +260,27 @@ namespace ModIO.UI
         private void LoadLocalData()
         {
             // - Server Settings -
-            ServerSettings settings;
+            PluginSettings settings;
             switch(connectTo)
             {
                 case ServerType.TestServer:
                 {
-                    settings = testServerSettings;
+                    settings = testPluginSettings;
                 }
                 break;
                 case ServerType.ProductionServer:
                 {
-                    settings = productionServerSettings;
+                    settings = productionPluginSettings;
                 }
                 break;
                 case ServerType.CustomServer:
                 {
-                    settings = customServerSettings;
+                    settings = customPluginSettings;
                 }
                 break;
                 default:
                 {
-                    settings = new ServerSettings();
+                    settings = new PluginSettings();
                 }
                 break;
             }
@@ -379,7 +379,7 @@ namespace ModIO.UI
 
             settings.installDirectory = IOUtilities.CombinePath(installDirParts);
 
-            ServerSettings.Save(settings);
+            PluginSettings.Save(settings);
         }
 
         private void InitializeInspectorView()
@@ -2351,8 +2351,8 @@ namespace ModIO.UI
                 if(!Application.isPlaying
                    && this != null)
                 {
-                    testServerSettings.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
-                    productionServerSettings.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+                    testPluginSettings.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
+                    productionPluginSettings.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
                 }
             };
         }

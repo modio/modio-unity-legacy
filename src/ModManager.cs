@@ -28,7 +28,7 @@ namespace ModIO
         {
             AssertUniqueBundleIdentifier();
 
-            ServerSettings settings = ServerSettings.Load();
+            PluginSettings settings = PluginSettings.Load();
             ModManager.m_installDirectory = settings.installDirectory;
         }
 
@@ -43,9 +43,9 @@ namespace ModIO
                 {
                     ModManager.m_installDirectory = value;
 
-                    ServerSettings settings = ServerSettings.Load();
+                    PluginSettings settings = PluginSettings.Load();
                     settings.installDirectory = value;
-                    ServerSettings.Save(settings);
+                    PluginSettings.Save(settings);
                 }
             }
         }
@@ -58,8 +58,8 @@ namespace ModIO
             {
                 if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
                     && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (ServerSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && ServerSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
+                   || (PluginSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
+                       && PluginSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
                 {
                     Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
                                    + " bundle identifier will cause conflicts with other projects"

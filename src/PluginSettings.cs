@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ModIO
 {
     [System.Serializable]
-    public struct ServerSettings
+    public struct PluginSettings
     {
         // ---------[ FIELDS ]---------
         public string   apiURL;
@@ -11,26 +11,27 @@ namespace ModIO
         public string   gameAPIKey;
         public string   cacheDirectory;
         public string   installDirectory;
+        public string   userOAuthToken;
 
         // ---------[ SAVE/LOAD ]---------
         /// <summary>Instance for removing need to load.</summary>
-        private static ServerSettings _instance;
+        private static PluginSettings _instance;
 
         /// <summary>Location of the settings file.</summary>
         public static readonly string FILE_LOCATION = IOUtilities.CombinePath(Application.persistentDataPath,
                                                                               "modio",
                                                                               "settings.data");
 
-        /// <summary>Writes a ServerSettings file to disk.</summary>
-        public static void Save(ServerSettings settings)
+        /// <summary>Writes a PluginSettings file to disk.</summary>
+        public static void Save(PluginSettings settings)
         {
             #if DEBUG
             if(Application.isPlaying)
             {
                 if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
                     && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (ServerSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && ServerSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
+                   || (PluginSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
+                       && PluginSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
                 {
                     Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
                                    + " bundle identifier will cause conflicts with other projects"
@@ -42,23 +43,23 @@ namespace ModIO
             }
             #endif
 
-            if(!ServerSettings._instance.Equals(settings))
+            if(!PluginSettings._instance.Equals(settings))
             {
-                ServerSettings._instance = settings;
+                PluginSettings._instance = settings;
                 IOUtilities.WriteJsonObjectFile(FILE_LOCATION, settings);
             }
         }
 
-        /// <summary>Loads the ServerSettings from disk.</summary>
-        public static ServerSettings Load()
+        /// <summary>Loads the PluginSettings from disk.</summary>
+        public static PluginSettings Load()
         {
             #if DEBUG
             if(Application.isPlaying)
             {
                 if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
                     && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (ServerSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && ServerSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
+                   || (PluginSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
+                       && PluginSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
                 {
                     Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
                                    + " bundle identifier will cause conflicts with other projects"
@@ -70,12 +71,12 @@ namespace ModIO
             }
             #endif
 
-            if(ServerSettings._instance.Equals(default(ServerSettings)))
+            if(PluginSettings._instance.Equals(default(PluginSettings)))
             {
-                ServerSettings._instance = IOUtilities.ReadJsonObjectFile<ServerSettings>(ServerSettings.FILE_LOCATION);
+                PluginSettings._instance = IOUtilities.ReadJsonObjectFile<PluginSettings>(PluginSettings.FILE_LOCATION);
             }
 
-            return ServerSettings._instance;
+            return PluginSettings._instance;
         }
     }
 }

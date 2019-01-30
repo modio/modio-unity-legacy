@@ -3,14 +3,14 @@ namespace ModIO.InEditor
 {
     public static class EditorSettings
     {
-        public static readonly ServerSettings TEST_SERVER = new ServerSettings()
+        public static readonly PluginSettings TEST_SERVER = new PluginSettings()
         {
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
             cacheDirectory = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio_test"),
             gameId = 0,
             gameAPIKey = string.Empty,
         };
-        public static readonly ServerSettings PRODUCTION_SERVER = new ServerSettings()
+        public static readonly PluginSettings PRODUCTION_SERVER = new PluginSettings()
         {
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
             cacheDirectory = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio"),
@@ -24,7 +24,7 @@ namespace ModIO.InEditor
         public static void Load()
         {
             #pragma warning disable 0162
-            ServerSettings settings;
+            PluginSettings settings;
             if(USE_TEST_SERVER)
             {
                 settings = TEST_SERVER;
