@@ -84,6 +84,16 @@ namespace ModIO
         /// <summary>Enable logging of all web requests</summary>
         public static bool logAllRequests = false;
 
+        // ---------[ INITIALIZATION ]---------
+        static APIClient()
+        {
+            PluginSettings settings = PluginSettings.Load();
+            apiURL = settings.apiURL;
+            gameId = settings.gameId;
+            gameAPIKey = settings.gameAPIKey;
+            userAuthorizationToken = settings.userOAuthToken;
+        }
+
         // ---------[ DEBUG ASSERTS ]---------
         /// <summary>Asserts that the required authorization data for making API requests is set.</summary>
         public static bool AssertAuthorizationDetails(bool isUserTokenRequired)

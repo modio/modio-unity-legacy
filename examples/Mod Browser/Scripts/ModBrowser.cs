@@ -104,7 +104,7 @@ namespace ModIO.UI
         public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
 
         public static string manifestFilePath
-        { get { return IOUtilities.CombinePath(CacheClient.settings.directory, "browser_manifest.data"); } }
+        { get { return IOUtilities.CombinePath(CacheClient.cacheDirectory, "browser_manifest.data"); } }
 
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
         {
@@ -314,11 +314,8 @@ namespace ModIO.UI
                     cacheDirParts[i] = Application.persistentDataPath;
                 }
             }
-
-            string cacheDir = IOUtilities.CombinePath(cacheDirParts);
-            var cacheSettings = CacheClient.settings;
-            cacheSettings.directory = cacheDir;
-            CacheClient.settings = cacheSettings;
+            settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
+            CacheClient.cacheDirectory = settings.cacheDirectory;
 
             // - UserData -
             UserAuthenticationData userData = ModManager.GetUserData();
@@ -376,8 +373,8 @@ namespace ModIO.UI
                     installDirParts[i] = Application.persistentDataPath;
                 }
             }
-
             settings.installDirectory = IOUtilities.CombinePath(installDirParts);
+            ModManager.installDirectory = settings.installDirectory;
 
             PluginSettings.Save(settings);
         }

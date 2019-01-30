@@ -43,9 +43,7 @@ namespace ModIO.InEditor
 
             DownloadClient.logAllRequests = DEBUG_ALL_REQUESTS;
 
-            var cacheSettings = CacheClient.settings;
-            cacheSettings.directory = settings.cacheDirectory;
-            CacheClient.settings = cacheSettings;
+            CacheClient.cacheDirectory = settings.cacheDirectory;
         }
     }
 }

@@ -21,33 +21,13 @@ namespace ModIO
 
         // ---------[ NESTED CLASSES ]---------
         /// <summary>Install directory used by the ModManager.</summary>
-        private static string m_installDirectory;
+        public static string installDirectory;
 
         /// <summary>Initialzes the ModManager settings.</summary>
         static ModManager()
         {
-            AssertUniqueBundleIdentifier();
-
             PluginSettings settings = PluginSettings.Load();
-            ModManager.m_installDirectory = settings.installDirectory;
-        }
-
-        // --- ACCESSORS ---
-        /// <summary>Settings used by the ModManager.</summary>
-        public static string installDirectory
-        {
-            get { return ModManager.m_installDirectory; }
-            set
-            {
-                if(!ModManager.m_installDirectory.Equals(value))
-                {
-                    ModManager.m_installDirectory = value;
-
-                    PluginSettings settings = PluginSettings.Load();
-                    settings.installDirectory = value;
-                    PluginSettings.Save(settings);
-                }
-            }
+            ModManager.installDirectory = settings.installDirectory;
         }
 
         // ---------[ ASSERTS ]---------

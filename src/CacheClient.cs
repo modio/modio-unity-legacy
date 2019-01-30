@@ -15,74 +15,22 @@ namespace ModIO
     /// <summary>An interface for storing/loading data retrieved for the mod.io servers on disk.</summary>
     public static class CacheClient
     {
+        // ---------[ MEMBERS ]---------
+        /// <summary>Directory that the CacheClient uses to store data.</summary>
+        public static string cacheDirectory;
+
         // ---------[ INITIALIZATION ]---------
-        /// <summary>Initialzes the CacheClient settings.</summary>
+        /// <summary>Initializes the CacheClient settings.</summary>
         static CacheClient()
         {
-            CacheClient.settings = IOUtilities.ReadJsonObjectFile<Settings>(m_settingsLocation);
-        }
-
-        // ---------[ MEMBERS ]---------
-        /// <summary>Structure for holding the settings.</summary>
-        [Serializable]
-        public struct Settings
-        {
-            public string directory;
-        }
-        /// <summary>Settings used by the CacheClient.</summary>
-        private static Settings m_settings;
-
-        /// <summary>Location of the settings file.</summary>
-        private static readonly string m_settingsLocation = IOUtilities.CombinePath(Application.persistentDataPath,
-                                                                                    "modio",
-                                                                                    "cache_settings.data");
-
-        // --- ACCESSORS ---
-        /// <summary>Settings used by the CacheClient.</summary>
-        public static Settings settings
-        {
-            get { return CacheClient.m_settings; }
-            set
-            {
-                if(!CacheClient.m_settings.Equals(value))
-                {
-                    try
-                    {
-                        Directory.CreateDirectory(value.directory);
-                    }
-                    catch(Exception e)
-                    {
-                        string warningInfo = ("[mod.io] Failed to create cache directory."
-                                              + "\nDirectory: " + value.directory + "\n\n");
-
-                        Debug.LogError(warningInfo
-                                       + Utility.GenerateExceptionDebugString(e));
-                    }
-
-                    CacheClient.m_settings = value;
-
-                    try
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(CacheClient.m_settingsLocation));
-                        File.WriteAllText(CacheClient.m_settingsLocation,
-                                          JsonConvert.SerializeObject(CacheClient.m_settings));
-                    }
-                    catch(Exception e)
-                    {
-                        string warningInfo = ("[mod.io] Failed to create CacheClient settings file."
-                                              + "\nFile: " + CacheClient.m_settingsLocation + "\n\n");
-
-                        Debug.LogWarning(warningInfo
-                                         + Utility.GenerateExceptionDebugString(e));
-                    }
-                }
-            }
+            PluginSettings settings = PluginSettings.Load();
+            CacheClient.cacheDirectory = settings.cacheDirectory;
         }
 
         // ---------[ GAME PROFILE ]---------
         /// <summary>File path for the game profile data.</summary>
         public static string gameProfileFilePath
-        { get { return IOUtilities.CombinePath(CacheClient.settings.directory, "game_profile.data"); } }
+        { get { return IOUtilities.CombinePath(CacheClient.cacheDirectory, "game_profile.data"); } }
 
         /// <summary>Stores the game's profile in the cache.</summary>
         public static bool SaveGameProfile(GameProfile profile)
@@ -101,7 +49,7 @@ namespace ModIO
         /// <summary>Generates the path for a mod cache directory.</summary>
         public static string GenerateModDirectoryPath(int modId)
         {
-            return IOUtilities.CombinePath(CacheClient.settings.directory,
+            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                            "mods",
                                            modId.ToString());
         }
@@ -156,7 +104,7 @@ namespace ModIO
         /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
         public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
         {
-            string profileDirectory = IOUtilities.CombinePath(CacheClient.settings.directory, "mods");
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
             if(Directory.Exists(profileDirectory))
             {
@@ -201,7 +149,7 @@ namespace ModIO
         /// <summary>Determines how many ModProfiles are currently stored in the cache.</summary>
         public static int CountModProfiles()
         {
-            string profileDirectory = IOUtilities.CombinePath(CacheClient.settings.directory, "mods");
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
             if(Directory.Exists(profileDirectory))
             {
@@ -535,7 +483,7 @@ namespace ModIO
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserProfileFilePath(int userId)
         {
-            return IOUtilities.CombinePath(CacheClient.settings.directory,
+            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                            "users",
                                            userId.ToString(),
                                            "profile.data");
@@ -544,7 +492,7 @@ namespace ModIO
         /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserAvatarDirectoryPath(int userId)
         {
-            return IOUtilities.CombinePath(CacheClient.settings.directory,
+            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                            "users",
                                            userId + "_avatar");
         }
@@ -582,7 +530,7 @@ namespace ModIO
         /// <summary>Iterates through all the user profiles in the cache.</summary>
         public static IEnumerable<UserProfile> IterateAllUserProfiles()
         {
-            string profileDirectory = IOUtilities.CombinePath(CacheClient.settings.directory,
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory,
                                                               "users");
 
             if(Directory.Exists(profileDirectory))
@@ -700,10 +648,10 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Retrieves the directory the CacheClient uses.</summary>
-        [Obsolete("Use CacheClient.settings.directory instead.")]
+        [Obsolete("Use CacheClient.cacheDirectory instead.")]
         public static string GetCacheDirectory()
         {
-            return CacheClient.settings.directory;
+            return CacheClient.cacheDirectory;
         }
     }
 }
