@@ -139,28 +139,29 @@ namespace ModIO.UI
         public ServerSettings testServerSettings = new ServerSettings()
         {
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_test",
             gameId = 0,
             gameAPIKey = string.Empty,
+            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_test",
+            installDirectory = "$PERSISTENT_DATA_PATH$/modio_test/_installedMods",
         };
         public ServerSettings productionServerSettings = new ServerSettings()
         {
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio",
             gameId = 0,
             gameAPIKey = string.Empty,
+            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio",
+            installDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods",
         };
         public ServerSettings customServerSettings = new ServerSettings()
         {
             apiURL = string.Empty,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_custom",
             gameId = 0,
             gameAPIKey = string.Empty,
+            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_custom",
+            installDirectory = "$PERSISTENT_DATA_PATH$/modio_custom/_installedMods",
         };
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
-
-        public string modInstallDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods";
 
         [SerializeField] private UserDisplayData m_guestData = new UserDisplayData()
         {
@@ -367,7 +368,7 @@ namespace ModIO.UI
 
             // - Installation Data -
             DownloadClient.logAllRequests = debugAllAPIRequests;
-            string[] installDirParts = modInstallDirectory.Split('\\', '/');
+            string[] installDirParts = settings.installDirectory.Split('\\', '/');
             for(int i = 0; i < installDirParts.Length; ++i)
             {
                 if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
