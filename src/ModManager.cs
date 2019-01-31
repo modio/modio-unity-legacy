@@ -17,7 +17,7 @@ namespace ModIO
         // ---------[ NESTED FIELDS ]---------
         private struct PersistentData
         {
-            // TODO(@jackson): VERSION
+            public SimpleVersion lastRunVersion;
             public List<int> subscribedModIds;
             public List<int> enabledModIds;
         }
@@ -27,9 +27,8 @@ namespace ModIO
         public const string USERDATA_FILENAME = "user.data";
         public const string PERSISTENTDATA_FILENAME = "modmanager.data";
 
-        public const string PLAYERPREFKEY_USERDATA          = "modio_userData";
-        public const string PLAYERPREFKEY_SUBCRIBEDMODIDS   = "modio_subcribedModIds";
-        public const string PLAYERPREFKEY_ENABLEDMODIDS     = "modio_enabledModIds";
+        /// <summary>Current version of the ModManager</summary>
+        public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
 
         /// <summary>Data that needs to be stored across sessions.</summary>
         private static PersistentData m_data;
@@ -78,7 +77,16 @@ namespace ModIO
             ModManager.installDirectory = settings.installDirectory;
 
             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
-            ModManager.m_data = IOUtilities.ReadJsonObjectFile<PersistentData>(dataPath);
+
+            if(!IOUtilities.TryReadJsonObjectFile(dataPath, out ModManager.m_data))
+            {
+                ModManager.m_data = new PersistentData()
+                {
+                    lastRunVersion = ModManager.VERSION,
+                    subscribedModIds = new List<int>(),
+                    enabledModIds = new List<int>(),
+                };
+            }
         }
 
         // ---------[ ASSERTS ]---------
