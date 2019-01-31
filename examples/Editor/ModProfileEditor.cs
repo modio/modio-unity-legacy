@@ -71,12 +71,8 @@ namespace ModIO.Editor
             {
                 this.profile = null;
 
-                string userAuthToken = ModManager.activeUser.token;
-
-                if(!String.IsNullOrEmpty(userAuthToken))
+                if(!UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE))
                 {
-                    APIClient.userAuthorizationToken = userAuthToken;
-
                     this.isModListLoading = true;
                     this.modOptions = new string[]{ "Loading..." };
 

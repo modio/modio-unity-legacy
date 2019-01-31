@@ -91,7 +91,6 @@ namespace ModIO
             apiURL = settings.apiURL;
             gameId = settings.gameId;
             gameAPIKey = settings.gameAPIKey;
-            userAuthorizationToken = settings.activeUser.token;
         }
 
         // ---------[ DEBUG ASSERTS ]---------

@@ -22,7 +22,6 @@ namespace ModIO
             public List<int> enabledModIds;
         }
 
-
         // ---------[ CONSTANTS & STATICS ]---------
         public const string USERDATA_FILENAME = "user.data";
         public const string PERSISTENTDATA_FILENAME = "modmanager.data";
@@ -40,33 +39,33 @@ namespace ModIO
         private static UserData m_user = UserData.NONE;
 
         // --- ACCESSORS ---
-        public static UserData activeUser
-        {
-            get
-            {
-                if(ModManager.m_user.Equals(UserData.NONE))
-                {
-                    string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
-                    if(!IOUtilities.TryReadJsonObjectFile(dataPath, out ModManager.m_user))
-                    {
-                        ModManager.m_user = UserData.NONE;
-                    }
-                }
+        // public static UserData activeUser
+        // {
+        //     get
+        //     {
+        //         if(ModManager.m_user.Equals(UserData.NONE))
+        //         {
+        //             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
+        //             if(!IOUtilities.TryReadJsonObjectFile(dataPath, out ModManager.m_user))
+        //             {
+        //                 ModManager.m_user = UserData.NONE;
+        //             }
+        //         }
 
-                return ModManager.m_user;
-            }
+        //         return ModManager.m_user;
+        //     }
 
-            set
-            {
-                if(!ModManager.m_user.Equals(value))
-                {
-                    ModManager.m_user = value;
+        //     set
+        //     {
+        //         if(!ModManager.m_user.Equals(value))
+        //         {
+        //             ModManager.m_user = value;
 
-                    string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
-                    IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_user);
-                }
-            }
-        }
+        //             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
+        //             IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_user);
+        //         }
+        //     }
+        // }
 
 
         // ---------[ INITIALIZATION ]---------

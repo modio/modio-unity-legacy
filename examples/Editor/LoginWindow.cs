@@ -101,15 +101,12 @@ namespace ModIO.Editor
                         {
                             Action<UserProfile, string> onGetUserProfile = (userProfile, token) =>
                             {
-                                PluginSettings settings = PluginSettings.LoadDefaults();
-                                settings.activeUser = new UserAuthenticationData()
+                                UserAuthenticationData userData = new UserAuthenticationData()
                                 {
                                     userId = userProfile.id,
                                     token = token,
                                 };
-                                PluginSettings.SaveDefaults(settings);
-
-                                APIClient.userAuthorizationToken = token;
+                                UserAuthenticationData.instance = userData;
 
                                 helpMessage = ("Welcome " + userProfile.username
                                                + "! You have successfully logged in."

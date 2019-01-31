@@ -42,11 +42,8 @@ namespace ModIO.Editor
             uploadSucceededMessage = null;
             uploadFailedMessage = null;
 
-            string authToken = ModManager.activeUser.token;
-            if(!String.IsNullOrEmpty(authToken))
+            if(!UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE))
             {
-                APIClient.userAuthorizationToken = authToken;
-
                 ModManager.GetAuthenticatedUserProfile((userProfile) =>
                 {
                     this.user = userProfile;
@@ -104,11 +101,7 @@ namespace ModIO.Editor
                                 {
                                     this.user = null;
 
-                                    APIClient.userAuthorizationToken = null;
-
-                                    PluginSettings settings = PluginSettings.LoadDefaults();
-                                    settings.activeUser = UserAuthenticationData.NONE;
-                                    PluginSettings.SaveDefaults(settings);
+                                    UserAuthenticationData.instance = UserAuthenticationData.NONE;
 
                                     isAwaitingServerResponse = false;
 

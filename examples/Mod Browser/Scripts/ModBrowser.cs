@@ -318,10 +318,9 @@ namespace ModIO.UI
             CacheClient.cacheDirectory = settings.cacheDirectory;
 
             // - UserData -
-            UserData userData = ModManager.activeUser;
-            if(userData.userId > 0)
+            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
             {
-                this.userProfile = CacheClient.LoadUserProfile(userData.userId);
+                this.userProfile = CacheClient.LoadUserProfile(UserAuthenticationData.instance.userId);
             }
 
             // - GameData -
@@ -361,7 +360,6 @@ namespace ModIO.UI
             APIClient.gameId = settings.gameId;
             APIClient.gameAPIKey = settings.gameAPIKey;
             APIClient.logAllRequests = debugAllAPIRequests;
-            APIClient.userAuthorizationToken = userData.token;
 
             // - Installation Data -
             DownloadClient.logAllRequests = debugAllAPIRequests;
@@ -1650,15 +1648,11 @@ namespace ModIO.UI
             if(this.userProfile != null)
             {
                 // - save user data -
-                APIClient.userAuthorizationToken = oAuthToken;
-
-                PluginSettings settings = PluginSettings.LoadDefaults();
-                settings.activeUser = new UserAuthenticationData()
+                UserAuthenticationData.instance = new UserAuthenticationData()
                 {
                     userId = this.userProfile.id,
                     token = oAuthToken,
                 };
-                PluginSettings.SaveDefaults(settings);
 
                 yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
             }
@@ -1682,13 +1676,8 @@ namespace ModIO.UI
             WriteManifest();
 
             // - clear current user -
-            APIClient.userAuthorizationToken = null;
             this.m_validOAuthToken = false;
-
-            UserData userData = ModManager.activeUser;
-            userData.userId = UserProfile.NULL_ID;
-            userData.token = string.Empty;
-            ModManager.activeUser = userData;
+            UserAuthenticationData.instance = UserAuthenticationData.NONE;
 
             // - set up guest account -
             this.userProfile = null;
