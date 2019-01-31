@@ -9,7 +9,6 @@ namespace ModIO
         public string   apiURL;
         public int      gameId;
         public string   gameAPIKey;
-        public string   userOAuthToken;
         public string   cacheDirectory;
         public string   installDirectory;
 

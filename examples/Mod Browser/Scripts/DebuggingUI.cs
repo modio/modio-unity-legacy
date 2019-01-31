@@ -35,9 +35,7 @@ public class DebuggingUI : MonoBehaviour
 
     public void ClearCachedAuthenticatedUserData()
     {
-        ModManager.SetUserData(new UserAuthenticationData());
-        ModManager.SetSubscribedModIds(new List<int>());
-        ModManager.SetEnabledModIds(new List<int>());
+        ModManager.ClearUserData();
 
         string message = "[mod.io] Cached User Data Deleted.";
         Debug.Log(message);

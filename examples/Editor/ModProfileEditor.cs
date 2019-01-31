@@ -71,7 +71,7 @@ namespace ModIO.Editor
             {
                 this.profile = null;
 
-                string userAuthToken = ModManager.GetUserData().token;
+                string userAuthToken = ModManager.activeUser.token;
 
                 if(!String.IsNullOrEmpty(userAuthToken))
                 {

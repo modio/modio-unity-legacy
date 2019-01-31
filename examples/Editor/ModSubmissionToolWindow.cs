@@ -42,7 +42,7 @@ namespace ModIO.Editor
             uploadSucceededMessage = null;
             uploadFailedMessage = null;
 
-            string authToken = ModManager.GetUserData().token;
+            string authToken = ModManager.activeUser.token;
             if(!String.IsNullOrEmpty(authToken))
             {
                 APIClient.userAuthorizationToken = authToken;
@@ -105,7 +105,7 @@ namespace ModIO.Editor
                                     this.user = null;
 
                                     APIClient.userAuthorizationToken = null;
-                                    ModManager.SetUserData(new UserAuthenticationData());
+                                    ModManager.ClearUserData();
 
                                     isAwaitingServerResponse = false;
 

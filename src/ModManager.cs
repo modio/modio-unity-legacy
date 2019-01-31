@@ -14,14 +14,48 @@ namespace ModIO
 {
     public static class ModManager
     {
-        // ---------[ CONSTANTS ]---------
+        // ---------[ CONSTANTS & STATICS ]---------
+        public const string USERDATA_FILENAME = "user.data";
+
         public const string PLAYERPREFKEY_USERDATA          = "modio_userData";
         public const string PLAYERPREFKEY_SUBCRIBEDMODIDS   = "modio_subcribedModIds";
         public const string PLAYERPREFKEY_ENABLEDMODIDS     = "modio_enabledModIds";
 
-        // ---------[ NESTED CLASSES ]---------
         /// <summary>Install directory used by the ModManager.</summary>
         public static string installDirectory;
+
+        /// <summary>Data for the active user.</summary>
+        private static UserData m_user = UserData.NONE;
+
+        // --- ACCESSORS ---
+        public static UserData activeUser
+        {
+            get
+            {
+                if(ModManager.m_user.Equals(UserData.NONE))
+                {
+                    string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
+                    if(!IOUtilities.TryReadJsonObjectFile(dataPath, out ModManager.m_user))
+                    {
+                        ModManager.m_user = UserData.NONE;
+                    }
+                }
+
+                return ModManager.m_user;
+            }
+
+            set
+            {
+                if(!ModManager.m_user.Equals(value))
+                {
+                    ModManager.m_user = value;
+
+                    string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
+                    IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_user);
+                }
+            }
+        }
+
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initialzes the ModManager settings.</summary>
@@ -54,57 +88,17 @@ namespace ModIO
         }
 
 
-        // ---------[ AUTHENTICATED USER ]---------
-        public static IEnumerable<int> EnumerateModIdString(string modIdArrayString)
-        {
-            if(!String.IsNullOrEmpty(modIdArrayString))
-            {
-                string[] stringArray = modIdArrayString.Split(':');
-
-                foreach(string modIdString in stringArray)
-                {
-                    int modId = -1;
-                    if(Int32.TryParse(modIdString, out modId))
-                    {
-                        yield return modId;
-                    }
-                }
-            }
-        }
-
-        public static string CreateModIdArrayString(IEnumerable<int> modIds)
-        {
-            // early out
-            if(modIds == null) { return string.Empty; }
-
-            // create
-            var sb = new System.Text.StringBuilder();
-
-            foreach(int id in modIds)
-            {
-                sb.Append(id.ToString() + ":");
-            }
-
-            // trim final ":"
-            if(sb.Length > 0)
-            {
-                sb.Length -= 1;
-            }
-
-            return sb.ToString();
-        }
-
+        // ---------[ USER DATA ]---------
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserAuthenticationData userData = ModManager.GetUserData();
-            UserProfile cachedProfile = CacheClient.LoadUserProfile(userData.userId);
+            UserProfile cachedProfile = CacheClient.LoadUserProfile(activeUser.userId);
 
             if(cachedProfile != null)
             {
                 if(onSuccess != null) { onSuccess(cachedProfile); }
             }
-            else if(userData.userId > 0)
+            else if(activeUser.userId > 0)
             {
                 // - Fetch from Server -
                 Action<UserProfile> onGetUser = (profile) =>
@@ -146,79 +140,50 @@ namespace ModIO
         }
 
         // ---------[ USER DATA ]---------
-        public static UserAuthenticationData GetUserData()
+        public static void ClearUserData()
         {
-            AssertUniqueBundleIdentifier();
-
-            UserAuthenticationData userData = new UserAuthenticationData();
-
-            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_USERDATA,
-                                                       UserProfile.NULL_ID.ToString() + ":");
-            string[] dataStrings = valueString.Split(':');
-
-            if(dataStrings.Length == 2)
-            {
-                if(!Int32.TryParse(dataStrings[0], out userData.userId))
-                {
-                    userData.userId = UserProfile.NULL_ID;
-                }
-
-                userData.token = dataStrings[1];
-            }
-
-            return userData;
+            ModManager.activeUser = UserData.NONE;
         }
 
-        public static void SetUserData(UserAuthenticationData userData)
+        public static void SetUserData(UserData userData)
         {
-            SetUserData(userData.userId, userData.token);
+            ModManager.activeUser = userData;
         }
         public static void SetUserData(int userId, string authenticationToken)
         {
-            AssertUniqueBundleIdentifier();
-
-            if(authenticationToken == null)
-            {
-                authenticationToken = string.Empty;
-            }
-
-            string valueString = (userId.ToString() + ":" + authenticationToken);
-            PlayerPrefs.SetString(PLAYERPREFKEY_USERDATA, valueString);
-        }
-        public static void ClearUserData()
-        {
-            ModManager.SetUserData(UserProfile.NULL_ID, string.Empty);
+            UserData data = ModManager.activeUser;
+            data.userId = userId;
+            data.token = authenticationToken;
         }
 
         public static List<int> GetSubscribedModIds()
         {
             AssertUniqueBundleIdentifier();
 
-            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_SUBCRIBEDMODIDS,
-                                                       string.Empty);
-            return new List<int>(EnumerateModIdString(valueString));
+            return activeUser.subscribedMods;
         }
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
             AssertUniqueBundleIdentifier();
 
-            string valueString = CreateModIdArrayString(modIds);
-            PlayerPrefs.SetString(PLAYERPREFKEY_SUBCRIBEDMODIDS, valueString);
+            UserData data = ModManager.activeUser;
+            data.subscribedMods = new List<int>(modIds);
+            ModManager.activeUser = data;
         }
 
         public static List<int> GetEnabledModIds()
         {
             AssertUniqueBundleIdentifier();
 
-            string valueString = PlayerPrefs.GetString(PLAYERPREFKEY_ENABLEDMODIDS, string.Empty);
-            return new List<int>(EnumerateModIdString(valueString));
+            return activeUser.enabledMods;
         }
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
             AssertUniqueBundleIdentifier();
 
-            string valueString = CreateModIdArrayString(modIds);
-            PlayerPrefs.SetString(PLAYERPREFKEY_ENABLEDMODIDS, valueString);
+            UserData data = ModManager.activeUser;
+            data.enabledMods = new List<int>(modIds);
+            ModManager.activeUser = data;
         }
 
         // ---------[ GAME PROFILE ]---------

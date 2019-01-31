@@ -318,7 +318,7 @@ namespace ModIO.UI
             CacheClient.cacheDirectory = settings.cacheDirectory;
 
             // - UserData -
-            UserAuthenticationData userData = ModManager.GetUserData();
+            UserData userData = ModManager.activeUser;
             if(userData.userId > 0)
             {
                 this.userProfile = CacheClient.LoadUserProfile(userData.userId);
@@ -1675,7 +1675,11 @@ namespace ModIO.UI
             // - clear current user -
             APIClient.userAuthorizationToken = null;
             this.m_validOAuthToken = false;
-            ModManager.SetUserData(UserAuthenticationData.NONE);
+
+            UserData userData = ModManager.activeUser;
+            userData.userId = UserProfile.NULL_ID;
+            userData.token = string.Empty;
+            ModManager.activeUser = userData;
 
             // - set up guest account -
             this.userProfile = null;
