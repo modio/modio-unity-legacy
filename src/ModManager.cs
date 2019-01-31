@@ -23,8 +23,7 @@ namespace ModIO
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
-        public const string USERDATA_FILENAME = "user.data";
-        public const string PERSISTENTDATA_FILENAME = "modmanager.data";
+        public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
 
         /// <summary>Current version of the ModManager</summary>
         public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
@@ -34,38 +33,6 @@ namespace ModIO
 
         /// <summary>Install directory used by the ModManager.</summary>
         public static string installDirectory;
-
-        /// <summary>Data for the active user.</summary>
-        private static UserData m_user = UserData.NONE;
-
-        // --- ACCESSORS ---
-        // public static UserData activeUser
-        // {
-        //     get
-        //     {
-        //         if(ModManager.m_user.Equals(UserData.NONE))
-        //         {
-        //             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
-        //             if(!IOUtilities.TryReadJsonObjectFile(dataPath, out ModManager.m_user))
-        //             {
-        //                 ModManager.m_user = UserData.NONE;
-        //             }
-        //         }
-
-        //         return ModManager.m_user;
-        //     }
-
-        //     set
-        //     {
-        //         if(!ModManager.m_user.Equals(value))
-        //         {
-        //             ModManager.m_user = value;
-
-        //             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, USERDATA_FILENAME);
-        //             IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_user);
-        //         }
-        //     }
-        // }
 
 
         // ---------[ INITIALIZATION ]---------
@@ -297,6 +264,8 @@ namespace ModIO
                                           Action<UserProfile> onSuccess,
                                           Action<WebRequestError> onError)
         {
+            Debug.Assert(userId != UserProfile.NULL_ID);
+
             var cachedProfile = CacheClient.LoadUserProfile(userId);
 
             if(cachedProfile != null)
@@ -1638,14 +1607,22 @@ namespace ModIO
         }
 
         // ---------[ USER DATA ]---------
-        [Obsolete("No longer supported.")]
+        [Obsolete]
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            APIClient.GetAuthenticatedUser(onSuccess, onError);
+            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
+            {
+                ModManager.GetUserProfile(UserAuthenticationData.instance.userId,
+                                          onSuccess,
+                                          onError);
+            }
+            else if(onSuccess != null)
+            {
+                onSuccess(null);
+            }
         }
 
-        [Obsolete("No longer supported.")]
         public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
                                                     Action<WebRequestError> onError)
         {
