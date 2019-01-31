@@ -1,4 +1,4 @@
-namespace ModIO.UI
+namespace ModIO
 {
     [System.Serializable]
     public struct SimpleVersion : System.IComparable<SimpleVersion>
