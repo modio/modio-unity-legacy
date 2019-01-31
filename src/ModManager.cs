@@ -170,32 +170,24 @@ namespace ModIO
 
         public static List<int> GetSubscribedModIds()
         {
-            AssertUniqueBundleIdentifier();
-
-            return activeUser.subscribedMods;
+            return m_data.subscribedModIds;
         }
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
-            AssertUniqueBundleIdentifier();
-
-            UserData data = ModManager.activeUser;
-            data.subscribedMods = new List<int>(modIds);
-            ModManager.activeUser = data;
+            ModManager.m_data.subscribedModIds = new List<int>(modIds);
+            string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
+            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
         }
 
         public static List<int> GetEnabledModIds()
         {
-            AssertUniqueBundleIdentifier();
-
-            return activeUser.enabledMods;
+            return m_data.enabledModIds;
         }
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
-            AssertUniqueBundleIdentifier();
-
-            UserData data = ModManager.activeUser;
-            data.enabledMods = new List<int>(modIds);
-            ModManager.activeUser = data;
+            ModManager.m_data.enabledModIds = new List<int>(modIds);
+            string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
+            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
         }
 
         // ---------[ GAME PROFILE ]---------
