@@ -9,9 +9,9 @@ namespace ModIO
         public string   apiURL;
         public int      gameId;
         public string   gameAPIKey;
+        public string   userOAuthToken;
         public string   cacheDirectory;
         public string   installDirectory;
-        public string   userOAuthToken;
 
         // ---------[ SAVE/LOAD ]---------
         /// <summary>Instance for removing need to load.</summary>
@@ -23,7 +23,7 @@ namespace ModIO
                                                                               "settings.data");
 
         /// <summary>Writes a PluginSettings file to disk.</summary>
-        public static void Save(PluginSettings settings)
+        public static void SaveDefaults(PluginSettings settings)
         {
             #if DEBUG
             if(Application.isPlaying)
@@ -51,7 +51,7 @@ namespace ModIO
         }
 
         /// <summary>Loads the PluginSettings from disk.</summary>
-        public static PluginSettings Load()
+        public static PluginSettings LoadDefaults()
         {
             #if DEBUG
             if(Application.isPlaying)

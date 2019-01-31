@@ -87,7 +87,7 @@ namespace ModIO
         // ---------[ INITIALIZATION ]---------
         static APIClient()
         {
-            PluginSettings settings = PluginSettings.Load();
+            PluginSettings settings = PluginSettings.LoadDefaults();
             apiURL = settings.apiURL;
             gameId = settings.gameId;
             gameAPIKey = settings.gameAPIKey;

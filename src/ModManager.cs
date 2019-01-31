@@ -23,10 +23,11 @@ namespace ModIO
         /// <summary>Install directory used by the ModManager.</summary>
         public static string installDirectory;
 
+        // ---------[ INITIALIZATION ]---------
         /// <summary>Initialzes the ModManager settings.</summary>
         static ModManager()
         {
-            PluginSettings settings = PluginSettings.Load();
+            PluginSettings settings = PluginSettings.LoadDefaults();
             ModManager.installDirectory = settings.installDirectory;
         }
 

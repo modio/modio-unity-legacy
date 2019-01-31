@@ -376,7 +376,7 @@ namespace ModIO.UI
             settings.installDirectory = IOUtilities.CombinePath(installDirParts);
             ModManager.installDirectory = settings.installDirectory;
 
-            PluginSettings.Save(settings);
+            PluginSettings.SaveDefaults(settings);
         }
 
         private void InitializeInspectorView()
