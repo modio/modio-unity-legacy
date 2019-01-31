@@ -21,16 +21,46 @@ namespace ModIO.UI
         public RectTransform container;
 
         [Header("Display Data")]
-        private List<ImageDataDisplayComponent> m_imageDisplays = new List<ImageDataDisplayComponent>();
+        private ImageDataDisplayComponent m_logoDisplay = null;
+        private List<ImageDataDisplayComponent> m_galleryDisplays = new List<ImageDataDisplayComponent>();
+        private List<ImageDataDisplayComponent> m_youTubeDisplays = new List<ImageDataDisplayComponent>();
 
         // --- ACCESSORS ---
-        public IEnumerable<ImageDataDisplayComponent> imageDisplays { get { return m_imageDisplays; } }
+        [Obsolete]
+        public IEnumerable<ImageDataDisplayComponent> imageDisplays { get { return allDisplays; } }
 
+        public ImageDataDisplayComponent logoDisplay
+        { get { return m_logoDisplay; } }
+        public IEnumerable<ImageDataDisplayComponent> youTubeDisplays
+        { get { return m_youTubeDisplays; } }
+        public IEnumerable<ImageDataDisplayComponent> galleryDisplays
+        { get { return m_galleryDisplays; } }
+
+        public IEnumerable<ImageDataDisplayComponent> allDisplays
+        {
+            get
+            {
+                if(this.m_logoDisplay != null)
+                {
+                    yield return this.m_logoDisplay;
+                }
+                foreach(var displayComponent in this.m_youTubeDisplays)
+                {
+                    yield return displayComponent;
+                }
+                foreach(var displayComponent in this.m_galleryDisplays)
+                {
+                    yield return displayComponent;
+                }
+            }
+        }
+
+        [Obsolete]
         public override IEnumerable<ImageDisplayData> data
         {
             get
             {
-                foreach(ImageDataDisplayComponent display in m_imageDisplays)
+                foreach(ImageDataDisplayComponent display in imageDisplays)
                 {
                     yield return display.data;
                 }
@@ -101,7 +131,7 @@ namespace ModIO.UI
                 display.DisplayLogo(modId, logoLocator);
                 display.onClick += NotifyLogoClicked;
 
-                m_imageDisplays.Add(display);
+                this.m_logoDisplay = display;
             }
 
             if(youTubeURLs != null
@@ -113,7 +143,7 @@ namespace ModIO.UI
                     display.DisplayThumbnail(modId, Utility.ExtractYouTubeIdFromURL(url));
                     display.onClick += NotifyYouTubeThumbnailClicked;
 
-                    m_imageDisplays.Add(display);
+                    m_youTubeDisplays.Add(display);
                 }
             }
 
@@ -126,7 +156,7 @@ namespace ModIO.UI
                     display.DisplayImage(modId, locator);
                     display.onClick += NotifyGalleryImageClicked;
 
-                    m_imageDisplays.Add(display);
+                    m_galleryDisplays.Add(display);
                 }
             }
 
@@ -142,40 +172,17 @@ namespace ModIO.UI
         }
 
         // ---------[ PRIVATE METHODS ]---------
+        [Obsolete]
         private void DisplayData(IEnumerable<ImageDisplayData> displayData)
         {
-            Debug.Assert(displayData != null);
+            return;
+        }
 
+        private void DisplayData(ImageDisplayData logoData,
+                                 IEnumerable<ImageDisplayData> youTubeThumbData,
+                                 IEnumerable<ImageDisplayData> galleryImageData)
+        {
             ClearDisplays();
-
-            // sort
-            ImageDisplayData logoData = new ImageDisplayData()
-            {
-                mediaType = ImageDisplayData.MediaType.None,
-            };
-            List<ImageDisplayData> youTubeThumbs = new List<ImageDisplayData>();
-            List<ImageDisplayData> galleryImages = new List<ImageDisplayData>();
-            foreach(ImageDisplayData imageData in displayData)
-            {
-                switch(imageData.mediaType)
-                {
-                    case ImageDisplayData.MediaType.ModLogo:
-                    {
-                        logoData = imageData;
-                    }
-                    break;
-                    case ImageDisplayData.MediaType.ModGalleryImage:
-                    {
-                        galleryImages.Add(imageData);
-                    }
-                    break;
-                    case ImageDisplayData.MediaType.YouTubeThumbnail:
-                    {
-                        youTubeThumbs.Add(imageData);
-                    }
-                    break;
-                }
-            }
 
             // create
             if(logoData.mediaType != ImageDisplayData.MediaType.None
@@ -184,26 +191,29 @@ namespace ModIO.UI
                 ModLogoDisplay display = InstantiatePrefab(logoPrefab) as ModLogoDisplay;
                 display.data = logoData;
                 display.onClick += NotifyLogoClicked;
-                m_imageDisplays.Add(display);
+
+                this.m_logoDisplay = display;
             }
             if(youTubeThumbnailPrefab != null)
             {
-                foreach(var imageData in youTubeThumbs)
+                foreach(var imageData in youTubeThumbData)
                 {
                     YouTubeThumbnailDisplay display = InstantiatePrefab(youTubeThumbnailPrefab) as YouTubeThumbnailDisplay;
                     display.data = imageData;
                     display.onClick += NotifyYouTubeThumbnailClicked;
-                    m_imageDisplays.Add(display);
+
+                    this.m_youTubeDisplays.Add(display);
                 }
             }
             if(galleryImagePrefab != null)
             {
-                foreach(var imageData in galleryImages)
+                foreach(var imageData in galleryImageData)
                 {
                     ModGalleryImageDisplay display = InstantiatePrefab(galleryImagePrefab) as ModGalleryImageDisplay;
                     display.data = imageData;
                     display.onClick += NotifyGalleryImageClicked;
-                    m_imageDisplays.Add(display);
+
+                    this.m_galleryDisplays.Add(display);
                 }
             }
 
@@ -218,7 +228,7 @@ namespace ModIO.UI
             #if UNITY_EDITOR
             if(!Application.isPlaying)
             {
-                foreach(ImageDataDisplayComponent display in m_imageDisplays)
+                foreach(ImageDataDisplayComponent display in allDisplays)
                 {
                     GameObject.DestroyImmediate(display.gameObject);
                 }
@@ -226,13 +236,15 @@ namespace ModIO.UI
             else
             #endif
             {
-                foreach(ImageDataDisplayComponent display in m_imageDisplays)
+                foreach(ImageDataDisplayComponent display in allDisplays)
                 {
                     GameObject.Destroy(display.gameObject);
                 }
             }
 
-            m_imageDisplays.Clear();
+            this.m_logoDisplay = null;
+            this.m_youTubeDisplays.Clear();
+            this.m_galleryDisplays.Clear();
         }
 
         private ImageDataDisplayComponent InstantiatePrefab(GameObject imagePrefab)

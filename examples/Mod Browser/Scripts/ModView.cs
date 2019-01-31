@@ -353,12 +353,13 @@ namespace ModIO.UI
             // - early out -
             if(profile.media == null)
             {
-                data.media = new ImageDisplayData[0];
+                data.galleryImages = new ImageDisplayData[0];
+                data.youTubeThumbnails = new ImageDisplayData[0];
                 return;
             }
 
             // - parse -
-            List<ImageDisplayData> mediaList = new List<ImageDisplayData>();
+            List<ImageDisplayData> media = new List<ImageDisplayData>();
 
             if(profile.media.galleryImageLocators != null
                && profile.media.galleryImageLocators.Length > 0)
@@ -373,10 +374,12 @@ namespace ModIO.UI
                         texture = null,
                     };
 
-                    mediaList.Add(imageData);
+                    media.Add(imageData);
                 }
             }
+            data.galleryImages = media.ToArray();
 
+            media.Clear();
             if(profile.media.youTubeURLs != null
                && profile.media.youTubeURLs.Length > 0)
             {
@@ -390,11 +393,10 @@ namespace ModIO.UI
                         texture = null,
                     };
 
-                    mediaList.Add(imageData);
+                    media.Add(imageData);
                 }
             }
-
-            data.media = mediaList.ToArray();
+            data.youTubeThumbnails = media.ToArray();
         }
 
         public void DisplayMod(ModProfile profile,
