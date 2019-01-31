@@ -11,10 +11,12 @@ namespace ModIO
         public string   gameAPIKey;
         public string   cacheDirectory;
         public string   installDirectory;
+        [HideInInspector]
+        public string   authenticationToken;
 
         // ---------[ SAVE/LOAD ]---------
         /// <summary>Instance for removing need to load.</summary>
-        private static PluginSettings _instance;
+        private static PluginSettings _defaults;
 
         /// <summary>Location of the settings file.</summary>
         public static readonly string FILE_LOCATION = IOUtilities.CombinePath(Application.persistentDataPath,
@@ -42,9 +44,9 @@ namespace ModIO
             }
             #endif
 
-            if(!PluginSettings._instance.Equals(settings))
+            if(!PluginSettings._defaults.Equals(settings))
             {
-                PluginSettings._instance = settings;
+                PluginSettings._defaults = settings;
                 IOUtilities.WriteJsonObjectFile(FILE_LOCATION, settings);
             }
         }
@@ -70,12 +72,12 @@ namespace ModIO
             }
             #endif
 
-            if(PluginSettings._instance.Equals(default(PluginSettings)))
+            if(PluginSettings._defaults.Equals(default(PluginSettings)))
             {
-                PluginSettings._instance = IOUtilities.ReadJsonObjectFile<PluginSettings>(PluginSettings.FILE_LOCATION);
+                PluginSettings._defaults = IOUtilities.ReadJsonObjectFile<PluginSettings>(PluginSettings.FILE_LOCATION);
             }
 
-            return PluginSettings._instance;
+            return PluginSettings._defaults;
         }
     }
 }
