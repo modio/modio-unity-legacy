@@ -134,7 +134,7 @@ namespace ModIO
 
                     foreach(string modDirectory in offsetModDirectories)
                     {
-                        string profilePath = IOUtilities.CombinePath(modDirectory + "profile.data");
+                        string profilePath = IOUtilities.CombinePath(modDirectory, "profile.data");
                         ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profilePath);
 
                         if(profile != null)
