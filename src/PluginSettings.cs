@@ -11,8 +11,7 @@ namespace ModIO
         public string   gameAPIKey;
         public string   cacheDirectory;
         public string   installDirectory;
-        [HideInInspector]
-        public string   authenticationToken;
+        public UserAuthenticationData activeUser;
 
         // ---------[ SAVE/LOAD ]---------
         /// <summary>Instance for removing need to load.</summary>

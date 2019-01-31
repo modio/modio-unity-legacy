@@ -1650,7 +1650,16 @@ namespace ModIO.UI
             if(this.userProfile != null)
             {
                 // - save user data -
-                ModManager.SetUserData(this.userProfile.id, oAuthToken);
+                APIClient.userAuthorizationToken = oAuthToken;
+
+                PluginSettings settings = PluginSettings.LoadDefaults();
+                settings.activeUser = new UserAuthenticationData()
+                {
+                    userId = this.userProfile.id,
+                    token = oAuthToken,
+                };
+                PluginSettings.SaveDefaults(settings);
+
                 yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
             }
         }

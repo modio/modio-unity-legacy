@@ -33,11 +33,10 @@ namespace ModIO
         [MenuItem("mod.io/Clear Cache/User Data", false, 1)]
         public static void ClearCachedAuthenticatedUserData()
         {
-            ModManager.activeUser = UserData.NONE;
             APIClient.userAuthorizationToken = null;
 
             PluginSettings settings = PluginSettings.LoadDefaults();
-            settings.authenticationToken = string.Empty;
+            settings.activeUser = UserAuthenticationData.NONE;
             PluginSettings.SaveDefaults(settings);
 
             Debug.Log("[mod.io] Cached User Data Deleted.");
