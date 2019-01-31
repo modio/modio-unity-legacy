@@ -315,7 +315,6 @@ namespace ModIO
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
             UnityWebRequest request = downloadInfo.request;
             bool succeeded = false;
-
             downloadInfo.isDone = true;
 
             if(request.isNetworkError || request.isHttpError)

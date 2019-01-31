@@ -228,7 +228,8 @@ namespace ModIO.UI
                 StopCoroutine(m_updatesCoroutine);
             }
 
-            if(userProfile != null)
+            if(userProfile != null
+               && this.m_validOAuthToken)
             {
                 PushSubscriptionChanges();
             }
@@ -587,7 +588,7 @@ namespace ModIO.UI
             else
             {
                 yield return this.StartCoroutine(FetchUserProfile());
-                yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
+                yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
 
             UpdateInstalledModsUsingSubscriptions();
@@ -717,7 +718,7 @@ namespace ModIO.UI
             this.m_validOAuthToken = succeeded;
         }
 
-        private System.Collections.IEnumerator FetchAllUserSubscriptionsAndUpdate()
+        private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
         {
             Debug.Assert(!String.IsNullOrEmpty(UserAuthenticationData.instance.token));
 
@@ -846,6 +847,8 @@ namespace ModIO.UI
                                                                                updateCount.ToString());
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
             }
+
+            PushSubscriptionChanges();
         }
 
         private System.Collections.IEnumerator FetchAllSubscribedModProfiles()
@@ -1113,10 +1116,13 @@ namespace ModIO.UI
                   && m_onlineMode)
             {
                 FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
-                if(downloadInfo == null)
+                if(downloadInfo != null)
                 {
-                    downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
+                    // NOTE(@jackson): Already downloading!
+                    yield break;
                 }
+
+                downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
 
                 foreach(ModView modView in IterateModViews())
                 {
@@ -1157,14 +1163,33 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
-                                        && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
-                                        && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+                    bool fileExists = System.IO.File.Exists(zipFilePath);
+                    Int64 binarySize = (fileExists ? IOUtilities.GetFileSize(zipFilePath) : -1);
+                    string binaryHash = (fileExists ? IOUtilities.CalculateFileMD5Hash(zipFilePath) : string.Empty);
+
+                    isBinaryZipValid = (fileExists
+                                        && modfile.fileSize == binarySize
+                                        && modfile.fileHash.md5 == binaryHash);
 
                     if(!isBinaryZipValid)
                     {
+                        string errorMessage = string.Empty;
+                        if(!fileExists)
+                        {
+                            errorMessage = "The downloaded mod data could not be located.";
+                        }
+                        else if(modfile.fileSize != binarySize)
+                        {
+                            errorMessage = "The downloaded mod data was of an incorrect size.";
+                        }
+                        else if(modfile.fileHash.md5 != binaryHash)
+                        {
+                            errorMessage = "The downloaded mod data was corrupt.";
+                        }
+
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download correctly.");
+                                                   "Mods have failed to download correctly.\n"
+                                                   + errorMessage);
                         yield break;
                     }
                 }
@@ -1647,6 +1672,9 @@ namespace ModIO.UI
                 token = oAuthToken,
             };
 
+            m_queuedSubscribes.AddRange(ModManager.GetSubscribedModIds());
+            WriteManifest();
+
             yield return this.StartCoroutine(FetchUserProfile());
 
             if(this.userProfile != null)
@@ -1658,7 +1686,7 @@ namespace ModIO.UI
                     token = oAuthToken,
                 };
 
-                yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
+                yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
         }
 
