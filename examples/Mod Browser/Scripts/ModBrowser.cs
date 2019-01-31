@@ -580,14 +580,14 @@ namespace ModIO.UI
 
             this.StartCoroutine(FetchGameProfile());
 
-            if(!String.IsNullOrEmpty(APIClient.userAuthorizationToken))
+            if(UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE))
             {
-                yield return this.StartCoroutine(FetchUserProfile());
-                yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
+                yield return this.StartCoroutine(FetchAllSubscribedModProfiles());
             }
             else
             {
-                yield return this.StartCoroutine(FetchAllSubscribedModProfiles());
+                yield return this.StartCoroutine(FetchUserProfile());
+                yield return this.StartCoroutine(FetchAllUserSubscriptionsAndUpdate());
             }
 
             UpdateInstalledModsUsingSubscriptions();
@@ -653,7 +653,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserProfile()
         {
-            Debug.Assert(!String.IsNullOrEmpty(APIClient.userAuthorizationToken));
+            Debug.Assert(!String.IsNullOrEmpty(UserAuthenticationData.instance.token));
 
             bool succeeded = false;
             bool cancelRequest = false;
@@ -719,7 +719,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchAllUserSubscriptionsAndUpdate()
         {
-            Debug.Assert(!String.IsNullOrEmpty(APIClient.userAuthorizationToken));
+            Debug.Assert(!String.IsNullOrEmpty(UserAuthenticationData.instance.token));
 
             int updateStartTimeStamp = ServerTimeStamp.Now;
             int updateCount = 0;
@@ -1641,7 +1641,11 @@ namespace ModIO.UI
 
         private IEnumerator UserLoginCoroutine(string oAuthToken)
         {
-            APIClient.userAuthorizationToken = oAuthToken;
+            UserAuthenticationData.instance = new UserAuthenticationData()
+            {
+                userId = UserProfile.NULL_ID,
+                token = oAuthToken,
+            };
 
             yield return this.StartCoroutine(FetchUserProfile());
 

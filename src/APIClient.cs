@@ -75,9 +75,6 @@ namespace ModIO
         /// <summary>Game API Key that the APIClient should use when contacting the API.</summary>
         public static string gameAPIKey = string.Empty;
 
-        /// <summary>User OAuthToken that the APIClient submits in requests.</summary>
-        public static string userAuthorizationToken = null;
-
         /// <summary>Requested language for the API response messages.</summary>
         public static string languageCode = "en";
 
@@ -108,11 +105,11 @@ namespace ModIO
             }
 
             if(isUserTokenRequired
-               && String.IsNullOrEmpty(APIClient.userAuthorizationToken))
+               && String.IsNullOrEmpty(UserAuthenticationData.instance.token))
             {
                 Debug.LogError("[mod.io] API request to modification or User-specific"
                                + " endpoints cannot be made without first setting the"
-                               + " User Authorization Token on the ModIO.APIClient.");
+                               + " User Authorization Data instance with a valid token.");
                 return false;
             }
 
@@ -141,7 +138,7 @@ namespace ModIO
                             #pragma warning disable 0162
                             if(ModIO_Testing.LOG_OAUTH_TOKEN)
                             {
-                                requestHeaders += " " + APIClient.userAuthorizationToken;
+                                requestHeaders += " " + UserAuthenticationData.instance.token;
                             }
                             #pragma warning restore 0162
                             else
@@ -191,13 +188,13 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
 
-            if(String.IsNullOrEmpty(APIClient.userAuthorizationToken))
+            if(String.IsNullOrEmpty(UserAuthenticationData.instance.token))
             {
                 webRequest.url += "&api_key=" + APIClient.gameAPIKey;
             }
             else
             {
-                webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+                webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
             }
 
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
@@ -237,7 +234,7 @@ namespace ModIO
                                      + paginationString);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -269,7 +266,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -316,7 +313,7 @@ namespace ModIO
 
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -368,7 +365,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + APIClient.userAuthorizationToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -504,14 +501,18 @@ namespace ModIO
             // NOTE(@jackson): APIClient post requests _always_ require
             // the userAuthorizationToken to be set, and so we just use
             // a dummy value here.
-            string oldToken = APIClient.userAuthorizationToken;
-            APIClient.userAuthorizationToken = "NONE";
+            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
+            UserAuthenticationData.instance = new UserAuthenticationData()
+            {
+                userId = UserProfile.NULL_ID,
+                token = "NONE",
+            };
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
                                                                        valueFields,
                                                                        null);
 
-            APIClient.userAuthorizationToken = oldToken;
+            UserAuthenticationData.instance = oldUserData;
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -535,14 +536,18 @@ namespace ModIO
             // NOTE(@jackson): APIClient post requests _always_ require
             // the userAuthorizationToken to be set, and so we just use
             // a dummy value here.
-            string oldToken = APIClient.userAuthorizationToken;
-            APIClient.userAuthorizationToken = "NONE";
+            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
+            UserAuthenticationData.instance = new UserAuthenticationData()
+            {
+                userId = UserProfile.NULL_ID,
+                token = "NONE",
+            };
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
                                                                        valueFields,
                                                                        null);
 
-            APIClient.userAuthorizationToken = oldToken;
+            UserAuthenticationData.instance = oldUserData;
 
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
             {

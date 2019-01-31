@@ -47,7 +47,7 @@ namespace ModIO
         }
 
         // ---------[ SAVE/LOAD ]---------
-        /// <summary>Writes the instance instance to disk.</summary>
+        /// <summary>Writes the UserAuthenticationData to disk.</summary>
         private static void SaveInstance()
         {
             #if DEBUG

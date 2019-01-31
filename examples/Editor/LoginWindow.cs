@@ -124,12 +124,16 @@ namespace ModIO.Editor
 
                             Action<string> onTokenReceived = (token) =>
                             {
-                                APIClient.userAuthorizationToken = token;
+                                UserAuthenticationData.instance = new UserAuthenticationData()
+                                {
+                                    userId = UserProfile.NULL_ID,
+                                    token = token,
+                                };
 
                                 APIClient.GetAuthenticatedUser((u) => onGetUserProfile(u, token),
                                                                e =>
                                                                {
-                                                                APIClient.userAuthorizationToken = string.Empty;
+                                                                UserAuthenticationData.instance = UserAuthenticationData.NONE;
                                                                 endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error);
                                                                });
                             };
