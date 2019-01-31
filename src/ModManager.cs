@@ -108,27 +108,9 @@ namespace ModIO
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserProfile cachedProfile = CacheClient.LoadUserProfile(activeUser.userId);
-
-            if(cachedProfile != null)
-            {
-                if(onSuccess != null) { onSuccess(cachedProfile); }
-            }
-            else if(activeUser.userId > 0)
-            {
-                // - Fetch from Server -
-                Action<UserProfile> onGetUser = (profile) =>
-                {
-                    CacheClient.SaveUserProfile(profile);
-                    if(onSuccess != null) { onSuccess(profile); }
-                };
-
-                APIClient.GetAuthenticatedUser(onGetUser, onError);
-            }
-            else
-            {
-                onSuccess(null);
-            }
+            ModManager.GetUserProfile(activeUser.userId,
+                                      onSuccess,
+                                      onError);
         }
 
         public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
@@ -348,6 +330,31 @@ namespace ModIO
                 {
                     download.failed += (d) => onError(d.error);
                 }
+            }
+        }
+
+        public static void GetUserProfile(int userId,
+                                          Action<UserProfile> onSuccess,
+                                          Action<WebRequestError> onError)
+        {
+            var cachedProfile = CacheClient.LoadUserProfile(userId);
+
+            if(cachedProfile != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedProfile); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<UserProfile> onGetUser = (profile) =>
+                {
+                    CacheClient.SaveUserProfile(profile);
+                    if(onSuccess != null) { onSuccess(profile); }
+                };
+
+                APIClient.GetUser(userId,
+                                  onGetUser,
+                                  onError);
             }
         }
 
