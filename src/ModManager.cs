@@ -103,53 +103,7 @@ namespace ModIO
             #endif
         }
 
-
-        // ---------[ USER DATA ]---------
-        public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
-                                                       Action<WebRequestError> onError)
-        {
-            ModManager.GetUserProfile(activeUser.userId,
-                                      onSuccess,
-                                      onError);
-        }
-
-        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
-                                                    Action<WebRequestError> onError)
-        {
-            RequestFilter userModsFilter = new RequestFilter();
-            userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
-            = new EqualToFilter<int>() { filterValue = APIClient.gameId };
-
-            Action<List<ModProfile>> onGetMods = (modProfiles) =>
-            {
-                List<int> modIds = new List<int>(modProfiles.Count);
-                foreach(ModProfile profile in modProfiles)
-                {
-                    modIds.Add(profile.id);
-                }
-
-                if(onSuccess != null) { onSuccess(modProfiles); }
-            };
-
-            // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetUserMods(userModsFilter, p, s, e),
-                                                           onGetMods,
-                                                           onError);
-        }
-
-        // ---------[ USER DATA ]---------
-
-        public static void SetUserData(UserData userData)
-        {
-            ModManager.activeUser = userData;
-        }
-        public static void SetUserData(int userId, string authenticationToken)
-        {
-            UserData data = ModManager.activeUser;
-            data.userId = userId;
-            data.token = authenticationToken;
-        }
-
+        // ---------[ MOD MANAGEMENT ]---------
         public static List<int> GetSubscribedModIds()
         {
             return m_data.subscribedModIds;
@@ -194,7 +148,6 @@ namespace ModIO
                                   onError);
             }
         }
-
 
         // ---------[ MOD PROFILES ]---------
         public static void GetModProfile(int modId,
@@ -1756,6 +1709,39 @@ namespace ModIO
                                                           onError),
                       onError);
             }
+        }
+
+        // ---------[ USER DATA ]---------
+        [Obsolete("No longer supported.")]
+        public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
+                                                       Action<WebRequestError> onError)
+        {
+            APIClient.GetAuthenticatedUser(onSuccess, onError);
+        }
+
+        [Obsolete("No longer supported.")]
+        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            RequestFilter userModsFilter = new RequestFilter();
+            userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
+            = new EqualToFilter<int>() { filterValue = APIClient.gameId };
+
+            Action<List<ModProfile>> onGetMods = (modProfiles) =>
+            {
+                List<int> modIds = new List<int>(modProfiles.Count);
+                foreach(ModProfile profile in modProfiles)
+                {
+                    modIds.Add(profile.id);
+                }
+
+                if(onSuccess != null) { onSuccess(modProfiles); }
+            };
+
+            // - Get All Events -
+            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetUserMods(userModsFilter, p, s, e),
+                                                           onGetMods,
+                                                           onError);
         }
     }
 }
