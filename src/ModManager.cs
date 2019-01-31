@@ -140,10 +140,6 @@ namespace ModIO
         }
 
         // ---------[ USER DATA ]---------
-        public static void ClearUserData()
-        {
-            ModManager.activeUser = UserData.NONE;
-        }
 
         public static void SetUserData(UserData userData)
         {

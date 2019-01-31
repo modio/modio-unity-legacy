@@ -35,7 +35,12 @@ public class DebuggingUI : MonoBehaviour
 
     public void ClearCachedAuthenticatedUserData()
     {
-        ModManager.ClearUserData();
+        ModManager.activeUser = UserData.NONE;
+        APIClient.userAuthorizationToken = null;
+
+        PluginSettings settings = PluginSettings.LoadDefaults();
+        settings.authenticationToken = string.Empty;
+        PluginSettings.SaveDefaults(settings);
 
         string message = "[mod.io] Cached User Data Deleted.";
         Debug.Log(message);

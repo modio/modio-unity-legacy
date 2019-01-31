@@ -104,8 +104,12 @@ namespace ModIO.Editor
                                 {
                                     this.user = null;
 
+                                    ModManager.activeUser = UserData.NONE;
                                     APIClient.userAuthorizationToken = null;
-                                    ModManager.ClearUserData();
+
+                                    PluginSettings settings = PluginSettings.LoadDefaults();
+                                    settings.authenticationToken = string.Empty;
+                                    PluginSettings.SaveDefaults(settings);
 
                                     isAwaitingServerResponse = false;
 
