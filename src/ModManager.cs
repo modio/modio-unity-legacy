@@ -375,6 +375,124 @@ namespace ModIO
             }
         }
 
+        // ---------[ MOD IMAGES ]---------
+        /// <summary>Fetches and caches a Mod Logo (if not already cached).</summary>
+        public static void GetModLogo(ModProfile profile, LogoSize size,
+                                      Action<Texture2D> onSuccess,
+                                      Action<WebRequestError> onError)
+        {
+            Debug.Assert(profile != null);
+
+            GetModLogo(profile.id, profile.logoLocator, size, onSuccess, onError);
+        }
+
+        /// <summary>Fetches and caches a Mod Logo (if not already cached).</summary>
+        public static void GetModLogo(int modId, LogoImageLocator logoLocator,
+                                      LogoSize size,
+                                      Action<Texture2D> onSuccess,
+                                      Action<WebRequestError> onError)
+        {
+            Debug.Assert(logoLocator != null);
+
+            var logoTexture = CacheClient.LoadModLogo(modId, logoLocator.fileName, size);
+            if(logoTexture != null)
+            {
+                onSuccess(logoTexture);
+            }
+            else
+            {
+                var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
+
+                textureDownload.succeeded += (d) =>
+                {
+                    CacheClient.SaveModLogo(modId, logoLocator.GetFileName(),
+                                            size, d.imageTexture);
+                };
+
+                textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
+                textureDownload.failed += (d) => onError(d.error);
+            }
+        }
+
+        /// <summary>Fetches and caches a Mod Gallery Image (if not already cached).</summary>
+        public static void GetModGalleryImage(ModProfile profile,
+                                              string imageFileName,
+                                              ModGalleryImageSize size,
+                                              Action<Texture2D> onSuccess,
+                                              Action<WebRequestError> onError)
+        {
+            Debug.Assert(profile != null);
+
+            ModManager.GetModGalleryImage(profile.id, profile.media.GetGalleryImageWithFileName(imageFileName), size, onSuccess, onError);
+        }
+
+        /// <summary>Fetches and caches a Mod Gallery Image (if not already cached).</summary>
+        public static void GetModGalleryImage(int modId,
+                                              GalleryImageLocator imageLocator,
+                                              ModGalleryImageSize size,
+                                              Action<Texture2D> onSuccess,
+                                              Action<WebRequestError> onError)
+        {
+            Debug.Assert(imageLocator != null, "[mod.io] imageLocator parameter cannot be null.");
+            Debug.Assert(!String.IsNullOrEmpty(imageLocator.fileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
+
+            var cachedImageTexture = CacheClient.LoadModGalleryImage(modId,
+                                                                     imageLocator.fileName,
+                                                                     size);
+
+            if(cachedImageTexture != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedImageTexture); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                var download = DownloadClient.DownloadModGalleryImage(imageLocator,
+                                                                      size);
+
+                download.succeeded += (d) =>
+                {
+                    CacheClient.SaveModGalleryImage(modId,
+                                                    imageLocator.fileName,
+                                                    size,
+                                                    d.imageTexture);
+                };
+
+                download.succeeded += (d) => onSuccess(d.imageTexture);
+                download.failed += (d) => onError(d.error);
+            }
+        }
+
+        /// <summary>Fetches and caches a Mod YouTube Thumbnail (if not already cached).</summary>
+        public static void GetModYouTubeThumbnail(int modId,
+                                                  string youTubeVideoId,
+                                                  Action<Texture2D> onSuccess,
+                                                  Action<WebRequestError> onError)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
+                         "[mod.io] youTubeVideoId parameter must not be null or empty.");
+
+            var cachedYouTubeThumbnail = CacheClient.LoadModYouTubeThumbnail(modId,
+                                                                             youTubeVideoId);
+
+            if(cachedYouTubeThumbnail != null)
+            {
+                if(onSuccess != null) { onSuccess(cachedYouTubeThumbnail); }
+            }
+            else
+            {
+                var download = DownloadClient.DownloadYouTubeThumbnail(youTubeVideoId);
+
+                download.succeeded += (d) =>
+                {
+                    CacheClient.SaveModYouTubeThumbnail(modId, youTubeVideoId, d.imageTexture);
+                };
+
+                download.succeeded += (d) => onSuccess(d.imageTexture);
+                download.failed += (d) => onError(d.error);
+            }
+        }
+
 
         // ---------[ MODFILES ]---------
         /// <summary>Fetches and caches a Modfile (if not already cached).</summary>
@@ -578,117 +696,6 @@ namespace ModIO
                                                           onError);
         }
 
-
-        // ---------[ MOD IMAGES ]---------
-        public static void GetModLogo(ModProfile profile, LogoSize size,
-                                      Action<Texture2D> onSuccess,
-                                      Action<WebRequestError> onError)
-        {
-            GetModLogo(profile.id, profile.logoLocator, size, onSuccess, onError);
-        }
-
-        public static void GetModLogo(int modId, LogoImageLocator logoLocator,
-                                      LogoSize size,
-                                      Action<Texture2D> onSuccess,
-                                      Action<WebRequestError> onError)
-        {
-            Debug.Assert(onSuccess != null);
-
-            var logoTexture = CacheClient.LoadModLogo(modId, logoLocator.fileName, size);
-            if(logoTexture != null)
-            {
-                onSuccess(logoTexture);
-            }
-            else
-            {
-                var textureDownload = DownloadClient.DownloadImage(logoLocator.GetSizeURL(size));
-
-                textureDownload.succeeded += (d) =>
-                {
-                    CacheClient.SaveModLogo(modId, logoLocator.GetFileName(),
-                                            size, d.imageTexture);
-                };
-
-                textureDownload.succeeded += (d) => onSuccess(d.imageTexture);
-                textureDownload.failed += (d) => onError(d.error);
-            }
-        }
-
-        public static void GetModGalleryImage(ModProfile profile,
-                                              string imageFileName,
-                                              ModGalleryImageSize size,
-                                              Action<Texture2D> onSuccess,
-                                              Action<WebRequestError> onError)
-        {
-            ModManager.GetModGalleryImage(profile.id, profile.media.GetGalleryImageWithFileName(imageFileName), size, onSuccess, onError);
-        }
-
-        public static void GetModGalleryImage(int modId,
-                                              GalleryImageLocator imageLocator,
-                                              ModGalleryImageSize size,
-                                              Action<Texture2D> onSuccess,
-                                              Action<WebRequestError> onError)
-        {
-            Debug.Assert(modId > 0, "[mod.io] modId parameter is invalid.");
-            Debug.Assert(imageLocator != null, "[mod.io] imageLocator parameter cannot be null.");
-            Debug.Assert(!String.IsNullOrEmpty(imageLocator.fileName), "[mod.io] imageFileName parameter needs to be not null or empty (used as identifier for gallery images)");
-
-            var cachedImageTexture = CacheClient.LoadModGalleryImage(modId,
-                                                                     imageLocator.fileName,
-                                                                     size);
-
-            if(cachedImageTexture != null)
-            {
-                if(onSuccess != null) { onSuccess(cachedImageTexture); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                var download = DownloadClient.DownloadModGalleryImage(imageLocator,
-                                                                      size);
-
-                download.succeeded += (d) =>
-                {
-                    CacheClient.SaveModGalleryImage(modId,
-                                                    imageLocator.fileName,
-                                                    size,
-                                                    d.imageTexture);
-                };
-
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
-            }
-        }
-
-        public static void GetModYouTubeThumbnail(int modId,
-                                                  string youTubeVideoId,
-                                                  Action<Texture2D> onSuccess,
-                                                  Action<WebRequestError> onError)
-        {
-            Debug.Assert(modId > 0, "[mod.io] modId parameter must be a valid mod profile id.");
-            Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
-                         "[mod.io] youTubeVideoId parameter must not be null or empty.");
-
-            var cachedYouTubeThumbnail = CacheClient.LoadModYouTubeThumbnail(modId,
-                                                                             youTubeVideoId);
-
-            if(cachedYouTubeThumbnail != null)
-            {
-                if(onSuccess != null) { onSuccess(cachedYouTubeThumbnail); }
-            }
-            else
-            {
-                var download = DownloadClient.DownloadYouTubeThumbnail(youTubeVideoId);
-
-                download.succeeded += (d) =>
-                {
-                    CacheClient.SaveModYouTubeThumbnail(modId, youTubeVideoId, d.imageTexture);
-                };
-
-                download.succeeded += (d) => onSuccess(d.imageTexture);
-                download.failed += (d) => onError(d.error);
-            }
-        }
 
         // ---------[ MOD TEAMS ]---------
         public static void GetModTeam(int modId,
