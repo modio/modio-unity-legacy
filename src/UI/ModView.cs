@@ -535,9 +535,6 @@ namespace ModIO.UI
 
             if(data.profile.modId == modId)
             {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
-                                           data.profile.name + " successfully downloaded");
-
                 yield return new WaitForSeconds(4f);
 
                 downloadDisplay.gameObject.SetActive(false);

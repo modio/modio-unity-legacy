@@ -1194,7 +1194,7 @@ namespace ModIO.UI
                         }
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download correctly.\n"
+                                                   "Mods have failed to install.\n"
                                                    + errorMessage);
                         yield break;
                     }
@@ -1205,10 +1205,39 @@ namespace ModIO.UI
             if(isBinaryZipValid
                && this.isActiveAndEnabled)
             {
-                if(!ModManager.TryInstallMod(modId, modfileId, true) )
+                bool isUpdate = (ModManager.IterateInstalledMods(new int[] { modId }).Count() > 0);
+                bool didInstall = ModManager.TryInstallMod(modId, modfileId, true);
+
+                string message_namePart = string.Empty;
+                ModProfile profile = CacheClient.LoadModProfile(modId);
+                if(profile != null)
                 {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                               "Mods have failed to install. Restarting may resolve this issue.");
+                    message_namePart = profile.name + " was ";
+                }
+                else
+                {
+                    message_namePart = "Mods were ";
+                }
+
+                if(didInstall && isUpdate)
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "updated to the latest version");
+                }
+                else if(didInstall)
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "download and installed");
+                }
+                else if(isUpdate)
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "queued for update on restart");
+                }
+                else
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "queued for installation on restart");
                 }
             }
         }
@@ -1429,59 +1458,64 @@ namespace ModIO.UI
                 requestError = null;
 
                 // --- MOD EVENTS ---
-                List<ModEvent> modEventResponse = null;
-                ModManager.FetchModEvents(ModManager.GetSubscribedModIds(),
-                                          this.lastCacheUpdate,
-                                          updateStartTimeStamp,
-                                          (me) =>
-                                          {
-                                            modEventResponse = me;
-                                            isRequestDone = true;
-                                          },
-                                          (e) =>
-                                          {
-                                            requestError = e;
-                                            isRequestDone = true;
-                                          });
-
-                while(!isRequestDone) { yield return null; }
-
-                if(requestError != null)
+                var subbedMods = ModManager.GetSubscribedModIds();
+                if(subbedMods != null
+                   && subbedMods.Count > 0)
                 {
-                    int secondsUntilRetry;
-                    string displayMessage;
+                    List<ModEvent> modEventResponse = null;
+                    ModManager.FetchModEvents(ModManager.GetSubscribedModIds(),
+                                              this.lastCacheUpdate,
+                                              updateStartTimeStamp,
+                                              (me) =>
+                                              {
+                                                modEventResponse = me;
+                                                isRequestDone = true;
+                                              },
+                                              (e) =>
+                                              {
+                                                requestError = e;
+                                                isRequestDone = true;
+                                              });
 
-                    ProcessRequestError(requestError, out cancelUpdates,
-                                        out secondsUntilRetry, out displayMessage);
+                    while(!isRequestDone) { yield return null; }
 
-
-                    if(secondsUntilRetry > 0)
+                    if(requestError != null)
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage
-                                                   + "\nRetrying in "
-                                                   + secondsUntilRetry.ToString()
-                                                   + " seconds");
+                        int secondsUntilRetry;
+                        string displayMessage;
 
-                        yield return new WaitForSeconds(secondsUntilRetry + 1);
-                        continue;
+                        ProcessRequestError(requestError, out cancelUpdates,
+                                            out secondsUntilRetry, out displayMessage);
+
+
+                        if(secondsUntilRetry > 0)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       displayMessage
+                                                       + "\nRetrying in "
+                                                       + secondsUntilRetry.ToString()
+                                                       + " seconds");
+
+                            yield return new WaitForSeconds(secondsUntilRetry + 1);
+                            continue;
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       displayMessage);
+                        }
+
+                        if(cancelUpdates)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage);
+                        this.lastCacheUpdate = updateStartTimeStamp;
+                        WriteManifest();
+                        yield return StartCoroutine(ProcessModUpdates(modEventResponse));
                     }
-
-                    if(cancelUpdates)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    ProcessModUpdates(modEventResponse, updateStartTimeStamp);
-                    this.lastCacheUpdate = updateStartTimeStamp;
-                    WriteManifest();
                 }
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
@@ -1583,68 +1617,149 @@ namespace ModIO.UI
             }
         }
 
-        protected void ProcessModUpdates(List<ModEvent> modEvents, int updateStartTimeStamp)
+        protected System.Collections.IEnumerator ProcessModUpdates(List<ModEvent> modEvents)
         {
-            if(modEvents != null)
+            if(modEvents != null
+               && modEvents.Count > 0)
             {
-                // - Event Handler Notification -
-                Action<List<ModProfile>> onAvailable = (profiles) =>
-                {
-                    // this.OnModsAvailable(profiles);
-                };
-                Action<List<ModProfile>> onEdited = (profiles) =>
-                {
-                    // this.OnModsEdited(profiles);
-                };
-                Action<List<Modfile>> onReleasesUpdated = (modfiles) =>
-                {
-                    // this.OnModReleasesUpdated(modfiles);
-                };
-                Action<List<int>> onUnavailable = (ids) =>
-                {
-                    // this.OnModsUnavailable(ids);
-                };
-                Action<List<int>> onDeleted = (ids) =>
-                {
-                    // this.OnModsDeleted(ids);
-                };
+                List<int> editedMods = new List<int>();
+                List<int> modfileChanged = new List<int>();
+                List<int> deletedMods = new List<int>();
 
-                Action onSuccess = () =>
+                foreach(ModEvent modEvent in modEvents)
                 {
-                    this.lastCacheUpdate = updateStartTimeStamp;
-                    // this.isUpdateRunning = false;
+                    switch(modEvent.eventType)
+                    {
+                        case ModEventType.ModEdited:
+                        {
+                            editedMods.Add(modEvent.modId);
+                        }
+                        break;
+                        case ModEventType.ModfileChanged:
+                        {
+                            modfileChanged.Add(modEvent.modId);
+                        }
+                        break;
+                        case ModEventType.ModDeleted:
+                        {
+                            deletedMods.Add(modEvent.modId);
+                        }
+                        break;
+                    }
+                }
 
-                    WriteManifest();
-
-                    // #if DEBUG
-                    // if(Application.isPlaying)
-                    // #endif
-                    // {
-                    //     IModBrowserView view = GetViewForMode(this.viewMode);
-                    //     view.profileCollection = GetFilteredProfileCollectionForMode(this.viewMode);
-                    //     view.Refresh();
-                    // }
-                };
-
-                Action<WebRequestError> onError = (error) =>
+                // remove subs for deletedmods
+                if(deletedMods.Count > 0)
                 {
-                    WebRequestError.LogAsWarning(error);
-                    // this.isUpdateRunning = false;
-                };
+                    var subscribedModIds = ModManager.GetSubscribedModIds();
 
-                // ModManager.ApplyModEventsToCache(modEvents,
-                //                                  onAvailable, onEdited,
-                //                                  onUnavailable, onDeleted,
-                //                                  onReleasesUpdated,
-                //                                  onSuccess,
-                //                                  onError);
-            }
-            else
-            {
-                this.lastCacheUpdate = updateStartTimeStamp;
-                // this.isUpdateRunning = false;
+                    foreach(int modId in deletedMods)
+                    {
+                        subscribedModIds.Remove(modId);
+                    }
 
-                WriteManifest();
+                    OnSubscriptionsChanged(null, deletedMods);
+
+                    // TODO(@jackson): QueueMessage
+                }
+
+                // remove duplicates from editedMods
+                if(editedMods.Count > 0
+                   && modfileChanged.Count > 0)
+                {
+                    foreach(int modId in modfileChanged)
+                    {
+                        editedMods.Remove(modId);
+                    }
+                }
+
+                // fetch and cache profile edits
+                if(editedMods.Count > 0)
+                {
+                    var pagination = new APIPaginationParameters()
+                    {
+                        limit = APIPaginationParameters.LIMIT_MAX,
+                        offset = 0,
+                    };
+
+                    RequestFilter modFilter = new RequestFilter();
+                    modFilter.sortFieldName = API.GetAllModsFilterFields.id;
+                    modFilter.fieldFilters[API.GetAllModsFilterFields.id]
+                    = new InArrayFilter<int>()
+                    {
+                        filterArray = editedMods.ToArray()
+                    };
+
+                    APIClient.GetAllMods(modFilter, pagination,
+                    (r) =>
+                    {
+                        CacheClient.SaveModProfiles(r.items);
+                    },
+                    WebRequestError.LogAsWarning);
+                }
+
+                // get new versions of subscribed mods
+                if(modfileChanged.Count > 0)
+                {
+                    // setup request data
+                    var pagination = new APIPaginationParameters()
+                    {
+                        limit = APIPaginationParameters.LIMIT_MAX,
+                        offset = 0,
+                    };
+
+                    RequestFilter modFilter = new RequestFilter();
+                    modFilter.sortFieldName = API.GetAllModsFilterFields.id;
+                    modFilter.fieldFilters[API.GetAllModsFilterFields.id]
+                    = new InArrayFilter<int>()
+                    {
+                        filterArray = modfileChanged.ToArray()
+                    };
+
+                    bool isRequestDone = false;
+                    RequestPage<ModProfile> response = null;
+                    WebRequestError requestError = null;
+
+                    // send request
+                    APIClient.GetAllMods(modFilter, pagination,
+                    (r) =>
+                    {
+                        isRequestDone = true;
+                        response = r;
+                    },
+                    (e) =>
+                    {
+                        isRequestDone = true;
+                        requestError = e;
+                    });
+
+                    while(!isRequestDone) { yield return null; }
+
+                    // catch error
+                    if(requestError != null)
+                    {
+                        int secondsUntilRetry;
+                        string displayMessage;
+                        bool cancel;
+
+                        ProcessRequestError(requestError, out cancel,
+                                            out secondsUntilRetry, out displayMessage);
+
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Failed to update installed mods.\n"
+                                                   + displayMessage);
+
+                        yield break;
+                    }
+
+                    // installs
+                    CacheClient.SaveModProfiles(response.items);
+
+                    foreach(ModProfile profile in response.items)
+                    {
+                        yield return StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
+                    }
+                }
             }
         }
 
