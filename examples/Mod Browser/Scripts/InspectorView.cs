@@ -272,7 +272,7 @@ namespace ModIO.UI
                                               WebRequestError.LogAsWarning);
             }
         }
-        private void MediaPreview_YouTubeThumbnail(YouTubeThumbnailDisplayComponent display)
+        private void MediaPreview_YouTubeThumbnail(ModMediaDisplayComponent display)
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;
