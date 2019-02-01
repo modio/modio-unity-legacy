@@ -72,27 +72,31 @@ namespace ModIO.UI
                 youTubeOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail);
             }
 
-            // if original is missing, just use thumbnail
-            bool original = m_useOriginal;
-            if(original && m_data.GetImageTexture(true) == null)
+            if(image != null)
             {
-                original = false;
-            }
-
-            Texture2D texture = m_data.GetImageTexture(original);
-            if(texture != null)
-            {
-                image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
-
-                if(fitter != null)
+                // if original is missing, just use thumbnail
+                bool original = m_useOriginal;
+                if(original && m_data.GetImageTexture(true) == null)
                 {
-                    fitter.aspectRatio = ((float)texture.width
-                                          / (float)texture.height);
+                    original = false;
                 }
-            }
-            else
-            {
-                image.sprite = null;
+
+                Texture2D texture = m_data.GetImageTexture(original);
+                if(texture != null)
+                {
+                    image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
+
+                    if(fitter != null)
+                    {
+                        fitter.aspectRatio = ((float)texture.width
+                                              / (float)texture.height);
+                    }
+                    image.enabled = true;
+                }
+                else
+                {
+                    image.enabled = false;
+                }
             }
         }
 
@@ -262,8 +266,10 @@ namespace ModIO.UI
 
         public override void DisplayLoading()
         {
-            image.sprite = null;
-
+            if(image != null)
+            {
+                image.enabled = false;
+            }
             if(loadingOverlay != null)
             {
                 loadingOverlay.SetActive(true);
