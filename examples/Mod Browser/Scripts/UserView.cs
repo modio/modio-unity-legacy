@@ -9,7 +9,7 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public UserProfileDisplayComponent  profileDisplay;
-        public UserAvatarDisplayComponent   avatarDisplay;
+        public ModMediaDisplayComponent     avatarDisplay;
 
         [Header("Display Data")]
         [SerializeField] private UserDisplayData m_data = new UserDisplayData();
@@ -98,7 +98,8 @@ namespace ModIO.UI
                     userId = profile.id,
                     mediaType = ImageDisplayData.MediaType.UserAvatar,
                     imageId = profile.avatarLocator.fileName,
-                    texture = null,
+                    originalTexture = null,
+                    thumbnailTexture = null,
                 };
             }
         }

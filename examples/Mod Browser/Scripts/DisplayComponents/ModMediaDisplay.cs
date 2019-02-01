@@ -17,6 +17,7 @@ namespace ModIO.UI
         public Image image;
         public AspectRatioFitter fitter;
         public GameObject loadingOverlay;
+        public GameObject avatarOverlay;
         public GameObject logoOverlay;
         public GameObject galleryImageOverlay;
         public GameObject youTubeOverlay;
@@ -54,6 +55,10 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(false);
             }
 
+            if(avatarOverlay != null)
+            {
+                avatarOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.UserAvatar);
+            }
             if(logoOverlay != null)
             {
                 logoOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.ModLogo);
@@ -95,6 +100,10 @@ namespace ModIO.UI
             {
                 loadingOverlay.SetActive(false);
             }
+            if(avatarOverlay != null)
+            {
+                avatarOverlay.SetActive(false);
+            }
             if(logoOverlay != null)
             {
                 logoOverlay.SetActive(false);
@@ -110,18 +119,50 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
+        public override void DisplayAvatar(int userId, AvatarImageLocator locator)
+        {
+            Debug.Assert(locator != null);
+            bool original = m_useOriginal;
+            UserAvatarSize size = (original ? UserAvatarSize.Original : ImageDisplayData.defaultAvatarSize);
+
+            ImageDisplayData displayData = new ImageDisplayData()
+            {
+                userId = userId,
+                mediaType = ImageDisplayData.MediaType.UserAvatar,
+                fileName = locator.fileName,
+                originalTexture = null,
+                thumbnailTexture = null,
+            };
+            m_data = displayData;
+
+            DisplayLoading();
+
+            ModManager.GetUserAvatar(displayData.userId,
+                                     locator,
+                                     size,
+                                     (t) =>
+                                     {
+                                        if(!Application.isPlaying) { return; }
+
+                                        if(m_data.Equals(displayData))
+                                        {
+                                            m_data.SetImageTexture(original, t);
+                                            PresentData();
+                                        }
+                                     },
+                                     WebRequestError.LogAsWarning);
+        }
         public override void DisplayLogo(int modId, LogoImageLocator locator)
         {
             Debug.Assert(locator != null);
             bool original = m_useOriginal;
-            LogoSize size = (original ? LogoSize.Original : ImageDisplayData.defaultLogoSize );
+            LogoSize size = (original ? LogoSize.Original : ImageDisplayData.defaultLogoSize);
 
             ImageDisplayData displayData = new ImageDisplayData()
             {
                 modId = modId,
                 mediaType = ImageDisplayData.MediaType.ModLogo,
                 fileName = locator.fileName,
-                texture = null,
                 originalTexture = null,
                 thumbnailTexture = null,
             };

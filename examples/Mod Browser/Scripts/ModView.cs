@@ -18,7 +18,7 @@ namespace ModIO.UI
         public struct SubmittorDisplay
         {
             public UserProfileDisplayComponent  profile;
-            public UserAvatarDisplayComponent   avatar;
+            public ModMediaDisplayComponent     avatar;
         }
 
         [Header("UI Components")]

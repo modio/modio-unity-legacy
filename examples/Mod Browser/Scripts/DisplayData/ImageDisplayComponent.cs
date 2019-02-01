@@ -15,15 +15,9 @@ namespace ModIO.UI
 
     public abstract class ModMediaDisplayComponent : ImageDataDisplayComponent
     {
+        public abstract void DisplayAvatar(int userId, AvatarImageLocator locator);
         public abstract void DisplayLogo(int modId, LogoImageLocator locator);
         public abstract void DisplayGalleryImage(int modId, GalleryImageLocator locator);
         public abstract void DisplayYouTubeThumbnail(int modId, string youTubeVideoId);
-    }
-
-    public abstract class UserAvatarDisplayComponent : ImageDataDisplayComponent
-    {
-        public abstract UserAvatarSize avatarSize { get; }
-
-        public abstract void DisplayAvatar(int userId, AvatarImageLocator avatarLocator);
     }
 }
