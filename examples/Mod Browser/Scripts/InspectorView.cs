@@ -98,6 +98,7 @@ namespace ModIO.UI
             DisplayMod(profile, statistics, tagCategories, isModSubscribed, isModEnabled);
         }
 
+        [Obsolete]
         public void UpdateIsSubscribedDisplay()
         {
             ModDisplayData data = modView.data;
@@ -162,6 +163,24 @@ namespace ModIO.UI
                                          (r) => PopulateVersionHistory(profile.id, r.items),
                                          WebRequestError.LogAsWarning);
             }
+        }
+
+        public void DisplayModSubscribed(bool isSubscribed)
+        {
+            this.isModSubscribed = isSubscribed;
+
+            ModDisplayData data = modView.data;
+            data.isSubscribed = isSubscribed;
+            modView.data = data;
+        }
+
+        public void DisplayModEnabled(bool isEnabled)
+        {
+            this.isModEnabled = isEnabled;
+
+            ModDisplayData data = modView.data;
+            data.isModEnabled = isEnabled;
+            modView.data = data;
         }
 
         public void DisplayLoading()
