@@ -59,28 +59,6 @@ namespace ModIO
             IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
         }
 
-        // ---------[ ASSERTS ]---------
-        private static void AssertUniqueBundleIdentifier()
-        {
-            #if DEBUG
-            if(Application.isPlaying)
-            {
-                if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
-                    && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (PluginSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && PluginSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
-                {
-                    Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
-                                   + " bundle identifier will cause conflicts with other projects"
-                                   + " using mod.io. Please open \'Build Settings' > \'Player Settings\'"
-                                   + " and assign a unique Company Name, Project Name, and Bundle"
-                                   + " Identifier (under \'Other Settings\') to utilize the mod.io "
-                                   + " Unity Plugin.");
-                }
-            }
-            #endif
-        }
-
         // ---------[ MOD MANAGEMENT ]---------
         public static List<int> GetSubscribedModIds()
         {
