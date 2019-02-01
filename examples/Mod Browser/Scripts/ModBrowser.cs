@@ -1762,18 +1762,26 @@ namespace ModIO.UI
 
         public void InspectMod(int modId)
         {
-            inspectorView.DisplayLoading();
-            inspectorView.profile = null;
-            inspectorView.statistics = null;
+            ModProfile profile = null;
+            ModStatistics stats = null;
+            IEnumerable<ModTagCategory> tagCategories = (this.gameProfile == null
+                                                         ? new ModTagCategory[0]
+                                                         : this.gameProfile.tagCategories);
+            bool isSubscribed = ModManager.GetSubscribedModIds().Contains(modId);
+            bool isEnabled = ModManager.GetEnabledModIds().Contains(modId);
 
+            inspectorView.DisplayLoading();
             inspectorView.gameObject.SetActive(true);
 
             // profile
             ModManager.GetModProfile(modId,
                                      (p) =>
                                      {
-                                        inspectorView.profile = p;
-                                        inspectorView.UpdateProfileDisplay();
+                                        profile = p;
+                                        inspectorView.DisplayMod(profile, stats,
+                                                                 tagCategories,
+                                                                 isSubscribed,
+                                                                 isEnabled);
                                      },
                                      WebRequestError.LogAsWarning);
 
@@ -1782,14 +1790,13 @@ namespace ModIO.UI
             ModManager.GetModStatistics(modId,
                                         (s) =>
                                         {
-                                            inspectorView.statistics = s;
-                                            inspectorView.UpdateStatisticsDisplay();
+                                            stats = s;
+                                            inspectorView.DisplayMod(profile, stats,
+                                                                     tagCategories,
+                                                                     isSubscribed,
+                                                                     isEnabled);
                                         },
                                         WebRequestError.LogAsWarning);
-
-            // subscription
-            inspectorView.isModSubscribed = ModManager.GetSubscribedModIds().Contains(modId);
-            inspectorView.UpdateIsSubscribedDisplay();
 
             if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
 
