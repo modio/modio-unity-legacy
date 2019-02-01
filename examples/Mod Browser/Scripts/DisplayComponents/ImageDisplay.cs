@@ -131,7 +131,7 @@ namespace ModIO.UI
         {
             Debug.Assert(locator != null);
             bool original = m_useOriginal;
-            UserAvatarSize size = (original ? UserAvatarSize.Original : ImageDisplayData.defaultAvatarSize);
+            UserAvatarSize size = (original ? UserAvatarSize.Original : ImageDisplayData.avatarThumbnailSize);
 
             ImageDisplayData displayData = new ImageDisplayData()
             {
@@ -164,7 +164,7 @@ namespace ModIO.UI
         {
             Debug.Assert(locator != null);
             bool original = m_useOriginal;
-            LogoSize size = (original ? LogoSize.Original : ImageDisplayData.defaultLogoSize);
+            LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
             ImageDisplayData displayData = new ImageDisplayData()
             {
@@ -198,7 +198,7 @@ namespace ModIO.UI
         {
             Debug.Assert(locator != null);
             bool original = m_useOriginal;
-            ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.defaultGalleryImageSize );
+            ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
 
             ImageDisplayData displayData = new ImageDisplayData()
             {

@@ -163,6 +163,13 @@ namespace ModIO.UI
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
 
+        [Tooltip("Size to use for the user avatar thumbnails")]
+        public UserAvatarSize avatarThumbnailSize = UserAvatarSize.Thumbnail_50x50;
+        [Tooltip("Size to use for the mod logo thumbnails")]
+        public LogoSize logoThumbnailSize = LogoSize.Thumbnail_320x180;
+        [Tooltip("Size to use for the mod gallery image thumbnails")]
+        public ModGalleryImageSize galleryThumbnailSize = ModGalleryImageSize.Thumbnail_320x180;
+
         [SerializeField] private UserDisplayData m_guestData = new UserDisplayData()
         {
             profile = new UserProfileDisplayData()
@@ -375,6 +382,11 @@ namespace ModIO.UI
             }
             settings.installDirectory = IOUtilities.CombinePath(installDirParts);
             ModManager.installDirectory = settings.installDirectory;
+
+            // - Image settings -
+            ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
+            ImageDisplayData.logoThumbnailSize = this.logoThumbnailSize;
+            ImageDisplayData.galleryThumbnailSize = this.galleryThumbnailSize;
 
             PluginSettings.SaveDefaults(settings);
         }

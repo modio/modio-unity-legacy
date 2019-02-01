@@ -5,9 +5,9 @@ namespace ModIO.UI
     [System.Serializable]
     public struct ImageDisplayData
     {
-        public static UserAvatarSize defaultAvatarSize = UserAvatarSize.Thumbnail_50x50;
-        public static LogoSize defaultLogoSize = LogoSize.Thumbnail_320x180;
-        public static ModGalleryImageSize defaultGalleryImageSize = ModGalleryImageSize.Thumbnail_320x180;
+        public static UserAvatarSize avatarThumbnailSize = UserAvatarSize.Thumbnail_50x50;
+        public static LogoSize logoThumbnailSize = LogoSize.Thumbnail_320x180;
+        public static ModGalleryImageSize galleryThumbnailSize = ModGalleryImageSize.Thumbnail_320x180;
 
         public enum MediaType
         {

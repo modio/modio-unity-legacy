@@ -238,7 +238,7 @@ namespace ModIO.UI
             if(imageData.GetImageTexture(selectedMediaPreview.useOriginal) == null)
             {
                 bool original = selectedMediaPreview.useOriginal;
-                LogoSize size = (original ? LogoSize.Original : ImageDisplayData.defaultLogoSize);
+                LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
                 ModManager.GetModLogo(profile, size,
                                       (t) =>
@@ -261,7 +261,7 @@ namespace ModIO.UI
             if(imageData.GetImageTexture(selectedMediaPreview.useOriginal) == null)
             {
                 bool original = selectedMediaPreview.useOriginal;
-                ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.defaultGalleryImageSize);
+                ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
 
                 ModManager.GetModGalleryImage(profile, display.data.fileName,
                                               size,
