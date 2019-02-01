@@ -174,11 +174,11 @@ namespace ModIO.UI
 
                 m_getDelegates.Add((ref ModDisplayData d) =>
                 {
-                    d.SetLogo(logoDisplay.data);
+                    d.logo = logoDisplay.data;
                 });
                 m_setDelegates.Add((d) =>
                 {
-                    logoDisplay.data = d.GetLogo();
+                    logoDisplay.data = d.logo;
                 });
 
                 m_displayDelegates.Add((p) => logoDisplay.DisplayLogo(p.id, p.logoLocator));
@@ -201,7 +201,7 @@ namespace ModIO.UI
                         logoData.fileName = p.logoLocator.fileName;
                     }
 
-                    d.SetLogo(logoData);
+                    d.logo = logoData;
                 });
             }
 

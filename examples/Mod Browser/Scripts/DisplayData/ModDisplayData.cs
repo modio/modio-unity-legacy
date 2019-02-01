@@ -22,17 +22,6 @@ namespace ModIO.UI
         public bool isModEnabled;
 
         [System.Obsolete]
-        public ImageDisplayData GetLogo()
-        {
-            return logo;
-        }
-        [System.Obsolete]
-        public void SetLogo(ImageDisplayData value)
-        {
-            logo = value;
-        }
-
-        [System.Obsolete]
         public ImageDisplayData[]       media;
     }
 }
