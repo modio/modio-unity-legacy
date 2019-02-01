@@ -151,11 +151,15 @@ namespace ModIO.UI
 
                 m_getDelegates.Add((ref ModDisplayData d) =>
                 {
-                    d.media = mediaContainer.data.ToArray();
+                    d.logo = mediaContainer.logoData;
+                    d.youTubeThumbnails = mediaContainer.youTubeData.ToArray();
+                    d.galleryImages = mediaContainer.galleryData.ToArray();
                 });
                 m_setDelegates.Add((d) =>
                 {
-                    mediaContainer.data = d.media;
+                    mediaContainer.logoData = d.logo;
+                    mediaContainer.youTubeData = d.youTubeThumbnails;
+                    mediaContainer.galleryData = d.galleryImages;
                 });
 
                 m_displayDelegates.Add((p) => mediaContainer.DisplayMedia(p));

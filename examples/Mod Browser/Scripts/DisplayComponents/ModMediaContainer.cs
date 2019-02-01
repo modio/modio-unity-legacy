@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using LayoutRebuilder = UnityEngine.UI.LayoutRebuilder;
 
 namespace ModIO.UI
 {
@@ -24,6 +25,10 @@ namespace ModIO.UI
         private ImageDisplayComponent m_logoDisplay = null;
         private List<ImageDisplayComponent> m_galleryDisplays = new List<ImageDisplayComponent>();
         private List<ImageDisplayComponent> m_youTubeDisplays = new List<ImageDisplayComponent>();
+
+        private ImageDisplayData m_logoData = default(ImageDisplayData);
+        private ImageDisplayData[] m_youTubeData = new ImageDisplayData[0];
+        private ImageDisplayData[] m_galleryData = new ImageDisplayData[0];
 
         // --- ACCESSORS ---
         [Obsolete]
@@ -55,24 +60,42 @@ namespace ModIO.UI
             }
         }
 
-        [Obsolete]
-        public override IEnumerable<ImageDisplayData> data
+        public override ImageDisplayData logoData
         {
-            get
-            {
-                foreach(ImageDisplayComponent display in imageDisplays)
-                {
-                    yield return display.data;
-                }
-            }
+            get { return m_logoData; }
             set
             {
-                if(value == null)
+                if(!m_logoData.Equals(m_logoData))
                 {
-                    value = new ImageDisplayData[0];
+                    m_logoData = value;
+                    PresentLogoData();
                 }
+            }
+        }
 
-                DisplayData(value);
+        public override IEnumerable<ImageDisplayData> youTubeData
+        {
+            get { return m_youTubeData; }
+            set
+            {
+                if(!m_youTubeData.Equals(value))
+                {
+                    m_youTubeData = value.ToArray();
+                    PresentYouTubeData();
+                }
+            }
+        }
+
+        public override IEnumerable<ImageDisplayData> galleryData
+        {
+            get { return m_galleryData; }
+            set
+            {
+                if(!m_galleryData.Equals(value))
+                {
+                    m_galleryData = value.ToArray();
+                    PresentGalleryData();
+                }
             }
         }
 
@@ -96,13 +119,7 @@ namespace ModIO.UI
 
         public void OnEnable()
         {
-            StartCoroutine(LateUpdateLayouting());
-        }
-
-        public System.Collections.IEnumerator LateUpdateLayouting()
-        {
-            yield return null;
-            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+            LayoutRebuilder.MarkLayoutForRebuild(container);
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
@@ -162,52 +179,127 @@ namespace ModIO.UI
 
             if(Application.isPlaying && this.isActiveAndEnabled)
             {
-                StartCoroutine(LateUpdateLayouting());
+                LayoutRebuilder.MarkLayoutForRebuild(container);
             }
         }
 
         public override void DisplayLoading()
         {
             ClearDisplays();
-        }
 
-        // ---------[ PRIVATE METHODS ]---------
-        [Obsolete]
-        private void DisplayData(IEnumerable<ImageDisplayData> displayData)
-        {
-            return;
-        }
-
-        private void DisplayData(ImageDisplayData logoData,
-                                 IEnumerable<ImageDisplayData> youTubeThumbData,
-                                 IEnumerable<ImageDisplayData> galleryImageData)
-        {
-            ClearDisplays();
-
-            // create
-            if(logoData.mediaType != ImageDisplayData.MediaType.None
-               && logoPrefab != null)
+            if(Application.isPlaying && this.isActiveAndEnabled)
             {
-                var display = InstantiatePrefab(logoPrefab);
-                display.data = logoData;
-                display.onClick += NotifyLogoClicked;
-
-                this.m_logoDisplay = display;
+                LayoutRebuilder.MarkLayoutForRebuild(container);
             }
+        }
+
+        // ---------[ DATA PRESENTATION ]---------
+        private void PresentLogoData()
+        {
+            if(m_logoData.mediaType == ImageDisplayData.MediaType.None)
+            {
+                if(m_logoDisplay != null)
+                {
+                    #if UNITY_EDITOR
+                    if(!Application.isPlaying)
+                    {
+                        GameObject.DestroyImmediate(m_logoDisplay.gameObject);
+                    }
+                    else
+                    #endif
+                    {
+                        GameObject.Destroy(m_logoDisplay.gameObject);
+                    }
+                }
+            }
+            else if(logoPrefab != null)
+            {
+                if(logoDisplay == null)
+                {
+                    m_logoDisplay = InstantiatePrefab(logoPrefab);
+                    m_logoDisplay.transform.SetSiblingIndex(0);
+                    m_logoDisplay.onClick += NotifyLogoClicked;
+                }
+
+                m_logoDisplay.data = m_logoData;
+            }
+
+            if(Application.isPlaying && this.isActiveAndEnabled)
+            {
+                LayoutRebuilder.MarkLayoutForRebuild(container);
+            }
+        }
+
+        private void PresentYouTubeData()
+        {
+            #if UNITY_EDITOR
+            if(!Application.isPlaying)
+            {
+                foreach(ImageDisplayComponent display in m_youTubeDisplays)
+                {
+                    GameObject.DestroyImmediate(display.gameObject);
+                }
+            }
+            else
+            #endif
+            {
+                foreach(ImageDisplayComponent display in m_youTubeDisplays)
+                {
+                    GameObject.Destroy(display.gameObject);
+                }
+            }
+            m_youTubeDisplays.Clear();
+
+            int siblingIndex = 0;
+            if(logoDisplay != null)
+            {
+                ++siblingIndex;
+            }
+
             if(youTubeThumbnailPrefab != null)
             {
-                foreach(var imageData in youTubeThumbData)
+                foreach(var imageData in m_youTubeData)
                 {
                     var display = InstantiatePrefab(youTubeThumbnailPrefab);
                     display.data = imageData;
+                    display.transform.SetSiblingIndex(siblingIndex);
                     display.onClick += NotifyYouTubeThumbnailClicked;
 
                     this.m_youTubeDisplays.Add(display);
+
+                    ++siblingIndex;
                 }
             }
+
+            if(Application.isPlaying && this.isActiveAndEnabled)
+            {
+                LayoutRebuilder.MarkLayoutForRebuild(container);
+            }
+        }
+
+        private void PresentGalleryData()
+        {
+            #if UNITY_EDITOR
+            if(!Application.isPlaying)
+            {
+                foreach(ImageDisplayComponent display in m_galleryDisplays)
+                {
+                    GameObject.DestroyImmediate(display.gameObject);
+                }
+            }
+            else
+            #endif
+            {
+                foreach(ImageDisplayComponent display in m_galleryDisplays)
+                {
+                    GameObject.Destroy(display.gameObject);
+                }
+            }
+            m_galleryDisplays.Clear();
+
             if(galleryImagePrefab != null)
             {
-                foreach(var imageData in galleryImageData)
+                foreach(var imageData in m_galleryData)
                 {
                     var display = InstantiatePrefab(galleryImagePrefab);
                     display.data = imageData;
@@ -219,7 +311,7 @@ namespace ModIO.UI
 
             if(Application.isPlaying && this.isActiveAndEnabled)
             {
-                StartCoroutine(LateUpdateLayouting());
+                LayoutRebuilder.MarkLayoutForRebuild(container);
             }
         }
 
@@ -267,19 +359,19 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyGalleryImageClicked(ImageDisplayComponent display)
-        {
-            if(this.galleryImageClicked != null)
-            {
-                this.galleryImageClicked(display);
-            }
-        }
-
         public void NotifyYouTubeThumbnailClicked(ImageDisplayComponent display)
         {
             if(this.youTubeThumbnailClicked != null)
             {
                 this.youTubeThumbnailClicked(display);
+            }
+        }
+
+        public void NotifyGalleryImageClicked(ImageDisplayComponent display)
+        {
+            if(this.galleryImageClicked != null)
+            {
+                this.galleryImageClicked(display);
             }
         }
     }

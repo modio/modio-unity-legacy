@@ -5,7 +5,9 @@ namespace ModIO.UI
 {
     public abstract class ModMediaCollectionDisplayComponent : MonoBehaviour
     {
-        public abstract IEnumerable<ImageDisplayData> data { get; set; }
+        public abstract ImageDisplayData logoData { get; set; }
+        public abstract IEnumerable<ImageDisplayData> youTubeData { get; set; }
+        public abstract IEnumerable<ImageDisplayData> galleryData { get; set; }
 
         public abstract void Initialize();
         public abstract void DisplayMedia(ModProfile profile);
