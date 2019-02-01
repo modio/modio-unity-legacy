@@ -2409,7 +2409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profileDisplay: {fileID: 114701975888476912}
-  avatarDisplay: {fileID: 114875192210319876}
+  avatarDisplay: {fileID: 7026270419977741448}
   m_data:
     profile:
       userId: 0
@@ -2423,7 +2423,8 @@ MonoBehaviour:
       ownerId: 0
       mediaType: 0
       imageId: 
-      texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
+      originalTexture: {fileID: 0}
+      thumbnailTexture: {fileID: 0}
 --- !u!114 &114672212336186988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3749,7 +3750,8 @@ MonoBehaviour:
       ownerId: 0
       mediaType: 0
       imageId: 
-      texture: {fileID: 0}
+      originalTexture: {fileID: 0}
+      thumbnailTexture: {fileID: 0}
     currentBuild:
       modfileId: 0
       modId: 0
@@ -3764,7 +3766,14 @@ MonoBehaviour:
       virusScanStatus: 0
       virusScanResult: 0
       virusScanHash: 
-    media: []
+    logo:
+      ownerId: 0
+      mediaType: 0
+      imageId: 
+      originalTexture: {fileID: 0}
+      thumbnailTexture: {fileID: 0}
+    youTubeThumbnails: []
+    galleryImages: []
     tags: []
     statistics:
       modId: 0
@@ -5159,9 +5168,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224521130440921664}
+  - component: {fileID: 7026270419977741448}
   - component: {fileID: 222542857311224160}
   - component: {fileID: 114397084485412108}
-  - component: {fileID: 114875192210319876}
   - component: {fileID: 114726034032175716}
   m_Layer: 5
   m_Name: UserAvatar
@@ -5191,6 +5200,32 @@ RectTransform:
   m_AnchoredPosition: {x: 173, y: 0}
   m_SizeDelta: {x: 0, y: -2}
   m_Pivot: {x: 0, y: 0.5}
+--- !u!114 &7026270419977741448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1228564332131478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 918a09ebb078c4f4faac13aa5b0bd2c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_useOriginal: 0
+  image: {fileID: 114397084485412108}
+  fitter: {fileID: 0}
+  loadingOverlay: {fileID: 0}
+  avatarOverlay: {fileID: 0}
+  logoOverlay: {fileID: 0}
+  galleryImageOverlay: {fileID: 0}
+  youTubeOverlay: {fileID: 0}
+  m_data:
+    ownerId: 0
+    mediaType: 0
+    imageId: 
+    originalTexture: {fileID: 0}
+    thumbnailTexture: {fileID: 0}
 --- !u!222 &222542857311224160
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5228,26 +5263,6 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &114875192210319876
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1228564332131478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da8b057c369034443977405c9a27a7fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_avatarSize: 1
-  image: {fileID: 114397084485412108}
-  loadingOverlay: {fileID: 0}
-  m_data:
-    ownerId: 0
-    mediaType: 0
-    imageId: 
-    texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
 --- !u!114 &114726034032175716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12877,7 +12892,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cb07255079aa4069a3b4d94327d4cda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 1993137946962778, guid: fe012e6587fa0473888366b0a40ac3b0, type: 3}
+  itemPrefab: {fileID: 73, guid: fe012e6587fa0473888366b0a40ac3b0, type: 3}
   gridSpacing: 8
   pageTransitionTimeSeconds: 0.4
   rowCount: 3
@@ -13971,23 +13986,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connectTo: 0
-  testServerSettings:
+  testPluginSettings:
     apiURL: https://api.test.mod.io/v1
     gameId: 0
     gameAPIKey: 
-    cacheDir: $PERSISTENT_DATA_PATH$/modio_test/
-  productionServerSettings:
+    cacheDirectory: $PERSISTENT_DATA_PATH$/modio_test
+    installDirectory: $PERSISTENT_DATA_PATH$/modio_test/_installedMods
+  productionPluginSettings:
     apiURL: https://api.mod.io/v1
     gameId: 0
     gameAPIKey: 
-    cacheDir: $PERSISTENT_DATA_PATH$/modio/
-  customServerSettings:
+    cacheDirectory: $PERSISTENT_DATA_PATH$/modio
+    installDirectory: $PERSISTENT_DATA_PATH$/modio/_installedMods
+  customPluginSettings:
     apiURL: 
     gameId: 0
     gameAPIKey: 
-    cacheDir: $PERSISTENT_DATA_PATH$/modio_custom/
+    cacheDirectory: $PERSISTENT_DATA_PATH$/modio_custom
+    installDirectory: $PERSISTENT_DATA_PATH$/modio_custom/_installedMods
   debugAllAPIRequests: 1
-  modInstallDirectory: $PERSISTENT_DATA_PATH$/modio/_installedMods
+  avatarThumbnailSize: 1
+  logoThumbnailSize: 1
+  galleryThumbnailSize: 1
   m_guestData:
     profile:
       userId: 0
@@ -14001,7 +14021,9 @@ MonoBehaviour:
       ownerId: 0
       mediaType: 4
       imageId: guest_avatar
-      texture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b, type: 3}
+      originalTexture: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a, type: 3}
+      thumbnailTexture: {fileID: 2800000, guid: 2af957a266776473b8b32f1a7929487b,
+        type: 3}
   messageStrings:
     userLoggedOut: Successfully logged out
     subscriptionsRetrieved: $UPDATE_COUNT$ new subscription(s) synchronized with the
@@ -17559,11 +17581,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 918a09ebb078c4f4faac13aa5b0bd2c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_logoSize: 0
-  m_galleryImageSize: 0
+  m_useOriginal: 1
   image: {fileID: 114972274715094736}
   fitter: {fileID: 114730661364741192}
   loadingOverlay: {fileID: 1925837920472082}
+  avatarOverlay: {fileID: 0}
   logoOverlay: {fileID: 0}
   galleryImageOverlay: {fileID: 0}
   youTubeOverlay: {fileID: 1886926057538672}
@@ -17571,7 +17593,8 @@ MonoBehaviour:
     ownerId: 0
     mediaType: 0
     imageId: 
-    texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
+    originalTexture: {fileID: 0}
+    thumbnailTexture: {fileID: 0}
 --- !u!114 &114172370674849886
 MonoBehaviour:
   m_ObjectHideFlags: 0
