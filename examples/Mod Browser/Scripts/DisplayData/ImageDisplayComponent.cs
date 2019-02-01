@@ -20,13 +20,6 @@ namespace ModIO.UI
         public abstract void DisplayYouTubeThumbnail(int modId, string youTubeVideoId);
     }
 
-    public abstract class ModGalleryImageDisplayComponent : ImageDataDisplayComponent
-    {
-        public abstract ModGalleryImageSize imageSize   { get; }
-
-        public abstract void DisplayImage(int modId, GalleryImageLocator locator);
-    }
-
     public abstract class UserAvatarDisplayComponent : ImageDataDisplayComponent
     {
         public abstract UserAvatarSize avatarSize { get; }
