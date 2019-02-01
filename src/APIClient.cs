@@ -799,8 +799,8 @@ namespace ModIO
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/mods/" + modId + "/events";
 
             UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              filter.GenerateFilterString(),
-                                                              pagination);
+                                                                 filter.GenerateFilterString(),
+                                                                 pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }

@@ -4,6 +4,8 @@ namespace ModIO.API
     {
         // (integer) Unique id of the event object.
         public const string id = "id";
+        // (integer) Unique id of the game.
+        public const string gameId = "game_id";
         // (integer) Unique id of the parent mod.
         public const string modId = "mod_id";
         // (integer) Unique id of the user who performed the action.

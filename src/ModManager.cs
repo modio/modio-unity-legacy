@@ -507,6 +507,7 @@ namespace ModIO
 
 
         // ---------[ EVENTS ]---------
+        /// <summary>Fetches all mod events for the game.</summary>
         public static void FetchAllModEvents(int fromTimeStamp,
                                              int untilTimeStamp,
                                              Action<List<ModEvent>> onSuccess,
@@ -516,6 +517,7 @@ namespace ModIO
                                       onSuccess, onError);
         }
 
+        /// <summary>Fetches all mod events for the given mod ids.</summary>
         public static void FetchModEvents(IEnumerable<int> modIdFilter,
                                           int fromTimeStamp,
                                           int untilTimeStamp,
@@ -545,9 +547,9 @@ namespace ModIO
             ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
                                                          onSuccess,
                                                          onError);
-
         }
 
+        /// <summary>Fetches all user events for the authenticated user.</summary>
         public static void FetchAllUserEvents(int fromTimeStamp,
                                               int untilTimeStamp,
                                               Action<List<UserEvent>> onSuccess,
@@ -563,6 +565,11 @@ namespace ModIO
                 isMinInclusive = false,
                 max = untilTimeStamp,
                 isMaxInclusive = true,
+            };
+            userEventFilter.fieldFilters[GetUserEventsFilterFields.gameId]
+            = new EqualToFilter<int>()
+            {
+                filterValue = APIClient.gameId,
             };
 
             // - Get All Events -
