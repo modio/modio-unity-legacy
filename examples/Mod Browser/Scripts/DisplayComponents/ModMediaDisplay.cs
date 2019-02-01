@@ -72,14 +72,22 @@ namespace ModIO.UI
                 youTubeOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail);
             }
 
-            if(m_data.texture != null)
+            // if original is missing, just use thumbnail
+            bool original = m_useOriginal;
+            if(original && m_data.GetImageTexture(true) == null)
             {
-                image.sprite = UIUtilities.CreateSpriteFromTexture(m_data.texture);
+                original = false;
+            }
+
+            Texture2D texture = m_data.GetImageTexture(original);
+            if(texture != null)
+            {
+                image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
 
                 if(fitter != null)
                 {
-                    fitter.aspectRatio = ((float)m_data.texture.width
-                                          / (float)m_data.texture.height);
+                    fitter.aspectRatio = ((float)texture.width
+                                          / (float)texture.height);
                 }
             }
             else
@@ -197,7 +205,6 @@ namespace ModIO.UI
                 modId = modId,
                 mediaType = ImageDisplayData.MediaType.ModGalleryImage,
                 fileName = locator.fileName,
-                texture = null,
                 originalTexture = null,
                 thumbnailTexture = null,
             };
@@ -231,7 +238,6 @@ namespace ModIO.UI
                 modId = modId,
                 mediaType = ImageDisplayData.MediaType.YouTubeThumbnail,
                 youTubeId = youTubeVideoId,
-                texture = null,
                 originalTexture = null,
                 thumbnailTexture = null,
             };

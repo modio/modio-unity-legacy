@@ -193,7 +193,8 @@ namespace ModIO.UI
                         modId = p.id,
                         mediaType = ImageDisplayData.MediaType.ModLogo,
                         fileName = string.Empty,
-                        texture = null,
+                        originalTexture = null,
+                        thumbnailTexture = null,
                     };
                     if(p.logoLocator != null)
                     {
@@ -255,7 +256,8 @@ namespace ModIO.UI
                         userId = -1,
                         mediaType = ImageDisplayData.MediaType.UserAvatar,
                         fileName = string.Empty,
-                        texture = null,
+                        originalTexture = null,
+                        thumbnailTexture = null,
                     };
                     if(p.submittedBy != null)
                     {
@@ -371,7 +373,8 @@ namespace ModIO.UI
                         modId = profile.id,
                         mediaType = ImageDisplayData.MediaType.ModGalleryImage,
                         fileName = locator.fileName,
-                        texture = null,
+                        originalTexture = null,
+                        thumbnailTexture = null,
                     };
 
                     media.Add(imageData);
@@ -390,7 +393,8 @@ namespace ModIO.UI
                         modId = profile.id,
                         mediaType = ImageDisplayData.MediaType.YouTubeThumbnail,
                         youTubeId = Utility.ExtractYouTubeIdFromURL(url),
-                        texture = null,
+                        originalTexture = null,
+                        thumbnailTexture = null,
                     };
 
                     media.Add(imageData);

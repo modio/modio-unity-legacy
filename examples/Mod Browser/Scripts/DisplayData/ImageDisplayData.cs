@@ -25,8 +25,6 @@ namespace ModIO.UI
         public Texture2D originalTexture;
         public Texture2D thumbnailTexture;
 
-        public Texture2D texture;
-
         public int modId        { get { return ownerId; } set { ownerId = value; } }
         public int userId       { get { return ownerId; } set { ownerId = value; } }
 

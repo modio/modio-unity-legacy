@@ -225,7 +225,7 @@ namespace ModIO.UI
             }
         }
 
-        private void MediaPreview_Logo(ModMediaDisplay display)
+        private void MediaPreview_Logo(ImageDataDisplayComponent display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
@@ -248,7 +248,7 @@ namespace ModIO.UI
                                       WebRequestError.LogAsWarning);
             }
         }
-        private void MediaPreview_GalleryImage(ModGalleryImageDisplayComponent display)
+        private void MediaPreview_GalleryImage(ImageDataDisplayComponent display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
@@ -272,7 +272,7 @@ namespace ModIO.UI
                                               WebRequestError.LogAsWarning);
             }
         }
-        private void MediaPreview_YouTubeThumbnail(ModMediaDisplayComponent display)
+        private void MediaPreview_YouTubeThumbnail(ImageDataDisplayComponent display)
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;

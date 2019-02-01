@@ -175,7 +175,8 @@ namespace ModIO.UI
                 userId = -1,
                 imageId = "guest_avatar",
                 mediaType = ImageDisplayData.MediaType.UserAvatar,
-                texture = null,
+                originalTexture = null,
+                thumbnailTexture = null,
             },
         };
 
