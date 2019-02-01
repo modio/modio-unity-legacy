@@ -31,9 +31,6 @@ namespace ModIO.UI
         private ImageDisplayData[] m_galleryData = new ImageDisplayData[0];
 
         // --- ACCESSORS ---
-        [Obsolete]
-        public IEnumerable<ImageDisplayComponent> imageDisplays { get { return allDisplays; } }
-
         public ImageDisplayComponent logoDisplay
         { get { return m_logoDisplay; } }
         public IEnumerable<ImageDisplayComponent> youTubeDisplays

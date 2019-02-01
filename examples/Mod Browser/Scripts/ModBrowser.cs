@@ -2273,8 +2273,7 @@ namespace ModIO.UI
             // - inspectorView -
             if(inspectorView.profile != null)
             {
-                inspectorView.isModSubscribed = ModManager.GetSubscribedModIds().Contains(inspectorView.profile.id);
-                inspectorView.UpdateIsSubscribedDisplay();
+                inspectorView.DisplayModSubscribed(ModManager.GetSubscribedModIds().Contains(inspectorView.profile.id));
             }
         }
 

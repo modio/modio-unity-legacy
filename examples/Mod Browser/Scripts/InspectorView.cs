@@ -86,26 +86,6 @@ namespace ModIO.UI
         }
 
         // ---------[ UPDATE VIEW ]---------
-        [Obsolete]
-        public void UpdateProfileDisplay()
-        {
-            DisplayMod(profile, statistics, tagCategories, isModSubscribed, isModEnabled);
-        }
-
-        [Obsolete]
-        public void UpdateStatisticsDisplay()
-        {
-            DisplayMod(profile, statistics, tagCategories, isModSubscribed, isModEnabled);
-        }
-
-        [Obsolete]
-        public void UpdateIsSubscribedDisplay()
-        {
-            ModDisplayData data = modView.data;
-            data.isSubscribed = isModSubscribed;
-            modView.data = data;
-        }
-
         public void DisplayMod(ModProfile profile, ModStatistics statistics,
                                IEnumerable<ModTagCategory> tagCategories,
                                bool isModSubscribed, bool isModEnabled)

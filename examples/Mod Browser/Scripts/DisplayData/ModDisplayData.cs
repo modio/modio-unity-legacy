@@ -20,8 +20,5 @@ namespace ModIO.UI
 
         public bool isSubscribed;
         public bool isModEnabled;
-
-        [System.Obsolete]
-        public ImageDisplayData[]       media;
     }
 }
