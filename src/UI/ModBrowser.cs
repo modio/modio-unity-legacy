@@ -35,7 +35,6 @@ namespace ModIO.UI
         [Serializable]
         private class ManifestData
         {
-            public SimpleVersion lastRunVersion;
             public int lastCacheUpdate;
             public int lastSubscriptionSync;
             public List<int> queuedUnsubscribes;
@@ -348,12 +347,6 @@ namespace ModIO.UI
                 this.lastSubscriptionSync = manifest.lastSubscriptionSync;
                 this.m_queuedSubscribes = manifest.queuedSubscribes;
                 this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
-
-                if(manifest.lastRunVersion < ModBrowser.VERSION)
-                {
-                    ModBrowserPatcher.Run(manifest.lastRunVersion);
-                    WriteManifest();
-                }
             }
             else
             {
@@ -1658,7 +1651,6 @@ namespace ModIO.UI
         {
             ManifestData manifest = new ManifestData()
             {
-                lastRunVersion = ModBrowser.VERSION,
                 lastCacheUpdate = this.lastCacheUpdate,
                 lastSubscriptionSync = this.lastSubscriptionSync,
                 queuedUnsubscribes = this.m_queuedUnsubscribes,
