@@ -191,6 +191,13 @@ namespace ModIO
 
 
         // ---------[ MODFILES ]---------
+        /// <summary>Creates the Directory Path for a given modfile install.</summary>
+        public static string GetModInstallDirectory(int modId, int modfileId)
+        {
+            return IOUtilities.CombinePath(ModManager.installDirectory,
+                                           modId.ToString() + "_" + modfileId.ToString());
+        }
+
         /// <summary>Fetches and caches a Modfile (if not already cached).</summary>
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> onSuccess,
@@ -217,24 +224,23 @@ namespace ModIO
             }
         }
 
-        public static string GetModInstallDirectory(int modId, int modfileId)
-        {
-            return IOUtilities.CombinePath(ModManager.installDirectory,
-                                           modId.ToString() + "_" + modfileId.ToString());
-        }
-
+        /// <summary>Extracts a modfile archive to the installs folder and removes other installed versions.</summary>
         public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
         {
             // Needs to have a valid mod id otherwise we mess with player-added mods!
-            Debug.Assert(modId > 0);
+            Debug.Assert(modId != ModProfile.NULL_ID);
 
             string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
             if(!File.Exists(zipFilePath))
             {
+                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                 + "\nMod Binary ZipFile [" + zipFilePath + "] does not exist.");
                 return false;
             }
             if(!ModManager.TryUninstallAllModVersions(modId))
             {
+                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                 + "\nFailed to uninstall other versions of this mod.");
                 return false;
             }
 
@@ -257,9 +263,9 @@ namespace ModIO
             }
             catch(Exception e)
             {
-                Debug.LogError("[mod.io] Unable to extract binary to the mod install folder."
-                               + "\nLocation: " + unzipLocation + "\n\n"
-                               + Utility.GenerateExceptionDebugString(e));
+                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                 + "\nLocation: " + unzipLocation + "\n\n"
+                                 + Utility.GenerateExceptionDebugString(e));
 
                 return false;
             }
