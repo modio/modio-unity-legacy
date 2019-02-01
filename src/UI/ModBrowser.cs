@@ -1365,64 +1365,6 @@ namespace ModIO.UI
                 bool isRequestDone = false;
                 WebRequestError requestError = null;
 
-                // --- MOD EVENTS ---
-                List<ModEvent> modEventResponse = null;
-                ModManager.FetchAllModEvents(this.lastCacheUpdate,
-                                             updateStartTimeStamp,
-                                             (me) =>
-                                             {
-                                                modEventResponse = me;
-                                                isRequestDone = true;
-                                             },
-                                             (e) =>
-                                             {
-                                                requestError = e;
-                                                isRequestDone = true;
-                                             });
-
-                while(!isRequestDone) { yield return null; }
-
-                if(requestError != null)
-                {
-                    int secondsUntilRetry;
-                    string displayMessage;
-
-                    ProcessRequestError(requestError, out cancelUpdates,
-                                        out secondsUntilRetry, out displayMessage);
-
-
-                    if(secondsUntilRetry > 0)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage
-                                                   + "\nRetrying in "
-                                                   + secondsUntilRetry.ToString()
-                                                   + " seconds");
-
-                        yield return new WaitForSeconds(secondsUntilRetry + 1);
-                        continue;
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage);
-                    }
-
-                    if(cancelUpdates)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    ProcessUpdates(modEventResponse, updateStartTimeStamp);
-                    this.lastCacheUpdate = updateStartTimeStamp;
-                    WriteManifest();
-                }
-
-                isRequestDone = false;
-                requestError = null;
-
                 // --- USER EVENTS ---
                 if(this.m_validOAuthToken)
                 {
@@ -1481,6 +1423,65 @@ namespace ModIO.UI
 
                         PushSubscriptionChanges();
                     }
+                }
+
+                isRequestDone = false;
+                requestError = null;
+
+                // --- MOD EVENTS ---
+                List<ModEvent> modEventResponse = null;
+                ModManager.FetchModEvents(ModManager.GetSubscribedModIds(),
+                                          this.lastCacheUpdate,
+                                          updateStartTimeStamp,
+                                          (me) =>
+                                          {
+                                            modEventResponse = me;
+                                            isRequestDone = true;
+                                          },
+                                          (e) =>
+                                          {
+                                            requestError = e;
+                                            isRequestDone = true;
+                                          });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(requestError != null)
+                {
+                    int secondsUntilRetry;
+                    string displayMessage;
+
+                    ProcessRequestError(requestError, out cancelUpdates,
+                                        out secondsUntilRetry, out displayMessage);
+
+
+                    if(secondsUntilRetry > 0)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage
+                                                   + "\nRetrying in "
+                                                   + secondsUntilRetry.ToString()
+                                                   + " seconds");
+
+                        yield return new WaitForSeconds(secondsUntilRetry + 1);
+                        continue;
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   displayMessage);
+                    }
+
+                    if(cancelUpdates)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    ProcessModUpdates(modEventResponse, updateStartTimeStamp);
+                    this.lastCacheUpdate = updateStartTimeStamp;
+                    WriteManifest();
                 }
 
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
@@ -1582,7 +1583,7 @@ namespace ModIO.UI
             }
         }
 
-        protected void ProcessUpdates(List<ModEvent> modEvents, int updateStartTimeStamp)
+        protected void ProcessModUpdates(List<ModEvent> modEvents, int updateStartTimeStamp)
         {
             if(modEvents != null)
             {
@@ -1631,12 +1632,12 @@ namespace ModIO.UI
                     // this.isUpdateRunning = false;
                 };
 
-                ModManager.ApplyModEventsToCache(modEvents,
-                                                 onAvailable, onEdited,
-                                                 onUnavailable, onDeleted,
-                                                 onReleasesUpdated,
-                                                 onSuccess,
-                                                 onError);
+                // ModManager.ApplyModEventsToCache(modEvents,
+                //                                  onAvailable, onEdited,
+                //                                  onUnavailable, onDeleted,
+                //                                  onReleasesUpdated,
+                //                                  onSuccess,
+                //                                  onError);
             }
             else
             {

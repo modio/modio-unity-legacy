@@ -1,12 +1,5 @@
 using System;
 
-// NOTE(@jackson):
-// bool filters currently don't work properly as
-// the API only accepts "true"/"false" as permissable
-// values and C#'s bool.ToString() produces "True"/
-// "False" (note the capitalization). Until fixed,
-// an int or string filter is recommended.
-
 namespace ModIO
 {
     // ------[ INTERFACE ]------
