@@ -62,10 +62,20 @@ namespace ModIO.UI
 
         public override ImageDisplayData logoData
         {
-            get { return m_logoData; }
+            get
+            {
+                if(m_logoDisplay == null)
+                {
+                    return m_logoData;
+                }
+                else
+                {
+                    return m_logoDisplay.data;
+                }
+            }
             set
             {
-                if(!m_logoData.Equals(m_logoData))
+                if(!logoData.Equals(value))
                 {
                     m_logoData = value;
                     PresentLogoData();
@@ -75,10 +85,26 @@ namespace ModIO.UI
 
         public override IEnumerable<ImageDisplayData> youTubeData
         {
-            get { return m_youTubeData; }
+            get
+            {
+                if(youTubeThumbnailPrefab == null)
+                {
+                    foreach(var data in m_youTubeData)
+                    {
+                        yield return data;
+                    }
+                }
+                else
+                {
+                    foreach(var display in m_youTubeDisplays)
+                    {
+                        yield return display.data;
+                    }
+                }
+            }
             set
             {
-                if(!m_youTubeData.Equals(value))
+                if(!youTubeData.Equals(value))
                 {
                     m_youTubeData = value.ToArray();
                     PresentYouTubeData();
@@ -88,10 +114,26 @@ namespace ModIO.UI
 
         public override IEnumerable<ImageDisplayData> galleryData
         {
-            get { return m_galleryData; }
+            get
+            {
+                if(galleryImagePrefab == null)
+                {
+                    foreach(var data in m_galleryData)
+                    {
+                        yield return data;
+                    }
+                }
+                else
+                {
+                    foreach(var display in m_galleryDisplays)
+                    {
+                        yield return display.data;
+                    }
+                }
+            }
             set
             {
-                if(!m_galleryData.Equals(value))
+                if(!galleryData.Equals(value))
                 {
                     m_galleryData = value.ToArray();
                     PresentGalleryData();
