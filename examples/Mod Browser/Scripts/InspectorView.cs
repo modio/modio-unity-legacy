@@ -21,7 +21,7 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ModView modView;
-        public ModMediaDisplayComponent selectedMediaPreview;
+        public ImageDisplay selectedMediaPreview;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
         public Button previousModButton;
@@ -109,6 +109,7 @@ namespace ModIO.UI
                                IEnumerable<ModTagCategory> tagCategories,
                                bool isModSubscribed, bool isModEnabled)
         {
+            // TODO(@jackson): Remove
             if(profile == null)
             {
                 return;
@@ -225,7 +226,7 @@ namespace ModIO.UI
             }
         }
 
-        private void MediaPreview_Logo(ImageDataDisplayComponent display)
+        private void MediaPreview_Logo(ImageDisplayComponent display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
@@ -248,7 +249,7 @@ namespace ModIO.UI
                                       WebRequestError.LogAsWarning);
             }
         }
-        private void MediaPreview_GalleryImage(ImageDataDisplayComponent display)
+        private void MediaPreview_GalleryImage(ImageDisplayComponent display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
@@ -272,7 +273,7 @@ namespace ModIO.UI
                                               WebRequestError.LogAsWarning);
             }
         }
-        private void MediaPreview_YouTubeThumbnail(ImageDataDisplayComponent display)
+        private void MediaPreview_YouTubeThumbnail(ImageDisplayComponent display)
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;

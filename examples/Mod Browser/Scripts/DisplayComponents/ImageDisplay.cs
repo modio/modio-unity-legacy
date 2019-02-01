@@ -4,10 +4,10 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModMediaDisplay : ModMediaDisplayComponent
+    public class ImageDisplay : ImageDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public override event Action<ImageDataDisplayComponent> onClick;
+        public override event Action<ImageDisplayComponent> onClick;
 
         [Header("Settings")]
         [Tooltip("Display the image at its original resolution rather than using the thumbnail")]
@@ -127,7 +127,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        public override void DisplayAvatar(int userId, AvatarImageLocator locator)
+        public void DisplayAvatar(int userId, AvatarImageLocator locator)
         {
             Debug.Assert(locator != null);
             bool original = m_useOriginal;
@@ -160,7 +160,7 @@ namespace ModIO.UI
                                      },
                                      WebRequestError.LogAsWarning);
         }
-        public override void DisplayLogo(int modId, LogoImageLocator locator)
+        public void DisplayLogo(int modId, LogoImageLocator locator)
         {
             Debug.Assert(locator != null);
             bool original = m_useOriginal;
@@ -194,7 +194,7 @@ namespace ModIO.UI
                                   WebRequestError.LogAsWarning);
         }
 
-        public override void DisplayGalleryImage(int modId, GalleryImageLocator locator)
+        public void DisplayGalleryImage(int modId, GalleryImageLocator locator)
         {
             Debug.Assert(locator != null);
             bool original = m_useOriginal;
@@ -228,7 +228,7 @@ namespace ModIO.UI
                                           WebRequestError.LogAsWarning);
         }
 
-        public override void DisplayYouTubeThumbnail(int modId, string youTubeVideoId)
+        public void DisplayYouTubeThumbnail(int modId, string youTubeVideoId)
         {
             Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                          "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");

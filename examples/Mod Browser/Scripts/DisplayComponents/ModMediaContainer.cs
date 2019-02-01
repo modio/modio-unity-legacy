@@ -8,9 +8,9 @@ namespace ModIO.UI
     public class ModMediaContainer : ModMediaCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public event Action<ImageDataDisplayComponent>  logoClicked;
-        public event Action<ImageDataDisplayComponent>  galleryImageClicked;
-        public event Action<ImageDataDisplayComponent>  youTubeThumbnailClicked;
+        public event Action<ImageDisplayComponent>  logoClicked;
+        public event Action<ImageDisplayComponent>  galleryImageClicked;
+        public event Action<ImageDisplayComponent>  youTubeThumbnailClicked;
 
         [Header("Settings")]
         public GameObject logoPrefab;
@@ -21,22 +21,22 @@ namespace ModIO.UI
         public RectTransform container;
 
         [Header("Display Data")]
-        private ImageDataDisplayComponent m_logoDisplay = null;
-        private List<ImageDataDisplayComponent> m_galleryDisplays = new List<ImageDataDisplayComponent>();
-        private List<ImageDataDisplayComponent> m_youTubeDisplays = new List<ImageDataDisplayComponent>();
+        private ImageDisplayComponent m_logoDisplay = null;
+        private List<ImageDisplayComponent> m_galleryDisplays = new List<ImageDisplayComponent>();
+        private List<ImageDisplayComponent> m_youTubeDisplays = new List<ImageDisplayComponent>();
 
         // --- ACCESSORS ---
         [Obsolete]
-        public IEnumerable<ImageDataDisplayComponent> imageDisplays { get { return allDisplays; } }
+        public IEnumerable<ImageDisplayComponent> imageDisplays { get { return allDisplays; } }
 
-        public ImageDataDisplayComponent logoDisplay
+        public ImageDisplayComponent logoDisplay
         { get { return m_logoDisplay; } }
-        public IEnumerable<ImageDataDisplayComponent> youTubeDisplays
+        public IEnumerable<ImageDisplayComponent> youTubeDisplays
         { get { return m_youTubeDisplays; } }
-        public IEnumerable<ImageDataDisplayComponent> galleryDisplays
+        public IEnumerable<ImageDisplayComponent> galleryDisplays
         { get { return m_galleryDisplays; } }
 
-        public IEnumerable<ImageDataDisplayComponent> allDisplays
+        public IEnumerable<ImageDisplayComponent> allDisplays
         {
             get
             {
@@ -60,7 +60,7 @@ namespace ModIO.UI
         {
             get
             {
-                foreach(ImageDataDisplayComponent display in imageDisplays)
+                foreach(ImageDisplayComponent display in imageDisplays)
                 {
                     yield return display.data;
                 }
@@ -81,16 +81,16 @@ namespace ModIO.UI
         {
             Debug.Assert(container != null);
 
-            Debug.Assert(!(logoPrefab != null && logoPrefab.GetComponent<ModMediaDisplayComponent>() == null),
-                         "[mod.io] The logoPrefab needs to have a ModMediaDisplayComponent"
+            Debug.Assert(!(logoPrefab != null && logoPrefab.GetComponent<ImageDisplay>() == null),
+                         "[mod.io] The logoPrefab needs to have a ImageDisplay"
                          + " component attached in order to display correctly.");
 
-            Debug.Assert(!(galleryImagePrefab != null && galleryImagePrefab.GetComponent<ModMediaDisplayComponent>() == null),
-                         "[mod.io] The galleryImagePrefab needs to have a ModMediaDisplayComponent"
+            Debug.Assert(!(galleryImagePrefab != null && galleryImagePrefab.GetComponent<ImageDisplay>() == null),
+                         "[mod.io] The galleryImagePrefab needs to have a ImageDisplay"
                          + " component attached in order to display correctly.");
 
-            Debug.Assert(!(youTubeThumbnailPrefab != null && youTubeThumbnailPrefab.GetComponent<ModMediaDisplayComponent>() == null),
-                         "[mod.io] The youTubeThumbnailPrefab needs to have a ModMediaDisplayComponent"
+            Debug.Assert(!(youTubeThumbnailPrefab != null && youTubeThumbnailPrefab.GetComponent<ImageDisplay>() == null),
+                         "[mod.io] The youTubeThumbnailPrefab needs to have a ImageDisplay"
                          + " component attached in order to display correctly.");
         }
 
@@ -228,7 +228,7 @@ namespace ModIO.UI
             #if UNITY_EDITOR
             if(!Application.isPlaying)
             {
-                foreach(ImageDataDisplayComponent display in allDisplays)
+                foreach(ImageDisplayComponent display in allDisplays)
                 {
                     GameObject.DestroyImmediate(display.gameObject);
                 }
@@ -236,7 +236,7 @@ namespace ModIO.UI
             else
             #endif
             {
-                foreach(ImageDataDisplayComponent display in allDisplays)
+                foreach(ImageDisplayComponent display in allDisplays)
                 {
                     GameObject.Destroy(display.gameObject);
                 }
@@ -247,19 +247,19 @@ namespace ModIO.UI
             this.m_galleryDisplays.Clear();
         }
 
-        private ModMediaDisplayComponent InstantiatePrefab(GameObject imagePrefab)
+        private ImageDisplay InstantiatePrefab(GameObject imagePrefab)
         {
             Debug.Assert(imagePrefab != null);
 
             GameObject media_go = GameObject.Instantiate(imagePrefab, container);
-            ModMediaDisplayComponent mediaDisplay = media_go.GetComponent<ModMediaDisplayComponent>();
+            ImageDisplay mediaDisplay = media_go.GetComponent<ImageDisplay>();
             mediaDisplay.Initialize();
 
             return mediaDisplay;
         }
 
         // ---------[ EVENT HANDLING ]---------
-        public void NotifyLogoClicked(ImageDataDisplayComponent display)
+        public void NotifyLogoClicked(ImageDisplayComponent display)
         {
             if(this.logoClicked != null)
             {
@@ -267,7 +267,7 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyGalleryImageClicked(ImageDataDisplayComponent display)
+        public void NotifyGalleryImageClicked(ImageDisplayComponent display)
         {
             if(this.galleryImageClicked != null)
             {
@@ -275,7 +275,7 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyYouTubeThumbnailClicked(ImageDataDisplayComponent display)
+        public void NotifyYouTubeThumbnailClicked(ImageDisplayComponent display)
         {
             if(this.youTubeThumbnailClicked != null)
             {

@@ -18,13 +18,13 @@ namespace ModIO.UI
         public struct SubmittorDisplay
         {
             public UserProfileDisplayComponent  profile;
-            public ModMediaDisplayComponent     avatar;
+            public ImageDisplay                 avatar;
         }
 
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
         public SubmittorDisplay                     submittorDisplay;
-        public ModMediaDisplayComponent             logoDisplay;
+        public ImageDisplay                         logoDisplay;
         public ModMediaCollectionDisplayComponent   mediaContainer;
         public ModfileDisplayComponent              buildDisplay;
         public ModTagCollectionDisplayComponent     tagsDisplay;

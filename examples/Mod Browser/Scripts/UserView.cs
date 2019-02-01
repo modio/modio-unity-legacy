@@ -9,7 +9,7 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public UserProfileDisplayComponent  profileDisplay;
-        public ModMediaDisplayComponent     avatarDisplay;
+        public ImageDisplay                 avatarDisplay;
 
         [Header("Display Data")]
         [SerializeField] private UserDisplayData m_data = new UserDisplayData();
