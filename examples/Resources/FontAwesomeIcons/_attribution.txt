@@ -1,7 +1,8 @@
 :: Attribution for icons sourced from FontAwesome under the Creative Commons License ::
-License URL: https://fontawesome.com/license
+License URL: https://fontawesome.com/license/free
+_LICENSE: Generated on Feb 1st, 2019 copied from https://creativecommons.org/licenses/by/4.0/legalcode
 
-:: URLS ::
+:: ICON URLS ::
 https://fontawesome.com/icons/angle-left
 https://fontawesome.com/icons/backspace
 https://fontawesome.com/icons/caret-left
