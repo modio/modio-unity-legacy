@@ -7,6 +7,7 @@ namespace ModIO.UI
     {
         public abstract event Action<ImageDataDisplayComponent> onClick;
         public abstract ImageDisplayData data { get; set; }
+        public abstract bool useOriginalRes { get; set; }
 
         public abstract void Initialize();
         public abstract void DisplayLoading();

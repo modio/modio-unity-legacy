@@ -17,6 +17,11 @@ namespace ModIO.UI
         [SerializeField] private ImageDisplayData m_data;
 
         // --- ACCESSORS ---
+        public override bool useOriginalRes
+        {
+            get { return false; }
+            set { }
+        }
         public override ImageDisplayData data
         {
             get { return m_data; }

@@ -12,6 +12,8 @@ namespace ModIO.UI
         [Header("Settings")]
         [SerializeField] private LogoSize m_logoSize;
         [SerializeField] private ModGalleryImageSize m_galleryImageSize;
+        [Tooltip("Display the image and it's original resolution rather than the default size")]
+        [SerializeField] private bool m_useOriginalRes;
 
         [Header("UI Components")]
         public Image image;
@@ -30,6 +32,18 @@ namespace ModIO.UI
         public override ModGalleryImageSize galleryImageSize
         { get { return this.m_galleryImageSize; } }
 
+        public override bool useOriginalRes
+        {
+            get { return m_useOriginalRes; }
+            set
+            {
+                if(m_useOriginalRes != value)
+                {
+                    m_useOriginalRes = value;
+                    PresentData();
+                }
+            }
+        }
         public override ImageDisplayData data
         {
             get { return m_data; }
