@@ -24,7 +24,7 @@ namespace ModIO.UI
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
         public SubmittorDisplay                     submittorDisplay;
-        public ModLogoDisplayComponent              logoDisplay;
+        public ModMediaDisplayComponent             logoDisplay;
         public ModMediaCollectionDisplayComponent   mediaContainer;
         public ModfileDisplayComponent              buildDisplay;
         public ModTagCollectionDisplayComponent     tagsDisplay;

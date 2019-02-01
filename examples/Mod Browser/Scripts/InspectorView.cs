@@ -225,7 +225,7 @@ namespace ModIO.UI
             }
         }
 
-        private void MediaPreview_Logo(ModLogoDisplayComponent display)
+        private void MediaPreview_Logo(ModMediaDisplay display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;

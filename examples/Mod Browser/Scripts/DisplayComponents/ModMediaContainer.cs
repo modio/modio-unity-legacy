@@ -8,7 +8,7 @@ namespace ModIO.UI
     public class ModMediaContainer : ModMediaCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public event Action<ModLogoDisplayComponent>            logoClicked;
+        public event Action<ModMediaDisplay>                    logoClicked;
         public event Action<ModGalleryImageDisplayComponent>    galleryImageClicked;
         public event Action<YouTubeThumbnailDisplayComponent>   youTubeThumbnailClicked;
 
@@ -81,8 +81,8 @@ namespace ModIO.UI
         {
             Debug.Assert(container != null);
 
-            Debug.Assert(!(logoPrefab != null && logoPrefab.GetComponent<ModLogoDisplay>() == null),
-                         "[mod.io] The logoPrefab needs to have a ModLogoDisplay"
+            Debug.Assert(!(logoPrefab != null && logoPrefab.GetComponent<ModMediaDisplay>() == null),
+                         "[mod.io] The logoPrefab needs to have a ModMediaDisplay"
                          + " component attached in order to display correctly.");
 
             Debug.Assert(!(galleryImagePrefab != null && galleryImagePrefab.GetComponent<ModGalleryImageDisplay>() == null),
@@ -127,7 +127,7 @@ namespace ModIO.UI
             if(logoLocator != null
                && logoPrefab != null)
             {
-                ModLogoDisplay display = InstantiatePrefab(logoPrefab) as ModLogoDisplay;
+                ModMediaDisplay display = InstantiatePrefab(logoPrefab) as ModMediaDisplay;
                 display.DisplayLogo(modId, logoLocator);
                 display.onClick += NotifyLogoClicked;
 
@@ -188,7 +188,7 @@ namespace ModIO.UI
             if(logoData.mediaType != ImageDisplayData.MediaType.None
                && logoPrefab != null)
             {
-                ModLogoDisplay display = InstantiatePrefab(logoPrefab) as ModLogoDisplay;
+                ModMediaDisplay display = InstantiatePrefab(logoPrefab) as ModMediaDisplay;
                 display.data = logoData;
                 display.onClick += NotifyLogoClicked;
 
@@ -261,10 +261,9 @@ namespace ModIO.UI
         // ---------[ EVENT HANDLING ]---------
         public void NotifyLogoClicked(ImageDataDisplayComponent display)
         {
-            Debug.Assert(display is ModLogoDisplay);
             if(this.logoClicked != null)
             {
-                this.logoClicked(display as ModLogoDisplay);
+                this.logoClicked(display as ModMediaDisplay);
             }
         }
 

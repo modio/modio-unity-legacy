@@ -25,7 +25,6 @@ namespace ModIO.UI
         [SerializeField] private ImageDisplayData m_data = new ImageDisplayData();
 
         // --- ACCESSORS ---
-
         public override bool useOriginal
         {
             get { return m_useOriginal; }
