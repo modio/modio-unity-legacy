@@ -178,25 +178,6 @@ namespace ModIO
             }
         }
 
-        public static void FetchAndCacheAllModProfiles(Action onSuccess,
-                                                       Action<WebRequestError> onError)
-        {
-            Action<List<ModProfile>> onModProfilesReceived = (modProfiles) =>
-            {
-                CacheClient.SaveModProfiles(modProfiles);
-
-                if(onSuccess != null)
-                {
-                    onSuccess();
-                }
-            };
-
-            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetAllMods(RequestFilter.None, p, s, e),
-                                                           onModProfilesReceived,
-                                                           onError);
-        }
-
-
         // ---------[ USER PROFILES ]---------
         public static void GetUserAvatar(UserProfile profile,
                                          UserAvatarSize size,
