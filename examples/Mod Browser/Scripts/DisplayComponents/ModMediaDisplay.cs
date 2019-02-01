@@ -10,10 +10,8 @@ namespace ModIO.UI
         public override event Action<ImageDataDisplayComponent> onClick;
 
         [Header("Settings")]
-        [SerializeField] private LogoSize m_logoSize;
-        [SerializeField] private ModGalleryImageSize m_galleryImageSize;
-        [Tooltip("Display the image and it's original resolution rather than the default size")]
-        [SerializeField] private bool m_useOriginalRes;
+        [Tooltip("Display the image at its original resolution rather than using the thumbnail")]
+        [SerializeField] private bool m_useOriginal;
 
         [Header("UI Components")]
         public Image image;
@@ -27,19 +25,15 @@ namespace ModIO.UI
         [SerializeField] private ImageDisplayData m_data = new ImageDisplayData();
 
         // --- ACCESSORS ---
-        public override LogoSize logoSize
-        { get { return this.m_logoSize; } }
-        public override ModGalleryImageSize galleryImageSize
-        { get { return this.m_galleryImageSize; } }
 
-        public override bool useOriginalRes
+        public override bool useOriginal
         {
-            get { return m_useOriginalRes; }
+            get { return m_useOriginal; }
             set
             {
-                if(m_useOriginalRes != value)
+                if(m_useOriginal != value)
                 {
-                    m_useOriginalRes = value;
+                    m_useOriginal = value;
                     PresentData();
                 }
             }
@@ -120,6 +114,8 @@ namespace ModIO.UI
         public override void DisplayLogo(int modId, LogoImageLocator locator)
         {
             Debug.Assert(locator != null);
+            bool original = m_useOriginal;
+            LogoSize size = (original ? LogoSize.Original : ImageDisplayData.defaultLogoSize );
 
             ImageDisplayData displayData = new ImageDisplayData()
             {
@@ -127,6 +123,8 @@ namespace ModIO.UI
                 mediaType = ImageDisplayData.MediaType.ModLogo,
                 fileName = locator.fileName,
                 texture = null,
+                originalTexture = null,
+                thumbnailTexture = null,
             };
             m_data = displayData;
 
@@ -134,14 +132,14 @@ namespace ModIO.UI
 
             ModManager.GetModLogo(displayData.modId,
                                   locator,
-                                  logoSize,
+                                  size,
                                   (t) =>
                                   {
                                     if(!Application.isPlaying) { return; }
 
                                     if(m_data.Equals(displayData))
                                     {
-                                        m_data.texture = t;
+                                        m_data.SetImageTexture(original, t);
                                         PresentData();
                                     }
                                   },
@@ -151,7 +149,8 @@ namespace ModIO.UI
         public override void DisplayGalleryImage(int modId, GalleryImageLocator locator)
         {
             Debug.Assert(locator != null);
-
+            bool original = m_useOriginal;
+            ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.defaultGalleryImageSize );
 
             ImageDisplayData displayData = new ImageDisplayData()
             {
@@ -159,6 +158,8 @@ namespace ModIO.UI
                 mediaType = ImageDisplayData.MediaType.ModGalleryImage,
                 fileName = locator.fileName,
                 texture = null,
+                originalTexture = null,
+                thumbnailTexture = null,
             };
             m_data = displayData;
 
@@ -166,13 +167,14 @@ namespace ModIO.UI
 
             ModManager.GetModGalleryImage(displayData.modId,
                                           locator,
-                                          galleryImageSize,
+                                          size,
                                           (t) =>
                                           {
                                             if(!Application.isPlaying) { return; }
+
                                             if(m_data.Equals(displayData))
                                             {
-                                                m_data.texture = t;
+                                                m_data.SetImageTexture(original, t);
                                                 PresentData();
                                             }
                                           },
@@ -184,13 +186,14 @@ namespace ModIO.UI
             Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                          "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
 
-
             ImageDisplayData displayData = new ImageDisplayData()
             {
                 modId = modId,
                 mediaType = ImageDisplayData.MediaType.YouTubeThumbnail,
                 youTubeId = youTubeVideoId,
                 texture = null,
+                originalTexture = null,
+                thumbnailTexture = null,
             };
             m_data = displayData;
 
@@ -203,7 +206,8 @@ namespace ModIO.UI
                                                 if(!Application.isPlaying) { return; }
                                                 if(m_data.Equals(displayData))
                                                 {
-                                                    m_data.texture = t;
+                                                    m_data.originalTexture = t;
+                                                    m_data.thumbnailTexture = t;
                                                     PresentData();
                                                 }
                                               },

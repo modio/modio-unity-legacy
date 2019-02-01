@@ -230,15 +230,18 @@ namespace ModIO.UI
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
 
-            if(display.logoSize != selectedMediaPreview.logoSize)
+            if(imageData.GetImageTexture(selectedMediaPreview.useOriginal) == null)
             {
-                ModManager.GetModLogo(profile, selectedMediaPreview.logoSize,
+                bool original = selectedMediaPreview.useOriginal;
+                LogoSize size = (original ? LogoSize.Original : ImageDisplayData.defaultLogoSize);
+
+                ModManager.GetModLogo(profile, size,
                                       (t) =>
                                       {
                                         if(Application.isPlaying
                                            && selectedMediaPreview.data.Equals(imageData))
                                         {
-                                            imageData.texture = t;
+                                            imageData.SetImageTexture(original, t);
                                             selectedMediaPreview.data = imageData;
                                         }
                                       },
@@ -250,16 +253,19 @@ namespace ModIO.UI
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
 
-            if(display.imageSize != selectedMediaPreview.galleryImageSize)
+            if(imageData.GetImageTexture(selectedMediaPreview.useOriginal) == null)
             {
+                bool original = selectedMediaPreview.useOriginal;
+                ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.defaultGalleryImageSize);
+
                 ModManager.GetModGalleryImage(profile, display.data.fileName,
-                                              selectedMediaPreview.galleryImageSize,
+                                              size,
                                               (t) =>
                                               {
                                                 if(Application.isPlaying
                                                    && selectedMediaPreview.data.Equals(imageData))
                                                 {
-                                                    imageData.texture = t;
+                                                    imageData.SetImageTexture(original, t);
                                                     selectedMediaPreview.data = imageData;
                                                 }
                                               },
