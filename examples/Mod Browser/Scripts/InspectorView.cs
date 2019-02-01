@@ -115,6 +115,11 @@ namespace ModIO.UI
                 return;
             }
 
+            this.profile = profile;
+            this.statistics = statistics;
+            this.isModSubscribed = isModSubscribed;
+            this.isModEnabled = isModEnabled;
+
             if(modView != null)
             {
                 modView.DisplayMod(profile, statistics,
