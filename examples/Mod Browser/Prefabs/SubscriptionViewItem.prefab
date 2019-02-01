@@ -64,6 +64,7 @@ MonoBehaviour:
   image: {fileID: 114121170238373818}
   fitter: {fileID: 0}
   loadingOverlay: {fileID: 0}
+  avatarOverlay: {fileID: 0}
   logoOverlay: {fileID: 0}
   galleryImageOverlay: {fileID: 0}
   youTubeOverlay: {fileID: 0}
@@ -73,7 +74,6 @@ MonoBehaviour:
     imageId: 
     originalTexture: {fileID: 0}
     thumbnailTexture: {fileID: 0}
-    texture: {fileID: 0}
 --- !u!114 &114121170238373818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,7 +81,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000847753088144}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
@@ -1332,7 +1332,7 @@ GameObject:
   - component: {fileID: 114091610722366430}
   - component: {fileID: 114014815997335436}
   m_Layer: 5
-  m_Name: SubscriptionViewItem_twoLine
+  m_Name: SubscriptionViewItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1429,7 +1429,6 @@ MonoBehaviour:
       imageId: 
       originalTexture: {fileID: 0}
       thumbnailTexture: {fileID: 0}
-      texture: {fileID: 0}
     currentBuild:
       modfileId: 0
       modId: 0
@@ -1450,7 +1449,6 @@ MonoBehaviour:
       imageId: 
       originalTexture: {fileID: 0}
       thumbnailTexture: {fileID: 0}
-      texture: {fileID: 0}
     youTubeThumbnails: []
     galleryImages: []
     tags: []
@@ -1473,13 +1471,6 @@ MonoBehaviour:
       isActive: 0
     isSubscribed: 0
     isModEnabled: 1
-    media:
-    - ownerId: 0
-      mediaType: 1
-      imageId: 
-      originalTexture: {fileID: 0}
-      thumbnailTexture: {fileID: 0}
-      texture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
 --- !u!114 &114091610722366430
 MonoBehaviour:
   m_ObjectHideFlags: 0
