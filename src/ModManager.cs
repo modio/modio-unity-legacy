@@ -26,14 +26,13 @@ namespace ModIO
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
 
         /// <summary>Current version of the ModManager</summary>
-        public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
+        public static readonly SimpleVersion VERSION = new SimpleVersion(0, 10);
 
         /// <summary>Data that needs to be stored across sessions.</summary>
         private static PersistentData m_data;
 
         /// <summary>Install directory used by the ModManager.</summary>
         public static string installDirectory;
-
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initialzes the ModManager settings.</summary>
@@ -53,6 +52,11 @@ namespace ModIO
                     enabledModIds = new List<int>(),
                 };
             }
+
+            VersionUpdater.Run(m_data.lastRunVersion);
+
+            m_data.lastRunVersion = VERSION;
+            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
         }
 
         // ---------[ ASSERTS ]---------
