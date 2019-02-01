@@ -6,6 +6,10 @@ namespace ModIO
     [System.Serializable]
     public class Modfile
     {
+        // ---------[ CONSTANTS ]---------
+        /// <summary>An id value indicating this profile is not valid.</summary>
+        public const int NULL_ID = 0;
+
         // ---------[ FIELDS ]---------
         /// <summary>Unique modfile id.</summary>
         [JsonProperty("id")]

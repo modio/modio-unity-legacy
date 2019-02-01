@@ -224,7 +224,7 @@ namespace ModIO
             }
         }
 
-        /// <summary>Extracts a modfile archive to the installs folder and removes other installed versions.</summary>
+        /// <summary>Extracts a mod archive to the installs folder and removes other installed versions.</summary>
         public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
         {
             // Needs to have a valid mod id otherwise we mess with player-added mods!
@@ -271,10 +271,11 @@ namespace ModIO
             }
         }
 
+        /// <summary>Removes all versions of a mod from the installs folder.</summary>
         public static bool TryUninstallAllModVersions(int modId)
         {
             // Don't accidentally uninstall player-added mods!
-            Debug.Assert(modId > 0);
+            Debug.Assert(modId != ModProfile.NULL_ID);
 
             var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
 
@@ -287,10 +288,11 @@ namespace ModIO
             return succeeded;
         }
 
+        /// <summary>Removes a specific version of a mod from the installs folder.</summary>
         public static bool TryUninstallModVersion(int modId, int modfileId)
         {
             // Don't accidentally uninstall player-added mods!
-            Debug.Assert(modId > 0);
+            Debug.Assert(modId != ModProfile.NULL_ID);
 
             var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
 
@@ -306,6 +308,7 @@ namespace ModIO
             return succeeded;
         }
 
+        /// <summary>Returns all of the mod directories of installed mods.</summary>
         public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
         {
             List<int> modIdFilter = null;
@@ -313,7 +316,7 @@ namespace ModIO
             {
                 modIdFilter = new List<int>(ModManager.GetEnabledModIds());
                 // Include drop-ins
-                modIdFilter.Add(0);
+                modIdFilter.Add(ModProfile.NULL_ID);
             }
 
             List<string> directories = new List<string>();
@@ -326,6 +329,7 @@ namespace ModIO
             return directories;
         }
 
+        /// <summary>Returns all of the mod version info of installed mods.</summary>
         public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
         {
             List<int> modIdFilter = null;
@@ -344,6 +348,7 @@ namespace ModIO
             return versions;
         }
 
+        /// <summary>Returns the data of all the mods installed.</summary>
         public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
         {
             string[] modDirectories = new string[0];
@@ -373,17 +378,17 @@ namespace ModIO
                 if(!(folderNameParts.Length > 0
                      && Int32.TryParse(folderNameParts[0], out modId)))
                 {
-                    modId = 0;
+                    modId = ModProfile.NULL_ID;
                 }
 
                 if(modIdFilter == null
                    || modIdFilter.Contains(modId))
                 {
-                    if(!(modId > 0
+                    if(!(modId != ModProfile.NULL_ID
                          && folderNameParts.Length > 1
                          && Int32.TryParse(folderNameParts[1], out modfileId)))
                     {
-                        modfileId = 0;
+                        modfileId = Modfile.NULL_ID;
                     }
 
                     ModfileIdPair idPair = new ModfileIdPair()
