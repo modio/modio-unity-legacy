@@ -78,8 +78,8 @@ namespace ModIO.UI
         /// <summary>File name used to store the browser manifest.</summary>
         public const string MANIFEST_FILENAME = "browser_manifest.data";
 
+        /// <summary>Number of seconds between update polls.</summary>
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
-
 
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
         {
@@ -93,19 +93,20 @@ namespace ModIO.UI
             SubscriptionSortOption.Create("A-Z",       (a,b) => { return String.Compare(a.name, b.name); }),
             SubscriptionSortOption.Create("LARGEST",   (a,b) => { return (int)(a.activeBuild.fileSize - a.activeBuild.fileSize); }),
             SubscriptionSortOption.Create("UPDATED",   (a,b) => { return b.dateUpdated - a.dateUpdated; }),
-            SubscriptionSortOption.Create("ENABLED",   (a,b) =>
-                                                        {
-                                                            int diff = 0;
-                                                            diff += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
-                                                            diff += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
+            SubscriptionSortOption.Create("ENABLED",
+            (a,b) =>
+            {
+                int diff = 0;
+                diff += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
+                diff += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
 
-                                                            if(diff == 0)
-                                                            {
-                                                                diff = String.Compare(a.name, b.name);
-                                                            }
+                if(diff == 0)
+                {
+                    diff = String.Compare(a.name, b.name);
+                }
 
-                                                            return diff;
-                                                        } ),
+                return diff;
+            }),
         };
 
         // ---------[ FIELDS ]---------
@@ -173,13 +174,13 @@ namespace ModIO.UI
         public Button prevPageButton;
         public Button nextPageButton;
 
-        [Header("Runtime Data")]
-        private UserProfile userProfile = null;
+        // --- RUNTIME DATA ---
+        private GameProfile m_gameProfile = null;
+        private UserProfile m_userProfile = null;
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
         private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
-        private GameProfile gameProfile = null;
         private Coroutine m_updatesCoroutine = null;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
@@ -202,7 +203,7 @@ namespace ModIO.UI
                 StopCoroutine(m_updatesCoroutine);
             }
 
-            if(userProfile != null
+            if(m_userProfile != null
                && this.m_validOAuthToken)
             {
                 PushSubscriptionChanges();
@@ -211,16 +212,6 @@ namespace ModIO.UI
 
         private void Start()
         {
-            #if MODIO_TESTING
-            if(testPluginSettings.gameId > 0
-               || productionPluginSettings.gameId > 0
-               || customPluginSettings.gameId > 0)
-            {
-                Debug.LogError("OI DOOFUS! YOU SAVED AUTHENTICATION THE DETAILS TO THE PREFAB AGAIN!!!!!!");
-                return;
-            }
-            #endif
-
             LoadLocalData();
 
             InitializeInspectorView();
@@ -259,8 +250,8 @@ namespace ModIO.UI
             }
 
             #if MODIO_TESTING
-            settings.gameId = ModIO_Testing.GAME_ID;
-            settings.gameAPIKey = ModIO_Testing.GAME_APIKEY;
+                settings.gameId = ModIO_Testing.GAME_ID;
+                settings.gameAPIKey = ModIO_Testing.GAME_APIKEY;
             #endif
 
             if(settings.gameId <= 0)
@@ -293,15 +284,15 @@ namespace ModIO.UI
             // - UserData -
             if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
             {
-                this.userProfile = CacheClient.LoadUserProfile(UserAuthenticationData.instance.userId);
+                m_userProfile = CacheClient.LoadUserProfile(UserAuthenticationData.instance.userId);
             }
 
             // - GameData -
-            this.gameProfile = CacheClient.LoadGameProfile();
-            if(this.gameProfile == null)
+            m_gameProfile = CacheClient.LoadGameProfile();
+            if(m_gameProfile == null)
             {
-                this.gameProfile = new GameProfile();
-                this.gameProfile.id = settings.gameId;
+                m_gameProfile = new GameProfile();
+                m_gameProfile.id = settings.gameId;
             }
 
             // - Manifest -
@@ -532,13 +523,13 @@ namespace ModIO.UI
             {
                 loggedUserView.Initialize();
 
-                if(userProfile == null)
+                if(m_userProfile == null)
                 {
                     loggedUserView.data = m_guestData;
                 }
                 else
                 {
-                    loggedUserView.DisplayUser(userProfile);
+                    loggedUserView.DisplayUser(m_userProfile);
                 }
 
                 loggedUserView.onClick += OnUserDisplayClicked;
@@ -562,7 +553,7 @@ namespace ModIO.UI
                 yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
 
-            UpdateInstalledModsUsingSubscriptions();
+            VerifySubscriptionInstallations();
 
             m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
         }
@@ -583,7 +574,7 @@ namespace ModIO.UI
                 APIClient.GetGame(
                 (g) =>
                 {
-                    this.gameProfile = g;
+                    m_gameProfile = g;
                     explorerView.tagCategories = g.tagCategories;
                     subscriptionsView.tagCategories = g.tagCategories;
                     inspectorView.tagCategories = g.tagCategories;
@@ -644,7 +635,7 @@ namespace ModIO.UI
                 {
                     CacheClient.SaveUserProfile(u);
 
-                    this.userProfile = u;
+                    m_userProfile = u;
 
                     if(this.loggedUserView != null)
                     {
@@ -708,7 +699,7 @@ namespace ModIO.UI
 
             RequestFilter subscriptionFilter = new RequestFilter();
             subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                                new EqualToFilter<int>() { filterValue = gameProfile.id });
+                                                new EqualToFilter<int>() { filterValue = m_gameProfile.id });
 
             List<int> localSubscriptions = new List<int>(ModManager.GetSubscribedModIds());
 
@@ -846,7 +837,7 @@ namespace ModIO.UI
 
             RequestFilter subscriptionFilter = new RequestFilter();
             subscriptionFilter.fieldFilters.Add(ModIO.API.GetAllModsFilterFields.gameId,
-                                                new EqualToFilter<int>() { filterValue = gameProfile.id });
+                                                new EqualToFilter<int>() { filterValue = m_gameProfile.id });
             subscriptionFilter.fieldFilters.Add(ModIO.API.GetAllModsFilterFields.id,
                                                 new InArrayFilter<int>()
                                                 {
@@ -934,7 +925,7 @@ namespace ModIO.UI
             }
         }
 
-        private void UpdateInstalledModsUsingSubscriptions()
+        private void VerifySubscriptionInstallations()
         {
             var subscribedModIds = ModManager.GetSubscribedModIds();
             var installedModVersions = ModManager.GetInstalledModVersions(false);
@@ -991,219 +982,20 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Downloads (if necessary) the modfile and installs it, removing other installed versions.</summary>
-        // NOTE(@jackson): Checks 'this.isActiveAndEnabled' before unzipping.
-        private System.Collections.IEnumerator DownloadAndInstallModVersion(int modId, int modfileId)
+        // ----------[ MANIFEST ]---------
+        protected void WriteManifest()
         {
-            bool isRequestDone = false;
-            WebRequestError requestError = null;
-
-            // try and get the modfile
-            Modfile modfile = CacheClient.LoadModfile(modId, modfileId);
-            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
-            bool isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
-                                     && modfile != null
-                                     && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
-                                     && modfile.fileHash != null
-                                     && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
-
-            if(modfile == null
-               || modfile.fileHash == null
-               || modfile.downloadLocator == null
-               || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now)
+            ManifestData manifest = new ManifestData()
             {
-                modfile = null;
-            }
+                lastCacheUpdate = this.lastCacheUpdate,
+                lastSubscriptionSync = this.lastSubscriptionSync,
+                queuedUnsubscribes = this.m_queuedUnsubscribes,
+                queuedSubscribes = this.m_queuedSubscribes,
+            };
 
-            while(modfile == null
-                  && m_onlineMode
-                  && this.isActiveAndEnabled)
-            {
-                APIClient.GetModfile(modId, modfileId,
-                                     (mf) =>
-                                     {
-                                        modfile = mf;
-                                        isRequestDone = true;
-                                     },
-                                     (e) =>
-                                     {
-                                        requestError = e;
-                                        isRequestDone = true;
-                                     });
-
-                while(!isRequestDone) { yield return null; }
-                isRequestDone = false;
-
-                if(requestError != null)
-                {
-                    bool cancel;
-                    int reattemptDelay;
-                    string message;
-
-                    ProcessRequestError(requestError, out cancel,
-                                        out reattemptDelay, out message);
-
-                    if(reattemptDelay > 0)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
-                        yield return new WaitForSeconds(reattemptDelay + 1);
-                    }
-                    else if(cancel)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message);
-                        yield break;
-                    }
-                }
-                else if(modfile != null)
-                {
-                    CacheClient.SaveModfile(modfile);
-
-                    // recheck binary
-                    isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
-                                        && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
-                                        && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
-                }
-            }
-
-            if(modfile == null)
-            {
-                Debug.LogWarning("[mod.io] Failed to retrieve the Modfile and thus cannot download"
-                                 + " the mod binary. (ModId: " + modId.ToString() + " - ModfileId: "
-                                 + modfileId.ToString());
-                yield break;
-            }
-
-
-            while(!isBinaryZipValid
-                  && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now
-                  && m_onlineMode)
-            {
-                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
-                if(downloadInfo != null)
-                {
-                    // NOTE(@jackson): Already downloading!
-                    yield break;
-                }
-
-                downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
-
-                foreach(ModView modView in IterateModViews())
-                {
-                    if(modView.data.profile.modId == modId)
-                    {
-                        modView.DisplayDownload(downloadInfo);
-                    }
-                }
-
-                while(!downloadInfo.isDone) { yield return null; }
-
-                if(downloadInfo.error != null)
-                {
-                    bool cancel;
-                    int reattemptDelay;
-                    string message;
-
-                    ProcessRequestError(downloadInfo.error, out cancel,
-                                        out reattemptDelay, out message);
-
-                    if(reattemptDelay > 0)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
-                        yield return new WaitForSeconds(reattemptDelay + 1);
-                    }
-                    else if(cancel)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message);
-                        yield break;
-                    }
-                }
-                else
-                {
-                    bool fileExists = System.IO.File.Exists(zipFilePath);
-                    Int64 binarySize = (fileExists ? IOUtilities.GetFileSize(zipFilePath) : -1);
-                    string binaryHash = (fileExists ? IOUtilities.CalculateFileMD5Hash(zipFilePath) : string.Empty);
-
-                    isBinaryZipValid = (fileExists
-                                        && modfile.fileSize == binarySize
-                                        && modfile.fileHash.md5 == binaryHash);
-
-                    if(!isBinaryZipValid)
-                    {
-                        string errorMessage = string.Empty;
-                        if(!fileExists)
-                        {
-                            errorMessage = "The downloaded mod data could not be located.";
-                        }
-                        else if(modfile.fileSize != binarySize)
-                        {
-                            errorMessage = "The downloaded mod data was of an incorrect size.";
-                        }
-                        else if(modfile.fileHash.md5 != binaryHash)
-                        {
-                            errorMessage = "The downloaded mod data was corrupt.";
-                        }
-
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to install.\n"
-                                                   + errorMessage);
-                        yield break;
-                    }
-                }
-            }
-
-            // NOTE(@jackson): Do not uninstall/install unless the ModBrowser is active!
-            if(isBinaryZipValid
-               && this.isActiveAndEnabled)
-            {
-                bool isUpdate = (ModManager.IterateInstalledMods(new int[] { modId }).Count() > 0);
-                bool didInstall = ModManager.TryInstallMod(modId, modfileId, true);
-
-                string message_namePart = string.Empty;
-                ModProfile profile = CacheClient.LoadModProfile(modId);
-                if(profile != null)
-                {
-                    message_namePart = profile.name + " was ";
-                }
-                else
-                {
-                    message_namePart = "Mods were ";
-                }
-
-                if(didInstall && isUpdate)
-                {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
-                                               message_namePart + "updated to the latest version");
-                }
-                else if(didInstall)
-                {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
-                                               message_namePart + "download and installed");
-                }
-                else if(isUpdate)
-                {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
-                                               message_namePart + "queued for update on restart");
-                }
-                else
-                {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
-                                               message_namePart + "queued for installation on restart");
-                }
-            }
+            string manifestFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,
+                                                              ModBrowser.MANIFEST_FILENAME);
+            IOUtilities.WriteJsonObjectFile(manifestFilePath, manifest);
         }
 
         // ---------[ REQUESTS ]---------
@@ -1490,7 +1282,7 @@ namespace ModIO.UI
 
         private void PushSubscriptionChanges()
         {
-            Debug.Assert(this.userProfile != null);
+            Debug.Assert(m_userProfile != null);
             Debug.Assert(this.m_validOAuthToken);
 
             // NOTE(@jackson): This is workaround is due to the response of an unsub request
@@ -1727,21 +1519,6 @@ namespace ModIO.UI
             }
         }
 
-        protected void WriteManifest()
-        {
-            ManifestData manifest = new ManifestData()
-            {
-                lastCacheUpdate = this.lastCacheUpdate,
-                lastSubscriptionSync = this.lastSubscriptionSync,
-                queuedUnsubscribes = this.m_queuedUnsubscribes,
-                queuedSubscribes = this.m_queuedSubscribes,
-            };
-
-            string manifestFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,
-                                                              ModBrowser.MANIFEST_FILENAME);
-            IOUtilities.WriteJsonObjectFile(manifestFilePath, manifest);
-        }
-
         // ---------[ USER CONTROL ]---------
         public void LogUserIn(string oAuthToken)
         {
@@ -1764,12 +1541,12 @@ namespace ModIO.UI
 
             yield return this.StartCoroutine(FetchUserProfile());
 
-            if(this.userProfile != null)
+            if(m_userProfile != null)
             {
                 // - save user data -
                 UserAuthenticationData.instance = new UserAuthenticationData()
                 {
-                    userId = this.userProfile.id,
+                    userId = m_userProfile.id,
                     token = oAuthToken,
                 };
 
@@ -1799,7 +1576,7 @@ namespace ModIO.UI
             UserAuthenticationData.instance = UserAuthenticationData.NONE;
 
             // - set up guest account -
-            this.userProfile = null;
+            m_userProfile = null;
             if(this.loggedUserView != null)
             {
                 this.loggedUserView.data = m_guestData;
@@ -1808,6 +1585,222 @@ namespace ModIO.UI
             // - notify -
             MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
                                        "Successfully logged out");
+        }
+
+        // ---------[ INSTALLATION ]---------
+        /// <summary>Downloads (if necessary) the modfile and installs it, removing other installed versions.</summary>
+        // NOTE(@jackson): Checks 'this.isActiveAndEnabled' before unzipping.
+        private System.Collections.IEnumerator DownloadAndInstallModVersion(int modId, int modfileId)
+        {
+            bool isRequestDone = false;
+            WebRequestError requestError = null;
+
+            // try and get the modfile
+            Modfile modfile = CacheClient.LoadModfile(modId, modfileId);
+            string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(modId, modfileId);
+            bool isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
+                                     && modfile != null
+                                     && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                     && modfile.fileHash != null
+                                     && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+
+            if(modfile == null
+               || modfile.fileHash == null
+               || modfile.downloadLocator == null
+               || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now)
+            {
+                modfile = null;
+            }
+
+            while(modfile == null
+                  && m_onlineMode
+                  && this.isActiveAndEnabled)
+            {
+                APIClient.GetModfile(modId, modfileId,
+                                     (mf) =>
+                                     {
+                                        modfile = mf;
+                                        isRequestDone = true;
+                                     },
+                                     (e) =>
+                                     {
+                                        requestError = e;
+                                        isRequestDone = true;
+                                     });
+
+                while(!isRequestDone) { yield return null; }
+                isRequestDone = false;
+
+                if(requestError != null)
+                {
+                    bool cancel;
+                    int reattemptDelay;
+                    string message;
+
+                    ProcessRequestError(requestError, out cancel,
+                                        out reattemptDelay, out message);
+
+                    if(reattemptDelay > 0)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
+                        yield return new WaitForSeconds(reattemptDelay + 1);
+                    }
+                    else if(cancel)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message);
+                        yield break;
+                    }
+                }
+                else if(modfile != null)
+                {
+                    CacheClient.SaveModfile(modfile);
+
+                    // recheck binary
+                    isBinaryZipValid = (System.IO.File.Exists(zipFilePath)
+                                        && modfile.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                        && modfile.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+                }
+            }
+
+            if(modfile == null)
+            {
+                Debug.LogWarning("[mod.io] Failed to retrieve the Modfile and thus cannot download"
+                                 + " the mod binary. (ModId: " + modId.ToString() + " - ModfileId: "
+                                 + modfileId.ToString());
+                yield break;
+            }
+
+
+            while(!isBinaryZipValid
+                  && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now
+                  && m_onlineMode)
+            {
+                FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
+                if(downloadInfo != null)
+                {
+                    // NOTE(@jackson): Already downloading!
+                    yield break;
+                }
+
+                downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
+
+                foreach(ModView modView in IterateModViews())
+                {
+                    if(modView.data.profile.modId == modId)
+                    {
+                        modView.DisplayDownload(downloadInfo);
+                    }
+                }
+
+                while(!downloadInfo.isDone) { yield return null; }
+
+                if(downloadInfo.error != null)
+                {
+                    bool cancel;
+                    int reattemptDelay;
+                    string message;
+
+                    ProcessRequestError(downloadInfo.error, out cancel,
+                                        out reattemptDelay, out message);
+
+                    if(reattemptDelay > 0)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
+                        yield return new WaitForSeconds(reattemptDelay + 1);
+                    }
+                    else if(cancel)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to download.\n"
+                                                   + message);
+                        yield break;
+                    }
+                }
+                else
+                {
+                    bool fileExists = System.IO.File.Exists(zipFilePath);
+                    Int64 binarySize = (fileExists ? IOUtilities.GetFileSize(zipFilePath) : -1);
+                    string binaryHash = (fileExists ? IOUtilities.CalculateFileMD5Hash(zipFilePath) : string.Empty);
+
+                    isBinaryZipValid = (fileExists
+                                        && modfile.fileSize == binarySize
+                                        && modfile.fileHash.md5 == binaryHash);
+
+                    if(!isBinaryZipValid)
+                    {
+                        string errorMessage = string.Empty;
+                        if(!fileExists)
+                        {
+                            errorMessage = "The downloaded mod data could not be located.";
+                        }
+                        else if(modfile.fileSize != binarySize)
+                        {
+                            errorMessage = "The downloaded mod data was of an incorrect size.";
+                        }
+                        else if(modfile.fileHash.md5 != binaryHash)
+                        {
+                            errorMessage = "The downloaded mod data was corrupt.";
+                        }
+
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Mods have failed to install.\n"
+                                                   + errorMessage);
+                        yield break;
+                    }
+                }
+            }
+
+            // NOTE(@jackson): Do not uninstall/install unless the ModBrowser is active!
+            if(isBinaryZipValid
+               && this.isActiveAndEnabled)
+            {
+                bool isUpdate = (ModManager.IterateInstalledMods(new int[] { modId }).Count() > 0);
+                bool didInstall = ModManager.TryInstallMod(modId, modfileId, true);
+
+                string message_namePart = string.Empty;
+                ModProfile profile = CacheClient.LoadModProfile(modId);
+                if(profile != null)
+                {
+                    message_namePart = profile.name + " was ";
+                }
+                else
+                {
+                    message_namePart = "Mods were ";
+                }
+
+                if(didInstall && isUpdate)
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "updated to the latest version");
+                }
+                else if(didInstall)
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "download and installed");
+                }
+                else if(isUpdate)
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "queued for update on restart");
+                }
+                else
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                               message_namePart + "queued for installation on restart");
+                }
+            }
         }
 
         // ---------[ UI CONTROL ]---------
@@ -1851,9 +1844,9 @@ namespace ModIO.UI
         {
             ModProfile profile = null;
             ModStatistics stats = null;
-            IEnumerable<ModTagCategory> tagCategories = (this.gameProfile == null
+            IEnumerable<ModTagCategory> tagCategories = (m_gameProfile == null
                                                          ? new ModTagCategory[0]
-                                                         : this.gameProfile.tagCategories);
+                                                         : m_gameProfile.tagCategories);
             bool isSubscribed = ModManager.GetSubscribedModIds().Contains(modId);
             bool isEnabled = ModManager.GetEnabledModIds().Contains(modId);
 
@@ -2184,7 +2177,7 @@ namespace ModIO.UI
             OnSubscribedToMod(modId);
 
             // push sub
-            if(this.userProfile != null)
+            if(m_userProfile != null)
             {
                 if(!m_queuedSubscribes.Contains(modId))
                 {
@@ -2208,7 +2201,7 @@ namespace ModIO.UI
             OnUnsubscribedFromMod(modId);
 
             // push unsub
-            if(this.userProfile != null)
+            if(m_userProfile != null)
             {
                 if(!m_queuedUnsubscribes.Contains(modId))
                 {
@@ -2366,7 +2359,7 @@ namespace ModIO.UI
         // ---------[ EVENT HANDLING ]---------
         private void OnUserDisplayClicked(UserView view)
         {
-            if(userProfile == null)
+            if(m_userProfile == null)
             {
                 OpenLoginDialog();
             }
