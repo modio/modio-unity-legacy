@@ -9,7 +9,7 @@ namespace ModIO.UI
     public class LayoutElementDuplicator : UIBehaviour, ILayoutElement
     {
         // ---------[ FIELDS ]---------
-        [SerializeField] private RectTransform copySource;
+        [SerializeField] private RectTransform copySource   = null;
 
         [SerializeField] private int m_LayoutPriority       = 1;
         [SerializeField] private bool m_CopyMinWidth        = false;

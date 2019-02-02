@@ -23,12 +23,9 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("Settings")]
-        [SerializeField] private ButtonInteractivity m_buttonInteractivity;
-        [SerializeField] private Button m_jumpLeftButton;
-        [SerializeField] private Button m_jumpRightButton;
-
-        // private Vector2 anchorAlignment;
-        private bool m_isButtonUpdateRequired;
+        [SerializeField] private ButtonInteractivity m_buttonInteractivity = ButtonInteractivity.AutoHide;
+        [SerializeField] private Button m_jumpLeftButton    = null;
+        [SerializeField] private Button m_jumpRightButton   = null;
 
         private Coroutine m_updateCoroutine;
 

@@ -519,7 +519,9 @@ namespace ModIO
 
         /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
         [System.Serializable]
+        #pragma warning disable 0649
         private struct AccessTokenObject { public string access_token; }
+        #pragma warning restore 0649
 
         /// <summary>Requests a user OAuthToken in exchange for a security code.</summary>
         public static void GetOAuthToken(string securityCode,

@@ -75,7 +75,9 @@ namespace ModIO
 
         // ---------[ API DESERIALIZATION ]---------
         [JsonExtensionData]
+        #pragma warning disable 0649
         private System.Collections.Generic.IDictionary<string, JToken> _additionalData;
+        #pragma warning restore 0649
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
