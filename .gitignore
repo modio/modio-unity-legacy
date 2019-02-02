@@ -46,7 +46,7 @@ ehthumbs.db
 Thumbs.db
 
 # Plugin Specific
-Branding.meta
-LICENSE.meta
-README.md.meta
-Scripts.meta
+_nonRepo/
+*LICENSE*.meta
+*README*.meta
+/*.meta
