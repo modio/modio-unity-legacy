@@ -1020,7 +1020,6 @@ GameObject:
   m_Component:
   - component: {fileID: 261}
   - component: {fileID: 173}
-  - component: {fileID: 390}
   - component: {fileID: 393}
   m_Layer: 5
   m_Name: LoadingOverlay
@@ -1057,20 +1056,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 55}
   m_CullTransparentMesh: 0
---- !u!114 &390
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 55}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3892f42da52044d3960d3b07645f079, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  icon: {fileID: 389}
-  secondsPerRotation: 1.4
 --- !u!114 &393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2297,6 +2282,7 @@ GameObject:
   - component: {fileID: 268}
   - component: {fileID: 156}
   - component: {fileID: 389}
+  - component: {fileID: 1639594364890651031}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -2360,6 +2346,19 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &1639594364890651031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 69}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3892f42da52044d3960d3b07645f079, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  secondsPerRotation: 1.4
 --- !u!1 &70
 GameObject:
   m_ObjectHideFlags: 0
@@ -2683,7 +2682,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 73}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
