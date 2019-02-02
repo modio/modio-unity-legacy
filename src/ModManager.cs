@@ -15,6 +15,7 @@ namespace ModIO
     public static class ModManager
     {
         // ---------[ NESTED FIELDS ]---------
+        /// <summary>A structure used to store data on disk.</summary>
         private struct PersistentData
         {
             public SimpleVersion lastRunVersion;
@@ -696,36 +697,8 @@ namespace ModIO
                                                           onError);
         }
 
-
-        // ---------[ MOD TEAMS ]---------
-        public static void GetModTeam(int modId,
-                                      Action<List<ModTeamMember>> onSuccess,
-                                      Action<WebRequestError> onError)
-        {
-            List<ModTeamMember> cachedModTeam = CacheClient.LoadModTeam(modId);
-
-            if(cachedModTeam != null)
-            {
-                if(onSuccess != null) { onSuccess(cachedModTeam); }
-            }
-            else
-            {
-                // - Get All Team Members -
-                Action<List<ModTeamMember>> onGetModTeam = (modTeam) =>
-                {
-                    CacheClient.SaveModTeam(modId, modTeam);
-                    if(onSuccess != null) { onSuccess(modTeam); }
-                };
-
-                ModManager.FetchAllResultsForQuery<ModTeamMember>((p,s,e) => APIClient.GetAllModTeamMembers(modId, RequestFilter.None,
-                                                                                                            p, s, e),
-                                                                  onGetModTeam,
-                                                                  onError);
-            }
-        }
-
-
         // ---------[ UPLOADING ]---------
+        /// <summary>Submits a new mod to the servers.</summary>
         public static void SubmitNewMod(EditableModProfile modEdits,
                                         Action<ModProfile> modSubmissionSucceeded,
                                         Action<WebRequestError> modSubmissionFailed)
@@ -802,12 +775,13 @@ namespace ModIO
                              modSubmissionFailed);
         }
 
+        /// <summary>Submits changes to a mod id to the servers.</summary>
         public static void SubmitModChanges(int modId,
                                             EditableModProfile modEdits,
                                             Action<ModProfile> modSubmissionSucceeded,
                                             Action<WebRequestError> modSubmissionFailed)
         {
-            Debug.Assert(modId > 0);
+            Debug.Assert(modId != ModProfile.NULL_ID);
 
             Action<ModProfile> submitChanges = (profile) =>
             {
@@ -875,6 +849,7 @@ namespace ModIO
                                      modSubmissionFailed);
         }
 
+        /// <summary>Calculates changes made to a mod profile and submits them to the servers.</summary>
         private static void SubmitModProfileComponents(ModProfile profile,
                                                        EditableModProfile modEdits,
                                                        Action<ModProfile> modSubmissionSucceeded,
@@ -1122,6 +1097,7 @@ namespace ModIO
             doNextSubmissionAction(new APIMessage());
         }
 
+        /// <summary>Zips and uploads a mod data directory as a new build to the servers.</summary>
         public static void UploadModBinaryDirectory(int modId,
                                                     EditableModfile modfileValues,
                                                     string binaryDirectory,
@@ -1196,6 +1172,7 @@ namespace ModIO
             }
         }
 
+        /// <summary>Zips and uploads a mod data file as a new build to the servers.</summary>
         public static void UploadModBinary_Unzipped(int modId,
                                                     EditableModfile modfileValues,
                                                     string unzippedBinaryLocation,
@@ -1245,6 +1222,7 @@ namespace ModIO
             }
         }
 
+        /// <summary>Uploads a zipped mod binary as a new build to the servers.</summary>
         public static void UploadModBinary_Zipped(int modId,
                                                   EditableModfile modfileValues,
                                                   string binaryZipLocation,
