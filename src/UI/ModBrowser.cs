@@ -14,16 +14,6 @@ namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour
     {
-        // ---------[ SINGLETON ]---------
-        private static ModBrowser _instance = null;
-        public static ModBrowser instance
-        {
-            get
-            {
-                return _instance;
-            }
-        }
-
         // ---------[ NESTED CLASSES ]---------
         public enum ServerType
         {
@@ -207,8 +197,6 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
-            _instance = this;
-
             this.m_validOAuthToken = false;
             this.m_onlineMode = true;
 
@@ -227,8 +215,6 @@ namespace ModIO.UI
             {
                 PushSubscriptionChanges();
             }
-
-            _instance = null;
         }
 
         private void Start()
@@ -2383,7 +2369,7 @@ namespace ModIO.UI
             }
         }
 
-        public static void EnableMod(int modId)
+        public void EnableMod(int modId)
         {
             IList<int> mods = ModManager.GetEnabledModIds();
             if(!mods.Contains(modId))
@@ -2392,10 +2378,9 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            if(instance != null
-               && instance.isActiveAndEnabled)
+            if(this.isActiveAndEnabled)
             {
-                foreach(ModView view in ModBrowser.instance.IterateModViews())
+                foreach(ModView view in this.IterateModViews())
                 {
                     if(view.data.profile.modId == modId)
                     {
@@ -2407,7 +2392,7 @@ namespace ModIO.UI
             }
         }
 
-        public static void DisableMod(int modId)
+        public void DisableMod(int modId)
         {
             IList<int> mods = ModManager.GetEnabledModIds();
             if(mods.Contains(modId))
@@ -2416,10 +2401,9 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            if(instance != null
-               && instance.isActiveAndEnabled)
+            if(this.isActiveAndEnabled)
             {
-                foreach(ModView view in ModBrowser.instance.IterateModViews())
+                foreach(ModView view in this.IterateModViews())
                 {
                     if(view.data.profile.modId == modId)
                     {
