@@ -75,11 +75,11 @@ namespace ModIO.UI
         }
 
         // ---------[ CONST & STATIC ]---------
-        private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
-        public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
+        /// <summary>File name used to store the browser manifest.</summary>
+        public const string MANIFEST_FILENAME = "browser_manifest.data";
 
-        public static string manifestFilePath
-        { get { return IOUtilities.CombinePath(CacheClient.cacheDirectory, "browser_manifest.data"); } }
+        private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
+
 
         private readonly ExplorerSortOption[] explorerSortOptions = new ExplorerSortOption[]
         {
@@ -305,7 +305,9 @@ namespace ModIO.UI
             }
 
             // - Manifest -
-            ManifestData manifest = IOUtilities.ReadJsonObjectFile<ManifestData>(ModBrowser.manifestFilePath);
+            string manifestFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,
+                                                              ModBrowser.MANIFEST_FILENAME);
+            ManifestData manifest = IOUtilities.ReadJsonObjectFile<ManifestData>(manifestFilePath);
             if(manifest != null)
             {
                 this.lastCacheUpdate = manifest.lastCacheUpdate;
@@ -1735,7 +1737,9 @@ namespace ModIO.UI
                 queuedSubscribes = this.m_queuedSubscribes,
             };
 
-            IOUtilities.WriteJsonObjectFile(ModBrowser.manifestFilePath, manifest);
+            string manifestFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,
+                                                              ModBrowser.MANIFEST_FILENAME);
+            IOUtilities.WriteJsonObjectFile(manifestFilePath, manifest);
         }
 
         // ---------[ USER CONTROL ]---------
