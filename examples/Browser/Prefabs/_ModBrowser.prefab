@@ -14018,7 +14018,7 @@ MonoBehaviour:
     gameAPIKey: 
     cacheDirectory: $PERSISTENT_DATA_PATH$/modio_custom
     installDirectory: $PERSISTENT_DATA_PATH$/modio_custom/_installedMods
-  debugAllAPIRequests: 1
+  debugAllAPIRequests: 0
   avatarThumbnailSize: 1
   logoThumbnailSize: 1
   galleryThumbnailSize: 1
