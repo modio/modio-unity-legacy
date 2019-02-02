@@ -91,13 +91,6 @@ namespace ModIO.UI
             public int lastModIndex;
         }
 
-        [Serializable]
-        public struct MessageSystemStrings
-        {
-            public string userLoggedOut;
-            public string subscriptionsRetrieved;
-        }
-
         // ---------[ CONST & STATIC ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
         public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
@@ -184,12 +177,6 @@ namespace ModIO.UI
                 originalTexture = null,
                 thumbnailTexture = null,
             },
-        };
-
-        public MessageSystemStrings messageStrings = new MessageSystemStrings()
-        {
-            userLoggedOut = "Successfully logged out",
-            subscriptionsRetrieved = "$UPDATE_COUNT$ new subscription(s) synchronized with the server",
         };
 
         [Header("UI Components")]
@@ -849,8 +836,7 @@ namespace ModIO.UI
 
             if(updateCount > 0)
             {
-                string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$",
-                                                                               updateCount.ToString());
+                string message = updateCount.ToString() + " subscription(s) synchronized with the server";
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
             }
 
@@ -1612,7 +1598,7 @@ namespace ModIO.UI
                 OnSubscriptionsChanged(addedSubscriptions, removedSubscriptions);
 
                 int subscriptionUpdateCount = (addedSubscriptions.Count + removedSubscriptions.Count);
-                string message = messageStrings.subscriptionsRetrieved.Replace("$UPDATE_COUNT$", subscriptionUpdateCount.ToString());
+                string message = subscriptionUpdateCount.ToString() + " subscription(s) synchronized with the server";
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
             }
         }
@@ -1841,7 +1827,7 @@ namespace ModIO.UI
 
             // - notify -
             MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
-                                       messageStrings.userLoggedOut);
+                                       "Successfully logged out");
         }
 
         // ---------[ UI CONTROL ]---------
