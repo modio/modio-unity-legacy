@@ -139,7 +139,7 @@ namespace ModIO.Editor
 
         public static string MultilineTextField(string content)
         {
-            Rect controlRect = EditorGUILayout.GetControlRect(false, 130.0f, null);
+            Rect controlRect = EditorGUILayout.GetControlRect(false, 130.0f);
             return EditorGUIExtensions.MultilineTextField(controlRect, content);
         }
     }

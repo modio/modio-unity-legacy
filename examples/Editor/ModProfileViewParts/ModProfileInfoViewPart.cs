@@ -297,8 +297,7 @@ namespace ModIO.Editor
             if(logoTexture != null)
             {
                 Rect logoRect = EditorGUILayout.GetControlRect(false,
-                                                               LOGO_PREVIEW_HEIGHT,
-                                                               null);
+                                                               LOGO_PREVIEW_HEIGHT);
                 EditorGUI.DrawPreviewTexture(new Rect((logoRect.width - LOGO_PREVIEW_WIDTH) * 0.5f,
                                                       logoRect.y,
                                                       LOGO_PREVIEW_WIDTH,

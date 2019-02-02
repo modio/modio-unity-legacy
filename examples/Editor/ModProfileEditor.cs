@@ -325,7 +325,7 @@ namespace ModIO.Editor
             {
                 using(new EditorGUI.DisabledScope(isModListLoading))
                 {
-                    modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions, null);
+                    modInitializationOptionIndex = EditorGUILayout.Popup("Select Mod", modInitializationOptionIndex, modOptions);
                     if(GUILayout.Button("Load"))
                     {
                         ModProfile profile = modList[modInitializationOptionIndex];

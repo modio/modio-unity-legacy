@@ -221,7 +221,7 @@ namespace ModIO.Editor
             {
                 EditorGUI.indentLevel += 2;
                 EditorGUILayout.LabelField("File Name", imageFileName);
-                Rect imageRect = EditorGUILayout.GetControlRect(false, 180.0f, null);
+                Rect imageRect = EditorGUILayout.GetControlRect(false, 180.0f);
                 imageRect = EditorGUI.IndentedRect(imageRect);
                 EditorGUI.DrawPreviewTexture(new Rect(imageRect.x,
                                                       imageRect.y,
