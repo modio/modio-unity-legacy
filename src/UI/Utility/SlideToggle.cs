@@ -18,6 +18,8 @@ namespace ModIO.UI
         [SerializeField] private bool m_untoggleOnMouseExit = false;
         [SerializeField] private SlideAxis m_slideAxis = SlideAxis.Horizontal;
         [SerializeField] private float m_slideDuration = 0.15f;
+        [Tooltip("Set duration to block clicks for after the slide animation")]
+        [SerializeField] private float m_reactivateDelay = 0.05f;
 
         [Header("UI Components")]
         [SerializeField] private RectTransform content = null;
@@ -26,7 +28,7 @@ namespace ModIO.UI
         [SerializeField] private bool m_isOn = false;
 
         // --- RUNTIME DATA ---
-        private GameObject clickBlocker = null;
+        private GameObject m_clickBlocker = null;
         private Coroutine m_animation = null;
 
         // --- ACCESSORS ---
@@ -64,11 +66,11 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
-            if(clickBlocker == null)
+            if(m_clickBlocker == null)
             {
-                clickBlocker = new GameObject("Click Blocker", typeof(RectTransform));
+                m_clickBlocker = new GameObject("Click Blocker", typeof(RectTransform));
 
-                RectTransform t = clickBlocker.GetComponent<RectTransform>();
+                RectTransform t = m_clickBlocker.GetComponent<RectTransform>();
                 t.SetParent(content);
                 t.localScale = Vector3.one;
                 t.anchorMin = Vector2.zero;
@@ -76,8 +78,8 @@ namespace ModIO.UI
                 t.offsetMin = Vector2.zero;
                 t.offsetMax = Vector2.zero;
 
-                clickBlocker.AddComponent<Touchable>();
-                clickBlocker.SetActive(false);
+                m_clickBlocker.AddComponent<Touchable>();
+                m_clickBlocker.SetActive(false);
             }
 
             StartCoroutine(LateEnable());
@@ -151,7 +153,7 @@ namespace ModIO.UI
             float distance = Vector2.Distance(startPos, targetPos);
             float factoredDuration = (Vector2.Distance(currentPos, targetPos) / distance) * m_slideDuration;
 
-            clickBlocker.SetActive(true);
+            m_clickBlocker.SetActive(true);
 
             while(elapsed < factoredDuration)
             {
@@ -165,8 +167,8 @@ namespace ModIO.UI
             content.anchoredPosition = targetPos;
 
             // delay enabling buttons
-            yield return new WaitForSeconds(0.1f);
-            clickBlocker.SetActive(false);
+            yield return new WaitForSeconds(m_reactivateDelay);
+            m_clickBlocker.SetActive(false);
 
             m_animation = null;
         }
