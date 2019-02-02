@@ -74,13 +74,6 @@ namespace ModIO.UI
             public Comparison<ModProfile> sortDelegate;
         }
 
-        [Serializable]
-        public class InspectorViewData
-        {
-            public int currentModIndex;
-            public int lastModIndex;
-        }
-
         // ---------[ CONST & STATIC ]---------
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
         public static readonly SimpleVersion VERSION = new SimpleVersion(0, 9);
@@ -181,7 +174,6 @@ namespace ModIO.UI
         public Button nextPageButton;
 
         [Header("Runtime Data")]
-        private InspectorViewData inspectorData = new InspectorViewData();
         private UserProfile userProfile = null;
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
@@ -363,8 +355,6 @@ namespace ModIO.UI
             inspectorView.subscribeRequested += (p) => SubscribeToMod(p.id);
             inspectorView.unsubscribeRequested += (p) => UnsubscribeFromMod(p.id);
             inspectorView.gameObject.SetActive(false);
-
-            UpdateInspectorViewPageButtonInteractibility();
         }
 
         private void InitializeSubscriptionsView()
@@ -1892,8 +1882,6 @@ namespace ModIO.UI
                                         WebRequestError.LogAsWarning);
 
             if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
-
-            UpdateInspectorViewPageButtonInteractibility();
         }
 
         public void CloseInspector()
@@ -1925,38 +1913,6 @@ namespace ModIO.UI
                 }
             }
         }
-
-        // public void ChangeInspectorPage(int direction)
-        // {
-        //     int pageSize = explorerView.itemsPerPage;
-        //     int firstExplorerIndex = (explorerView.CurrentPageNumber-1) * pageSize;
-        //     int newModIndex = inspectorData.currentModIndex + direction;
-        //     int offsetIndex = newModIndex - firstExplorerIndex;
-
-        //     ModProfile profile;
-
-        //     // profile
-        //     if(offsetIndex < 0)
-        //     {
-        //         ChangeExplorerPage(-1);
-
-        //         offsetIndex += pageSize;
-        //         profile = explorerView.targetPage.items[offsetIndex];
-        //     }
-        //     else if(offsetIndex >= pageSize)
-        //     {
-        //         ChangeExplorerPage(1);
-
-        //         offsetIndex -= pageSize;
-        //         profile = explorerView.targetPage.items[offsetIndex];
-        //     }
-        //     else
-        //     {
-        //         profile = explorerView.currentPage.items[offsetIndex];
-        //     }
-
-        //     SetInspectorViewProfile(profile);
-        // }
 
         public void ChangeExplorerPage(int direction)
         {
@@ -2109,18 +2065,6 @@ namespace ModIO.UI
             {
                 nextPageButton.interactable = (!explorerView.isTransitioning
                                                && explorerView.CurrentPageNumber < explorerView.CurrentPageCount);
-            }
-        }
-
-        public void UpdateInspectorViewPageButtonInteractibility()
-        {
-            if(inspectorView.previousModButton != null)
-            {
-                inspectorView.previousModButton.interactable = (inspectorData.currentModIndex > 0);
-            }
-            if(inspectorView.nextModButton != null)
-            {
-                inspectorView.nextModButton.interactable = (inspectorData.currentModIndex < inspectorData.lastModIndex);
             }
         }
 

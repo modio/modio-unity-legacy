@@ -24,8 +24,6 @@ namespace ModIO.UI
         public ImageDisplay selectedMediaPreview;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
-        public Button previousModButton;
-        public Button nextModButton;
         public Button backToDiscoverButton;
         public Button backToSubscriptionsButton;
 
