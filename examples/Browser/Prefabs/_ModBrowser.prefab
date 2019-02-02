@@ -3582,8 +3582,6 @@ MonoBehaviour:
   selectedMediaPreview: {fileID: 114756240219111780}
   versionHistoryContainer: {fileID: 224438501871376302}
   scrollView: {fileID: 114302316280223688}
-  previousModButton: {fileID: 0}
-  nextModButton: {fileID: 0}
   backToDiscoverButton: {fileID: 0}
   backToSubscriptionsButton: {fileID: 0}
   profile:
