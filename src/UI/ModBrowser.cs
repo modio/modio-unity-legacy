@@ -499,21 +499,25 @@ namespace ModIO.UI
             loginDialog.gameObject.SetActive(false);
             loginDialog.onSecurityCodeSent += (m) =>
             {
-                OpenMessageDisplay_Success(m.message);
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
+                                           m.message);
             };
             loginDialog.onUserOAuthTokenReceived += (t) =>
             {
-                OpenMessageDisplay_Success("Authorization Successful");
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
+                                           "Authorization Successful");
                 CloseLoginDialog();
                 LogUserIn(t);
             };
             loginDialog.onAPIRequestError += (e) =>
             {
-                OpenMessageDisplay_Error(e.message);
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           e.message);
             };
             loginDialog.onInvalidSubmissionAttempted += (m) =>
             {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Error, m);
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           m);
             };
         }
 
@@ -1990,67 +1994,6 @@ namespace ModIO.UI
             loginDialog.gameObject.SetActive(false);
         }
 
-        public void OpenMessageDisplay_OneButton(string header, string content,
-                                                string buttonText, Action buttonCallback)
-        {
-            // messageDialog.button01.GetComponentInChildren<Text>().text = buttonText;
-
-            // messageDialog.button01.onClick.RemoveAllListeners();
-            // messageDialog.button01.onClick.AddListener(() => buttonCallback());
-
-            // messageDialog.button02.gameObject.SetActive(false);
-
-            // OpenMessageDisplay(header, content);
-
-            OpenMessageDisplay_Info(content);
-        }
-
-        public void OpenMessageDisplay_TwoButton(string header, string content,
-                                                string button01Text, Action button01Callback,
-                                                string button02Text, Action button02Callback)
-        {
-            // messageDialog.button01.GetComponentInChildren<Text>().text = button01Text;
-
-            // messageDialog.button01.onClick.RemoveAllListeners();
-            // messageDialog.button01.onClick.AddListener(() => button01Callback());
-
-            // messageDialog.button02.GetComponentInChildren<Text>().text = button02Text;
-
-            // messageDialog.button02.onClick.RemoveAllListeners();
-            // messageDialog.button02.onClick.AddListener(() => button02Callback());
-
-            // messageDialog.button02.gameObject.SetActive(true);
-
-            // OpenMessageDisplay(header, content);
-
-            OpenMessageDisplay_Info(content);
-        }
-
-        private void OpenMessageDisplay(string header, string content)
-        {
-            OpenMessageDisplay_Info(content);
-        }
-
-        private void OpenMessageDisplay_Error(string message)
-        {
-            MessageSystem.QueueMessage(MessageDisplayData.Type.Error, message);
-        }
-
-        private void OpenMessageDisplay_Success(string message)
-        {
-            MessageSystem.QueueMessage(MessageDisplayData.Type.Success, message);
-        }
-
-        private void OpenMessageDisplay_Info(string message)
-        {
-            MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
-        }
-
-        private void OpenMessageDisplay_Warning(string message)
-        {
-            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning, message);
-        }
-
         public void UpdateExplorerViewPageButtonInteractibility()
         {
             if(prevPageButton != null)
@@ -2164,6 +2107,7 @@ namespace ModIO.UI
                                          (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
         }
 
+        // ---------[ ENABLE/SUBSCRIBE MODS ]---------
         public void SubscribeToMod(int modId)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
@@ -2368,49 +2312,6 @@ namespace ModIO.UI
                 LogUserOut();
             }
         }
-
-        // private void OnModsAvailable(IEnumerable<ModProfile> addedProfiles)
-        // {
-        //     List<ModProfile> undisplayedProfiles = new List<ModProfile>(addedProfiles);
-        //     List<int> cachedIds = modProfileCache.ConvertAll<int>(p => p.id);
-
-        //     undisplayedProfiles.RemoveAll(p => cachedIds.Contains(p.id));
-
-        //     this.modProfileCache.AddRange(undisplayedProfiles);
-
-        //     LoadModPage();
-        // }
-        // private void OnModsEdited(IEnumerable<ModProfile> editedProfiles)
-        // {
-        //     List<ModProfile> editedProfileList = new List<ModProfile>(editedProfiles);
-        //     List<int> editedIds = editedProfileList.ConvertAll<int>(p => p.id);
-
-        //     this.modProfileCache.RemoveAll(p => editedIds.Contains(p.id));
-        //     this.modProfileCache.AddRange(editedProfileList);
-
-        //     LoadModPage();
-        // }
-        // private void OnModReleasesUpdated(IEnumerable<ModfileStub> modfiles)
-        // {
-        //     foreach(ModfileStub modfile in modfiles)
-        //     {
-        //         Debug.Log("Modfile Updated: " + modfile.version);
-        //     }
-        // }
-        // private void OnModsUnavailable(IEnumerable<int> modIds)
-        // {
-        //     List<int> removedModIds = new List<int>(modIds);
-        //     this.modProfileCache.RemoveAll(p => removedModIds.Contains(p.id));
-
-        //     LoadModPage();
-        // }
-        // private void OnModsDeleted(IEnumerable<int> modIds)
-        // {
-        //     List<int> removedModIds = new List<int>(modIds);
-        //     this.modProfileCache.RemoveAll(p => removedModIds.Contains(p.id));
-
-        //     LoadModPage();
-        // }
 
         #if UNITY_EDITOR
         private void OnValidate()
