@@ -9,11 +9,6 @@ namespace ModIO
     [Serializable]
     public class EditableReport
     {
-        /// @cond
-        [Obsolete]
-        public class EditableResourceTypeField : ModIO.EditableResourceTypeField {}
-        /// @endcond
-
         // ---------[ FIELDS ]---------
         public ModIO.EditableResourceTypeField resourceType =   new ModIO.EditableResourceTypeField();
         public EditableIntField resourceId =                    new EditableIntField();

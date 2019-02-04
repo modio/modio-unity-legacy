@@ -47,12 +47,6 @@ namespace ModIO.API
             set { this.SetStringValue("description", value); }
         }
 
-        [System.Obsolete("Use AddModParameters.description_HTML instead")]
-        public string description
-        {
-            set { this.descriptionAsHTML = value; }
-        }
-
         // Official homepage for your mod. Must be a valid URL.
         public string homepageURL
         {

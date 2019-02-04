@@ -26,39 +26,3 @@ namespace ModIO
         public T[] items;
     }
 }
-
-namespace ModIO.API
-{
-    [System.Obsolete("Use ModIO.RequestPage instead.")]
-    public class ResponseArray<T> : RequestPage<T>, IEnumerable<T>
-    {
-        // ---------[ ACCESSORS ]---------
-        public int Limit        { get { return this.size; } }
-        public int Offset       { get { return this.resultOffset; } }
-        public int Total        { get { return this.resultTotal; } }
-        public int Count        { get { return this.items.Length; } }
-        public T[] Items        { get { return this.items; } }
-
-        public T this[int index]
-        {
-            get
-            {
-                return this.items[index];
-            }
-        }
-
-        // ---------[ IENUMERABLE INTERFACE ]---------
-        public IEnumerator<T> GetEnumerator()
-        {
-            foreach(T o in this.items)
-            {
-                yield return o;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-    }
-}

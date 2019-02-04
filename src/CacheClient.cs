@@ -90,11 +90,6 @@ namespace ModIO
             return isSuccessful;
         }
 
-        /// <summary>[Obsolete] Iterates through all of the mod profiles in the cache.</summary>
-        [Obsolete("Use CacheClient.IterateAllModProfiles() instead.")]
-        public static IEnumerable<ModProfile> AllModProfiles()
-        { return CacheClient.IterateAllModProfiles(); }
-
         /// <summary>Iterates through all of the mod profiles in the cache.</summary>
         public static IEnumerable<ModProfile> IterateAllModProfiles()
         {
@@ -204,11 +199,6 @@ namespace ModIO
         }
 
         // ------[ MODFILES ]------
-        /// <summary>[Obsolete] Generates the path for a cached mod build directory.</summary>
-        [Obsolete("Use CacheClient.GenerateModBinariesDirectoryPath() instead.")]
-        public static string GenerateModBuildsDirectoryPath(int modId)
-        { return CacheClient.GenerateModBinariesDirectoryPath(modId) + "/"; }
-
         /// <summary>Generates the path for a cached mod build directory.</summary>
         public static string GenerateModBinariesDirectoryPath(int modId)
         {
@@ -299,13 +289,6 @@ namespace ModIO
         {
             return IOUtilities.CombinePath(CacheClient.GenerateModLogoCollectionDirectoryPath(modId),
                                            "versionInfo.data");
-        }
-
-        /// <summary>[Obsolete] Generates the directory path for the cached mod media.</summary>
-        [Obsolete("Use CacheClient.GenerateModMediaDirectoryPath() instead.")]
-        public static string GenerateModGalleryImageDirectoryPath(int modId)
-        {
-            return(GenerateModMediaDirectoryPath(modId));
         }
 
         /// <summary>Generates the directory path for the cached mod media.</summary>
@@ -584,74 +567,6 @@ namespace ModIO
         public static bool DeleteUserAvatar(int userId)
         {
             return IOUtilities.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
-        }
-
-
-        // ---------[ BASIC FILE I/O ]---------
-        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
-        [Obsolete("Use IOUtilities.ReadJsonObjectFile() instead.")]
-        public static T ReadJsonObjectFile<T>(string filePath)
-        {
-            return IOUtilities.ReadJsonObjectFile<T>(filePath);
-        }
-
-        /// <summary>Writes an object to a file in the JSON Object format.</summary>
-        [Obsolete("Use IOUtilities.WriteJsonObjectFile() instead.")]
-        public static bool WriteJsonObjectFile<T>(string filePath,
-                                                  T jsonObject)
-        {
-            return IOUtilities.WriteJsonObjectFile(filePath, jsonObject);
-        }
-
-        /// <summary>Loads an entire binary file as a byte array.</summary>
-        [Obsolete("Use IOUtilities.LoadBinaryFile() instead.")]
-        public static byte[] LoadBinaryFile(string filePath)
-        {
-            return IOUtilities.LoadBinaryFile(filePath);
-        }
-
-        /// <summary>Writes an entire binary file.</summary>
-        [Obsolete("Use IOUtilities.WriteBinaryFile() instead.")]
-        public static bool WriteBinaryFile(string filePath,
-                                           byte[] data)
-        {
-            return IOUtilities.WriteBinaryFile(filePath, data);
-        }
-
-        /// <summary>Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use IOUtilities.ReadImageFile() instead.")]
-        public static Texture2D ReadImageFile(string filePath)
-        {
-            return IOUtilities.ReadImageFile(filePath);
-        }
-
-        /// <summary>Writes a texture to a PNG file.</summary>
-        [Obsolete("Use IOUtilities.WritePNGFile() instead.")]
-        public static bool WritePNGFile(string filePath,
-                                        Texture2D texture)
-        {
-            return IOUtilities.WritePNGFile(filePath, texture);
-        }
-
-        /// <summary>Deletes a file.</summary>
-        [Obsolete("Use IOUtilities.DeleteFile() instead.")]
-        public static bool DeleteFile(string filePath)
-        {
-            return IOUtilities.DeleteFile(filePath);
-        }
-
-        /// <summary>Deletes a directory.</summary>
-        [Obsolete("Use IOUtilities.DeleteDirectory() instead.")]
-        public static bool DeleteDirectory(string directoryPath)
-        {
-            return IOUtilities.DeleteDirectory(directoryPath);
-        }
-
-        /// <summary>[Obsolete] Retrieves the directory the CacheClient uses.</summary>
-        [Obsolete("Use CacheClient.cacheDirectory instead.")]
-        public static string GetCacheDirectory()
-        {
-            return CacheClient.cacheDirectory;
         }
     }
 }

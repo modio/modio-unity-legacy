@@ -88,12 +88,6 @@ namespace ModIO
         [JsonProperty("description_plaintext")]
         public string descriptionAsText;
 
-        /// <summary>[Obsolete] Detailed description of the mod which allows HTML.</summary>
-        [System.Obsolete("Use ModProfile.descriptionAsHTML instead.")]
-        [JsonIgnore]
-        public string description
-        { get { return this.descriptionAsHTML; } set { this.descriptionAsHTML = value; } }
-
         /// <summary>
         /// Metadata stored by the game developer.
         /// </summary>
@@ -104,14 +98,7 @@ namespace ModIO
         [JsonProperty("profile_url")]
         public string profileURL;
 
-
-        /// <summary>[Obsolete] Contains modfile data.</summary>
-        // [System.Obsolete("Use ModProfile.currentBuild instead.")]
-        [JsonIgnore]
-        public Modfile activeBuild
-        { get { return this.currentBuild; } set { this.currentBuild = value; } }
-
-        /// <summary>Contains modfile data.</summary>
+        /// <summary>Contains data for the current build.</summary>
         [JsonProperty("modfile")]
         public Modfile currentBuild;
 

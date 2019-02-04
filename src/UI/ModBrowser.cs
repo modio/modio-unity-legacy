@@ -91,7 +91,7 @@ namespace ModIO.UI
         private readonly SubscriptionSortOption[] subscriptionSortOptions = new SubscriptionSortOption[]
         {
             SubscriptionSortOption.Create("A-Z",       (a,b) => { return String.Compare(a.name, b.name); }),
-            SubscriptionSortOption.Create("LARGEST",   (a,b) => { return (int)(a.activeBuild.fileSize - a.activeBuild.fileSize); }),
+            SubscriptionSortOption.Create("LARGEST",   (a,b) => { return (int)(a.currentBuild.fileSize - a.currentBuild.fileSize); }),
             SubscriptionSortOption.Create("UPDATED",   (a,b) => { return b.dateUpdated - a.dateUpdated; }),
             SubscriptionSortOption.Create("ENABLED",
             (a,b) =>
@@ -959,7 +959,7 @@ namespace ModIO.UI
                     {
                         if(idPair.modId == profile.id)
                         {
-                            if(idPair.modfileId == profile.activeBuild.id)
+                            if(idPair.modfileId == profile.currentBuild.id)
                             {
                                 isInstalled = true;
                             }
@@ -972,7 +972,7 @@ namespace ModIO.UI
 
                     if(!isInstalled)
                     {
-                        this.StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.activeBuild.id));
+                        this.StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
                     }
                     // isInstalled &&
                     else if(wrongVersions.Count > 0)
@@ -2166,10 +2166,10 @@ namespace ModIO.UI
             {
                 if(this.isActiveAndEnabled)
                 {
-                    string installDir = ModManager.GetModInstallDirectory(p.id, p.activeBuild.id);
+                    string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
                     if(!Directory.Exists(installDir))
                     {
-                        this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
+                        this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.currentBuild.id));
                     }
                 }
             },
@@ -2208,10 +2208,10 @@ namespace ModIO.UI
                     {
                         if(this.isActiveAndEnabled)
                         {
-                            string installDir = ModManager.GetModInstallDirectory(p.id, p.activeBuild.id);
+                            string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
                             if(!Directory.Exists(installDir))
                             {
-                                this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.activeBuild.id));
+                                this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.currentBuild.id));
                             }
                         }
                     },

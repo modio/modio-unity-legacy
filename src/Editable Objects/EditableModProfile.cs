@@ -15,17 +15,6 @@ namespace ModIO
     [Serializable]
     public class EditableModProfile
     {
-        /// @cond
-        [Obsolete]
-        public class EditableModStatusField : ModIO.EditableModStatusField {}
-        [Obsolete]
-        public class EditableModVisibilityField : ModIO.EditableModVisibilityField {}
-        [Obsolete]
-        public class EditableKVPArrayField : ModIO.EditableKVPArrayField {}
-        [Obsolete]
-        public EditableStringArrayField youtubeURLs { get { return this.youTubeURLs; } set { this.youTubeURLs = value; } }
-        /// @endcond
-
         // ---------[ FIELDS ]---------
         public ModIO.EditableModStatusField status =                new ModIO.EditableModStatusField();
         public ModIO.EditableModVisibilityField visibility =        new ModIO.EditableModVisibilityField();
@@ -42,10 +31,6 @@ namespace ModIO
         public EditableStringArrayField youTubeURLs =               new EditableStringArrayField();
         public EditableStringArrayField sketchfabURLs =             new EditableStringArrayField();
         public EditableImageLocatorArrayField galleryImageLocators =new EditableImageLocatorArrayField();
-
-        [Obsolete("Use EditableModProfile.description_HTML instead")]
-        public EditableStringField description
-        { get { return this.descriptionAsHTML; } set { this.descriptionAsHTML = value; } }
 
         // ---------[ VALUE DUPLICATION ]---------
         public static EditableModProfile CreateFromProfile(ModProfile profile)
