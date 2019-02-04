@@ -985,8 +985,9 @@ MonoBehaviour:
       ownerId: 0
       mediaType: 0
       imageId: 
-      originalTexture: {fileID: 0}
-      thumbnailTexture: {fileID: 0}
+      originalTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
+      thumbnailTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce,
+        type: 3}
     youTubeThumbnails: []
     galleryImages: []
     tags:
@@ -1137,17 +1138,17 @@ MonoBehaviour:
   m_useOriginal: 0
   image: {fileID: 114941499694329136}
   fitter: {fileID: 0}
-  loadingOverlay: {fileID: 0}
+  loadingOverlay: {fileID: 1434857753398972}
   avatarOverlay: {fileID: 0}
-  logoOverlay: {fileID: 1434857753398972}
+  logoOverlay: {fileID: 0}
   galleryImageOverlay: {fileID: 0}
   youTubeOverlay: {fileID: 0}
   m_data:
     ownerId: 0
     mediaType: 0
     imageId: 
-    originalTexture: {fileID: 0}
-    thumbnailTexture: {fileID: 0}
+    originalTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
+    thumbnailTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
 --- !u!114 &114387252950168548
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1867,7 +1868,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1536987132574178}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
