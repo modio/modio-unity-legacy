@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 265}
-  - component: {fileID: 410}
+  - component: {fileID: 408}
   m_Layer: 5
   m_Name: Spacer
   m_TagString: Untagged
@@ -36,7 +36,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &410
+--- !u!114 &408
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,7 +67,7 @@ GameObject:
   - component: {fileID: 260}
   - component: {fileID: 160}
   - component: {fileID: 365}
-  - component: {fileID: 402}
+  - component: {fileID: 400}
   m_Layer: 5
   m_Name: Outline
   m_TagString: Untagged
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &402
+--- !u!114 &400
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -161,7 +161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 243}
   - component: {fileID: 167}
-  - component: {fileID: 408}
+  - component: {fileID: 406}
   m_Layer: 5
   m_Name: LoadingOverlay
   m_TagString: Untagged
@@ -196,7 +196,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 45}
   m_CullTransparentMesh: 0
---- !u!114 &408
+--- !u!114 &406
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -234,7 +234,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 263}
-  - component: {fileID: 392}
+  - component: {fileID: 391}
   m_Layer: 5
   m_Name: BottomRow
   m_TagString: Untagged
@@ -263,7 +263,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &392
+--- !u!114 &391
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -295,7 +295,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 257}
-  - component: {fileID: 406}
+  - component: {fileID: 404}
   - component: {fileID: 175}
   - component: {fileID: 362}
   m_Layer: 5
@@ -325,7 +325,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &406
+--- !u!114 &404
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -400,7 +400,7 @@ GameObject:
   - component: {fileID: 264}
   - component: {fileID: 159}
   - component: {fileID: 385}
-  - component: {fileID: 398}
+  - component: {fileID: 396}
   - component: {fileID: 381}
   m_Layer: 5
   m_Name: LoadingOverlay
@@ -465,7 +465,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &398
+--- !u!114 &396
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -508,7 +508,7 @@ GameObject:
   m_Component:
   - component: {fileID: 269}
   - component: {fileID: 168}
-  - component: {fileID: 400}
+  - component: {fileID: 398}
   m_Layer: 5
   m_Name: Rating
   m_TagString: Untagged
@@ -545,7 +545,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 49}
   m_CullTransparentMesh: 0
---- !u!114 &400
+--- !u!114 &398
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -688,7 +688,7 @@ GameObject:
   - component: {fileID: 251}
   - component: {fileID: 176}
   - component: {fileID: 359}
-  - component: {fileID: 391}
+  - component: {fileID: 390}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -752,7 +752,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &391
+--- !u!114 &390
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1020,7 +1020,7 @@ GameObject:
   m_Component:
   - component: {fileID: 261}
   - component: {fileID: 173}
-  - component: {fileID: 393}
+  - component: {fileID: 392}
   m_Layer: 5
   m_Name: LoadingOverlay
   m_TagString: Untagged
@@ -1056,7 +1056,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 55}
   m_CullTransparentMesh: 0
---- !u!114 &393
+--- !u!114 &392
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1094,7 +1094,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 258}
-  - component: {fileID: 403}
+  - component: {fileID: 401}
   m_Layer: 5
   m_Name: DetailsLayout
   m_TagString: Untagged
@@ -1125,7 +1125,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 120}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &403
+--- !u!114 &401
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1159,7 +1159,7 @@ GameObject:
   - component: {fileID: 252}
   - component: {fileID: 170}
   - component: {fileID: 384}
-  - component: {fileID: 396}
+  - component: {fileID: 395}
   m_Layer: 5
   m_Name: Stats
   m_TagString: Untagged
@@ -1228,7 +1228,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &396
+--- !u!114 &395
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1336,7 +1336,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 247}
-  - component: {fileID: 399}
+  - component: {fileID: 397}
   - component: {fileID: 178}
   - component: {fileID: 369}
   - component: {fileID: 376}
@@ -1368,7 +1368,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &399
+--- !u!114 &397
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1441,9 +1441,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 248}
-  - component: {fileID: 5817515767749412811}
+  - component: {fileID: 544}
   - component: {fileID: 172}
-  - component: {fileID: 407}
+  - component: {fileID: 405}
   m_Layer: 5
   m_Name: ModLogo
   m_TagString: Untagged
@@ -1470,7 +1470,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5817515767749412811
+--- !u!114 &544
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1483,7 +1483,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_useOriginal: 0
-  image: {fileID: 407}
+  image: {fileID: 405}
   fitter: {fileID: 0}
   loadingOverlay: {fileID: 55}
   avatarOverlay: {fileID: 0}
@@ -1504,7 +1504,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 60}
   m_CullTransparentMesh: 0
---- !u!114 &407
+--- !u!114 &405
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1621,7 +1621,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 259}
-  - component: {fileID: 404}
+  - component: {fileID: 402}
   - component: {fileID: 388}
   m_Layer: 5
   m_Name: Subscribe Button Group
@@ -1652,7 +1652,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 42}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &404
+--- !u!114 &402
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1697,7 +1697,7 @@ GameObject:
   - component: {fileID: 244}
   - component: {fileID: 158}
   - component: {fileID: 357}
-  - component: {fileID: 395}
+  - component: {fileID: 394}
   - component: {fileID: 356}
   m_Layer: 5
   m_Name: SubscribeButton
@@ -1763,7 +1763,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &395
+--- !u!114 &394
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1840,8 +1840,8 @@ GameObject:
   - component: {fileID: 255}
   - component: {fileID: 162}
   - component: {fileID: 378}
-  - component: {fileID: 405}
-  - component: {fileID: 394}
+  - component: {fileID: 403}
+  - component: {fileID: 393}
   m_Layer: 5
   m_Name: SubscribedButton
   m_TagString: Untagged
@@ -1906,7 +1906,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &405
+--- !u!114 &403
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1959,7 +1959,7 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &394
+--- !u!114 &393
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2108,7 +2108,7 @@ GameObject:
   - component: {fileID: 273}
   - component: {fileID: 177}
   - component: {fileID: 383}
-  - component: {fileID: 401}
+  - component: {fileID: 399}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -2172,7 +2172,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &401
+--- !u!114 &399
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2282,7 +2282,7 @@ GameObject:
   - component: {fileID: 268}
   - component: {fileID: 156}
   - component: {fileID: 389}
-  - component: {fileID: 1639594364890651031}
+  - component: {fileID: 539}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -2346,7 +2346,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &1639594364890651031
+--- !u!114 &539
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2443,7 +2443,7 @@ GameObject:
   - component: {fileID: 368}
   - component: {fileID: 161}
   - component: {fileID: 363}
-  - component: {fileID: 409}
+  - component: {fileID: 407}
   m_Layer: 5
   m_Name: Mask + Button
   m_TagString: Untagged
@@ -2523,7 +2523,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &409
+--- !u!114 &407
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2725,10 +2725,10 @@ MonoBehaviour:
   submittorDisplay:
     profile: {fileID: 0}
     avatar: {fileID: 0}
-  logoDisplay: {fileID: 5817515767749412811}
+  logoDisplay: {fileID: 544}
   mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 0}
-  tagsDisplay: {fileID: 406}
+  tagsDisplay: {fileID: 404}
   statisticsDisplay: {fileID: 364}
   downloadDisplay: {fileID: 0}
   subscriptionDisplay: {fileID: 388}
