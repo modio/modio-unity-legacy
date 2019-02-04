@@ -785,12 +785,13 @@ namespace ModIO.UI
             {
                 if(localSubscriptions.Count > 0)
                 {
+                    var remoteUnsubs = new List<int>(localSubscriptions);
                     var subscribedModIds = ModManager.GetSubscribedModIds();
                     foreach(int modId in localSubscriptions)
                     {
                         if(m_queuedSubscribes.Contains(modId))
                         {
-                            localSubscriptions.Remove(modId);
+                            remoteUnsubs.Remove(modId);
                         }
                         else
                         {
@@ -798,7 +799,7 @@ namespace ModIO.UI
                         }
                     }
                     ModManager.SetSubscribedModIds(subscribedModIds);
-                    OnSubscriptionsChanged(null, localSubscriptions);
+                    OnSubscriptionsChanged(null, remoteUnsubs);
 
                     updateCount += localSubscriptions.Count;
                 }
