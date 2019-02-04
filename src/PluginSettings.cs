@@ -24,23 +24,7 @@ namespace ModIO
         /// <summary>Writes a PluginSettings file to disk.</summary>
         public static void SaveDefaults(PluginSettings settings)
         {
-            #if DEBUG
-            if(Application.isPlaying)
-            {
-                if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
-                    && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (PluginSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && PluginSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
-                {
-                    Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
-                                   + " bundle identifier will cause conflicts with other projects"
-                                   + " using mod.io. Please open \'Build Settings' > \'Player Settings\'"
-                                   + " and assign a unique Company Name, Project Name, and Bundle"
-                                   + " Identifier (under \'Other Settings\') to utilize the mod.io "
-                                   + " Unity Plugin.");
-                }
-            }
-            #endif
+            AssertUniqueProjectDetails();
 
             if(!PluginSettings._defaults.Equals(settings))
             {
@@ -51,6 +35,19 @@ namespace ModIO
 
         /// <summary>Loads the PluginSettings from disk.</summary>
         public static PluginSettings LoadDefaults()
+        {
+            AssertUniqueProjectDetails();
+
+            if(PluginSettings._defaults.Equals(default(PluginSettings)))
+            {
+                PluginSettings._defaults = IOUtilities.ReadJsonObjectFile<PluginSettings>(PluginSettings.FILE_LOCATION);
+            }
+
+            return PluginSettings._defaults;
+        }
+
+        /// <summary>Assets that the BundleIdentifier and CacheLocation are unique.</summary>
+        private static void AssertUniqueProjectDetails()
         {
             #if DEBUG
             if(Application.isPlaying)
@@ -69,13 +66,6 @@ namespace ModIO
                 }
             }
             #endif
-
-            if(PluginSettings._defaults.Equals(default(PluginSettings)))
-            {
-                PluginSettings._defaults = IOUtilities.ReadJsonObjectFile<PluginSettings>(PluginSettings.FILE_LOCATION);
-            }
-
-            return PluginSettings._defaults;
         }
     }
 }
