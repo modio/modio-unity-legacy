@@ -7071,7 +7071,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profileDisplay: {fileID: 114701975888476912}
-  avatarDisplay: {fileID: 0}
+  avatarDisplay: {fileID: 114268732251118408}
   m_data:
     profile:
       userId: 0
