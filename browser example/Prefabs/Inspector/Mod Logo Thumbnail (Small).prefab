@@ -59,6 +59,7 @@ GameObject:
   - component: {fileID: 114570025219337196}
   - component: {fileID: 114737289866412576}
   - component: {fileID: 114423747694936136}
+  - component: {fileID: 114579032176072862}
   m_Layer: 5
   m_Name: Mod Logo Thumbnail (Small)
   m_TagString: Untagged
@@ -104,6 +105,19 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114579032176072862
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1541241466415974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1254083943, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 2
+  m_AspectRatio: 1.7777778
 --- !u!114 &114733242136303634
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -304,7 +318,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 142, y: 80}
+  m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224436146257348094
 RectTransform:

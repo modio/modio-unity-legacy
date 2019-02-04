@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 222467747601999148}
   - component: {fileID: 114756480548888720}
   - component: {fileID: 114514593306565312}
+  - component: {fileID: 114875536240125462}
   m_Layer: 5
   m_Name: YouTube Thumbnail (Small)
   m_TagString: Untagged
@@ -393,6 +394,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   secondsPerRotation: 1.4
+--- !u!114 &114875536240125462
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1273913918960272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1254083943, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 2
+  m_AspectRatio: 1.7777778
 --- !u!114 &114914147389931298
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -504,7 +518,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 142, y: 80}
+  m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224429609309059588
 RectTransform:
