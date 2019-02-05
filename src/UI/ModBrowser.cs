@@ -223,63 +223,6 @@ namespace ModIO.UI
 
         private void LoadLocalData()
         {
-            // - Server Settings -
-            PluginSettingsData settings;
-            switch(connectTo)
-            {
-                case ServerType.TestServer:
-                {
-                    settings = testPluginSettings;
-                }
-                break;
-                case ServerType.ProductionServer:
-                {
-                    settings = productionPluginSettings;
-                }
-                break;
-                case ServerType.CustomServer:
-                {
-                    settings = customPluginSettings;
-                }
-                break;
-                default:
-                {
-                    settings = new PluginSettingsData();
-                }
-                break;
-            }
-
-            #if MODIO_TESTING
-                settings.gameId = ModIO_Testing.GAME_ID;
-                settings.gameAPIKey = ModIO_Testing.GAME_APIKEY;
-            #endif
-
-            if(settings.gameId <= 0)
-            {
-                Debug.LogError("[mod.io] Game ID is missing. Ensure that the appropriate server is"
-                               + " selected in \'connectTo\', and the server settings have been stored.",
-                               this);
-                return;
-            }
-            if(String.IsNullOrEmpty(settings.gameAPIKey))
-            {
-                Debug.LogError("[mod.io] Game API Key is missing. Ensure that the appropriate server is"
-                               + " selected in \'connectTo\', and the server settings have been stored.",
-                               this);
-                return;
-            }
-
-            // - CacheClient Data -
-            string[] cacheDirParts = settings.cacheDirectory.Split('\\', '/');
-            for(int i = 0; i < cacheDirParts.Length; ++i)
-            {
-                if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                {
-                    cacheDirParts[i] = Application.persistentDataPath;
-                }
-            }
-            settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
-            CacheClient.cacheDirectory = settings.cacheDirectory;
 
             // - UserData -
             if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
@@ -292,7 +235,7 @@ namespace ModIO.UI
             if(m_gameProfile == null)
             {
                 m_gameProfile = new GameProfile();
-                m_gameProfile.id = settings.gameId;
+                m_gameProfile.id = PluginSettings.data.gameId;
             }
 
             // - Manifest -
@@ -315,31 +258,14 @@ namespace ModIO.UI
                 WriteManifest();
             }
 
-            // - APIClient Data -
-            APIClient.apiURL = settings.apiURL;
-            APIClient.gameId = settings.gameId;
-            APIClient.gameAPIKey = settings.gameAPIKey;
+            // - Log Requests? -
             APIClient.logAllRequests = debugAllAPIRequests;
-
-            // - Installation Data -
             DownloadClient.logAllRequests = debugAllAPIRequests;
-            string[] installDirParts = settings.installDirectory.Split('\\', '/');
-            for(int i = 0; i < installDirParts.Length; ++i)
-            {
-                if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                {
-                    installDirParts[i] = Application.persistentDataPath;
-                }
-            }
-            settings.installDirectory = IOUtilities.CombinePath(installDirParts);
-            ModManager.installDirectory = settings.installDirectory;
 
             // - Image settings -
             ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
             ImageDisplayData.logoThumbnailSize = this.logoThumbnailSize;
             ImageDisplayData.galleryThumbnailSize = this.galleryThumbnailSize;
-
-            PluginSettings.SaveDefaults(settings);
         }
 
         private void InitializeInspectorView()
@@ -2315,6 +2241,7 @@ namespace ModIO.UI
         }
 
         #if UNITY_EDITOR
+        private PluginSettingsData m_lastSavedData = new PluginSettingsData();
         private void OnValidate()
         {
             UnityEditor.EditorApplication.delayCall += () =>
@@ -2324,6 +2251,38 @@ namespace ModIO.UI
                 {
                     testPluginSettings.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
                     productionPluginSettings.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+
+                    // - Server Settings -
+                    PluginSettingsData settings;
+                    switch(connectTo)
+                    {
+                        case ServerType.TestServer:
+                        {
+                            settings = testPluginSettings;
+                        }
+                        break;
+                        case ServerType.ProductionServer:
+                        {
+                            settings = productionPluginSettings;
+                        }
+                        break;
+                        case ServerType.CustomServer:
+                        {
+                            settings = customPluginSettings;
+                        }
+                        break;
+                        default:
+                        {
+                            settings = new PluginSettingsData();
+                        }
+                        break;
+                    }
+
+                    if(!settings.Equals(this.m_lastSavedData))
+                    {
+                        PluginSettings.WriteSettingsAsset(settings);
+                        this.m_lastSavedData = settings;
+                    }
                 }
             };
         }

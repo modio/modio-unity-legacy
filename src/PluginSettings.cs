@@ -29,7 +29,31 @@ namespace ModIO
                     }
                     else
                     {
-                        PluginSettings._data = wrapper.values;
+                        PluginSettingsData settings = wrapper.values;
+
+                        // - CacheDirectory Building -
+                        string[] cacheDirParts = settings.cacheDirectory.Split('\\', '/');
+                        for(int i = 0; i < cacheDirParts.Length; ++i)
+                        {
+                            if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                            {
+                                cacheDirParts[i] = Application.persistentDataPath;
+                            }
+                        }
+                        settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
+
+                        // - Installation Building -
+                        string[] installDirParts = settings.installDirectory.Split('\\', '/');
+                        for(int i = 0; i < installDirParts.Length; ++i)
+                        {
+                            if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                            {
+                                installDirParts[i] = Application.persistentDataPath;
+                            }
+                        }
+                        settings.installDirectory = IOUtilities.CombinePath(installDirParts);
+
+                        PluginSettings._data = settings;
                     }
 
                     PluginSettings._loaded = true;
@@ -66,9 +90,11 @@ namespace ModIO
             PluginSettings asset = ScriptableObject.CreateInstance<PluginSettings>();
             asset.values = settings;
 
-            UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
-            UnityEditor.AssetDatabase.SaveAssets();
-            UnityEditor.AssetDatabase.Refresh();
+            if(!UnityEditor.AssetDatabase.IsValidFolder("Assets/Resources"))
+            {
+                UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
+            }
+
             UnityEditor.AssetDatabase.CreateAsset(asset,
                                                   "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset");
             UnityEditor.AssetDatabase.SaveAssets();
