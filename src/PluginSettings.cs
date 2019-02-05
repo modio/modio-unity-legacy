@@ -23,7 +23,7 @@ namespace ModIO
         private static bool _loaded = false;
 
         /// <summary>Singleton instance.</summary>
-        private static Data _data;
+        private static Data _dataInstance;
 
         /// <summary>The values that the plugin should use.</summary>
         public static Data data
@@ -32,62 +32,70 @@ namespace ModIO
             {
                 if(!PluginSettings._loaded)
                 {
-                    PluginSettings wrapper = Resources.Load<PluginSettings>(PluginSettings.FILE_PATH);
-
-                    if(wrapper == null)
-                    {
-                        PluginSettings._data = new Data();
-                    }
-                    else
-                    {
-                        Data settings = wrapper.values;
-
-                        // - CacheDirectory Building -
-                        // TODO(@jackson): Separator, AltDirSeparator
-                        string[] cacheDirParts = settings.cacheDirectory.Split('\\', '/');
-                        for(int i = 0; i < cacheDirParts.Length; ++i)
-                        {
-                            if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                            {
-                                cacheDirParts[i] = Application.persistentDataPath;
-                            }
-
-                            cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
-                        }
-                        settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
-
-                        // - Installation Building -
-                        // TODO(@jackson): Separator, AltDirSeparator
-                        string[] installDirParts = settings.installDirectory.Split('\\', '/');
-                        for(int i = 0; i < installDirParts.Length; ++i)
-                        {
-                            if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                            {
-                                installDirParts[i] = Application.persistentDataPath;
-                            }
-
-                            installDirParts[i] = installDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
-                        }
-                        settings.installDirectory = IOUtilities.CombinePath(installDirParts);
-
-                        PluginSettings._data = settings;
-                    }
-
-                    PluginSettings._loaded = true;
+                    PluginSettings.LoadDataInstance();
                 }
 
-                return PluginSettings._data;
+                return PluginSettings._dataInstance;
             }
         }
 
         /// <summary>Settings data.</summary>
-        public Data values;
+        [SerializeField]
+        private Data m_data;
+
+        /// <summary>Loads the Data from the asset instance.</summary>
+        private static void LoadDataInstance()
+        {
+            PluginSettings wrapper = Resources.Load<PluginSettings>(PluginSettings.FILE_PATH);
+
+            if(wrapper == null)
+            {
+                PluginSettings._dataInstance = new Data();
+            }
+            else
+            {
+                Data settings = wrapper.m_data;
+
+                // - String variable replacement -
+                string[] cacheDirParts = settings.cacheDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
+                                                                       System.IO.Path.DirectorySeparatorChar);
+                for(int i = 0; i < cacheDirParts.Length; ++i)
+                {
+                    if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                    {
+                        cacheDirParts[i] = Application.persistentDataPath;
+                    }
+
+                    cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
+                }
+                settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
+
+
+                string[] installDirParts = settings.installDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
+                                                                           System.IO.Path.DirectorySeparatorChar);
+                for(int i = 0; i < installDirParts.Length; ++i)
+                {
+                    if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                    {
+                        installDirParts[i] = Application.persistentDataPath;
+                    }
+
+                    installDirParts[i] = installDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
+                }
+                settings.installDirectory = IOUtilities.CombinePath(installDirParts);
+
+                PluginSettings._dataInstance = settings;
+            }
+
+            PluginSettings._loaded = true;
+        }
+
 
         /// <summary>Loads the PluginSettings from disk.</summary>
         [System.Obsolete]
         public static Data LoadDefaults()
         {
-            return PluginSettings._data;
+            return PluginSettings._dataInstance;
         }
 
         #if UNITY_EDITOR
@@ -115,11 +123,11 @@ namespace ModIO
             {
                 UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
             }
-            settings.values.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
-            settings.values.gameId = 0;
-            settings.values.gameAPIKey = string.Empty;
-            settings.values.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$";
-            settings.values.installDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods";
+            settings.m_data.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+            settings.m_data.gameId = 0;
+            settings.m_data.gameAPIKey = string.Empty;
+            settings.m_data.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$";
+            settings.m_data.installDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods";
 
             UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();
