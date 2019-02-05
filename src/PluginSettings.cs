@@ -77,18 +77,19 @@ namespace ModIO
             return PluginSettings._data;
         }
 
-
         #if UNITY_EDITOR
+        [UnityEditor.MenuItem("mod.io/Edit Plugin Settings", false)]
         public static void FocusAsset()
         {
             string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";
-            PluginSettings settings = UnityEditor.AssetDatabase.LoadAssetAtPath<PluginSettings>(PluginSettings.FILE_PATH);
+            PluginSettings settings = Resources.Load<PluginSettings>(PluginSettings.FILE_PATH);
 
             if(settings == null)
             {
                 settings = PluginSettings.InitializeAsset();
             }
 
+            UnityEditor.EditorGUIUtility.PingObject(settings);
             UnityEditor.Selection.activeObject = settings;
         }
 
