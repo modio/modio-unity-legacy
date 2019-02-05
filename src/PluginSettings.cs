@@ -66,13 +66,6 @@ namespace ModIO
         /// <summary>Settings data.</summary>
         public PluginSettingsData values;
 
-        /// <summary>Writes a PluginSettings file to disk.</summary>
-        [System.Obsolete]
-        public static void SaveDefaults(PluginSettingsData settings)
-        {
-            WriteSettingsAsset(settings);
-        }
-
         /// <summary>Loads the PluginSettings from disk.</summary>
         [System.Obsolete]
         public static PluginSettingsData LoadDefaults()
@@ -82,22 +75,39 @@ namespace ModIO
 
 
         #if UNITY_EDITOR
-        public static void WriteSettingsAsset(PluginSettingsData settings)
+        public static void FocusAsset()
         {
-            // TODO(@jackson)
-            Debug.LogWarning("Ensure we save with the vars (Application.persistentDataPath for example)");
+            string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";
+            PluginSettings settings = UnityEditor.AssetDatabase.LoadAssetAtPath<PluginSettings>(PluginSettings.FILE_PATH);
 
-            PluginSettings asset = ScriptableObject.CreateInstance<PluginSettings>();
-            asset.values = settings;
+            if(settings == null)
+            {
+                settings = PluginSettings.InitializeAsset();
+            }
+
+            UnityEditor.Selection.activeObject = settings;
+        }
+
+        private static PluginSettings InitializeAsset()
+        {
+            string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";
+            PluginSettings settings = ScriptableObject.CreateInstance<PluginSettings>();
 
             if(!UnityEditor.AssetDatabase.IsValidFolder("Assets/Resources"))
             {
                 UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
             }
+            settings.values.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
+            settings.values.gameId = 0;
+            settings.values.gameAPIKey = string.Empty;
+            settings.values.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio";
+            settings.values.installDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods";
 
-            UnityEditor.AssetDatabase.CreateAsset(asset,
-                                                  "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset");
+            UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+
+            return settings;
         }
         #endif
     }

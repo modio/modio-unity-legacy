@@ -110,32 +110,6 @@ namespace ModIO.UI
         };
 
         // ---------[ FIELDS ]---------
-        [Header("Settings")]
-        public ServerType connectTo = ServerType.TestServer;
-        public PluginSettingsData testPluginSettings = new PluginSettingsData()
-        {
-            apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
-            gameId = 0,
-            gameAPIKey = string.Empty,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_test",
-            installDirectory = "$PERSISTENT_DATA_PATH$/modio_test/_installedMods",
-        };
-        public PluginSettingsData productionPluginSettings = new PluginSettingsData()
-        {
-            apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-            gameId = 0,
-            gameAPIKey = string.Empty,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio",
-            installDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods",
-        };
-        public PluginSettingsData customPluginSettings = new PluginSettingsData()
-        {
-            apiURL = string.Empty,
-            gameId = 0,
-            gameAPIKey = string.Empty,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_custom",
-            installDirectory = "$PERSISTENT_DATA_PATH$/modio_custom/_installedMods",
-        };
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
 
@@ -2239,53 +2213,5 @@ namespace ModIO.UI
                 LogUserOut();
             }
         }
-
-        #if UNITY_EDITOR
-        private PluginSettingsData m_lastSavedData = new PluginSettingsData();
-        private void OnValidate()
-        {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                if(!Application.isPlaying
-                   && this != null)
-                {
-                    testPluginSettings.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
-                    productionPluginSettings.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
-
-                    // - Server Settings -
-                    PluginSettingsData settings;
-                    switch(connectTo)
-                    {
-                        case ServerType.TestServer:
-                        {
-                            settings = testPluginSettings;
-                        }
-                        break;
-                        case ServerType.ProductionServer:
-                        {
-                            settings = productionPluginSettings;
-                        }
-                        break;
-                        case ServerType.CustomServer:
-                        {
-                            settings = customPluginSettings;
-                        }
-                        break;
-                        default:
-                        {
-                            settings = new PluginSettingsData();
-                        }
-                        break;
-                    }
-
-                    if(!settings.Equals(this.m_lastSavedData))
-                    {
-                        PluginSettings.WriteSettingsAsset(settings);
-                        this.m_lastSavedData = settings;
-                    }
-                }
-            };
-        }
-        #endif
     }
 }
