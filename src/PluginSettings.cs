@@ -2,9 +2,20 @@ using UnityEngine;
 
 namespace ModIO
 {
-    /// <summary>Wrapper object for the PluginSettingsData.</summary>
+    /// <summary>Wrapper object for the PluginSettings.Data.</summary>
     public class PluginSettings : ScriptableObject
     {
+        [System.Serializable]
+        public struct Data
+        {
+            // ---------[ FIELDS ]---------
+            public string   apiURL;
+            public int      gameId;
+            public string   gameAPIKey;
+            public string   cacheDirectory;
+            public string   installDirectory;
+        }
+
         /// <summary>Location of the settings file.</summary>
         public static readonly string FILE_PATH = "modio_settings";
 
@@ -12,10 +23,10 @@ namespace ModIO
         private static bool _loaded = false;
 
         /// <summary>Singleton instance.</summary>
-        private static PluginSettingsData _data;
+        private static Data _data;
 
         /// <summary>The values that the plugin should use.</summary>
-        public static PluginSettingsData data
+        public static Data data
         {
             get
             {
@@ -25,13 +36,14 @@ namespace ModIO
 
                     if(wrapper == null)
                     {
-                        PluginSettings._data = new PluginSettingsData();
+                        PluginSettings._data = new Data();
                     }
                     else
                     {
-                        PluginSettingsData settings = wrapper.values;
+                        Data settings = wrapper.values;
 
                         // - CacheDirectory Building -
+                        // TODO(@jackson): Separator, AltDirSeparator
                         string[] cacheDirParts = settings.cacheDirectory.Split('\\', '/');
                         for(int i = 0; i < cacheDirParts.Length; ++i)
                         {
@@ -45,6 +57,7 @@ namespace ModIO
                         settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
 
                         // - Installation Building -
+                        // TODO(@jackson): Separator, AltDirSeparator
                         string[] installDirParts = settings.installDirectory.Split('\\', '/');
                         for(int i = 0; i < installDirParts.Length; ++i)
                         {
@@ -68,11 +81,11 @@ namespace ModIO
         }
 
         /// <summary>Settings data.</summary>
-        public PluginSettingsData values;
+        public Data values;
 
         /// <summary>Loads the PluginSettings from disk.</summary>
         [System.Obsolete]
-        public static PluginSettingsData LoadDefaults()
+        public static Data LoadDefaults()
         {
             return PluginSettings._data;
         }
@@ -115,16 +128,5 @@ namespace ModIO
             return settings;
         }
         #endif
-    }
-
-    [System.Serializable]
-    public struct PluginSettingsData
-    {
-        // ---------[ FIELDS ]---------
-        public string   apiURL;
-        public int      gameId;
-        public string   gameAPIKey;
-        public string   cacheDirectory;
-        public string   installDirectory;
     }
 }

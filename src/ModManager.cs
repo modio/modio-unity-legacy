@@ -40,7 +40,7 @@ namespace ModIO
         /// <summary>Initialzes the ModManager settings.</summary>
         static ModManager()
         {
-            PluginSettingsData settings = PluginSettings.data;
+            PluginSettings.Data settings = PluginSettings.data;
             ModManager.installDirectory = settings.installDirectory;
 
             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
