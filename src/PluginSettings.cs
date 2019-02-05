@@ -39,6 +39,8 @@ namespace ModIO
                             {
                                 cacheDirParts[i] = Application.persistentDataPath;
                             }
+
+                            cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
                         }
                         settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
 
@@ -50,6 +52,8 @@ namespace ModIO
                             {
                                 installDirParts[i] = Application.persistentDataPath;
                             }
+
+                            installDirParts[i] = installDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
                         }
                         settings.installDirectory = IOUtilities.CombinePath(installDirParts);
 
@@ -100,8 +104,8 @@ namespace ModIO
             settings.values.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
             settings.values.gameId = 0;
             settings.values.gameAPIKey = string.Empty;
-            settings.values.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio";
-            settings.values.installDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods";
+            settings.values.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$";
+            settings.values.installDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods";
 
             UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();
