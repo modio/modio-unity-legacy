@@ -2,8 +2,82 @@ using UnityEngine;
 
 namespace ModIO
 {
+    /// <summary>Wrapper object for the PluginSettingsData.</summary>
+    public class PluginSettings : ScriptableObject
+    {
+        /// <summary>Location of the settings file.</summary>
+        public static readonly string FILE_PATH = "modio_settings";
+
+        /// <summary>Has the asset been loaded.</summary>
+        private static bool _loaded = false;
+
+        /// <summary>Singleton instance.</summary>
+        private static PluginSettingsData _data;
+
+        /// <summary>The values that the plugin should use.</summary>
+        public static PluginSettingsData data
+        {
+            get
+            {
+                if(!PluginSettings._loaded)
+                {
+                    PluginSettings wrapper = Resources.Load<PluginSettings>(PluginSettings.FILE_PATH);
+
+                    if(wrapper == null)
+                    {
+                        PluginSettings._data = new PluginSettingsData();
+                    }
+                    else
+                    {
+                        PluginSettings._data = wrapper.values;
+                    }
+
+                    PluginSettings._loaded = true;
+                }
+
+                return PluginSettings._data;
+            }
+        }
+
+        /// <summary>Settings data.</summary>
+        public PluginSettingsData values;
+
+        /// <summary>Writes a PluginSettings file to disk.</summary>
+        [System.Obsolete]
+        public static void SaveDefaults(PluginSettingsData settings)
+        {
+            WriteSettingsAsset(settings);
+        }
+
+        /// <summary>Loads the PluginSettings from disk.</summary>
+        [System.Obsolete]
+        public static PluginSettingsData LoadDefaults()
+        {
+            return PluginSettings._data;
+        }
+
+
+        #if UNITY_EDITOR
+        public static void WriteSettingsAsset(PluginSettingsData settings)
+        {
+            // TODO(@jackson)
+            Debug.LogWarning("Ensure we save with the vars (Application.persistentDataPath for example)");
+
+            PluginSettings asset = ScriptableObject.CreateInstance<PluginSettings>();
+            asset.values = settings;
+
+            UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
+            UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+            UnityEditor.AssetDatabase.CreateAsset(asset,
+                                                  "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset");
+            UnityEditor.AssetDatabase.SaveAssets();
+        }
+        #endif
+    }
+
     [System.Serializable]
-    public struct PluginSettings
+    public struct PluginSettingsData
     {
         // ---------[ FIELDS ]---------
         public string   apiURL;
@@ -11,61 +85,5 @@ namespace ModIO
         public string   gameAPIKey;
         public string   cacheDirectory;
         public string   installDirectory;
-
-        // ---------[ SAVE/LOAD ]---------
-        /// <summary>Instance for removing need to load.</summary>
-        private static PluginSettings _defaults;
-
-        /// <summary>Location of the settings file.</summary>
-        public static readonly string FILE_LOCATION = IOUtilities.CombinePath(Application.persistentDataPath,
-                                                                              "modio",
-                                                                              "settings.data");
-
-        /// <summary>Writes a PluginSettings file to disk.</summary>
-        public static void SaveDefaults(PluginSettings settings)
-        {
-            AssertUniqueProjectDetails();
-
-            if(!PluginSettings._defaults.Equals(settings))
-            {
-                PluginSettings._defaults = settings;
-                IOUtilities.WriteJsonObjectFile(FILE_LOCATION, settings);
-            }
-        }
-
-        /// <summary>Loads the PluginSettings from disk.</summary>
-        public static PluginSettings LoadDefaults()
-        {
-            AssertUniqueProjectDetails();
-
-            if(PluginSettings._defaults.Equals(default(PluginSettings)))
-            {
-                PluginSettings._defaults = IOUtilities.ReadJsonObjectFile<PluginSettings>(PluginSettings.FILE_LOCATION);
-            }
-
-            return PluginSettings._defaults;
-        }
-
-        /// <summary>Assets that the BundleIdentifier and CacheLocation are unique.</summary>
-        private static void AssertUniqueProjectDetails()
-        {
-            #if DEBUG
-            if(Application.isPlaying)
-            {
-                if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
-                    && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (PluginSettings.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && PluginSettings.FILE_LOCATION.ToUpper().Contains("COMPANY")))
-                {
-                    Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
-                                   + " bundle identifier will cause conflicts with other projects"
-                                   + " using mod.io. Please open \'Build Settings' > \'Player Settings\'"
-                                   + " and assign a unique Company Name, Project Name, and Bundle"
-                                   + " Identifier (under \'Other Settings\') to utilize the mod.io "
-                                   + " Unity Plugin.");
-                }
-            }
-            #endif
-        }
     }
 }

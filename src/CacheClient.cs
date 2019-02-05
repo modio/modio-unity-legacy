@@ -23,7 +23,7 @@ namespace ModIO
         /// <summary>Initializes the CacheClient settings.</summary>
         static CacheClient()
         {
-            PluginSettings settings = PluginSettings.LoadDefaults();
+            PluginSettingsData settings = PluginSettings.data;
             CacheClient.cacheDirectory = settings.cacheDirectory;
         }
 

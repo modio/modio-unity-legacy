@@ -112,7 +112,7 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         public ServerType connectTo = ServerType.TestServer;
-        public PluginSettings testPluginSettings = new PluginSettings()
+        public PluginSettingsData testPluginSettings = new PluginSettingsData()
         {
             apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
             gameId = 0,
@@ -120,7 +120,7 @@ namespace ModIO.UI
             cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_test",
             installDirectory = "$PERSISTENT_DATA_PATH$/modio_test/_installedMods",
         };
-        public PluginSettings productionPluginSettings = new PluginSettings()
+        public PluginSettingsData productionPluginSettings = new PluginSettingsData()
         {
             apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
             gameId = 0,
@@ -128,7 +128,7 @@ namespace ModIO.UI
             cacheDirectory = "$PERSISTENT_DATA_PATH$/modio",
             installDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods",
         };
-        public PluginSettings customPluginSettings = new PluginSettings()
+        public PluginSettingsData customPluginSettings = new PluginSettingsData()
         {
             apiURL = string.Empty,
             gameId = 0,
@@ -224,7 +224,7 @@ namespace ModIO.UI
         private void LoadLocalData()
         {
             // - Server Settings -
-            PluginSettings settings;
+            PluginSettingsData settings;
             switch(connectTo)
             {
                 case ServerType.TestServer:
@@ -244,7 +244,7 @@ namespace ModIO.UI
                 break;
                 default:
                 {
-                    settings = new PluginSettings();
+                    settings = new PluginSettingsData();
                 }
                 break;
             }
