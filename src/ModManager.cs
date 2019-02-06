@@ -30,6 +30,9 @@ namespace ModIO
         /// <summary>File name used to store the persistent data.</summary>
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
 
+        /// <summary>File name used to store the persistent data.</summary>
+        public static readonly string PERSISTENTDATA_FILEPATH;
+
         /// <summary>Install directory used by the ModManager.</summary>
         public static string installDirectory;
 
@@ -42,10 +45,9 @@ namespace ModIO
         {
             PluginSettings.Data settings = PluginSettings.data;
             ModManager.installDirectory = settings.installDirectory;
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
 
-            string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
-
-            if(!IOUtilities.TryReadJsonObjectFile(dataPath, out ModManager.m_data))
+            if(!IOUtilities.TryReadJsonObjectFile(PERSISTENTDATA_FILEPATH, out ModManager.m_data))
             {
                 ModManager.m_data = new PersistentData()
                 {
@@ -58,7 +60,7 @@ namespace ModIO
             VersionUpdater.Run(m_data.lastRunVersion);
 
             m_data.lastRunVersion = VERSION;
-            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
+            IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
 
@@ -72,8 +74,7 @@ namespace ModIO
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
             ModManager.m_data.subscribedModIds = new List<int>(modIds);
-            string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
-            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
+            IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
         /// <summary>Returns the enabled mods.</summary>

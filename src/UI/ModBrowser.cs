@@ -257,7 +257,6 @@ namespace ModIO.UI
 
         private void LoadLocalData()
         {
-
             // - UserData -
             if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
             {
@@ -1166,7 +1165,7 @@ namespace ModIO.UI
                         }
                     }
                     // This may have changed during the request execution
-                    else if(userProfile != null
+                    else if(this.m_userProfile != null
                             && m_validOAuthToken)
                     {
                         ProcessUserUpdates(userEventReponse);
