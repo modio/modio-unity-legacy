@@ -99,7 +99,7 @@ namespace ModIO
         }
 
         #if UNITY_EDITOR
-        [UnityEditor.MenuItem("mod.io/Edit Plugin Settings", false)]
+        [UnityEditor.MenuItem("mod.io/Edit Settings", false)]
         public static void FocusAsset()
         {
             string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";

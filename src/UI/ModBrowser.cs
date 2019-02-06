@@ -186,6 +186,66 @@ namespace ModIO.UI
 
         private void Start()
         {
+            #if DEBUG
+            PluginSettings.Data settings = PluginSettings.data;
+
+            if(settings.gameId <= 0)
+            {
+                Debug.LogError("[mod.io] Game ID is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.gameAPIKey))
+            {
+                Debug.LogError("[mod.io] Game API Key is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.apiURL))
+            {
+                Debug.LogError("[mod.io] API URL is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.cacheDirectory))
+            {
+                Debug.LogError("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.installDirectory))
+            {
+                Debug.LogError("[mod.io] Mod Installation Directory is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            #endif
+
             LoadLocalData();
 
             InitializeInspectorView();
