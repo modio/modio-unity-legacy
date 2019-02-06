@@ -291,7 +291,7 @@ namespace ModIO.UI
                 WriteManifest();
             }
 
-            // - Log Requests? -
+            // - Log Requests -
             APIClient.logAllRequests = debugAllAPIRequests;
             DownloadClient.logAllRequests = debugAllAPIRequests;
 
@@ -2274,5 +2274,13 @@ namespace ModIO.UI
                 LogUserOut();
             }
         }
+
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            APIClient.logAllRequests = debugAllAPIRequests;
+            DownloadClient.logAllRequests = debugAllAPIRequests;
+        }
+        #endif
     }
 }
