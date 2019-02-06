@@ -133,19 +133,17 @@ namespace ModIO.UI
         {
             Debug.Assert(itemPrefab != null);
 
-            ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
-            RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
-            ModView viewPrefabScript = itemPrefab.GetComponent<ModView>();
+            RectTransform prefabTransform = itemPrefab.GetComponent<RectTransform>();
+            ModView prefabView = itemPrefab.GetComponent<ModView>();
 
-            Debug.Assert(itemPrefabScript != null
-                         && itemPrefabTransform != null
-                         && viewPrefabScript != null,
+            Debug.Assert(prefabTransform != null
+                         && prefabView != null,
                          "[mod.io] The ExplorerView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
 
-            Debug.Assert(itemPrefabTransform.anchorMin == new Vector2(0f, 1f)
-                         && itemPrefabTransform.anchorMax == new Vector2(0f, 1f),
+            Debug.Assert(prefabTransform.anchorMin == new Vector2(0f, 1f)
+                         && prefabTransform.anchorMax == new Vector2(0f, 1f),
                          "[mod.io] The ExplorerView.itemPrefab's transfrom needs a top-left anchor."
                          + " Please ensure the both the anchor min and anchor max are at [0, 1].");
 
@@ -402,10 +400,6 @@ namespace ModIO.UI
                     itemTransform.localScale = this.m_tileScale;
 
                     // initialize item
-                    // TODO(@jackson): Remove
-                    ModBrowserItem item = itemGO.GetComponent<ModBrowserItem>();
-                    item.index = pageModViews.Count;
-
                     ModView view = itemGO.GetComponent<ModView>();
                     view.onClick +=                 NotifyInspectRequested;
                     view.subscribeRequested +=      NotifySubscribeRequested;
@@ -420,11 +414,14 @@ namespace ModIO.UI
                     }
                     else
                     {
+                        bool isModSubscribed = subscribedModIds.Contains(profile.id);
+                        bool isModEnabled = enabledModIds.Contains(profile.id);
+
                         view.DisplayMod(profile,
                                         null,
                                         m_tagCategories,
-                                        subscribedModIds.Contains(profile.id),
-                                        enabledModIds.Contains(profile.id));
+                                        isModSubscribed,
+                                        isModEnabled);
 
                         ModManager.GetModStatistics(profile.id,
                                                     (s) =>

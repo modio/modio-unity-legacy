@@ -49,13 +49,11 @@ namespace ModIO.UI
             Debug.Assert(scrollView != null);
             Debug.Assert(scrollView.viewport != null && scrollView.content != null);
 
-            ModBrowserItem itemPrefabScript = itemPrefab.GetComponent<ModBrowserItem>();
-            RectTransform itemPrefabTransform = itemPrefab.GetComponent<RectTransform>();
-            ModView viewPrefabScript = itemPrefab.GetComponent<ModView>();
+            RectTransform prefabTransform = itemPrefab.GetComponent<RectTransform>();
+            ModView prefabView = itemPrefab.GetComponent<ModView>();
 
-            Debug.Assert(itemPrefabScript != null
-                         && itemPrefabTransform != null
-                         && viewPrefabScript != null,
+            Debug.Assert(prefabTransform != null
+                         && prefabView != null,
                          "[mod.io] The SubscriptionView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");

@@ -110,32 +110,6 @@ namespace ModIO.UI
         };
 
         // ---------[ FIELDS ]---------
-        [Header("Settings")]
-        public ServerType connectTo = ServerType.TestServer;
-        public PluginSettings testPluginSettings = new PluginSettings()
-        {
-            apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION,
-            gameId = 0,
-            gameAPIKey = string.Empty,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_test",
-            installDirectory = "$PERSISTENT_DATA_PATH$/modio_test/_installedMods",
-        };
-        public PluginSettings productionPluginSettings = new PluginSettings()
-        {
-            apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
-            gameId = 0,
-            gameAPIKey = string.Empty,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio",
-            installDirectory = "$PERSISTENT_DATA_PATH$/modio/_installedMods",
-        };
-        public PluginSettings customPluginSettings = new PluginSettings()
-        {
-            apiURL = string.Empty,
-            gameId = 0,
-            gameAPIKey = string.Empty,
-            cacheDirectory = "$PERSISTENT_DATA_PATH$/modio_custom",
-            installDirectory = "$PERSISTENT_DATA_PATH$/modio_custom/_installedMods",
-        };
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
 
@@ -212,6 +186,66 @@ namespace ModIO.UI
 
         private void Start()
         {
+            #if DEBUG
+            PluginSettings.Data settings = PluginSettings.data;
+
+            if(settings.gameId <= 0)
+            {
+                Debug.LogError("[mod.io] Game ID is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.gameAPIKey))
+            {
+                Debug.LogError("[mod.io] Game API Key is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.apiURL))
+            {
+                Debug.LogError("[mod.io] API URL is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.cacheDirectory))
+            {
+                Debug.LogError("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            if(String.IsNullOrEmpty(settings.installationDirectory))
+            {
+                Debug.LogError("[mod.io] Mod Installation Directory is missing from the Plugin Settings.\n"
+                               + "This must be configured by selecting the mod.io > Edit Settings menu"
+                               + " item, or by clicking \'Plugin Settings' on this Mod Browser object,"
+                               + " before the mod.io Unity Plugin can be used.",
+                               this);
+
+                this.gameObject.SetActive(false);
+                return;
+            }
+            #endif
+
             LoadLocalData();
 
             InitializeInspectorView();
@@ -223,64 +257,6 @@ namespace ModIO.UI
 
         private void LoadLocalData()
         {
-            // - Server Settings -
-            PluginSettings settings;
-            switch(connectTo)
-            {
-                case ServerType.TestServer:
-                {
-                    settings = testPluginSettings;
-                }
-                break;
-                case ServerType.ProductionServer:
-                {
-                    settings = productionPluginSettings;
-                }
-                break;
-                case ServerType.CustomServer:
-                {
-                    settings = customPluginSettings;
-                }
-                break;
-                default:
-                {
-                    settings = new PluginSettings();
-                }
-                break;
-            }
-
-            #if MODIO_TESTING
-                settings.gameId = ModIO_Testing.GAME_ID;
-                settings.gameAPIKey = ModIO_Testing.GAME_APIKEY;
-            #endif
-
-            if(settings.gameId <= 0)
-            {
-                Debug.LogError("[mod.io] Game ID is missing. Ensure that the appropriate server is"
-                               + " selected in \'connectTo\', and the server settings have been stored.",
-                               this);
-                return;
-            }
-            if(String.IsNullOrEmpty(settings.gameAPIKey))
-            {
-                Debug.LogError("[mod.io] Game API Key is missing. Ensure that the appropriate server is"
-                               + " selected in \'connectTo\', and the server settings have been stored.",
-                               this);
-                return;
-            }
-
-            // - CacheClient Data -
-            string[] cacheDirParts = settings.cacheDirectory.Split('\\', '/');
-            for(int i = 0; i < cacheDirParts.Length; ++i)
-            {
-                if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                {
-                    cacheDirParts[i] = Application.persistentDataPath;
-                }
-            }
-            settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
-            CacheClient.cacheDirectory = settings.cacheDirectory;
-
             // - UserData -
             if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
             {
@@ -292,7 +268,7 @@ namespace ModIO.UI
             if(m_gameProfile == null)
             {
                 m_gameProfile = new GameProfile();
-                m_gameProfile.id = settings.gameId;
+                m_gameProfile.id = PluginSettings.data.gameId;
             }
 
             // - Manifest -
@@ -315,31 +291,14 @@ namespace ModIO.UI
                 WriteManifest();
             }
 
-            // - APIClient Data -
-            APIClient.apiURL = settings.apiURL;
-            APIClient.gameId = settings.gameId;
-            APIClient.gameAPIKey = settings.gameAPIKey;
+            // - Log Requests -
             APIClient.logAllRequests = debugAllAPIRequests;
-
-            // - Installation Data -
             DownloadClient.logAllRequests = debugAllAPIRequests;
-            string[] installDirParts = settings.installDirectory.Split('\\', '/');
-            for(int i = 0; i < installDirParts.Length; ++i)
-            {
-                if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                {
-                    installDirParts[i] = Application.persistentDataPath;
-                }
-            }
-            settings.installDirectory = IOUtilities.CombinePath(installDirParts);
-            ModManager.installDirectory = settings.installDirectory;
 
             // - Image settings -
             ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
             ImageDisplayData.logoThumbnailSize = this.logoThumbnailSize;
             ImageDisplayData.galleryThumbnailSize = this.galleryThumbnailSize;
-
-            PluginSettings.SaveDefaults(settings);
         }
 
         private void InitializeInspectorView()
@@ -544,6 +503,11 @@ namespace ModIO.UI
         {
             // Ensure Start() has been finished
             yield return null;
+
+            if(!this.isActiveAndEnabled)
+            {
+                yield break;
+            }
 
             this.StartCoroutine(FetchGameProfile());
 
@@ -1205,7 +1169,9 @@ namespace ModIO.UI
                             break;
                         }
                     }
-                    else
+                    // This may have changed during the request execution
+                    else if(this.m_userProfile != null
+                            && m_validOAuthToken)
                     {
                         ProcessUserUpdates(userEventReponse);
                         this.lastSubscriptionSync = updateStartTimeStamp;
@@ -1290,9 +1256,21 @@ namespace ModIO.UI
             Debug.Assert(m_userProfile != null);
             Debug.Assert(this.m_validOAuthToken);
 
-            // NOTE(@jackson): This is workaround is due to the response of an unsub request
-            // on an non-subbed mod being an error.
-            Debug.Assert(APIClient.API_VERSION == "v1");
+            // NOTE(@jackson): This is workaround is due to the response of a repeat sub and unsub
+            // request returning an error.
+            Action<WebRequestError, int> onSubFail = (e, modId) =>
+            {
+                if(e.responseCode == 400)
+                {
+                    // Mod is already subscribed
+                    m_queuedSubscribes.Remove(modId);
+                    WriteManifest();
+                }
+                else
+                {
+                    WebRequestError.LogAsWarning(e);
+                }
+            };
             Action<WebRequestError, int> onUnsubFail = (e, modId) =>
             {
                 if(e.responseCode == 400)
@@ -1316,7 +1294,7 @@ namespace ModIO.UI
                                             m_queuedSubscribes.Remove(p.id);
                                             WriteManifest();
                                          },
-                                         WebRequestError.LogAsWarning);
+                                         (e) => onSubFail(e, modId));
             }
             foreach(int modId in m_queuedUnsubscribes)
             {
@@ -1578,7 +1556,7 @@ namespace ModIO.UI
 
             // - clear current user -
             this.m_validOAuthToken = false;
-            UserAuthenticationData.instance = UserAuthenticationData.NONE;
+            UserAuthenticationData.Clear();
 
             // - set up guest account -
             m_userProfile = null;
@@ -2317,15 +2295,8 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                if(!Application.isPlaying
-                   && this != null)
-                {
-                    testPluginSettings.apiURL = APIClient.API_URL_TESTSERVER + APIClient.API_VERSION;
-                    productionPluginSettings.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
-                }
-            };
+            APIClient.logAllRequests = debugAllAPIRequests;
+            DownloadClient.logAllRequests = debugAllAPIRequests;
         }
         #endif
     }

@@ -19,8 +19,8 @@ namespace ModIO
         private struct PersistentData
         {
             public SimpleVersion lastRunVersion;
-            public List<int> subscribedModIds;
-            public List<int> enabledModIds;
+            public int[] subscribedModIds;
+            public int[] enabledModIds;
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
@@ -30,8 +30,11 @@ namespace ModIO
         /// <summary>File name used to store the persistent data.</summary>
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
 
+        /// <summary>File name used to store the persistent data.</summary>
+        public static readonly string PERSISTENTDATA_FILEPATH;
+
         /// <summary>Install directory used by the ModManager.</summary>
-        public static string installDirectory;
+        public static string installationDirectory;
 
         /// <summary>Data that needs to be stored across sessions.</summary>
         private static PersistentData m_data;
@@ -40,25 +43,24 @@ namespace ModIO
         /// <summary>Initialzes the ModManager settings.</summary>
         static ModManager()
         {
-            PluginSettings settings = PluginSettings.LoadDefaults();
-            ModManager.installDirectory = settings.installDirectory;
+            PluginSettings.Data settings = PluginSettings.data;
+            ModManager.installationDirectory = settings.installationDirectory;
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
 
-            string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
-
-            if(!IOUtilities.TryReadJsonObjectFile(dataPath, out ModManager.m_data))
+            if(!IOUtilities.TryReadJsonObjectFile(PERSISTENTDATA_FILEPATH, out ModManager.m_data))
             {
                 ModManager.m_data = new PersistentData()
                 {
                     lastRunVersion = ModManager.VERSION,
-                    subscribedModIds = new List<int>(),
-                    enabledModIds = new List<int>(),
+                    subscribedModIds = new int[0],
+                    enabledModIds = new int[0],
                 };
             }
 
             VersionUpdater.Run(m_data.lastRunVersion);
 
             m_data.lastRunVersion = VERSION;
-            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
+            IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
 
@@ -66,25 +68,46 @@ namespace ModIO
         /// <summary>Returns the subscribed mods.</summary>
         public static List<int> GetSubscribedModIds()
         {
-            return m_data.subscribedModIds;
+            return new List<int>(m_data.subscribedModIds);
         }
         /// <summary>Sets the subscribed mods and writes the data to disk.</summary>
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
-            ModManager.m_data.subscribedModIds = new List<int>(modIds);
-            string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
-            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
+            int[] modIdArray;
+
+            if(modIds == null)
+            {
+                modIdArray = new int[0];
+            }
+            else
+            {
+                modIdArray = modIds.ToArray();
+            }
+
+            ModManager.m_data.subscribedModIds = modIdArray;
+            IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
         /// <summary>Returns the enabled mods.</summary>
         public static List<int> GetEnabledModIds()
         {
-            return m_data.enabledModIds;
+            return new List<int>(m_data.enabledModIds);
         }
         /// <summary>Sets the enabled mods and writes the data to disk.</summary>
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
-            ModManager.m_data.enabledModIds = new List<int>(modIds);
+            int[] modIdArray;
+
+            if(modIds == null)
+            {
+                modIdArray = new int[0];
+            }
+            else
+            {
+                modIdArray = modIds.ToArray();
+            }
+
+            ModManager.m_data.enabledModIds = modIdArray;
             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
             IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
         }
@@ -92,7 +115,7 @@ namespace ModIO
         /// <summary>Creates the Directory Path for a given modfile install.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(ModManager.installDirectory,
+            return IOUtilities.CombinePath(ModManager.installationDirectory,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -226,15 +249,15 @@ namespace ModIO
             string[] modDirectories = new string[0];
             try
             {
-                if(Directory.Exists(ModManager.installDirectory))
+                if(Directory.Exists(ModManager.installationDirectory))
                 {
-                    modDirectories = Directory.GetDirectories(ModManager.installDirectory);
+                    modDirectories = Directory.GetDirectories(ModManager.installationDirectory);
                 }
             }
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to read mod installation directory."
-                                      + "\nDirectory: " + ModManager.installDirectory + "\n\n");
+                                      + "\nDirectory: " + ModManager.installationDirectory + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));

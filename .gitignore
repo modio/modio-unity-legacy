@@ -47,7 +47,7 @@ Thumbs.db
 
 # Plugin Specific
 _nonRepo/
+Resources/modio_settings.asset*
+/*.meta
 *LICENSE*.meta
 *README*.meta
-/*.meta
-csc.rsp
