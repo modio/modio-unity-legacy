@@ -90,7 +90,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224909203088617996}
-  - component: {fileID: 114617900651688626}
   - component: {fileID: 114463352398219628}
   - component: {fileID: 114785217569168026}
   - component: {fileID: 114292213233224726}
@@ -1456,7 +1455,7 @@ MonoBehaviour:
   submittorDisplay:
     profile: {fileID: 0}
     avatar: {fileID: 0}
-  logoDisplay: {fileID: 0}
+  logoDisplay: {fileID: 114903417617235618}
   mediaContainer: {fileID: 0}
   buildDisplay: {fileID: 114292213233224726}
   tagsDisplay: {fileID: 0}
@@ -1975,19 +1974,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &114617900651688626
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1139133584329282}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a80c2f8d07104612b470c0d5bee7ba0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maximumScaleFactor: 1
-  index: -1
 --- !u!114 &114649488967683702
 MonoBehaviour:
   m_ObjectHideFlags: 1
