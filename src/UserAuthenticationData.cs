@@ -14,8 +14,7 @@ namespace ModIO
         };
 
         /// <summary>Location of the settings file.</summary>
-        public static readonly string FILE_LOCATION = IOUtilities.CombinePath(Application.persistentDataPath,
-                                                                              "modio",
+        public static readonly string FILE_LOCATION = IOUtilities.CombinePath(PluginSettings.data.cacheDirectory,
                                                                               "user.data");
 
         // ---------[ FIELDS ]---------
@@ -50,53 +49,24 @@ namespace ModIO
         /// <summary>Writes the UserAuthenticationData to disk.</summary>
         private static void SaveInstance()
         {
-            #if DEBUG
-            if(Application.isPlaying)
-            {
-                if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
-                    && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (UserAuthenticationData.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && UserAuthenticationData.FILE_LOCATION.ToUpper().Contains("COMPANY")))
-                {
-                    Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
-                                   + " bundle identifier will cause conflicts with other projects"
-                                   + " using mod.io. Please open \'Build Settings' > \'Player Settings\'"
-                                   + " and assign a unique Company Name, Project Name, and Bundle"
-                                   + " Identifier (under \'Other Settings\') to utilize the mod.io "
-                                   + " Unity Plugin.");
-                }
-            }
-            #endif
-
             IOUtilities.WriteJsonObjectFile(FILE_LOCATION, UserAuthenticationData.m_instance);
         }
 
         /// <summary>Loads the UserAuthenticationData from disk.</summary>
         private static void LoadInstance()
         {
-            #if DEBUG
-            if(Application.isPlaying)
-            {
-                if((Application.identifier.ToUpper().Contains("PRODUCTNAME")
-                    && Application.identifier.ToUpper().Contains("COMPANY"))
-                   || (UserAuthenticationData.FILE_LOCATION.ToUpper().Contains("PRODUCTNAME")
-                       && UserAuthenticationData.FILE_LOCATION.ToUpper().Contains("COMPANY")))
-                {
-                    Debug.LogError("[mod.io] Implementing ModIO in a project that uses the default"
-                                   + " bundle identifier will cause conflicts with other projects"
-                                   + " using mod.io. Please open \'Build Settings' > \'Player Settings\'"
-                                   + " and assign a unique Company Name, Project Name, and Bundle"
-                                   + " Identifier (under \'Other Settings\') to utilize the mod.io "
-                                   + " Unity Plugin.");
-                }
-            }
-            #endif
-
             UserAuthenticationData cachedData;
             if(IOUtilities.TryReadJsonObjectFile(FILE_LOCATION, out cachedData))
             {
                 UserAuthenticationData.m_instance = cachedData;
             }
+        }
+
+        /// <summary>Clears the instance and deletes the data on disk.</summary>
+        public static void Clear()
+        {
+            UserAuthenticationData.m_instance = UserAuthenticationData.NONE;
+            IOUtilities.DeleteFile(UserAuthenticationData.FILE_LOCATION);
         }
     }
 }

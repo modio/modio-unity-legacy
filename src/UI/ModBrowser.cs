@@ -1540,7 +1540,7 @@ namespace ModIO.UI
 
             // - clear current user -
             this.m_validOAuthToken = false;
-            UserAuthenticationData.instance = UserAuthenticationData.NONE;
+            UserAuthenticationData.Clear();
 
             // - set up guest account -
             m_userProfile = null;
