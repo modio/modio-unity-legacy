@@ -34,7 +34,7 @@ namespace ModIO
         public static readonly string PERSISTENTDATA_FILEPATH;
 
         /// <summary>Install directory used by the ModManager.</summary>
-        public static string installDirectory;
+        public static string installationDirectory;
 
         /// <summary>Data that needs to be stored across sessions.</summary>
         private static PersistentData m_data;
@@ -44,7 +44,7 @@ namespace ModIO
         static ModManager()
         {
             PluginSettings.Data settings = PluginSettings.data;
-            ModManager.installDirectory = settings.installDirectory;
+            ModManager.installationDirectory = settings.installationDirectory;
             ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
 
             if(!IOUtilities.TryReadJsonObjectFile(PERSISTENTDATA_FILEPATH, out ModManager.m_data))
@@ -115,7 +115,7 @@ namespace ModIO
         /// <summary>Creates the Directory Path for a given modfile install.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
-            return IOUtilities.CombinePath(ModManager.installDirectory,
+            return IOUtilities.CombinePath(ModManager.installationDirectory,
                                            modId.ToString() + "_" + modfileId.ToString());
         }
 
@@ -249,15 +249,15 @@ namespace ModIO
             string[] modDirectories = new string[0];
             try
             {
-                if(Directory.Exists(ModManager.installDirectory))
+                if(Directory.Exists(ModManager.installationDirectory))
                 {
-                    modDirectories = Directory.GetDirectories(ModManager.installDirectory);
+                    modDirectories = Directory.GetDirectories(ModManager.installationDirectory);
                 }
             }
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to read mod installation directory."
-                                      + "\nDirectory: " + ModManager.installDirectory + "\n\n");
+                                      + "\nDirectory: " + ModManager.installationDirectory + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));

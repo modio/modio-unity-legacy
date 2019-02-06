@@ -9,11 +9,18 @@ namespace ModIO
         public struct Data
         {
             // ---------[ FIELDS ]---------
+            [Tooltip("API URL to use when making requests")]
             public string   apiURL;
+            [Tooltip("Game Id assigned to your game profile")]
             public int      gameId;
+            [Tooltip("API Key assigned to your game profile")]
             public string   gameAPIKey;
+            // [Tooltip("Directory to use for persistent data")]
+            // public string   storageDirectory;
+            [Tooltip("Directory to use for mod installations")]
+            public string   installationDirectory;
+            [Tooltip("Directory to use for cached server data")]
             public string   cacheDirectory;
-            public string   installDirectory;
         }
 
         /// <summary>Location of the settings file.</summary>
@@ -56,34 +63,43 @@ namespace ModIO
             {
                 Data settings = wrapper.m_data;
 
-                // - String variable replacement -
-                string[] cacheDirParts = settings.cacheDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
-                                                                       System.IO.Path.DirectorySeparatorChar);
-                for(int i = 0; i < cacheDirParts.Length; ++i)
+                // - Path variable replacement -
+                // cachedir
+                if(settings.cacheDirectory != null)
                 {
-                    if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                    {
-                        cacheDirParts[i] = Application.persistentDataPath;
-                    }
-
-                    cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
-                }
-                settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
-
-
-                string[] installDirParts = settings.installDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
+                    string[] cacheDirParts = settings.cacheDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
                                                                            System.IO.Path.DirectorySeparatorChar);
-                for(int i = 0; i < installDirParts.Length; ++i)
-                {
-                    if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                    for(int i = 0; i < cacheDirParts.Length; ++i)
                     {
-                        installDirParts[i] = Application.persistentDataPath;
+                        if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                        {
+                            cacheDirParts[i] = Application.persistentDataPath;
+                        }
+
+                        cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
+                    }
+                    settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
+                }
+
+                // installdir
+                if(settings.installationDirectory != null)
+                {
+                    string[] installDirParts = settings.installationDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
+                                                                                    System.IO.Path.DirectorySeparatorChar);
+                    for(int i = 0; i < installDirParts.Length; ++i)
+                    {
+                        if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                        {
+                            installDirParts[i] = Application.persistentDataPath;
+                        }
+
+                        installDirParts[i] = installDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
                     }
 
-                    installDirParts[i] = installDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
+                    settings.installationDirectory = IOUtilities.CombinePath(installDirParts);
                 }
-                settings.installDirectory = IOUtilities.CombinePath(installDirParts);
 
+                // apply to data instance
                 PluginSettings._dataInstance = settings;
             }
 
@@ -127,7 +143,7 @@ namespace ModIO
             settings.m_data.gameId = 0;
             settings.m_data.gameAPIKey = string.Empty;
             settings.m_data.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$";
-            settings.m_data.installDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods";
+            settings.m_data.installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods";
 
             UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();

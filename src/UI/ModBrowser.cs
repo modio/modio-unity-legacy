@@ -233,7 +233,7 @@ namespace ModIO.UI
                 this.gameObject.SetActive(false);
                 return;
             }
-            if(String.IsNullOrEmpty(settings.installDirectory))
+            if(String.IsNullOrEmpty(settings.installationDirectory))
             {
                 Debug.LogError("[mod.io] Mod Installation Directory is missing from the Plugin Settings.\n"
                                + "This must be configured by selecting the mod.io > Edit Settings menu"
