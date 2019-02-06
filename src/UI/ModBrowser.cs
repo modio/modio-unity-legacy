@@ -1251,9 +1251,21 @@ namespace ModIO.UI
             Debug.Assert(m_userProfile != null);
             Debug.Assert(this.m_validOAuthToken);
 
-            // NOTE(@jackson): This is workaround is due to the response of an unsub request
-            // on an non-subbed mod being an error.
-            Debug.Assert(APIClient.API_VERSION == "v1");
+            // NOTE(@jackson): This is workaround is due to the response of a repeat sub and unsub
+            // request returning an error.
+            Action<WebRequestError, int> onSubFail = (e, modId) =>
+            {
+                if(e.responseCode == 400)
+                {
+                    // Mod is already subscribed
+                    m_queuedSubscribes.Remove(modId);
+                    WriteManifest();
+                }
+                else
+                {
+                    WebRequestError.LogAsWarning(e);
+                }
+            };
             Action<WebRequestError, int> onUnsubFail = (e, modId) =>
             {
                 if(e.responseCode == 400)
@@ -1277,7 +1289,7 @@ namespace ModIO.UI
                                             m_queuedSubscribes.Remove(p.id);
                                             WriteManifest();
                                          },
-                                         WebRequestError.LogAsWarning);
+                                         (e) => onSubFail(e, modId));
             }
             foreach(int modId in m_queuedUnsubscribes)
             {
