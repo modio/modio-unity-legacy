@@ -566,7 +566,7 @@ RectTransform:
   m_Father: {fileID: 224415381369848950}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.32223025}
+  m_AnchorMin: {x: 0, y: 0.31125826}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -2480,7 +2480,6 @@ GameObject:
   m_Component:
   - component: {fileID: 224446665158375506}
   - component: {fileID: 114302316280223688}
-  - component: {fileID: 222169877908503832}
   m_Layer: 5
   m_Name: ScrollView
   m_TagString: Untagged
@@ -2541,14 +2540,6 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!222 &222169877908503832
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1127391817723246}
-  m_CullTransparentMesh: 0
 --- !u!1 &1133803546809732
 GameObject:
   m_ObjectHideFlags: 0
@@ -4768,7 +4759,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224461127012161008}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.6777697
+  m_Size: 0.68874174
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7919,9 +7910,9 @@ RectTransform:
   m_Father: {fileID: 224865534233176124}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 796, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 48, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &114905592156176350
@@ -8546,7 +8537,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -957.5}
+  m_AnchoredPosition: {x: 410, y: -935.5}
   m_SizeDelta: {x: 820, y: 847}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &114308481988713776
@@ -13615,8 +13606,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -267}
-  m_SizeDelta: {x: 820, y: 534}
+  m_AnchoredPosition: {x: 410, y: -256}
+  m_SizeDelta: {x: 820, y: 512}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &114828037424114454
 MonoBehaviour:
@@ -13999,25 +13990,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbcf13412947141a0816098403a73fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  connectTo: 0
-  testPluginSettings:
-    apiURL: https://api.test.mod.io/v1
-    gameId: 0
-    gameAPIKey: 
-    cacheDirectory: $PERSISTENT_DATA_PATH$/modio_test
-    installDirectory: $PERSISTENT_DATA_PATH$/modio_test/_installedMods
-  productionPluginSettings:
-    apiURL: https://api.mod.io/v1
-    gameId: 0
-    gameAPIKey: 
-    cacheDirectory: $PERSISTENT_DATA_PATH$/modio
-    installDirectory: $PERSISTENT_DATA_PATH$/modio/_installedMods
-  customPluginSettings:
-    apiURL: 
-    gameId: 0
-    gameAPIKey: 
-    cacheDirectory: $PERSISTENT_DATA_PATH$/modio_custom
-    installDirectory: $PERSISTENT_DATA_PATH$/modio_custom/_installedMods
   debugAllAPIRequests: 0
   avatarThumbnailSize: 1
   logoThumbnailSize: 1
@@ -19323,7 +19295,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.00005637814}
-  m_SizeDelta: {x: 0, y: 1381}
+  m_SizeDelta: {x: 0, y: 1359}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &114282749620337518
 MonoBehaviour:
@@ -20937,7 +20909,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 410, y: -522}
+  m_AnchoredPosition: {x: 410, y: -500}
   m_SizeDelta: {x: 796, y: 62}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &114428302299885758
