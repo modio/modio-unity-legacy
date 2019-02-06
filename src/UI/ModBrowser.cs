@@ -1165,7 +1165,9 @@ namespace ModIO.UI
                             break;
                         }
                     }
-                    else
+                    // This may have changed during the request execution
+                    else if(userProfile != null
+                            && m_validOAuthToken)
                     {
                         ProcessUserUpdates(userEventReponse);
                         this.lastSubscriptionSync = updateStartTimeStamp;
