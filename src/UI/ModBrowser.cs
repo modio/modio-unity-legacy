@@ -504,6 +504,11 @@ namespace ModIO.UI
             // Ensure Start() has been finished
             yield return null;
 
+            if(!this.isActiveAndEnabled)
+            {
+                yield break;
+            }
+
             this.StartCoroutine(FetchGameProfile());
 
             if(UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE))
