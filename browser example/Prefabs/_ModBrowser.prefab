@@ -7349,6 +7349,7 @@ MonoBehaviour:
       youTubeURLs: []
       sketchfabURLs: []
       galleryImageLocators: []
+      galleryGIFLocators: []
     metadataKVPs: []
     tags: []
   statistics:
@@ -8603,25 +8604,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbcf13412947141a0816098403a73fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  connectTo: 1
-  testPluginSettings:
-    apiURL: https://api.test.mod.io/v1
-    gameId: 0
-    gameAPIKey: 
-    cacheDirectory: $PERSISTENT_DATA_PATH$/modio_test
-    installDirectory: $PERSISTENT_DATA_PATH$/modio_test/_installedMods
-  productionPluginSettings:
-    apiURL: https://api.mod.io/v1
-    gameId: 0
-    gameAPIKey: 
-    cacheDirectory: $PERSISTENT_DATA_PATH$/modio
-    installDirectory: $PERSISTENT_DATA_PATH$/modio/_installedMods
-  customPluginSettings:
-    apiURL: 
-    gameId: 0
-    gameAPIKey: 
-    cacheDirectory: $PERSISTENT_DATA_PATH$/modio_custom
-    installDirectory: $PERSISTENT_DATA_PATH$/modio_custom/_installedMods
   debugAllAPIRequests: 0
   avatarThumbnailSize: 1
   logoThumbnailSize: 1
