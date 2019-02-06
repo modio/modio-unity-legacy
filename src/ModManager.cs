@@ -19,8 +19,8 @@ namespace ModIO
         private struct PersistentData
         {
             public SimpleVersion lastRunVersion;
-            public List<int> subscribedModIds;
-            public List<int> enabledModIds;
+            public int[] subscribedModIds;
+            public int[] enabledModIds;
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
@@ -52,8 +52,8 @@ namespace ModIO
                 ModManager.m_data = new PersistentData()
                 {
                     lastRunVersion = ModManager.VERSION,
-                    subscribedModIds = new List<int>(),
-                    enabledModIds = new List<int>(),
+                    subscribedModIds = new int[0],
+                    enabledModIds = new int[0],
                 };
             }
 
@@ -68,24 +68,46 @@ namespace ModIO
         /// <summary>Returns the subscribed mods.</summary>
         public static List<int> GetSubscribedModIds()
         {
-            return m_data.subscribedModIds;
+            return new List<int>(m_data.subscribedModIds);
         }
         /// <summary>Sets the subscribed mods and writes the data to disk.</summary>
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
-            ModManager.m_data.subscribedModIds = new List<int>(modIds);
+            int[] modIdArray;
+
+            if(modIds == null)
+            {
+                modIdArray = new int[0];
+            }
+            else
+            {
+                modIdArray = modIds.ToArray();
+            }
+
+            ModManager.m_data.subscribedModIds = modIdArray;
             IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
         /// <summary>Returns the enabled mods.</summary>
         public static List<int> GetEnabledModIds()
         {
-            return m_data.enabledModIds;
+            return new List<int>(m_data.enabledModIds);
         }
         /// <summary>Sets the enabled mods and writes the data to disk.</summary>
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
-            ModManager.m_data.enabledModIds = new List<int>(modIds);
+            int[] modIdArray;
+
+            if(modIds == null)
+            {
+                modIdArray = new int[0];
+            }
+            else
+            {
+                modIdArray = modIds.ToArray();
+            }
+
+            ModManager.m_data.enabledModIds = modIdArray;
             string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
             IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
         }

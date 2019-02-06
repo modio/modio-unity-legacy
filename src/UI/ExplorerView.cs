@@ -420,11 +420,14 @@ namespace ModIO.UI
                     }
                     else
                     {
+                        bool isModSubscribed = subscribedModIds.Contains(profile.id);
+                        bool isModEnabled = enabledModIds.Contains(profile.id);
+
                         view.DisplayMod(profile,
                                         null,
                                         m_tagCategories,
-                                        subscribedModIds.Contains(profile.id),
-                                        enabledModIds.Contains(profile.id));
+                                        isModSubscribed,
+                                        isModEnabled);
 
                         ModManager.GetModStatistics(profile.id,
                                                     (s) =>
