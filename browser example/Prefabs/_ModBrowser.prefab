@@ -18015,7 +18015,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224699914162258284}
-  - component: {fileID: 114543193981166468}
+  - component: {fileID: 7002602621368136163}
   m_Layer: 5
   m_Name: ResultCount
   m_TagString: Untagged
@@ -18044,7 +18044,7 @@ RectTransform:
   m_AnchoredPosition: {x: 1775.5, y: -18}
   m_SizeDelta: {x: 169, y: 36}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &114543193981166468
+--- !u!114 &7002602621368136163
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -18053,17 +18053,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1892928024941256}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1679637790, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: -405508275, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IgnoreLayout: 0
-  m_MinWidth: -1
-  m_MinHeight: 32
-  m_PreferredWidth: 169
-  m_PreferredHeight: -1
-  m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
-  m_LayoutPriority: 1
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 5
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
 --- !u!1 &1902860884698640
 GameObject:
   m_ObjectHideFlags: 0
@@ -19931,7 +19934,6 @@ GameObject:
   - component: {fileID: 224096525015424124}
   - component: {fileID: 222716694346449380}
   - component: {fileID: 114438383379125220}
-  - component: {fileID: 114923736587243694}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -20000,20 +20002,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: ' mods found'
---- !u!114 &114923736587243694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1962872468420306}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1741964061, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 0
 --- !u!1 &1963618247139402
 GameObject:
   m_ObjectHideFlags: 0
