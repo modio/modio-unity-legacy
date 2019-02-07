@@ -48,7 +48,9 @@ namespace ModIO
 
         /// <summary>Settings data.</summary>
         [SerializeField]
+        #pragma warning disable 0649
         private Data m_data;
+        #pragma warning restore 0649
 
         /// <summary>Loads the Data from the asset instance.</summary>
         private static void LoadDataInstance()
