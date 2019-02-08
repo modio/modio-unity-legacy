@@ -134,18 +134,7 @@ namespace ModIO
 
                         if(headerValue.Length > 8) // Contains more than "Bearer "
                         {
-                            #if MODIO_TESTING
-                            #pragma warning disable 0162
-                            if(ModIO_Testing.LOG_OAUTH_TOKEN)
-                            {
-                                requestHeaders += " " + UserAuthenticationData.instance.token;
-                            }
-                            #pragma warning restore 0162
-                            else
-                            #endif
-                            {
-                                requestHeaders += " [OAUTH TOKEN]";
-                            }
+                            requestHeaders += " [OAUTH TOKEN]";
                         }
                         else // NULL
                         {
