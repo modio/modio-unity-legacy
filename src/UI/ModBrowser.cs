@@ -68,7 +68,7 @@ namespace ModIO.UI
         }
 
         [Serializable]
-        private class SubscriptionViewFilter
+        private struct SubscriptionViewFilter
         {
             public Func<ModProfile, bool> titleFilterDelegate;
             public Comparison<ModProfile> sortDelegate;
@@ -1082,11 +1082,15 @@ namespace ModIO.UI
                                                  Action<WebRequestError> onError)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+            SubscriptionViewFilter currentFilter = this.subscriptionViewFilter;
 
             if(subscribedModIds.Count > 0)
             {
                 Action<List<ModProfile>> onGetModProfiles = (list) =>
                 {
+                    // ensure it's still the same filter
+                    if(!currentFilter.Equals(this.subscriptionViewFilter)) { return; }
+
                     List<ModProfile> filteredList = new List<ModProfile>(list.Count);
                     foreach(ModProfile profile in list)
                     {
