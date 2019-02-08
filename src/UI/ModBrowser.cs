@@ -322,7 +322,7 @@ namespace ModIO.UI
             // - setup ui filter controls -
             if(subscriptionsView.nameSearchField != null)
             {
-                subscriptionsView.nameSearchField.onEndEdit.AddListener((t) =>
+                subscriptionsView.nameSearchField.onValueChanged.AddListener((t) =>
                 {
                     UpdateSubscriptionFilters();
                 });
