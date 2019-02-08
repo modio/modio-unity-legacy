@@ -155,19 +155,17 @@ namespace ModIO.UI
             }
 
             // no results
-            if(m_viewMap.Count == 0)
+            int subCountTotal = ModManager.GetSubscribedModIds().Count;
+
+            if(noSubscriptionsDisplay != null)
             {
-                int subCountTotal = ModManager.GetSubscribedModIds().Count;
+                noSubscriptionsDisplay.SetActive(subCountTotal == 0);
+            }
 
-                if(noSubscriptionsDisplay != null)
-                {
-                    noSubscriptionsDisplay.SetActive(subCountTotal == 0);
-                }
-
-                if(noResultsDisplay != null)
-                {
-                    noResultsDisplay.SetActive(subCountTotal > 0);
-                }
+            if(noResultsDisplay != null)
+            {
+                noResultsDisplay.SetActive(subCountTotal > 0
+                                           && m_viewMap.Count == 0);
             }
 
             // fix layouting
