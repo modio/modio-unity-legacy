@@ -298,6 +298,7 @@ GameObject:
   - component: {fileID: 404}
   - component: {fileID: 175}
   - component: {fileID: 362}
+  - component: {fileID: 8309527805094721877}
   m_Layer: 5
   m_Name: Tags
   m_TagString: Untagged
@@ -340,13 +341,7 @@ MonoBehaviour:
   includeCategory: 0
   tagSeparator: ', '
   loadingOverlay: {fileID: 45}
-  m_data:
-  - tagName: Character
-    categoryName: 
-  - tagName: Environment
-    categoryName: 
-  - tagName: Weapon
-    categoryName: 
+  m_data: []
 --- !u!222 &175
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -388,7 +383,19 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Character, Environment, Weapon
+  m_Text: 
+--- !u!114 &8309527805094721877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 47}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc23e000e7a84d94becb2f72d922366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &48
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,6 +878,7 @@ GameObject:
   - component: {fileID: 256}
   - component: {fileID: 169}
   - component: {fileID: 386}
+  - component: {fileID: 7327668656160364049}
   m_Layer: 5
   m_Name: Name
   m_TagString: Untagged
@@ -940,6 +948,18 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Test Mod Name
+--- !u!114 &7327668656160364049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 53}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc23e000e7a84d94becb2f72d922366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &54
 GameObject:
   m_ObjectHideFlags: 0
@@ -2773,13 +2793,7 @@ MonoBehaviour:
       thumbnailTexture: {fileID: 0}
     youTubeThumbnails: []
     galleryImages: []
-    tags:
-    - tagName: Character
-      categoryName: 
-    - tagName: Environment
-      categoryName: 
-    - tagName: Weapon
-      categoryName: 
+    tags: []
     statistics:
       modId: 0
       popularityRankPosition: 0
