@@ -18435,6 +18435,7 @@ GameObject:
   - component: {fileID: 222888382913765164}
   - component: {fileID: 114125062042224202}
   - component: {fileID: 114395376969071796}
+  - component: {fileID: 5943638067711995613}
   m_Layer: 5
   m_Name: LogOutButton
   m_TagString: Untagged
@@ -18483,7 +18484,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.098039225, g: 0.08627451, b: 0.14901961, a: 1}
+  m_Color: {r: 1, g: 0.21960786, b: 0.37647063, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -18552,6 +18553,21 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &5943638067711995613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904681837033004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114749228191824050}
+  scheme: {fileID: 11400000, guid: e802fe5ce677c4edebedb3e3e1f07f21, type: 2}
 --- !u!1 &1904894625706906
 GameObject:
   m_ObjectHideFlags: 0
