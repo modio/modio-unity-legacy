@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1afe6f289827b4d279eff68b33fdbb82, type: 3}
-  m_Name: SubscribeButtonScheme
+  m_Name: Button (Light)
   m_EditorClassIdentifier: 
-  imageColor: {r: 0.20784315, g: 0.46274513, b: 0.85098046, a: 1}
+  imageColor: {r: 1, g: 1, b: 1, a: 1}
   functionalColors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -20,3 +20,4 @@ MonoBehaviour:
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
+  innerElementColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
