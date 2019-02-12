@@ -2626,8 +2626,9 @@ GameObject:
   - component: {fileID: 224743136993157570}
   - component: {fileID: 222455151948180194}
   - component: {fileID: 114691770807968826}
+  - component: {fileID: 6958798450817360641}
   m_Layer: 5
-  m_Name: Header
+  m_Name: Header+Scheme
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2675,7 +2676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.09411765, g: 0.08627451, b: 0.15294118, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -2691,6 +2692,21 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &6958798450817360641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1133803546809732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: bd91cfd99e0fc44a39afa5149e300a48, type: 2}
+  innerElements:
+  - {fileID: 114649585721419808}
 --- !u!1 &1135852590237534
 GameObject:
   m_ObjectHideFlags: 0
@@ -16139,6 +16155,7 @@ GameObject:
   - component: {fileID: 222068386288254272}
   - component: {fileID: 114552491196111720}
   - component: {fileID: 114579476828790222}
+  - component: {fileID: 294407279424426418}
   m_Layer: 5
   m_Name: BG
   m_TagString: Untagged
@@ -16220,6 +16237,20 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &294407279424426418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749751160850120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: bd91cfd99e0fc44a39afa5149e300a48, type: 2}
+  innerElements: []
 --- !u!1 &1751953700882796
 GameObject:
   m_ObjectHideFlags: 0
