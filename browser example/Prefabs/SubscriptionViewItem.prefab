@@ -1571,6 +1571,7 @@ GameObject:
   - component: {fileID: 222170322204728624}
   - component: {fileID: 114708722987148398}
   - component: {fileID: 114564203785974672}
+  - component: {fileID: 102032808039172047}
   m_Layer: 5
   m_Name: Deactivate Mod Button
   m_TagString: Untagged
@@ -1643,7 +1644,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.13725491, g: 0.81960785, b: 0.3764706, a: 1}
+  m_Color: {r: 0.18823531, g: 0.8117648, b: 0.39607847, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1710,6 +1711,22 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &102032808039172047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419603571680000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114724220565826102}
+  - {fileID: 114173561278529646}
+  scheme: {fileID: 11400000, guid: 5855d3b1f483e4910abf64acc20d07c3, type: 2}
 --- !u!1 &1424698939206434
 GameObject:
   m_ObjectHideFlags: 0
@@ -3112,6 +3129,7 @@ GameObject:
   - component: {fileID: 222434722064678524}
   - component: {fileID: 114986363260790748}
   - component: {fileID: 114657077565745888}
+  - component: {fileID: 968384618733905334}
   m_Layer: 5
   m_Name: Activate Button
   m_TagString: Untagged
@@ -3195,9 +3213,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
-    m_HighlightedColor: {r: 0.13725491, g: 0.16862746, b: 0.30980393, a: 1}
-    m_PressedColor: {r: 0.29803923, g: 0.44313726, b: 0.8509804, a: 1}
-    m_DisabledColor: {r: 0.1882353, g: 0.1882353, b: 0.23137255, a: 0.72156864}
+    m_HighlightedColor: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
+    m_PressedColor: {r: 0.29803923, g: 0.4431373, b: 0.85098046, a: 1}
+    m_DisabledColor: {r: 0.1887742, g: 0.1887742, b: 0.231, a: 0.72156864}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -3227,6 +3245,21 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &968384618733905334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1843398231040426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114828904314456818}
+  scheme: {fileID: 11400000, guid: ef9b6381446d6437e890f100415b368d, type: 2}
 --- !u!1 &1870709894543004
 GameObject:
   m_ObjectHideFlags: 0
