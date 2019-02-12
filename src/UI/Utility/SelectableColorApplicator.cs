@@ -33,6 +33,12 @@ namespace ModIO.UI
         public void UpdateColorScheme_withUndo()
         {
             UnityEditor.Undo.RecordObject(selectable, "Applied Color Scheme");
+
+            foreach(Graphic g in innerElements)
+            {
+                UnityEditor.Undo.RecordObject(g, "Applied Color Scheme");
+            }
+
             UpdateColorScheme();
         }
 
