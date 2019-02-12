@@ -447,4 +447,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  innerElements: []
   scheme: {fileID: 11400000, guid: e802fe5ce677c4edebedb3e3e1f07f21, type: 2}
