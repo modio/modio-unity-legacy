@@ -6,6 +6,7 @@ namespace ModIO.UI
     [RequireComponent(typeof(Selectable))]
     public class SelectableColorApplicator : MonoBehaviour
     {
+        public Graphic[] innerElements = new Graphic[0];
         public SelectableColorScheme scheme = null;
 
         private Selectable selectable
@@ -18,6 +19,11 @@ namespace ModIO.UI
             if(selectable.targetGraphic != null)
             {
                 selectable.targetGraphic.color = scheme.imageColor;
+            }
+
+            foreach(Graphic g in innerElements)
+            {
+                g.color = scheme.innerElementColor;
             }
 
             selectable.colors = scheme.functionalColors;

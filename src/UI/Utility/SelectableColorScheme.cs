@@ -8,5 +8,6 @@ namespace ModIO.UI
     {
         public Color imageColor = Color.white;
         public ColorBlock functionalColors = ColorBlock.defaultColorBlock;
+        public Color innerElementColor = Color.white;
     }
 }
