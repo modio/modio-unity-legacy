@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c89e0899d485845ec9e0b103e9473a97, type: 3}
-  m_Name: Inspector (Info Table)
+  m_Name: Popup (Header)
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
-  innerElementColor: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
+  baseColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
+  innerElementColor: {r: 1, g: 1, b: 1, a: 1}
