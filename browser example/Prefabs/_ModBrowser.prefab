@@ -5174,6 +5174,7 @@ GameObject:
   - component: {fileID: 114664088288422148}
   - component: {fileID: 222761471893510288}
   - component: {fileID: 114513666334268710}
+  - component: {fileID: 575560216064381286}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -5274,6 +5275,20 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &575560216064381286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224390599327894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: c683f402f512e4d82bfcb7b153f87a0e, type: 2}
+  innerElements: []
 --- !u!1 &1228564332131478
 GameObject:
   m_ObjectHideFlags: 0
@@ -12545,6 +12560,7 @@ GameObject:
   - component: {fileID: 222450702773077954}
   - component: {fileID: 114676169632410548}
   - component: {fileID: 114954398260010748}
+  - component: {fileID: 1369666559275190935}
   m_Layer: 5
   m_Name: Template
   m_TagString: Untagged
@@ -12593,7 +12609,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.14509805, g: 0.14509805, b: 0.20392159, a: 1}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12641,6 +12657,20 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &1369666559275190935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547210093864664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: c683f402f512e4d82bfcb7b153f87a0e, type: 2}
+  innerElements: []
 --- !u!1 &1560303999376296
 GameObject:
   m_ObjectHideFlags: 0
