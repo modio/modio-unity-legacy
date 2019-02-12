@@ -23,7 +23,10 @@ namespace ModIO.UI
 
             foreach(Graphic g in innerElements)
             {
-                g.color = scheme.innerElementColor;
+                if(g != null)
+                {
+                    g.color = scheme.innerElementColor;
+                }
             }
 
             selectable.colors = scheme.functionalColors;
@@ -36,7 +39,10 @@ namespace ModIO.UI
 
             foreach(Graphic g in innerElements)
             {
-                UnityEditor.Undo.RecordObject(g, "Applied Color Scheme");
+                if(g != null)
+                {
+                    UnityEditor.Undo.RecordObject(g, "Applied Color Scheme");
+                }
             }
 
             UpdateColorScheme();
