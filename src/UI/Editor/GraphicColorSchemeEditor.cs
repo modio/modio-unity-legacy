@@ -4,8 +4,8 @@ using UnityEditor;
 
 namespace ModIO.UI.Editor
 {
-    [CustomEditor(typeof(SelectableColorScheme))]
-    public class SelectableColorSchemeEditor : UnityEditor.Editor
+    [CustomEditor(typeof(GraphicColorScheme))]
+    public class GraphicColorSchemeEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
@@ -18,13 +18,13 @@ namespace ModIO.UI.Editor
             if(EditorGUI.EndChangeCheck())
             {
                 // Apply to receivers
-                Resources.LoadAll<SelectableColorApplicator>(string.Empty);
-                SelectableColorApplicator[] applicators = Resources.FindObjectsOfTypeAll<SelectableColorApplicator>();
-                foreach(SelectableColorApplicator sca in applicators)
+                Resources.LoadAll<GraphicColorApplicator>(string.Empty);
+                GraphicColorApplicator[] applicators = Resources.FindObjectsOfTypeAll<GraphicColorApplicator>();
+                foreach(GraphicColorApplicator gca in applicators)
                 {
-                    if(sca.scheme == this.target)
+                    if(gca.scheme == this.target)
                     {
-                        sca.UpdateColorScheme_withUndo();
+                        gca.UpdateColorScheme_withUndo();
                     }
                 }
             }
