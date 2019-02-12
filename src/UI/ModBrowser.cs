@@ -139,9 +139,9 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ExplorerView explorerView;
-        public Toggle explorerViewButton;
+        public StateToggleDisplay explorerViewIndicator;
         public SubscriptionsView subscriptionsView;
-        public Toggle subscriptionsViewButton;
+        public StateToggleDisplay subscriptionsViewIndicator;
         public InspectorView inspectorView;
         public UserView loggedUserView;
         public LoginDialog loginDialog;
@@ -353,15 +353,9 @@ namespace ModIO.UI
 
             subscriptionsView.gameObject.SetActive(false);
 
-
-            if(subscriptionsViewButton != null)
+            if(subscriptionsViewIndicator != null)
             {
-                subscriptionsViewButton.onValueChanged.AddListener((doShow) =>
-                {
-                    if(doShow) { ShowSubscriptionsView(); }
-                });
-                subscriptionsViewButton.isOn = false;
-                subscriptionsViewButton.interactable = true;
+                subscriptionsViewIndicator.isOn = false;
             }
         }
 
@@ -442,14 +436,9 @@ namespace ModIO.UI
 
             UpdateExplorerViewPageButtonInteractibility();
 
-            if(explorerViewButton != null)
+            if(explorerViewIndicator != null)
             {
-                explorerViewButton.onValueChanged.AddListener((doShow) =>
-                {
-                    if(doShow) { ShowExplorerView(); }
-                });
-                explorerViewButton.isOn = true;
-                explorerViewButton.interactable = false;
+                explorerViewIndicator.isOn = true;
             }
         }
 
@@ -1798,15 +1787,13 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
             subscriptionsView.gameObject.SetActive(false);
 
-            if(explorerViewButton != null)
+            if(explorerViewIndicator != null)
             {
-                explorerViewButton.isOn = true;
-                explorerViewButton.interactable = false;
+                explorerViewIndicator.isOn = true;
             }
-            if(subscriptionsViewButton != null)
+            if(subscriptionsViewIndicator != null)
             {
-                subscriptionsViewButton.isOn = false;
-                subscriptionsViewButton.interactable = true;
+                subscriptionsViewIndicator.isOn = false;
             }
         }
         public void ShowSubscriptionsView()
@@ -1815,15 +1802,13 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
             explorerView.gameObject.SetActive(false);
 
-            if(explorerViewButton != null)
+            if(explorerViewIndicator != null)
             {
-                explorerViewButton.isOn = false;
-                explorerViewButton.interactable = true;
+                explorerViewIndicator.isOn = false;
             }
-            if(subscriptionsViewButton != null)
+            if(subscriptionsViewIndicator != null)
             {
-                subscriptionsViewButton.isOn = true;
-                subscriptionsViewButton.interactable = false;
+                subscriptionsViewIndicator.isOn = true;
             }
         }
 
