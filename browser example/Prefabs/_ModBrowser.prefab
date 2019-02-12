@@ -5908,8 +5908,9 @@ GameObject:
   - component: {fileID: 222780398862660028}
   - component: {fileID: 114510903232666820}
   - component: {fileID: 114066110173949056}
+  - component: {fileID: 8237821430192307274}
   m_Layer: 5
-  m_Name: BG+Mask
+  m_Name: BG+Mask+InfoScheme
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5986,6 +5987,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
+--- !u!114 &8237821430192307274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1258186190845528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: 8467aebc3f170497da6d221d2a510778, type: 2}
+  innerElements:
+  - {fileID: 114089544002273156}
+  - {fileID: 114873977000484452}
+  - {fileID: 114985478662753952}
+  - {fileID: 114236341518769966}
+  - {fileID: 114612813357524820}
+  - {fileID: 114101737217422892}
+  - {fileID: 114300588040550540}
+  - {fileID: 114120150132343238}
+  - {fileID: 114110393388692970}
+  - {fileID: 114404769859402944}
+  - {fileID: 114671150783856928}
+  - {fileID: 114830734536082808}
+  - {fileID: 114277172256768168}
+  - {fileID: 114035502239823422}
+  - {fileID: 114363318559099158}
+  - {fileID: 114854448117393564}
+  - {fileID: 114245381165115220}
+  - {fileID: 114447663554520790}
+  - {fileID: 114245875021220100}
+  - {fileID: 114048699047259958}
+  - {fileID: 114562287389819298}
+  - {fileID: 114173620333516236}
+  - {fileID: 114565332528911864}
+  - {fileID: 114285615503800064}
+  - {fileID: 114151378263011620}
+  - {fileID: 114466991950903768}
+  - {fileID: 114904540665776230}
+  - {fileID: 114212156167642012}
+  - {fileID: 114982798099666876}
+  - {fileID: 114626817203211502}
 --- !u!1 &1258933410687016
 GameObject:
   m_ObjectHideFlags: 0
