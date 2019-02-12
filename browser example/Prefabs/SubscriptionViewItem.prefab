@@ -693,6 +693,7 @@ GameObject:
   - component: {fileID: 222702338800381166}
   - component: {fileID: 114047200304877080}
   - component: {fileID: 114505364808034820}
+  - component: {fileID: 129290294270087962}
   m_Layer: 5
   m_Name: LeftSide
   m_TagString: Untagged
@@ -776,9 +777,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
-    m_HighlightedColor: {r: 0.13725491, g: 0.16862746, b: 0.30980393, a: 1}
-    m_PressedColor: {r: 0.29803923, g: 0.44313726, b: 0.8509804, a: 1}
-    m_DisabledColor: {r: 0.1882353, g: 0.1882353, b: 0.23137255, a: 0.72156864}
+    m_HighlightedColor: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
+    m_PressedColor: {r: 0.29803923, g: 0.4431373, b: 0.85098046, a: 1}
+    m_DisabledColor: {r: 0.1887742, g: 0.1887742, b: 0.231, a: 0.72156864}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -808,6 +809,21 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &129290294270087962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218890343001296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114344775010635622}
+  scheme: {fileID: 11400000, guid: ef9b6381446d6437e890f100415b368d, type: 2}
 --- !u!1 &1223329562188594
 GameObject:
   m_ObjectHideFlags: 0
@@ -1159,7 +1175,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 2, y: 1}
-  m_AnchoredPosition: {x: -140, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1340992390098400
@@ -2199,6 +2215,7 @@ GameObject:
   - component: {fileID: 222392816515380578}
   - component: {fileID: 114291300228757700}
   - component: {fileID: 114970715968344502}
+  - component: {fileID: 5043738831240266310}
   m_Layer: 5
   m_Name: RightSide
   m_TagString: Untagged
@@ -2272,7 +2289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.21960784, b: 0.3764706, a: 1}
+  m_Color: {r: 1, g: 0.21960786, b: 0.37647063, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -2339,6 +2356,22 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &5043738831240266310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555531452585688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114042529739403920}
+  - {fileID: 114837422460264530}
+  scheme: {fileID: 11400000, guid: e802fe5ce677c4edebedb3e3e1f07f21, type: 2}
 --- !u!1 &1555803275648536
 GameObject:
   m_ObjectHideFlags: 0
@@ -3843,7 +3876,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 140, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &222496888905090892
 CanvasRenderer:
