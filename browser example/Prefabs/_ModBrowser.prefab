@@ -281,6 +281,7 @@ GameObject:
   - component: {fileID: 222587689291547956}
   - component: {fileID: 114461145468085916}
   - component: {fileID: 114319778585326076}
+  - component: {fileID: 1521522241556240695}
   m_Layer: 5
   m_Name: PageLeft
   m_TagString: Untagged
@@ -398,6 +399,21 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &1521522241556240695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013496826366248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114100158778676290}
+  scheme: {fileID: 11400000, guid: 34faed49ed46642ff979115cdc3a7259, type: 2}
 --- !u!1 &1015944469086040
 GameObject:
   m_ObjectHideFlags: 0
@@ -8194,7 +8210,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -8473,7 +8489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
+  m_Color: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -9813,6 +9829,7 @@ GameObject:
   - component: {fileID: 222695790643516960}
   - component: {fileID: 114879175069619504}
   - component: {fileID: 114347730188017132}
+  - component: {fileID: 9174843242876463570}
   m_Layer: 5
   m_Name: PageRight
   m_TagString: Untagged
@@ -9930,6 +9947,21 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &9174843242876463570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1424773706672974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114931528194496890}
+  scheme: {fileID: 11400000, guid: 34faed49ed46642ff979115cdc3a7259, type: 2}
 --- !u!1 &1427645832502180
 GameObject:
   m_ObjectHideFlags: 0
