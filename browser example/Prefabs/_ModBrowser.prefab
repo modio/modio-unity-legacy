@@ -10108,6 +10108,7 @@ GameObject:
   - component: {fileID: 224985216891486990}
   - component: {fileID: 222771426513259774}
   - component: {fileID: 114778907273266368}
+  - component: {fileID: 901975503370998449}
   m_Layer: 5
   m_Name: PageNumberContainer
   m_TagString: Untagged
@@ -10174,6 +10175,23 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &901975503370998449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427645832502180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: 104a7cfa231394a6a9a88ab19a712a69, type: 2}
+  innerElements:
+  - {fileID: 114036059310329162}
+  - {fileID: 114324211169731888}
+  - {fileID: 114042995055664914}
 --- !u!1 &1430391012611412
 GameObject:
   m_ObjectHideFlags: 0
