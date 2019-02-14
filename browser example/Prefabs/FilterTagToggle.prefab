@@ -276,7 +276,7 @@ MonoBehaviour:
   innerElements:
   - {fileID: 114242462970327244}
   - {fileID: 114159942404126762}
-  scheme: {fileID: 11400000, guid: ef9b6381446d6437e890f100415b368d, type: 2}
+  scheme: {fileID: 11400000, guid: 085e595ade0874da9b6f854448ce243b, type: 2}
 --- !u!222 &222256690445399160
 CanvasRenderer:
   m_ObjectHideFlags: 1
