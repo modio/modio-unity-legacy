@@ -488,6 +488,7 @@ GameObject:
   - component: {fileID: 114761650757908350}
   - component: {fileID: 222650664707790912}
   - component: {fileID: 114982798099666876}
+  - component: {fileID: 114352756622772880}
   m_Layer: 5
   m_Name: TagsValue
   m_TagString: Untagged
@@ -1794,6 +1795,7 @@ GameObject:
   - component: {fileID: 224587455058009110}
   - component: {fileID: 222129412891331924}
   - component: {fileID: 114649585721419808}
+  - component: {fileID: 114438530072109926}
   m_Layer: 5
   m_Name: ModName
   m_TagString: Untagged
@@ -8099,6 +8101,17 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114352756622772880
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1119372317057214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc23e000e7a84d94becb2f72d922366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114353786223104270
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9060,6 +9073,17 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: ' mods found'
+--- !u!114 &114438530072109926
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1394697454449322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fc23e000e7a84d94becb2f72d922366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114439648365672634
 MonoBehaviour:
   m_ObjectHideFlags: 1
