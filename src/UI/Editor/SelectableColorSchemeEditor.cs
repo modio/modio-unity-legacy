@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+
 using UnityEngine;
 using UnityEditor;
 
@@ -9,17 +10,15 @@ namespace ModIO.UI.Editor
     {
         public override void OnInspectorGUI()
         {
-            EditorGUI.BeginChangeCheck();
-            {
-                base.OnInspectorGUI();
-                serializedObject.Update();
-            }
+            base.OnInspectorGUI();
+            serializedObject.Update();
 
-            if(EditorGUI.EndChangeCheck())
+            bool apply = GUILayout.Button("Apply to Scene");
+
+            if(apply)
             {
                 // Apply to receivers
-                Resources.LoadAll<SelectableColorApplicator>(string.Empty);
-                SelectableColorApplicator[] applicators = Resources.FindObjectsOfTypeAll<SelectableColorApplicator>();
+                SelectableColorApplicator[] applicators = Object.FindObjectsOfType<SelectableColorApplicator>();
                 foreach(SelectableColorApplicator sca in applicators)
                 {
                     if(sca.scheme == this.target)

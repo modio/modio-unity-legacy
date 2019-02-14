@@ -3,6 +3,12 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    #if UNITY_2018_3_OR_NEWER
+    [ExecuteAlways]
+    #else
+    [ExecuteInEditMode]
+    #endif
+
     [RequireComponent(typeof(Selectable))]
     public class SelectableColorApplicator : MonoBehaviour
     {
@@ -11,6 +17,11 @@ namespace ModIO.UI
 
         private Selectable selectable
         { get { return this.gameObject.GetComponent<Selectable>(); } }
+
+        private void Start()
+        {
+            UpdateColorScheme();
+        }
 
         public void UpdateColorScheme()
         {
@@ -36,6 +47,12 @@ namespace ModIO.UI
         public void UpdateColorScheme_withUndo()
         {
             UnityEditor.Undo.RecordObject(selectable, "Applied Color Scheme");
+
+            if(selectable.targetGraphic != null)
+            {
+                UnityEditor.Undo.RecordObject(selectable.targetGraphic, "Applied Color Scheme");
+            }
+
 
             foreach(Graphic g in innerElements)
             {

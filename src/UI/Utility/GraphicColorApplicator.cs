@@ -3,6 +3,12 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    #if UNITY_2018_3_OR_NEWER
+    [ExecuteAlways]
+    #else
+    [ExecuteInEditMode]
+    #endif
+
     [RequireComponent(typeof(Graphic))]
     public class GraphicColorApplicator : MonoBehaviour
     {
@@ -11,6 +17,11 @@ namespace ModIO.UI
 
         private Graphic graphic
         { get { return this.gameObject.GetComponent<Graphic>(); } }
+
+        private void Start()
+        {
+            UpdateColorScheme();
+        }
 
         public void UpdateColorScheme()
         {
