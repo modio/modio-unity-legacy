@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 114246832923019544}
   - component: {fileID: 114105727602727098}
   - component: {fileID: 114309385187273746}
+  - component: {fileID: 114911995243735064}
   m_Layer: 5
   m_Name: FilterBarTag
   m_TagString: Untagged
@@ -289,7 +290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.98823535, g: 0.23529413, b: 0.38823533, a: 1}
+  m_Color: {r: 1, g: 0.21960786, b: 0.37647063, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -304,6 +305,21 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114911995243735064
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1695936261783880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114289671944770002}
+  - {fileID: 114871066410931964}
+  scheme: {fileID: 11400000, guid: e802fe5ce677c4edebedb3e3e1f07f21, type: 2}
 --- !u!114 &114979919084074916
 MonoBehaviour:
   m_ObjectHideFlags: 1
