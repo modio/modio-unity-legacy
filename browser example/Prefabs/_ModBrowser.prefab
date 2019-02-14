@@ -684,6 +684,7 @@ GameObject:
   - component: {fileID: 222115264316122870}
   - component: {fileID: 114475067735213842}
   - component: {fileID: 114733314757319498}
+  - component: {fileID: 114308881187693390}
   m_Layer: 5
   m_Name: AuthenticateButton
   m_TagString: Untagged
@@ -734,6 +735,7 @@ GameObject:
   - component: {fileID: 222385177436890888}
   - component: {fileID: 114424812894086636}
   - component: {fileID: 114753603247899720}
+  - component: {fileID: 114435874616325228}
   m_Layer: 5
   m_Name: BG+Mask
   m_TagString: Untagged
@@ -1708,6 +1710,7 @@ GameObject:
   - component: {fileID: 224599771471467308}
   - component: {fileID: 222009450131520806}
   - component: {fileID: 114005358681148726}
+  - component: {fileID: 114777786318978364}
   m_Layer: 5
   m_Name: _Outline
   m_TagString: Untagged
@@ -4244,6 +4247,7 @@ GameObject:
   - component: {fileID: 224601019503894130}
   - component: {fileID: 222118280944082944}
   - component: {fileID: 114377318609608002}
+  - component: {fileID: 114437998698379736}
   m_Layer: 5
   m_Name: Header
   m_TagString: Untagged
@@ -7653,6 +7657,22 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &114308881187693390
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1139149257833034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements:
+  - {fileID: 114462335263239316}
+  - {fileID: 114630106841720970}
+  - {fileID: 114041297457523840}
+  scheme: {fileID: 11400000, guid: e0458a2393677428b86f9dd34e7e12bf, type: 2}
 --- !u!114 &114309666271251828
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -8930,7 +8950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9137255, g: 0.9137255, b: 0.9137255, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -9202,6 +9222,19 @@ MonoBehaviour:
     metadataBlob: 
     profileURL: 
     metadataKVPs: []
+--- !u!114 &114435874616325228
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1147995708264192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: 8467aebc3f170497da6d221d2a510778, type: 2}
+  innerElements: []
 --- !u!114 &114436247458726886
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9221,6 +9254,21 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114437998698379736
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1998218316341794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: bd91cfd99e0fc44a39afa5149e300a48, type: 2}
+  innerElements:
+  - {fileID: 114439648365672634}
+  - {fileID: 114694534135798996}
 --- !u!114 &114438152797247114
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9687,7 +9735,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.21176471, g: 0.4627451, b: 0.8509804, a: 1}
+  m_Color: {r: 0.20784314, g: 0.4627451, b: 0.8509804, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12610,6 +12658,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Discover
+--- !u!114 &114777786318978364
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1359729732849762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: bd91cfd99e0fc44a39afa5149e300a48, type: 2}
+  innerElements: []
 --- !u!114 &114778592460276858
 MonoBehaviour:
   m_ObjectHideFlags: 1
