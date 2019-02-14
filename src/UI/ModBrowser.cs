@@ -1717,22 +1717,44 @@ namespace ModIO.UI
                     if(!isBinaryZipValid)
                     {
                         string errorMessage = string.Empty;
+                        ModProfile profile = CacheClient.LoadModProfile(modId);
+                        if(profile != null)
+                        {
+                            errorMessage = profile.name;
+                        }
+                        else
+                        {
+                            errorMessage = "Mods have";
+                        }
+
+                        errorMessage += (" failed to download correctly."
+                                         + "\nEnsure your internet connection is stable - the"
+                                         + " download will be retried shortly.");
+
                         if(!fileExists)
                         {
-                            errorMessage = "The downloaded mod data could not be located.";
+                            errorMessage += "[ErrorCode: IBZV_FM]";
                         }
                         else if(modfile.fileSize != binarySize)
                         {
-                            errorMessage = "The downloaded mod data was of an incorrect size.";
+                            errorMessage += "[ErrorCode: IBZV_FS]";
                         }
                         else if(modfile.fileHash.md5 != binaryHash)
                         {
-                            errorMessage = "The downloaded mod data was corrupt.";
+                            errorMessage += "[ErrorCode: IBZV_FH]";
+                        }
+                        else
+                        {
+                            errorMessage += "[ErrorCode: IBZV_UE]";
                         }
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to install.\n"
-                                                   + errorMessage);
+                                                   errorMessage);
+
+                        yield return new WaitForSeconds(5);
+
+                        yield return StartCoroutine(DownloadAndInstallModVersion(modId, modfileId));
+
                         yield break;
                     }
                 }

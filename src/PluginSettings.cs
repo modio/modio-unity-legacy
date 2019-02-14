@@ -120,7 +120,6 @@ namespace ModIO
         [UnityEditor.MenuItem("mod.io/Edit Settings", false)]
         public static void FocusAsset()
         {
-            string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";
             PluginSettings settings = Resources.Load<PluginSettings>(PluginSettings.FILE_PATH);
 
             if(settings == null)
