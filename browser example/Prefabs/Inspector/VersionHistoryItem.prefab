@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222871864684894732}
   - component: {fileID: 114387225621770550}
   - component: {fileID: 114434352780355760}
+  - component: {fileID: 114539957085947736}
   m_Layer: 5
   m_Name: Version Label
   m_TagString: Untagged
@@ -122,6 +123,7 @@ GameObject:
   - component: {fileID: 224936898526935754}
   - component: {fileID: 222091221504548844}
   - component: {fileID: 114032810819817604}
+  - component: {fileID: 114870128811719732}
   m_Layer: 5
   m_Name: Changelog_Text
   m_TagString: Untagged
@@ -139,6 +141,7 @@ GameObject:
   - component: {fileID: 224611599998032270}
   - component: {fileID: 222799819444938774}
   - component: {fileID: 114727893348471936}
+  - component: {fileID: 114067633590272286}
   m_Layer: 5
   m_Name: Changelog_Label
   m_TagString: Untagged
@@ -157,6 +160,7 @@ GameObject:
   - component: {fileID: 222602435127691014}
   - component: {fileID: 114184940476523872}
   - component: {fileID: 114596031720438882}
+  - component: {fileID: 114101351464015366}
   m_Layer: 5
   m_Name: Highlighter
   m_TagString: Untagged
@@ -282,6 +286,19 @@ MonoBehaviour:
     virusScanStatus: 0
     virusScanResult: 0
     virusScanHash: 
+--- !u!114 &114067633590272286
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1784725140779808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: 9877aeb581f8744f0a4b692b5019b8b9, type: 2}
+  innerElements: []
 --- !u!114 &114087121493204780
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -304,6 +321,19 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &114101351464015366
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1899623083721398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: ad5e04470aca942a7b39b0ea6d5c4d00, type: 2}
+  innerElements: []
 --- !u!114 &114184940476523872
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -316,7 +346,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.13725491, g: 0.16862746, b: 0.30980393, a: 1}
+  m_Color: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -343,7 +373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.13725491, g: 0.16862746, b: 0.30980393, a: 1}
+  m_Color: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -377,6 +407,21 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114539957085947736
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1224433308683322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: ad5e04470aca942a7b39b0ea6d5c4d00, type: 2}
+  innerElements:
+  - {fileID: 114026099628693996}
+  - {fileID: 114605380037962906}
 --- !u!114 &114576960120085356
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -484,6 +529,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Changelog:'
+--- !u!114 &114870128811719732
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1670230934640366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: 9877aeb581f8744f0a4b692b5019b8b9, type: 2}
+  innerElements: []
 --- !u!222 &222091221504548844
 CanvasRenderer:
   m_ObjectHideFlags: 1
