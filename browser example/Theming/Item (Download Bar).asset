@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Item (Download Bar)
   m_EditorClassIdentifier: 
   baseColor: {r: 0.90196085, g: 0.90196085, b: 0.90196085, a: 1}
-  innerElementColor: {r: 0.18823531, g: 0.45098042, b: 0.86274517, a: 1}
+  innerElementColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}

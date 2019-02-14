@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Popup (Body)
   m_EditorClassIdentifier: 
   baseColor: {r: 1, g: 1, b: 1, a: 1}
-  innerElementColor: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
+  innerElementColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
