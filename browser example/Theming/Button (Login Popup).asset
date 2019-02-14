@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1afe6f289827b4d279eff68b33fdbb82, type: 3}
   m_Name: Button (Login Popup)
   m_EditorClassIdentifier: 
-  imageColor: {r: 0.20784314, g: 0.4627451, b: 0.8509804, a: 1}
+  imageColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
   functionalColors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
