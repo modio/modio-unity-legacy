@@ -5531,6 +5531,7 @@ MonoBehaviour:
   nameSearchField: {fileID: 114098324929849516}
   sortByDropdown: {fileID: 114329862449654002}
   resultCount: {fileID: 114423435185988604}
+  noSubscriptionsDisplay: {fileID: 0}
   noResultsDisplay: {fileID: 1338033130210044}
 --- !u!114 &114132291052275152
 MonoBehaviour:
@@ -7194,8 +7195,8 @@ MonoBehaviour:
   m_Padding:
     m_Left: 24
     m_Right: 24
-    m_Top: 12
-    m_Bottom: 48
+    m_Top: 24
+    m_Bottom: 24
   m_ChildAlignment: 0
   m_Spacing: 12
   m_ChildForceExpandWidth: 1
@@ -7849,7 +7850,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 4
+  m_Spacing: 12
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -8581,9 +8582,9 @@ MonoBehaviour:
       thumbnailTexture: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a,
         type: 3}
   explorerView: {fileID: 114195835507779204}
-  explorerViewButton: {fileID: 114644346153496478}
+  explorerViewIndicator: {fileID: 0}
   subscriptionsView: {fileID: 114130614508925794}
-  subscriptionsViewButton: {fileID: 114513203618082842}
+  subscriptionsViewIndicator: {fileID: 0}
   inspectorView: {fileID: 114309666271251828}
   loggedUserView: {fileID: 114285643534191574}
   loginDialog: {fileID: 114863113973899486}
@@ -12358,7 +12359,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 12
   m_ChildAlignment: 0
-  m_Spacing: 4
+  m_Spacing: 12
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
