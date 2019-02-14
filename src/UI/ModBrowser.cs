@@ -68,7 +68,7 @@ namespace ModIO.UI
         }
 
         [Serializable]
-        private class SubscriptionViewFilter
+        private struct SubscriptionViewFilter
         {
             public Func<ModProfile, bool> titleFilterDelegate;
             public Comparison<ModProfile> sortDelegate;
@@ -139,9 +139,9 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ExplorerView explorerView;
-        public Toggle explorerViewButton;
+        public StateToggleDisplay explorerViewIndicator;
         public SubscriptionsView subscriptionsView;
-        public Toggle subscriptionsViewButton;
+        public StateToggleDisplay subscriptionsViewIndicator;
         public InspectorView inspectorView;
         public UserView loggedUserView;
         public LoginDialog loginDialog;
@@ -322,7 +322,7 @@ namespace ModIO.UI
             // - setup ui filter controls -
             if(subscriptionsView.nameSearchField != null)
             {
-                subscriptionsView.nameSearchField.onEndEdit.AddListener((t) =>
+                subscriptionsView.nameSearchField.onValueChanged.AddListener((t) =>
                 {
                     UpdateSubscriptionFilters();
                 });
@@ -353,15 +353,9 @@ namespace ModIO.UI
 
             subscriptionsView.gameObject.SetActive(false);
 
-
-            if(subscriptionsViewButton != null)
+            if(subscriptionsViewIndicator != null)
             {
-                subscriptionsViewButton.onValueChanged.AddListener((doShow) =>
-                {
-                    if(doShow) { ShowSubscriptionsView(); }
-                });
-                subscriptionsViewButton.isOn = false;
-                subscriptionsViewButton.interactable = true;
+                subscriptionsViewIndicator.isOn = false;
             }
         }
 
@@ -442,14 +436,9 @@ namespace ModIO.UI
 
             UpdateExplorerViewPageButtonInteractibility();
 
-            if(explorerViewButton != null)
+            if(explorerViewIndicator != null)
             {
-                explorerViewButton.onValueChanged.AddListener((doShow) =>
-                {
-                    if(doShow) { ShowExplorerView(); }
-                });
-                explorerViewButton.isOn = true;
-                explorerViewButton.interactable = false;
+                explorerViewIndicator.isOn = true;
             }
         }
 
@@ -1082,11 +1071,15 @@ namespace ModIO.UI
                                                  Action<WebRequestError> onError)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+            SubscriptionViewFilter currentFilter = this.subscriptionViewFilter;
 
             if(subscribedModIds.Count > 0)
             {
                 Action<List<ModProfile>> onGetModProfiles = (list) =>
                 {
+                    // ensure it's still the same filter
+                    if(!currentFilter.Equals(this.subscriptionViewFilter)) { return; }
+
                     List<ModProfile> filteredList = new List<ModProfile>(list.Count);
                     foreach(ModProfile profile in list)
                     {
@@ -1794,15 +1787,13 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
             subscriptionsView.gameObject.SetActive(false);
 
-            if(explorerViewButton != null)
+            if(explorerViewIndicator != null)
             {
-                explorerViewButton.isOn = true;
-                explorerViewButton.interactable = false;
+                explorerViewIndicator.isOn = true;
             }
-            if(subscriptionsViewButton != null)
+            if(subscriptionsViewIndicator != null)
             {
-                subscriptionsViewButton.isOn = false;
-                subscriptionsViewButton.interactable = true;
+                subscriptionsViewIndicator.isOn = false;
             }
         }
         public void ShowSubscriptionsView()
@@ -1811,15 +1802,13 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
             explorerView.gameObject.SetActive(false);
 
-            if(explorerViewButton != null)
+            if(explorerViewIndicator != null)
             {
-                explorerViewButton.isOn = false;
-                explorerViewButton.interactable = true;
+                explorerViewIndicator.isOn = false;
             }
-            if(subscriptionsViewButton != null)
+            if(subscriptionsViewIndicator != null)
             {
-                subscriptionsViewButton.isOn = true;
-                subscriptionsViewButton.interactable = false;
+                subscriptionsViewIndicator.isOn = true;
             }
         }
 

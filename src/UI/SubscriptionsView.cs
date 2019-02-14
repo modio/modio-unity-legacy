@@ -28,6 +28,8 @@ namespace ModIO.UI
         public Dropdown sortByDropdown;
         public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
+        public GameObject noSubscriptionsDisplay;
+        [Tooltip("Object to display when there are zero filtered results")]
         public GameObject noResultsDisplay;
 
         [Header("Runtime Data")]
@@ -152,10 +154,18 @@ namespace ModIO.UI
                 resultCount.text = m_viewMap.Count.ToString();
             }
 
-            // null results
+            // no results
+            int subCountTotal = ModManager.GetSubscribedModIds().Count;
+
+            if(noSubscriptionsDisplay != null)
+            {
+                noSubscriptionsDisplay.SetActive(subCountTotal == 0);
+            }
+
             if(noResultsDisplay != null)
             {
-                noResultsDisplay.SetActive(m_viewMap.Count == 0);
+                noResultsDisplay.SetActive(subCountTotal > 0
+                                           && m_viewMap.Count == 0);
             }
 
             // fix layouting
