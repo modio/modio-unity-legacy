@@ -59,6 +59,9 @@ namespace ModIO.UI
                 "POPULARITY", (ref RequestFilter f) =>
                 {
                     f.sortFieldName = ModIO.API.GetAllModsFilterFields.popular;
+
+                    // NOTE(@jackson): This sort direction is backwards in API V1
+                    Debug.Assert(APIClient.API_VERSION == "v1");
                     f.isSortAscending = true;
                 }
             },
@@ -66,14 +69,20 @@ namespace ModIO.UI
                 "RATING", (ref RequestFilter f) =>
                 {
                     f.sortFieldName = ModIO.API.GetAllModsFilterFields.rating;
-                    f.isSortAscending = false;
+
+                    // NOTE(@jackson): This sort direction is backwards in API V1
+                    Debug.Assert(APIClient.API_VERSION == "v1");
+                    f.isSortAscending = true;
                 }
             },
             {
                 "SUBSCRIBERS", (ref RequestFilter f) =>
                 {
                     f.sortFieldName = ModIO.API.GetAllModsFilterFields.subscribers;
-                    f.isSortAscending = false;
+
+                    // NOTE(@jackson): This sort direction is backwards in API V1
+                    Debug.Assert(APIClient.API_VERSION == "v1");
+                    f.isSortAscending = true;
                 }
             },
         };
@@ -89,7 +98,7 @@ namespace ModIO.UI
             {
                 "LARGEST", (a,b) =>
                 {
-                    return (int)(a.currentBuild.fileSize - a.currentBuild.fileSize);
+                    return (int)(b.currentBuild.fileSize - a.currentBuild.fileSize);
                 }
             },
             {
