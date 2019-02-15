@@ -1100,6 +1100,8 @@ namespace ModIO.UI
                         }
                     }
 
+                    filteredList.Sort(this.subscriptionViewFilter.sortDelegate);
+
                     onSuccess(filteredList);
                 };
 
