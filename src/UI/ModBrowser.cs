@@ -32,23 +32,6 @@ namespace ModIO.UI
         }
 
         [Serializable]
-        private class SubscriptionSortOption
-        {
-            public string displayText;
-            public Comparison<ModProfile> sortDelegate;
-
-            public static SubscriptionSortOption Create(string displayText, Comparison<ModProfile> sortDelegate)
-            {
-                SubscriptionSortOption newSOD = new SubscriptionSortOption()
-                {
-                    displayText = displayText,
-                    sortDelegate = sortDelegate,
-                };
-                return newSOD;
-            }
-        }
-
-        [Serializable]
         private struct SubscriptionViewFilter
         {
             public Func<ModProfile, bool> titleFilterDelegate;
@@ -95,25 +78,41 @@ namespace ModIO.UI
             },
         };
 
-        private readonly SubscriptionSortOption[] subscriptionSortOptions = new SubscriptionSortOption[]
+        private readonly Dictionary<string, Comparison<ModProfile>> m_subscriptionSortOptions = new Dictionary<string, Comparison<ModProfile>>()
         {
-            SubscriptionSortOption.Create("A-Z",       (a,b) => { return String.Compare(a.name, b.name); }),
-            SubscriptionSortOption.Create("LARGEST",   (a,b) => { return (int)(a.currentBuild.fileSize - a.currentBuild.fileSize); }),
-            SubscriptionSortOption.Create("UPDATED",   (a,b) => { return b.dateUpdated - a.dateUpdated; }),
-            SubscriptionSortOption.Create("ENABLED",
-            (a,b) =>
             {
-                int diff = 0;
-                diff += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
-                diff += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
-
-                if(diff == 0)
+                "A-Z", (a,b) =>
                 {
-                    diff = String.Compare(a.name, b.name);
+                    return String.Compare(a.name, b.name);
                 }
+            },
+            {
+                "LARGEST", (a,b) =>
+                {
+                    return (int)(a.currentBuild.fileSize - a.currentBuild.fileSize);
+                }
+            },
+            {
+                "UPDATED", (a,b) =>
+                {
+                    return b.dateUpdated - a.dateUpdated;
+                }
+            },
+            {
+                "ENABLED", (a,b) =>
+                {
+                    int diff = 0;
+                    diff += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
+                    diff += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
 
-                return diff;
-            }),
+                    if(diff == 0)
+                    {
+                        diff = String.Compare(a.name, b.name);
+                    }
+
+                    return diff;
+                }
+            },
         };
 
         // ---------[ FIELDS ]---------
@@ -326,31 +325,36 @@ namespace ModIO.UI
             subscriptionsView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
             subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
-            // - setup ui filter controls -
+            // - setup filter controls -
+            subscriptionViewFilter.titleFilterDelegate = (p) => true;
             if(subscriptionsView.nameSearchField != null)
             {
-                subscriptionsView.nameSearchField.onValueChanged.AddListener((t) =>
+                subscriptionsView.nameSearchField.onValueChanged.AddListener((t) => UpdateSubscriptionFilters());
+
+                // set initial value
+                string filterString = subscriptionsView.nameSearchField.text.ToUpper();
+                if(!String.IsNullOrEmpty(filterString))
                 {
-                    UpdateSubscriptionFilters();
-                });
+                    subscriptionViewFilter.titleFilterDelegate = (p) =>
+                    {
+                        return p.name.ToUpper().Contains(filterString);
+                    };
+                }
             }
 
+            subscriptionViewFilter.sortDelegate = m_subscriptionSortOptions.First().Value;
             if(subscriptionsView.sortByDropdown != null)
             {
-                subscriptionsView.sortByDropdown.options = new List<Dropdown.OptionData>(subscriptionSortOptions.Count());
-                foreach(SubscriptionSortOption option in subscriptionSortOptions)
-                {
-                    subscriptionsView.sortByDropdown.options.Add(new Dropdown.OptionData() { text = option.displayText });
-                }
-                subscriptionsView.sortByDropdown.value = 0;
-                subscriptionsView.sortByDropdown.captionText.text = subscriptionSortOptions[0].displayText;
-
                 subscriptionsView.sortByDropdown.onValueChanged.AddListener((v) => UpdateSubscriptionFilters());
-            }
 
-            // - initialize filter -
-            subscriptionViewFilter.sortDelegate = subscriptionSortOptions[0].sortDelegate;
-            subscriptionViewFilter.titleFilterDelegate = (p) => true;
+                // set initial value
+                string sortSelected = subscriptionsView.sortByDropdown.options[subscriptionsView.sortByDropdown.value].text.ToUpper();
+                Comparison<ModProfile> sortFunc = null;
+                if(m_subscriptionSortOptions.TryGetValue(sortSelected, out sortFunc))
+                {
+                    subscriptionViewFilter.sortDelegate = sortFunc;
+                }
+            }
 
             // get page
             subscriptionsView.DisplayProfiles(null);
@@ -382,7 +386,7 @@ namespace ModIO.UI
                 explorerView.nameSearchField.onEndEdit.AddListener((t) =>
                 {
                     UpdateExplorerFilters();
-                } );
+                });
             }
 
             if(explorerView.sortByDropdown != null)
@@ -2066,28 +2070,30 @@ namespace ModIO.UI
 
         public void UpdateSubscriptionFilters()
         {
-            // sort
-            if(subscriptionsView.sortByDropdown == null)
+            // filter
+            subscriptionViewFilter.titleFilterDelegate = (p) => true;
+            if(subscriptionsView.nameSearchField != null
+               && !String.IsNullOrEmpty(subscriptionsView.nameSearchField.text))
             {
-                subscriptionViewFilter.sortDelegate = subscriptionSortOptions[0].sortDelegate;
-            }
-            else
-            {
-                subscriptionViewFilter.sortDelegate = subscriptionSortOptions[subscriptionsView.sortByDropdown.value].sortDelegate;
-            }
-
-            // name
-            if(subscriptionsView.nameSearchField == null
-               || String.IsNullOrEmpty(subscriptionsView.nameSearchField.text))
-            {
-                subscriptionViewFilter.titleFilterDelegate = (p) => true;
-            }
-            else
-            {
+                // set initial value
+                string filterString = subscriptionsView.nameSearchField.text.ToUpper();
                 subscriptionViewFilter.titleFilterDelegate = (p) =>
                 {
-                    return p.name.ToUpper().Contains(subscriptionsView.nameSearchField.text.ToUpper());
+                    return p.name.ToUpper().Contains(filterString);
                 };
+            }
+
+            // sort
+            subscriptionViewFilter.sortDelegate = m_subscriptionSortOptions.First().Value;
+            if(subscriptionsView.sortByDropdown != null)
+            {
+                // set initial value
+                string sortSelected = subscriptionsView.sortByDropdown.options[subscriptionsView.sortByDropdown.value].text.ToUpper();
+                Comparison<ModProfile> sortFunc = null;
+                if(m_subscriptionSortOptions.TryGetValue(sortSelected, out sortFunc))
+                {
+                    subscriptionViewFilter.sortDelegate = sortFunc;
+                }
             }
 
             // request page
