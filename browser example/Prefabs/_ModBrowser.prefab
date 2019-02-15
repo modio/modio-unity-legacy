@@ -5702,7 +5702,7 @@ MonoBehaviour:
   itemPrefab: {fileID: 1139133584329282, guid: 6d6023c94d9954c1b91501defdcfce07, type: 2}
   scrollView: {fileID: 114549700727417704}
   nameSearchField: {fileID: 114098324929849516}
-  sortByDropdown: {fileID: 0}
+  sortByDropdown: {fileID: 114312103234560472}
   resultCount: {fileID: 114423435185988604}
   noSubscriptionsDisplay: {fileID: 1338033130210044}
   noResultsDisplay: {fileID: 1478767563269758}
