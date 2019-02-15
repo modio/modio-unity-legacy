@@ -2014,7 +2014,7 @@ namespace ModIO.UI
         {
             // sort
             SetFilterValuesDelegate setSort = null;
-            if(explorerView.sortByDropdown == null)
+            if(explorerView.sortByDropdown != null)
             {
                 string key = explorerView.sortByDropdown.options[explorerView.sortByDropdown.value].text.ToUpper();
                 m_explorerSortOptions.TryGetValue(key, out setSort);
