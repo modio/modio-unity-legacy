@@ -92,34 +92,61 @@ namespace ModIO.UI
             {
                 "A-Z", (a,b) =>
                 {
-                    return String.Compare(a.name, b.name);
+                    int compareResult = String.Compare(a.name, b.name);
+                    if(compareResult == 0)
+                    {
+                        compareResult = a.id - b.id;
+                    }
+                    return compareResult;
                 }
             },
             {
                 "LARGEST", (a,b) =>
                 {
-                    return (int)(b.currentBuild.fileSize - a.currentBuild.fileSize);
+                    int compareResult = (int)(b.currentBuild.fileSize - a.currentBuild.fileSize);
+                    if(compareResult == 0)
+                    {
+                        compareResult = String.Compare(a.name, b.name);
+                        if(compareResult == 0)
+                        {
+                            compareResult = a.id - b.id;
+                        }
+                    }
+                    return compareResult;
                 }
             },
             {
                 "UPDATED", (a,b) =>
                 {
-                    return b.dateUpdated - a.dateUpdated;
+                    int compareResult = b.dateUpdated - a.dateUpdated;
+                    if(compareResult == 0)
+                    {
+                        compareResult = String.Compare(a.name, b.name);
+                        if(compareResult == 0)
+                        {
+                            compareResult = a.id - b.id;
+                        }
+                    }
+                    return compareResult;
                 }
             },
             {
                 "ENABLED", (a,b) =>
                 {
-                    int diff = 0;
-                    diff += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
-                    diff += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
+                    int compareResult = 0;
+                    compareResult += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
+                    compareResult += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
 
-                    if(diff == 0)
+                    if(compareResult == 0)
                     {
-                        diff = String.Compare(a.name, b.name);
+                        compareResult = String.Compare(a.name, b.name);
+                        if(compareResult == 0)
+                        {
+                            compareResult = a.id - b.id;
+                        }
                     }
 
-                    return diff;
+                    return compareResult;
                 }
             },
         };
@@ -2104,6 +2131,10 @@ namespace ModIO.UI
                 if(m_subscriptionSortOptions.TryGetValue(sortSelected, out sortFunc))
                 {
                     subscriptionViewFilter.sortDelegate = sortFunc;
+                }
+                else
+                {
+                    Debug.LogWarning("[mod.io] No sort method found matching the selected dropdown option of \'" + sortSelected + "\'");
                 }
             }
 
