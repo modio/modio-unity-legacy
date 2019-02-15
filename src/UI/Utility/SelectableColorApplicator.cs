@@ -40,6 +40,14 @@ namespace ModIO.UI
                 }
             }
 
+            Toggle toggle = selectable as Toggle;
+            if(toggle != null
+               && toggle.graphic != null)
+            {
+                toggle.graphic.color = scheme.toggleColor;
+            }
+
+
             selectable.colors = scheme.functionalColors;
         }
 
@@ -60,6 +68,13 @@ namespace ModIO.UI
                 {
                     UnityEditor.Undo.RecordObject(g, "Applied Color Scheme");
                 }
+            }
+
+            Toggle toggle = selectable as Toggle;
+            if(toggle != null
+               && toggle.graphic != null)
+            {
+                UnityEditor.Undo.RecordObject(toggle, "Applied Color Scheme");
             }
 
             UpdateColorScheme();
