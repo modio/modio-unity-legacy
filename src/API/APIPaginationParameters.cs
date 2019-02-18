@@ -9,11 +9,11 @@ namespace ModIO
         /// <summary>
         /// Maximum number of results returned.
         /// </summary>
-        public int limit;
+        public int limit = APIPaginationParameters.LIMIT_MAX;
 
         /// <summary>
         /// Number of results skipped over.
         /// </summary>
-        public int offset;
+        public int offset = 0;
     }
 }
