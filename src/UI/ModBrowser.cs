@@ -193,6 +193,7 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = null;
         private UserProfile m_userProfile = null;
+        private List<SimpleRating> m_userRatings = new List<SimpleRating>();
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
         private RequestFilter explorerViewFilter = new RequestFilter();
@@ -673,6 +674,8 @@ namespace ModIO.UI
             }
 
             this.m_validOAuthToken = succeeded;
+
+            StartCoroutine(FetchUserRatings());
         }
 
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
@@ -918,6 +921,66 @@ namespace ModIO.UI
 
                 this.lastSubscriptionSync = updateStartTimeStamp;
                 this.lastCacheUpdate = updateStartTimeStamp;
+            }
+        }
+
+        private System.Collections.IEnumerator FetchUserRatings()
+        {
+            APIPaginationParameters pagination = new APIPaginationParameters();
+            RequestFilter filter = new RequestFilter();
+            filter.fieldFilters[API.GetUserRatingsFilterFields.gameId]
+                = new EqualToFilter<int>() { filterValue = m_gameProfile.id };
+
+            bool isRequestDone = false;
+            List<ModRating> retrievedRatings = new List<ModRating>();
+
+            while(!isRequestDone)
+            {
+                RequestPage<ModRating> response = null;
+                WebRequestError error = null;
+
+                APIClient.GetUserRatings(filter, pagination,
+                                         (r) =>
+                                         {
+                                            response = r;
+                                            isRequestDone = true;
+                                         },
+                                         (e) =>
+                                         {
+                                            error = e;
+                                            isRequestDone = true;
+                                         });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(error != null)
+                {
+                    // handle error
+                    int secondsUntilRetry;
+                    string displayMessage;
+                    bool cancelRequest;
+
+                    ProcessRequestError(error, out cancelRequest,
+                                        out secondsUntilRetry, out displayMessage);
+
+                    break;
+                }
+                else
+                {
+                    retrievedRatings.AddRange(response.items);
+
+                    isRequestDone = (response.size + response.resultOffset >= response.resultTotal);
+                }
+            }
+
+            m_userRatings = new List<SimpleRating>(retrievedRatings.Count);
+            foreach(ModRating rating in retrievedRatings)
+            {
+                m_userRatings.Add(new SimpleRating()
+                {
+                    modId = rating.modId,
+                    isPositive = (rating.ratingValue == ModRating.POSITIVE_VALUE),
+                });
             }
         }
 
@@ -1211,6 +1274,8 @@ namespace ModIO.UI
                         WriteManifest();
 
                         PushSubscriptionChanges();
+
+                        StartCoroutine(FetchUserRatings());
                     }
                 }
 
