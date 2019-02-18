@@ -1241,5 +1241,18 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
+
+        /// <summary>Fetches _all_ the ratings submitted by the authenticated user.</summary>
+        public static void GetUserRatings(RequestFilter filter, APIPaginationParameters pagination,
+                                          Action<RequestPage<ModRating>> successCallback, Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = APIClient.apiURL + @"/me/ratings";
+
+            UnityWebRequest webRequest = APIClient.GenerateGetRequest(endpointURL,
+                                                                      filter.GenerateFilterString(),
+                                                                      pagination);
+
+            APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
     }
 }
