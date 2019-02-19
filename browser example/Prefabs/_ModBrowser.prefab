@@ -1381,6 +1381,7 @@ GameObject:
   - component: {fileID: 114895184885105080}
   - component: {fileID: 114704883888288380}
   - component: {fileID: 114447153152712254}
+  - component: {fileID: 114950702427070012}
   m_Layer: 5
   m_Name: About
   m_TagString: Untagged
@@ -2974,6 +2975,7 @@ GameObject:
   - component: {fileID: 114771642095934666}
   - component: {fileID: 114573385572660926}
   - component: {fileID: 114845691068552200}
+  - component: {fileID: 114933441458278336}
   m_Layer: 5
   m_Name: PoweredByModIO
   m_TagString: Untagged
@@ -3186,6 +3188,7 @@ GameObject:
   - component: {fileID: 114704576058553716}
   - component: {fileID: 114394080242324186}
   - component: {fileID: 114422711289429572}
+  - component: {fileID: 114532370633730546}
   m_Layer: 5
   m_Name: Privacy
   m_TagString: Untagged
@@ -4502,8 +4505,8 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_HighlightedColor: {r: 0.29803923, g: 0.4431373, b: 0.85098046, a: 1}
+    m_PressedColor: {r: 0.5412235, g: 0.62250733, b: 0.8509804, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -4520,7 +4523,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114711862518437462}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114532370633730546}
+        m_MethodName: OpenBrowserAt
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: https://mod.io/privacy
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114035502239823422
@@ -10543,6 +10557,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
+--- !u!114 &114532370633730546
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1748544092676960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 854a792d52c5242cb8903d690751bee7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114534644999658746
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11841,8 +11866,8 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_HighlightedColor: {r: 0.29803923, g: 0.4431373, b: 0.85098046, a: 1}
+    m_PressedColor: {r: 0.5412235, g: 0.62250733, b: 0.8509804, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -11859,7 +11884,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114602872257670598}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114933441458278336}
+        m_MethodName: OpenBrowserAt
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: https://mod.io
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114661584705968504
@@ -12232,8 +12268,8 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_HighlightedColor: {r: 0.29803923, g: 0.4431373, b: 0.85098046, a: 1}
+    m_PressedColor: {r: 0.5412235, g: 0.62250733, b: 0.8509804, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -12250,7 +12286,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114352030439478144}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114950702427070012}
+        m_MethodName: OpenBrowserAt
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: https://mod.io/about
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114711862518437462
@@ -14566,6 +14613,17 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114933441458278336
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1691187186691652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 854a792d52c5242cb8903d690751bee7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114938380495189832
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -14670,6 +14728,17 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &114950702427070012
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1285761043834220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 854a792d52c5242cb8903d690751bee7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114954398260010748
 MonoBehaviour:
   m_ObjectHideFlags: 1
