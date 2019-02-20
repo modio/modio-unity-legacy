@@ -15,8 +15,6 @@ namespace ModIO
             public int      gameId;
             [Tooltip("API Key assigned to your game profile")]
             public string   gameAPIKey;
-            // [Tooltip("Directory to use for persistent data")]
-            // public string   storageDirectory;
             [Tooltip("Directory to use for mod installations")]
             public string   installationDirectory;
             [Tooltip("Directory to use for cached server data")]
@@ -113,14 +111,6 @@ namespace ModIO
             }
 
             PluginSettings._loaded = true;
-        }
-
-
-        /// <summary>Loads the PluginSettings from disk.</summary>
-        [System.Obsolete]
-        public static Data LoadDefaults()
-        {
-            return PluginSettings._dataInstance;
         }
 
         #if UNITY_EDITOR
