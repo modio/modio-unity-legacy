@@ -166,12 +166,12 @@ namespace ModIO.UI
         {
             profile = new UserProfileDisplayData()
             {
-                userId = -1,
+                userId = UserProfile.NULL_ID,
                 username = "Guest",
             },
             avatar = new ImageDisplayData()
             {
-                userId = -1,
+                userId = UserProfile.NULL_ID,
                 imageId = "guest_avatar",
                 mediaType = ImageDisplayData.MediaType.UserAvatar,
                 originalTexture = null,
@@ -232,7 +232,7 @@ namespace ModIO.UI
             #if DEBUG
             PluginSettings.Data settings = PluginSettings.data;
 
-            if(settings.gameId <= 0)
+            if(settings.gameId == GameProfile.NULL_ID)
             {
                 Debug.LogError("[mod.io] Game ID is missing from the Plugin Settings.\n"
                                + "This must be configured by selecting the mod.io > Edit Settings menu"
