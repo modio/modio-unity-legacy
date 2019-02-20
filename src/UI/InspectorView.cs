@@ -137,7 +137,6 @@ namespace ModIO.UI
                 modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
                 modfileFilter.isSortAscending = false;
 
-                // TODO(@jackson): onError - queue
                 APIClient.GetAllModfiles(profile.id,
                                          modfileFilter,
                                          new APIPaginationParameters(){ limit = 20 },

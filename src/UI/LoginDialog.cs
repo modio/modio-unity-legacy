@@ -21,7 +21,6 @@ namespace ModIO.UI
         }
 
         [Header("Settings")]
-        // TODO(@jackson): localize
         [Tooltip("Invalid Submission Message")]
         public string invalidSubmissionMessage = "Input needs to be either a valid email address or the 5-Digit authentication code.";
 
