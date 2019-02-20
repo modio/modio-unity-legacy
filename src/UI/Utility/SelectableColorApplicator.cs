@@ -25,7 +25,10 @@ namespace ModIO.UI
 
         public void UpdateColorScheme()
         {
-            if(scheme == null) { return; }
+            if(selectable == null || scheme == null)
+            {
+                return;
+            }
 
             if(selectable.targetGraphic != null)
             {
@@ -54,6 +57,11 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         public void UpdateColorScheme_withUndo()
         {
+            if(selectable == null || scheme == null)
+            {
+                return;
+            }
+
             UnityEditor.Undo.RecordObject(selectable, "Applied Color Scheme");
 
             if(selectable.targetGraphic != null)

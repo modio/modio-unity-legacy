@@ -25,7 +25,12 @@ namespace ModIO.UI
 
         public void UpdateColorScheme()
         {
-            if(scheme == null) { return; }
+            if(graphic == null || scheme == null)
+            {
+                return;
+            }
+
+            graphic.color = scheme.baseColor;
 
             foreach(Graphic g in innerElements)
             {
@@ -34,13 +39,16 @@ namespace ModIO.UI
                     g.color = scheme.innerElementColor;
                 }
             }
-
-            graphic.color = scheme.baseColor;
         }
 
         #if UNITY_EDITOR
         public void UpdateColorScheme_withUndo()
         {
+            if(graphic == null || scheme == null)
+            {
+                return;
+            }
+
             UnityEditor.Undo.RecordObject(graphic, "Applied Color Scheme");
 
             foreach(Graphic g in innerElements)
