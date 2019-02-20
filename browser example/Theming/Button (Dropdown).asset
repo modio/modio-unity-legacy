@@ -20,3 +20,4 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   innerElementColor: {r: 1, g: 1, b: 1, a: 1}
+  toggleColor: {r: 1, g: 1, b: 1, a: 1}
