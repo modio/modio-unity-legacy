@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.29803923, g: 0.4431373, b: 0.85098046, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -276,7 +276,7 @@ MonoBehaviour:
   innerElements:
   - {fileID: 114242462970327244}
   - {fileID: 114159942404126762}
-  scheme: {fileID: 11400000, guid: 085e595ade0874da9b6f854448ce243b, type: 2}
+  scheme: {fileID: 11400000, guid: 0a0441ef819354d93a239e54c3635326, type: 2}
 --- !u!222 &222256690445399160
 CanvasRenderer:
   m_ObjectHideFlags: 1
