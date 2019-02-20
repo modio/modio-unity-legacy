@@ -8,9 +8,17 @@ namespace ModIO.UI
         private void OnEnable()
         {
             Selectable childSelectable = this.gameObject.GetComponentInChildren<Selectable>();
-            if(childSelectable != null)
+
+            this.StartCoroutine(DelaySelect(childSelectable));
+        }
+
+        private System.Collections.IEnumerator DelaySelect(Selectable selectable)
+        {
+            yield return null;
+
+            if(selectable != null)
             {
-                childSelectable.Select();
+                selectable.Select();
             }
         }
     }
