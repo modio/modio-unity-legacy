@@ -5,7 +5,7 @@ using UnityEditor;
 
 using ModIO.UI;
 
-namespace ModIO
+namespace ModIO.Editor
 {
     public static class EditorMenuItems
     {
