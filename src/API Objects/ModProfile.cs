@@ -8,7 +8,7 @@ namespace ModIO
     public class ModProfile
     {
         // ---------[ CONSTANTS ]---------
-        /// <summary>An id value indicating this profile is not valid.</summary>
+        /// <summary>An id value indicating an invalid profile.</summary>
         public const int NULL_ID = 0;
 
         // ---------[ FIELDS ]---------

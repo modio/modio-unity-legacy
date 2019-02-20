@@ -7,6 +7,10 @@ namespace ModIO
     [System.Serializable]
     public class GameProfile
     {
+        // ---------[ CONSTANTS ]---------
+        /// <summary>An id value indicating an invalid profile.</summary>
+        public const int NULL_ID = 0;
+
         // ---------[ FIELDS ]---------
         /// <summary>mod.io id of the game profile.</summary>
         [JsonProperty("id")]
