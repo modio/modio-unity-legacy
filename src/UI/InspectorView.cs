@@ -41,9 +41,18 @@ namespace ModIO.UI
         public void Initialize()
         {
             // TODO(@jackson): Asserts
+            ModMediaContainer mediaContainer = null;
+
             if(modView != null)
             {
                 modView.Initialize();
+
+                if(modView.statisticsDisplay != null)
+                {
+                    modView.statisticsDisplay.Initialize();
+                }
+
+                mediaContainer = modView.mediaContainer as ModMediaContainer;
             }
 
             if(selectedMediaPreview != null)
@@ -57,18 +66,12 @@ namespace ModIO.UI
                     }
                 };
 
-                ModMediaContainer container = modView.mediaContainer as ModMediaContainer;
-                if(container != null)
+                if(mediaContainer != null)
                 {
-                    container.logoClicked += MediaPreview_Logo;
-                    container.galleryImageClicked += MediaPreview_GalleryImage;
-                    container.youTubeThumbnailClicked += MediaPreview_YouTubeThumbnail;
+                    mediaContainer.logoClicked += MediaPreview_Logo;
+                    mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
+                    mediaContainer.youTubeThumbnailClicked += MediaPreview_YouTubeThumbnail;
                 }
-            }
-
-            if(modView.statisticsDisplay != null)
-            {
-                modView.statisticsDisplay.Initialize();
             }
 
             if((versionHistoryContainer != null && versionHistoryItemPrefab == null)
@@ -104,21 +107,21 @@ namespace ModIO.UI
                 modView.DisplayMod(profile, statistics,
                                    tagCategories,
                                    isModSubscribed, isModEnabled);
+
+                if(modView.mediaContainer != null)
+                {
+                    ModMediaCollection media = profile.media;
+                    bool hasMedia = media != null;
+                    hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
+                                 || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
+
+                    modView.mediaContainer.gameObject.SetActive(hasMedia);
+                }
             }
 
             if(selectedMediaPreview != null)
             {
                 selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
-            }
-
-            if(modView.mediaContainer != null)
-            {
-                ModMediaCollection media = profile.media;
-                bool hasMedia = media != null;
-                hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
-                             || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
-
-                modView.mediaContainer.gameObject.SetActive(hasMedia);
             }
 
             // - version history -
@@ -147,24 +150,36 @@ namespace ModIO.UI
         {
             this.isModSubscribed = isSubscribed;
 
-            ModDisplayData data = modView.data;
-            data.isSubscribed = isSubscribed;
-            modView.data = data;
+            if(modView != null)
+            {
+                ModDisplayData data = modView.data;
+                data.isSubscribed = isSubscribed;
+                modView.data = data;
+            }
         }
 
         public void DisplayModEnabled(bool isEnabled)
         {
             this.isModEnabled = isEnabled;
 
-            ModDisplayData data = modView.data;
-            data.isModEnabled = isEnabled;
-            modView.data = data;
+            if(modView != null)
+            {
+                ModDisplayData data = modView.data;
+                data.isModEnabled = isEnabled;
+                modView.data = data;
+            }
         }
 
         public void DisplayLoading()
         {
-            modView.DisplayLoading();
-            selectedMediaPreview.DisplayLoading();
+            if(modView != null)
+            {
+                modView.DisplayLoading();
+            }
+            if(selectedMediaPreview != null)
+            {
+                selectedMediaPreview.DisplayLoading();
+            }
         }
 
         // ---------[ UI ELEMENT CREATION ]---------
