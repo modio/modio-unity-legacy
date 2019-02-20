@@ -199,6 +199,28 @@ namespace ModIO
             return false;
         }
 
+        /// <summary>Creates a directory.</summary>
+        public static bool CreateDirectory(string directoryPath)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(directoryPath));
+
+            try
+            {
+                Directory.CreateDirectory(directoryPath);
+                return true;
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to create directory."
+                                      + "\nDirectory: " + directoryPath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return false;
+        }
+
         /// <summary>Deletes a directory.</summary>
         public static bool DeleteDirectory(string directoryPath)
         {
