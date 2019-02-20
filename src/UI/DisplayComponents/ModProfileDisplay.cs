@@ -54,7 +54,11 @@ namespace ModIO.UI
         {
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
-                loadingOverlay.gameObject.SetActive(false);
+                if(loadingOverlay != null
+                   && loadingOverlay.gameObject != null)
+                {
+                    loadingOverlay.gameObject.SetActive(false);
+                }
             }
             foreach(var kvp in m_displayMapping)
             {
