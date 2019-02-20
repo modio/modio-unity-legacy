@@ -218,11 +218,25 @@ namespace ModIO.UI
         }
 
         // TODO(@jackson): Encapsulate (could work with ratio rather than itemDim)
-        // TODO(@jackson): Check for zero divides
         public void RecalculateColumnCountAndCellDimensions()
         {
             Rect itemDim = itemPrefab.GetComponent<RectTransform>().rect;
             Rect containerDim = contentPane.GetComponent<RectTransform>().rect;
+
+            // asserts
+            Debug.Assert(rowCount > 0, "[mod.io] RowCount needs to be larger than zero.");
+            Debug.Assert(itemDim.height > 0,
+                         "[mod.io] Unable to calculate grid dimensions for an explorer item with a"
+                         + " non-positive height");
+            Debug.Assert(itemDim.width > 0,
+                         "[mod.io] Unable to calculate grid dimensions for an explorer item with a"
+                         + " non-positive width");
+            Debug.Assert(containerDim.height > 0,
+                         "[mod.io] Unable to calculate grid dimensions for an explorer view with"
+                         + " the container dimensions for a non-positive height");
+            Debug.Assert(containerDim.width > 0,
+                         "[mod.io] Unable to calculate grid dimensions for an explorer view with"
+                         + " the container dimensions for a non-positive width");
 
             // initial calcs
             float rowCount_f = (float)rowCount;
