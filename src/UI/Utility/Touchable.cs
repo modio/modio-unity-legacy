@@ -8,28 +8,19 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
-public class Touchable : Graphic
+namespace ModIO.UI
 {
-    public override bool Raycast(Vector2 sp, Camera eventCamera)
+    public class Touchable : Graphic
     {
-        //return base.Raycast(sp, eventCamera);
-        return true;
-    }
+        public override bool Raycast(Vector2 sp, Camera eventCamera)
+        {
+            //return base.Raycast(sp, eventCamera);
+            return true;
+        }
 
-    protected override void OnPopulateMesh(VertexHelper vh)
-    {
-        vh.Clear();
+        protected override void OnPopulateMesh(VertexHelper vh)
+        {
+            vh.Clear();
+        }
     }
 }
-
-#if UNITY_EDITOR
-[CustomEditor(typeof(Touchable))]
-public class TouchableEditor : Editor
-{
-    public override void OnInspectorGUI(){}
-}
-#endif
