@@ -142,11 +142,6 @@ namespace ModIO.UI
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
 
-            Debug.Assert(prefabTransform.anchorMin == new Vector2(0f, 1f)
-                         && prefabTransform.anchorMax == new Vector2(0f, 1f),
-                         "[mod.io] The ExplorerView.itemPrefab's transfrom needs a top-left anchor."
-                         + " Please ensure the both the anchor min and anchor max are at [0, 1].");
-
             // - initialize pages -
             foreach(Transform t in contentPane)
             {
