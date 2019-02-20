@@ -37,6 +37,13 @@ namespace ModIO
         {
             get
             {
+                #if UNITY_EDITOR
+                if(!Application.isPlaying)
+                {
+                    PluginSettings.LoadDataInstance();
+                }
+                #endif
+
                 if(!PluginSettings._loaded)
                 {
                     PluginSettings.LoadDataInstance();
