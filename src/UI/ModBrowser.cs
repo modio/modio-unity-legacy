@@ -1358,28 +1358,51 @@ namespace ModIO.UI
             // request returning an error.
             Action<WebRequestError, int> onSubFail = (e, modId) =>
             {
+                bool cancel = false;
+
                 if(e.responseCode == 400)
                 {
                     // Mod is already subscribed
-                    m_queuedSubscribes.Remove(modId);
-                    WriteManifest();
+                    cancel = true;
                 }
                 else
                 {
-                    WebRequestError.LogAsWarning(e);
+                    int delay;
+                    string message;
+
+                    ProcessRequestError(e, out cancel,
+                                        out delay, out message);
+                }
+
+                if(cancel)
+                {
+                    m_queuedSubscribes.Remove(modId);
+                    WriteManifest();
                 }
             };
             Action<WebRequestError, int> onUnsubFail = (e, modId) =>
             {
+                bool cancel = false;
+
                 if(e.responseCode == 400)
+                {
+                    // Mod is not subscribed
+                    cancel = true;
+                }
+                else
+                {
+                    int delay;
+                    string message;
+
+                    ProcessRequestError(e, out cancel,
+                                        out delay, out message);
+                }
+
+                if(cancel)
                 {
                     // Mod is already unsubscribed
                     m_queuedUnsubscribes.Remove(modId);
                     WriteManifest();
-                }
-                else
-                {
-                    WebRequestError.LogAsWarning(e);
                 }
             };
 
