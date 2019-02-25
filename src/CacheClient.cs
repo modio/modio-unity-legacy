@@ -317,8 +317,15 @@ namespace ModIO
                                            youTubeId + ".png");
         }
 
-        /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
+        /// <summary>[Obsolete] Retrieves the file paths for the mod logos in the cache.</summary>
+        [Obsolete("Use CacheClient.GetModLogoVersionFileNames() instead")]
         public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
+        {
+            return CacheClient.GetModLogoVersionFileNames(modId);
+        }
+
+        /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
+        public static Dictionary<LogoSize, string> GetModLogoVersionFileNames(int modId)
         {
             return IOUtilities.ReadJsonObjectFile<Dictionary<LogoSize, string>>(CacheClient.GenerateModLogoVersionInfoFilePath(modId));
         }
@@ -334,7 +341,7 @@ namespace ModIO
             bool isSuccessful = IOUtilities.WritePNGFile(logoFilePath, logoTexture);
 
             // - Update the versioning info -
-            var versionInfo = CacheClient.LoadModLogoFilePaths(modId);
+            var versionInfo = CacheClient.GetModLogoVersionFileNames(modId);
             if(versionInfo == null)
             {
                 versionInfo = new Dictionary<LogoSize, string>();
@@ -359,15 +366,29 @@ namespace ModIO
         {
             Debug.Assert(!String.IsNullOrEmpty(fileName));
 
+            string logoFileName = GetModLogoFileName(modId, size);
+            if(logoFileName == fileName)
+            {
+                return CacheClient.LoadModLogo(modId, size);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Retrieves the information for the cached mod logos.</summary>
+        public static string GetModLogoFileName(int modId, LogoSize size)
+        {
             // - Ensure the logo is the correct version -
-            var versionInfo = CacheClient.LoadModLogoFilePaths(modId);
+            var versionInfo = CacheClient.GetModLogoVersionFileNames(modId);
             if(versionInfo != null)
             {
-                string logoVersionFileName = string.Empty;
-                if(versionInfo.TryGetValue(size, out logoVersionFileName)
-                   && logoVersionFileName.ToUpper().Equals(fileName.ToUpper()))
+                string logoFileName = string.Empty;
+                if(versionInfo.TryGetValue(size, out logoFileName)
+                   && !String.IsNullOrEmpty(logoFileName))
                 {
-                    return CacheClient.LoadModLogo(modId, size);
+                    return logoFileName;
                 }
             }
             return null;
