@@ -284,6 +284,8 @@ namespace ModIO
                 return;
             }
 
+            var operation = downloadInfo.request.SendWebRequest();
+
             #if DEBUG
             if(DownloadClient.logAllRequests)
             {
@@ -300,13 +302,16 @@ namespace ModIO
                     }
                 }
 
-                Debug.Log("GENERATING DOWNLOAD REQUEST"
+                int timeStamp = ServerTimeStamp.Now;
+                Debug.Log("DOWNLOAD REQUEST SENT"
+                          + "\nTimeStamp: [" + timeStamp.ToString() + "] "
+                          + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
                           + "\nURL: " + downloadInfo.request.url
                           + "\nHeaders: " + requestHeaders);
             }
             #endif
 
-            var operation = downloadInfo.request.SendWebRequest();
+
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
         }
 
