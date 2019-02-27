@@ -74,45 +74,44 @@ namespace ModIO
         public string content;
 
         // ---------[ API DESERIALIZATION ]---------
-        [JsonExtensionData]
-        #pragma warning disable 0649
-        private System.Collections.Generic.IDictionary<string, JToken> _additionalData;
-        #pragma warning restore 0649
+        /// <summary>
+        /// An optional thread_position field, which is only deserialized from API responses
+        /// </summary>
+        [JsonProperty("thread_position")]
+        private string _threadPositionString;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(_additionalData == null) { return; }
+            if (string.IsNullOrEmpty(this._threadPositionString)) { return; }
 
-            JToken token;
-            if(_additionalData.TryGetValue("thread_position", out token))
+            this.position = new ModCommentPosition();
+
+            // - Parse Thread Position -
+            string[] positionElements = this._threadPositionString.Split('.');
+
+            this.position.depth = 0;
+            this.position.mainThread = -1;
+            this.position.replyThread = -1;
+            this.position.subReplyThread = -1;
+
+            if (positionElements.Length > 0)
             {
-                this.position = new ModCommentPosition();
-
-                // - Parse Thread Position -
-                string[] positionElements = ((string)token).Split('.');
-
-                this.position.depth = 0;
-                this.position.mainThread = -1;
-                this.position.replyThread = -1;
-                this.position.subReplyThread = -1;
-
-                if(positionElements.Length > 0)
+                this.position.depth = 1;
+                if (int.TryParse(positionElements[0], out this.position.mainThread)
+                    && positionElements.Length > 1)
                 {
-                    this.position.depth = 1;
-                    if(int.TryParse(positionElements[0], out this.position.mainThread)
-                       && positionElements.Length > 1)
+                    this.position.depth = 2;
+                    if (int.TryParse(positionElements[1], out this.position.replyThread)
+                        && positionElements.Length > 2)
                     {
-                        this.position.depth = 2;
-                        if(int.TryParse(positionElements[1], out this.position.replyThread)
-                           && positionElements.Length > 2)
-                        {
-                            this.position.depth = 3;
-                            int.TryParse(positionElements[2], out this.position.subReplyThread);
-                        }
+                        this.position.depth = 3;
+                        int.TryParse(positionElements[2], out this.position.subReplyThread);
                     }
                 }
             }
+
+            this._threadPositionString = null;
         }
     }
 }

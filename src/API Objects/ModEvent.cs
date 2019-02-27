@@ -42,54 +42,52 @@ namespace ModIO
 
 
         // ---------[ API DESERIALIZATION ]---------
-        private const string APIOBJECT_VALUESTRING_MODAVAILABLE      = "MOD_AVAILABLE";
-        private const string APIOBJECT_VALUESTRING_MODUNAVAILABLE    = "MOD_UNAVAILABLE";
-        private const string APIOBJECT_VALUESTRING_MODEDITED         = "MOD_EDITED";
-        private const string APIOBJECT_VALUESTRING_MODFILECHANGED    = "MODFILE_CHANGED";
+        private const string APIOBJECT_VALUESTRING_MODAVAILABLE     = "MOD_AVAILABLE";
+        private const string APIOBJECT_VALUESTRING_MODUNAVAILABLE   = "MOD_UNAVAILABLE";
+        private const string APIOBJECT_VALUESTRING_MODEDITED        = "MOD_EDITED";
+        private const string APIOBJECT_VALUESTRING_MODFILECHANGED   = "MODFILE_CHANGED";
 
-        [JsonExtensionData]
-        private System.Collections.Generic.IDictionary<string, JToken> _additionalData;
+        /// <summary>
+        /// An optional event_type field, which is only deserialized from API responses
+        /// </summary>
+        [JsonProperty("event_type")]
+        private string _eventTypeString;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(_additionalData == null) { return; }
+            if (string.IsNullOrEmpty(this._eventTypeString)) { return; }
 
-            JToken token;
-            if(_additionalData.TryGetValue("event_type", out token))
+            switch(this._eventTypeString.ToUpper())
             {
-                string eventTypeString = (string)token;
-                switch(eventTypeString.ToUpper())
+                case APIOBJECT_VALUESTRING_MODAVAILABLE:
                 {
-                    case APIOBJECT_VALUESTRING_MODAVAILABLE:
-                    {
-                        this.eventType = ModEventType.ModAvailable;
-                    }
-                    break;
-                    case APIOBJECT_VALUESTRING_MODUNAVAILABLE:
-                    {
-                        this.eventType = ModEventType.ModUnavailable;
-                    }
-                    break;
-                    case APIOBJECT_VALUESTRING_MODEDITED:
-                    {
-                        this.eventType = ModEventType.ModEdited;
-                    }
-                    break;
-                    case APIOBJECT_VALUESTRING_MODFILECHANGED:
-                    {
-                        this.eventType = ModEventType.ModfileChanged;
-                    }
-                    break;
-                    default:
-                    {
-                        this.eventType = ModEventType._UNKNOWN;
-                    }
-                    break;
+                    this.eventType = ModEventType.ModAvailable;
                 }
+                break;
+                case APIOBJECT_VALUESTRING_MODUNAVAILABLE:
+                {
+                    this.eventType = ModEventType.ModUnavailable;
+                }
+                break;
+                case APIOBJECT_VALUESTRING_MODEDITED:
+                {
+                    this.eventType = ModEventType.ModEdited;
+                }
+                break;
+                case APIOBJECT_VALUESTRING_MODFILECHANGED:
+                {
+                    this.eventType = ModEventType.ModfileChanged;
+                }
+                break;
+                default:
+                {
+                    this.eventType = ModEventType._UNKNOWN;
+                }
+                break;
             }
 
-            this._additionalData = null;
+            this._eventTypeString = null;
         }
     }
 }

@@ -39,56 +39,53 @@ namespace ModIO
         [JsonProperty("user_event_type")]
         public UserEventType eventType;
 
-
         // ---------[ API DESERIALIZATION ]---------
-        private const string APIOBJECT_VALUESTRING_TEAMJOINED        = "USER_TEAM_JOIN";
-        private const string APIOBJECT_VALUESTRING_TEAMLEFT          = "USER_TEAM_LEAVE";
-        private const string APIOBJECT_VALUESTRING_MODSUBSCRIBED     = "USER_SUBSCRIBE";
-        private const string APIOBJECT_VALUESTRING_MODUNSUBSCRIBED   = "USER_UNSUBSCRIBE";
+        private const string APIOBJECT_VALUESTRING_TEAMJOINED       = "USER_TEAM_JOIN";
+        private const string APIOBJECT_VALUESTRING_TEAMLEFT         = "USER_TEAM_LEAVE";
+        private const string APIOBJECT_VALUESTRING_MODSUBSCRIBED    = "USER_SUBSCRIBE";
+        private const string APIOBJECT_VALUESTRING_MODUNSUBSCRIBED  = "USER_UNSUBSCRIBE";
 
-        [JsonExtensionData]
-        private System.Collections.Generic.IDictionary<string, JToken> _additionalData;
+        /// <summary>
+        /// An optional event_type field, which is only deserialized from API responses
+        /// </summary>
+        [JsonProperty("event_type")]
+        public string _eventTypeString;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(_additionalData == null) { return; }
+            if (string.IsNullOrEmpty(this._eventTypeString)) { return; }
 
-            JToken token;
-            if(_additionalData.TryGetValue("event_type", out token))
+            switch(this._eventTypeString.ToUpper())
             {
-                string eventTypeString = (string)token;
-                switch(eventTypeString.ToUpper())
+                case APIOBJECT_VALUESTRING_TEAMJOINED:
                 {
-                    case APIOBJECT_VALUESTRING_TEAMJOINED:
-                    {
-                        this.eventType = UserEventType.TeamJoined;
-                    }
-                    break;
-                    case APIOBJECT_VALUESTRING_TEAMLEFT:
-                    {
-                        this.eventType = UserEventType.TeamLeft;
-                    }
-                    break;
-                    case APIOBJECT_VALUESTRING_MODSUBSCRIBED:
-                    {
-                        this.eventType = UserEventType.ModSubscribed;
-                    }
-                    break;
-                    case APIOBJECT_VALUESTRING_MODUNSUBSCRIBED:
-                    {
-                        this.eventType = UserEventType.ModUnsubscribed;
-                    }
-                    break;
-                    default:
-                    {
-                        this.eventType = UserEventType._UNKNOWN;
-                    }
-                    break;
+                    this.eventType = UserEventType.TeamJoined;
                 }
+                break;
+                case APIOBJECT_VALUESTRING_TEAMLEFT:
+                {
+                    this.eventType = UserEventType.TeamLeft;
+                }
+                break;
+                case APIOBJECT_VALUESTRING_MODSUBSCRIBED:
+                {
+                    this.eventType = UserEventType.ModSubscribed;
+                }
+                break;
+                case APIOBJECT_VALUESTRING_MODUNSUBSCRIBED:
+                {
+                    this.eventType = UserEventType.ModUnsubscribed;
+                }
+                break;
+                default:
+                {
+                    this.eventType = UserEventType._UNKNOWN;
+                }
+                break;
             }
 
-            this._additionalData = null;
+            this._eventTypeString = null;
         }
     }
 }

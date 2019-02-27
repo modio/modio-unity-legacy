@@ -35,26 +35,23 @@ namespace ModIO
         [JsonProperty("tags")]
         public string[] tags;
 
-
         // ---------[ API DESERIALIZATION ]---------
-        public const string APIOBJECT_VALUESTRING_ISSINGLETAG  = "DROPDOWN";
-        public const string APIOBJECT_VALUESTRING_ISMULTITAG   = "CHECKBOXES";
+        public const string APIOBJECT_VALUESTRING_ISSINGLETAG   = "DROPDOWN";
+        public const string APIOBJECT_VALUESTRING_ISMULTITAG    = "CHECKBOXES";
 
-        [JsonExtensionData]
-        private System.Collections.Generic.IDictionary<string, JToken> _additionalData;
+        /// <summary>
+        /// An optional type field, which is only deserialized from API responses
+        /// </summary>
+        [JsonProperty("type")]
+        private string _typeString;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
-            if(_additionalData == null) { return; }
+            if (string.IsNullOrEmpty(this._typeString)) { return; }
 
-            JToken token;
-            if(_additionalData.TryGetValue("type", out token))
-            {
-                this.isMultiTagCategory = APIOBJECT_VALUESTRING_ISMULTITAG.Equals(((string)token).ToUpper());
-            }
-
-            this._additionalData = null;
+            this.isMultiTagCategory = APIOBJECT_VALUESTRING_ISMULTITAG.Equals(this._typeString.ToUpper());
+            this._typeString = null;
         }
     }
 }
