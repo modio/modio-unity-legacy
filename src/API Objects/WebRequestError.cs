@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
+using DownloadHandlerFile = UnityEngine.Networking.DownloadHandlerFile;
 
 namespace ModIO
 {
@@ -54,28 +55,33 @@ namespace ModIO
             WebRequestError.APIWrapper errorWrapper = null;
             string processingException = null;
 
-            try
-            {
-                responseBody = webRequest.downloadHandler.text;
-            }
-            catch(System.Exception e)
-            {
-                responseBody = null;
-                processingException = e.Message;
-            }
-
-            if(responseBody != null)
+            if(webRequest.downloadHandler != null
+               && !(webRequest.downloadHandler is DownloadHandlerFile))
             {
                 try
                 {
-                    errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(responseBody);
+                    responseBody = webRequest.downloadHandler.text;
                 }
                 catch(System.Exception e)
                 {
-                    errorWrapper = null;
+                    responseBody = null;
                     processingException = e.Message;
                 }
+
+                if(responseBody != null)
+                {
+                    try
+                    {
+                       errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(responseBody);
+                    }
+                    catch(System.Exception e)
+                    {
+                        errorWrapper = null;
+                        processingException = e.Message;
+                    }
+                }
             }
+
 
             WebRequestError error = null;
             if(errorWrapper != null)
