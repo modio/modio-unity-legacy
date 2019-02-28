@@ -567,15 +567,13 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchGameProfile()
         {
-            bool succeeded = false;
-            bool cancelRequest = false;
+            bool isResolved = false;
 
-            while(!cancelRequest
-                  && !succeeded
+            while(!isResolved
                   && m_onlineMode)
             {
                 bool isRequestDone = false;
-                WebRequestError error = null;
+                WebRequestError requestError = null;
 
                 // --- GameProfile ---
                 APIClient.GetGame(
@@ -586,36 +584,50 @@ namespace ModIO.UI
                     subscriptionsView.tagCategories = g.tagCategories;
                     inspectorView.tagCategories = g.tagCategories;
 
-                    succeeded = true;
+                    isResolved = true;
                     isRequestDone = true;
                 },
                 (e) =>
                 {
-                    error = e;
-                    succeeded = false;
+                    requestError = e;
                     isRequestDone = true;
                 });
 
                 while(!isRequestDone) { yield return null; }
 
-                if(error != null)
+                if(requestError != null)
                 {
-                    int secondsUntilRetry;
-                    string displayMessage;
-
-                    ProcessRequestError(error, out cancelRequest,
-                                        out secondsUntilRetry, out displayMessage);
-
-                    if(secondsUntilRetry > 0)
-                    {
-                        yield return new WaitForSeconds(secondsUntilRetry + 1);
-                        continue;
-                    }
-
-                    if(cancelRequest)
+                    if(requestError.isRequestUnresolvable)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage);
+                                                   requestError.displayMessage);
+
+                        Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
+                                         + " servers. Please check you Game Id and APIKey in the"
+                                         + " PluginSettings. [Resources/modio_settings]");
+
+                        isResolved = true;
+                    }
+                    else
+                    {
+                        int reattemptDelay = CalculateReattemptDelay(requestError);
+
+                        if(reattemptDelay > 0)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       requestError.displayMessage
+                                                       + "\nRetrying in "
+                                                       + reattemptDelay.ToString()
+                                                       + " seconds");
+
+                            yield return new WaitForSeconds(reattemptDelay);
+                            continue;
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       requestError.displayMessage);
+                        }
                     }
                 }
             }
