@@ -28,7 +28,7 @@ namespace ModIO
         public UnityWebRequest webRequest;
 
         /// <summary>The message returned by the API explaining the error.</summary>
-        public string apiMessage;
+        public string errorMessage;
 
         /// <summary>Errors pertaining to specific POST data fields.</summary>
         public IDictionary<string, string> fieldValidationMessages;
@@ -90,11 +90,11 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] The message returned by the API explaining the error.</summary>
-        [System.Obsolete("Use WebRequestError.apiMessage instead")]
+        [System.Obsolete("Use WebRequestError.errorMessage instead")]
         public string message
         {
-            get { return this.apiMessage; }
-            set { this.apiMessage = value; }
+            get { return this.errorMessage; }
+            set { this.errorMessage = value; }
         }
 
 
@@ -120,8 +120,14 @@ namespace ModIO
             WebRequestError error = new WebRequestError()
             {
                 webRequest = null,
-                apiMessage = errorMessage,
                 timeStamp = ServerTimeStamp.Now,
+                errorMessage = errorMessage,
+                displayMessage = errorMessage,
+
+                isAuthenticationInvalid = false,
+                isServerUnreachable = false,
+                isRequestUnresolvable = false,
+                limitedUntilTimeStamp = -1,
             };
 
             return error;
@@ -149,7 +155,7 @@ namespace ModIO
 
         private void ApplyAPIErrorValues()
         {
-            this.apiMessage = null;
+            this.errorMessage = null;
             this.fieldValidationMessages = null;
 
             // null-ref and type-check
@@ -171,7 +177,7 @@ namespace ModIO
                     }
 
                     // extract values
-                    this.apiMessage = errorWrapper.error.message;
+                    this.errorMessage = errorWrapper.error.message;
                     this.fieldValidationMessages = errorWrapper.error.errors;
                 }
                 catch(System.Exception e)
@@ -297,7 +303,7 @@ namespace ModIO
                                          + "\nPlease report this to jackson@mod.io with the following information:"
                                          + "\n[" + this.webRequest.url
                                          + ":" + this.webRequest.method
-                                         + "-" + this.apiMessage + "]");
+                                         + "-" + this.errorMessage + "]");
                     }
 
                     this.displayMessage = ("Too many requests have been made to the mod.io servers."
@@ -377,7 +383,7 @@ namespace ModIO
                     }
                 }
 
-                debugString.AppendLine("APIMessage: " + this.apiMessage);
+                debugString.AppendLine("APIMessage: " + this.errorMessage);
 
                 if(this.fieldValidationMessages != null
                    && this.fieldValidationMessages.Count > 0)
