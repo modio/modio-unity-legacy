@@ -391,36 +391,37 @@ namespace ModIO
                 #if DEBUG
                 if(APIClient.logAllRequests)
                 {
-                    var headerString = new System.Text.StringBuilder();
-                    headerString.Append("\nHeaders:");
-
-                    var responseHeaders = webRequest.GetResponseHeaders();
-                    if(responseHeaders != null)
-                    {
-                        foreach(var requestHeader in responseHeaders)
-                        {
-                            headerString.Append("\n  " + requestHeader.Key + "=" + requestHeader.Value);
-                        }
-
-                    }
-                    var responseTimeStamp = ServerTimeStamp.Now;
-                    string logString = (webRequest.method.ToUpper() + " REQUEST RESPONSE"
-                                        + "\nResponse received at: "
-                                        + "[" + responseTimeStamp + "] "
-                                        + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                                        + "\nURL: " + webRequest.url
-                                        + "\nResponse Code: " + webRequest.responseCode
-                                        + "\nResponse Error: " + webRequest.error
-                                        + headerString.ToString()
-                                        + "\nResponse: " + webRequest.downloadHandler.text
-                                        + "\n");
-
                     if(webRequest.isNetworkError || webRequest.isHttpError)
                     {
-                        Debug.LogWarning(logString);
+                        WebRequestError.LogAsWarning(WebRequestError.GenerateFromWebRequest(webRequest));
                     }
                     else
                     {
+                        var headerString = new System.Text.StringBuilder();
+                        headerString.Append("\nHeaders:");
+
+                        var responseHeaders = webRequest.GetResponseHeaders();
+                        if(responseHeaders != null)
+                        {
+                            foreach(var requestHeader in responseHeaders)
+                            {
+                                headerString.Append("\n  " + requestHeader.Key + "=" + requestHeader.Value);
+                            }
+
+                        }
+
+                        var responseTimeStamp = ServerTimeStamp.Now;
+
+                        string logString = (webRequest.method.ToUpper() + " REQUEST RESPONSE"
+                                            + "\nResponse received at: "
+                                            + "[" + responseTimeStamp + "] "
+                                            + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
+                                            + "\nURL: " + webRequest.url
+                                            + "\nResponse Code: " + webRequest.responseCode
+                                            + "\nResponse Error: " + webRequest.error
+                                            + headerString.ToString()
+                                            + "\nResponse: " + webRequest.downloadHandler.text
+                                            + "\n");
                         Debug.Log(logString);
                     }
                 }

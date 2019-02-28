@@ -3,111 +3,102 @@ using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
 using DownloadHandlerFile = UnityEngine.Networking.DownloadHandlerFile;
+using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 
 namespace ModIO
 {
-    [System.Serializable]
     public class WebRequestError
     {
         // ---------[ NESTED CLASSES ]---------
         [System.Serializable]
         private class APIWrapper
         {
-            public WebRequestError error = null;
+            [System.Serializable]
+            public class APIError
+            {
+                public string message;
+                public Dictionary<string, string> errors;
+            }
+
+            public APIError error = null;
         }
 
         // ---------[ FIELDS ]---------
-        /// <summary>
-        /// The server response to your request.
-        /// Responses will vary depending on the endpoint,
-        /// but the object structure will persist.
-        /// </summary>
-        [JsonProperty("message")]
-        public string message;
+        /// <summary>UnityWebRequest that generated the data for the error.</summary>
+        public UnityWebRequest webRequest;
 
-        /// <summary>
-        /// Optional Validation errors object.
-        /// This field is only supplied if the response is
-        /// a validation error 422 Unprocessible Entity.
-        /// </summary>
-        /// <remarks>
-        /// See errors documentation for more information.
-        /// </remarks>
-        [JsonProperty("errors")]
+        /// <summary>The message returned by the API explaining the error.</summary>
+        public string apiMessage;
+
+        /// <summary>Errors pertaining to specific POST data fields.</summary>
         public IDictionary<string, string> fieldValidationMessages;
 
-        public string method;
-        public string url;
+        /// <summary>The ServerTimeStamp at which the request was received.</summary>
         public int timeStamp;
-        public int responseCode;
-        public string processingException;
 
-        public Dictionary<string, string> responseHeaders;
-        public string responseBody;
+
+
+
+
+
+        // --- OBSOLETE FIELDS ---
+        [System.Obsolete("Use webRequest.responseCode instead")]
+        public int responseCode
+        {
+            get { return (webRequest != null ? (int)webRequest.responseCode : -1); }
+        }
+        [System.Obsolete("Use webRequest.method instead")]
+        public string method
+        {
+            get { return (webRequest != null ? webRequest.method : "LOCAL"); }
+        }
+        [System.Obsolete("Use webRequest.url instead")]
+        public string url
+        {
+            get { return (webRequest != null ? webRequest.url : string.Empty); }
+        }
+        [System.Obsolete("Use webRequest.GetResponseHeaders() instead")]
+        public Dictionary<string, string> responseHeaders
+        {
+            get { return (webRequest != null ? webRequest.GetResponseHeaders() : null); }
+        }
+
+        [System.Obsolete("Use webRequest.downloadHandler.text instead")]
+        public string responseBody
+        {
+            get
+            {
+                if(webRequest != null
+                   && webRequest.downloadHandler != null
+                   && !(webRequest.downloadHandler is DownloadHandlerFile))
+                {
+                    return webRequest.downloadHandler.text;
+                }
+                return string.Empty;
+            }
+        }
+
+        /// <summary>[Obsolete] The message returned by the API explaining the error.</summary>
+        [System.Obsolete("Use WebRequestError.apiMessage instead")]
+        public string message
+        {
+            get { return this.apiMessage; }
+            set { this.apiMessage = value; }
+        }
+
 
         // ---------[ INITIALIZATION ]---------
-        public static WebRequestError GenerateFromWebRequest(UnityEngine.Networking.UnityWebRequest webRequest)
+        public static WebRequestError GenerateFromWebRequest(UnityWebRequest webRequest)
         {
             UnityEngine.Debug.Assert(webRequest != null);
             UnityEngine.Debug.Assert(webRequest.isNetworkError || webRequest.isHttpError);
 
-            string responseBody = null;
-            WebRequestError.APIWrapper errorWrapper = null;
-            string processingException = null;
+            WebRequestError error = new WebRequestError();
+            error.webRequest = webRequest;
 
-            if(webRequest.downloadHandler != null
-               && !(webRequest.downloadHandler is DownloadHandlerFile))
-            {
-                try
-                {
-                    responseBody = webRequest.downloadHandler.text;
-                }
-                catch(System.Exception e)
-                {
-                    responseBody = null;
-                    processingException = e.Message;
-                }
-
-                if(responseBody != null)
-                {
-                    try
-                    {
-                       errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(responseBody);
-                    }
-                    catch(System.Exception e)
-                    {
-                        errorWrapper = null;
-                        processingException = e.Message;
-                    }
-                }
-            }
-
-
-            WebRequestError error = null;
-            if(errorWrapper != null)
-            {
-                // NOTE(@jackson): Can be null
-                error = errorWrapper.error;
-            }
-
-            if(error == null)
-            {
-                error = new WebRequestError();
-                error.message = webRequest.error;
-            }
-
-            if(processingException != null)
-            {
-                error.processingException = processingException;
-            }
-
-            error.responseBody = responseBody;
-            error.responseCode = (int)webRequest.responseCode;
-            error.responseHeaders = webRequest.GetResponseHeaders();
-
-            error.method = webRequest.method.ToUpper();
-            error.url = webRequest.url;
             error.timeStamp = ServerTimeStamp.Now;
+
+            error.ApplyAPIErrorValues();
 
             return error;
         }
@@ -116,58 +107,89 @@ namespace ModIO
         {
             WebRequestError error = new WebRequestError()
             {
-                message = errorMessage,
-                fieldValidationMessages = null,
-                method = "LOCAL",
-                url = "null",
+                webRequest = null,
+                apiMessage = errorMessage,
                 timeStamp = ServerTimeStamp.Now,
-                responseCode = 0,
-                processingException = null,
-                responseHeaders = null,
-                responseBody = null,
             };
 
             return error;
         }
+
+        // ---------[ VALUE INTERPRETATION AND APPLICATION ]---------
+        private void ApplyAPIErrorValues()
+        {
+            this.apiMessage = null;
+            this.fieldValidationMessages = null;
+
+            // null-ref and type-check
+            if(this.webRequest.downloadHandler != null
+               && !(this.webRequest.downloadHandler is DownloadHandlerFile))
+            {
+                try
+                {
+                    // get the request content
+                    string requestContent = this.webRequest.downloadHandler.text;
+                    if(string.IsNullOrEmpty(requestContent)) { return; }
+
+                    // deserialize into an APIError
+                    WebRequestError.APIWrapper errorWrapper = JsonConvert.DeserializeObject<APIWrapper>(requestContent);
+                    if(errorWrapper == null
+                       || errorWrapper.error == null)
+                    {
+                        return;
+                    }
+
+                    // extract values
+                    this.apiMessage = errorWrapper.error.message;
+                    this.fieldValidationMessages = errorWrapper.error.errors;
+                }
+                catch(System.Exception e)
+                {
+                    Debug.LogWarning("[mod.io] Error deserializing API Error:\n"
+                                     + e.Message);
+                }
+            }
+        }
+
 
         // ---------[ HELPER FUNCTIONS ]---------
         public string ToUnityDebugString()
         {
             var debugString = new System.Text.StringBuilder();
 
-            debugString.AppendLine(this.method + " REQUEST FAILED");
-            debugString.AppendLine("URL: " + this.url);
-            debugString.AppendLine("Received At: [" + this.timeStamp + "] "
-                                   + ServerTimeStamp.ToLocalDateTime(this.timeStamp));
-            debugString.AppendLine("Response Code: " + this.responseCode.ToString());
-            debugString.AppendLine("Message: " + this.message);
+            string headerString = (this.webRequest == null ? "REQUEST FAILED LOCALLY"
+                                   : this.webRequest.method.ToUpper() + " REQUEST FAILED");
+            debugString.AppendLine(headerString);
+            debugString.AppendLine("TimeStamp: " + this.timeStamp + " ("
+                                   + ServerTimeStamp.ToLocalDateTime(this.timeStamp) + ")");
 
-            if(this.fieldValidationMessages != null
-               && this.fieldValidationMessages.Count > 0)
+            if(this.webRequest != null)
             {
-                debugString.AppendLine("Field Validation Messages:");
-                foreach(var kvp in fieldValidationMessages)
+                debugString.AppendLine("URL: " + this.webRequest.url);
+
+                var responseHeaders = webRequest.GetResponseHeaders();
+                if(responseHeaders != null
+                   && responseHeaders.Count > 0)
                 {
-                    debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
+                    debugString.AppendLine("Response Headers:");
+                    foreach(var kvp in responseHeaders)
+                    {
+                        debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
+                    }
+                }
+
+                debugString.AppendLine("APIMessage: " + this.apiMessage);
+
+                if(this.fieldValidationMessages != null
+                   && this.fieldValidationMessages.Count > 0)
+                {
+                    debugString.AppendLine("Field Validation Messages:");
+                    foreach(var kvp in fieldValidationMessages)
+                    {
+                        debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
+                    }
                 }
             }
-
-            if(this.responseHeaders != null
-               && this.responseHeaders.Count > 0)
-            {
-                debugString.AppendLine("Response Headers:");
-                foreach(var kvp in responseHeaders)
-                {
-                    debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                }
-            }
-
-            if(this.processingException != null)
-            {
-                debugString.AppendLine("Processing Exception: " + processingException);
-            }
-
-            debugString.AppendLine("Response Body:" + responseBody);
 
             return debugString.ToString();
         }
