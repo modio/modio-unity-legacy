@@ -1069,130 +1069,59 @@ namespace ModIO.UI
         }
 
         // ---------[ REQUESTS ]---------
+        private int CalculateReattemptDelay(WebRequestError requestError)
+        {
+            if(requestError.limitedUntilTimeStamp > 0)
+            {
+                return (requestError.limitedUntilTimeStamp - ServerTimeStamp.Now);
+            }
+            else if(!requestError.isRequestUnresolvable)
+            {
+                if(requestError.isServerUnreachable)
+                {
+                    return 60;
+                }
+                else
+                {
+                    return 15;
+                }
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
         [Obsolete]
         private void ProcessRequestError(WebRequestError requestError,
                                          out bool cancelFurtherAttempts,
                                          out int reattemptDelaySeconds,
                                          out string displayMessage)
         {
-            ProcessedErrorData errorData = ModBrowser.ProcessRequestError(requestError);
+            m_onlineMode = !requestError.isServerUnreachable;
+            m_validOAuthToken = !requestError.isAuthenticationInvalid;
+            cancelFurtherAttempts = requestError.isRequestUnresolvable;
+            displayMessage = requestError.displayMessage;
 
-            m_onlineMode = !errorData.isServerUnreachable;
-            m_validOAuthToken = !errorData.isAuthenticationInvalid;
-            cancelFurtherAttempts = errorData.isRequestUnresolvable;
-            reattemptDelaySeconds = (errorData.reattemptAfterTimeStamp - ServerTimeStamp.Now);
-            displayMessage = errorData.displayMessage;
-        }
-
-        private static ProcessedErrorData ProcessRequestError(WebRequestError requestError)
-        {
-            ProcessedErrorData errorData = new ProcessedErrorData()
+            if(requestError.limitedUntilTimeStamp > 0)
             {
-                isAuthenticationInvalid = false,
-                isServerUnreachable = false,
-                isRequestUnresolvable = false,
-
-                reattemptAfterTimeStamp = requestError.timeStamp,
-
-                displayMessage = string.Empty,
-            };
-
-            switch(requestError.responseCode)
-            {
-                // Bad authorization
-                case 401:
-                {
-                    errorData.isAuthenticationInvalid = true;
-                    errorData.isRequestUnresolvable = true;
-                    errorData.reattemptAfterTimeStamp = int.MaxValue;
-
-                    errorData.displayMessage = ("Your mod.io user authorization details have changed."
-                                                + "\nLogging out and in again should correct this issue.");
-                }
-                break;
-
-                // Not found
-                case 404:
-                // Gone
-                case 410:
-                {
-                    errorData.isRequestUnresolvable = true;
-                    errorData.reattemptAfterTimeStamp = int.MaxValue;
-
-                    errorData.displayMessage = ("Your action failed due to a networking error."
-                                                + "\nPlease report this as\'" + requestError.responseCode.ToString()
-                                                + ":" + requestError.url + "\' to jackson@mod.io");
-                }
-                break;
-
-                // Over limit
-                case 429:
-                {
-                    string retryAfterString;
-                    int retryAfterSeconds;
-
-                    if(!(requestError.responseHeaders.TryGetValue("X-Ratelimit-RetryAfter", out retryAfterString)
-                         && Int32.TryParse(retryAfterString, out retryAfterSeconds)))
-                    {
-                        retryAfterSeconds = 60;
-
-                        Debug.LogWarning("[mod.io] Too many APIRequests have been made, however"
-                                         + " no valid X-Ratelimit-RetryAfter header was detected."
-                                         + "\nPlease report this to jackson@mod.io");
-                    }
-
-                    errorData.reattemptAfterTimeStamp = requestError.timeStamp + retryAfterSeconds;
-                    errorData.displayMessage = requestError.message;
-                }
-                break;
-
-                // Internal server error
-                case 500:
-                {
-                    errorData.isRequestUnresolvable = true;
-                    errorData.reattemptAfterTimeStamp = int.MaxValue;
-
-                    errorData.displayMessage = ("There was an error with the mod.io servers. Staff have been"
-                                                + " notified, and will attempt to fix the issue as soon as possible.");
-                }
-                break;
-
-                // Service Unavailable
-                case 503:
-                {
-                    errorData.isServerUnreachable = true;
-                    errorData.reattemptAfterTimeStamp = requestError.timeStamp + 60;
-
-                    errorData.displayMessage = ("The mod.io servers are currently offline. Please try again later.");
-                }
-                break;
-
-                default:
-                {
-                    // Cannot connect resolve destination host
-                    if(requestError.responseCode <= 0)
-                    {
-                        errorData.isServerUnreachable = true;
-                        errorData.reattemptAfterTimeStamp = requestError.timeStamp + 60;
-
-                        errorData.displayMessage = ("The mod.io servers cannot be reached."
-                                                    + "\nPlease check your internet connection and try again.");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("[mod.io] An unhandled error was returned during a web request."
-                                         + "\nPlease report this to jackson@mod.io with the following information:\n"
-                                         + requestError.ToUnityDebugString());
-
-                        errorData.reattemptAfterTimeStamp = requestError.timeStamp + 15;
-                        errorData.displayMessage = ("Error synchronizing with the mod.io servers.\n"
-                                                    + requestError.message);
-                    }
-                }
-                break;
+                reattemptDelaySeconds = (requestError.limitedUntilTimeStamp - ServerTimeStamp.Now);
             }
-
-            return errorData;
+            else if(!requestError.isRequestUnresolvable)
+            {
+                if(requestError.isServerUnreachable)
+                {
+                    reattemptDelaySeconds = 60;
+                }
+                else
+                {
+                    reattemptDelaySeconds = 15;
+                }
+            }
+            else
+            {
+                reattemptDelaySeconds = -1;
+            }
         }
 
         public void RequestExplorerPage(int pageIndex,
@@ -1279,40 +1208,40 @@ namespace ModIO.UI
 
                     if(requestError != null)
                     {
-                        ProcessedErrorData errorData = ProcessRequestError(requestError);
-                        int restartDelay = -1;
-
-                        if(errorData.isAuthenticationInvalid)
+                        if(requestError.isAuthenticationInvalid)
                         {
                             m_validOAuthToken = false;
 
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       errorData.displayMessage);
+                                                       requestError.displayMessage);
                         }
-                        else if(errorData.isRequestUnresolvable)
+                        else if(requestError.isRequestUnresolvable)
                         {
                             m_validOAuthToken = false;
 
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       errorData.displayMessage);
-                        }
-                        else if(errorData.reattemptAfterTimeStamp < int.MaxValue)
-                        {
-                            int retryDelay = errorData.reattemptAfterTimeStamp - ServerTimeStamp.Now;
-
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       errorData.displayMessage
-                                                       + "\nRetrying in "
-                                                       + retryDelay.ToString()
-                                                       + " seconds");
-
-                            yield return new WaitForSeconds(retryDelay);
-                            continue;
+                                                       requestError.displayMessage);
                         }
                         else
                         {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       errorData.displayMessage);
+                            int reattemptDelay = CalculateReattemptDelay(requestError);
+
+                            if(reattemptDelay > 0)
+                            {
+                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                           requestError.displayMessage
+                                                           + "\nRetrying in "
+                                                           + reattemptDelay.ToString()
+                                                           + " seconds");
+
+                                yield return new WaitForSeconds(reattemptDelay);
+                                continue;
+                            }
+                            else
+                            {
+                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                           requestError.displayMessage);
+                            }
                         }
                     }
                     // This may have changed during the request execution
@@ -1356,40 +1285,40 @@ namespace ModIO.UI
 
                     if(requestError != null)
                     {
-                        ProcessedErrorData errorData = ProcessRequestError(requestError);
-                        int restartDelay = -1;
-
-                        if(errorData.isAuthenticationInvalid)
+                        if(requestError.isAuthenticationInvalid)
                         {
                             m_validOAuthToken = false;
 
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       errorData.displayMessage);
+                                                       requestError.displayMessage);
                         }
-                        else if(errorData.isRequestUnresolvable)
+                        else if(requestError.isRequestUnresolvable)
                         {
-                            cancelUpdates = false;
+                            cancelUpdates = true;
 
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       errorData.displayMessage);
-                        }
-                        else if(errorData.reattemptAfterTimeStamp < int.MaxValue)
-                        {
-                            int retryDelay = errorData.reattemptAfterTimeStamp - ServerTimeStamp.Now;
-
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       errorData.displayMessage
-                                                       + "\nRetrying in "
-                                                       + retryDelay.ToString()
-                                                       + " seconds");
-
-                            yield return new WaitForSeconds(retryDelay);
-                            continue;
+                                                       requestError.displayMessage);
                         }
                         else
                         {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       errorData.displayMessage);
+                            int reattemptDelay = CalculateReattemptDelay(requestError);
+
+                            if(reattemptDelay > 0)
+                            {
+                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                           requestError.displayMessage
+                                                           + "\nRetrying in "
+                                                           + reattemptDelay.ToString()
+                                                           + " seconds");
+
+                                yield return new WaitForSeconds(reattemptDelay);
+                                continue;
+                            }
+                            else
+                            {
+                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                           requestError.displayMessage);
+                            }
                         }
                     }
                     else
