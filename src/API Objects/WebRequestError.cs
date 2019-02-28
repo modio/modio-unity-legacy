@@ -16,8 +16,8 @@ namespace ModIO
             [System.Serializable]
             public class APIError
             {
-                public string message;
-                public Dictionary<string, string> errors;
+                public string message = null;
+                public Dictionary<string, string> errors = null;
             }
 
             public APIError error = null;
@@ -36,10 +36,21 @@ namespace ModIO
         /// <summary>The ServerTimeStamp at which the request was received.</summary>
         public int timeStamp;
 
+        // - Interpreted Values -
+        /// <summary>Indicates whether the provided authentication data was rejected.</summary>
+        public bool isAuthenticationInvalid;
 
+        /// <summary>Indicates whether the mod.io servers a unreachable (for whatever reason).</summary>
+        public bool isServerUnreachable;
 
+        /// <summary>Indicates whether this request will always fail for the provided data.</summary>
+        public bool isRequestUnresolvable;
 
+        /// <summary>Indicates whether the request triggered the Rate Limiter and when to retry.</summary>
+        public int limitedUntilTimeStamp;
 
+        /// <summary>A player/user-friendly message to display on the UI.</summary>
+        public string displayMessage;
 
         // --- OBSOLETE FIELDS ---
         [System.Obsolete("Use webRequest.responseCode instead")]
@@ -99,6 +110,7 @@ namespace ModIO
             error.timeStamp = ServerTimeStamp.Now;
 
             error.ApplyAPIErrorValues();
+            error.ApplyInterpretedValues();
 
             return error;
         }
@@ -151,6 +163,174 @@ namespace ModIO
             }
         }
 
+        private void ApplyInterpretedValues()
+        {
+            this.isAuthenticationInvalid = false;
+            this.isServerUnreachable = false;
+            this.isRequestUnresolvable = false;
+            this.limitedUntilTimeStamp = -1;
+            this.displayMessage = string.Empty;
+
+            if(this.webRequest == null) { return; }
+
+            // Interpret code
+            switch(this.webRequest.responseCode)
+            {
+                // - Generic coding errors -
+                // Bad Request
+                case 400:
+                // Method Not Allowed
+                case 405:
+                // Not Acceptable
+                case 406:
+                // Unsupported Media Type
+                case 415:
+                {
+                    this.displayMessage = ("Error synchronizing with the mod.io servers.");
+
+                    this.isRequestUnresolvable = true;
+
+                    Debug.LogWarning("[mod.io] " + this.ToUnityDebugString());
+                }
+                break;
+
+                // Bad authorization
+                case 401:
+                {
+                    this.displayMessage = ("Your mod.io authentication details have changed."
+                                           + "\nLogging out and in again should correct this issue.");
+
+                    this.isAuthenticationInvalid = true;
+                    this.isRequestUnresolvable = true;
+                }
+                break;
+
+                // Forbidden
+                case 403:
+                {
+                    this.displayMessage = ("You do not have the required permission.");
+
+                    this.isRequestUnresolvable = true;
+                }
+                break;
+
+                // Not found
+                case 404:
+                // Gone
+                case 410:
+                {
+                    this.displayMessage = ("A mod.io networking error was encountered."
+                                           + "\nPlease report this as [" + this.webRequest.responseCode.ToString()
+                                           + "@" + this.webRequest.url + "] to jackson@mod.io");
+
+                    this.isRequestUnresolvable = true;
+                }
+                break;
+
+                // case 405: Handled Above
+                // case 406: Handled Above
+
+                case 408:
+                {
+                    this.displayMessage = ("The mod.io servers cannot be reached."
+                                           + "\nPlease check your internet connection.");
+
+                    this.isServerUnreachable = true;
+                }
+                break;
+
+                // case 410: Handled Above
+
+                // Unprocessable Entity
+                case 422:
+                {
+                    var displayString = new System.Text.StringBuilder();
+                    displayString.AppendLine("The submitted data contained error(s).");
+
+                    if(this.fieldValidationMessages != null
+                       && this.fieldValidationMessages.Count > 0)
+                    {
+                        foreach(var kvp in fieldValidationMessages)
+                        {
+                            displayString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
+                        }
+                    }
+                    this.displayMessage = displayString.ToString();
+
+                    this.isRequestUnresolvable = true;
+                }
+                break;
+
+                // Too Many Requests
+                case 429:
+                {
+                    string retryAfterString;
+                    int retryAfterSeconds;
+
+                    var responseHeaders = this.webRequest.GetResponseHeaders();
+                    if(!(responseHeaders.TryGetValue("X-Ratelimit-RetryAfter", out retryAfterString)
+                         && int.TryParse(retryAfterString, out retryAfterSeconds)))
+                    {
+                        retryAfterSeconds = 60;
+
+                        Debug.LogWarning("[mod.io] Too many APIRequests have been made, however"
+                                         + " no valid X-Ratelimit-RetryAfter header was detected."
+                                         + "\nPlease report this to jackson@mod.io with the following information:"
+                                         + "\n[" + this.webRequest.url
+                                         + ":" + this.webRequest.method
+                                         + "-" + this.apiMessage + "]");
+                    }
+
+                    this.displayMessage = ("Too many requests have been made to the mod.io servers."
+                                           + "\nReconnecting in " + retryAfterSeconds.ToString() + " seconds.");
+
+                    this.limitedUntilTimeStamp = this.timeStamp + retryAfterSeconds;
+                }
+                break;
+
+                // Internal server error
+                case 500:
+                {
+                    this.displayMessage = ("There was an error with the mod.io servers. Staff have been"
+                                           + " notified, and will attempt to fix the issue as soon as possible.");
+
+                    this.isRequestUnresolvable = true;
+                }
+                break;
+
+                // Service Unavailable
+                case 503:
+                {
+                    this.displayMessage = "The mod.io servers are currently offline.";
+
+                    this.isServerUnreachable = true;
+                }
+                break;
+
+                default:
+                {
+                    // Cannot connect resolve destination host, used by Unity
+                    if(this.webRequest.responseCode <= 0)
+                    {
+                        this.displayMessage = ("The mod.io servers cannot be reached."
+                                               + "\nPlease check your internet connection.");
+
+                        this.isServerUnreachable = true;
+                    }
+                    else
+                    {
+                        this.displayMessage = ("Error synchronizing with the mod.io servers.");
+
+                        this.isRequestUnresolvable = true;
+
+                        Debug.LogWarning("[mod.io] An unhandled error was returned during a web request."
+                                         + "\nPlease report this to jackson@mod.io with the following information:\n"
+                                         + this.ToUnityDebugString());
+                    }
+                }
+                break;
+            }
+        }
 
         // ---------[ HELPER FUNCTIONS ]---------
         public string ToUnityDebugString()
