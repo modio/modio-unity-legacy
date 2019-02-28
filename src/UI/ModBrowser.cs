@@ -38,6 +38,17 @@ namespace ModIO.UI
             public Comparison<ModProfile> sortDelegate;
         }
 
+        private struct ProcessedErrorData
+        {
+            public bool isAuthenticationInvalid;
+            public bool isServerUnreachable;
+            public bool isRequestUnresolvable;
+
+            public int reattemptAfterTimeStamp;
+
+            public string displayMessage;
+        }
+
         // ---------[ CONST & STATIC ]---------
         /// <summary>File name used to store the browser manifest.</summary>
         public const string MANIFEST_FILENAME = "browser_manifest.data";
@@ -1058,24 +1069,45 @@ namespace ModIO.UI
         }
 
         // ---------[ REQUESTS ]---------
+        [Obsolete]
         private void ProcessRequestError(WebRequestError requestError,
                                          out bool cancelFurtherAttempts,
                                          out int reattemptDelaySeconds,
                                          out string displayMessage)
         {
-            cancelFurtherAttempts = false;
+            ProcessedErrorData errorData = ModBrowser.ProcessRequestError(requestError);
+
+            m_onlineMode = !errorData.isServerUnreachable;
+            m_validOAuthToken = !errorData.isAuthenticationInvalid;
+            cancelFurtherAttempts = errorData.isRequestUnresolvable;
+            reattemptDelaySeconds = (errorData.reattemptAfterTimeStamp - ServerTimeStamp.Now);
+            displayMessage = errorData.displayMessage;
+        }
+
+        private static ProcessedErrorData ProcessRequestError(WebRequestError requestError)
+        {
+            ProcessedErrorData errorData = new ProcessedErrorData()
+            {
+                isAuthenticationInvalid = false,
+                isServerUnreachable = false,
+                isRequestUnresolvable = false,
+
+                reattemptAfterTimeStamp = requestError.timeStamp,
+
+                displayMessage = string.Empty,
+            };
 
             switch(requestError.responseCode)
             {
                 // Bad authorization
                 case 401:
                 {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = ("Your mod.io user authorization details have changed."
-                                      + "\nLogging out and in again should correct this issue.");
-                    cancelFurtherAttempts = true;
+                    errorData.isAuthenticationInvalid = true;
+                    errorData.isRequestUnresolvable = true;
+                    errorData.reattemptAfterTimeStamp = int.MaxValue;
 
-                    m_validOAuthToken = false;
+                    errorData.displayMessage = ("Your mod.io user authorization details have changed."
+                                                + "\nLogging out and in again should correct this issue.");
                 }
                 break;
 
@@ -1084,49 +1116,54 @@ namespace ModIO.UI
                 // Gone
                 case 410:
                 {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = requestError.message;
+                    errorData.isRequestUnresolvable = true;
+                    errorData.reattemptAfterTimeStamp = int.MaxValue;
 
-                    cancelFurtherAttempts = true;
+                    errorData.displayMessage = ("Your action failed due to a networking error."
+                                                + "\nPlease report this as\'" + requestError.responseCode.ToString()
+                                                + ":" + requestError.url + "\' to jackson@mod.io");
                 }
                 break;
 
                 // Over limit
                 case 429:
                 {
-                    string sur_string;
-                    if(!(requestError.responseHeaders.TryGetValue("X-Ratelimit-RetryAfter", out sur_string)
-                         && Int32.TryParse(sur_string, out reattemptDelaySeconds)))
+                    string retryAfterString;
+                    int retryAfterSeconds;
+
+                    if(!(requestError.responseHeaders.TryGetValue("X-Ratelimit-RetryAfter", out retryAfterString)
+                         && Int32.TryParse(retryAfterString, out retryAfterSeconds)))
                     {
-                        reattemptDelaySeconds = 60;
+                        retryAfterSeconds = 60;
 
                         Debug.LogWarning("[mod.io] Too many APIRequests have been made, however"
                                          + " no valid X-Ratelimit-RetryAfter header was detected."
-                                         + "\nPlease report this to mod.io staff.");
+                                         + "\nPlease report this to jackson@mod.io");
                     }
 
-                    displayMessage = requestError.message;
+                    errorData.reattemptAfterTimeStamp = requestError.timeStamp + retryAfterSeconds;
+                    errorData.displayMessage = requestError.message;
                 }
                 break;
 
                 // Internal server error
                 case 500:
                 {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = ("There was an error with the mod.io servers. Staff have been"
-                                      + " notified, and will attempt to fix the issue as soon as possible.");
-                    cancelFurtherAttempts = true;
+                    errorData.isRequestUnresolvable = true;
+                    errorData.reattemptAfterTimeStamp = int.MaxValue;
+
+                    errorData.displayMessage = ("There was an error with the mod.io servers. Staff have been"
+                                                + " notified, and will attempt to fix the issue as soon as possible.");
                 }
                 break;
 
                 // Service Unavailable
                 case 503:
                 {
-                    reattemptDelaySeconds = -1;
-                    displayMessage = ("The mod.io servers are currently offline. Please try again later.");
-                    cancelFurtherAttempts = true;
+                    errorData.isServerUnreachable = true;
+                    errorData.reattemptAfterTimeStamp = requestError.timeStamp + 60;
 
-                    m_onlineMode = false;
+                    errorData.displayMessage = ("The mod.io servers are currently offline. Please try again later.");
                 }
                 break;
 
@@ -1135,22 +1172,27 @@ namespace ModIO.UI
                     // Cannot connect resolve destination host
                     if(requestError.responseCode <= 0)
                     {
-                        reattemptDelaySeconds = 60;
-                        displayMessage = ("Unable to connect to the mod.io servers.");
+                        errorData.isServerUnreachable = true;
+                        errorData.reattemptAfterTimeStamp = requestError.timeStamp + 60;
+
+                        errorData.displayMessage = ("The mod.io servers cannot be reached."
+                                                    + "\nPlease check your internet connection and try again.");
                     }
                     else
                     {
-                        Debug.LogWarning("[mod.io] An unhandled error was returned when retrieving mod updates."
-                                         + "\nPlease report this to mod.io staff with the following information:\n"
+                        Debug.LogWarning("[mod.io] An unhandled error was returned during a web request."
+                                         + "\nPlease report this to jackson@mod.io with the following information:\n"
                                          + requestError.ToUnityDebugString());
 
-                        reattemptDelaySeconds = 15;
-                        displayMessage = ("Error synchronizing with the mod.io servers.\n"
-                                          + requestError.message);
+                        errorData.reattemptAfterTimeStamp = requestError.timeStamp + 15;
+                        errorData.displayMessage = ("Error synchronizing with the mod.io servers.\n"
+                                                    + requestError.message);
                     }
                 }
                 break;
             }
+
+            return errorData;
         }
 
         public void RequestExplorerPage(int pageIndex,
