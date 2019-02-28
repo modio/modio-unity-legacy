@@ -107,7 +107,7 @@ namespace ModIO
             WebRequestError error = new WebRequestError();
             error.webRequest = webRequest;
 
-            error.timeStamp = ServerTimeStamp.Now;
+            error.timeStamp = ParseDateHeaderAsTimeStamp(webRequest);
 
             error.ApplyAPIErrorValues();
             error.ApplyInterpretedValues();
@@ -128,6 +128,25 @@ namespace ModIO
         }
 
         // ---------[ VALUE INTERPRETATION AND APPLICATION ]---------
+        private static int ParseDateHeaderAsTimeStamp(UnityWebRequest webRequest)
+        {
+            var dateHeaderValue = webRequest.GetResponseHeader("Date");
+
+            if(!string.IsNullOrEmpty(dateHeaderValue))
+            {
+                // Example: Thu, 28 Feb 2019 07:04:38 GMT
+
+                var time = System.DateTime.ParseExact(dateHeaderValue,
+                                                      "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
+                                                      System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat,
+                                                      System.Globalization.DateTimeStyles.AssumeUniversal);
+
+                return ServerTimeStamp.FromUTCDateTime(time);
+            }
+
+            return 0;
+        }
+
         private void ApplyAPIErrorValues()
         {
             this.apiMessage = null;
