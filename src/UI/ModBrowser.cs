@@ -1279,32 +1279,40 @@ namespace ModIO.UI
 
                     if(requestError != null)
                     {
-                        int secondsUntilRetry;
-                        string displayMessage;
+                        ProcessedErrorData errorData = ProcessRequestError(requestError);
+                        int restartDelay = -1;
 
-                        ProcessRequestError(requestError, out cancelUpdates,
-                                            out secondsUntilRetry, out displayMessage);
-
-                        if(secondsUntilRetry > 0)
+                        if(errorData.isAuthenticationInvalid)
                         {
+                            m_validOAuthToken = false;
+
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       errorData.displayMessage);
+                        }
+                        else if(errorData.isRequestUnresolvable)
+                        {
+                            m_validOAuthToken = false;
+
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       displayMessage
+                                                       errorData.displayMessage);
+                        }
+                        else if(errorData.reattemptAfterTimeStamp < int.MaxValue)
+                        {
+                            int retryDelay = errorData.reattemptAfterTimeStamp - ServerTimeStamp.Now;
+
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       errorData.displayMessage
                                                        + "\nRetrying in "
-                                                       + secondsUntilRetry.ToString()
+                                                       + retryDelay.ToString()
                                                        + " seconds");
 
-                            yield return new WaitForSeconds(secondsUntilRetry + 1);
+                            yield return new WaitForSeconds(retryDelay);
                             continue;
                         }
                         else
                         {
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       displayMessage);
-                        }
-
-                        if(cancelUpdates)
-                        {
-                            break;
+                                                       errorData.displayMessage);
                         }
                     }
                     // This may have changed during the request execution
@@ -1348,33 +1356,40 @@ namespace ModIO.UI
 
                     if(requestError != null)
                     {
-                        int secondsUntilRetry;
-                        string displayMessage;
+                        ProcessedErrorData errorData = ProcessRequestError(requestError);
+                        int restartDelay = -1;
 
-                        ProcessRequestError(requestError, out cancelUpdates,
-                                            out secondsUntilRetry, out displayMessage);
-
-
-                        if(secondsUntilRetry > 0)
+                        if(errorData.isAuthenticationInvalid)
                         {
+                            m_validOAuthToken = false;
+
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       errorData.displayMessage);
+                        }
+                        else if(errorData.isRequestUnresolvable)
+                        {
+                            cancelUpdates = false;
+
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       displayMessage
+                                                       errorData.displayMessage);
+                        }
+                        else if(errorData.reattemptAfterTimeStamp < int.MaxValue)
+                        {
+                            int retryDelay = errorData.reattemptAfterTimeStamp - ServerTimeStamp.Now;
+
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       errorData.displayMessage
                                                        + "\nRetrying in "
-                                                       + secondsUntilRetry.ToString()
+                                                       + retryDelay.ToString()
                                                        + " seconds");
 
-                            yield return new WaitForSeconds(secondsUntilRetry + 1);
+                            yield return new WaitForSeconds(retryDelay);
                             continue;
                         }
                         else
                         {
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       displayMessage);
-                        }
-
-                        if(cancelUpdates)
-                        {
-                            break;
+                                                       errorData.displayMessage);
                         }
                     }
                     else
