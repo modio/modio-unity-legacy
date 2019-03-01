@@ -507,12 +507,22 @@ namespace ModIO.UI
                 CloseLoginDialog();
                 LogUserIn(t);
             };
-            loginDialog.onAPIRequestError += (e) =>
+            loginDialog.onWebRequestError += (e) =>
             {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                           e.message);
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           e.displayMessage);
             };
             loginDialog.onInvalidSubmissionAttempted += (m) =>
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           m);
+            };
+            loginDialog.onEmailRefused += (m) =>
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           m);
+            };
+            loginDialog.onSecurityCodeRefused += (m) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                            m);
