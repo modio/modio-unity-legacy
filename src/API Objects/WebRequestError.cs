@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
+using DateTime = System.DateTime;
 using Debug = UnityEngine.Debug;
 using DownloadHandlerFile = UnityEngine.Networking.DownloadHandlerFile;
 using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
@@ -27,14 +28,14 @@ namespace ModIO
         /// <summary>UnityWebRequest that generated the data for the error.</summary>
         public UnityWebRequest webRequest;
 
+        /// <summary>The ServerTimeStamp at which the request was received.</summary>
+        public int timeStamp;
+
         /// <summary>The message returned by the API explaining the error.</summary>
         public string errorMessage;
 
         /// <summary>Errors pertaining to specific POST data fields.</summary>
         public IDictionary<string, string> fieldValidationMessages;
-
-        /// <summary>The ServerTimeStamp at which the request was received.</summary>
-        public int timeStamp;
 
         // - Interpreted Values -
         /// <summary>Indicates whether the provided authentication data was rejected.</summary>
@@ -195,6 +196,11 @@ namespace ModIO
                     Debug.LogWarning("[mod.io] Error deserializing API Error:\n"
                                      + e.Message);
                 }
+            }
+
+            if(this.errorMessage == null)
+            {
+                this.errorMessage = this.webRequest.error;
             }
         }
 
@@ -375,12 +381,13 @@ namespace ModIO
             string headerString = (this.webRequest == null ? "REQUEST FAILED LOCALLY"
                                    : this.webRequest.method.ToUpper() + " REQUEST FAILED");
             debugString.AppendLine(headerString);
-            debugString.AppendLine("TimeStamp: " + this.timeStamp + " ("
-                                   + ServerTimeStamp.ToLocalDateTime(this.timeStamp) + ")");
 
             if(this.webRequest != null)
             {
                 debugString.AppendLine("URL: " + this.webRequest.url);
+                debugString.AppendLine("TimeStamp: " + this.timeStamp + " ("
+                                       + ServerTimeStamp.ToLocalDateTime(this.timeStamp) + ")");
+                debugString.AppendLine("ResponseCode: " + this.webRequest.responseCode.ToString());
 
                 var responseHeaders = webRequest.GetResponseHeaders();
                 if(responseHeaders != null
@@ -393,7 +400,7 @@ namespace ModIO
                     }
                 }
 
-                debugString.AppendLine("APIMessage: " + this.errorMessage);
+                debugString.AppendLine("ErrorMessage: " + this.errorMessage);
 
                 if(this.fieldValidationMessages != null
                    && this.fieldValidationMessages.Count > 0)
@@ -404,6 +411,12 @@ namespace ModIO
                         debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
                     }
                 }
+
+                debugString.AppendLine(".isAuthenticationInvalid = "    + this.isAuthenticationInvalid.ToString());
+                debugString.AppendLine(".isServerUnreachable = "        + this.isServerUnreachable.ToString());
+                debugString.AppendLine(".isRequestUnresolvable = "      + this.isRequestUnresolvable.ToString());
+                debugString.AppendLine(".limitedUntilTimeStamp = "      + this.limitedUntilTimeStamp.ToString());
+                debugString.AppendLine(".displayMessage = "             + this.displayMessage);
             }
 
             return debugString.ToString();
