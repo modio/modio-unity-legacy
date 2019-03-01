@@ -1144,7 +1144,8 @@ namespace ModIO.UI
             }
             else if(!requestError.isRequestUnresolvable)
             {
-                if(requestError.isServerUnreachable)
+                if(requestError.isServerUnreachable
+                   && requestError.webRequest.responseCode > 0)
                 {
                     return 60;
                 }
