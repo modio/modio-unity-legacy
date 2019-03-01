@@ -2345,7 +2345,22 @@ namespace ModIO.UI
                     }
                 }
             },
-            WebRequestError.LogAsWarning);
+            (requestError) =>
+            {
+                if(requestError.isAuthenticationInvalid)
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                               requestError.displayMessage);
+
+                    m_validOAuthToken = false;
+                }
+                else
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               "Failed to start mod download. It will be retried shortly.\n"
+                                               + requestError.displayMessage);
+                }
+            });
         }
 
         public void OnUnsubscribedFromMod(int modId)
