@@ -1023,43 +1023,24 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        m_validOAuthToken = false;
-
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
+                        m_validOAuthToken = false;
                         yield break;
                     }
-                    else if(requestError.isRequestUnresolvable)
+                    else if(requestError.isRequestUnresolvable
+                            || reattemptDelay < 0)
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   requestError.displayMessage);
-
                         yield break;
                     }
                     else
                     {
-                        int reattemptDelay = CalculateReattemptDelay(requestError);
-
-                        if(reattemptDelay > 0)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       requestError.displayMessage
-                                                       + "\nRetrying in "
-                                                       + reattemptDelay.ToString()
-                                                       + " seconds");
-
-                            yield return new WaitForSeconds(reattemptDelay);
-                            continue;
-                        }
-                        else
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       requestError.displayMessage);
-                            yield break;
-                        }
+                        yield return new WaitForSeconds(reattemptDelay);
+                        continue;
                     }
                 }
                 else
