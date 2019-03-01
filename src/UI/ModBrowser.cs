@@ -641,7 +641,7 @@ namespace ModIO.UI
             while(!succeeded)
             {
                 bool isRequestDone = false;
-                WebRequestError error = null;
+                WebRequestError requestError = null;
 
                 // requests
                 APIClient.GetAuthenticatedUser(
@@ -661,51 +661,45 @@ namespace ModIO.UI
                 },
                 (e) =>
                 {
-                    error = e;
+                    requestError = e;
                     isRequestDone = true;
                 });
 
                 while(!isRequestDone) { yield return null; }
 
-                if(error != null)
+                if(requestError != null)
                 {
-                    if(error.isAuthenticationInvalid)
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    if(requestError.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   error.displayMessage);
+                                                   requestError.displayMessage);
 
                         m_validOAuthToken = false;
                         yield break;
                     }
-                    else if(error.isRequestUnresolvable)
+                    else if(requestError.isRequestUnresolvable
+                            || reattemptDelay < 0)
                     {
+                        Debug.LogWarning("[mod.io] Fetching User Profile failed."
+                                         + requestError.ToUnityDebugString());
+
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   error.displayMessage);
+                                                   "Failed to collect user profile data from mod.io.");
 
                         m_validOAuthToken = false;
                         yield break;
                     }
                     else
                     {
-                        int reattemptDelay = CalculateReattemptDelay(error);
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Failed to collect user profile data from mod.io."
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
 
-                        if(reattemptDelay > 0)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       error.displayMessage
-                                                       + "\nRetrying in "
-                                                       + reattemptDelay.ToString()
-                                                       + " seconds");
-
-                            yield return new WaitForSeconds(reattemptDelay);
-                            continue;
-                        }
-                        else
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       error.displayMessage);
-                            yield break;
-                        }
+                        yield return new WaitForSeconds(reattemptDelay);
+                        continue;
                     }
                 }
             }
