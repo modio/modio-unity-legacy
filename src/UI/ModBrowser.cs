@@ -1244,7 +1244,7 @@ namespace ModIO.UI
         {
             bool cancelUpdates = false;
 
-            while(m_onlineMode && !cancelUpdates)
+            while(!cancelUpdates)
             {
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
@@ -1280,32 +1280,19 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
                         }
-                        else if(requestError.isRequestUnresolvable)
-                        {
-                            m_validOAuthToken = false;
-
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       requestError.displayMessage);
-                        }
                         else
                         {
                             int reattemptDelay = CalculateReattemptDelay(requestError);
-
-                            if(reattemptDelay > 0)
+                            if(!requestError.isRequestUnresolvable
+                               && reattemptDelay > 0)
                             {
-                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                           requestError.displayMessage
-                                                           + "\nRetrying in "
-                                                           + reattemptDelay.ToString()
-                                                           + " seconds");
-
                                 yield return new WaitForSeconds(reattemptDelay);
                                 continue;
                             }
                             else
                             {
-                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                           requestError.displayMessage);
+                                Debug.LogWarning("[mod.io] Polling for user updates failed."
+                                                 + requestError.ToUnityDebugString());
                             }
                         }
                     }
@@ -1357,32 +1344,21 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
                         }
-                        else if(requestError.isRequestUnresolvable)
-                        {
-                            cancelUpdates = true;
-
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       requestError.displayMessage);
-                        }
                         else
                         {
                             int reattemptDelay = CalculateReattemptDelay(requestError);
-
-                            if(reattemptDelay > 0)
+                            if(!requestError.isRequestUnresolvable
+                               && reattemptDelay > 0)
                             {
-                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                           requestError.displayMessage
-                                                           + "\nRetrying in "
-                                                           + reattemptDelay.ToString()
-                                                           + " seconds");
-
                                 yield return new WaitForSeconds(reattemptDelay);
                                 continue;
                             }
                             else
                             {
-                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                           requestError.displayMessage);
+                                Debug.LogWarning("[mod.io] Polling for updates failed. Cancelling."
+                                                 + requestError.ToUnityDebugString());
+
+                                cancelUpdates = true;
                             }
                         }
                     }
