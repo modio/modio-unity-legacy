@@ -156,8 +156,6 @@ namespace ModIO
                 //  is ignored(?) in TryParseExact, so it needs to be set as universal after the fact.
                 time = DateTime.SpecifyKind(time, System.DateTimeKind.Utc);
 
-                Debug.Log("TIME:" + time.ToString(timeFormat) + " [" + time.ToString("zzz") + "]");
-
                 return ServerTimeStamp.FromUTCDateTime(time);
             }
 
