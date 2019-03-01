@@ -567,7 +567,12 @@ namespace ModIO.UI
             else
             {
                 yield return this.StartCoroutine(FetchUserProfile());
-                yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
+
+                // NOTE(@jackson): There is the potential that the UserProfile request fails
+                if(m_validOAuthToken)
+                {
+                    yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
+                }
             }
 
             VerifySubscriptionInstallations();
@@ -729,7 +734,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
         {
-            Debug.Assert(!String.IsNullOrEmpty(UserAuthenticationData.instance.token));
+            if(!m_validOAuthToken) { yield break; }
 
             int updateStartTimeStamp = ServerTimeStamp.Now;
             int updateCount = 0;
@@ -1394,8 +1399,7 @@ namespace ModIO.UI
 
         private void PushSubscriptionChanges()
         {
-            Debug.Assert(m_userProfile != null);
-            Debug.Assert(this.m_validOAuthToken);
+            if(!this.m_validOAuthToken) { return; }
 
             // NOTE(@jackson): This is workaround is due to the response of a repeat sub and unsub
             // request returning an error.
