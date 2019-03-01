@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -237,7 +236,10 @@ namespace ModIO
             var installedModInfo = ModManager.IterateInstalledMods(modIdFilter);
             foreach(var kvp in installedModInfo)
             {
-                versions.Add(kvp.Key);
+                if(kvp.Key.modId != ModProfile.NULL_ID)
+                {
+                    versions.Add(kvp.Key);
+                }
             }
 
             return versions;
