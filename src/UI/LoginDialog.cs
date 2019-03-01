@@ -25,6 +25,9 @@ namespace ModIO.UI
         [Header("Settings")]
         [Tooltip("Invalid Submission Message")]
         public string invalidSubmissionMessage = "Input needs to be either a valid email address or the 5-Digit authentication code.";
+        [Tooltip("Email Refused Message")]
+        public string emailRefusedMessage = ("The email address was rejected by the mod.io server."
+                                             + "\nPlease correct any mistakes, or try another email address.");
 
         [Header("UI Components")]
         [Tooltip("Objects to toggle depending on the state of the input field validation.")]
@@ -114,21 +117,20 @@ namespace ModIO.UI
 
         private void ProcessWebRequestError(WebRequestError e, bool isSecurityCode)
         {
-            if(e.webRequest.responseCode == 401)
+            if(e.webRequest.responseCode == 401
+               && isSecurityCode)
             {
-                if(isSecurityCode)
+                if(onSecurityCodeRefused != null)
                 {
-                    if(onSecurityCodeRefused != null)
-                    {
-                        onSecurityCodeRefused(e.errorMessage);
-                    }
+                    onSecurityCodeRefused(e.errorMessage);
                 }
-                else
+            }
+            else if(e.webRequest.responseCode == 422
+                    && !isSecurityCode)
+            {
+                if(onEmailRefused != null)
                 {
-                    if(onEmailRefused != null)
-                    {
-                        onEmailRefused(e.errorMessage);
-                    }
+                    onEmailRefused(emailRefusedMessage);
                 }
             }
             else
