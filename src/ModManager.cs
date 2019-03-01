@@ -341,8 +341,6 @@ namespace ModIO
             }
 
             // - fetch and compare all the installed versions to the remote mod profiles -
-            APIPaginationParameters pagination = new APIPaginationParameters();
-
             RequestFilter modFilter = new RequestFilter();
             modFilter.fieldFilters[GetAllModsFilterFields.id]
             = new InArrayFilter<int>()
@@ -1409,13 +1407,7 @@ namespace ModIO
 
                 if(onError != null)
                 {
-                    WebRequestError error = new WebRequestError()
-                    {
-                        message = "Unable to zip mod binary prior to uploading",
-                        url = binaryZipLocation,
-                        timeStamp = ServerTimeStamp.Now,
-                        responseCode = 0,
-                    };
+                    WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
 
                     onError(error);
                 }
@@ -1459,13 +1451,7 @@ namespace ModIO
 
                 if(onError != null)
                 {
-                    WebRequestError error = new WebRequestError()
-                    {
-                        message = "Unable to zip mod binary prior to uploading",
-                        url = binaryZipLocation,
-                        timeStamp = ServerTimeStamp.Now,
-                        responseCode = 0,
-                    };
+                    WebRequestError error = WebRequestError.GenerateLocal("Unable to zip mod binary prior to uploading");
 
                     onError(error);
                 }
