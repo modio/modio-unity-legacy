@@ -138,19 +138,29 @@ namespace ModIO
         {
             var dateHeaderValue = webRequest.GetResponseHeader("Date");
 
-            if(!string.IsNullOrEmpty(dateHeaderValue))
-            {
-                // Example: Thu, 28 Feb 2019 07:04:38 GMT
+            // Examples:
+            //  Thu, 28 Feb 2019 07:04:38 GMT
+            //  Fri, 01 Mar 2019 01:16:49 GMT
+            string timeFormat = "ddd, dd MMM yyyy HH:mm:ss 'GMT'";
+            DateTime time;
 
-                var time = System.DateTime.ParseExact(dateHeaderValue,
-                                                      "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
-                                                      System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat,
-                                                      System.Globalization.DateTimeStyles.AssumeUniversal);
+            if(!string.IsNullOrEmpty(dateHeaderValue)
+               && DateTime.TryParseExact(dateHeaderValue,
+                                         timeFormat,
+                                         System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat,
+                                         System.Globalization.DateTimeStyles.AssumeUniversal,
+                                         out time))
+            {
+                // NOTE(@jackson): For some reason, System.Globalization.DateTimeStyles.AssumeUniversal
+                //  is ignored(?) in TryParseExact, so it needs to be set as universal after the fact.
+                time = DateTime.SpecifyKind(time, System.DateTimeKind.Utc);
+
+                Debug.Log("TIME:" + time.ToString(timeFormat) + " [" + time.ToString("zzz") + "]");
 
                 return ServerTimeStamp.FromUTCDateTime(time);
             }
 
-            return 0;
+            return ServerTimeStamp.Now;
         }
 
         private void ApplyAPIErrorValues()
