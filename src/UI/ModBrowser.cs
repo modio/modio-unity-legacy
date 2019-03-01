@@ -1601,14 +1601,17 @@ namespace ModIO.UI
                     {
                         if(requestError.isAuthenticationInvalid)
                         {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       requestError.displayMessage);
+
                             m_validOAuthToken = false;
-
                         }
-
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to update installed mods.\n"
-                                                   + requestError.displayMessage);
-
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       "Failed to update installed mods.\n"
+                                                       + requestError.displayMessage);
+                        }
                         yield break;
                     }
                     else
