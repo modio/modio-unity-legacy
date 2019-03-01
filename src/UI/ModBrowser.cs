@@ -1820,8 +1820,8 @@ namespace ModIO.UI
                 modfile = null;
             }
 
+            // get modfile
             while(modfile == null
-                  && m_onlineMode
                   && this.isActiveAndEnabled)
             {
                 APIClient.GetModfile(modId, modfileId,
@@ -1841,28 +1841,31 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    bool cancel;
-                    int reattemptDelay;
-                    string message;
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        m_validOAuthToken = false;
+                    }
 
-                    ProcessRequestError(requestError, out cancel,
-                                        out reattemptDelay, out message);
-
-                    if(reattemptDelay > 0)
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    if(!requestError.isRequestUnresolvable
+                       && reattemptDelay > 0)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Mods have failed to download.\n"
-                                                   + message
+                                                   + requestError.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
-                        yield return new WaitForSeconds(reattemptDelay + 1);
+
+                        yield return new WaitForSeconds(reattemptDelay);
+                        continue;
+
                     }
-                    else if(cancel)
+                    else
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    "Mods have failed to download.\n"
-                                                   + message);
+                                                   + requestError.displayMessage);
                         yield break;
                     }
                 }
@@ -1877,15 +1880,7 @@ namespace ModIO.UI
                 }
             }
 
-            if(modfile == null)
-            {
-                Debug.LogWarning("[mod.io] Failed to retrieve the Modfile and thus cannot download"
-                                 + " the mod binary. (ModId: " + modId.ToString() + " - ModfileId: "
-                                 + modfileId.ToString());
-                yield break;
-            }
-
-
+            // get binary
             while(!isBinaryZipValid
                   && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now
                   && m_onlineMode)
@@ -1911,28 +1906,44 @@ namespace ModIO.UI
 
                 if(downloadInfo.error != null)
                 {
-                    bool cancel;
-                    int reattemptDelay;
-                    string message;
+                    string modNamePrefix = string.Empty;
+                    ModProfile profile = CacheClient.LoadModProfile(modId);
+                    if(profile != null)
+                    {
+                        modNamePrefix = profile.name;
+                    }
+                    else
+                    {
+                        modNamePrefix = "Mods have";
+                    }
 
-                    ProcessRequestError(downloadInfo.error, out cancel,
-                                        out reattemptDelay, out message);
+                    if(downloadInfo.error.isAuthenticationInvalid)
+                    {
+                        m_validOAuthToken = false;
+                    }
 
-                    if(reattemptDelay > 0)
+                    int reattemptDelay = CalculateReattemptDelay(downloadInfo.error);
+                    if(!downloadInfo.error.isRequestUnresolvable
+                       && reattemptDelay > 0)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message
+                                                   modNamePrefix
+                                                   + " failed to download.\n"
+                                                   + downloadInfo.error.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
-                        yield return new WaitForSeconds(reattemptDelay + 1);
+
+                        yield return new WaitForSeconds(reattemptDelay);
+                        continue;
+
                     }
-                    else if(cancel)
+                    else
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
-                                                   + message);
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   modNamePrefix
+                                                   + " failed to download.\n"
+                                                   + downloadInfo.error.displayMessage);
                         yield break;
                     }
                 }
@@ -1983,7 +1994,7 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    errorMessage);
 
-                        yield return new WaitForSeconds(5);
+                        yield return new WaitForSeconds(5f);
 
                         yield return StartCoroutine(DownloadAndInstallModVersion(modId, modfileId));
 
