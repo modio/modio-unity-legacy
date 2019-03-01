@@ -2261,11 +2261,21 @@ namespace ModIO.UI
 
             // request page
             RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
-                                         (e) =>
+                                         (requestError) =>
                                          {
-                                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                                       "Failed to retrieve subscribed mod profiles.\n"
-                                                                       + e.displayMessage);
+                                            if(requestError.isAuthenticationInvalid)
+                                            {
+                                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                                           requestError.displayMessage);
+
+                                                m_validOAuthToken = false;
+                                            }
+                                            else
+                                            {
+                                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                                           "Failed to get subscription data from mod.io servers.\n"
+                                                                           + requestError.displayMessage);
+                                            }
                                          });
         }
 
