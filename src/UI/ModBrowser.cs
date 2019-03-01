@@ -1743,17 +1743,40 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    if(requestError.isAuthenticationInvalid)
+                    ModProfile profile = CacheClient.LoadModProfile(modId);
+                    string modNamePrefix = string.Empty;
+                    if(profile != null)
                     {
-                        m_validOAuthToken = false;
+                        modNamePrefix = profile.name;
+                    }
+                    else
+                    {
+                        modNamePrefix = "Mods have";
                     }
 
                     int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(!requestError.isRequestUnresolvable
-                       && reattemptDelay > 0)
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
+
+                        m_validOAuthToken = false;
+                        yield break;
+                    }
+                    else if(requestError.isRequestUnresolvable
+                            || reattemptDelay < 0)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Mods have failed to download.\n"
+                                                   modNamePrefix
+                                                   + " failed to download.\n"
+                                                   + requestError.displayMessage);
+                        yield break;
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   modNamePrefix
+                                                   + " failed to download.\n"
                                                    + requestError.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
@@ -1761,14 +1784,6 @@ namespace ModIO.UI
 
                         yield return new WaitForSeconds(reattemptDelay);
                         continue;
-
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   "Mods have failed to download.\n"
-                                                   + requestError.displayMessage);
-                        yield break;
                     }
                 }
                 else if(modfile != null)
@@ -1807,8 +1822,8 @@ namespace ModIO.UI
 
                 if(downloadInfo.error != null)
                 {
-                    string modNamePrefix = string.Empty;
                     ModProfile profile = CacheClient.LoadModProfile(modId);
+                    string modNamePrefix = string.Empty;
                     if(profile != null)
                     {
                         modNamePrefix = profile.name;
@@ -1818,34 +1833,36 @@ namespace ModIO.UI
                         modNamePrefix = "Mods have";
                     }
 
-                    if(downloadInfo.error.isAuthenticationInvalid)
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    if(requestError.isAuthenticationInvalid)
                     {
-                        m_validOAuthToken = false;
-                    }
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
 
-                    int reattemptDelay = CalculateReattemptDelay(downloadInfo.error);
-                    if(!downloadInfo.error.isRequestUnresolvable
-                       && reattemptDelay > 0)
+                        m_validOAuthToken = false;
+                        yield break;
+                    }
+                    else if(requestError.isRequestUnresolvable
+                            || reattemptDelay < 0)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    modNamePrefix
                                                    + " failed to download.\n"
-                                                   + downloadInfo.error.displayMessage
+                                                   + requestError.displayMessage);
+                        yield break;
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   modNamePrefix
+                                                   + " failed to download.\n"
+                                                   + requestError.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
                         yield return new WaitForSeconds(reattemptDelay);
                         continue;
-
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   modNamePrefix
-                                                   + " failed to download.\n"
-                                                   + downloadInfo.error.displayMessage);
-                        yield break;
                     }
                 }
                 else
