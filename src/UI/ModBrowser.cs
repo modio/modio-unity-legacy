@@ -38,17 +38,6 @@ namespace ModIO.UI
             public Comparison<ModProfile> sortDelegate;
         }
 
-        private struct ProcessedErrorData
-        {
-            public bool isAuthenticationInvalid;
-            public bool isServerUnreachable;
-            public bool isRequestUnresolvable;
-
-            public int reattemptAfterTimeStamp;
-
-            public string displayMessage;
-        }
-
         // ---------[ CONST & STATIC ]---------
         /// <summary>File name used to store the browser manifest.</summary>
         public const string MANIFEST_FILENAME = "browser_manifest.data";
@@ -1200,38 +1189,6 @@ namespace ModIO.UI
             else
             {
                 return -1;
-            }
-        }
-
-        [Obsolete]
-        private void ProcessRequestError(WebRequestError requestError,
-                                         out bool cancelFurtherAttempts,
-                                         out int reattemptDelaySeconds,
-                                         out string displayMessage)
-        {
-            m_onlineMode = !requestError.isServerUnreachable;
-            m_validOAuthToken = !requestError.isAuthenticationInvalid;
-            cancelFurtherAttempts = requestError.isRequestUnresolvable;
-            displayMessage = requestError.displayMessage;
-
-            if(requestError.limitedUntilTimeStamp > 0)
-            {
-                reattemptDelaySeconds = (requestError.limitedUntilTimeStamp - ServerTimeStamp.Now);
-            }
-            else if(!requestError.isRequestUnresolvable)
-            {
-                if(requestError.isServerUnreachable)
-                {
-                    reattemptDelaySeconds = 60;
-                }
-                else
-                {
-                    reattemptDelaySeconds = 15;
-                }
-            }
-            else
-            {
-                reattemptDelaySeconds = -1;
             }
         }
 
