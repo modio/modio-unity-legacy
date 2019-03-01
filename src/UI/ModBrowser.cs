@@ -1701,26 +1701,27 @@ namespace ModIO.UI
                     // catch error
                     if(requestError != null)
                     {
-                        int secondsUntilRetry;
-                        string displayMessage;
-                        bool cancel;
+                        if(requestError.isAuthenticationInvalid)
+                        {
+                            m_validOAuthToken = false;
 
-                        ProcessRequestError(requestError, out cancel,
-                                            out secondsUntilRetry, out displayMessage);
+                        }
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to update installed mods.\n"
-                                                   + displayMessage);
+                                                   + requestError.displayMessage);
 
                         yield break;
                     }
-
-                    // installs
-                    CacheClient.SaveModProfiles(response.items);
-
-                    foreach(ModProfile profile in response.items)
+                    else
                     {
-                        yield return StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
+                        // installs
+                        CacheClient.SaveModProfiles(response.items);
+
+                        foreach(ModProfile profile in response.items)
+                        {
+                            yield return StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
+                        }
                     }
                 }
             }
