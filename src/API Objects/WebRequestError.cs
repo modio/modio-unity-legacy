@@ -247,7 +247,7 @@ namespace ModIO
                 // Forbidden
                 case 403:
                 {
-                    this.displayMessage = ("You do not have the required permission.");
+                    this.displayMessage = ("Your account does not have the required permissions.");
 
                     this.isRequestUnresolvable = true;
                 }
@@ -269,6 +269,7 @@ namespace ModIO
                 // case 405: Handled Above
                 // case 406: Handled Above
 
+                // Timeout
                 case 408:
                 {
                     this.displayMessage = ("The mod.io servers cannot be reached."
@@ -294,6 +295,13 @@ namespace ModIO
                             displayString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
                         }
                     }
+
+                    if(displayString.Length > 0
+                       && displayString[displayString.Length - 1] == '\n')
+                    {
+                        --displayString.Length;
+                    }
+
                     this.displayMessage = displayString.ToString();
 
                     this.isRequestUnresolvable = true;
