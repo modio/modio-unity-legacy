@@ -172,7 +172,7 @@ namespace ModIO.Editor
             }
             else
             {
-                return error.message;
+                return error.displayMessage;
             }
         }
     }
