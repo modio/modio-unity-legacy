@@ -571,10 +571,9 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchGameProfile()
         {
-            bool isResolved = false;
+            bool succeeded = false;
 
-            while(!isResolved
-                  && m_onlineMode)
+            while(!succeeded)
             {
                 bool isRequestDone = false;
                 WebRequestError requestError = null;
@@ -588,7 +587,7 @@ namespace ModIO.UI
                     subscriptionsView.tagCategories = g.tagCategories;
                     inspectorView.tagCategories = g.tagCategories;
 
-                    isResolved = true;
+                    succeeded = true;
                     isRequestDone = true;
                 },
                 (e) =>
@@ -601,37 +600,35 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
-                    if(requestError.isRequestUnresolvable)
+                    if(requestError.isAuthenticationInvalid)
                     {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   requestError.displayMessage);
-
                         Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
                                          + " servers. Please check you Game Id and APIKey in the"
                                          + " PluginSettings. [Resources/modio_settings]");
 
-                        isResolved = true;
+                        m_validOAuthToken = false;
+                    }
+
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    if(!requestError.isRequestUnresolvable
+                       && reattemptDelay > 0)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Failed to collect game data from mod.io."
+                                                   + "\nRetrying in "
+                                                   + reattemptDelay.ToString()
+                                                   + " seconds");
+
+                        yield return new WaitForSeconds(reattemptDelay);
+                        continue;
+
                     }
                     else
                     {
-                        int reattemptDelay = CalculateReattemptDelay(requestError);
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Failed to collect game data from mod.io.");
 
-                        if(reattemptDelay > 0)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       requestError.displayMessage
-                                                       + "\nRetrying in "
-                                                       + reattemptDelay.ToString()
-                                                       + " seconds");
-
-                            yield return new WaitForSeconds(reattemptDelay);
-                            continue;
-                        }
-                        else
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       requestError.displayMessage);
-                        }
+                        yield break;
                     }
                 }
             }
