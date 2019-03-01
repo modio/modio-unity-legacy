@@ -907,48 +907,65 @@ namespace ModIO.UI
                 offset = 0,
             };
 
-            RequestFilter subscriptionFilter = new RequestFilter();
-            subscriptionFilter.fieldFilters.Add(ModIO.API.GetAllModsFilterFields.gameId,
-                                                new EqualToFilter<int>() { filterValue = m_gameProfile.id });
-            subscriptionFilter.fieldFilters.Add(ModIO.API.GetAllModsFilterFields.id,
-                                                new InArrayFilter<int>()
-                                                {
-                                                    filterArray = subscribedModIds.ToArray()
-                                                });
+            RequestFilter modFilter = new RequestFilter();
+            modFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.id]
+            = new InArrayFilter<int>()
+            {
+                filterArray = subscribedModIds.ToArray()
+            };
 
             // loop until done or broken
-            while(m_onlineMode
-                  && !cancelRequest
-                  && !allPagesReceived)
+            while(!allPagesReceived)
             {
                 bool isRequestDone = false;
-                WebRequestError error = null;
+                WebRequestError requestError = null;
                 RequestPage<ModProfile> requestPage = null;
 
-                APIClient.GetAllMods(subscriptionFilter, pagination,
+                APIClient.GetAllMods(modFilter, pagination,
                                      (r) => { isRequestDone = true; requestPage = r; },
-                                     (e) => { isRequestDone = true; error = e; });
+                                     (e) => { isRequestDone = true; requestError = e; });
 
                 while(!isRequestDone) { yield return null; }
 
-                if(error != null)
+                if(requestError != null)
                 {
-                    // handle error
-                    int secondsUntilRetry;
-                    string displayMessage;
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        m_validOAuthToken = false;
 
-                    ProcessRequestError(error, out cancelRequest,
-                                        out secondsUntilRetry, out displayMessage);
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
 
-                    if(cancelRequest)
+                        yield break;
+                    }
+                    else if(requestError.isRequestUnresolvable)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage);
+                                                   requestError.displayMessage);
+
+                        yield break;
                     }
-                    else if(secondsUntilRetry > 0)
+                    else
                     {
-                        yield return new WaitForSeconds(secondsUntilRetry + 1);
-                        continue;
+                        int reattemptDelay = CalculateReattemptDelay(requestError);
+
+                        if(reattemptDelay > 0)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       requestError.displayMessage
+                                                       + "\nRetrying in "
+                                                       + reattemptDelay.ToString()
+                                                       + " seconds");
+
+                            yield return new WaitForSeconds(reattemptDelay);
+                            continue;
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       requestError.displayMessage);
+                            yield break;
+                        }
                     }
                 }
                 else
