@@ -1243,27 +1243,31 @@ namespace ModIO.UI
 
                     if(requestError != null)
                     {
+                        int reattemptDelay = CalculateReattemptDelay(requestError);
                         if(requestError.isAuthenticationInvalid)
                         {
-                            m_validOAuthToken = false;
-
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
+
+                            m_validOAuthToken = false;
+                        }
+                        else if(requestError.isRequestUnresolvable
+                                || reattemptDelay < 0)
+                        {
+                            Debug.LogWarning("[mod.io] Polling for user updates failed."
+                                             + requestError.ToUnityDebugString());
                         }
                         else
                         {
-                            int reattemptDelay = CalculateReattemptDelay(requestError);
-                            if(!requestError.isRequestUnresolvable
-                               && reattemptDelay > 0)
-                            {
-                                yield return new WaitForSeconds(reattemptDelay);
-                                continue;
-                            }
-                            else
-                            {
-                                Debug.LogWarning("[mod.io] Polling for user updates failed."
-                                                 + requestError.ToUnityDebugString());
-                            }
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       "Failed to synchronize subscriptions with mod.io servers.\n"
+                                                       + requestError.displayMessage
+                                                       + "\nRetrying in "
+                                                       + reattemptDelay.ToString()
+                                                       + " seconds");
+
+                            yield return new WaitForSeconds(reattemptDelay);
+                            continue;
                         }
                     }
                     // This may have changed during the request execution
@@ -1307,29 +1311,23 @@ namespace ModIO.UI
 
                     if(requestError != null)
                     {
+                        int reattemptDelay = CalculateReattemptDelay(requestError);
                         if(requestError.isAuthenticationInvalid)
                         {
-                            m_validOAuthToken = false;
-
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
+
+                            m_validOAuthToken = false;
+                        }
+                        else if(requestError.isRequestUnresolvable
+                                || reattemptDelay < 0)
+                        {
+                            cancelUpdates = true;
                         }
                         else
                         {
-                            int reattemptDelay = CalculateReattemptDelay(requestError);
-                            if(!requestError.isRequestUnresolvable
-                               && reattemptDelay > 0)
-                            {
-                                yield return new WaitForSeconds(reattemptDelay);
-                                continue;
-                            }
-                            else
-                            {
-                                Debug.LogWarning("[mod.io] Polling for updates failed. Cancelling."
-                                                 + requestError.ToUnityDebugString());
-
-                                cancelUpdates = true;
-                            }
+                            yield return new WaitForSeconds(reattemptDelay);
+                            continue;
                         }
                     }
                     else
