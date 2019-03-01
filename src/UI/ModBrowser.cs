@@ -1016,6 +1016,8 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserRatings()
         {
+            if(!m_validOAuthToken) { yield break; }
+
             APIPaginationParameters pagination = new APIPaginationParameters();
             RequestFilter filter = new RequestFilter();
             filter.fieldFilters[API.GetUserRatingsFilterFields.gameId]
@@ -1024,10 +1026,11 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(!isRequestDone)
+            while(m_validOAuthToken
+                  && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
-                WebRequestError error = null;
+                WebRequestError requestError = null;
 
                 APIClient.GetUserRatings(filter, pagination,
                                          (r) =>
@@ -1037,23 +1040,52 @@ namespace ModIO.UI
                                          },
                                          (e) =>
                                          {
-                                            error = e;
+                                            requestError = e;
                                             isRequestDone = true;
                                          });
 
                 while(!isRequestDone) { yield return null; }
 
-                if(error != null)
+                if(requestError != null)
                 {
-                    // handle error
-                    int secondsUntilRetry;
-                    string displayMessage;
-                    bool cancelRequest;
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        m_validOAuthToken = false;
 
-                    ProcessRequestError(error, out cancelRequest,
-                                        out secondsUntilRetry, out displayMessage);
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
 
-                    break;
+                        yield break;
+                    }
+                    else if(requestError.isRequestUnresolvable)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   requestError.displayMessage);
+
+                        yield break;
+                    }
+                    else
+                    {
+                        int reattemptDelay = CalculateReattemptDelay(requestError);
+
+                        if(reattemptDelay > 0)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       requestError.displayMessage
+                                                       + "\nRetrying in "
+                                                       + reattemptDelay.ToString()
+                                                       + " seconds");
+
+                            yield return new WaitForSeconds(reattemptDelay);
+                            continue;
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       requestError.displayMessage);
+                            yield break;
+                        }
+                    }
                 }
                 else
                 {
