@@ -1454,23 +1454,27 @@ namespace ModIO.UI
             // request returning an error.
             Action<WebRequestError, int> onSubFail = (e, modId) =>
             {
-                bool cancel = false;
-
-                if(e.responseCode == 400)
+                // Ignore error for "Mod is already subscribed"
+                if(e.webRequest.responseCode != 400)
                 {
-                    // Mod is already subscribed
-                    cancel = true;
+                    if(e.isAuthenticationInvalid)
+                    {
+                        if(m_validOAuthToken)
+                        {
+                            m_validOAuthToken = false;
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       e.displayMessage);
+                        }
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   e.displayMessage);
+                    }
                 }
-                else
-                {
-                    int delay;
-                    string message;
 
-                    ProcessRequestError(e, out cancel,
-                                        out delay, out message);
-                }
-
-                if(cancel)
+                if(e.isRequestUnresolvable
+                   && !e.isAuthenticationInvalid)
                 {
                     m_queuedSubscribes.Remove(modId);
                     WriteManifest();
@@ -1478,25 +1482,28 @@ namespace ModIO.UI
             };
             Action<WebRequestError, int> onUnsubFail = (e, modId) =>
             {
-                bool cancel = false;
-
-                if(e.responseCode == 400)
+                // Ignore error for "Mod is not subscribed"
+                if(e.webRequest.responseCode != 400)
                 {
-                    // Mod is not subscribed
-                    cancel = true;
+                    if(e.isAuthenticationInvalid)
+                    {
+                        if(m_validOAuthToken)
+                        {
+                            m_validOAuthToken = false;
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       e.displayMessage);
+                        }
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   e.displayMessage);
+                    }
                 }
-                else
-                {
-                    int delay;
-                    string message;
 
-                    ProcessRequestError(e, out cancel,
-                                        out delay, out message);
-                }
-
-                if(cancel)
+                if(e.isRequestUnresolvable
+                   && !e.isAuthenticationInvalid)
                 {
-                    // Mod is already unsubscribed
                     m_queuedUnsubscribes.Remove(modId);
                     WriteManifest();
                 }
