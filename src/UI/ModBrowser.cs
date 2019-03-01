@@ -201,15 +201,12 @@ namespace ModIO.UI
         private Coroutine m_updatesCoroutine = null;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
-        private bool m_onlineMode = true;
         private bool m_validOAuthToken = false;
 
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
             this.m_validOAuthToken = false;
-            this.m_onlineMode = true;
-
             this.StartCoroutine(StartFetchRemoteData());
         }
 
@@ -726,7 +723,6 @@ namespace ModIO.UI
             int updateCount = 0;
 
             // set up initial vars
-            bool cancelRequest = false;
             bool allPagesReceived = false;
 
             APIPaginationParameters pagination = new APIPaginationParameters()
@@ -884,7 +880,6 @@ namespace ModIO.UI
             }
 
             // set up initial vars
-            bool cancelRequest = false;
             bool allPagesReceived = false;
 
             APIPaginationParameters pagination = new APIPaginationParameters()
@@ -1812,8 +1807,7 @@ namespace ModIO.UI
 
             // get binary
             while(!isBinaryZipValid
-                  && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now
-                  && m_onlineMode)
+                  && modfile.downloadLocator.dateExpires > ServerTimeStamp.Now)
             {
                 FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(modId, modfileId);
                 if(downloadInfo != null)
