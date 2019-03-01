@@ -597,35 +597,51 @@ namespace ModIO.UI
 
                 if(requestError != null)
                 {
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
-                                         + " servers. Please check you Game Id and APIKey in the"
-                                         + " PluginSettings. [Resources/modio_settings]");
+                        if(String.IsNullOrEmpty(UserAuthenticationData.instance.token))
+                        {
+                            Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
+                                             + " servers. Please check you Game Id and APIKey in the"
+                                             + " PluginSettings. [Resources/modio_settings]");
 
-                        m_validOAuthToken = false;
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       "Failed to collect game data from mod.io.\n"
+                                                       + requestError.displayMessage);
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       requestError.displayMessage);
+
+                            m_validOAuthToken = false;
+                        }
+
+                        yield break;
                     }
+                    else if(requestError.isRequestUnresolvable
+                            || reattemptDelay < 0)
+                    {
+                        Debug.LogWarning("[mod.io] Fetching Game Profile failed."
+                                         + requestError.ToUnityDebugString());
 
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(!requestError.isRequestUnresolvable
-                       && reattemptDelay > 0)
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Failed to collect game data from mod.io.\n"
+                                                   + requestError.displayMessage);
+                        yield break;
+                    }
+                    else
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to collect game data from mod.io."
+                                                   "Failed to collect game data from mod.io.\n"
+                                                   + requestError.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
                         yield return new WaitForSeconds(reattemptDelay);
                         continue;
-
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to collect game data from mod.io.");
-
-                        yield break;
                     }
                 }
             }
@@ -685,7 +701,8 @@ namespace ModIO.UI
                                          + requestError.ToUnityDebugString());
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to collect user profile data from mod.io.");
+                                                   "Failed to collect user profile data from mod.io.\n"
+                                                   + requestError.displayMessage);
 
                         m_validOAuthToken = false;
                         yield break;
@@ -693,7 +710,8 @@ namespace ModIO.UI
                     else
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to collect user profile data from mod.io."
+                                                   "Failed to collect user profile data from mod.io.\n"
+                                                   + requestError.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
