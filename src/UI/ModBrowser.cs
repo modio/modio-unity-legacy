@@ -408,7 +408,7 @@ namespace ModIO.UI
             subscriptionsView.DisplayProfiles(null);
 
             RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
-                                         (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
+                                         WebRequestError.LogAsWarning);
 
             subscriptionsView.gameObject.SetActive(false);
 
@@ -2226,7 +2226,12 @@ namespace ModIO.UI
 
             // request page
             RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
-                                         (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
+                                         (e) =>
+                                         {
+                                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                                       "Failed to retrieve subscribed mod profiles.\n"
+                                                                       + e.displayMessage);
+                                         });
         }
 
         // ---------[ ENABLE/SUBSCRIBE MODS ]---------
@@ -2367,7 +2372,12 @@ namespace ModIO.UI
 
             // - subscriptionsView -
             RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
-                                         (e) => MessageSystem.QueueWebRequestError("Failed to retrieve subscribed mod profiles\n", e, null));
+                                         (e) =>
+                                         {
+                                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                                       "Failed to retrieve subscribed mod profiles.\n"
+                                                                       + e.displayMessage);
+                                         });
 
             // - inspectorView -
             if(inspectorView.profile != null)

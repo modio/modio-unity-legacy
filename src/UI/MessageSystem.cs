@@ -152,25 +152,6 @@ namespace ModIO.UI
             }
         }
 
-        public static void QueueWebRequestError(string prefixedString,
-                                                WebRequestError error,
-                                                string postfixedString)
-        {
-            Debug.Assert(error != null);
-
-            if(prefixedString == null)
-            {
-                prefixedString = string.Empty;
-            }
-            if(postfixedString == null)
-            {
-                postfixedString = string.Empty;
-            }
-
-            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                       prefixedString + error.message + postfixedString);
-        }
-
         private bool m_cancelCurrentMessage = false;
         private System.Collections.IEnumerator DisplayNextMessageRoutine()
         {
