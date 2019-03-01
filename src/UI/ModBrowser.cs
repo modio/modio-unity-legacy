@@ -648,12 +648,9 @@ namespace ModIO.UI
             Debug.Assert(!String.IsNullOrEmpty(UserAuthenticationData.instance.token));
 
             bool succeeded = false;
-            bool cancelRequest = false;
 
             // get user profile
-            while(!cancelRequest
-                  && !succeeded
-                  && m_onlineMode)
+            while(!succeeded)
             {
                 bool isRequestDone = false;
                 WebRequestError error = null;
@@ -671,14 +668,12 @@ namespace ModIO.UI
                         this.loggedUserView.DisplayUser(u);
                     }
 
-                    error = null;
                     succeeded = true;
                     isRequestDone = true;
                 },
                 (e) =>
                 {
                     error = e;
-                    succeeded = false;
                     isRequestDone = true;
                 });
 
@@ -686,22 +681,43 @@ namespace ModIO.UI
 
                 if(error != null)
                 {
-                    int secondsUntilRetry;
-                    string displayMessage;
-
-                    ProcessRequestError(error, out cancelRequest,
-                                        out secondsUntilRetry, out displayMessage);
-
-                    if(secondsUntilRetry > 0)
+                    if(error.isAuthenticationInvalid)
                     {
-                        yield return new WaitForSeconds(secondsUntilRetry + 1);
-                        continue;
-                    }
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   error.displayMessage);
 
-                    if(cancelRequest)
+                        m_validOAuthToken = false;
+                        yield break;
+                    }
+                    else if(error.isRequestUnresolvable)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   displayMessage);
+                                                   error.displayMessage);
+
+                        m_validOAuthToken = false;
+                        yield break;
+                    }
+                    else
+                    {
+                        int reattemptDelay = CalculateReattemptDelay(error);
+
+                        if(reattemptDelay > 0)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       error.displayMessage
+                                                       + "\nRetrying in "
+                                                       + reattemptDelay.ToString()
+                                                       + " seconds");
+
+                            yield return new WaitForSeconds(reattemptDelay);
+                            continue;
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                       error.displayMessage);
+                            yield break;
+                        }
                     }
                 }
             }
