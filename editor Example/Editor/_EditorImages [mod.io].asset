@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7685f107c15347a8ad9efcc21f7fdd8, type: 3}
+  m_Name: _EditorImages [mod.io]
+  m_EditorClassIdentifier: 
+  undoButton: {fileID: 2800000, guid: 346c833a80c7a40848b34e8ed77960a6, type: 3}
+  clearButton: {fileID: 2800000, guid: fd44998136e8441e1b346812c2cbe16b, type: 3}
+  loadingPlaceholder: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
