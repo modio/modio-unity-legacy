@@ -156,7 +156,7 @@ namespace ModIO.Editor
                         };
 
                         profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
-                                                  + e.message);
+                                                  + e.displayMessage);
                     };
 
                     ModManager.GetModProfile(modIdProperty.intValue,
@@ -271,7 +271,7 @@ namespace ModIO.Editor
                     {
                         isProfileSyncing = false;
                         profileGetErrorMessage = ("Unable to fetch the mod profile data on the server.\n"
-                                                  + e.message);
+                                                  + e.displayMessage);
                     });
                 }
             }
