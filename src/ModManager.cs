@@ -1562,7 +1562,6 @@ namespace ModIO
         }
 
         // ---------[ USER DATA ]---------
-        [Obsolete]
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
@@ -1571,6 +1570,20 @@ namespace ModIO
                 ModManager.GetUserProfile(UserAuthenticationData.instance.userId,
                                           onSuccess,
                                           onError);
+            }
+            else if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            {
+                APIClient.GetAuthenticatedUser(
+                (p) =>
+                {
+                    CacheClient.SaveUserProfile(p);
+
+                    if(onSuccess != null)
+                    {
+                        onSuccess(p);
+                    }
+                },
+                onError);
             }
             else if(onSuccess != null)
             {
