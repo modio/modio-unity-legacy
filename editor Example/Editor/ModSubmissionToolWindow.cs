@@ -239,10 +239,10 @@ namespace ModIO.Editor
             {
                 EditorUtility.DisplayDialog("Upload Failed",
                                             "Failed to update the mod profile on the server.\n"
-                                            + e.message,
+                                            + e.displayMessage,
                                             "Close");
 
-                uploadFailedMessage = e.message;
+                uploadFailedMessage = e.displayMessage;
                 if(e.fieldValidationMessages != null
                    && e.fieldValidationMessages.Count > 0)
                 {
@@ -293,10 +293,10 @@ namespace ModIO.Editor
                 {
                     EditorUtility.DisplayDialog("Upload Failed",
                                                 "Failed to upload the mod build to the server.\n"
-                                                + e.message,
+                                                + e.displayMessage,
                                                 "Close");
 
-                    uploadFailedMessage = e.message;
+                    uploadFailedMessage = e.displayMessage;
                     if(e.fieldValidationMessages != null
                        && e.fieldValidationMessages.Count > 0)
                     {
