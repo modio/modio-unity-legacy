@@ -19,6 +19,15 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         public int userId;
+
+        /// <summary>User OAuthToken that the APIClient submits in requests.</summary>
+        /// <para>This value uniquely identifies the user and their access rights for a specific
+        /// game or app, and allows the authentication of the user's credentials in
+        /// update/submission requests to the mod.io servers and query the authenticated user's
+        /// details.</para>
+        /// <para>See [Authentication and Security](Authentication-And-Security#user-authentication)
+        /// for more information.</para>
+        /// <para>See also: [[ModIO.APIClient.SendSecurityCode]], [[ModIO.APIClient.GetOAuthToken]]</para>
         public string token;
 
         // ---------[ SINGLETON ]---------
