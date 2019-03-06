@@ -1,6 +1,4 @@
-﻿// #define DO_NOT_LOAD_CACHE
-
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 
