@@ -36,7 +36,6 @@ namespace ModIO
             "access-control-request-method",
             "connection",
             "content-length",
-            "Content-Length",
             "cookie",
             "cookie2",
             "date",
@@ -53,7 +52,7 @@ namespace ModIO
             "via",
             // - UNITY -
             "accept-encoding",
-            "Content-Type",
+            "content-type",
             "x-unity-version",
             "user-agent",
         };
@@ -61,8 +60,8 @@ namespace ModIO
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
-            "Authorization",
-            "Accept-Language",
+            "authorization",
+            "accept-language",
         };
 
         // ---------[ SETTINGS ]---------
