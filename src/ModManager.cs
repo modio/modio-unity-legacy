@@ -1269,7 +1269,7 @@ namespace ModIO
                         var parameters = new DeleteModTagsParameters();
                         parameters.tagNames = removedTags.ToArray();
                         APIClient.DeleteModTags(profile.id, parameters,
-                                             doNextSubmissionAction, modSubmissionFailed);
+                                                () => doNextSubmissionAction(null), modSubmissionFailed);
                     });
                 }
                 if(addedTags.Count > 0)
@@ -1321,7 +1321,7 @@ namespace ModIO
                         var parameters = new DeleteModKVPMetadataParameters();
                         parameters.metadataKeys = removedKVPs.Keys.ToArray();
                         APIClient.DeleteModKVPMetadata(profile.id, parameters,
-                                                       doNextSubmissionAction,
+                                                       () => doNextSubmissionAction(null),
                                                        modSubmissionFailed);
                     });
                 }
