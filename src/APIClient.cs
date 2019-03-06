@@ -42,7 +42,6 @@ namespace ModIO
             "access-control-request-method",
             "connection",
             "content-length",
-            "Content-Length",
             "cookie",
             "cookie2",
             "date",
@@ -59,7 +58,7 @@ namespace ModIO
             "via",
             // - UNITY -
             "accept-encoding",
-            "Content-Type",
+            "content-type",
             "x-unity-version",
             "user-agent",
         };
@@ -68,8 +67,8 @@ namespace ModIO
         /// <para>Used almost exclusively for debugging requests.</para>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
-            "Authorization",
-            "Accept-Language",
+            "authorization",
+            "accept-language",
         };
 
         // ---------[ SETTINGS ]---------
@@ -134,7 +133,8 @@ namespace ModIO
             {
                 Debug.LogError("[mod.io] No API requests can be executed without a"
                                + " valid Game Id and Game API Key. These need to be"
-                               + " set directly on the ModIO.APIClient before"
+                               + " saved into the Plugin Settings (mod.io > Edit Settings"
+                               + " or set directly on the ModIO.APIClient before"
                                + " any requests can be sent to the API.");
                 return false;
             }
@@ -894,8 +894,7 @@ namespace ModIO
         /// This will close the mod profile meaning it cannot be viewed or retrieved via API
         /// requests but will still exist on the servers, allowing it to be restored at a later date.
         /// A successful request will generate a [ModUnavailable](ModIO.ModEventType.ModUnavailable)
-        /// [ModEvent](ModIO.ModEvent), and return a confirmation [APIMessage](ModIO.APIMessage)
-        /// with the code `204 No Content`.</para>
+        /// [ModEvent](ModIO.ModEvent).</para>
         /// <para>**NOTE:** A mod may be permanently removed from the mod.io servers via the
         /// website interface.</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-mod)</para>
@@ -903,7 +902,7 @@ namespace ModIO
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteMod(int modId,
-                                     Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                     Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/mods/" + modId;
 
@@ -1059,8 +1058,7 @@ namespace ModIO
 
         /// <summary>Deletes mod media from a mod on the mod.io servers.</summary>
         /// <para>Deletes images, sketchfab or youtube links from a mod profile as per the values
-        /// provided. A successful request will return a confirmation [APIMessage](ModIO.APIMessage)
-        /// with the code `204 No Content`.</para>
+        /// provided. A successful request will return a confirmation [APIMessage](ModIO.APIMessage).</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-mod-media)<para>
         /// <param name="modId">Mod to remove the media from</param>
         /// <param name="parameters">Media to be removed from the mod</param>
@@ -1227,7 +1225,7 @@ namespace ModIO
         /// [[ModIO.APIClient.gameId]]</para>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
-        public static void GetAllGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/tags";
 
@@ -1260,9 +1258,7 @@ namespace ModIO
         }
 
         /// <summary>Removes mod tag options from the mod.io servers.</summary>
-        /// <para>This function can delete individual tags or entire categories.
-        /// Successful requests will return a confirmation [APIMessage](ModIO.APIMessage) with the
-        /// code `204 No Content`.</para>
+        /// <para>This function can delete individual tags or entire categories.</para>
         /// <para>**NOTE:** You can also modify the mod tags available via the mod.io web interface.
         /// This is the recommended approach.</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-game-tag-option),
@@ -1271,7 +1267,7 @@ namespace ModIO
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteGameTagOption(DeleteGameTagOptionParameters parameters,
-                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                               Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/tags";
 
@@ -1330,8 +1326,6 @@ namespace ModIO
         }
 
         /// <summary>Removes tags from the given mod.</param>
-        /// <para>A successful request will return a confirmation [APIMessage](ModIO.APIMessage)
-        /// with the code `204 No Content`.</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-mod-tags)</para>
         /// <param name="modId">Mod to remove tags from</param>
         /// <param name="parameters">Mod tags to be removed</param>
@@ -1339,7 +1333,7 @@ namespace ModIO
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModTags(int modId,
                                          DeleteModTagsParameters parameters,
-                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                         Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/mods/" + modId + "/tags";
 
@@ -1419,15 +1413,13 @@ namespace ModIO
         }
 
         /// <summary>Deletes KVP metadata from a mod.</summary>
-        /// <para>Calling this function submits the delete request to the servers and if successful
-        /// returns an [APIMessage](ModIO.APIMessage) with the code: `204 No Content`.</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-all-mod-kvp-metadata)</para>
         /// <param name="modId">Mod to submit tags from</param>
         /// <param name="parameters">KVP data to remove from the mod</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModKVPMetadata(int modId, DeleteModKVPMetadataParameters parameters,
-                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                                Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/mods/" + modId + "/metadatakvp";
 
@@ -1490,14 +1482,13 @@ namespace ModIO
         }
 
         /// <summary>Removes dependencides from a mod.</summary>
-        /// <para>Successful request will return `204 No Content`.</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-mod-dependencies)</para>
         /// <param name="modId">Mod to remove dependencies from</param>
         /// <param name="parameters">Dependency data to remove</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModDependencies(int modId, DeleteModDependenciesParameters parameters,
-                                                 Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                                 Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/mods/" + modId + "/dependencies";
 
@@ -1580,15 +1571,14 @@ namespace ModIO
 
         /// <summary>Submits a delete request for a mod team member.</summary>
         /// <para>A successful request will revoke a user's access rights to the mod, generate a
-        /// [ModTeamChanged](ModIO.ModEventType.ModTeamChanged) [ModEvent](ModIO.ModEvent), and
-        /// return an [APIMessage](ModIO.APIMessage) with the code: `204 No Content`.</para>
+        /// [ModTeamChanged](ModIO.ModEventType.ModTeamChanged) [ModEvent](ModIO.ModEvent).</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-mod-team-member)</para>
         /// <param name="modId">Mod the team member belongs to</param>
         /// <param name="teamMemberId">Team member to be deleted</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModTeamMember(int modId, int teamMemberId,
-                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                               Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/mods/" + modId + "/team/" + teamMemberId;
 
@@ -1645,14 +1635,13 @@ namespace ModIO
         }
 
         /// <summary>Submits a delete request for a mod comment.</summary>
-        /// <para>Successful request will return `204 No Content`.</para>
         /// <para>See also: [docs.mod.io page](https://docs.mod.io/#delete-mod-comment)</para>
         /// <param name="modId">Mod the comment belongs to</param>
         /// <param name="commentId">Comment to remove</param>
         /// <param name="successCallback">Action to execute if the request succeeds</param>
         /// <param name="errorCallback">Action to execute if the request returns an error</param>
         public static void DeleteModComment(int modId, int commentId,
-                                            Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+                                            Action successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/mods/" + modId + "/comments/" + commentId;
 
@@ -1909,5 +1898,142 @@ namespace ModIO
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
+
+        // ---------[ OBSOLETE FUNCTIONALITY ]---------
+        /// @cond
+        /// <summary>[Obsolete] Fetches the tag categories specified by the game profile.</summary>
+        [Obsolete("Use APIClient.GetGameTagOptions() instead.")]
+        public static void GetAllGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
+        {
+            APIClient.GetGameTagOptions(successCallback, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Deletes a mod profile from the mod.io servers.</summary>
+        [Obsolete("This function no longer returns an APIMessage on success")]
+        public static void DeleteMod(int modId,
+                                     Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        {
+            Action onSuccess = null;
+            if(successCallback != null)
+            {
+                onSuccess = () =>
+                {
+                    APIMessage message = new APIMessage();
+                    successCallback(message);
+                };
+            }
+
+            APIClient.DeleteMod(modId, onSuccess, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Removes mod tag options from the mod.io servers.</summary>
+        [Obsolete("This function no longer returns an APIMessage on success")]
+        public static void DeleteGameTagOption(DeleteGameTagOptionParameters parameters,
+                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        {
+            Action onSuccess = null;
+            if(successCallback != null)
+            {
+                onSuccess = () =>
+                {
+                    APIMessage message = new APIMessage();
+                    successCallback(message);
+                };
+            }
+
+            APIClient.DeleteGameTagOption(parameters, onSuccess, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Removes tags from the given mod.</param>
+        [Obsolete("This function no longer returns an APIMessage on success")]
+        public static void DeleteModTags(int modId,
+                                         DeleteModTagsParameters parameters,
+                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        {
+            Action onSuccess = null;
+            if(successCallback != null)
+            {
+                onSuccess = () =>
+                {
+                    APIMessage message = new APIMessage();
+                    successCallback(message);
+                };
+            }
+
+            APIClient.DeleteModTags(modId, parameters, onSuccess, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Deletes KVP metadata from a mod.</summary>
+        [Obsolete("This function no longer returns an APIMessage on success")]
+        public static void DeleteModKVPMetadata(int modId, DeleteModKVPMetadataParameters parameters,
+                                                Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        {
+            Action onSuccess = null;
+            if(successCallback != null)
+            {
+                onSuccess = () =>
+                {
+                    APIMessage message = new APIMessage();
+                    successCallback(message);
+                };
+            }
+
+            APIClient.DeleteModKVPMetadata(modId, parameters, onSuccess, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Removes dependencides from a mod.</summary>
+        [Obsolete("This function no longer returns an APIMessage on success")]
+        public static void DeleteModDependencies(int modId, DeleteModDependenciesParameters parameters,
+                                                 Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        {
+            Action onSuccess = null;
+            if(successCallback != null)
+            {
+                onSuccess = () =>
+                {
+                    APIMessage message = new APIMessage();
+                    successCallback(message);
+                };
+            }
+
+            APIClient.DeleteModDependencies(modId, parameters, onSuccess, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Submits a delete request for a mod team member.</summary>
+        [Obsolete("This function no longer returns an APIMessage on success")]
+        public static void DeleteModTeamMember(int modId, int teamMemberId,
+                                               Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        {
+            Action onSuccess = null;
+            if(successCallback != null)
+            {
+                onSuccess = () =>
+                {
+                    APIMessage message = new APIMessage();
+                    successCallback(message);
+                };
+            }
+
+            APIClient.DeleteModTeamMember(modId, teamMemberId, onSuccess, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Submits a delete request for a mod comment.</summary>
+        [Obsolete("This function no longer returns an APIMessage on success")]
+        public static void DeleteModComment(int modId, int commentId,
+                                            Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
+        {
+            Action onSuccess = null;
+            if(successCallback != null)
+            {
+                onSuccess = () =>
+                {
+                    APIMessage message = new APIMessage();
+                    successCallback(message);
+                };
+            }
+
+            APIClient.DeleteModComment(modId, commentId, onSuccess, errorCallback);
+        }
+        /// @endcond
     }
 }
