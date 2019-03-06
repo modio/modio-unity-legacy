@@ -2,9 +2,11 @@ using UnityEngine;
 
 namespace ModIO
 {
-    /// <summary>Wrapper object for the PluginSettings.Data.</summary>
+    /// <summary>Stores the settings used by various classes that are unique to the game/app.</summary>
     public class PluginSettings : ScriptableObject
     {
+        // ---------[ NESTED CLASSES ]---------
+        /// <summary>Data struct that is wrapped by the ScriptableObject.</summary>
         [System.Serializable]
         public struct Data
         {
@@ -21,6 +23,7 @@ namespace ModIO
             public string   cacheDirectory;
         }
 
+        // ---------[ CONSTANTS & STATICS ]---------
         /// <summary>Location of the settings file.</summary>
         public static readonly string FILE_PATH = "modio_settings";
 
@@ -51,12 +54,14 @@ namespace ModIO
             }
         }
 
+        // ---------[ FIELDS ]---------
         /// <summary>Settings data.</summary>
         [SerializeField]
         #pragma warning disable 0649
         private Data m_data;
         #pragma warning restore 0649
 
+        // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the Data from the asset instance.</summary>
         private static void LoadDataInstance()
         {
@@ -114,6 +119,7 @@ namespace ModIO
         }
 
         #if UNITY_EDITOR
+        /// <summary>Locates the PluginSettings asset used by the plugin.</summary>
         [UnityEditor.MenuItem("mod.io/Edit Settings", false)]
         public static void FocusAsset()
         {
@@ -128,6 +134,7 @@ namespace ModIO
             UnityEditor.Selection.activeObject = settings;
         }
 
+        /// <summary>Creates the asset instance that the plugin will use.</summary>
         private static PluginSettings InitializeAsset()
         {
             string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";
