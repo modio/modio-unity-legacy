@@ -872,7 +872,7 @@ namespace ModIO
 
         // ---------[ TAG ENDPOINTS ]---------
         /// <summary>Fetches the tag categories specified by the game profile.</summary>
-        public static void GetAllGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
+        public static void GetGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
         {
             string endpointURL = APIClient.apiURL + "/games/" + APIClient.gameId + "/tags";
 
@@ -1128,7 +1128,6 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        // NOTE(@jackson): Untested
         /// <summary>Submits a delete request for a mod comment.</summary>
         public static void DeleteModComment(int modId, int commentId,
                                             Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1189,7 +1188,6 @@ namespace ModIO
 
 
         // ---------[ REPORT ENDPOINTS ]---------
-        // NOTE(@jackson): Untested
         /// <summary>Submits a report against a mod/resource on mod.io.</summary>
         public static void SubmitReport(SubmitReportParameters parameters,
                                         Action<APIMessage> successCallback, Action<WebRequestError> errorCallback)
@@ -1288,6 +1286,14 @@ namespace ModIO
                                                                       pagination);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
+        }
+
+        // ---------[ OBSOLETE FUNCTIONALITY ]---------
+        /// <summary>[Obsolete] Fetches the tag categories specified by the game profile.</summary>
+        [Obsolete("Use APIClient.GetGameTagOptions() instead.")]
+        public static void GetAllGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
+        {
+            APIClient.GetGameTagOptions(successCallback, errorCallback);
         }
     }
 }
