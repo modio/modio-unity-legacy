@@ -99,7 +99,8 @@ namespace ModIO
             {
                 Debug.LogError("[mod.io] No API requests can be executed without a"
                                + " valid Game Id and Game API Key. These need to be"
-                               + " set directly on the ModIO.APIClient before"
+                               + " saved into the Plugin Settings (mod.io > Edit Settings"
+                               + " or set directly on the ModIO.APIClient before"
                                + " any requests can be sent to the API.");
                 return false;
             }
