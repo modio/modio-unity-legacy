@@ -1,11 +1,10 @@
-<a href="https://mod.io"><img src="https://static.mod.io/v1/images/branding/modio-color-dark.svg" alt="mod.io" width="400"/></a>
+<a href="https://mod.io"><img src="https://static.mod.io/v1/images/branding/modio-color-dark.svg" alt="mod.io" width="400"/></a>  <a href="https://www.assetstore.unity3d.com/#!/content/138866"><img src="https://cdn-images-1.medium.com/max/1600/1*eopj1hgjlJJZ8Q9l8dNVBA.png"></a>
 
 # Unity Engine Plugin
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/modio/UnityPlugin/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/389039439487434752.svg)](https://discord.mod.io)
 [![Master docs](https://img.shields.io/badge/docs-master-green.svg)](https://github.com/modio/UnityPlugin/wiki)
 [![Unity 3D](https://img.shields.io/badge/Unity-2018.2-lightgrey.svg)](https://unity3d.com/)
-
 
 Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
