@@ -9,9 +9,39 @@
 
 Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
+## Features
+* Platform agnostic (support 1 click mod installs on Steam, Epic Games Store, Discord, GOG, itch.io and even consoles in the future)
+* Clientless (it has no other dependencies and works behind the scenes in your game)
+* Powerful search, filtering and tagging of mods
+* C# interface built on the Unity Engine for connecting to the [mod.io API](https://docs.mod.io/)
+* Players can activate / deactivate mods they are subscribed to
+* Customizable mod browsing UI
+
 ## Getting started
 If you are a game developer, first step is to add mod support to your Unity game. Once mod support is up and running, [create your games profile](https://mod.io/games/add) on mod.io, to get an API key and access to all [functionality mod.io offers](https://apps.mod.io/guides/getting-started).
-Next, download the latest [UnityPackage release](https://github.com/modio/UnityPlugin/releases) and unpack it into your project, then head over to the [GitHub Wiki](https://github.com/modio/UnityPlugin/wiki) and follow the guides to get it running within your game.
+Next, download the latest [UnityPackage release from Github](https://github.com/modio/UnityPlugin/releases) or [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/138866) and unpack it into your project, then head over to the [GitHub Wiki](https://github.com/modio/UnityPlugin/wiki) and follow the guides to get it running within your game.
+
+1. [Download the Unity package](https://www.assetstore.unity3d.com/#!/content/138866) and import it into your project
+1. Drop the _ModBrowser prefab into your menu scene, or adapt the ExampleScene for your purposes
+1. Set up your [game on mod.io](https://mod.io/games/add) (or our [private test environment](https://test.mod.io/games/add)) to get your game ID and API key
+1. Input your ID and API key by selecting "Plugin Settings" on the ModBrowser component inspector, or under the mod.io/Edit Settings menu item
+1. In your code, make a call to _ModManager.GetInstalledModDirectories()_ to get a list of mod data your player has installed (read our wiki for [detailed instructions](https://github.com/modio/UnityPlugin/wiki))
+1. Setup complete!
+
+All mods [submitted to mod.io](https://mod.io/mods/add) will be automatically fetched and managed by the plugin, and are instantly downloadable and testable.
+
+## Benefits
+mod.io offers the same core functionality as Steamworks Workshop (1 click mod installs in-game), plus mod hosting, moderation and all of the critical pieces needed. Where we differ is our approach to modding and the flexibility a REST API offers. For example: 
+
+* Our API is not dependent on a client or SDK, allowing you to run mod.io in many places such as your homepage and launchers
+* Designing a good mod browsing UI is hard, our plugin ships with a UI built in to save you a lot of effort and help your mods stand out
+* We don’t apply rules globally, so if you want to enable patronage, sales or other experimental features, reach out to discuss
+* Our platform is built by the super experienced ModDB.com team and is continually improving for your benefit
+* Your community can consume the mod.io API to build modding fan sites or discord bots if they want
+* Communicate and interact with your players, using our built-in emailer
+
+## Large studios and Publishers 
+A private white label option is available to license, if you want a fully featured mod-platform that you can control and host in-house. [Contact us](mailto:developers@mod.io?subject=Whitelabel) to discuss.
 
 ## Dependencies
 The [mod.io](https://mod.io) Unity Plugin requires the functionality of two other open-source Unity plugins to run. These are included as libraries in the UnityPackage in the `Plugins` directory, or in the repository under `third_party`:
