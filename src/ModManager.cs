@@ -14,6 +14,7 @@ namespace ModIO
     public static class ModManager
     {
         // ---------[ NESTED FIELDS ]---------
+        /// @cond
         /// <summary>A structure used to store data on disk.</summary>
         private struct PersistentData
         {
@@ -21,25 +22,46 @@ namespace ModIO
             public int[] subscribedModIds;
             public int[] enabledModIds;
         }
+        /// @endcond
 
         // ---------[ CONSTANTS & STATICS ]---------
         /// <summary>Current version of the ModManager/Plugin.</summary>
+        /// <para>Updates the last run version is saved is checked by the static
+        /// initialization and determines if any updates to the locally stored
+        /// data need to be made.</para>
         public static readonly SimpleVersion VERSION = new SimpleVersion(2, 0);
 
         /// <summary>File name used to store the persistent data.</summary>
+        /// <para>This file is used to stored the values in the PersistentData
+        /// struct between sessions.</para>
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
 
-        /// <summary>File name used to store the persistent data.</summary>
+        /// <summary>File path used to store the persistent data.</summary>
+        /// <para>This file is used to stored the values in the PersistentData
+        /// struct between sessions.</para>
         public static readonly string PERSISTENTDATA_FILEPATH;
 
         /// <summary>Install directory used by the ModManager.</summary>
+        /// <para>Mods installed using [ModManager.TryInstallMod](ModIO.ModManager.TryInstallMod)
+        /// are unzipped to this folder, in an unique directory determined by
+        /// [ModManager.GetModInstallDirectory](ModIO.ModManager.GetModInstallDirectory).</para>
+        /// <para>Any folders located in this directory will be presumed to be
+        /// user mods not managed by this mod.io, and will thus be returned in
+        /// the various mod installation management functions.</para>
+        /// <para>See also: [[ModIO.ModManager.GetInstalledModDirectories]],
+        /// [[ModIO.ModManager.GetInstalledModVersions]],
+        /// [[ModIO.ModManager.IterateInstalledMods]]</para>
         public static string installationDirectory;
 
+        /// @cond
         /// <summary>Data that needs to be stored across sessions.</summary>
         private static PersistentData m_data;
+        /// @endcond
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initializes the ModManager settings.</summary>
+        /// <para>Loads/creates the persistent data, and makes any necessary
+        /// versioning updates to the persistent data used by this plugin.</para>
         static ModManager()
         {
             PluginSettings.Data settings = PluginSettings.data;
@@ -65,6 +87,11 @@ namespace ModIO
 
         // ---------[ MOD MANAGEMENT ]---------
         /// <summary>Returns the subscribed mods.</summary>
+        /// <para>This value is a local value that has been manually assigned
+        /// via [ModManager.SetSubscribedModIds](ModIO.ModManager.SetSubscribedModIds).
+        /// This is necessary to ensure data integrity and allow for offline use.</para>
+        /// <para>The subscribed mod ids are saved in the persistent data file.</para>
+        /// <para>See also: [[ModIO.ModManager.SetSubscribedModIds]]</para>
         public static List<int> GetSubscribedModIds()
         {
             return new List<int>(m_data.subscribedModIds);
