@@ -39,7 +39,7 @@ namespace ModIO
         private static PersistentData m_data;
 
         // ---------[ INITIALIZATION ]---------
-        /// <summary>Initialzes the ModManager settings.</summary>
+        /// <summary>Initializes the ModManager settings.</summary>
         static ModManager()
         {
             PluginSettings.Data settings = PluginSettings.data;
@@ -1503,6 +1503,61 @@ namespace ModIO
 
             APIClient.AddModfile(modId, parameters, onSuccess, onError);
         }
+        // ---------[ USER DATA ]---------
+        /// <summary>Fetches and caches the User Profile for the values in UserAuthenticationData.</summary>
+        public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
+                                                       Action<WebRequestError> onError)
+        {
+            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
+            {
+                ModManager.GetUserProfile(UserAuthenticationData.instance.userId,
+                                          onSuccess,
+                                          onError);
+            }
+            else if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            {
+                APIClient.GetAuthenticatedUser(
+                (p) =>
+                {
+                    CacheClient.SaveUserProfile(p);
+
+                    if(onSuccess != null)
+                    {
+                        onSuccess(p);
+                    }
+                },
+                onError);
+            }
+            else if(onSuccess != null)
+            {
+                onSuccess(null);
+            }
+        }
+
+        /// <summary>Fetches the list of mods associated with the  User Profile matching the UserAuthenticationData.</summary>
+        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            RequestFilter userModsFilter = new RequestFilter();
+            userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
+            = new EqualToFilter<int>() { filterValue = APIClient.gameId };
+
+            Action<List<ModProfile>> onGetMods = (modProfiles) =>
+            {
+                List<int> modIds = new List<int>(modProfiles.Count);
+                foreach(ModProfile profile in modProfiles)
+                {
+                    modIds.Add(profile.id);
+                }
+
+                if(onSuccess != null) { onSuccess(modProfiles); }
+            };
+
+            // - Get All Events -
+            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetUserMods(userModsFilter, p, s, e),
+                                                           onGetMods,
+                                                           onError);
+        }
 
         // ---------[ FETCH ALL RESULTS HELPER ]---------
         private delegate void GetAllObjectsQuery<T>(APIPaginationParameters pagination,
@@ -1559,60 +1614,6 @@ namespace ModIO
                                                           onError),
                       onError);
             }
-        }
-
-        // ---------[ USER DATA ]---------
-        public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
-                                                       Action<WebRequestError> onError)
-        {
-            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
-            {
-                ModManager.GetUserProfile(UserAuthenticationData.instance.userId,
-                                          onSuccess,
-                                          onError);
-            }
-            else if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
-            {
-                APIClient.GetAuthenticatedUser(
-                (p) =>
-                {
-                    CacheClient.SaveUserProfile(p);
-
-                    if(onSuccess != null)
-                    {
-                        onSuccess(p);
-                    }
-                },
-                onError);
-            }
-            else if(onSuccess != null)
-            {
-                onSuccess(null);
-            }
-        }
-
-        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
-                                                    Action<WebRequestError> onError)
-        {
-            RequestFilter userModsFilter = new RequestFilter();
-            userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
-            = new EqualToFilter<int>() { filterValue = APIClient.gameId };
-
-            Action<List<ModProfile>> onGetMods = (modProfiles) =>
-            {
-                List<int> modIds = new List<int>(modProfiles.Count);
-                foreach(ModProfile profile in modProfiles)
-                {
-                    modIds.Add(profile.id);
-                }
-
-                if(onSuccess != null) { onSuccess(modProfiles); }
-            };
-
-            // - Get All Events -
-            ModManager.FetchAllResultsForQuery<ModProfile>((p,s,e) => APIClient.GetUserMods(userModsFilter, p, s, e),
-                                                           onGetMods,
-                                                           onError);
         }
     }
 }
