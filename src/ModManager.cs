@@ -107,6 +107,7 @@ namespace ModIO
         /// <para>This functionality is provided to allow for offline and
         /// user-less mod management.</para>
         /// <para>See also: [[ModIO.ModManager.GetSubscribedModIds]]</para>
+        /// <param name="modIds">New value to set as the subscribed mod collection</param>
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
             int[] modIdArray;
@@ -136,6 +137,7 @@ namespace ModIO
         /// <para>This value represents the collection of mod ids that should be
         /// loaded and activate when the game is run.</para>
         /// <para>See also: [[ModIO.ModManager.GetEnabledModIds]]</para>
+        /// <param name="modIds">New value to set as the enabled mod collection</param>
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
             int[] modIdArray;
@@ -155,6 +157,13 @@ namespace ModIO
         }
 
         /// <summary>Generates the path for a given modfile install directory.</summary>
+        /// <para>The mod io Unity Plugin extracts each mod to a unique folder
+        /// based on the mod id and modfile id, that is determined by the return
+        /// value of this function.</para>
+        /// <param name="modId">Mod identifier to use for install path generation</param>
+        /// <param name="modfileId">Modfile identifier to use for install path generation</param>
+        /// <returns>The unique path of the directory for the given mod and
+        /// modfile identifiers</returns>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
             return IOUtilities.CombinePath(ModManager.installationDirectory,
@@ -162,6 +171,19 @@ namespace ModIO
         }
 
         /// <summary>Extracts a mod archive to the installs folder and removes other installed versions.</summary>
+        /// <para>This function does not manage the downloading of mod binaries,
+        /// merely extracts the mod binary zip file stored at the location
+        /// described by
+        /// [CacheClient.GenerateModBinaryZipFilePath](ModIO.CacheClient.GenerateModBinaryZipFilePath).
+        /// If this file does not exist, or is not an extractable archive, this
+        /// this function will fail. Additionally, if any existing modfile
+        /// installations fail to uninstall, this function will also fail.</para>
+        /// <param name="modId">Mod identifier of the mod binary to install</param>
+        /// <param name="modfileId">Modfile identifier of the mod binary to install</param>
+        /// <param name="removeArchiveOnSuccess">Remove the mod binary archive
+        /// be removed if the installation succeeds</param>
+        /// <returns>True if the entire installation completed successfully,
+        /// (although the failure/success of the achive deletion is unchecked)</returns>
         public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
         {
             // Needs to have a valid mod id otherwise we mess with player-added mods!
