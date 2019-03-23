@@ -111,7 +111,7 @@ namespace ModIO
             IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
         }
 
-        /// <summary>Creates the Directory Path for a given modfile install.</summary>
+        /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
             return IOUtilities.CombinePath(ModManager.installationDirectory,
