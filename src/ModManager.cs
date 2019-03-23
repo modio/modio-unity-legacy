@@ -87,16 +87,26 @@ namespace ModIO
 
         // ---------[ MOD MANAGEMENT ]---------
         /// <summary>Returns the subscribed mods.</summary>
-        /// <para>This value is a local value that has been manually assigned
-        /// via [ModManager.SetSubscribedModIds](ModIO.ModManager.SetSubscribedModIds).
-        /// This is necessary to ensure data integrity and allow for offline use.</para>
-        /// <para>The subscribed mod ids are saved in the persistent data file.</para>
+        /// <para>This value is a locally stored representation of the mods that
+        /// the current user is subscribed to, and is stored in the persistent
+        /// data file. To get the subscriptions on the mod.io servers, use
+        /// [APIClient.GetUserSubscriptions](ModIO.APIClient.GetUserSubscriptions).
+        /// <para>This functionality is provided to allow for offline and
+        /// user-less mod management.</para>
         /// <para>See also: [[ModIO.ModManager.SetSubscribedModIds]]</para>
         public static List<int> GetSubscribedModIds()
         {
             return new List<int>(m_data.subscribedModIds);
         }
         /// <summary>Sets the subscribed mods and writes the data to disk.</summary>
+        /// <para>This value is a locally stored representation of the mods that
+        /// the current user is subscribed to, and is stored in the persistent
+        /// data file. To set the subscriptions on the mod.io servers, use
+        /// [APIClient.SubscribeToMod](ModIO.APIClient.SubscribeToMod) /
+        /// [APIClient.UnsubscribeFromMod](ModIO.APIClient.UnsubscribeFromMod).
+        /// <para>This functionality is provided to allow for offline and
+        /// user-less mod management.</para>
+        /// <para>See also: [[ModIO.ModManager.GetSubscribedModIds]]</para>
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
             int[] modIdArray;
@@ -115,11 +125,17 @@ namespace ModIO
         }
 
         /// <summary>Returns the enabled mods.</summary>
+        /// <para>This value represents the collection of mod ids that should be
+        /// loaded and activate when the game is run.</para>
+        /// <para>See also: [[ModIO.ModManager.SetEnabledModIds]]</para>
         public static List<int> GetEnabledModIds()
         {
             return new List<int>(m_data.enabledModIds);
         }
         /// <summary>Sets the enabled mods and writes the data to disk.</summary>
+        /// <para>This value represents the collection of mod ids that should be
+        /// loaded and activate when the game is run.</para>
+        /// <para>See also: [[ModIO.ModManager.GetEnabledModIds]]</para>
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
             int[] modIdArray;
