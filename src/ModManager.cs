@@ -182,9 +182,9 @@ namespace ModIO
         /// <param name="modfileId">Modfile identifier of the mod binary to install</param>
         /// <param name="removeArchiveOnSuccess">Remove the mod binary archive
         /// be removed if the installation succeeds</param>
-        /// <returns>`true` if the entire installation completed successfully,
+        /// <returns>**TRUE** indicates the entire installation completed successfully,
         /// (although the failure/success of the achive deletion is unchecked).
-        /// `false` indicates that either the mod binary archive does not exist,
+        /// **FALSE** indicates that either the mod binary archive does not exist,
         /// the uninstallation of previous versions failed, or that the
         /// extraction process failed.</returns>
         public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
@@ -237,7 +237,7 @@ namespace ModIO
         /// <para>See also: [[ModIO.ModManager.TryInstallMod]],
         /// [[ModIO.ModManager.GetModInstallDirectory]]</para>
         /// <param name="modId">Mod identifier of the mod to uninstall</param>
-        /// <returns>`true` indicates that all of the detected versions of the
+        /// <returns>**TRUE** indicates that all of the detected versions of the
         /// mod installation were successfully removed.</returns>
         public static bool TryUninstallAllModVersions(int modId)
         {
@@ -260,7 +260,7 @@ namespace ModIO
         /// [[ModIO.ModManager.GetModInstallDirectory]]</para>
         /// <param name="modId">Mod identifier of the mod version to uninstall</param>
         /// <param name="modfileId">Modfile identifier of the mod version to uninstall</param>
-        /// <returns>`true` indicates that the mod version was successfully
+        /// <returns>**TRUE** indicates that the mod version was successfully
         /// uninstalled.</returns>
         public static bool TryUninstallModVersion(int modId, int modfileId)
         {
@@ -282,6 +282,17 @@ namespace ModIO
         }
 
         /// <summary>Returns all of the mod directories of installed mods.</summary>
+        /// <para>**NOTE:** This function will additionally return the paths of
+        /// _any_ folder located in the
+        /// [ModManager.installationDirectory](ModIO.ModManager.installationDirectory)
+        /// and thus we recommend checking the validity of any mods assumed to
+        /// be contained within the returned directories before loading.</para>
+        /// <para>See also: [[ModIO.ModManager.GetInstalledModVersions]],
+        /// [[ModIO.ModManager.IterateInstalledMods]]</para>
+        /// <param name="excludeDisabledMods">Passing **TRUE** causes this
+        /// function to omit any disabled mods in the returned collection</param>
+        /// <returns>A collection containing the paths of all the installed mod
+        /// binary directories.</returns>
         public static List<string> GetInstalledModDirectories(bool excludeDisabledMods)
         {
             List<int> modIdFilter = null;
@@ -303,6 +314,12 @@ namespace ModIO
         }
 
         /// <summary>Returns all of the mod version info of installed mods.</summary>
+        /// <para>See also: [[ModIO.ModManager.GetInstalledModDirectories]],
+        /// [[ModIO.ModManager.IterateInstalledMods]]</para>
+        /// <param name="excludeDisabledMods">Passing **TRUE** causes this
+        /// function to omit any disabled mods in the returned collection</param>
+        /// <returns>A collection containing the a
+        /// [ModfileIdPair](ModIO.ModfileIdPair) for each installed mod version.</returns>
         public static List<ModfileIdPair> GetInstalledModVersions(bool excludeDisabledMods)
         {
             List<int> modIdFilter = null;
@@ -325,6 +342,26 @@ namespace ModIO
         }
 
         /// <summary>Returns the data of all the mods installed.</summary>
+        /// <para>Iterates over all of the folders in the
+        /// [mod installation directory](ModIO.ModManager.installationDirectory)
+        /// and parses the folder name to generate the accompanying
+        /// [ModfileIdPair](ModIO.ModfileIdPair) to return as a KeyValuePair.</para>
+        /// <para>NOTE: It cannot be assumed that the Key of the KeyValuePair is
+        /// unique as there can be directories that cannot be parsed as mod and
+        /// modfile identifier pairs.</para>
+        /// <para>See also: [[ModIO.ModManager.GetInstalledModDirectories]],
+        /// [[ModIO.ModManager.GetInstalledModVersions]]</para>
+        /// <param name="modIdFilter">Mods to include in the enumeration. A
+        /// value of **NULL** includes all results in the enumeration</param>
+        /// <returns>An enumerator of all the detected
+        /// [ModfileIdPairs](ModIO.ModfileIdPair) and their accompanying
+        /// directory paths. A folder name with an unparseable mod identifier
+        /// element generates a [ModfileIdPair](ModIO.ModfileIdPair) with a
+        /// modId set to [ModProfile.NULL_ID](ModIO.ModProfile.NULL_ID) and a
+        /// modfileId set to [Modfile.NULL_ID](ModIO.Modfile.NULL_ID). If only
+        /// the modfile identifier cannot be parsed, the mod id will be set to
+        /// the parsed value and the modfileId will be set to
+        /// [Modfile.NULL_ID](ModIO.Modfile.NULL_ID).</returns>
         public static IEnumerable<KeyValuePair<ModfileIdPair, string>> IterateInstalledMods(IList<int> modIdFilter)
         {
             string[] modDirectories = new string[0];
