@@ -182,8 +182,11 @@ namespace ModIO
         /// <param name="modfileId">Modfile identifier of the mod binary to install</param>
         /// <param name="removeArchiveOnSuccess">Remove the mod binary archive
         /// be removed if the installation succeeds</param>
-        /// <returns>True if the entire installation completed successfully,
-        /// (although the failure/success of the achive deletion is unchecked)</returns>
+        /// <returns>`true` if the entire installation completed successfully,
+        /// (although the failure/success of the achive deletion is unchecked).
+        /// `false` indicates that either the mod binary archive does not exist,
+        /// the uninstallation of previous versions failed, or that the
+        /// extraction process failed.</returns>
         public static bool TryInstallMod(int modId, int modfileId, bool removeArchiveOnSuccess)
         {
             // Needs to have a valid mod id otherwise we mess with player-added mods!
@@ -231,6 +234,11 @@ namespace ModIO
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
+        /// <para>See also: [[ModIO.ModManager.TryInstallMod]],
+        /// [[ModIO.ModManager.GetModInstallDirectory]]</para>
+        /// <param name="modId">Mod identifier of the mod to uninstall</param>
+        /// <returns>`true` indicates that all of the detected versions of the
+        /// mod installation were successfully removed.</returns>
         public static bool TryUninstallAllModVersions(int modId)
         {
             // Don't accidentally uninstall player-added mods!
@@ -248,6 +256,12 @@ namespace ModIO
         }
 
         /// <summary>Removes a specific version of a mod from the installs folder.</summary>
+        /// <para>See also: [[ModIO.ModManager.TryInstallMod]],
+        /// [[ModIO.ModManager.GetModInstallDirectory]]</para>
+        /// <param name="modId">Mod identifier of the mod version to uninstall</param>
+        /// <param name="modfileId">Modfile identifier of the mod version to uninstall</param>
+        /// <returns>`true` indicates that the mod version was successfully
+        /// uninstalled.</returns>
         public static bool TryUninstallModVersion(int modId, int modfileId)
         {
             // Don't accidentally uninstall player-added mods!
