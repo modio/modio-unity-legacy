@@ -417,6 +417,17 @@ namespace ModIO
         }
 
         /// <summary>Downloads and installs  all installed mods.</summary>
+        /// <para>This complex coroutine fetches collects the list of installed
+        /// mods, fetches all of the corresponding mod profiles from the server,
+        /// then sequentially attempts to download and install any mod binaries
+        /// that don't match the
+        /// [ModProfile.currentBuild](ModIO.ModProfile.currentBuild) value.</para>
+        /// <para>Errors (other than an unresolvable request, or failed
+        /// validation) will trigger a delay and reattempt. (Max 2 attempts per
+        /// mod.)</para>
+        /// <returns>A Unity coroutine that needs to be run using
+        /// [StartCoroutine](https://docs.unity3d.com/2018.2/Documentation/ScriptReference/MonoBehaviour.StartCoroutine.html)
+        /// on a Game Object component.</returns>
         public static System.Collections.IEnumerator UpdateAllInstalledMods_Coroutine()
         {
             List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
@@ -647,6 +658,15 @@ namespace ModIO
 
         // ---------[ GAME PROFILE ]---------
         /// <summary>Fetches and caches the Game Profile (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the [GameProfile](ModIO.GameProfile) first, and if not
+        /// found, fetches it from the server and stores it in the cache. As
+        /// such, there is the potential for the data returned by this function
+        /// to be obsolete.</para>
+        /// <para>See also: [[ModIO.CacheClient.LoadGameProfile]],
+        /// [[ModIO.APIClient.GetGame]]</para>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetGameProfile(Action<GameProfile> onSuccess,
                                           Action<WebRequestError> onError)
         {
@@ -672,6 +692,16 @@ namespace ModIO
 
         // ---------[ MOD PROFILES ]---------
         /// <summary>Fetches and caches a Mod Profile (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the relevant [ModProfile](ModIO.ModProfile) first, and if
+        /// not found, fetches it from the server and stores it in the cache. As
+        /// such, there is the potential for the data returned by this function
+        /// to be obsolete.</para>
+        /// <para>See also: [[ModIO.CacheClient.LoadModProfile]],
+        /// [[ModIO.APIClient.GetMod]]</para>
+        /// <param name="modId">Identifier for the mod profile to get</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModProfile(int modId,
                                          Action<ModProfile> onSuccess,
                                          Action<WebRequestError> onError)
@@ -698,6 +728,16 @@ namespace ModIO
         }
 
         /// <summary>Fetches and caches Mod Profiles (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the relevant [ModProfiles](ModIO.ModProfile) first, and
+        /// for any that aren't found, fetches the profiles from the server and
+        /// stores them in the cache. As such, there is the potential for the
+        /// data returned by this function to be obsolete.</para>
+        /// <para>See also: [[ModIO.CacheClient.IterateModProfiles]],
+        /// [[ModIO.APIClient.GetAllMods]]</para>
+        /// <param name="modIds">Identifiers for the mod profiles to get</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModProfiles(IEnumerable<int> modIds,
                                           Action<List<ModProfile>> onSuccess,
                                           Action<WebRequestError> onError)
@@ -747,6 +787,16 @@ namespace ModIO
 
         // ---------[ MOD IMAGES ]---------
         /// <summary>Fetches and caches a Mod Logo (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the mod logo first, and if not found, fetches it from the
+        /// server and stores it in the cache. As such, there is the potential
+        /// for the data returned by this function to be obsolete.</para>
+        /// <para>See also: [[ModIO.DownloadClient.DownloadModLogo]],
+        /// [[ModIO.CacheClient.LoadModLogo]]</para>
+        /// <param name="profile">Profile to fetch the logo for</param>
+        /// <param name="size">Size of image to fetch</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModLogo(ModProfile profile, LogoSize size,
                                       Action<Texture2D> onSuccess,
                                       Action<WebRequestError> onError)
@@ -757,6 +807,17 @@ namespace ModIO
         }
 
         /// <summary>Fetches and caches a Mod Logo (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the mod logo first, and if not found, fetches it from the
+        /// server and stores it in the cache. As such, there is the potential
+        /// for the data returned by this function to be obsolete.</para>
+        /// <para>See also: [[ModIO.DownloadClient.DownloadModLogo]],
+        /// [[ModIO.CacheClient.LoadModLogo]]</para>
+        /// <param name="modId">Mod identifier for the logo</param>
+        /// <param name="logoLocator">Server data for the logo</param>
+        /// <param name="size">Size of image to fetch</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModLogo(int modId, LogoImageLocator logoLocator,
                                       LogoSize size,
                                       Action<Texture2D> onSuccess,
@@ -785,6 +846,17 @@ namespace ModIO
         }
 
         /// <summary>Fetches and caches a Mod Gallery Image (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the mod gallery image first, and if not found, fetches it
+        /// from the server and stores it in the cache. As such, there is the
+        /// potential for the data returned by this function to be obsolete.</para>
+        /// <para>See also: [[ModIO.DownloadClient.DownloadModGalleryImage]],
+        /// [[ModIO.CacheClient.LoadModGalleryImage]]</para>
+        /// <param name="profile">Profile to fetch the gallery image for</param>
+        /// <param name="imageFileName">Identifier for the gallery image</param>
+        /// <param name="size">Size of image to fetch</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModGalleryImage(ModProfile profile,
                                               string imageFileName,
                                               ModGalleryImageSize size,
@@ -797,6 +869,17 @@ namespace ModIO
         }
 
         /// <summary>Fetches and caches a Mod Gallery Image (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the mod gallery image first, and if not found, fetches it
+        /// from the server and stores it in the cache. As such, there is the
+        /// potential for the data returned by this function to be obsolete.</para>
+        /// <para>See also: [[ModIO.DownloadClient.DownloadModGalleryImage]],
+        /// [[ModIO.CacheClient.LoadModGalleryImage]]</para>
+        /// <param name="modId">Mod identifier for the gallery image</param>
+        /// <param name="imageLocator">Server data for the gallery image</param>
+        /// <param name="size">Size of image to fetch</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModGalleryImage(int modId,
                                               GalleryImageLocator imageLocator,
                                               ModGalleryImageSize size,
@@ -834,6 +917,16 @@ namespace ModIO
         }
 
         /// <summary>Fetches and caches a Mod YouTube Thumbnail (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the mod gallery image first, and if not found, fetches it
+        /// from the server and stores it in the cache. As such, there is the
+        /// potential for the data returned by this function to be obsolete.</para>
+        /// <para>See also: [[ModIO.DownloadClient.DownloadModGalleryImage]],
+        /// [[ModIO.CacheClient.LoadModGalleryImage]]</para>
+        /// <param name="modId">Mod identifier for the gallery image</param>
+        /// <param name="youTubeVideoId">Identifier for the YouTube Video</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModYouTubeThumbnail(int modId,
                                                   string youTubeVideoId,
                                                   Action<Texture2D> onSuccess,
