@@ -1009,88 +1009,88 @@ namespace ModIO
         }
 
         // ---------[ UPLOADING ]---------
-        /// <summary>Submits a new mod to the servers.</summary>
-        public static void SubmitNewMod(EditableModProfile modEdits,
-                                        Action<ModProfile> modSubmissionSucceeded,
-                                        Action<WebRequestError> modSubmissionFailed)
+        /// <summary>Submits a new mod to the server.</summary>
+        public static void SubmitNewMod(EditableModProfile newModProfile,
+                                        Action<ModProfile> onSuccess,
+                                        Action<WebRequestError> onError)
         {
             // - Client-Side error-checking -
             WebRequestError error = null;
-            if(String.IsNullOrEmpty(modEdits.name.value))
+            if(String.IsNullOrEmpty(newModProfile.name.value))
             {
                 error = WebRequestError.GenerateLocal("Mod Profile needs to be named before it can be uploaded");
             }
-            else if(String.IsNullOrEmpty(modEdits.summary.value))
+            else if(String.IsNullOrEmpty(newModProfile.summary.value))
             {
                 error = WebRequestError.GenerateLocal("Mod Profile needs to be given a summary before it can be uploaded");
             }
-            else if(!File.Exists(modEdits.logoLocator.value.url))
+            else if(!File.Exists(newModProfile.logoLocator.value.url))
             {
                 error = WebRequestError.GenerateLocal("Mod Profile needs to be assigned a logo before it can be uploaded");
             }
 
             if(error != null)
             {
-                modSubmissionFailed(error);
+                onError(error);
                 return;
             }
 
             // - Initial Mod Submission -
             var parameters = new AddModParameters();
-            parameters.name = modEdits.name.value;
-            parameters.summary = modEdits.summary.value;
-            parameters.logo = BinaryUpload.Create(Path.GetFileName(modEdits.logoLocator.value.url),
-                                                      File.ReadAllBytes(modEdits.logoLocator.value.url));
-            if(modEdits.visibility.isDirty)
+            parameters.name = newModProfile.name.value;
+            parameters.summary = newModProfile.summary.value;
+            parameters.logo = BinaryUpload.Create(Path.GetFileName(newModProfile.logoLocator.value.url),
+                                                      File.ReadAllBytes(newModProfile.logoLocator.value.url));
+            if(newModProfile.visibility.isDirty)
             {
-                parameters.visibility = modEdits.visibility.value;
+                parameters.visibility = newModProfile.visibility.value;
             }
-            if(modEdits.nameId.isDirty)
+            if(newModProfile.nameId.isDirty)
             {
-                parameters.nameId = modEdits.nameId.value;
+                parameters.nameId = newModProfile.nameId.value;
             }
-            if(modEdits.descriptionAsHTML.isDirty)
+            if(newModProfile.descriptionAsHTML.isDirty)
             {
-                parameters.descriptionAsHTML = modEdits.descriptionAsHTML.value;
+                parameters.descriptionAsHTML = newModProfile.descriptionAsHTML.value;
             }
-            if(modEdits.homepageURL.isDirty)
+            if(newModProfile.homepageURL.isDirty)
             {
-                parameters.nameId = modEdits.homepageURL.value;
+                parameters.nameId = newModProfile.homepageURL.value;
             }
-            if(modEdits.metadataBlob.isDirty)
+            if(newModProfile.metadataBlob.isDirty)
             {
-                parameters.metadataBlob = modEdits.metadataBlob.value;
+                parameters.metadataBlob = newModProfile.metadataBlob.value;
             }
-            if(modEdits.nameId.isDirty)
+            if(newModProfile.nameId.isDirty)
             {
-                parameters.nameId = modEdits.nameId.value;
+                parameters.nameId = newModProfile.nameId.value;
             }
-            if(modEdits.tags.isDirty)
+            if(newModProfile.tags.isDirty)
             {
-                parameters.tags = modEdits.tags.value;
+                parameters.tags = newModProfile.tags.value;
             }
 
             // NOTE(@jackson): As add Mod takes more parameters than edit,
             //  we can ignore some of the elements in the EditModParameters
-            //  when passing to SubmitModProfileComponents
+            //  when passing to SubmitModChanges_Internal
             var remainingModEdits = new EditableModProfile();
-            remainingModEdits.youTubeURLs = modEdits.youTubeURLs;
-            remainingModEdits.sketchfabURLs = modEdits.sketchfabURLs;
-            remainingModEdits.galleryImageLocators = modEdits.galleryImageLocators;
+            remainingModEdits.youTubeURLs = newModProfile.youTubeURLs;
+            remainingModEdits.sketchfabURLs = newModProfile.sketchfabURLs;
+            remainingModEdits.galleryImageLocators = newModProfile.galleryImageLocators;
 
             APIClient.AddMod(parameters,
-                             result => SubmitModProfileComponents(result,
-                                                                  remainingModEdits,
-                                                                  modSubmissionSucceeded,
-                                                                  modSubmissionFailed),
-                             modSubmissionFailed);
+                             result => SubmitModChanges_Internal(result,
+                                                                 remainingModEdits,
+                                                                 onSuccess,
+                                                                 onError),
+                             onError);
         }
 
-        /// <summary>Submits changes to a mod id to the servers.</summary>
+        /// <summary>Submits changes to a mod to the server.</summary>
         public static void SubmitModChanges(int modId,
                                             EditableModProfile modEdits,
-                                            Action<ModProfile> modSubmissionSucceeded,
-                                            Action<WebRequestError> modSubmissionFailed)
+                                            Action<ModProfile> onSuccess,
+                                            Action<WebRequestError> onError)
         {
             Debug.Assert(modId != ModProfile.NULL_ID);
 
@@ -1140,31 +1140,29 @@ namespace ModIO
                     }
 
                     APIClient.EditMod(modId, parameters,
-                                   (p) => SubmitModProfileComponents(profile, modEdits,
-                                                                     modSubmissionSucceeded,
-                                                                     modSubmissionFailed),
-                                   modSubmissionFailed);
+                    (p) => SubmitModChanges_Internal(profile, modEdits,
+                                                     onSuccess,
+                                                     onError),
+                    onError);
                 }
                 // - Get updated ModProfile -
                 else
                 {
-                    SubmitModProfileComponents(profile,
-                                               modEdits,
-                                               modSubmissionSucceeded,
-                                               modSubmissionFailed);
+                    SubmitModChanges_Internal(profile,
+                                              modEdits,
+                                              onSuccess,
+                                              onError);
                 }
             };
 
-            ModManager.GetModProfile(modId,
-                                     submitChanges,
-                                     modSubmissionFailed);
+            ModManager.GetModProfile(modId, submitChanges, onError);
         }
 
         /// <summary>Calculates changes made to a mod profile and submits them to the servers.</summary>
-        private static void SubmitModProfileComponents(ModProfile profile,
-                                                       EditableModProfile modEdits,
-                                                       Action<ModProfile> modSubmissionSucceeded,
-                                                       Action<WebRequestError> modSubmissionFailed)
+        private static void SubmitModChanges_Internal(ModProfile profile,
+                                                      EditableModProfile modEdits,
+                                                      Action<ModProfile> onSuccess,
+                                                      Action<WebRequestError> onError)
         {
             List<Action> submissionActions = new List<Action>();
             int nextActionIndex = 0;
@@ -1291,7 +1289,7 @@ namespace ModIO
                     {
                         APIClient.AddModMedia(profile.id,
                                               addMediaParameters,
-                                              doNextSubmissionAction, modSubmissionFailed);
+                                              doNextSubmissionAction, onError);
                     });
                 }
                 if(deleteMediaParameters.stringValues.Count > 0)
@@ -1301,7 +1299,7 @@ namespace ModIO
                         APIClient.DeleteModMedia(profile.id,
                                                  deleteMediaParameters,
                                                  () => doNextSubmissionAction(null),
-                                                 modSubmissionFailed);
+                                                 onError);
                     });
                 }
             }
@@ -1327,7 +1325,7 @@ namespace ModIO
                         var parameters = new DeleteModTagsParameters();
                         parameters.tagNames = removedTags.ToArray();
                         APIClient.DeleteModTags(profile.id, parameters,
-                                                () => doNextSubmissionAction(null), modSubmissionFailed);
+                                                () => doNextSubmissionAction(null), onError);
                     });
                 }
                 if(addedTags.Count > 0)
@@ -1337,7 +1335,7 @@ namespace ModIO
                         var parameters = new AddModTagsParameters();
                         parameters.tagNames = addedTags.ToArray();
                         APIClient.AddModTags(profile.id, parameters,
-                                          doNextSubmissionAction, modSubmissionFailed);
+                                             doNextSubmissionAction, onError);
                     });
                 }
             }
@@ -1380,7 +1378,7 @@ namespace ModIO
                         parameters.metadataKeys = removedKVPs.Keys.ToArray();
                         APIClient.DeleteModKVPMetadata(profile.id, parameters,
                                                        () => doNextSubmissionAction(null),
-                                                       modSubmissionFailed);
+                                                       onError);
                     });
                 }
 
@@ -1394,15 +1392,13 @@ namespace ModIO
                         parameters.metadata = addedKVPStrings;
                         APIClient.AddModKVPMetadata(profile.id, parameters,
                                                     doNextSubmissionAction,
-                                                    modSubmissionFailed);
+                                                    onError);
                     });
                 }
             }
 
             // - Get Updated Profile -
-            submissionActions.Add(() => APIClient.GetMod(profile.id,
-                                                      modSubmissionSucceeded,
-                                                      modSubmissionFailed));
+            submissionActions.Add(() => APIClient.GetMod(profile.id, onSuccess, onError));
 
             // - Start submission chain -
             doNextSubmissionAction(new APIMessage());
