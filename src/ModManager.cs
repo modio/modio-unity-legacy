@@ -1305,6 +1305,9 @@ namespace ModIO
 
         // ---------[ UPLOADING ]---------
         /// <summary>Submits a new mod to the server.</summary>
+        /// <param name="newModProfile">Data to submit to the server</param>
+        /// <param name="onSuccess">Action to execute if the submission succeeds</param>
+        /// <param name="onError">Action to execute if the submission returns an error</param>
         public static void SubmitNewMod(EditableModProfile newModProfile,
                                         Action<ModProfile> onSuccess,
                                         Action<WebRequestError> onError)
@@ -1382,6 +1385,10 @@ namespace ModIO
         }
 
         /// <summary>Submits changes to a mod to the server.</summary>
+        /// <param name="modId">Identifier of the mod to update</param>
+        /// <param name="modEdits">Data to submit to the server</param>
+        /// <param name="onSuccess">Action to execute if the submission succeeds</param>
+        /// <param name="onError">Action to execute if the submission returns an error</param>
         public static void SubmitModChanges(int modId,
                                             EditableModProfile modEdits,
                                             Action<ModProfile> onSuccess,
@@ -1453,6 +1460,7 @@ namespace ModIO
             ModManager.GetModProfile(modId, submitChanges, onError);
         }
 
+        /// @cond
         /// <summary>Calculates changes made to a mod profile and submits them to the servers.</summary>
         private static void SubmitModChanges_Internal(ModProfile profile,
                                                       EditableModProfile modEdits,
@@ -1698,8 +1706,14 @@ namespace ModIO
             // - Start submission chain -
             doNextSubmissionAction(new APIMessage());
         }
+        /// @endcond
 
         /// <summary>Zips and uploads a mod data directory as a new build to the servers.</summary>
+        /// <param name="modId">Identifier of the binary submission target mod</param>
+        /// <param name="modfileValues">Modfile data to submit</param>
+        /// <param name="binaryDirectory">Directory of the mod contents</param>
+        /// <param name="onSuccess">Action to execute if the submission succeeds</param>
+        /// <param name="onError">Action to execute if the submission returns an error</param>
         public static void UploadModBinaryDirectory(int modId,
                                                     EditableModfile modfileValues,
                                                     string binaryDirectory,
@@ -1769,6 +1783,11 @@ namespace ModIO
         }
 
         /// <summary>Zips and uploads a mod data file as a new build to the servers.</summary>
+        /// <param name="modId">Identifier of the binary submission target mod</param>
+        /// <param name="modfileValues">Modfile data to submit</param>
+        /// <param name="unzippedBinaryLocation">Location of the build file</param>
+        /// <param name="onSuccess">Action to execute if the submission succeeds</param>
+        /// <param name="onError">Action to execute if the submission returns an error</param>
         public static void UploadModBinary_Unzipped(int modId,
                                                     EditableModfile modfileValues,
                                                     string unzippedBinaryLocation,
@@ -1813,6 +1832,11 @@ namespace ModIO
         }
 
         /// <summary>Uploads a zipped mod binary as a new build to the servers.</summary>
+        /// <param name="modId">Identifier of the binary submission target mod</param>
+        /// <param name="modfileValues">Modfile data to submit</param>
+        /// <param name="binaryZipLocation">Location of the mod archive</param>
+        /// <param name="onSuccess">Action to execute if the submission succeeds</param>
+        /// <param name="onError">Action to execute if the submission returns an error</param>
         public static void UploadModBinary_Zipped(int modId,
                                                   EditableModfile modfileValues,
                                                   string binaryZipLocation,
@@ -1854,6 +1878,15 @@ namespace ModIO
         }
         // ---------[ USER DATA ]---------
         /// <summary>Fetches and caches the User Profile for the values in UserAuthenticationData.</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the [User Profile](ModIO.UserProfile), for the authenticated user
+        /// and if not found, fetches it from the server and stores it in the cache.
+        /// As such, there is the potential for the data returned by this
+        /// function to be obsolete.</para>
+        /// <para>See also: [[ModIO.UserAuthenticationData]],
+        /// [[ModIO.APIClient.GetAuthenticatedUser]]</para>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
@@ -1884,6 +1917,16 @@ namespace ModIO
         }
 
         /// <summary>Fetches the list of mods associated with the  User Profile matching the UserAuthenticationData.</summary>
+        /// <para>Primarily wraps
+        /// [APIClient.GetUserMods](ModIO.APIClient.GetUserMods)
+        /// providing a convenient interface for fetching _all_ of the mods
+        /// associated with the authenticated user account,
+        /// as it automatically fetches each page sequentially until all have
+        /// been received.</para>
+        /// <para>See also: [[ModIO.APIClient.GetUserMods]],
+        /// [[ModIO.UserAuthenticationData]]</para>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
                                                     Action<WebRequestError> onError)
         {
@@ -1909,6 +1952,7 @@ namespace ModIO
         }
 
         // ---------[ FETCH ALL RESULTS HELPER ]---------
+        /// @cond
         private delegate void GetAllObjectsQuery<T>(APIPaginationParameters pagination,
                                                     Action<RequestPage<T>> onSuccess,
                                                     Action<WebRequestError> onError);
@@ -1964,5 +2008,6 @@ namespace ModIO
                       onError);
             }
         }
+        /// @endcond
     }
 }
