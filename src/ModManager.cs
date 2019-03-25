@@ -1916,7 +1916,7 @@ namespace ModIO
             }
         }
 
-        /// <summary>Fetches the list of mods associated with the  User Profile matching the UserAuthenticationData.</summary>
+        /// <summary>Fetches all mods associated with the authenticated user.</summary>
         /// <para>Primarily wraps
         /// [APIClient.GetUserMods](ModIO.APIClient.GetUserMods)
         /// providing a convenient interface for fetching _all_ of the mods
@@ -1927,8 +1927,8 @@ namespace ModIO
         /// [[ModIO.UserAuthenticationData]]</para>
         /// <param name="onSuccess">Action to execute if the request succeeds</param>
         /// <param name="onError">Action to execute if the request returns an error</param>
-        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
-                                                    Action<WebRequestError> onError)
+        public static void FetchAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
+                                                      Action<WebRequestError> onError)
         {
             RequestFilter userModsFilter = new RequestFilter();
             userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
@@ -2007,6 +2007,17 @@ namespace ModIO
                                                           onError),
                       onError);
             }
+        }
+        /// @endcond
+
+        // ---------[ OBSOLETE ]---------
+        /// @cond
+        /// <summary>[Obsolete] Fetches the list of mods associated with the authenticated user.</summary>
+        [Obsolete("User ModManager.FetchAuthenticatedUserMods() instead.")]
+        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            ModManager.FetchAuthenticatedUserMods(onSuccess, onError);
         }
         /// @endcond
     }
