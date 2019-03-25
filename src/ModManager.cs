@@ -959,6 +959,16 @@ namespace ModIO
 
         // ---------[ MODFILES ]---------
         /// <summary>Fetches and caches a Modfile (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the [Modfile](ModIO.Modfile), and if not found, fetches it
+        /// from the server and stores it in the cache. As such, there is the
+        /// potential for the data returned by this function to be obsolete.</para>
+        /// <para>See also: [[ModIO.APIClient.GetModfile]],
+        /// [[ModIO.CacheClient.LoadModfile]]</para>
+        /// <param name="modId">Mod identifier for the modfile</param>
+        /// <param name="modfileId">Identifier for the modfile</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModfile(int modId, int modfileId,
                                       Action<Modfile> onSuccess,
                                       Action<WebRequestError> onError)
@@ -987,6 +997,18 @@ namespace ModIO
 
         // ---------[ MOD STATS ]---------
         /// <summary>Fetches and caches a Mod's Statistics (if not already cached or if expired).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the [Modfile](ModIO.Modfile), and if not found, fetches it
+        /// from the server and stores it in the cache. Unlike most other
+        /// similar ModManager functions, this endpoint will not return obsolete
+        /// data as [ModStatistics](ModIO.ModStatistics) objects contain an
+        /// [expiration date](ModIO.ModStatistics.dateExpires) and will be
+        /// re-fetched if expired.</para>
+        /// <para>See also: [[ModIO.APIClient.GetModStats]],
+        /// [[ModIO.CacheClient.LoadModStatistics]]</para>
+        /// <param name="modId">Mod identifier for the mod statistics</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetModStatistics(int modId,
                                             Action<ModStatistics> onSuccess,
                                             Action<WebRequestError> onError)
@@ -1016,6 +1038,16 @@ namespace ModIO
 
         // ---------[ USERS ]---------
         /// <summary>Fetches and caches a User Profile (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the [UserProfile](ModIO.UserProfile), and if not found,
+        /// fetches it from the server and stores it in the cache.
+        /// As such, there is the potential for the data returned by this
+        /// function to be obsolete.</para>
+        /// <para>See also: [[ModIO.APIClient.GetUser]],
+        /// [[ModIO.CacheClient.LoadUserProfile]]</para>
+        /// <param name="userId">Identifier for the user profile</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetUserProfile(int userId,
                                           Action<UserProfile> onSuccess,
                                           Action<WebRequestError> onError)
@@ -1042,6 +1074,17 @@ namespace ModIO
         }
 
         /// <summary>Fetches and caches a User Avatar (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the user avatar,
+        /// and if not found, fetches it from the server and stores it in the cache.
+        /// As such, there is the potential for the data returned by this
+        /// function to be obsolete.</para>
+        /// <para>See also: [[ModIO.DownloadClient.DownloadUserAvatar]],
+        /// [[ModIO.CacheClient.LoadUserAvatar]]</para>
+        /// <param name="profile">User profile to request the avatar for</param>
+        /// <param name="size">Image size of the avatar</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetUserAvatar(UserProfile profile,
                                          UserAvatarSize size,
                                          Action<Texture2D> onSuccess,
@@ -1054,6 +1097,18 @@ namespace ModIO
         }
 
         /// <summary>Fetches and caches a User Avatar (if not already cached).</summary>
+        /// <para>As with all similar ModManager functions, this checks the
+        /// cache for the user avatar,
+        /// and if not found, fetches it from the server and stores it in the cache.
+        /// As such, there is the potential for the data returned by this
+        /// function to be obsolete.</para>
+        /// <para>See also: [[ModIO.DownloadClient.DownloadUserAvatar]],
+        /// [[ModIO.CacheClient.LoadUserAvatar]]</para>
+        /// <param name="userId">User identifier for the user avatar</param>
+        /// <param name="avatarLocator">Server data for the user avatar</param>
+        /// <param name="size">Image size of the avatar</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void GetUserAvatar(int userId,
                                          AvatarImageLocator avatarLocator,
                                          UserAvatarSize size,
