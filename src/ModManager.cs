@@ -1144,6 +1144,16 @@ namespace ModIO
 
         // ---------[ EVENTS ]---------
         /// <summary>Fetches all mod events for the game.</summary>
+        /// <para>Primarily wraps
+        /// [APIClient.GetAllModEvents](ModIO.APIClient.GetAllModEvents)
+        /// providing a convenient interface for fetching _all_ of the results
+        /// as it automatically fetches each page sequentially until all have
+        /// been received.</para>
+        /// <para>See also: [[ModIO.APIClient.GetAllModEvents]]</para>
+        /// <param name="fromTimeStamp">Start of the time period to filter by **(exclusively)**</param>
+        /// <param name="untilTimeStamp">End of the time period to filter by **(inclusively)**</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void FetchAllModEvents(int fromTimeStamp,
                                              int untilTimeStamp,
                                              Action<List<ModEvent>> onSuccess,
@@ -1154,6 +1164,17 @@ namespace ModIO
         }
 
         /// <summary>Fetches all mod events for the given mod ids.</summary>
+        /// <para>Primarily wraps
+        /// [APIClient.GetAllModEvents](ModIO.APIClient.GetAllModEvents)
+        /// providing a convenient interface for fetching _all_ of the results
+        /// as it automatically fetches each page sequentially until all have
+        /// been received.</para>
+        /// <para>See also: [[ModIO.APIClient.GetAllModEvents]]</para>
+        /// <param name="modIdFilter">Filter of mod identifiers to include in the result</param>
+        /// <param name="fromTimeStamp">Start of the time period to filter by **(exclusively)**</param>
+        /// <param name="untilTimeStamp">End of the time period to filter by **(inclusively)**</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void FetchModEvents(IEnumerable<int> modIdFilter,
                                           int fromTimeStamp,
                                           int untilTimeStamp,
@@ -1186,6 +1207,18 @@ namespace ModIO
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
+        /// <para>Primarily wraps
+        /// [APIClient.GetUserEvents](ModIO.APIClient.GetUserEvents)
+        /// providing a convenient interface for fetching _all_ of the events
+        /// that involve the authenticated user and the stored game id,
+        /// as it automatically fetches each page sequentially until all have
+        /// been received.</para>
+        /// <para>See also: [[ModIO.APIClient.GetUserEvents]],
+        /// [[ModIO.UserAuthenticationData]]</para>
+        /// <param name="fromTimeStamp">Start of the time period to filter by **(exclusively)**</param>
+        /// <param name="untilTimeStamp">End of the time period to filter by **(inclusively)**</param>
+        /// <param name="onSuccess">Action to execute if the request succeeds</param>
+        /// <param name="onError">Action to execute if the request returns an error</param>
         public static void FetchAllUserEvents(int fromTimeStamp,
                                               int untilTimeStamp,
                                               Action<List<UserEvent>> onSuccess,
