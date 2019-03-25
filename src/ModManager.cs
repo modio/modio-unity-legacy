@@ -131,38 +131,94 @@ namespace ModIO
                                  + "\nMod Binary ZipFile [" + zipFilePath + "] does not exist.");
                 return false;
             }
-            if(!ModManager.TryUninstallAllModVersions(modId))
-            {
-                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                 + "\nFailed to uninstall other versions of this mod.");
-                return false;
-            }
 
-            string unzipLocation = GetModInstallDirectory(modId, modfileId);
+            // extract
+            string tempLocation = Path.Combine(CacheClient.GenerateModBinariesDirectoryPath(modId),
+                                               modfileId.ToString());
             try
             {
-                Directory.CreateDirectory(unzipLocation);
+                if(Directory.Exists(tempLocation))
+                {
+                    Directory.Delete(tempLocation, true);
+                }
+
+                Directory.CreateDirectory(tempLocation);
 
                 using (var zip = Ionic.Zip.ZipFile.Read(zipFilePath))
                 {
-                    zip.ExtractAll(unzipLocation);
+                    zip.ExtractAll(tempLocation);
                 }
-
-                if(removeArchiveOnSuccess)
-                {
-                    IOUtilities.DeleteFile(zipFilePath);
-                }
-
-                return true;
             }
             catch(Exception e)
             {
-                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
-                                 + "\nLocation: " + unzipLocation + "\n\n"
+                Debug.LogWarning("[mod.io] Unable to extract binary to a temporary folder."
+                                 + "\nLocation: " + tempLocation + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
+
+                if(!IOUtilities.DeleteDirectory(tempLocation))
+                {
+                    Debug.LogWarning("[mod.io] Failed to remove the temporary folder."
+                                     + "\nLocation: " + tempLocation + "\n\n");
+                }
 
                 return false;
             }
+
+            // Remove old versions
+            bool uninstallSucceeded = ModManager.TryUninstallAllModVersions(modId);
+
+            if(!uninstallSucceeded)
+            {
+                Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
+                                 + "\nFailed to uninstall other versions of this mod.");
+
+                if(!IOUtilities.DeleteDirectory(tempLocation))
+                {
+                    Debug.LogWarning("[mod.io] Failed to remove the temporary folder."
+                                     + "\nLocation: " + tempLocation + "\n\n");
+                }
+
+                return false;
+            }
+
+            // Move to permanent folder
+            string installDirectory = ModManager.GetModInstallDirectory(modId,
+                                                                        modfileId);
+            try
+            {
+                if(Directory.Exists(installDirectory))
+                {
+                    Directory.Delete(installDirectory, true);
+                }
+                else
+                {
+                    Directory.CreateDirectory(ModManager.installationDirectory);
+                }
+
+                Directory.Move(tempLocation, installDirectory);
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[mod.io] Unable to move binary to the mod installation folder."
+                                 + "\nSrc: " + tempLocation
+                                 + "\nDest: " + installDirectory + "\n\n"
+                                 + Utility.GenerateExceptionDebugString(e));
+
+                if(!IOUtilities.DeleteDirectory(tempLocation))
+                {
+                    Debug.LogWarning("[mod.io] Failed to remove the temporary folder."
+                                     + "\nLocation: " + tempLocation + "\n\n");
+                }
+
+                return false;
+            }
+
+            if(removeArchiveOnSuccess)
+            {
+                IOUtilities.DeleteFile(zipFilePath);
+            }
+
+            return true;
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
