@@ -942,7 +942,7 @@ namespace ModIO
                                              Action<List<ModEvent>> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            ModManager.FetchModEvents(new int[0], fromTimeStamp, untilTimeStamp,
+            ModManager.FetchModEvents(null, fromTimeStamp, untilTimeStamp,
                                       onSuccess, onError);
         }
 
@@ -953,8 +953,6 @@ namespace ModIO
                                           Action<List<ModEvent>> onSuccess,
                                           Action<WebRequestError> onError)
         {
-            Debug.Assert(modIdFilter != null);
-
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.dateAdded;
@@ -966,11 +964,14 @@ namespace ModIO
                 max = untilTimeStamp,
                 isMaxInclusive = true,
             };
-            modEventFilter.fieldFilters[GetAllModEventsFilterFields.modId]
-            = new InArrayFilter<int>()
+            if(modIdFilter != null)
             {
-                filterArray = modIdFilter.ToArray(),
-            };
+                modEventFilter.fieldFilters[GetAllModEventsFilterFields.modId]
+                = new InArrayFilter<int>()
+                {
+                    filterArray = modIdFilter.ToArray(),
+                };
+            }
 
             // - Get All Events -
             ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
