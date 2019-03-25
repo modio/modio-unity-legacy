@@ -22,6 +22,9 @@ namespace ModIO
             public int[] enabledModIds;
         }
 
+        /// <summary>Data that needs to be stored across sessions.</summary>
+        private static PersistentData m_data;
+
         // ---------[ CONSTANTS & STATICS ]---------
         /// <summary>Current version of the ModManager/Plugin.</summary>
         public static readonly SimpleVersion VERSION = new SimpleVersion(2, 0);
@@ -34,9 +37,6 @@ namespace ModIO
 
         /// <summary>Install directory used by the ModManager.</summary>
         public static string installationDirectory;
-
-        /// <summary>Data that needs to be stored across sessions.</summary>
-        private static PersistentData m_data;
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initializes the ModManager settings.</summary>
@@ -356,7 +356,7 @@ namespace ModIO
             }
         }
 
-        /// <summary>Downloads and installs  all installed mods.</summary>
+        /// <summary>Downloads and installs all installed mods.</summary>
         public static System.Collections.IEnumerator UpdateAllInstalledMods_Coroutine()
         {
             List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
@@ -364,6 +364,7 @@ namespace ModIO
 
             bool isRequestResolved = false;
             int attemptCount = 0;
+            int attemptLimit = 2;
 
             // reattempt delay calculator
             Func<WebRequestError, int> calcReattemptDelay = (requestError) =>
@@ -405,7 +406,7 @@ namespace ModIO
             };
 
             while(!isRequestResolved
-                  && attemptCount < 2)
+                  && attemptCount < attemptLimit)
             {
                 bool isDone = false;
                 WebRequestError error = null;
