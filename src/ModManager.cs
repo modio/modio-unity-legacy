@@ -1588,9 +1588,9 @@ namespace ModIO
             }
         }
 
-        /// <summary>Fetches the list of mods associated with the  User Profile matching the UserAuthenticationData.</summary>
-        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
-                                                    Action<WebRequestError> onError)
+        /// <summary>Fetches all mods associated with the authenticated user.</summary>
+        public static void FetchAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
+                                                      Action<WebRequestError> onError)
         {
             RequestFilter userModsFilter = new RequestFilter();
             userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
@@ -1669,5 +1669,16 @@ namespace ModIO
                       onError);
             }
         }
+
+        // ---------[ OBSOLETE ]---------
+        /// @cond
+        /// <summary>[Obsolete] Fetches the list of mods associated with the authenticated user.</summary>
+        [Obsolete("User ModManager.FetchAuthenticatedUserMods() instead.")]
+        public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
+                                                    Action<WebRequestError> onError)
+        {
+            ModManager.FetchAuthenticatedUserMods(onSuccess, onError);
+        }
+        /// @endcond
     }
 }
