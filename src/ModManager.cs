@@ -1953,10 +1953,12 @@ namespace ModIO
 
         // ---------[ FETCH ALL RESULTS HELPER ]---------
         /// @cond
+        /// <summary>Parameter definition for FetchAllResultsForQuery.</summary>
         private delegate void GetAllObjectsQuery<T>(APIPaginationParameters pagination,
                                                     Action<RequestPage<T>> onSuccess,
                                                     Action<WebRequestError> onError);
 
+        /// <summary>Fetches all the results for a paged API query.</summary>
         private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
                                                        Action<List<T>> onSuccess,
                                                        Action<WebRequestError> onError)
@@ -1979,6 +1981,7 @@ namespace ModIO
                   onError);
         }
 
+        /// <summary>Fetches all the results for a paged API query.</summary>
         private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
                                                             RequestPage<T> queryResult,
                                                             APIPaginationParameters pagination,
