@@ -1614,10 +1614,12 @@ namespace ModIO
         }
 
         // ---------[ FETCH ALL RESULTS HELPER ]---------
+        /// <summary>Parameter definition for FetchAllResultsForQuery.</summary>
         private delegate void GetAllObjectsQuery<T>(APIPaginationParameters pagination,
                                                     Action<RequestPage<T>> onSuccess,
                                                     Action<WebRequestError> onError);
 
+        /// <summary>Fetches all the results for a paged API query.</summary>
         private static void FetchAllResultsForQuery<T>(GetAllObjectsQuery<T> query,
                                                        Action<List<T>> onSuccess,
                                                        Action<WebRequestError> onError)
@@ -1640,6 +1642,7 @@ namespace ModIO
                   onError);
         }
 
+        /// <summary>Fetches all the results for a paged API query.</summary>
         private static void FetchQueryResultsRecursively<T>(GetAllObjectsQuery<T> query,
                                                             RequestPage<T> queryResult,
                                                             APIPaginationParameters pagination,
@@ -1671,7 +1674,6 @@ namespace ModIO
         }
 
         // ---------[ OBSOLETE ]---------
-        /// @cond
         /// <summary>[Obsolete] Fetches the list of mods associated with the authenticated user.</summary>
         [Obsolete("User ModManager.FetchAuthenticatedUserMods() instead.")]
         public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
@@ -1679,6 +1681,5 @@ namespace ModIO
         {
             ModManager.FetchAuthenticatedUserMods(onSuccess, onError);
         }
-        /// @endcond
     }
 }
