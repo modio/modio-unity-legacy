@@ -24,9 +24,7 @@ namespace ModIO.UI
 
         [Header("Settings")]
         public GameObject itemPrefab = null;
-        public float gridSpacing = 8f;
         public float pageTransitionTimeSeconds = 0.4f;
-        public int rowCount = 2;
         public RectTransform pageTemplate = null;
 
         [Header("UI Components")]
@@ -54,8 +52,6 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
-        private Vector2 m_gridCellSize = Vector2.one;
-        private int m_columnCount = 0;
         private List<ModView> m_modViews = new List<ModView>();
 
         // --- ACCESSORS ---
@@ -287,8 +283,7 @@ namespace ModIO.UI
 
         public void UpdateTargetPageDisplay()
         {
-            Debug.Assert(targetPageContainer != null,
-                         "[mod.io] ExplorerView.Initialize has not yet been called");
+            if(targetPageContainer == null) { return; }
 
             #if DEBUG
             if(isTransitioning)
