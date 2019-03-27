@@ -141,29 +141,6 @@ namespace ModIO.UI
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
 
-            // - initialize pages -
-            foreach(Transform t in contentPane)
-            {
-                GameObject.Destroy(t.gameObject);
-            }
-
-            RecalculateColumnCountAndCellDimensions();
-
-            // create mod pages
-            currentPageContainer = new GameObject("Mod Page", typeof(RectTransform)).transform as RectTransform;
-            currentPageContainer.SetParent(contentPane);
-            currentPageContainer.anchorMin = Vector2.zero;
-            currentPageContainer.offsetMin = Vector2.zero;
-            currentPageContainer.anchorMax = Vector2.one;
-            currentPageContainer.offsetMax = Vector2.zero;
-            currentPageContainer.localScale = Vector2.one;
-            currentPageContainer.pivot = Vector2.zero;
-            GridLayoutGroup layouter = currentPageContainer.gameObject.AddComponent<GridLayoutGroup>();
-            ApplyGridLayoutValues(layouter);
-
-            targetPageContainer = GameObject.Instantiate(currentPageContainer, contentPane).transform as RectTransform;
-            targetPageContainer.gameObject.SetActive(false);
-
 
             // - nested views -
             if(tagFilterView != null)
@@ -216,95 +193,10 @@ namespace ModIO.UI
             }
         }
 
-        // TODO(@jackson): Encapsulate (could work with ratio rather than itemDim)
-        public void RecalculateColumnCountAndCellDimensions()
-        {
-            Rect itemDim = itemPrefab.GetComponent<RectTransform>().rect;
-            Rect containerDim = contentPane.GetComponent<RectTransform>().rect;
-
-            // asserts
-            Debug.Assert(rowCount > 0, "[mod.io] RowCount needs to be larger than zero.");
-            Debug.Assert(itemDim.height > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer item with a"
-                         + " non-positive height");
-            Debug.Assert(itemDim.width > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer item with a"
-                         + " non-positive width");
-            Debug.Assert(containerDim.height > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer view with"
-                         + " the container dimensions for a non-positive height");
-            Debug.Assert(containerDim.width > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer view with"
-                         + " the container dimensions for a non-positive width");
-
-            // initial calcs
-            float rowCount_f = (float)rowCount;
-            float rowHeight = (containerDim.height - gridSpacing * (rowCount_f-1f)) / rowCount_f;
-            float vertSpacingTotal = gridSpacing * (rowCount_f-1f);
-            float itemScaleValue = (rowHeight / itemDim.height);
-            float columnCount = Mathf.Floor((containerDim.width + gridSpacing)
-                                            / (itemScaleValue * itemDim.width + gridSpacing));
-            float columnWidth = itemScaleValue * itemDim.width;
-            float horzSpacingTotal = gridSpacing * (columnCount-1f);
-
-            // case where only one item fits width-wise
-            if(columnCount < 1f)
-            {
-                itemScaleValue = itemDim.width / containerDim.width;
-                columnCount = 1f;
-            }
-            else
-            {
-                int calcIterations = 0;
-
-                // are the items wide enough?
-                bool moreColumnsNeeded = (columnWidth*columnCount+horzSpacingTotal) < containerDim.width;
-
-                while(moreColumnsNeeded
-                      && calcIterations < 100)
-                {
-                    ++calcIterations;
-
-                    columnCount += 1f;
-
-                    horzSpacingTotal = gridSpacing * (columnCount - 1f);
-
-                    // set values using width data
-                    columnWidth = (containerDim.width - horzSpacingTotal) / columnCount;
-                    itemScaleValue = columnWidth / itemDim.width;
-                    rowHeight = itemScaleValue * itemDim.height;
-
-                    // check if the values create a grid that is too tall
-                    moreColumnsNeeded = (vertSpacingTotal + (rowHeight * rowCount_f) > containerDim.height);
-                }
-
-                if(calcIterations >= 100)
-                {
-                    Debug.LogWarning("[mod.io] Calculating the grid layout for the ExplorerView"
-                                     + " failed as it required too many iterations to solve", this);
-                }
-            }
-
-            this.m_columnCount = (int)Mathf.Floor(columnCount);
-            this.m_gridCellSize = new Vector2(columnWidth, rowHeight);
-        }
-
-        private void ApplyGridLayoutValues(GridLayoutGroup layoutGroup)
-        {
-            layoutGroup.spacing = new Vector2(this.gridSpacing, this.gridSpacing);
-            layoutGroup.padding = new RectOffset();
-            layoutGroup.cellSize = this.m_gridCellSize;
-            layoutGroup.startCorner = GridLayoutGroup.Corner.UpperLeft;
-            layoutGroup.startAxis = GridLayoutGroup.Axis.Horizontal;
-            layoutGroup.childAlignment = TextAnchor.MiddleCenter;
-            layoutGroup.constraint = GridLayoutGroup.Constraint.Flexible;
-        }
-
         // ----------[ PAGE DISPLAY ]---------
         public void UpdateCurrentPageDisplay()
         {
-            Debug.Assert(currentPageContainer != null,
-                         "[mod.io] ExplorerView.Initialize has not yet been called");
+            if(currentPageContainer == null) { return; }
 
             #if DEBUG
             if(isTransitioning)
@@ -321,8 +213,14 @@ namespace ModIO.UI
                                            || currentPage.items.Length == 0);
             }
 
+            IEnumerable<ModProfile> profiles = null;
+            if(this.currentPage != null)
+            {
+                profiles = this.currentPage.items;
+            }
+
             UpdatePageNumberDisplay();
-            DisplayProfiles(this.currentPage.items, this.currentPageContainer);
+            DisplayProfiles(profiles, this.currentPageContainer);
         }
 
         public void UpdateTargetPageDisplay()
@@ -453,6 +351,8 @@ namespace ModIO.UI
 
         private void UpdatePageNumberDisplay()
         {
+            if(currentPage == null) { return; }
+
             if(pageNumberText != null)
             {
                 pageNumberText.text = CurrentPageNumber.ToString();
