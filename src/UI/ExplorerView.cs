@@ -53,7 +53,6 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
         private Vector2 m_gridCellSize = Vector2.one;
-        private Vector3 m_tileScale = Vector3.one;
         private int m_columnCount = 0;
         private List<ModView> m_modViews = new List<ModView>();
 
@@ -288,7 +287,6 @@ namespace ModIO.UI
 
             this.m_columnCount = (int)Mathf.Floor(columnCount);
             this.m_gridCellSize = new Vector2(columnWidth, rowHeight);
-            this.m_tileScale = new Vector3(itemScaleValue, itemScaleValue, 1f);
         }
 
         private void ApplyGridLayoutValues(GridLayoutGroup layoutGroup)
@@ -368,7 +366,7 @@ namespace ModIO.UI
 
             foreach(Transform t in pageTransform)
             {
-                ModView view = t.GetComponentInChildren<ModView>();
+                ModView view = t.GetComponent<ModView>();
                 if(view != null)
                 {
                     m_modViews.Remove(view);
@@ -381,7 +379,6 @@ namespace ModIO.UI
             {
                 IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
                 IList<int> enabledModIds = ModManager.GetEnabledModIds();
-                Vector2 centerVector = new Vector2(0.5f, 0.5f);
 
                 foreach(ModProfile profile in profileCollection)
                 {
@@ -392,21 +389,11 @@ namespace ModIO.UI
                         break;
                     }
 
-                    GameObject resizeWrapper = new GameObject("Mod Tile", typeof(RectTransform));
-                    resizeWrapper.transform.SetParent(pageTransform);
-                    resizeWrapper.transform.localScale = Vector3.one;
-
                     GameObject itemGO = GameObject.Instantiate(itemPrefab,
                                                                new Vector3(),
                                                                Quaternion.identity,
-                                                               resizeWrapper.transform);
-
-                    RectTransform itemTransform = itemGO.transform as RectTransform;
-                    itemTransform.pivot = centerVector;
-                    itemTransform.anchorMin = centerVector;
-                    itemTransform.anchorMax = centerVector;
-                    itemTransform.anchoredPosition = Vector2.zero;
-                    itemTransform.localScale = this.m_tileScale;
+                                                               pageTransform);
+                    itemGO.name = "Mod Tile [" + pageModViews.Count.ToString() + "]";
 
                     // initialize item
                     ModView view = itemGO.GetComponent<ModView>();
