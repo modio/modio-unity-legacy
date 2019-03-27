@@ -27,6 +27,7 @@ namespace ModIO.UI
         public float gridSpacing = 8f;
         public float pageTransitionTimeSeconds = 0.4f;
         public int rowCount = 2;
+        public RectTransform pageTemplate = null;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -41,6 +42,7 @@ namespace ModIO.UI
         public GameObject noResultsDisplay;
 
         [Header("Display Data")]
+        public GridLayoutGroup gridLayout = null;
         public RequestPage<ModProfile> currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
         public List<string> filterTags = new List<string>();
@@ -59,7 +61,12 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public int itemsPerPage
         {
-            get { return this.rowCount * this.m_columnCount; }
+            get
+            {
+                if(this.gridLayout == null) { return 0; }
+
+                return UIUtilities.CountVisibleGridCells(this.gridLayout);
+            }
         }
         public IEnumerable<ModTagCategory> tagCategories
         {
@@ -128,6 +135,61 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            // asserts
+            if(pageTemplate == null)
+            {
+                Debug.LogWarning("[mod.io] Page Template variable needs to be set in order for the"
+                                 + " Explorer View to function", this.gameObject);
+                this.enabled = false;
+                return;
+            }
+
+            this.gridLayout = pageTemplate.GetComponent<GridLayoutGroup>();
+            if(this.gridLayout == null)
+            {
+                Debug.LogWarning("[mod.io] Page Template needs a grid layout component in order for the"
+                                 + " Explorer View to function", this.gameObject);
+                this.enabled = false;
+                return;
+            }
+
+            // create pages
+            pageTemplate.gameObject.SetActive(false);
+
+            GameObject pageGO;
+
+            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
+            pageGO.name = "Mod Page";
+            currentPageContainer = pageGO.GetComponent<RectTransform>();
+            currentPageContainer.gameObject.SetActive(true);
+
+            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
+            pageGO.name = "Mod Page";
+            targetPageContainer = pageGO.GetComponent<RectTransform>();
+            targetPageContainer.gameObject.SetActive(false);
+
+            // update view
+            UpdateCurrentPageDisplay();
+
+            // TODO(@jackson): handle transition?
+        }
+
+        private void OnDisable()
+        {
+            // TODO(@jackson): handle transition?
+
+            if(currentPageContainer != null)
+            {
+                GameObject.Destroy(currentPageContainer.gameObject);
+            }
+            if(targetPageContainer != null)
+            {
+                GameObject.Destroy(targetPageContainer.gameObject);
+            }
+        }
+
         public void Initialize()
         {
             Debug.Assert(itemPrefab != null);
@@ -282,8 +344,8 @@ namespace ModIO.UI
                 {
                     if(pageModViews.Count >= itemsPerPage)
                     {
-                        // Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
-                        //                  + "can be displayed per page");
+                        Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
+                                         + "can be displayed per page", this.gameObject);
                         break;
                     }
 
