@@ -18,10 +18,14 @@ namespace ModIO
     {
         // ---------[ MEMBERS ]---------
         /// <summary>Directory that the CacheClient uses to store data.</summary>
+        /// <para>This is stored in the [Plugin Settings](ModIO.PluginSettings)
+        /// and initially loaded by the CacheClient static constructor.</para>
         public static string cacheDirectory;
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initializes the CacheClient settings.</summary>
+        /// <para>Loads the cache directory stored in the
+        /// [PluginSettings](ModIO.PluginSettings).</para>
         static CacheClient()
         {
             PluginSettings.Data settings = PluginSettings.data;
@@ -30,11 +34,17 @@ namespace ModIO
 
         // ---------[ GAME PROFILE ]---------
         /// <summary>File path for the game profile data.</summary>
+        /// <para>This file is referenced by the Cache Client as the single game
+        /// profile that the plugin uses.</para>
+        /// <para>See also: [[ModIO.CacheClient.LoadGameProfile]],
+        // [[ModIO.CacheClient.SaveGameProfile]]</para>
         public static string gameProfileFilePath
         { get { return IOUtilities.CombinePath(CacheClient.cacheDirectory, "game_profile.data"); } }
 
         /// <summary>Stores the game's profile in the cache.</summary>
         /// <param name="profile">Game Profile to store</param>
+        /// <returns>**TRUE** if the Game Profile was successfully written to
+        /// disk.</returns>
         public static bool SaveGameProfile(GameProfile profile)
         {
             Debug.Assert(profile != null);
