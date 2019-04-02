@@ -101,7 +101,7 @@ namespace ModIO.Editor
                             isModListLoading = false;
                         };
 
-                        ModManager.GetAuthenticatedUserMods(onGetUserMods, onError);
+                        ModManager.FetchAuthenticatedUserMods(onGetUserMods, onError);
                     },
                     onError);
                 }
