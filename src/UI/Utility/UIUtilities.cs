@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ModIO.UI
 {
@@ -77,6 +78,57 @@ namespace ModIO.UI
             {
                 Application.OpenURL(@"https://youtu.be/" + youTubeVideoId);
             }
+        }
+
+        /// <summary>Counts the cells that will fit in within the RectTransform of the given grid</summary>
+        public static int CountVisibleGridCells(GridLayoutGroup gridLayout)
+        {
+            Debug.Assert(gridLayout != null);
+
+            // calculate dimensions
+            RectTransform transform = gridLayout.GetComponent<RectTransform>();
+            Vector2 gridDisplayDimensions = new Vector2();
+            gridDisplayDimensions.x = (transform.rect.width
+                                       - gridLayout.padding.left
+                                       - gridLayout.padding.right
+                                       + gridLayout.spacing.x);
+            gridDisplayDimensions.y = (transform.rect.height
+                                       - gridLayout.padding.top
+                                       - gridLayout.padding.bottom
+                                       + gridLayout.spacing.y);
+
+            // calculate cell count
+            int columnCount = 0;
+            if(gridLayout.cellSize.x + gridLayout.spacing.x > 0f)
+            {
+                columnCount = (int)Mathf.Floor(gridDisplayDimensions.x
+                                               / (gridLayout.cellSize.x + gridLayout.spacing.x));
+
+            }
+            int rowCount = 0;
+            if((gridLayout.cellSize.y + gridLayout.spacing.y) > 0f)
+            {
+                rowCount = (int)Mathf.Floor(gridDisplayDimensions.y
+                                            / (gridLayout.cellSize.y + gridLayout.spacing.y));
+            }
+
+            // check constraints
+            if(gridLayout.constraint == GridLayoutGroup.Constraint.FixedColumnCount)
+            {
+                if(gridLayout.constraintCount < columnCount)
+                {
+                    columnCount = gridLayout.constraintCount;
+                }
+            }
+            else if(gridLayout.constraint == GridLayoutGroup.Constraint.FixedRowCount)
+            {
+                if(gridLayout.constraintCount < rowCount)
+                {
+                    rowCount = gridLayout.constraintCount;
+                }
+            }
+
+            return rowCount * columnCount;
         }
     }
 }

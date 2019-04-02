@@ -24,9 +24,8 @@ namespace ModIO.UI
 
         [Header("Settings")]
         public GameObject itemPrefab = null;
-        public float gridSpacing = 8f;
         public float pageTransitionTimeSeconds = 0.4f;
-        public int rowCount = 2;
+        public RectTransform pageTemplate = null;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -41,6 +40,7 @@ namespace ModIO.UI
         public GameObject noResultsDisplay;
 
         [Header("Display Data")]
+        public GridLayoutGroup gridLayout = null;
         public RequestPage<ModProfile> currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
         public List<string> filterTags = new List<string>();
@@ -52,15 +52,17 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
-        private Vector2 m_gridCellSize = Vector2.one;
-        private Vector3 m_tileScale = Vector3.one;
-        private int m_columnCount = 0;
         private List<ModView> m_modViews = new List<ModView>();
 
         // --- ACCESSORS ---
         public int itemsPerPage
         {
-            get { return this.rowCount * this.m_columnCount; }
+            get
+            {
+                if(this.gridLayout == null) { return 0; }
+
+                return UIUtilities.CountVisibleGridCells(this.gridLayout);
+            }
         }
         public IEnumerable<ModTagCategory> tagCategories
         {
@@ -129,6 +131,61 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            // asserts
+            if(pageTemplate == null)
+            {
+                Debug.LogWarning("[mod.io] Page Template variable needs to be set in order for the"
+                                 + " Explorer View to function", this.gameObject);
+                this.enabled = false;
+                return;
+            }
+
+            this.gridLayout = pageTemplate.GetComponent<GridLayoutGroup>();
+            if(this.gridLayout == null)
+            {
+                Debug.LogWarning("[mod.io] Page Template needs a grid layout component in order for the"
+                                 + " Explorer View to function", this.gameObject);
+                this.enabled = false;
+                return;
+            }
+
+            // create pages
+            pageTemplate.gameObject.SetActive(false);
+
+            GameObject pageGO;
+
+            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
+            pageGO.name = "Mod Page";
+            currentPageContainer = pageGO.GetComponent<RectTransform>();
+            currentPageContainer.gameObject.SetActive(true);
+
+            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
+            pageGO.name = "Mod Page";
+            targetPageContainer = pageGO.GetComponent<RectTransform>();
+            targetPageContainer.gameObject.SetActive(false);
+
+            // update view
+            UpdateCurrentPageDisplay();
+
+            // TODO(@jackson): handle transition?
+        }
+
+        private void OnDisable()
+        {
+            // TODO(@jackson): handle transition?
+
+            if(currentPageContainer != null)
+            {
+                GameObject.Destroy(currentPageContainer.gameObject);
+            }
+            if(targetPageContainer != null)
+            {
+                GameObject.Destroy(targetPageContainer.gameObject);
+            }
+        }
+
         public void Initialize()
         {
             Debug.Assert(itemPrefab != null);
@@ -141,29 +198,6 @@ namespace ModIO.UI
                          "[mod.io] The ExplorerView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
-
-            // - initialize pages -
-            foreach(Transform t in contentPane)
-            {
-                GameObject.Destroy(t.gameObject);
-            }
-
-            RecalculateColumnCountAndCellDimensions();
-
-            // create mod pages
-            currentPageContainer = new GameObject("Mod Page", typeof(RectTransform)).transform as RectTransform;
-            currentPageContainer.SetParent(contentPane);
-            currentPageContainer.anchorMin = Vector2.zero;
-            currentPageContainer.offsetMin = Vector2.zero;
-            currentPageContainer.anchorMax = Vector2.one;
-            currentPageContainer.offsetMax = Vector2.zero;
-            currentPageContainer.localScale = Vector2.one;
-            currentPageContainer.pivot = Vector2.zero;
-            GridLayoutGroup layouter = currentPageContainer.gameObject.AddComponent<GridLayoutGroup>();
-            ApplyGridLayoutValues(layouter);
-
-            targetPageContainer = GameObject.Instantiate(currentPageContainer, contentPane).transform as RectTransform;
-            targetPageContainer.gameObject.SetActive(false);
 
 
             // - nested views -
@@ -217,96 +251,10 @@ namespace ModIO.UI
             }
         }
 
-        // TODO(@jackson): Encapsulate (could work with ratio rather than itemDim)
-        public void RecalculateColumnCountAndCellDimensions()
-        {
-            Rect itemDim = itemPrefab.GetComponent<RectTransform>().rect;
-            Rect containerDim = contentPane.GetComponent<RectTransform>().rect;
-
-            // asserts
-            Debug.Assert(rowCount > 0, "[mod.io] RowCount needs to be larger than zero.");
-            Debug.Assert(itemDim.height > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer item with a"
-                         + " non-positive height");
-            Debug.Assert(itemDim.width > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer item with a"
-                         + " non-positive width");
-            Debug.Assert(containerDim.height > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer view with"
-                         + " the container dimensions for a non-positive height");
-            Debug.Assert(containerDim.width > 0,
-                         "[mod.io] Unable to calculate grid dimensions for an explorer view with"
-                         + " the container dimensions for a non-positive width");
-
-            // initial calcs
-            float rowCount_f = (float)rowCount;
-            float rowHeight = (containerDim.height - gridSpacing * (rowCount_f-1f)) / rowCount_f;
-            float vertSpacingTotal = gridSpacing * (rowCount_f-1f);
-            float itemScaleValue = (rowHeight / itemDim.height);
-            float columnCount = Mathf.Floor((containerDim.width + gridSpacing)
-                                            / (itemScaleValue * itemDim.width + gridSpacing));
-            float columnWidth = itemScaleValue * itemDim.width;
-            float horzSpacingTotal = gridSpacing * (columnCount-1f);
-
-            // case where only one item fits width-wise
-            if(columnCount < 1f)
-            {
-                itemScaleValue = itemDim.width / containerDim.width;
-                columnCount = 1f;
-            }
-            else
-            {
-                int calcIterations = 0;
-
-                // are the items wide enough?
-                bool moreColumnsNeeded = (columnWidth*columnCount+horzSpacingTotal) < containerDim.width;
-
-                while(moreColumnsNeeded
-                      && calcIterations < 100)
-                {
-                    ++calcIterations;
-
-                    columnCount += 1f;
-
-                    horzSpacingTotal = gridSpacing * (columnCount - 1f);
-
-                    // set values using width data
-                    columnWidth = (containerDim.width - horzSpacingTotal) / columnCount;
-                    itemScaleValue = columnWidth / itemDim.width;
-                    rowHeight = itemScaleValue * itemDim.height;
-
-                    // check if the values create a grid that is too tall
-                    moreColumnsNeeded = (vertSpacingTotal + (rowHeight * rowCount_f) > containerDim.height);
-                }
-
-                if(calcIterations >= 100)
-                {
-                    Debug.LogWarning("[mod.io] Calculating the grid layout for the ExplorerView"
-                                     + " failed as it required too many iterations to solve", this);
-                }
-            }
-
-            this.m_columnCount = (int)Mathf.Floor(columnCount);
-            this.m_gridCellSize = new Vector2(columnWidth, rowHeight);
-            this.m_tileScale = new Vector3(itemScaleValue, itemScaleValue, 1f);
-        }
-
-        private void ApplyGridLayoutValues(GridLayoutGroup layoutGroup)
-        {
-            layoutGroup.spacing = new Vector2(this.gridSpacing, this.gridSpacing);
-            layoutGroup.padding = new RectOffset();
-            layoutGroup.cellSize = this.m_gridCellSize;
-            layoutGroup.startCorner = GridLayoutGroup.Corner.UpperLeft;
-            layoutGroup.startAxis = GridLayoutGroup.Axis.Horizontal;
-            layoutGroup.childAlignment = TextAnchor.MiddleCenter;
-            layoutGroup.constraint = GridLayoutGroup.Constraint.Flexible;
-        }
-
         // ----------[ PAGE DISPLAY ]---------
         public void UpdateCurrentPageDisplay()
         {
-            Debug.Assert(currentPageContainer != null,
-                         "[mod.io] ExplorerView.Initialize has not yet been called");
+            if(currentPageContainer == null) { return; }
 
             #if DEBUG
             if(isTransitioning)
@@ -323,14 +271,19 @@ namespace ModIO.UI
                                            || currentPage.items.Length == 0);
             }
 
+            IEnumerable<ModProfile> profiles = null;
+            if(this.currentPage != null)
+            {
+                profiles = this.currentPage.items;
+            }
+
             UpdatePageNumberDisplay();
-            DisplayProfiles(this.currentPage.items, this.currentPageContainer);
+            DisplayProfiles(profiles, this.currentPageContainer);
         }
 
         public void UpdateTargetPageDisplay()
         {
-            Debug.Assert(targetPageContainer != null,
-                         "[mod.io] ExplorerView.Initialize has not yet been called");
+            if(targetPageContainer == null) { return; }
 
             #if DEBUG
             if(isTransitioning)
@@ -368,7 +321,7 @@ namespace ModIO.UI
 
             foreach(Transform t in pageTransform)
             {
-                ModView view = t.GetComponentInChildren<ModView>();
+                ModView view = t.GetComponent<ModView>();
                 if(view != null)
                 {
                     m_modViews.Remove(view);
@@ -381,32 +334,21 @@ namespace ModIO.UI
             {
                 IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
                 IList<int> enabledModIds = ModManager.GetEnabledModIds();
-                Vector2 centerVector = new Vector2(0.5f, 0.5f);
 
                 foreach(ModProfile profile in profileCollection)
                 {
                     if(pageModViews.Count >= itemsPerPage)
                     {
-                        // Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
-                        //                  + "can be displayed per page");
+                        Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
+                                         + "can be displayed per page", this.gameObject);
                         break;
                     }
-
-                    GameObject resizeWrapper = new GameObject("Mod Tile", typeof(RectTransform));
-                    resizeWrapper.transform.SetParent(pageTransform);
-                    resizeWrapper.transform.localScale = Vector3.one;
 
                     GameObject itemGO = GameObject.Instantiate(itemPrefab,
                                                                new Vector3(),
                                                                Quaternion.identity,
-                                                               resizeWrapper.transform);
-
-                    RectTransform itemTransform = itemGO.transform as RectTransform;
-                    itemTransform.pivot = centerVector;
-                    itemTransform.anchorMin = centerVector;
-                    itemTransform.anchorMax = centerVector;
-                    itemTransform.anchoredPosition = Vector2.zero;
-                    itemTransform.localScale = this.m_tileScale;
+                                                               pageTransform);
+                    itemGO.name = "Mod Tile [" + pageModViews.Count.ToString() + "]";
 
                     // initialize item
                     ModView view = itemGO.GetComponent<ModView>();
@@ -466,6 +408,8 @@ namespace ModIO.UI
 
         private void UpdatePageNumberDisplay()
         {
+            if(currentPage == null) { return; }
+
             if(pageNumberText != null)
             {
                 pageNumberText.text = CurrentPageNumber.ToString();

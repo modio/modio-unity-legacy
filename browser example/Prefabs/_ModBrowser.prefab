@@ -11,6 +11,22 @@ Prefab:
   m_SourcePrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1654289447257750}
   m_IsPrefabAsset: 1
+--- !u!1 &1001270715466760
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224895251402852128}
+  - component: {fileID: 114895590725059468}
+  m_Layer: 5
+  m_Name: Mod Page Template
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
 --- !u!1 &1005347677292572
 GameObject:
   m_ObjectHideFlags: 1
@@ -6719,6 +6735,7 @@ MonoBehaviour:
   gridSpacing: 8
   pageTransitionTimeSeconds: 0.4
   rowCount: 3
+  pageTemplate: {fileID: 224895251402852128}
   contentPane: {fileID: 224480924864000676}
   nameSearchField: {fileID: 114280675296892522}
   tagFilterView: {fileID: 114881975973044358}
@@ -6728,6 +6745,7 @@ MonoBehaviour:
   pageCountText: {fileID: 114042995055664914}
   resultCountText: {fileID: 114383635685634226}
   noResultsDisplay: {fileID: 1633844475048514}
+  gridLayout: {fileID: 0}
   filterTags: []
   isTransitioning: 0
   currentPageContainer: {fileID: 0}
@@ -13623,6 +13641,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   invalidSubmissionMessage: Input needs to be either a valid email address or the
     5-Digit authentication code.
+  emailRefusedMessage: 'The email address was rejected by the mod.io server.
+
+    Please correct any mistakes, or try another email address.'
   displayForInputState:
     invalid: {fileID: 1804942242380466}
     email: {fileID: 1264933870658338}
@@ -14135,6 +14156,29 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &114895590725059468
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1001270715466760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -2095666955, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 360, y: 322}
+  m_Spacing: {x: 8, y: 8}
+  m_Constraint: 0
+  m_ConstraintCount: 2
 --- !u!114 &114896377166470212
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -18703,7 +18747,8 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 224895251402852128}
   m_Father: {fileID: 224391688738566368}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -20598,6 +20643,24 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0.00005637814}
   m_SizeDelta: {x: 0, y: 1355}
   m_Pivot: {x: 0, y: 1}
+--- !u!224 &224895251402852128
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1001270715466760}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 224480924864000676}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224896036631064028
 RectTransform:
   m_ObjectHideFlags: 1
