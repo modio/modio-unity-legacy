@@ -11,6 +11,9 @@ using ModIO.API;
 namespace ModIO
 {
     /// <summary>An interface for storing/loading data retrieved for the mod.io servers on disk.</summary>
+    /// <para>This class is the core interface for interacting with data saved to disk. It can be
+    /// used directly for manual, fine-grained control, or managed via [[ModIO.ModManager]] for a
+    /// hands-off, simpler approach.</para>
     public static class CacheClient
     {
         // ---------[ MEMBERS ]---------
@@ -31,6 +34,7 @@ namespace ModIO
         { get { return IOUtilities.CombinePath(CacheClient.cacheDirectory, "game_profile.data"); } }
 
         /// <summary>Stores the game's profile in the cache.</summary>
+        /// <param name="profile">Game Profile to store</param>
         public static bool SaveGameProfile(GameProfile profile)
         {
             Debug.Assert(profile != null);
@@ -38,6 +42,7 @@ namespace ModIO
         }
 
         /// <summary>Retrieves the game's profile from the cache.</summary>
+        /// <returns>Game Profile stored via [[ModIO.CacheClient.SaveGameProfile]].</returns>
         public static GameProfile LoadGameProfile()
         {
             return IOUtilities.ReadJsonObjectFile<GameProfile>(gameProfileFilePath);
@@ -45,6 +50,11 @@ namespace ModIO
 
         // ---------[ MODS ]---------
         /// <summary>Generates the path for a mod cache directory.</summary>
+        /// <para>This directory will be a sub-directory of the current
+        /// [cache directory](ModIO.CacheClient.cacheDirectory) and will contain all of the cached
+        /// data for the given mod.</para>
+        /// <param name="modId">Mod to generate the cache directory path for.</param>
+        /// <returns>Path to the mod directory.</returns>
         public static string GenerateModDirectoryPath(int modId)
         {
             return IOUtilities.CombinePath(CacheClient.cacheDirectory,
@@ -54,6 +64,8 @@ namespace ModIO
 
         // ------[ PROFILES ]------
         /// <summary>Generates the file path for a mod's profile data.</summary>
+        /// <param name="modId">Mod to generate the file path for</param>
+        /// <returns>Location of the file that contains the mod profile.</returns>
         public static string GenerateModProfileFilePath(int modId)
         {
             return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId),
@@ -61,6 +73,10 @@ namespace ModIO
         }
 
         /// <summary>Stores a mod's profile in the cache.</summary>
+        /// <para>See also: [[ModIO.CacheClient.LoadModProfile]]</para>
+        /// <param name="profile">Mod profile to store</param>
+        /// <returns>**TRUE** indicates that the mod profile was successfully
+        /// written to the file in cache.</returns>
         public static bool SaveModProfile(ModProfile profile)
         {
             Debug.Assert(profile != null);
@@ -68,6 +84,9 @@ namespace ModIO
         }
 
         /// <summary>Retrieves a mod's profile from the cache.</summary>
+        /// <para>See also: [[ModIO.CacheClient.SaveModProfile]]</para>
+        /// <param name="modId">Mod profile to retrieve</param>
+        /// <returns>Mod profile stored in the cache for the given mod id.</returns>
         public static ModProfile LoadModProfile(int modId)
         {
             string profileFilePath = GenerateModProfileFilePath(modId);
@@ -76,6 +95,11 @@ namespace ModIO
         }
 
         /// <summary>Stores a collection of mod profiles in the cache.</summary>
+        /// <para>See also: [[ModIO.CacheClient.SaveModProfile]],
+        /// [[ModIO.CacheClient.IterateAllModProfiles]]</para>
+        /// <param name="modProfiles">Enumeration of mods to store</param>
+        /// <returns>**TRUE** indicates that all the mod profiles were
+        /// successfully written to the file in cache.</returns>
         public static bool SaveModProfiles(IEnumerable<ModProfile> modProfiles)
         {
             Debug.Assert(modProfiles != null);
@@ -89,12 +113,14 @@ namespace ModIO
         }
 
         /// <summary>Iterates through all of the mod profiles in the cache.</summary>
+        /// <returns>An enumeration of all the mod profiles currently stored in the cache.</returns>
         public static IEnumerable<ModProfile> IterateAllModProfiles()
         {
             return IterateAllModProfilesFromOffset(0);
         }
 
         /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
+        /// <returns>An enumeration of all the mod profiles currently stored in the cache.</returns>
         public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
         {
             string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
@@ -140,6 +166,9 @@ namespace ModIO
         }
 
         /// <summary>Determines how many ModProfiles are currently stored in the cache.</summary>
+        /// <para>Evaluated by counting the number of directories discovered
+        /// under the cache mods directory.</para>
+        /// <returns>The number of mod directories in the cache directory.</returns>
         public static int CountModProfiles()
         {
             string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
@@ -169,6 +198,13 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of a mod's data from the cache.</summary>
+        /// <para>Removes all of the mod's cached data from the disk - the
+        /// profile, binaries, and any imagery.</para>
+        /// <para>**NOTE:** Does _not_ uninstall a mod as mod installations are
+        /// handled by [ModManager](ModIO.ModManager) but will removed any
+        /// binary archives. (See:
+        /// [[ModIO.ModManager.TryUninstallAllModVersions]])</para>
+        /// <param name="modId">Mod to delete the data for</param>
         public static bool DeleteMod(int modId)
         {
             string modDir = CacheClient.GenerateModDirectoryPath(modId);
