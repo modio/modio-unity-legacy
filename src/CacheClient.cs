@@ -176,12 +176,14 @@ namespace ModIO
         }
 
         // ------[ STATISTICS ]------
+        /// <summary>Generates the file path for a mod's statitics data.</summary>
         public static string GenerateModStatisticsFilePath(int modId)
         {
             return IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(modId),
                                            "stats.data");
         }
 
+        /// <summary>Stores a mod's statistics in the cache.</summary>
         public static bool SaveModStatistics(ModStatistics stats)
         {
             Debug.Assert(stats != null);
@@ -189,6 +191,7 @@ namespace ModIO
             return IOUtilities.WriteJsonObjectFile(statsFilePath, stats);
         }
 
+        /// <summary>Retrieves a mod's statistics from the cache.</summary>
         public static ModStatistics LoadModStatistics(int modId)
         {
             string statsFilePath = GenerateModStatisticsFilePath(modId);
@@ -313,13 +316,6 @@ namespace ModIO
             return IOUtilities.CombinePath(GenerateModMediaDirectoryPath(modId),
                                            "youTube",
                                            youTubeId + ".png");
-        }
-
-        /// <summary>[Obsolete] Retrieves the file paths for the mod logos in the cache.</summary>
-        [Obsolete("Use CacheClient.GetModLogoVersionFileNames() instead")]
-        public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
-        {
-            return CacheClient.GetModLogoVersionFileNames(modId);
         }
 
         /// <summary>Retrieves the file paths for the mod logos in the cache.</summary>
@@ -586,6 +582,14 @@ namespace ModIO
         public static bool DeleteUserAvatar(int userId)
         {
             return IOUtilities.DeleteDirectory(CacheClient.GenerateUserAvatarDirectoryPath(userId));
+        }
+
+        // ---------[ OBSOLETE ]---------
+        /// <summary>[Obsolete] Retrieves the file paths for the mod logos in the cache.</summary>
+        [Obsolete("Use CacheClient.GetModLogoVersionFileNames() instead")]
+        public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
+        {
+            return CacheClient.GetModLogoVersionFileNames(modId);
         }
     }
 }
