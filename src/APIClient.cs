@@ -550,14 +550,29 @@ namespace ModIO
         }
 
         /// <summary>Request an OAuthToken using a Steam User authentication ticket.</summary>
-        public static void RequestSteamAuthentication(string steamUserAuthenticationTicket,
+        public static void RequestSteamAuthentication(byte[] encryptedAppTicket,
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
+            if(encryptedAppTicket == null
+               || encryptedAppTicket.Length == 0
+               || encryptedAppTicket.Length > 1024)
+            {
+                Debug.LogWarning("[mod.io] Steam Ticket is invalid. Ensure that the"
+                                 + " encryptedAppTicket is not null, and is less than 1024 bytes.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("Steam Ticket is invalid. Ensure"
+                        + " that the encryptedAppTicket is not null, and is less than 1024 bytes."));
+                }
+            }
+
+            // create vars
             string endpointURL = APIClient.apiURL + "/external/steamauth";
             StringValueParameter[] valueFields = new StringValueParameter[]
             {
-                StringValueParameter.Create("appdata", steamUserAuthenticationTicket),
+                StringValueParameter.Create("appdata", Convert.ToBase64String(encryptedAppTicket)),
             };
 
             // NOTE(@jackson): APIClient post requests _always_ require
@@ -576,6 +591,8 @@ namespace ModIO
 
             UserAuthenticationData.instance = oldUserData;
 
+
+            // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
             {
                 successCallback(result.access_token);
@@ -1421,6 +1438,42 @@ namespace ModIO
             }
 
             APIClient.DeleteModComment(modId, commentId, onSuccess, errorCallback);
+        }
+
+        /// <summary>[Obsolete] Request an OAuthToken using a Steam User authentication ticket.</summary>
+        [Obsolete("Now takes a byte[] as the first parameter")]
+        public static void RequestSteamAuthentication(string steamUserAuthenticationTicket,
+                                                      Action<string> successCallback,
+                                                      Action<WebRequestError> errorCallback)
+        {
+            string endpointURL = APIClient.apiURL + "/external/steamauth";
+            StringValueParameter[] valueFields = new StringValueParameter[]
+            {
+                StringValueParameter.Create("appdata", steamUserAuthenticationTicket),
+            };
+
+            // NOTE(@jackson): APIClient post requests _always_ require
+            // the userAuthorizationToken to be set, and so we just use
+            // a dummy value here.
+            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
+            UserAuthenticationData.instance = new UserAuthenticationData()
+            {
+                userId = UserProfile.NULL_ID,
+                token = "NONE",
+            };
+
+            UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
+                                                                       valueFields,
+                                                                       null);
+
+            UserAuthenticationData.instance = oldUserData;
+
+            Action<AccessTokenObject> onSuccessWrapper = (result) =>
+            {
+                successCallback(result.access_token);
+            };
+
+            APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
         }
     }
 }
