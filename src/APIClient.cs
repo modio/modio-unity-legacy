@@ -601,6 +601,58 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
         }
 
+        /// <summary>Request an OAuthToken using a GOG Galaxy App ticket.</summary>
+        public static void RequestGOGAuthentication(string encryptedAppTicket,
+                                                    Action<string> successCallback,
+                                                    Action<WebRequestError> errorCallback)
+        {
+            if(encryptedAppTicket == null
+               || encryptedAppTicket.Length == 0
+               || encryptedAppTicket.Length > 1024)
+            {
+                Debug.LogWarning("[mod.io] GOG Galaxy Ticket is invalid. Ensure that the"
+                                 + " encryptedAppTicket is not null, and is less than 1024 bytes.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("GOG Galaxy Ticket is invalid. Ensure"
+                        + " that the encryptedAppTicket is not null, and is less than 1024 bytes."));
+                }
+            }
+
+            // create vars
+            string endpointURL = APIClient.apiURL + "/external/galaxyauth";
+            StringValueParameter[] valueFields = new StringValueParameter[]
+            {
+                StringValueParameter.Create("appdata", encryptedAppTicket),
+            };
+
+            // NOTE(@jackson): APIClient post requests _always_ require
+            // the userAuthorizationToken to be set, and so we just use
+            // a dummy value here.
+            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
+            UserAuthenticationData.instance = new UserAuthenticationData()
+            {
+                userId = UserProfile.NULL_ID,
+                token = "NONE",
+            };
+
+            UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
+                                                                       valueFields,
+                                                                       null);
+
+            UserAuthenticationData.instance = oldUserData;
+
+
+            // send request
+            Action<AccessTokenObject> onSuccessWrapper = (result) =>
+            {
+                successCallback(result.access_token);
+            };
+
+            APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
+        }
+
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>Fetches all the game profiles from the mod.io servers.</summary>
         public static void GetAllGames(RequestFilter filter, APIPaginationParameters pagination,
