@@ -21,6 +21,10 @@ namespace ModIO.UI
             AutoHide,
         };
 
+        // ---------[ CONSTANTS ]---------
+        /// <summary>Amount to allow for float errors in jump calculations.</summary>
+        public const float JUMP_TOLERANCE = 0.0001f;
+
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         [SerializeField] private ButtonInteractivity m_buttonInteractivity = ButtonInteractivity.AutoHide;
@@ -109,7 +113,7 @@ namespace ModIO.UI
 
                 foreach(Vector2 pos in jumpAnchorPositions)
                 {
-                    if(pos[axis] < 0f
+                    if(pos[axis] < -JUMP_TOLERANCE
                        && jumpVector[axis] < pos[axis])
                     {
                         jumpVector = pos;
@@ -133,7 +137,7 @@ namespace ModIO.UI
 
                 foreach(Vector2 pos in jumpAnchorPositions)
                 {
-                    if(0f < pos[axis]
+                    if(JUMP_TOLERANCE < pos[axis]
                        && pos[axis] < jumpVector[axis])
                     {
                         jumpVector = pos;
