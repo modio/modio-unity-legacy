@@ -572,6 +572,7 @@ namespace ModIO
             string endpointURL = APIClient.apiURL + "/external/steamauth";
             StringValueParameter[] valueFields = new StringValueParameter[]
             {
+                StringValueParameter.Create("api_key", APIClient.gameAPIKey),
                 StringValueParameter.Create("appdata", Convert.ToBase64String(encryptedAppTicket)),
             };
 
@@ -624,6 +625,7 @@ namespace ModIO
             string endpointURL = APIClient.apiURL + "/external/galaxyauth";
             StringValueParameter[] valueFields = new StringValueParameter[]
             {
+                StringValueParameter.Create("api_key", APIClient.gameAPIKey),
                 StringValueParameter.Create("appdata", encryptedAppTicket),
             };
 
@@ -1501,6 +1503,7 @@ namespace ModIO
             string endpointURL = APIClient.apiURL + "/external/steamauth";
             StringValueParameter[] valueFields = new StringValueParameter[]
             {
+                StringValueParameter.Create("api_key", APIClient.gameAPIKey),
                 StringValueParameter.Create("appdata", steamUserAuthenticationTicket),
             };
 
