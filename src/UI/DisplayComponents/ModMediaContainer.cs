@@ -216,9 +216,9 @@ namespace ModIO.UI
                 }
             }
 
-            if(Application.isPlaying && this.isActiveAndEnabled)
+            if(Application.isPlaying)
             {
-                LayoutRebuilder.MarkLayoutForRebuild(container);
+                LateLayoutUpdate();
             }
         }
 
@@ -226,9 +226,9 @@ namespace ModIO.UI
         {
             ClearDisplays();
 
-            if(Application.isPlaying && this.isActiveAndEnabled)
+            if(Application.isPlaying)
             {
-                LayoutRebuilder.MarkLayoutForRebuild(container);
+                LateLayoutUpdate();
             }
         }
 
@@ -263,9 +263,9 @@ namespace ModIO.UI
                 m_logoDisplay.data = m_logoData;
             }
 
-            if(Application.isPlaying && this.isActiveAndEnabled)
+            if(Application.isPlaying)
             {
-                LayoutRebuilder.MarkLayoutForRebuild(container);
+                LateLayoutUpdate();
             }
         }
 
@@ -310,9 +310,9 @@ namespace ModIO.UI
                 }
             }
 
-            if(Application.isPlaying && this.isActiveAndEnabled)
+            if(Application.isPlaying)
             {
-                LayoutRebuilder.MarkLayoutForRebuild(container);
+                LateLayoutUpdate();
             }
         }
 
@@ -348,9 +348,9 @@ namespace ModIO.UI
                 }
             }
 
-            if(Application.isPlaying && this.isActiveAndEnabled)
+            if(Application.isPlaying)
             {
-                LayoutRebuilder.MarkLayoutForRebuild(container);
+                LateLayoutUpdate();
             }
         }
 
@@ -387,6 +387,24 @@ namespace ModIO.UI
             mediaDisplay.Initialize();
 
             return mediaDisplay;
+        }
+
+        private void LateLayoutUpdate()
+        {
+            if(this.isActiveAndEnabled)
+            {
+                StartCoroutine(EndOfFrameUpdateCoroutine());
+            }
+            else
+            {
+                LayoutRebuilder.MarkLayoutForRebuild(container);
+            }
+        }
+
+        private System.Collections.IEnumerator EndOfFrameUpdateCoroutine()
+        {
+            yield return null;
+            LayoutRebuilder.MarkLayoutForRebuild(container);
         }
 
         // ---------[ EVENT HANDLING ]---------
