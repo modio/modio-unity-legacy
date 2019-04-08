@@ -185,19 +185,21 @@ namespace ModIO
                         }
                         else
                         {
-                            formDataString.Append(" [" + bdp.contents.Length.ToString()
-                                                  + " bytes]");
+                            formDataString.Append(" [" + (bdp.contents.Length/1000).ToString("0.00")
+                                                  + "KB]");
                         }
                     }
                 }
 
-                return("\nEndpoint: [" + webRequest.method.ToUpper() + "]" + webRequest.url
+                return("\nEndpoint: " + webRequest.url
+                       + "\nMethod: " + webRequest.method.ToUpper()
                        + "\nHeaders: " + requestHeaders
                        + "\nFormData: " + formDataString.ToString());
             }
             else
             {
-                return("\nEndpoint: [" + webRequest.method.ToUpper() + "]" + webRequest.url
+                return("\nEndpoint: " + webRequest.url
+                       + "\nMethod: " + webRequest.method.ToUpper()
                        + "\nHeaders: " + requestHeaders);
             }
         }
@@ -311,15 +313,17 @@ namespace ModIO
             #if DEBUG
             if(APIClient.logAllRequests)
             {
-                string formFields = "";
-                foreach(StringValueParameter svf in valueFields)
+                // Setup form data logging
+                DebugFormData formData = new DebugFormData()
                 {
-                    formFields += "\n" + svf.key + "=" + svf.value;
-                }
+                    strings = valueFields,
+                    binaryData = null,
+                };
+                webRequestFormData.Add(webRequest, formData);
 
+                // Log Request
                 Debug.Log("GENERATED PUT REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\nFields: " + formFields
                           + "\n");
             }
             #endif
@@ -358,28 +362,17 @@ namespace ModIO
             #if DEBUG
             if(APIClient.logAllRequests)
             {
-                string formFields = "";
-                if(valueFields != null)
+                // Setup form data logging
+                DebugFormData formData = new DebugFormData()
                 {
-                    foreach(StringValueParameter valueField in valueFields)
-                    {
-                        formFields += "\n" + valueField.key + "=" + valueField.value;
-                    }
+                    strings = valueFields,
+                    binaryData = dataFields,
+                };
+                webRequestFormData.Add(webRequest, formData);
 
-                }
-                if(dataFields != null)
-                {
-                    foreach(BinaryDataParameter dataField in dataFields)
-                    {
-                        formFields += "\n" + dataField.key + "= [BINARY DATA]: "
-                                    + dataField.fileName + "("
-                                    + (dataField.contents.Length/1000f).ToString("0.00") + "KB)\n";
-                    }
-                }
-
+                // Log Request
                 Debug.Log("GENERATED POST REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\nFields: " + formFields
                           + "\n");
             }
             #endif
@@ -410,18 +403,17 @@ namespace ModIO
             #if DEBUG
             if(APIClient.logAllRequests)
             {
-                string formFields = "";
-                if(valueFields != null)
+                // Setup form data logging
+                DebugFormData formData = new DebugFormData()
                 {
-                    foreach(StringValueParameter kvp in valueFields)
-                    {
-                        formFields += "\n" + kvp.key + "=" + kvp.value;
-                    }
-                }
+                    strings = valueFields,
+                    binaryData = null,
+                };
+                webRequestFormData.Add(webRequest, formData);
 
+                // Log Request
                 Debug.Log("GENERATED DELETE REQUEST"
                           + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\nFields: " + formFields
                           + "\n");
             }
             #endif
@@ -488,6 +480,8 @@ namespace ModIO
                 {
                     if(successCallback != null) { successCallback(); }
                 }
+
+                APIClient.webRequestFormData.Remove(webRequest);
             };
         }
 
