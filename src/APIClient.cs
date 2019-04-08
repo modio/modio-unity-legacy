@@ -78,17 +78,17 @@ namespace ModIO
         public static string languageCode = "en";
 
         // ---------[ DEBUGGING ]---------
-        /// <summary>Enable logging of all web requests</summary>
+        /// <summary>Enable logging of all web requests.</summary>
         public static bool logAllRequests = false;
 
-        /// <summary>Pairing of the WWWForm field types</summary>
+        /// <summary>Pairing of the WWWForm field types.</summary>
         private struct DebugFormData
         {
             public IEnumerable<StringValueParameter> strings;
             public IEnumerable<BinaryDataParameter> binaryData;
         }
 
-        /// <summary>Mapping of UnityWebRequests to their form data</summary>
+        /// <summary>Mapping of UnityWebRequests to their form data.</summary>
         private static Dictionary<UnityWebRequest, DebugFormData> webRequestFormData = new Dictionary<UnityWebRequest, DebugFormData>();
 
         // ---------[ INITIALIZATION ]---------
@@ -100,7 +100,7 @@ namespace ModIO
             gameAPIKey = settings.gameAPIKey;
         }
 
-        // ---------[ DEBUG ASSERTS ]---------
+        // ---------[ DEBUG FUNCTIONALITY ]---------
         /// <summary>Asserts that the required authorization data for making API requests is set.</summary>
         public static bool AssertAuthorizationDetails(bool isUserTokenRequired)
         {
@@ -191,14 +191,14 @@ namespace ModIO
                     }
                 }
 
-                return("\nEndpoint: " + webRequest.url
+                return("Endpoint: " + webRequest.url
                        + "\nMethod: " + webRequest.method.ToUpper()
                        + "\nHeaders: " + requestHeaders
-                       + "\nFormData: " + formDataString.ToString());
+                       + "\nForm Data: " + formDataString.ToString());
             }
             else
             {
-                return("\nEndpoint: " + webRequest.url
+                return("Endpoint: " + webRequest.url
                        + "\nMethod: " + webRequest.method.ToUpper()
                        + "\nHeaders: " + requestHeaders);
             }
@@ -243,7 +243,7 @@ namespace ModIO
             #if DEBUG
             if(APIClient.logAllRequests)
             {
-                Debug.Log("GENERATED GET REQUEST"
+                Debug.Log("GENERATED GET REQUEST\n"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
@@ -281,7 +281,7 @@ namespace ModIO
             #if DEBUG
             if(APIClient.logAllRequests)
             {
-                Debug.Log("GENERATED GET REQUEST"
+                Debug.Log("GENERATED GET REQUEST\n"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
@@ -322,7 +322,7 @@ namespace ModIO
                 webRequestFormData.Add(webRequest, formData);
 
                 // Log Request
-                Debug.Log("GENERATED PUT REQUEST"
+                Debug.Log("GENERATED PUT REQUEST\n"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
@@ -371,7 +371,7 @@ namespace ModIO
                 webRequestFormData.Add(webRequest, formData);
 
                 // Log Request
-                Debug.Log("GENERATED POST REQUEST"
+                Debug.Log("GENERATED POST REQUEST\n"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }
@@ -412,7 +412,7 @@ namespace ModIO
                 webRequestFormData.Add(webRequest, formData);
 
                 // Log Request
-                Debug.Log("GENERATED DELETE REQUEST"
+                Debug.Log("GENERATED DELETE REQUEST\n"
                           + APIClient.GenerateRequestDebugString(webRequest)
                           + "\n");
             }

@@ -385,15 +385,17 @@ namespace ModIO
             var debugString = new System.Text.StringBuilder();
 
             string headerString = (this.webRequest == null ? "REQUEST FAILED LOCALLY"
-                                   : this.webRequest.method.ToUpper() + " REQUEST FAILED");
+                                   : "WEB REQUEST FAILED");
             debugString.AppendLine(headerString);
 
             if(this.webRequest != null)
             {
-                debugString.AppendLine("URL: " + this.webRequest.url);
-                debugString.AppendLine("TimeStamp: " + this.timeStamp + " ("
+                debugString.AppendLine("------[ Request Data ]------");
+                debugString.AppendLine(APIClient.GenerateRequestDebugString(this.webRequest));
+
+                debugString.AppendLine("------[ Response Data ]------");
+                debugString.AppendLine("Time Stamp: " + this.timeStamp + " ("
                                        + ServerTimeStamp.ToLocalDateTime(this.timeStamp) + ")");
-                debugString.AppendLine("ResponseCode: " + this.webRequest.responseCode.ToString());
 
                 var responseHeaders = webRequest.GetResponseHeaders();
                 if(responseHeaders != null
@@ -405,8 +407,8 @@ namespace ModIO
                         debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
                     }
                 }
-
-                debugString.AppendLine("ErrorMessage: " + this.errorMessage);
+                debugString.AppendLine("Response Code: " + this.webRequest.responseCode.ToString());
+                debugString.AppendLine("errorMessage: " + this.errorMessage);
 
                 if(this.fieldValidationMessages != null
                    && this.fieldValidationMessages.Count > 0)
@@ -418,11 +420,11 @@ namespace ModIO
                     }
                 }
 
-                debugString.AppendLine(".isAuthenticationInvalid = "    + this.isAuthenticationInvalid.ToString());
-                debugString.AppendLine(".isServerUnreachable = "        + this.isServerUnreachable.ToString());
-                debugString.AppendLine(".isRequestUnresolvable = "      + this.isRequestUnresolvable.ToString());
-                debugString.AppendLine(".limitedUntilTimeStamp = "      + this.limitedUntilTimeStamp.ToString());
-                debugString.AppendLine(".displayMessage = "             + this.displayMessage);
+                debugString.AppendLine("isAuthenticationInvalid = "    + this.isAuthenticationInvalid.ToString());
+                debugString.AppendLine("isServerUnreachable = "        + this.isServerUnreachable.ToString());
+                debugString.AppendLine("isRequestUnresolvable = "      + this.isRequestUnresolvable.ToString());
+                debugString.AppendLine("limitedUntilTimeStamp = "      + this.limitedUntilTimeStamp.ToString());
+                debugString.AppendLine("displayMessage = "             + this.displayMessage);
             }
 
             return debugString.ToString();
