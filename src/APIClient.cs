@@ -77,8 +77,19 @@ namespace ModIO
         /// <summary>Requested language for the API response messages.</summary>
         public static string languageCode = "en";
 
+        // ---------[ DEBUGGING ]---------
         /// <summary>Enable logging of all web requests</summary>
         public static bool logAllRequests = false;
+
+        /// <summary>Pairing of the WWWForm field types</summary>
+        private struct DebugFormData
+        {
+            public IEnumerable<StringValueParameter> strings;
+            public IEnumerable<BinaryDataParameter> binaryData;
+        }
+
+        /// <summary>Mapping of UnityWebRequests to their form data</summary>
+        private static Dictionary<UnityWebRequest, DebugFormData> webRequestFormData = new Dictionary<UnityWebRequest, DebugFormData>();
 
         // ---------[ INITIALIZATION ]---------
         static APIClient()
@@ -148,8 +159,47 @@ namespace ModIO
                 }
             }
 
-            return("\nEndpoint: " + webRequest.url
-                   + "\nHeaders: " + requestHeaders);
+            DebugFormData formData;
+            if(webRequestFormData.TryGetValue(webRequest, out formData))
+            {
+                var formDataString = new System.Text.StringBuilder();
+
+                if(formData.strings != null)
+                {
+                    foreach(StringValueParameter svp in formData.strings)
+                    {
+                        formDataString.Append("\n  " + svp.key + ": " + svp.value);
+                    }
+                }
+
+                if(formData.binaryData != null)
+                {
+                    foreach(BinaryDataParameter bdp in formData.binaryData)
+                    {
+                        formDataString.Append("\n  " + bdp.key
+                                              + ": " + bdp.fileName);
+
+                        if(bdp.contents == null)
+                        {
+                            formDataString.Append(" [NULL DATA]");
+                        }
+                        else
+                        {
+                            formDataString.Append(" [" + bdp.contents.Length.ToString()
+                                                  + " bytes]");
+                        }
+                    }
+                }
+
+                return("\nEndpoint: [" + webRequest.method.ToUpper() + "]" + webRequest.url
+                       + "\nHeaders: " + requestHeaders
+                       + "\nFormData: " + formDataString.ToString());
+            }
+            else
+            {
+                return("\nEndpoint: [" + webRequest.method.ToUpper() + "]" + webRequest.url
+                       + "\nHeaders: " + requestHeaders);
+            }
         }
 
         // ---------[ REQUEST HANDLING ]---------
