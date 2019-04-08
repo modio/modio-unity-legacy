@@ -1664,7 +1664,7 @@ GameObject:
   - component: {fileID: 114716663995245306}
   - component: {fileID: 114220404859617474}
   m_Layer: 5
-  m_Name: next
+  m_Name: Next
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3590,6 +3590,7 @@ GameObject:
   - component: {fileID: 114360684018607528}
   - component: {fileID: 114973724982044556}
   - component: {fileID: 114316144431166012}
+  - component: {fileID: 114090877130762248}
   m_Layer: 5
   m_Name: Container
   m_TagString: Untagged
@@ -4329,8 +4330,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224865534233176124}
   - component: {fileID: 114428302299885758}
-  - component: {fileID: 114415609448727154}
-  - component: {fileID: 114326482043564910}
+  - component: {fileID: 114318210596329038}
   m_Layer: 5
   m_Name: MediaDisplaySelector
   m_TagString: Untagged
@@ -5303,6 +5303,29 @@ MonoBehaviour:
     congue lectus libero. Cras lobortis vestibulum dui, at varius nisl volutpat ac.
     Aenean vestibulum arcu in urna viverra ultrices. Duis euismod maximus quam, ac
     laoreet magna viverra eu. Curabitur luctus justo finibus dui viverra ultricies.
+--- !u!114 &114090877130762248
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1832069129160496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67c8d0b28b70b44e69e0b04736f991e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  setAnchorMin: 0
+  anchorMin: {x: 0, y: 0}
+  setAnchorMax: 0
+  anchorMax: {x: 0, y: 0}
+  setOffsetMin: 0
+  offsetMin: {x: 0, y: 0}
+  setOffsetMax: 0
+  offsetMax: {x: 0, y: 0}
+  setPivot: 0
+  pivot: {x: 0, y: 0}
+  setAnchoredPos: 1
+  anchoredPos: {x: 42, y: 0}
 --- !u!114 &114096478224023222
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -6732,9 +6755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefab: {fileID: 1993137946962778, guid: fe012e6587fa0473888366b0a40ac3b0, type: 2}
-  gridSpacing: 8
   pageTransitionTimeSeconds: 0.4
-  rowCount: 3
   pageTemplate: {fileID: 224895251402852128}
   contentPane: {fileID: 224480924864000676}
   nameSearchField: {fileID: 114280675296892522}
@@ -8156,6 +8177,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scheme: {fileID: 11400000, guid: 104a7cfa231394a6a9a88ab19a712a69, type: 2}
   innerElements: []
+--- !u!114 &114318210596329038
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1998250358069654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7d3c6f84e3ec4d9ebe53b6d6c2447dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_buttonInteractivity: 2
+  m_jumpLeftButton: {fileID: 114125578475511892}
+  m_jumpRightButton: {fileID: 114905592156176350}
+  m_overshootAmount: 0
+  viewport: {fileID: 224687549480595184}
+  content: {fileID: 224181602056537652}
 --- !u!114 &114318720299141348
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -8313,20 +8351,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: " / \n"
---- !u!114 &114326482043564910
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1998250358069654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7d3c6f84e3ec4d9ebe53b6d6c2447dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_buttonInteractivity: 2
-  m_jumpLeftButton: {fileID: 114125578475511892}
-  m_jumpRightButton: {fileID: 114905592156176350}
 --- !u!114 &114326990475679512
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9126,37 +9150,6 @@ MonoBehaviour:
   innerElements:
   - {fileID: 114194625577733002}
   scheme: {fileID: 11400000, guid: ef9b6381446d6437e890f100415b368d, type: 2}
---- !u!114 &114415609448727154
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1998250358069654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1367256648, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Content: {fileID: 224181602056537652}
-  m_Horizontal: 1
-  m_Vertical: 0
-  m_MovementType: 1
-  m_Elasticity: 0.1
-  m_Inertia: 1
-  m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 0
-  m_Viewport: {fileID: 224687549480595184}
-  m_HorizontalScrollbar: {fileID: 0}
-  m_VerticalScrollbar: {fileID: 0}
-  m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 2
-  m_HorizontalScrollbarSpacing: -3
-  m_VerticalScrollbarSpacing: -3
-  m_OnValueChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114422200466744488
 MonoBehaviour:
   m_ObjectHideFlags: 1
