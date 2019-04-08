@@ -11,9 +11,9 @@ namespace ModIO.UI
     // TODO(@jackson): Implement alignments other than bottomLeft
     // TODO(@jackson): Implement vertical jumping
     // TODO(@jackson): Allow for off-axis jumping
-    [RequireComponent(typeof(ScrollRect))]
     public class JumpScrollRect : MonoBehaviour
     {
+        // ---------[ NESTED TYPES ]---------
         public enum ButtonInteractivity
         {
             DoNothing,
@@ -30,11 +30,14 @@ namespace ModIO.UI
         [SerializeField] private ButtonInteractivity m_buttonInteractivity = ButtonInteractivity.AutoHide;
         [SerializeField] private Button m_jumpLeftButton    = null;
         [SerializeField] private Button m_jumpRightButton   = null;
+        [Tooltip("If at first/last anchor, set the jump target this amount beyond the anchor")]
+        [SerializeField] private float m_overshootAmount    = 0f;
+
+        [Header("UI Components")]
+        public RectTransform viewport;
+        public RectTransform content;
 
         private Coroutine m_updateCoroutine;
-
-        // --- ACCESSORS ---
-        private ScrollRect scrollRect { get { return this.gameObject.GetComponent<ScrollRect>(); } }
 
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
@@ -85,18 +88,16 @@ namespace ModIO.UI
 
         private void JumpInternal(bool horizontal, bool positiveDir)
         {
-            if(scrollRect.content == null
-               || scrollRect.viewport == null)
+            if(content == null
+               || viewport == null)
             {
                 return;
             }
 
-            JumpScrollAnchor[] anchors = scrollRect.content.GetComponentsInChildren<JumpScrollAnchor>();
-            RectTransform c = scrollRect.content;
-            RectTransform v = scrollRect.viewport;
+            JumpScrollAnchor[] anchors = content.GetComponentsInChildren<JumpScrollAnchor>();
 
-            // NOTE(@jackson): These a viewport.BL -> anchor.pivot!
-            List<Vector2> jumpAnchorPositions = CalcRelativePositions(v, anchors);
+            // NOTE(@jackson): These are viewport.BL -> anchor.pivot!
+            List<Vector2> jumpAnchorPositions = CalcRelativePositions(viewport, anchors);
 
             // find next jumppos
             int axis = (horizontal ? 0 : 1);
@@ -104,55 +105,51 @@ namespace ModIO.UI
 
             if(!positiveDir) // left/down
             {
-                // v.BL -> c.BL
-                Vector2 contentOffset = new Vector2(c.anchorMin.x * v.rect.width + c.offsetMin.x,
-                                                    c.anchorMin.y * v.rect.height + c.offsetMin.y);
+                jumpVector = new Vector2(Mathf.NegativeInfinity, Mathf.NegativeInfinity);
 
-                jumpVector = new Vector2(contentOffset.x,
-                                         contentOffset.y);
-
-                foreach(Vector2 pos in jumpAnchorPositions)
+                foreach(Vector2 anchorPos in jumpAnchorPositions)
                 {
-                    if(pos[axis] < -JUMP_TOLERANCE
-                       && jumpVector[axis] < pos[axis])
+                    bool aheadOfContentBorder = (anchorPos[axis] < -JUMP_TOLERANCE);
+                    bool closerThanCurrentJump = (jumpVector[axis] < anchorPos[axis]);
+
+                    if(aheadOfContentBorder && closerThanCurrentJump)
                     {
-                        jumpVector = pos;
+                        jumpVector = anchorPos;
                     }
                 }
 
-                if(jumpVector[axis] == contentOffset[axis])
+                // no jump found
+                if(jumpVector[axis] == Mathf.NegativeInfinity)
                 {
-                    jumpVector[axis] -= 10f;
-                    jumpVector[1-axis] = 0f;
+                    jumpVector = Vector2.zero;
+                    jumpVector[axis] -= m_overshootAmount;
                 }
             }
             else // right/up
             {
-                // v.TR -> c.TR
-                Vector2 contentOffset = new Vector2((c.anchorMax.x-1f) * v.rect.width + c.offsetMax.x,
-                                                    (c.anchorMax.y-1f) * v.rect.height + c.offsetMax.y);
+                jumpVector = new Vector2(Mathf.Infinity, Mathf.Infinity);
 
-                jumpVector = new Vector2(contentOffset.x,
-                                         contentOffset.y);
-
-                foreach(Vector2 pos in jumpAnchorPositions)
+                foreach(Vector2 anchorPos in jumpAnchorPositions)
                 {
-                    if(JUMP_TOLERANCE < pos[axis]
-                       && pos[axis] < jumpVector[axis])
+                    bool aheadOfContentBorder = (JUMP_TOLERANCE < anchorPos[axis]);
+                    bool closerThanCurrentJump = (anchorPos[axis] < jumpVector[axis]);
+
+                    if(aheadOfContentBorder && closerThanCurrentJump)
                     {
-                        jumpVector = pos;
+                        jumpVector = anchorPos;
                     }
                 }
 
-                if(jumpVector[axis] == contentOffset[axis])
+                // no jump found
+                if(jumpVector[axis] == Mathf.Infinity)
                 {
-                    jumpVector[axis] += 10f;
-                    jumpVector[1-axis] = 0f;
+                    jumpVector = Vector2.zero;
+                    jumpVector[axis] += m_overshootAmount;
                 }
             }
 
 
-            // TODO(@jackson): jump vertically as well?
+            // TODO(@jackson): jump on off-axis as well?
             // // Sort H then V
             // jumpAnchorPositions.Sort((a, b) =>
             // {
@@ -177,14 +174,11 @@ namespace ModIO.UI
             //     }
             // });
 
-            // work out current position?
-            // determine if last
-
-
-            Vector2 newContentPos = scrollRect.content.anchoredPosition;
+            Vector2 newContentPos = content.anchoredPosition;
             newContentPos[axis] -= jumpVector[axis];
 
-            scrollRect.content.anchoredPosition = newContentPos;
+            content.anchoredPosition = newContentPos;
+
         }
 
         // ---------[ CALCULATIONS ]---------
@@ -230,8 +224,12 @@ namespace ModIO.UI
                     // i.BL->j.ancMin       = j.ancMin * i.size
                     // j.ancMin->j.BL       = j.offMin
                     // THUS: i.BL -> j.BL   = (j.aMin * i.size) + j.oMin
-                    culmulativeOffset.x += t.anchorMin.x * tParent.rect.width + t.offsetMin.x;
-                    culmulativeOffset.y += t.anchorMin.y * tParent.rect.height + t.offsetMin.y;
+                    Vector2 childOffset = new Vector2();
+                    childOffset.x = t.anchorMin.x * tParent.rect.width + t.offsetMin.x;
+                    childOffset.y = t.anchorMin.y * tParent.rect.height + t.offsetMin.y;
+
+                    culmulativeOffset.x += childOffset.x;
+                    culmulativeOffset.y += childOffset.y;
 
                     tParent = t;
                 }
@@ -254,11 +252,11 @@ namespace ModIO.UI
             {
                 yield return null;
 
-                if(scrollRect.viewport != null
-                   && scrollRect.content != null)
+                if(viewport != null
+                   && content != null)
                 {
-                    bool horizontalMovement = scrollRect.viewport.rect.width < scrollRect.content.rect.width;
-                    // bool verticalMovement   = scrollRect.viewport.rect.height < scrollRect.content.rect.height;
+                    bool horizontalMovement = viewport.rect.width < content.rect.width;
+                    // bool verticalMovement   = viewport.rect.height < content.rect.height;
                     bool hInteractable = (horizontalMovement
                                           || m_buttonInteractivity != ButtonInteractivity.AutoDisable);
                     bool hActive = (horizontalMovement
