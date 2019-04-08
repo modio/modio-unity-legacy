@@ -240,15 +240,6 @@ namespace ModIO
 
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
-            #if DEBUG
-            if(APIClient.logAllRequests)
-            {
-                Debug.Log("GENERATED GET REQUEST\n"
-                          + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\n");
-            }
-            #endif
-
             return webRequest;
         }
 
@@ -277,15 +268,6 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-
-            #if DEBUG
-            if(APIClient.logAllRequests)
-            {
-                Debug.Log("GENERATED GET REQUEST\n"
-                          + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\n");
-            }
-            #endif
 
             return webRequest;
         }
@@ -320,11 +302,6 @@ namespace ModIO
                     binaryData = null,
                 };
                 webRequestFormData.Add(webRequest, formData);
-
-                // Log Request
-                Debug.Log("GENERATED PUT REQUEST\n"
-                          + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\n");
             }
             #endif
 
@@ -369,11 +346,6 @@ namespace ModIO
                     binaryData = dataFields,
                 };
                 webRequestFormData.Add(webRequest, formData);
-
-                // Log Request
-                Debug.Log("GENERATED POST REQUEST\n"
-                          + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\n");
             }
             #endif
 
@@ -410,11 +382,6 @@ namespace ModIO
                     binaryData = null,
                 };
                 webRequestFormData.Add(webRequest, formData);
-
-                // Log Request
-                Debug.Log("GENERATED DELETE REQUEST\n"
-                          + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\n");
             }
             #endif
 
@@ -428,6 +395,16 @@ namespace ModIO
         {
             // - Start Request -
             UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
+
+            #if DEBUG
+            if(APIClient.logAllRequests)
+            {
+                Debug.Log("REQUEST SENT\n"
+                          + APIClient.GenerateRequestDebugString(webRequest)
+                          + "\n");
+            }
+            #endif
+
             requestOperation.completed += (operation) =>
             {
                 #if DEBUG
@@ -440,29 +417,32 @@ namespace ModIO
                     else
                     {
                         var headerString = new System.Text.StringBuilder();
-                        headerString.Append("\nHeaders:");
-
                         var responseHeaders = webRequest.GetResponseHeaders();
-                        if(responseHeaders != null)
+                        if(responseHeaders != null
+                           && responseHeaders.Count > 0)
                         {
-                            foreach(var requestHeader in responseHeaders)
+                            headerString.Append("\n");
+                            foreach(var kvp in responseHeaders)
                             {
-                                headerString.Append("\n  " + requestHeader.Key + "=" + requestHeader.Value);
+                                headerString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
                             }
-
+                        }
+                        else
+                        {
+                            headerString.Append(" NONE");
                         }
 
                         var responseTimeStamp = ServerTimeStamp.Now;
-
-                        string logString = (webRequest.method.ToUpper() + " REQUEST RESPONSE"
-                                            + "\nResponse received at: "
-                                            + "[" + responseTimeStamp + "] "
-                                            + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                                            + "\nURL: " + webRequest.url
+                        string logString = ("RESPONSE RECEIVED\n"
+                                            + "------[ Request Data ]------\n"
+                                            + APIClient.GenerateRequestDebugString(webRequest)
+                                            + "\n------[ Response Data ]------"
+                                            + "\nTime Stamp: " + responseTimeStamp + " ("
+                                            + ServerTimeStamp.ToLocalDateTime(responseTimeStamp) + ")"
+                                            + "\nResponse Headers: " + headerString.ToString()
                                             + "\nResponse Code: " + webRequest.responseCode
                                             + "\nResponse Error: " + webRequest.error
-                                            + headerString.ToString()
-                                            + "\nResponse: " + webRequest.downloadHandler.text
+                                            + "\nResponse Raw: " + webRequest.downloadHandler.text
                                             + "\n");
                         Debug.Log(logString);
                     }
@@ -481,7 +461,9 @@ namespace ModIO
                     if(successCallback != null) { successCallback(); }
                 }
 
+                #if DEBUG
                 APIClient.webRequestFormData.Remove(webRequest);
+                #endif
             };
         }
 
