@@ -8,6 +8,8 @@
 
 Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
+<p align="center"><a href="https://www.assetstore.unity3d.com/#!/content/138866"><img src="https://cdn-images-1.medium.com/max/1600/1*eopj1hgjlJJZ8Q9l8dNVBA.png"></a></p>
+
 ## Features
 * Platform agnostic (support 1 click mod installs on Steam, Epic Games Store, Discord, GOG, itch.io and even consoles in the future)
 * Clientless (it has no other dependencies and works behind the scenes in your game)
@@ -25,7 +27,7 @@ Next, download the latest [UnityPackage release from Github](https://github.com/
 1. Set up your [game on mod.io](https://mod.io/games/add) (or our [private test environment](https://test.mod.io/games/add)) to get your game ID and API key
 1. Input your ID and API key by selecting "Plugin Settings" on the ModBrowser component inspector, or under the mod.io/Edit Settings menu item
 1. In your code, make a call to _ModManager.GetInstalledModDirectories()_ to get a list of mod data your player has installed (read our wiki for [detailed instructions](https://github.com/modio/UnityPlugin/wiki))
-1. Setup complete!
+1. Setup complete! Join us [on Discord](https://discord.mod.io) if you have questions or need help.
 
 All mods [submitted to mod.io](https://mod.io/mods/add) will be automatically fetched and managed by the plugin, and are instantly downloadable and testable.
 
@@ -49,8 +51,6 @@ The [mod.io](https://mod.io) Unity Plugin requires the functionality of two othe
 
 ## Contributions Welcome
 Our Unity plugin is public and open source. Game developers are welcome to utilize it directly, to add support for mods in their games, or fork it for their games customized use. Want to make changes to our plugin? Submit a pull request with your recommended changes to be reviewed.
-
-<a href="https://www.assetstore.unity3d.com/#!/content/138866"><img src="https://cdn-images-1.medium.com/max/1600/1*eopj1hgjlJJZ8Q9l8dNVBA.png"></a>
 
 ## Other Repositories
 Our aim with [mod.io](https://mod.io), is to provide an open modding API. You are welcome to [view, fork and contribute to our other codebases](https://github.com/modio) in use:
