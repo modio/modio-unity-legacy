@@ -35,6 +35,13 @@ namespace ModIO
         {
             get
             {
+                #if UNITY_EDITOR
+                if(!Application.isPlaying)
+                {
+                    LoadInstance();
+                }
+                #endif
+
                 if(m_instance.Equals(default(UserAuthenticationData)))
                 {
                     LoadInstance();
