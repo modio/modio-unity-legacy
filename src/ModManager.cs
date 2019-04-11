@@ -356,17 +356,12 @@ namespace ModIO
             }
         }
 
-        /// <summary>Downloads and installs all installed mods.</summary>
-        public static System.Collections.IEnumerator UpdateAllInstalledMods_Coroutine()
+        /// <summary>Downloads and updates mods to the latest version.</summary>
+        public static System.Collections.IEnumerator DownloadAndUpdateMods_Coroutine(IList<int> modIds)
         {
-            List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
-            List<Modfile> updatedModVersions = new List<Modfile>();
+            Debug.Assert(modIds != null);
 
-            bool isRequestResolved = false;
-            int attemptCount = 0;
-            int attemptLimit = 2;
-
-            // reattempt delay calculator
+            // --- local delegates ---
             Func<WebRequestError, int> calcReattemptDelay = (requestError) =>
             {
                 if(requestError.limitedUntilTimeStamp > 0)
@@ -390,14 +385,14 @@ namespace ModIO
                 }
             };
 
-            // get all current versions
-            List<int> modIds = new List<int>(installedModVersions.Count);
-            foreach(ModfileIdPair idPair in installedModVersions)
-            {
-                modIds.Add(idPair.modId);
-            }
+            // - vars -
+            int attemptCount = 0;
+            int attemptLimit = 2;
+            bool isRequestResolved = false;
 
-            // - fetch and compare all the installed versions to the remote mod profiles -
+            // - fetch the latest build info -
+            List<Modfile> lastestBuilds = new List<Modfile>(modIds.Count);
+
             RequestFilter modFilter = new RequestFilter();
             modFilter.fieldFilters[GetAllModsFilterFields.id]
             = new InArrayFilter<int>()
@@ -450,25 +445,28 @@ namespace ModIO
                 {
                     foreach(ModProfile profile in profiles)
                     {
-                        foreach(ModfileIdPair idPair in installedModVersions)
-                        {
-                            if(idPair.modId == profile.id)
-                            {
-                                if(idPair.modfileId != profile.currentBuild.id)
-                                {
-                                    updatedModVersions.Add(profile.currentBuild);
-                                }
-                                break;
-                            }
-                        }
+                        lastestBuilds.Add(profile.currentBuild);
                     }
 
                     isRequestResolved = true;
                 }
             }
 
+            // - remove any builds that are already installed -
+            List<Modfile> buildsToInstall = new List<Modfile>(lastestBuilds.Count);
+
+            foreach(Modfile modfile in lastestBuilds)
+            {
+                string installDirectory = ModManager.GetModInstallDirectory(modfile.modId,
+                                                                            modfile.id);
+                if(!Directory.Exists(installDirectory))
+                {
+                    buildsToInstall.Add(modfile);
+                }
+            }
+
             // - download and install any updates sequentially -
-            foreach(Modfile updatedBuild in updatedModVersions)
+            foreach(Modfile updatedBuild in buildsToInstall)
             {
                 isRequestResolved = false;
                 attemptCount = 0;
@@ -1164,6 +1162,14 @@ namespace ModIO
                                                       Action<ModProfile> onSuccess,
                                                       Action<WebRequestError> onError)
         {
+            if(profile == null)
+            {
+                if(onError != null)
+                {
+                    onError(WebRequestError.GenerateLocal("ugh"));
+                }
+            }
+
             List<Action> submissionActions = new List<Action>();
             int nextActionIndex = 0;
             Action<APIMessage> doNextSubmissionAction = (m) =>
@@ -1675,11 +1681,27 @@ namespace ModIO
 
         // ---------[ OBSOLETE ]---------
         /// <summary>[Obsolete] Fetches the list of mods associated with the authenticated user.</summary>
-        [Obsolete("User ModManager.FetchAuthenticatedUserMods() instead.")]
+        [Obsolete("Use ModManager.FetchAuthenticatedUserMods() instead.")]
         public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
                                                     Action<WebRequestError> onError)
         {
             ModManager.FetchAuthenticatedUserMods(onSuccess, onError);
+        }
+
+
+        /// <summary>[Obsolete] Downloads and installs all installed mods.</summary>
+        [Obsolete("Use ModManager.DownloadAndUpdateSubscribedMods_Coroutine() instead.")]
+        public static System.Collections.IEnumerator UpdateAllInstalledMods_Coroutine()
+        {
+            List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
+
+            List<int> modIds = new List<int>(installedModVersions.Count);
+            foreach(ModfileIdPair pair in installedModVersions)
+            {
+                modIds.Add(pair.modId);
+            }
+
+            return ModManager.DownloadAndUpdateMods_Coroutine(modIds);
         }
     }
 }
