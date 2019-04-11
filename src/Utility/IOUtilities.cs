@@ -254,9 +254,15 @@ namespace ModIO
 
             string retVal = string.Empty;
 
-            foreach(string pathElem in pathElements)
+            if(pathElements != null)
             {
-                retVal = System.IO.Path.Combine(retVal, pathElem);
+                foreach(string pathElem in pathElements)
+                {
+                    if(!string.IsNullOrEmpty(pathElem))
+                    {
+                        retVal = System.IO.Path.Combine(retVal, pathElem);
+                    }
+                }
             }
 
             return retVal;
