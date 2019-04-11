@@ -40,16 +40,21 @@ namespace ModIO.API
 
     public class StringValueParameter
     {
-        public string key = "";
-        public string value = "";
+        public string key = string.Empty;
+        public string value = string.Empty;
 
         public static StringValueParameter Create(string k, object v)
         {
-            Debug.Assert(!String.IsNullOrEmpty(k) && v != null);
+            Debug.Assert(!String.IsNullOrEmpty(k));
 
             StringValueParameter retVal = new StringValueParameter();
             retVal.key = k;
-            retVal.value = v.ToString();
+
+            if(v != null)
+            {
+                retVal.value = v.ToString();
+            }
+
             return retVal;
         }
     }
