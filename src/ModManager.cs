@@ -999,7 +999,7 @@ namespace ModIO
             userEventFilter.fieldFilters[GetUserEventsFilterFields.gameId]
             = new EqualToFilter<int>()
             {
-                filterValue = APIClient.gameId,
+                filterValue = PluginSettings.data.gameId,
             };
 
             // - Get All Events -
@@ -1594,7 +1594,7 @@ namespace ModIO
         {
             RequestFilter userModsFilter = new RequestFilter();
             userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
-            = new EqualToFilter<int>() { filterValue = APIClient.gameId };
+            = new EqualToFilter<int>() { filterValue = PluginSettings.data.gameId };
 
             Action<List<ModProfile>> onGetMods = (modProfiles) =>
             {
