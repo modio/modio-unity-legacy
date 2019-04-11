@@ -372,7 +372,8 @@ namespace ModIO.Editor
                     else
                     {
                         var tagsProperty = editableProfileProperty.FindPropertyRelative("tags.value");
-                        var selectedTags = new List<string>(EditorUtilityExtensions.GetSerializedPropertyStringArray(tagsProperty));
+                        var oldSelectedTags = new List<string>(EditorUtilityExtensions.GetSerializedPropertyStringArray(tagsProperty));
+                        var newSelectedTags = new List<string>();
                         bool isDirty = false;
 
                         ++EditorGUI.indentLevel;
@@ -380,16 +381,20 @@ namespace ModIO.Editor
                             {
                                 if(!tagCategory.isHidden)
                                 {
-                                    bool wasSelectionModified;
-                                    LayoutTagCategoryField(tagCategory, ref selectedTags, out wasSelectionModified);
-                                    isDirty |= wasSelectionModified;
+                                    using (var check = new EditorGUI.ChangeCheckScope())
+                                    {
+                                        var categoryTags = LayoutTagCategoryField(tagCategory, oldSelectedTags);
+                                        newSelectedTags.AddRange(categoryTags);
+
+                                        isDirty |= check.changed;
+                                    }
                                 }
                             }
                         --EditorGUI.indentLevel;
 
-                        if(isDirty)
+                        if(isDirty || newSelectedTags.Count < oldSelectedTags.Count)
                         {
-                            EditorUtilityExtensions.SetSerializedPropertyStringArray(tagsProperty, selectedTags.ToArray());
+                            EditorUtilityExtensions.SetSerializedPropertyStringArray(tagsProperty, newSelectedTags.ToArray());
                             editableProfileProperty.FindPropertyRelative("tags.isDirty").boolValue = true;
                         }
                     }
@@ -405,11 +410,10 @@ namespace ModIO.Editor
             }
         }
 
-        protected virtual void LayoutTagCategoryField(ModTagCategory tagCategory,
-                                                      ref List<string> selectedTags,
-                                                      out bool wasSelectionModified)
+        protected virtual List<string> LayoutTagCategoryField(ModTagCategory tagCategory,
+                                                              List<string> selectedTags)
         {
-            wasSelectionModified = false;
+            List<string> newSelection = new List<string>();
 
             // EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(tagCategory.name);
@@ -417,47 +421,33 @@ namespace ModIO.Editor
             EditorGUILayout.BeginVertical();
                 if(!tagCategory.isMultiTagCategory)
                 {
-                    string oldSelectedTag = string.Empty;
+                    string selectedTag = string.Empty;
                     foreach(string tag in tagCategory.tags)
                     {
                         if(selectedTags.Contains(tag))
                         {
-                            oldSelectedTag = tag;
+                            selectedTag = tag;
                         }
                     }
 
-                    string newSelectedTag = oldSelectedTag;
                     foreach(string tag in tagCategory.tags)
                     {
-                        bool isSelected = (tag == oldSelectedTag);
+                        bool wasSelected = (tag == selectedTag);
+                        bool isSelected = EditorGUILayout.Toggle(tag, wasSelected, EditorStyles.radioButton);
 
-                        using (var check = new EditorGUI.ChangeCheckScope())
+                        if(isSelected)
                         {
-                            isSelected = EditorGUILayout.Toggle(tag, isSelected, EditorStyles.radioButton);
-                            if (check.changed)
-                            {
-                                if(isSelected)
-                                {
-                                    newSelectedTag = tag;
-                                }
-                                else
-                                {
-                                    newSelectedTag = string.Empty;
-                                }
-                            }
+                            selectedTag = tag;
+                        }
+                        else if(wasSelected)
+                        {
+                            selectedTag = string.Empty;
                         }
                     }
 
-                    if(newSelectedTag != oldSelectedTag)
+                    if(!string.IsNullOrEmpty(selectedTag))
                     {
-                        wasSelectionModified = true;
-
-                        selectedTags.Remove(oldSelectedTag);
-
-                        if(!System.String.IsNullOrEmpty(newSelectedTag))
-                        {
-                            selectedTags.Add(newSelectedTag);
-                        }
+                        newSelection.Add(selectedTag);
                     }
                 }
                 else
@@ -467,23 +457,16 @@ namespace ModIO.Editor
                         bool wasSelected = selectedTags.Contains(tag);
                         bool isSelected = EditorGUILayout.Toggle(tag, wasSelected);
 
-                        if(wasSelected != isSelected)
+                        if(isSelected)
                         {
-                            wasSelectionModified = true;
-
-                            if(isSelected)
-                            {
-                                selectedTags.Add(tag);
-                            }
-                            else
-                            {
-                                selectedTags.Remove(tag);
-                            }
+                            newSelection.Add(tag);
                         }
                     }
                 }
             EditorGUILayout.EndVertical();
             // EditorGUILayout.EndHorizontal();
+
+            return newSelection;
         }
 
         protected virtual void LayoutMetadataKVPField()
