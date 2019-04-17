@@ -356,6 +356,114 @@ namespace ModIO
             }
         }
 
+        /// <summary>Downloads and installs a single mod</summary>
+        public static void DownloadAndUpdateMod(int modId, Action onSuccess, Action<WebRequestError> onError)
+        {
+            Debug.Assert(modId != ModProfile.NULL_ID);
+
+            // vars
+            ModProfile profile = null;
+            Modfile modfile = null;
+            string installDir = null;
+            string zipFilePath = null;
+
+            // --- local callbacks ---
+            Action<ModProfile> onGetModProfile = null;
+            Action<ModfileIdPair, FileDownloadInfo> onDownloadSucceeded = null;
+            Action<ModfileIdPair, WebRequestError> onDownloadFailed = null;
+            Action install = null;
+
+            onGetModProfile = (p) =>
+            {
+                profile = p;
+                modfile = p.currentBuild;
+
+                installDir = ModManager.GetModInstallDirectory(p.id, modfile.id);
+                zipFilePath = CacheClient.GenerateModBinaryZipFilePath(p.id, modfile.id);
+
+                if(Directory.Exists(installDir))
+                {
+                    if(onSuccess != null)
+                    {
+                        onSuccess();
+                    }
+                }
+                else
+                {
+                    bool fileExists = System.IO.File.Exists(zipFilePath);
+                    Int64 binarySize = (fileExists ? IOUtilities.GetFileSize(zipFilePath) : -1);
+                    string binaryHash = (fileExists ? IOUtilities.CalculateFileMD5Hash(zipFilePath) : string.Empty);
+
+                    bool isBinaryZipValid = (fileExists
+                                             && modfile.fileSize == binarySize
+                                             && modfile.fileHash.md5 == binaryHash);
+
+                    if(isBinaryZipValid)
+                    {
+                        install();
+                    }
+                    else
+                    {
+                        DownloadClient.StartModBinaryDownload(modfile,
+                                                              CacheClient.GenerateModBinaryZipFilePath(p.id, p.currentBuild.id));
+
+                        DownloadClient.modfileDownloadSucceeded += onDownloadSucceeded;
+                        DownloadClient.modfileDownloadFailed += onDownloadFailed;
+                    }
+                }
+            };
+
+            onDownloadSucceeded = (mip, downloadInfo) =>
+            {
+                if(mip.modId == modId)
+                {
+                    DownloadClient.modfileDownloadSucceeded -= onDownloadSucceeded;
+                    DownloadClient.modfileDownloadFailed -= onDownloadFailed;
+
+                    install();
+                }
+            };
+
+            onDownloadFailed = (mip, e) =>
+            {
+                if(mip.modId == modId)
+                {
+                    DownloadClient.modfileDownloadSucceeded -= onDownloadSucceeded;
+                    DownloadClient.modfileDownloadFailed -= onDownloadFailed;
+
+                    if(onError != null)
+                    {
+                        onError(e);
+                    }
+                }
+            };
+
+            install = () =>
+            {
+                bool didInstall = ModManager.TryInstallMod(profile.id, modfile.id, true);
+                if(didInstall)
+                {
+                    if(onSuccess != null)
+                    {
+                        onSuccess();
+                    }
+                }
+                else
+                {
+                    if(onError != null)
+                    {
+                        string message = ("Successfully downloaded but failed to install mod \'"
+                                          + profile.name + "\'. See logged message for details.");
+                        onError(WebRequestError.GenerateLocal(message));
+                    }
+                }
+            };
+
+
+            // --- GO! ----
+            APIClient.GetMod(modId, onGetModProfile, onError);
+        }
+
         /// <summary>Downloads and updates mods to the latest version.</summary>
         public static System.Collections.IEnumerator DownloadAndUpdateMods_Coroutine(IList<int> modIds)
         {
