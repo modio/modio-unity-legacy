@@ -501,42 +501,60 @@ namespace ModIO
 
 
         // ---------[ AUTHENTICATION ]---------
+        /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
+        [System.Serializable]
+        #pragma warning disable 0649
+        private struct AccessTokenObject { public string access_token; }
+        #pragma warning restore 0649
+
+        /// <summary>Generates the object for a mod.io Authentication request.</summary>
+        public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    string authenticationKey,
+                                                                    string authenticationValue)
+        {
+            APIClient.AssertAuthorizationDetails(false);
+
+            WWWForm form = new WWWForm();
+            form.AddField("api_key", PluginSettings.data.gameAPIKey);
+            form.AddField(authenticationKey, authenticationValue);
+
+            UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+
+            #if DEBUG
+            if(APIClient.logAllRequests)
+            {
+                // Setup form data logging
+                DebugFormData formData = new DebugFormData()
+                {
+                    strings = new StringValueParameter[]
+                    {
+                        StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey),
+                        StringValueParameter.Create(authenticationKey, authenticationValue),
+                    },
+                    binaryData = null,
+                };
+                webRequestFormData.Add(webRequest, formData);
+            }
+            #endif
+
+            return webRequest;
+        }
+
+
         /// <summary>Requests a login code be sent to an email address.</summary>
         public static void SendSecurityCode(string emailAddress,
                                             Action<APIMessage> successCallback,
                                             Action<WebRequestError> errorCallback)
         {
             string endpointURL = PluginSettings.data.apiURL + @"/oauth/emailrequest";
-            StringValueParameter[] valueFields = new StringValueParameter[]
-            {
-                StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey),
-                StringValueParameter.Create("email", emailAddress),
-            };
 
-            // NOTE(@jackson): APIClient post requests _always_ require
-            // the userAuthorizationToken to be set, and so we just use
-            // a dummy value here.
-            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
-            UserAuthenticationData.instance = new UserAuthenticationData()
-            {
-                userId = UserProfile.NULL_ID,
-                token = "NONE",
-            };
-
-            UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                       valueFields,
-                                                                       null);
-
-            UserAuthenticationData.instance = oldUserData;
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 "email",
+                                                                                 emailAddress);
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
-
-        /// <summary>Wrapper object for [[ModIO.APIClient.GetOAuthToken]] requests.</summary>
-        [System.Serializable]
-        #pragma warning disable 0649
-        private struct AccessTokenObject { public string access_token; }
-        #pragma warning restore 0649
 
         /// <summary>Requests a user OAuthToken in exchange for a security code.</summary>
         public static void GetOAuthToken(string securityCode,
@@ -544,28 +562,10 @@ namespace ModIO
                                          Action<WebRequestError> errorCallback)
         {
             string endpointURL = PluginSettings.data.apiURL + @"/oauth/emailexchange";
-            StringValueParameter[] valueFields = new StringValueParameter[]
-            {
-                StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey),
-                StringValueParameter.Create("security_code", securityCode),
-            };
 
-            // NOTE(@jackson): APIClient post requests _always_ require
-            // the userAuthorizationToken to be set, and so we just use
-            // a dummy value here.
-            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
-            UserAuthenticationData.instance = new UserAuthenticationData()
-            {
-                userId = UserProfile.NULL_ID,
-                token = "NONE",
-            };
-
-            UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                       valueFields,
-                                                                       null);
-
-            UserAuthenticationData.instance = oldUserData;
-
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 "security_code",
+                                                                                 securityCode);
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
             {
                 successCallback(result.access_token);
@@ -575,48 +575,34 @@ namespace ModIO
         }
 
         /// <summary>Request an OAuthToken using a Steam User authentication ticket.</summary>
-        public static void RequestSteamAuthentication(byte[] encryptedAppTicket,
+        public static void RequestSteamAuthentication(byte[] pTicket, uint pcbTicket,
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
-            if(encryptedAppTicket == null
-               || encryptedAppTicket.Length == 0
-               || encryptedAppTicket.Length > 1024)
+            if(pTicket == null
+               || pTicket.Length == 0
+               || pTicket.Length > 1024)
             {
                 Debug.LogWarning("[mod.io] Steam Ticket is invalid. Ensure that the"
-                                 + " encryptedAppTicket is not null, and is less than 1024 bytes.");
+                                 + " pTicket is not null, and is less than 1024 bytes.");
 
                 if(errorCallback != null)
                 {
                     errorCallback(WebRequestError.GenerateLocal("Steam Ticket is invalid. Ensure"
-                        + " that the encryptedAppTicket is not null, and is less than 1024 bytes."));
+                        + " that the pTicket is not null, and is less than 1024 bytes."));
                 }
             }
 
             // create vars
+            byte[] trimmedTicket = new byte[pcbTicket];
+            Array.Copy(pTicket, trimmedTicket, pcbTicket);
+
             string endpointURL = PluginSettings.data.apiURL + @"/external/steamauth";
-            StringValueParameter[] valueFields = new StringValueParameter[]
-            {
-                StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey),
-                StringValueParameter.Create("appdata", Convert.ToBase64String(encryptedAppTicket)),
-            };
+            string encodedTicket = Convert.ToBase64String(trimmedTicket);
 
-            // NOTE(@jackson): APIClient post requests _always_ require
-            // the userAuthorizationToken to be set, and so we just use
-            // a dummy value here.
-            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
-            UserAuthenticationData.instance = new UserAuthenticationData()
-            {
-                userId = UserProfile.NULL_ID,
-                token = "NONE",
-            };
-
-            UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                       valueFields,
-                                                                       null);
-
-            UserAuthenticationData.instance = oldUserData;
-
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 "appdata",
+                                                                                 encodedTicket);
 
             // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
@@ -648,28 +634,10 @@ namespace ModIO
 
             // create vars
             string endpointURL = PluginSettings.data.apiURL + @"/external/galaxyauth";
-            StringValueParameter[] valueFields = new StringValueParameter[]
-            {
-                StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey),
-                StringValueParameter.Create("appdata", encryptedAppTicket),
-            };
 
-            // NOTE(@jackson): APIClient post requests _always_ require
-            // the userAuthorizationToken to be set, and so we just use
-            // a dummy value here.
-            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
-            UserAuthenticationData.instance = new UserAuthenticationData()
-            {
-                userId = UserProfile.NULL_ID,
-                token = "NONE",
-            };
-
-            UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                       valueFields,
-                                                                       null);
-
-            UserAuthenticationData.instance = oldUserData;
-
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 "appdata",
+                                                                                 encryptedAppTicket);
 
             // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
@@ -1525,29 +1493,14 @@ namespace ModIO
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
+            // create vars
             string endpointURL = PluginSettings.data.apiURL + @"/external/steamauth";
-            StringValueParameter[] valueFields = new StringValueParameter[]
-            {
-                StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey),
-                StringValueParameter.Create("appdata", steamUserAuthenticationTicket),
-            };
 
-            // NOTE(@jackson): APIClient post requests _always_ require
-            // the userAuthorizationToken to be set, and so we just use
-            // a dummy value here.
-            UserAuthenticationData oldUserData = UserAuthenticationData.instance;
-            UserAuthenticationData.instance = new UserAuthenticationData()
-            {
-                userId = UserProfile.NULL_ID,
-                token = "NONE",
-            };
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 "appdata",
+                                                                                 steamUserAuthenticationTicket);
 
-            UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                       valueFields,
-                                                                       null);
-
-            UserAuthenticationData.instance = oldUserData;
-
+            // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
             {
                 successCallback(result.access_token);
