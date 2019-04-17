@@ -65,15 +65,6 @@ namespace ModIO
         };
 
         // ---------[ SETTINGS ]---------
-        /// <summary>The base URL for the web API that the APIClient should use.</summary>
-        public static string apiURL = string.Empty;
-
-        /// <summary>Game ID that the APIClient should use when contacting the API.</summary>
-        public static int gameId = -1;
-
-        /// <summary>Game API Key that the APIClient should use when contacting the API.</summary>
-        public static string gameAPIKey = string.Empty;
-
         /// <summary>Requested language for the API response messages.</summary>
         public static string languageCode = "en";
 
@@ -90,15 +81,6 @@ namespace ModIO
 
         /// <summary>Mapping of UnityWebRequests to their form data.</summary>
         private static Dictionary<UnityWebRequest, DebugFormData> webRequestFormData = new Dictionary<UnityWebRequest, DebugFormData>();
-
-        // ---------[ INITIALIZATION ]---------
-        static APIClient()
-        {
-            PluginSettings.Data settings = PluginSettings.data;
-            apiURL = settings.apiURL;
-            gameId = settings.gameId;
-            gameAPIKey = settings.gameAPIKey;
-        }
 
         // ---------[ DEBUG FUNCTIONALITY ]---------
         /// <summary>Asserts that the required authorization data for making API requests is set.</summary>
@@ -345,6 +327,7 @@ namespace ModIO
                     binaryData = dataFields,
                 };
                 webRequestFormData.Add(webRequest, formData);
+
             }
             #endif
 
@@ -484,10 +467,9 @@ namespace ModIO
                     }
                     catch(Exception e)
                     {
-                        Debug.LogError("[mod.io] Failed to convert response into " + typeof(T).ToString() + " representation\n\n"
-                                       + Utility.GenerateExceptionDebugString(e));
-
                         // TODO(@jackson): Error!
+                        Debug.LogWarning("[mod.io] Failed to convert response into " + typeof(T).ToString() + " representation\n\n"
+                                         + Utility.GenerateExceptionDebugString(e));
                     }
 
                     successCallback(response);
@@ -832,8 +814,8 @@ namespace ModIO
             string endpointURL = PluginSettings.data.apiURL + @"/games/" + PluginSettings.data.gameId + @"/mods/" + modId + @"/media";
 
             UnityWebRequest webRequest = APIClient.GeneratePostRequest(endpointURL,
-                                                                    parameters.stringValues.ToArray(),
-                                                                    parameters.binaryData.ToArray());
+                                                                       parameters.stringValues.ToArray(),
+                                                                       parameters.binaryData.ToArray());
 
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
@@ -1353,6 +1335,28 @@ namespace ModIO
         }
 
         // ---------[ OBSOLETE FUNCTIONALITY ]---------
+        /// <summary>The base URL for the web API that the APIClient should use.</summary>
+        [Obsolete("Use PluginSettings.data.apiURL instead")]
+        public static string apiURL
+        {
+            get { return PluginSettings.data.apiURL; }
+        }
+
+        /// <summary>Game ID that the APIClient should use when contacting the API.</summary>
+        [Obsolete("Use PluginSettings.data.gameId instead")]
+        public static int gameId
+        {
+            get { return PluginSettings.data.gameId; }
+        }
+
+        /// <summary>Game API Key that the APIClient should use when contacting the API.</summary>
+        [Obsolete("Use PluginSettings.data.gameAPIKey instead")]
+        public static string gameAPIKey
+        {
+            get { return PluginSettings.data.gameAPIKey; }
+        }
+
+
         /// <summary>[Obsolete] Fetches the tag categories specified by the game profile.</summary>
         [Obsolete("Use APIClient.GetGameTagOptions() instead.")]
         public static void GetAllGameTagOptions(Action<RequestPage<ModTagCategory>> successCallback, Action<WebRequestError> errorCallback)
