@@ -21,7 +21,9 @@ namespace ModIO.Editor
         }
 
         // ---------[ CONSTANTS ]---------
+        #if !UPLOAD_MOD_BINARY_AS_DIRECTORY
         private readonly string[] modBinaryFileExtensionFilters = { "All Files", "" };
+        #endif
 
         // ---------[ WINDOW FIELDS ]---------
         private static bool isAwaitingServerResponse = false;
@@ -67,6 +69,16 @@ namespace ModIO.Editor
         }
 
         // ---------[ GUI ]---------
+        protected virtual void Update()
+        {
+            if(this.user != null
+               && this.user.id != UserAuthenticationData.instance.userId)
+            {
+                this.user = null;
+                Repaint();
+            }
+        }
+
         protected virtual void OnGUI()
         {
             LayoutSubmissionFields();
@@ -274,6 +286,13 @@ namespace ModIO.Editor
         private void ModProfileSubmissionSucceeded(ModProfile updatedProfile,
                                                    string profileFilePath)
         {
+            if(updatedProfile == null)
+            {
+                isAwaitingServerResponse = false;
+                return;
+            }
+
+
             uploadFailedMessage = null;
 
             // Update ScriptableModProfile
