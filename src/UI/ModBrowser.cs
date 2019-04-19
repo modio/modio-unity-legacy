@@ -1138,6 +1138,8 @@ namespace ModIO.UI
         // ---------[ REQUESTS ]---------
         private int CalculateReattemptDelay(WebRequestError requestError)
         {
+            Debug.Assert(requestError != null);
+
             if(requestError.limitedUntilTimeStamp > 0)
             {
                 return (requestError.limitedUntilTimeStamp - ServerTimeStamp.Now);
@@ -1833,22 +1835,22 @@ namespace ModIO.UI
                         modNamePrefix = "Mods have";
                     }
 
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(requestError.isAuthenticationInvalid)
+                    int reattemptDelay = CalculateReattemptDelay(downloadInfo.error);
+                    if(downloadInfo.error.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   requestError.displayMessage);
+                                                   downloadInfo.error.displayMessage);
 
                         m_validOAuthToken = false;
                         yield break;
                     }
-                    else if(requestError.isRequestUnresolvable
+                    else if(downloadInfo.error.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    modNamePrefix
                                                    + " failed to download.\n"
-                                                   + requestError.displayMessage);
+                                                   + downloadInfo.error.displayMessage);
                         yield break;
                     }
                     else
@@ -1856,7 +1858,7 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    modNamePrefix
                                                    + " failed to download.\n"
-                                                   + requestError.displayMessage
+                                                   + downloadInfo.error.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
