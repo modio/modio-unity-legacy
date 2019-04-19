@@ -47,10 +47,6 @@ namespace ModIO.UI
         /// <summary>DrivenRectTransformTracker</summary>
         private DrivenRectTransformTracker m_tracker;
 
-        // Copied from UnityEngine.UI.AspectRatioFitter:
-        // This "delayed" mechanism is required for case 1014834.
-        private bool m_delayedSetDirty = false;
-
 
         // --- ACCESSORS ---
         /// <summary>The method of scaling used.</summary>
@@ -62,7 +58,7 @@ namespace ModIO.UI
                 if(m_scaleMode != value)
                 {
                     m_scaleMode = value;
-                    SetDirty();
+                    UpdateRectScale();
                 }
             }
         }
@@ -82,8 +78,8 @@ namespace ModIO.UI
         protected virtual Vector2 GetParentSize()
         {
             RectTransform parent = rectTransform.parent as RectTransform;
-            if (!parent)
-                return Vector2.zero;
+            if (!parent) { return Vector2.zero; }
+
             return parent.rect.size;
         }
 
@@ -96,36 +92,7 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         protected ScaleFitter() {}
 
-        /// <summary>Queues an UpdateRectScale().</summary>
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            SetDirty();
-        }
-
-        /// <summary>Resets the values controlled by the ScaleFitter.</summary>
-        protected override void OnDisable()
-        {
-            rectTransform.localScale = new Vector3(1f, 1f, rectTransform.localScale.z);
-            m_tracker.Clear();
-            LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
-            base.OnDisable();
-        }
-
         // ---------[ SCALE UPDATING ]---------
-        /// <summary>Calls UpdateRectScale if necessary.</summary>
-        protected virtual void Update()
-        {
-            bool hasParentChanged = (rectTransform.parent != null
-                                     && rectTransform.parent.hasChanged);
-            if (m_delayedSetDirty
-                || hasParentChanged)
-            {
-                m_delayedSetDirty = false;
-                SetDirty();
-            }
-        }
-
         /// <summary>Called when this RectTransform changes.</summary>
         protected override void OnRectTransformDimensionsChange()
         {
@@ -277,22 +244,29 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        /// <summary>Mark the ScaleFitter as dirty.</summary>
-        protected void SetDirty()
+        /// <summary>Calls the UpdateRectScale function.</summary>
+        public virtual void SetLayoutHorizontal()
         {
             UpdateRectScale();
         }
 
         /// <summary>ILayoutSelfController stub. Has no effect.</summary>
-        public virtual void SetLayoutHorizontal() {}
-
-        /// <summary>ILayoutSelfController stub. Has no effect.</summary>
-        public virtual void SetLayoutVertical() {}
+        public virtual void SetLayoutVertical()
+        {
+            // NOTE(@jackson): Is _always_ called in tandem with SetLayoutHorizontal(), and thus
+            // needs not call UpdateRectScale();
+        }
 
         #if UNITY_EDITOR
         protected override void OnValidate()
         {
-            m_delayedSetDirty = true;
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if(this != null)
+                {
+                    UpdateRectScale();
+                }
+            };
         }
         #endif
     }
