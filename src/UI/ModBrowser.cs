@@ -1867,6 +1867,11 @@ namespace ModIO.UI
                         continue;
                     }
                 }
+                else if(downloadInfo.wasAborted)
+                {
+                    // NOTE(@jackson): Done here
+                    yield break;
+                }
                 else
                 {
                     bool fileExists = System.IO.File.Exists(zipFilePath);
@@ -2373,6 +2378,8 @@ namespace ModIO.UI
 
         public void OnUnsubscribedFromMod(int modId)
         {
+            DownloadClient.CancelAnyModBinaryDownloads(modId);
+
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
 

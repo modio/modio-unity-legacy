@@ -666,7 +666,11 @@ namespace ModIO
 
                         while(!downloadInfo.isDone) { yield return null; }
 
-                        if(downloadInfo.error != null)
+                        if(downloadInfo.wasAborted)
+                        {
+                            isRequestResolved = true;
+                        }
+                        else if(downloadInfo.error != null)
                         {
                             ++attemptCount;
 
