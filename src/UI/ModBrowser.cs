@@ -2053,7 +2053,10 @@ namespace ModIO.UI
             {
                 foreach(var modView in this.explorerView.modViews)
                 {
-                    yield return modView;
+                    if(modView != null)
+                    {
+                        yield return modView;
+                    }
                 }
             }
 
@@ -2061,7 +2064,10 @@ namespace ModIO.UI
             {
                 foreach(var modView in this.subscriptionsView.modViews)
                 {
-                    yield return modView;
+                    if(modView != null)
+                    {
+                        yield return modView;
+                    }
                 }
             }
         }

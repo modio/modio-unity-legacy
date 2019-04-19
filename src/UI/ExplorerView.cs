@@ -157,12 +157,12 @@ namespace ModIO.UI
             GameObject pageGO;
 
             pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
-            pageGO.name = "Mod Page";
+            pageGO.name = "Mod Page A";
             currentPageContainer = pageGO.GetComponent<RectTransform>();
             currentPageContainer.gameObject.SetActive(true);
 
             pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
-            pageGO.name = "Mod Page";
+            pageGO.name = "Mod Page B";
             targetPageContainer = pageGO.GetComponent<RectTransform>();
             targetPageContainer.gameObject.SetActive(false);
 
@@ -184,6 +184,8 @@ namespace ModIO.UI
             {
                 GameObject.Destroy(targetPageContainer.gameObject);
             }
+
+            m_modViews.Clear();
         }
 
         public void Initialize()
