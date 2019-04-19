@@ -120,7 +120,7 @@ namespace ModIO
                 string headerValue = webRequest.GetRequestHeader(headerKey);
                 if(headerValue != null)
                 {
-                    if(headerKey == "Authorization")
+                    if(headerKey.ToUpper() == "AUTHORIZATION")
                     {
                         requestHeaders += "\n  " + headerKey + ": " + headerValue.Substring(0, 6);
 
