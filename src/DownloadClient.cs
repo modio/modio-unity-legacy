@@ -220,8 +220,13 @@ namespace ModIO
                 APIClient.GetModfile(modId, modfileId,
                                      (mf) =>
                                      {
-                                        modfileDownloadMap[idPair].fileSize = mf.fileSize;
-                                        DownloadModBinary_Internal(idPair, mf.downloadLocator.binaryURL);
+                                        // NOTE(@jackson): May have been cancelled
+                                        FileDownloadInfo downloadInfo = GetActiveModBinaryDownload(modId, modfileId);
+                                        if(downloadInfo != null)
+                                        {
+                                            modfileDownloadMap[idPair].fileSize = mf.fileSize;
+                                            DownloadModBinary_Internal(idPair, mf.downloadLocator.binaryURL);
+                                        }
                                      },
                                      (e) => { if(modfileDownloadFailed != null) { modfileDownloadFailed(idPair, e); } });
             }
@@ -322,6 +327,55 @@ namespace ModIO
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
         }
 
+
+        public static void CancelModBinaryDownload(int modId, int modfileId)
+        {
+            ModfileIdPair idPair = new ModfileIdPair()
+            {
+                modId = modId,
+                modfileId = modfileId,
+            };
+
+            CancelModfileDownload_Internal(idPair);
+        }
+
+        public static void CancelAnyModBinaryDownloads(int modId)
+        {
+            List<ModfileIdPair> downloadsToCancel = new List<ModfileIdPair>();
+
+            foreach(var kvp in modfileDownloadMap)
+            {
+                if(kvp.Key.modId == modId)
+                {
+                    downloadsToCancel.Add(kvp.Key);
+                }
+            }
+
+            foreach(var idPair in downloadsToCancel)
+            {
+                CancelModfileDownload_Internal(idPair);
+            }
+        }
+
+        private static void CancelModfileDownload_Internal(ModfileIdPair idPair)
+        {
+            FileDownloadInfo downloadInfo = null;
+            if(modfileDownloadMap.TryGetValue(idPair, out downloadInfo))
+            {
+                if(downloadInfo.request != null)
+                {
+                    downloadInfo.request.Abort();
+                }
+                else
+                {
+                    downloadInfo.isDone = true;
+                    downloadInfo.wasAborted = true;
+
+                    modfileDownloadMap.Remove(idPair);
+                }
+            }
+        }
+
         private static void OnModBinaryRequestCompleted(ModfileIdPair idPair)
         {
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
@@ -331,11 +385,26 @@ namespace ModIO
 
             if(request.isNetworkError || request.isHttpError)
             {
-                #if PLATFORM_PS4
+                if(request.error.ToUpper() == "USER ABORTED"
+                   || request.error.ToUpper() == "REQUEST ABORTED")
+                {
+                    #if DEBUG
+                    if(DownloadClient.logAllRequests)
+                    {
+                        Debug.Log("DOWNLOAD ABORTED"
+                                  + "\nDownload aborted at: " + ServerTimeStamp.Now
+                                  + "\nURL: " + request.url);
+                    }
+                    #endif
+
+                    downloadInfo.wasAborted = true;
+                }
+
                 // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
                 //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
                 //  Spiderling Studios (http://spiderlinggames.co.uk/)
-                if (downloadInfo.error.responseCode == 302) // Redirect limit exceeded
+                #if PLATFORM_PS4
+                else if (downloadInfo.error.responseCode == 302) // Redirect limit exceeded
                 {
                     string headerLocation = string.Empty;
                     if (downloadInfo.error.responseHeaders.TryGetValue("location", out headerLocation)
@@ -354,16 +423,19 @@ namespace ModIO
                 }
                 #endif
 
-                downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
-
-                if(DownloadClient.logAllRequests)
+                else
                 {
-                    WebRequestError.LogAsWarning(downloadInfo.error);
-                }
+                    downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
 
-                if(modfileDownloadFailed != null)
-                {
-                    modfileDownloadFailed(idPair, downloadInfo.error);
+                    if(DownloadClient.logAllRequests)
+                    {
+                        WebRequestError.LogAsWarning(downloadInfo.error);
+                    }
+
+                    if(modfileDownloadFailed != null)
+                    {
+                        modfileDownloadFailed(idPair, downloadInfo.error);
+                    }
                 }
             }
             else

@@ -8,5 +8,6 @@ namespace ModIO
         public string target;
         public System.Int64 fileSize;
         public bool isDone;
+        public bool wasAborted;
     }
 }
