@@ -574,14 +574,41 @@ namespace ModIO
                         + " that the pTicket is not null, and is less than 1024 bytes."));
                 }
             }
+            else
+            {
+                // create vars
+                string encodedTicket = Utility.ConvertSteamEncryptedAppTicket(pTicket, pcbTicket);
 
+                if(string.IsNullOrEmpty(encodedTicket))
+                {
+                    if(errorCallback != null)
+                    {
+                        string message = ("Failed to convert steam ticket"
+                                          + " and so authentication cannot"
+                                          + " be attempted.");
+                        errorCallback(WebRequestError.GenerateLocal(message));
+                    }
+                }
+                else
+                {
+                    APIClient.RequestSteamAuthentication(encodedTicket,
+                                                         successCallback,
+                                                         errorCallback);
+                }
+            }
+        }
+
+        /// <summary>Request an OAuthToken using an encoded Steam User authentication ticket.</summary>
+        public static void RequestSteamAuthentication(string base64EncodedTicket,
+                                                      Action<string> successCallback,
+                                                      Action<WebRequestError> errorCallback)
+        {
             // create vars
             string endpointURL = PluginSettings.data.apiURL + @"/external/steamauth";
-            string encodedTicket = Utility.ConvertSteamEncryptedAppTicket(pTicket, pcbTicket);
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
                                                                                  "appdata",
-                                                                                 encodedTicket);
+                                                                                 base64EncodedTicket);
 
             // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
@@ -1486,28 +1513,6 @@ namespace ModIO
             }
 
             APIClient.DeleteModComment(modId, commentId, onSuccess, errorCallback);
-        }
-
-        /// <summary>[Obsolete] Request an OAuthToken using a Steam User authentication ticket.</summary>
-        [Obsolete("Now takes a byte[] as the first parameter")]
-        public static void RequestSteamAuthentication(string steamUserAuthenticationTicket,
-                                                      Action<string> successCallback,
-                                                      Action<WebRequestError> errorCallback)
-        {
-            // create vars
-            string endpointURL = PluginSettings.data.apiURL + @"/external/steamauth";
-
-            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
-                                                                                 "appdata",
-                                                                                 steamUserAuthenticationTicket);
-
-            // send request
-            Action<AccessTokenObject> onSuccessWrapper = (result) =>
-            {
-                successCallback(result.access_token);
-            };
-
-            APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
         }
     }
 }
