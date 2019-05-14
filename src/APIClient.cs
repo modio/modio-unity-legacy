@@ -576,11 +576,8 @@ namespace ModIO
             }
 
             // create vars
-            byte[] trimmedTicket = new byte[pcbTicket];
-            Array.Copy(pTicket, trimmedTicket, pcbTicket);
-
             string endpointURL = PluginSettings.data.apiURL + @"/external/steamauth";
-            string encodedTicket = Convert.ToBase64String(trimmedTicket);
+            string encodedTicket = Utility.ConvertSteamEncryptedAppTicket(pTicket, pcbTicket);
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
                                                                                  "appdata",

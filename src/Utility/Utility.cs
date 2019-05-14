@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
@@ -109,6 +110,26 @@ namespace ModIO
             }
 
             return yt_id;
+        }
+
+        /// <summary>Converts a byte array representing a Steam Ticket to a base64 string.</summary>
+        public static string ConvertSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket)
+        {
+            Debug.Assert(pTicket != null);
+            Debug.Assert(pTicket.Length > 0 && pTicket.Length <= 1024, "Invalid pTicket length");
+            Debug.Assert(pcbTicket > 0 && pcbTicket <= pTicket.Length, "Invalid pcbTicket");
+
+            byte[] trimmedTicket = new byte[pcbTicket];
+            Array.Copy(pTicket, trimmedTicket, pcbTicket);
+
+            string retVal = null;
+            try
+            {
+                retVal = Convert.ToBase64String(trimmedTicket);
+            }
+            catch {}
+
+            return retVal;
         }
     }
 }
