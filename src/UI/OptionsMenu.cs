@@ -12,6 +12,8 @@ namespace ModIO.UI
         public Button showHideButton;
         /// <summary>The UI Element containing the menu elements.</summary>
         public RectTransform dropdown;
+        /// <summary>The menu option for viewing the player's profile on the mod.io website.</summary>
+        public Button viewProfileButton;
         /// <summary>The menu option that lets the player log out.</summary>
         public Button logoutButton;
         /// <summary>The menu option that lets the player log in.</summary>
@@ -39,11 +41,17 @@ namespace ModIO.UI
 
             // enable/disable log in/out buttons
             bool loggedIn = !(userData.Equals(UserAuthenticationData.NONE));
-            this.logoutButton.gameObject.SetActive(loggedIn);
-            this.loginButton.gameObject.SetActive(!loggedIn);
+            bool isSteamAccount = (loggedIn && !string.IsNullOrEmpty(userData.steamTicket));
 
-            // currently no options for externally authenticated accounts
-            this.showHideButton.enabled = (!loggedIn || string.IsNullOrEmpty(userData.steamTicket));
+            this.viewProfileButton.interactable = loggedIn;
+            this.loginButton.gameObject.SetActive(!loggedIn);
+            this.logoutButton.gameObject.SetActive(loggedIn && !isSteamAccount);
+
+            Text logoutButtonText = this.logoutButton.GetComponentInChildren<Text>();
+            if(logoutButtonText != null && loggedIn)
+            {
+                logoutButtonText.text = "Log out of " + userData.userId;
+            }
         }
 
         /// <summary>Shows the menu.</summary>
@@ -63,6 +71,37 @@ namespace ModIO.UI
         {
             bool isActive = this.dropdown.gameObject.activeSelf;
             this.dropdown.gameObject.SetActive(!isActive);
+        }
+
+        // ---------[ MENU OPTIONS ]---------
+        /// <summary>Opens the user's menu profile in a web browser.</summary>
+        public void OpenProfileInBrowser()
+        {
+            UserAuthenticationData userData = UserAuthenticationData.instance;
+            if(userData.userId != UserProfile.NULL_ID)
+            {
+                this.viewProfileButton.interactable = false;
+
+                ModManager.GetUserProfile(userData.userId,
+                (p) =>
+                {
+                    if(userData.userId != UserProfile.NULL_ID)
+                    {
+                        string profileURL = p.profileURL + @"/edit";
+                        if(!string.IsNullOrEmpty(userData.steamTicket))
+                        {
+                            profileURL += "?ref=steam";
+                        }
+
+                        Application.OpenURL(profileURL);
+                        this.viewProfileButton.interactable = true;
+                    }
+                },
+                (e) =>
+                {
+                    this.viewProfileButton.interactable = true;
+                });
+            }
         }
     }
 }
