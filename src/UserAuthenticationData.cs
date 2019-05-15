@@ -13,6 +13,7 @@ namespace ModIO
         {
             userId = UserProfile.NULL_ID,
             token = null,
+            steamTicket = null,
         };
 
         /// <summary>Location of the settings file.</summary>
@@ -25,6 +26,9 @@ namespace ModIO
 
         /// <summary>User authentication token to send with API requests identifying the user.</summary>
         public string token;
+
+        /// <summary>Steam ticket (if applicable).</summary>
+        public string steamTicket;
 
         // ---------[ SINGLETON ]---------
         /// <summary>Singleton instance to be used as the current/active data.</summary>
