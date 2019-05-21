@@ -4676,7 +4676,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114724952399294212}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114942728822428758}
+        m_MethodName: ToggleMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114035502239823422
@@ -15302,7 +15313,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disableForExternalAuth: 1
-  showHideButton: {fileID: 114029684935358950}
   dropdown: {fileID: 224113084314805346}
   loggedUser: {fileID: 114228279583796960}
   viewProfileButton: {fileID: 114239781688196190}

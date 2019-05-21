@@ -11,8 +11,6 @@ namespace ModIO.UI
         /// <summary>Determines if the button behaviour changes if externally authenticated.</summary>
         [Tooltip("If selected, opens the browser for showHideButton.onClick if using Steam/GOG authentication.")]
         public bool disableForExternalAuth = true;
-        /// <summary>The button that can be clicked to show/hide the menu.</summary>
-        public Button showHideButton = null;
         /// <summary>The UI Element containing the menu elements.</summary>
         public RectTransform dropdown = null;
         /// <summary>Display for the logged in user.</summary>
@@ -27,7 +25,6 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
-            this.showHideButton.onClick.AddListener(ToggleMenu);
             this.logoutButton.onClick.AddListener(HideMenu);
             this.loginButton.onClick.AddListener(HideMenu);
         }
