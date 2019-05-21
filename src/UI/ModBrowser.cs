@@ -623,7 +623,7 @@ namespace ModIO.UI
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching Game Profile failed."
+                        Debug.LogWarning("[mod.io] Fetching Game Profile failed.\n"
                                          + requestError.ToUnityDebugString());
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
