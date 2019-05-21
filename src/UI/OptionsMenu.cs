@@ -9,12 +9,14 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("UI Elements")]
         /// <summary>Determines if the button behaviour changes if externally authenticated.</summary>
-        [Tooltip("If enabled, opens the browser for showHideButton.onClick if using Steam/GOG authentication.")]
-        public bool openBrowserIfExternalAuth = true;
+        [Tooltip("If selected, opens the browser for showHideButton.onClick if using Steam/GOG authentication.")]
+        public bool disableForExternalAuth = true;
         /// <summary>The button that can be clicked to show/hide the menu.</summary>
         public Button showHideButton = null;
         /// <summary>The UI Element containing the menu elements.</summary>
         public RectTransform dropdown = null;
+        /// <summary>Display for the logged in user.</summary>
+        public UserView loggedUser = null;
         /// <summary>The menu option for viewing the player's profile on the mod.io website.</summary>
         public Button viewProfileButton = null;
         /// <summary>The menu option that lets the player log out.</summary>
@@ -41,9 +43,9 @@ namespace ModIO.UI
         {
             UserAuthenticationData userData = UserAuthenticationData.instance;
             bool loggedIn = !(userData.Equals(UserAuthenticationData.NONE));
-            bool isSteamAccount = (loggedIn && !string.IsNullOrEmpty(userData.steamTicket));
+            bool isExternallyAuthenticated = (loggedIn && !string.IsNullOrEmpty(userData.steamTicket));
 
-            if(this.openBrowserIfExternalAuth && isSteamAccount)
+            if(this.disableForExternalAuth && isExternallyAuthenticated)
             {
                 OpenProfileInBrowser();
             }
@@ -59,15 +61,10 @@ namespace ModIO.UI
             UserAuthenticationData userData = UserAuthenticationData.instance;
             bool loggedIn = !(userData.Equals(UserAuthenticationData.NONE));
 
+            this.loggedUser.gameObject.SetActive(loggedIn);
             this.logoutButton.gameObject.SetActive(loggedIn);
             this.loginButton.gameObject.SetActive(!loggedIn);
             this.viewProfileButton.gameObject.SetActive(loggedIn);
-
-            Text logoutButtonText = this.logoutButton.GetComponentInChildren<Text>();
-            if(logoutButtonText != null && loggedIn)
-            {
-                logoutButtonText.text = "Log out of account: " + userData.userId;
-            }
 
             this.dropdown.gameObject.SetActive(true);
         }
