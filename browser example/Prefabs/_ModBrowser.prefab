@@ -1918,6 +1918,7 @@ GameObject:
   - component: {fileID: 114404061122031328}
   - component: {fileID: 114029684935358950}
   - component: {fileID: 114596328122016308}
+  - component: {fileID: 114454424359295808}
   m_Layer: 5
   m_Name: Button + Mask
   m_TagString: Untagged
@@ -4659,18 +4660,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114724952399294212}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114942728822428758}
-        m_MethodName: ToggleMenu
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114035502239823422
@@ -10034,6 +10024,65 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: It's possible that there's something just beyond your search...
+--- !u!114 &114454424359295808
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1399693251507180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4f557b59bc9e4d50a3acc97e0118f8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onLoggedOutClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 114433127020849870}
+        m_MethodName: OpenLoginDialog
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  onModioAccountClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 114942728822428758}
+        m_MethodName: ToggleMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  onExternalAccountClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 114942728822428758}
+        m_MethodName: OpenProfileInBrowser
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114455846407852388
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -15268,7 +15317,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d957dd8cf8a64c7f9388a857bb974d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  disableForExternalAuth: 1
   dropdown: {fileID: 224113084314805346}
   loggedUser: {fileID: 114228279583796960}
   viewProfileButton: {fileID: 114239781688196190}
