@@ -282,6 +282,31 @@ namespace ModIO.UI
                     this.m_requestFilter.isSortAscending = sortOption.isAscending;
                 }
             }
+
+            // title
+            if(this.nameSearchField == null
+               || String.IsNullOrEmpty(this.nameSearchField.text))
+            {
+                this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
+            }
+            else
+            {
+                this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
+                    = new StringLikeFilter() { likeValue = "*"+this.nameSearchField.text+"*" };
+            }
+
+            // tags
+            string[] filterTagNames = this.filterTags.ToArray();
+
+            if(filterTagNames.Length == 0)
+            {
+                this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
+            }
+            else
+            {
+                this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
+                    = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
+            }
         }
 
         // ----------[ PAGE DISPLAY ]---------

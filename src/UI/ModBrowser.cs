@@ -2128,33 +2128,7 @@ namespace ModIO.UI
         // TODO(@jackson): Don't request page!!!!!!!
         public void UpdateExplorerFilters()
         {
-            // sort
             explorerView.UpdateRequestFilter();
-
-            // title
-            if(explorerView.nameSearchField == null
-               || String.IsNullOrEmpty(explorerView.nameSearchField.text))
-            {
-                explorerView.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
-            }
-            else
-            {
-                explorerView.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
-                    = new StringLikeFilter() { likeValue = "*"+explorerView.nameSearchField.text+"*" };
-            }
-
-            // tags
-            string[] filterTagNames = explorerView.filterTags.ToArray();
-
-            if(filterTagNames.Length == 0)
-            {
-                explorerView.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
-            }
-            else
-            {
-                explorerView.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
-                    = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
-            }
 
             int pageSize = explorerView.itemsPerPage;
             // TODO(@jackson): BAD ZERO?
