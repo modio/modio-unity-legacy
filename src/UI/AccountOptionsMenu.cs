@@ -4,13 +4,10 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>The component to control the options menu UI for the mod.io plugin.</summary>
-    public class OptionsMenu : MonoBehaviour
+    public class AccountOptionsMenu : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
         [Header("UI Elements")]
-        /// <summary>Determines if the button behaviour changes if externally authenticated.</summary>
-        [Tooltip("If selected, opens the browser for showHideButton.onClick if using Steam/GOG authentication.")]
-        public bool disableForExternalAuth = true;
         /// <summary>The UI Element containing the menu elements.</summary>
         public RectTransform dropdown = null;
         /// <summary>Display for the logged in user.</summary>
@@ -35,23 +32,6 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        /// <summary>Determines which functionality to use when the show/hide button is clicked.</summary>
-        public void ShowMenuOrOpenProfile()
-        {
-            UserAuthenticationData userData = UserAuthenticationData.instance;
-            bool loggedIn = !(userData.Equals(UserAuthenticationData.NONE));
-            bool isExternallyAuthenticated = (loggedIn && !string.IsNullOrEmpty(userData.steamTicket));
-
-            if(this.disableForExternalAuth && isExternallyAuthenticated)
-            {
-                OpenProfileInBrowser();
-            }
-            else
-            {
-                ShowMenu();
-            }
-        }
-
         /// <summary>Shows the menu.</summary>
         public void ShowMenu()
         {
@@ -78,7 +58,7 @@ namespace ModIO.UI
             bool isActive = this.dropdown.gameObject.activeSelf;
             if(!isActive)
             {
-                ShowMenuOrOpenProfile();
+                ShowMenu();
             }
             else
             {
