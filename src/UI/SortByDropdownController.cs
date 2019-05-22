@@ -5,17 +5,26 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [RequireComponent(typeof(Dropdown))]
     /// <summary>Controls the options for a dropdown based on request sort options.</summary>
+    [RequireComponent(typeof(Dropdown))]
     public class SortByDropdownController : MonoBehaviour
     {
         // ---------[ NESTED DATA ]---------
+        /// <summary>Attribute for facilitating inspector display.</summary>
+        public class FieldSelectAttribute : PropertyAttribute {}
+
         /// <summary>The data that the controller uses to create dropdown options.</summary>
         [System.Serializable]
         public class OptionData
         {
+            /// <summary>Text to use as the dropdown option.</summary>
             public string displayText;
+
+            /// <summary>Value to use in the request filter.</summary>
+            [FieldSelectAttribute]
             public string fieldName;
+
+            /// <summary>Should the sort occur in ascending order.</summary>
             public bool isAscending;
         }
 
