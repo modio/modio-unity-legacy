@@ -375,17 +375,17 @@ namespace ModIO.UI
             {
                 explorerView.nameSearchField.onEndEdit.AddListener((t) =>
                 {
-                    UpdateExplorerFilters();
+                    explorerView.UpdateFilter();
                 });
             }
 
             if(explorerView.sortByDropdown != null)
             {
-                explorerView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => UpdateExplorerFilters());
+                explorerView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => explorerView.UpdateFilter());
             }
 
             // - setup filter -
-            explorerView.onFilterTagsChanged += () => UpdateExplorerFilters();
+            explorerView.onFilterTagsChanged += () => explorerView.UpdateFilter();
 
             int pageSize = explorerView.itemsPerPage;
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -2092,37 +2092,6 @@ namespace ModIO.UI
             loginDialog.gameObject.SetActive(false);
         }
 
-        // TODO(@jackson): Don't request page!!!!!!!
-        public void UpdateExplorerFilters()
-        {
-            explorerView.UpdateFilter();
-
-            int pageSize = explorerView.itemsPerPage;
-            // TODO(@jackson): BAD ZERO?
-            RequestPage<ModProfile> filteredPage = new RequestPage<ModProfile>()
-            {
-                size = pageSize,
-                items = new ModProfile[pageSize],
-                resultOffset = 0,
-                resultTotal = 0,
-            };
-            explorerView.currentPage = filteredPage;
-
-            explorerView.FetchPage(0, (page) =>
-            {
-                if(explorerView.currentPage == filteredPage)
-                {
-                    explorerView.currentPage = page;
-                    explorerView.UpdateCurrentPageDisplay();
-                    explorerView.UpdatePageButtonInteractibility();
-                }
-            },
-            null);
-
-            // TODO(@jackson): Update Mod Count
-            explorerView.UpdateCurrentPageDisplay();
-        }
-
         public void UpdateSubscriptionFilters()
         {
             // filter
@@ -2461,6 +2430,12 @@ namespace ModIO.UI
         public void UpdateExplorerViewPageButtonInteractibility()
         {
             this.explorerView.UpdatePageButtonInteractibility();
+        }
+
+        [Obsolete("Use ExplorerView.UpdateFilter() instead.")]
+        public void UpdateExplorerFilters()
+        {
+            explorerView.UpdateFilter();
         }
     }
 }

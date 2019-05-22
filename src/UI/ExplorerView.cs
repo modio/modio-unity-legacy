@@ -139,7 +139,7 @@ namespace ModIO.UI
         {
             this.m_requestFilter = new RequestFilter();
 
-            // set initial sort
+            // - set initial sort -
             if(this.sortByDropdown != null
                && this.sortByDropdown.options != null
                && this.sortByDropdown.options.Length > 0)
@@ -272,6 +272,7 @@ namespace ModIO.UI
             }
         }
 
+        // TODO(@jackson): Don't request page!!!!!!!
         public void UpdateFilter()
         {
             // sort
@@ -310,6 +311,32 @@ namespace ModIO.UI
                 this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
                     = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
             }
+
+
+            int pageSize = this.itemsPerPage;
+            // TODO(@jackson): BAD ZERO?
+            RequestPage<ModProfile> filteredPage = new RequestPage<ModProfile>()
+            {
+                size = pageSize,
+                items = new ModProfile[pageSize],
+                resultOffset = 0,
+                resultTotal = 0,
+            };
+            this.currentPage = filteredPage;
+
+            this.FetchPage(0, (page) =>
+            {
+                if(this.currentPage == filteredPage)
+                {
+                    this.currentPage = page;
+                    this.UpdateCurrentPageDisplay();
+                    this.UpdatePageButtonInteractibility();
+                }
+            },
+            null);
+
+            // TODO(@jackson): Update Mod Count
+            this.UpdateCurrentPageDisplay();
         }
 
         public void FetchPage(int pageIndex,
