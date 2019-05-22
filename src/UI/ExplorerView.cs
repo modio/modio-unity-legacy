@@ -53,6 +53,7 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
         private List<ModView> m_modViews = new List<ModView>();
+        public RequestFilter m_requestFilter = new RequestFilter();
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -131,6 +132,21 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        private void Start()
+        {
+            this.m_requestFilter = new RequestFilter();
+
+            // set initial sort
+            if(this.sortByDropdown != null
+               && this.sortByDropdown.options != null
+               && this.sortByDropdown.options.Length > 0)
+            {
+                SortByDropdownController.OptionData sortOption = this.sortByDropdown.options[0];
+                this.m_requestFilter.sortFieldName = sortOption.fieldName;
+                this.m_requestFilter.isSortAscending = sortOption.isAscending;
+            }
+        }
+
         private void OnEnable()
         {
             // asserts
@@ -250,6 +266,21 @@ namespace ModIO.UI
             if(onFilterTagsChanged != null)
             {
                 onFilterTagsChanged();
+            }
+        }
+
+        public void UpdateRequestFilter()
+        {
+            // sort
+            this.m_requestFilter.sortFieldName = null;
+            if(this.sortByDropdown != null)
+            {
+                var sortOption = this.sortByDropdown.GetSelectedOption();
+                if(sortOption != null)
+                {
+                    this.m_requestFilter.sortFieldName = sortOption.fieldName;
+                    this.m_requestFilter.isSortAscending = sortOption.isAscending;
+                }
             }
         }
 

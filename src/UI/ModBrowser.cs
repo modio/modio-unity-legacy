@@ -155,7 +155,6 @@ namespace ModIO.UI
         private List<SimpleRating> m_userRatings = new List<SimpleRating>();
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
-        private RequestFilter explorerViewFilter = new RequestFilter();
         private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private Coroutine m_updatesCoroutine = null;
         private List<int> m_queuedUnsubscribes = new List<int>();
@@ -389,19 +388,6 @@ namespace ModIO.UI
 
             // - setup filter -
             explorerView.onFilterTagsChanged += () => UpdateExplorerFilters();
-
-            explorerViewFilter = new RequestFilter();
-
-            // set initial sort
-            SortByDropdownController sortByController = explorerView.sortByDropdown;
-            if(sortByController != null
-               && sortByController.options != null
-               && sortByController.options.Length > 0)
-            {
-                SortByDropdownController.OptionData sortOption = sortByController.options.First();
-                explorerViewFilter.sortFieldName = sortOption.fieldName;
-                explorerViewFilter.isSortAscending = sortOption.isAscending;
-            }
 
             int pageSize = explorerView.itemsPerPage;
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -1140,7 +1126,7 @@ namespace ModIO.UI
             pagination.offset = pageIndex * pageSize;
 
             // Send Request
-            APIClient.GetAllMods(explorerViewFilter, pagination,
+            APIClient.GetAllMods(explorerView.m_requestFilter, pagination,
                                  onSuccess, onError);
         }
 
@@ -2143,26 +2129,17 @@ namespace ModIO.UI
         public void UpdateExplorerFilters()
         {
             // sort
-            explorerViewFilter.sortFieldName = null;
-            if(explorerView.sortByDropdown != null)
-            {
-                var sortOption = explorerView.sortByDropdown.GetSelectedOption();
-                if(sortOption != null)
-                {
-                    explorerViewFilter.sortFieldName = sortOption.fieldName;
-                    explorerViewFilter.isSortAscending = sortOption.isAscending;
-                }
-            }
+            explorerView.UpdateRequestFilter();
 
             // title
             if(explorerView.nameSearchField == null
                || String.IsNullOrEmpty(explorerView.nameSearchField.text))
             {
-                explorerViewFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
+                explorerView.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
             }
             else
             {
-                explorerViewFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
+                explorerView.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
                     = new StringLikeFilter() { likeValue = "*"+explorerView.nameSearchField.text+"*" };
             }
 
@@ -2171,11 +2148,11 @@ namespace ModIO.UI
 
             if(filterTagNames.Length == 0)
             {
-                explorerViewFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
+                explorerView.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
             }
             else
             {
-                explorerViewFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
+                explorerView.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
                     = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
             }
 
