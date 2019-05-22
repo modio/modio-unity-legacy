@@ -3899,6 +3899,7 @@ GameObject:
   - component: {fileID: 114190191316199550}
   - component: {fileID: 114422200466744488}
   - component: {fileID: 114765251497722660}
+  - component: {fileID: 114835405491105780}
   m_Layer: 5
   m_Name: SortBy_Dropdown
   m_TagString: Untagged
@@ -6852,7 +6853,7 @@ MonoBehaviour:
   nameSearchField: {fileID: 114280675296892522}
   tagFilterView: {fileID: 114881975973044358}
   tagFilterBar: {fileID: 114594926552467964}
-  sortByDropdown: {fileID: 114190191316199550}
+  sortByDropdown: {fileID: 114835405491105780}
   pageNumberText: {fileID: 114036059310329162}
   pageCountText: {fileID: 114042995055664914}
   resultCountText: {fileID: 114383635685634226}
@@ -9580,7 +9581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbcf13412947141a0816098403a73fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugAllAPIRequests: 0
+  debugAllAPIRequests: 1
   avatarThumbnailSize: 1
   logoThumbnailSize: 1
   galleryThumbnailSize: 1
@@ -13923,6 +13924,30 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 0
+--- !u!114 &114835405491105780
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1886269612768862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78aeaaead9ba84638b28e199e877c92a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  options:
+  - displayText: Newest
+    fieldName: date_live
+    isAscending: 0
+  - displayText: Popularity
+    fieldName: popular
+    isAscending: 1
+  - displayText: Rating
+    fieldName: rating
+    isAscending: 1
+  - displayText: Subscribers
+    fieldName: subscribers
+    isAscending: 1
 --- !u!114 &114835602980253492
 MonoBehaviour:
   m_ObjectHideFlags: 1
