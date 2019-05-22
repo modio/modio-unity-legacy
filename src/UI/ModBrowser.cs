@@ -46,47 +46,6 @@ namespace ModIO.UI
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
 
         private delegate void SetFilterValuesDelegate(ref RequestFilter filter);
-        private readonly Dictionary<string, SetFilterValuesDelegate> m_explorerSortOptions = new Dictionary<string, SetFilterValuesDelegate>()
-        {
-            {
-                "NEWEST", (ref RequestFilter f) =>
-                {
-                    f.sortFieldName = ModIO.API.GetAllModsFilterFields.dateLive;
-                    f.isSortAscending = false;
-                }
-            },
-            {
-                "POPULARITY", (ref RequestFilter f) =>
-                {
-                    f.sortFieldName = ModIO.API.GetAllModsFilterFields.popular;
-
-                    // NOTE(@jackson): This sort direction is backwards in API V1
-                    Debug.Assert(APIClient.API_VERSION == "v1");
-                    f.isSortAscending = true;
-                }
-            },
-            {
-                "RATING", (ref RequestFilter f) =>
-                {
-                    f.sortFieldName = ModIO.API.GetAllModsFilterFields.rating;
-
-                    // NOTE(@jackson): This sort direction is backwards in API V1
-                    Debug.Assert(APIClient.API_VERSION == "v1");
-                    f.isSortAscending = true;
-                }
-            },
-            {
-                "SUBSCRIBERS", (ref RequestFilter f) =>
-                {
-                    f.sortFieldName = ModIO.API.GetAllModsFilterFields.subscribers;
-
-                    // NOTE(@jackson): This sort direction is backwards in API V1
-                    Debug.Assert(APIClient.API_VERSION == "v1");
-                    f.isSortAscending = true;
-                }
-            },
-        };
-
         private readonly Dictionary<string, Comparison<ModProfile>> m_subscriptionSortOptions = new Dictionary<string, Comparison<ModProfile>>()
         {
             {
@@ -425,7 +384,7 @@ namespace ModIO.UI
 
             if(explorerView.sortByDropdown != null)
             {
-                explorerView.sortByDropdown.onValueChanged.AddListener((v) => UpdateExplorerFilters());
+                explorerView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => UpdateExplorerFilters());
             }
 
             // - setup filter -
@@ -433,8 +392,16 @@ namespace ModIO.UI
 
             explorerViewFilter = new RequestFilter();
 
-            SetFilterValuesDelegate sortValues = m_explorerSortOptions.First().Value;
-            sortValues(ref explorerViewFilter);
+            // set initial sort
+            SortByDropdownController sortByController = explorerView.sortByDropdown;
+            if(sortByController != null
+               && sortByController.options != null
+               && sortByController.options.Length > 0)
+            {
+                SortByDropdownController.OptionData sortOption = sortByController.options.First();
+                explorerViewFilter.sortFieldName = sortOption.fieldName;
+                explorerViewFilter.isSortAscending = sortOption.isAscending;
+            }
 
             int pageSize = explorerView.itemsPerPage;
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -2176,17 +2143,16 @@ namespace ModIO.UI
         public void UpdateExplorerFilters()
         {
             // sort
-            SetFilterValuesDelegate setSort = null;
+            explorerViewFilter.sortFieldName = null;
             if(explorerView.sortByDropdown != null)
             {
-                string key = explorerView.sortByDropdown.options[explorerView.sortByDropdown.value].text.ToUpper();
-                m_explorerSortOptions.TryGetValue(key, out setSort);
+                var sortOption = explorerView.sortByDropdown.GetSelectedOption();
+                if(sortOption != null)
+                {
+                    explorerViewFilter.sortFieldName = sortOption.fieldName;
+                    explorerViewFilter.isSortAscending = sortOption.isAscending;
+                }
             }
-            if(setSort == null)
-            {
-                setSort = m_explorerSortOptions.First().Value;
-            }
-            setSort(ref explorerViewFilter);
 
             // title
             if(explorerView.nameSearchField == null

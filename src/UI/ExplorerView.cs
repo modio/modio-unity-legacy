@@ -32,7 +32,7 @@ namespace ModIO.UI
         public InputField nameSearchField;
         public ModTagFilterView tagFilterView;
         public ModTagContainer tagFilterBar;
-        public Dropdown sortByDropdown;
+        public SortByDropdownController sortByDropdown;
         public Text pageNumberText;
         public Text pageCountText;
         public Text resultCountText;
