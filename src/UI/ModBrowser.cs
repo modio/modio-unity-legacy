@@ -146,8 +146,6 @@ namespace ModIO.UI
         public InspectorView inspectorView;
         public UserView loggedUserView;
         public LoginDialog loginDialog;
-        public Button prevPageButton;
-        public Button nextPageButton;
 
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = null;
@@ -412,7 +410,7 @@ namespace ModIO.UI
                 {
                     explorerView.currentPage = page;
                     explorerView.UpdateCurrentPageDisplay();
-                    UpdateExplorerViewPageButtonInteractibility();
+                    explorerView.UpdatePageButtonInteractibility();
                 }
             },
             null);
@@ -422,7 +420,7 @@ namespace ModIO.UI
             explorerView.UpdateCurrentPageDisplay();
             explorerView.gameObject.SetActive(true);
 
-            UpdateExplorerViewPageButtonInteractibility();
+            explorerView.UpdatePageButtonInteractibility();
 
             if(explorerViewIndicator != null)
             {
@@ -2056,7 +2054,7 @@ namespace ModIO.UI
                 {
                     explorerView.currentPage = page;
                     explorerView.UpdateCurrentPageDisplay();
-                    UpdateExplorerViewPageButtonInteractibility();
+                    explorerView.UpdatePageButtonInteractibility();
                 }
             },
             null);
@@ -2067,9 +2065,9 @@ namespace ModIO.UI
 
             explorerView.InitiateTargetPageTransition(transitionDirection, () =>
             {
-                UpdateExplorerViewPageButtonInteractibility();
+                explorerView.UpdatePageButtonInteractibility();
             });
-            UpdateExplorerViewPageButtonInteractibility();
+            explorerView.UpdatePageButtonInteractibility();
         }
 
         public void InspectDiscoverItem(ModView view)
@@ -2094,24 +2092,10 @@ namespace ModIO.UI
             loginDialog.gameObject.SetActive(false);
         }
 
-        public void UpdateExplorerViewPageButtonInteractibility()
-        {
-            if(prevPageButton != null)
-            {
-                prevPageButton.interactable = (!explorerView.isTransitioning
-                                               && explorerView.CurrentPageNumber > 1);
-            }
-            if(nextPageButton != null)
-            {
-                nextPageButton.interactable = (!explorerView.isTransitioning
-                                               && explorerView.CurrentPageNumber < explorerView.CurrentPageCount);
-            }
-        }
-
         // TODO(@jackson): Don't request page!!!!!!!
         public void UpdateExplorerFilters()
         {
-            explorerView.UpdateRequestFilter();
+            explorerView.UpdateFilter();
 
             int pageSize = explorerView.itemsPerPage;
             // TODO(@jackson): BAD ZERO?
@@ -2130,7 +2114,7 @@ namespace ModIO.UI
                 {
                     explorerView.currentPage = page;
                     explorerView.UpdateCurrentPageDisplay();
-                    UpdateExplorerViewPageButtonInteractibility();
+                    explorerView.UpdatePageButtonInteractibility();
                 }
             },
             null);
@@ -2459,6 +2443,24 @@ namespace ModIO.UI
                                         Action<WebRequestError> onError)
         {
             explorerView.FetchPage(pageIndex, onSuccess, onError);
+        }
+
+        [Obsolete("Use ExplorerView.prevPageButton instead.")]
+        public Button prevPageButton
+        {
+            get { return explorerView.prevPageButton; }
+            set { explorerView.prevPageButton = value; }
+        }
+        [Obsolete("Use ExplorerView.nextPageButton instead.")]
+        public Button nextPageButton
+        {
+            get { return explorerView.nextPageButton; }
+            set { explorerView.nextPageButton = value; }
+        }
+        [Obsolete("Use ExplorerView.UpdatePageButtonInteractibility() instead.")]
+        public void UpdateExplorerViewPageButtonInteractibility()
+        {
+            this.explorerView.UpdatePageButtonInteractibility();
         }
     }
 }

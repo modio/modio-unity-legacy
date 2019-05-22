@@ -6854,6 +6854,8 @@ MonoBehaviour:
   tagFilterView: {fileID: 114881975973044358}
   tagFilterBar: {fileID: 114594926552467964}
   sortByDropdown: {fileID: 114835405491105780}
+  prevPageButton: {fileID: 114319778585326076}
+  nextPageButton: {fileID: 114347730188017132}
   pageNumberText: {fileID: 114036059310329162}
   pageCountText: {fileID: 114042995055664914}
   resultCountText: {fileID: 114383635685634226}
@@ -9608,8 +9610,6 @@ MonoBehaviour:
   inspectorView: {fileID: 114309666271251828}
   loggedUserView: {fileID: 114228279583796960}
   loginDialog: {fileID: 114863113973899486}
-  prevPageButton: {fileID: 114319778585326076}
-  nextPageButton: {fileID: 114347730188017132}
 --- !u!114 &114434123071762936
 MonoBehaviour:
   m_ObjectHideFlags: 1

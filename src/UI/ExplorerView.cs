@@ -34,6 +34,8 @@ namespace ModIO.UI
         public ModTagFilterView tagFilterView;
         public ModTagContainer tagFilterBar;
         public SortByDropdownController sortByDropdown;
+        public Button prevPageButton;
+        public Button nextPageButton;
         public Text pageNumberText;
         public Text pageCountText;
         public Text resultCountText;
@@ -270,7 +272,7 @@ namespace ModIO.UI
             }
         }
 
-        public void UpdateRequestFilter()
+        public void UpdateFilter()
         {
             // sort
             this.m_requestFilter.sortFieldName = null;
@@ -323,6 +325,20 @@ namespace ModIO.UI
             // Send Request
             APIClient.GetAllMods(this.m_requestFilter, pagination,
                                  onSuccess, onError);
+        }
+
+        public void UpdatePageButtonInteractibility()
+        {
+            if(this.prevPageButton != null)
+            {
+                this.prevPageButton.interactable = (!this.isTransitioning
+                                                    && this.CurrentPageNumber > 1);
+            }
+            if(this.nextPageButton != null)
+            {
+                this.nextPageButton.interactable = (!this.isTransitioning
+                                                    && this.CurrentPageNumber < this.CurrentPageCount);
+            }
         }
 
         // ----------[ PAGE DISPLAY ]---------
