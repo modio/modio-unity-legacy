@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -307,6 +308,21 @@ namespace ModIO.UI
                 this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
                     = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
             }
+        }
+
+        public void FetchPage(int pageIndex,
+                              Action<RequestPage<ModProfile>> onSuccess,
+                              Action<WebRequestError> onError)
+        {
+            // PaginationParameters
+            APIPaginationParameters pagination = new APIPaginationParameters();
+            int pageSize = this.itemsPerPage;
+            pagination.limit = pageSize;
+            pagination.offset = pageIndex * pageSize;
+
+            // Send Request
+            APIClient.GetAllMods(this.m_requestFilter, pagination,
+                                 onSuccess, onError);
         }
 
         // ----------[ PAGE DISPLAY ]---------

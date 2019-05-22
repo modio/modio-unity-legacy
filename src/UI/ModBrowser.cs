@@ -399,24 +399,23 @@ namespace ModIO.UI
             };
             explorerView.currentPage = modPage;
 
-            RequestExplorerPage(0,
-                                (page) =>
-                                {
-                                    #if DEBUG
-                                    if(!Application.isPlaying)
-                                    {
-                                        return;
-                                    }
-                                    #endif
+            explorerView.FetchPage(0, (page) =>
+            {
+                #if DEBUG
+                if(!Application.isPlaying)
+                {
+                    return;
+                }
+                #endif
 
-                                    if(explorerView.currentPage == modPage)
-                                    {
-                                        explorerView.currentPage = page;
-                                        explorerView.UpdateCurrentPageDisplay();
-                                        UpdateExplorerViewPageButtonInteractibility();
-                                    }
-                                },
-                                null);
+                if(explorerView.currentPage == modPage)
+                {
+                    explorerView.currentPage = page;
+                    explorerView.UpdateCurrentPageDisplay();
+                    UpdateExplorerViewPageButtonInteractibility();
+                }
+            },
+            null);
 
             explorerView.targetPage = null;
 
@@ -1113,21 +1112,6 @@ namespace ModIO.UI
             {
                 return -1;
             }
-        }
-
-        public void RequestExplorerPage(int pageIndex,
-                                        Action<RequestPage<ModProfile>> onSuccess,
-                                        Action<WebRequestError> onError)
-        {
-            // PaginationParameters
-            APIPaginationParameters pagination = new APIPaginationParameters();
-            int pageSize = explorerView.itemsPerPage;
-            pagination.limit = pageSize;
-            pagination.offset = pageIndex * pageSize;
-
-            // Send Request
-            APIClient.GetAllMods(explorerView.m_requestFilter, pagination,
-                                 onSuccess, onError);
         }
 
         public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
@@ -2061,22 +2045,21 @@ namespace ModIO.UI
             explorerView.targetPage = targetPage;
             explorerView.UpdateTargetPageDisplay();
 
-            RequestExplorerPage(targetPageIndex,
-                                (page) =>
-                                {
-                                    if(explorerView.targetPage == targetPage)
-                                    {
-                                        explorerView.targetPage = page;
-                                        explorerView.UpdateTargetPageDisplay();
-                                    }
-                                    if(explorerView.currentPage == targetPage)
-                                    {
-                                        explorerView.currentPage = page;
-                                        explorerView.UpdateCurrentPageDisplay();
-                                        UpdateExplorerViewPageButtonInteractibility();
-                                    }
-                                },
-                                null);
+            explorerView.FetchPage(targetPageIndex, (page) =>
+            {
+                if(explorerView.targetPage == targetPage)
+                {
+                    explorerView.targetPage = page;
+                    explorerView.UpdateTargetPageDisplay();
+                }
+                if(explorerView.currentPage == targetPage)
+                {
+                    explorerView.currentPage = page;
+                    explorerView.UpdateCurrentPageDisplay();
+                    UpdateExplorerViewPageButtonInteractibility();
+                }
+            },
+            null);
 
             PageTransitionDirection transitionDirection = (direction < 0
                                                            ? PageTransitionDirection.FromLeft
@@ -2141,17 +2124,16 @@ namespace ModIO.UI
             };
             explorerView.currentPage = filteredPage;
 
-            RequestExplorerPage(0,
-                                (page) =>
-                                {
-                                    if(explorerView.currentPage == filteredPage)
-                                    {
-                                        explorerView.currentPage = page;
-                                        explorerView.UpdateCurrentPageDisplay();
-                                        UpdateExplorerViewPageButtonInteractibility();
-                                    }
-                                },
-                                null);
+            explorerView.FetchPage(0, (page) =>
+            {
+                if(explorerView.currentPage == filteredPage)
+                {
+                    explorerView.currentPage = page;
+                    explorerView.UpdateCurrentPageDisplay();
+                    UpdateExplorerViewPageButtonInteractibility();
+                }
+            },
+            null);
 
             // TODO(@jackson): Update Mod Count
             explorerView.UpdateCurrentPageDisplay();
@@ -2469,5 +2451,14 @@ namespace ModIO.UI
             DownloadClient.logAllRequests = debugAllAPIRequests;
         }
         #endif
+
+        // ---------[ OBSOLETE ]---------
+        [Obsolete("Use ExplorerView.FetchPage() instead.")]
+        public void RequestExplorerPage(int pageIndex,
+                                        Action<RequestPage<ModProfile>> onSuccess,
+                                        Action<WebRequestError> onError)
+        {
+            explorerView.FetchPage(pageIndex, onSuccess, onError);
+        }
     }
 }
