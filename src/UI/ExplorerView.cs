@@ -368,6 +368,62 @@ namespace ModIO.UI
             }
         }
 
+        public void ChangePage(int pageDifferential)
+        {
+            // TODO(@jackson): Queue on isTransitioning?
+            if(this.isTransitioning)
+            {
+                Debug.LogWarning("[mod.io] Cannot change during transition");
+                return;
+            }
+
+            int pageSize = this.itemsPerPage;
+            int targetPageIndex = this.CurrentPageNumber - 1 + pageDifferential;
+            int targetPageProfileOffset = targetPageIndex * pageSize;
+
+            Debug.Assert(targetPageIndex >= 0);
+            Debug.Assert(targetPageIndex < this.CurrentPageCount);
+
+            int pageItemCount = (int)Mathf.Min(pageSize,
+                                               this.currentPage.resultTotal - targetPageProfileOffset);
+
+            RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
+            {
+                size = pageSize,
+                items = new ModProfile[pageItemCount],
+                resultOffset = targetPageProfileOffset,
+                resultTotal = this.currentPage.resultTotal,
+            };
+            this.targetPage = targetPage;
+            this.UpdateTargetPageDisplay();
+
+            this.FetchPage(targetPageIndex, (page) =>
+            {
+                if(this.targetPage == targetPage)
+                {
+                    this.targetPage = page;
+                    this.UpdateTargetPageDisplay();
+                }
+                if(this.currentPage == targetPage)
+                {
+                    this.currentPage = page;
+                    this.UpdateCurrentPageDisplay();
+                    this.UpdatePageButtonInteractibility();
+                }
+            },
+            null);
+
+            PageTransitionDirection transitionDirection = (pageDifferential < 0
+                                                           ? PageTransitionDirection.FromLeft
+                                                           : PageTransitionDirection.FromRight);
+
+            this.InitiateTargetPageTransition(transitionDirection, () =>
+            {
+                this.UpdatePageButtonInteractibility();
+            });
+            this.UpdatePageButtonInteractibility();
+        }
+
         // ----------[ PAGE DISPLAY ]---------
         public void UpdateCurrentPageDisplay()
         {

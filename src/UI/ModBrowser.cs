@@ -2014,62 +2014,6 @@ namespace ModIO.UI
             }
         }
 
-        public void ChangeExplorerPage(int direction)
-        {
-            // TODO(@jackson): Queue on isTransitioning?
-            if(explorerView.isTransitioning)
-            {
-                Debug.LogWarning("[mod.io] Cannot change during transition");
-                return;
-            }
-
-            int pageSize = explorerView.itemsPerPage;
-            int targetPageIndex = explorerView.CurrentPageNumber - 1 + direction;
-            int targetPageProfileOffset = targetPageIndex * pageSize;
-
-            Debug.Assert(targetPageIndex >= 0);
-            Debug.Assert(targetPageIndex < explorerView.CurrentPageCount);
-
-            int pageItemCount = (int)Mathf.Min(pageSize,
-                                               explorerView.currentPage.resultTotal - targetPageProfileOffset);
-
-            RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
-            {
-                size = pageSize,
-                items = new ModProfile[pageItemCount],
-                resultOffset = targetPageProfileOffset,
-                resultTotal = explorerView.currentPage.resultTotal,
-            };
-            explorerView.targetPage = targetPage;
-            explorerView.UpdateTargetPageDisplay();
-
-            explorerView.FetchPage(targetPageIndex, (page) =>
-            {
-                if(explorerView.targetPage == targetPage)
-                {
-                    explorerView.targetPage = page;
-                    explorerView.UpdateTargetPageDisplay();
-                }
-                if(explorerView.currentPage == targetPage)
-                {
-                    explorerView.currentPage = page;
-                    explorerView.UpdateCurrentPageDisplay();
-                    explorerView.UpdatePageButtonInteractibility();
-                }
-            },
-            null);
-
-            PageTransitionDirection transitionDirection = (direction < 0
-                                                           ? PageTransitionDirection.FromLeft
-                                                           : PageTransitionDirection.FromRight);
-
-            explorerView.InitiateTargetPageTransition(transitionDirection, () =>
-            {
-                explorerView.UpdatePageButtonInteractibility();
-            });
-            explorerView.UpdatePageButtonInteractibility();
-        }
-
         public void InspectDiscoverItem(ModView view)
         {
             InspectMod(view.data.profile.modId);
@@ -2436,6 +2380,12 @@ namespace ModIO.UI
         public void UpdateExplorerFilters()
         {
             explorerView.UpdateFilter();
+        }
+
+        [Obsolete("Use ExplorerView.ChangePage() instead.")]
+        public void ChangeExplorerPage(int direction)
+        {
+            explorerView.ChangePage(direction);
         }
     }
 }
