@@ -21,7 +21,6 @@ namespace ModIO.UI
         public event Action<ModView> unsubscribeRequested;
         public event Action<ModView> enableModRequested;
         public event Action<ModView> disableModRequested;
-        public event Action onFilterTagsChanged;
 
         [Header("Settings")]
         public GameObject itemPrefab = null;
@@ -148,6 +147,20 @@ namespace ModIO.UI
                 this.m_requestFilter.sortFieldName = sortOption.fieldName;
                 this.m_requestFilter.isSortAscending = sortOption.isAscending;
             }
+
+            // - add listeners -
+            if(this.nameSearchField != null)
+            {
+                this.nameSearchField.onEndEdit.AddListener((t) =>
+                {
+                    this.UpdateFilter();
+                });
+            }
+
+            if(this.sortByDropdown != null)
+            {
+                this.sortByDropdown.dropdown.onValueChanged.AddListener((v) => this.UpdateFilter());
+            }
         }
 
         private void OnEnable()
@@ -236,10 +249,7 @@ namespace ModIO.UI
                         tagFilterBar.DisplayTags(filterTags, m_tagCategories);
                     }
 
-                    if(onFilterTagsChanged != null)
-                    {
-                        onFilterTagsChanged();
-                    }
+                    this.UpdateFilter();
                 };
                 tagFilterView.tagFilterRemoved += RemoveTag;
             }
@@ -266,10 +276,7 @@ namespace ModIO.UI
                 tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
             }
 
-            if(onFilterTagsChanged != null)
-            {
-                onFilterTagsChanged();
-            }
+            this.UpdateFilter();
         }
 
         // TODO(@jackson): Don't request page!!!!!!!
@@ -684,10 +691,7 @@ namespace ModIO.UI
                 tagFilterBar.gameObject.SetActive(false);
             }
 
-            if(onFilterTagsChanged != null)
-            {
-                onFilterTagsChanged();
-            }
+            this.UpdateFilter();
         }
 
         // ---------[ EVENTS ]---------

@@ -370,23 +370,7 @@ namespace ModIO.UI
             explorerView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
             explorerView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
-            // - setup ui filter controls -
-            if(explorerView.nameSearchField != null)
-            {
-                explorerView.nameSearchField.onEndEdit.AddListener((t) =>
-                {
-                    explorerView.UpdateFilter();
-                });
-            }
-
-            if(explorerView.sortByDropdown != null)
-            {
-                explorerView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => explorerView.UpdateFilter());
-            }
-
             // - setup filter -
-            explorerView.onFilterTagsChanged += () => explorerView.UpdateFilter();
-
             int pageSize = explorerView.itemsPerPage;
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
             {
