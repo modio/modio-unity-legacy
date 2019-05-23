@@ -371,41 +371,7 @@ namespace ModIO.UI
             explorerView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             // - setup filter -
-            int pageSize = explorerView.itemsPerPage;
-            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
-            {
-                size = pageSize,
-                items = new ModProfile[pageSize],
-                resultOffset = 0,
-                resultTotal = 0,
-            };
-            explorerView.currentPage = modPage;
-
-            explorerView.FetchPage(0, (page) =>
-            {
-                #if DEBUG
-                if(!Application.isPlaying)
-                {
-                    return;
-                }
-                #endif
-
-                if(explorerView.currentPage == modPage)
-                {
-                    explorerView.currentPage = page;
-                    explorerView.UpdateCurrentPageDisplay();
-                    explorerView.UpdatePageButtonInteractibility();
-                }
-            },
-            null);
-
-            explorerView.targetPage = null;
-
-            explorerView.UpdateCurrentPageDisplay();
             explorerView.gameObject.SetActive(true);
-
-            explorerView.UpdatePageButtonInteractibility();
-
             if(explorerViewIndicator != null)
             {
                 explorerViewIndicator.isOn = true;

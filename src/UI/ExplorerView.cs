@@ -161,6 +161,41 @@ namespace ModIO.UI
             {
                 this.sortByDropdown.dropdown.onValueChanged.AddListener((v) => this.UpdateFilter());
             }
+
+            // - perform initial fetch -
+            int pageSize = this.itemsPerPage;
+            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
+            {
+                size = pageSize,
+                items = new ModProfile[pageSize],
+                resultOffset = 0,
+                resultTotal = 0,
+            };
+            this.currentPage = modPage;
+            this.targetPage = null;
+
+            this.FetchPage(0, (page) =>
+            {
+                #if DEBUG
+                if(!Application.isPlaying)
+                {
+                    return;
+                }
+                #endif
+
+                if(this != null
+                   && this.currentPage == modPage)
+                {
+                    this.currentPage = page;
+                    this.UpdateCurrentPageDisplay();
+                    this.UpdatePageButtonInteractibility();
+                }
+            },
+            null);
+
+            this.UpdateCurrentPageDisplay();
+            this.UpdatePageButtonInteractibility();
+
         }
 
         private void OnEnable()
