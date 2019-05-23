@@ -362,8 +362,6 @@ namespace ModIO.UI
 
         private void InitializeExplorerView()
         {
-            explorerView.Initialize();
-
             explorerView.inspectRequested += InspectDiscoverItem;
             explorerView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
             explorerView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);

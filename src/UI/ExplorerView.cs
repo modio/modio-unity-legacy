@@ -136,7 +136,16 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
-            this.m_requestFilter = new RequestFilter();
+            Debug.Assert(itemPrefab != null);
+
+            RectTransform prefabTransform = itemPrefab.GetComponent<RectTransform>();
+            ModView prefabView = itemPrefab.GetComponent<ModView>();
+
+            Debug.Assert(prefabTransform != null
+                         && prefabView != null,
+                         "[mod.io] The ExplorerView.itemPrefab does not have the required "
+                         + "ModBrowserItem, ModView, and RectTransform components.\n"
+                         + "Please ensure these are all present.");
 
             // - set initial sort -
             if(this.sortByDropdown != null
@@ -162,6 +171,37 @@ namespace ModIO.UI
                 this.sortByDropdown.dropdown.onValueChanged.AddListener((v) => this.UpdateFilter());
             }
 
+            // - initialize nested views -
+            if(tagFilterView != null)
+            {
+                tagFilterView.Initialize();
+
+                tagFilterView.tagFilterAdded += (tag) =>
+                {
+                    filterTags.Add(tag);
+
+                    if(tagFilterBar != null)
+                    {
+                        tagFilterBar.gameObject.SetActive(true);
+                        tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+                    }
+
+                    this.UpdateFilter();
+                };
+                tagFilterView.tagFilterRemoved += RemoveTag;
+            }
+
+            if(tagFilterBar != null)
+            {
+                tagFilterBar.Initialize();
+                tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
+
+                tagFilterBar.tagClicked += (display) =>
+                {
+                    RemoveTag(display.data.tagName);
+                };
+            }
+
             // - perform initial fetch -
             int pageSize = this.itemsPerPage;
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -172,7 +212,6 @@ namespace ModIO.UI
                 resultTotal = 0,
             };
             this.currentPage = modPage;
-            this.targetPage = null;
 
             this.FetchPage(0, (page) =>
             {
@@ -253,52 +292,6 @@ namespace ModIO.UI
             }
 
             m_modViews.Clear();
-        }
-
-        public void Initialize()
-        {
-            Debug.Assert(itemPrefab != null);
-
-            RectTransform prefabTransform = itemPrefab.GetComponent<RectTransform>();
-            ModView prefabView = itemPrefab.GetComponent<ModView>();
-
-            Debug.Assert(prefabTransform != null
-                         && prefabView != null,
-                         "[mod.io] The ExplorerView.itemPrefab does not have the required "
-                         + "ModBrowserItem, ModView, and RectTransform components.\n"
-                         + "Please ensure these are all present.");
-
-
-            // - nested views -
-            if(tagFilterView != null)
-            {
-                tagFilterView.Initialize();
-
-                tagFilterView.tagFilterAdded += (tag) =>
-                {
-                    filterTags.Add(tag);
-
-                    if(tagFilterBar != null)
-                    {
-                        tagFilterBar.gameObject.SetActive(true);
-                        tagFilterBar.DisplayTags(filterTags, m_tagCategories);
-                    }
-
-                    this.UpdateFilter();
-                };
-                tagFilterView.tagFilterRemoved += RemoveTag;
-            }
-
-            if(tagFilterBar != null)
-            {
-                tagFilterBar.Initialize();
-                tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
-
-                tagFilterBar.tagClicked += (display) =>
-                {
-                    RemoveTag(display.data.tagName);
-                };
-            }
         }
 
         private void RemoveTag(string tag)
@@ -765,5 +758,9 @@ namespace ModIO.UI
                 disableModRequested(view);
             }
         }
+
+        // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer necessary. Initialization occurs in Start().")]
+        public void Initialize() {}
     }
 }
