@@ -2022,27 +2022,8 @@ namespace ModIO.UI
 
         private void UpdateViewSubscriptions()
         {
-            // - explorerView -
             explorerView.OnSubscriptionsUpdated();
-
-            // - subscriptionsView -
-            subscriptionsView.FetchProfiles(subscriptionsView.DisplayProfiles,
-                                         (requestError) =>
-                                         {
-                                            if(requestError.isAuthenticationInvalid)
-                                            {
-                                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                                           requestError.displayMessage);
-
-                                                m_validOAuthToken = false;
-                                            }
-                                            else
-                                            {
-                                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                                           "Failed to get subscription data from mod.io servers.\n"
-                                                                           + requestError.displayMessage);
-                                            }
-                                         });
+            subscriptionsView.OnSubscriptionsUpdated();
 
             // - inspectorView -
             if(inspectorView.profile != null)

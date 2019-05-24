@@ -309,6 +309,16 @@ namespace ModIO.UI
             }
         }
 
+        public void OnSubscriptionsUpdated()
+        {
+            FetchProfiles(this.DisplayProfiles, (requestError) =>
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           "Failed to get subscription data from mod.io servers.\n"
+                                           + requestError.displayMessage);
+            });
+        }
+
         // ---------[ OBSOLETE ]---------
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
