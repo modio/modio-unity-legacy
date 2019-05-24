@@ -32,7 +32,7 @@ namespace ModIO.UI
         }
 
         [Serializable]
-        private struct SubscriptionViewFilter
+        public struct SubscriptionViewFilter
         {
             public Func<ModProfile, bool> titleFilterDelegate;
             public Comparison<ModProfile> sortDelegate;
@@ -88,7 +88,6 @@ namespace ModIO.UI
         private List<SimpleRating> m_userRatings = new List<SimpleRating>();
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
-        private SubscriptionViewFilter subscriptionViewFilter = new SubscriptionViewFilter();
         private Coroutine m_updatesCoroutine = null;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
@@ -251,7 +250,7 @@ namespace ModIO.UI
             subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             // - setup filter controls -
-            subscriptionViewFilter.titleFilterDelegate = (p) => true;
+            subscriptionsView.filter.titleFilterDelegate = (p) => true;
             if(subscriptionsView.nameSearchField != null)
             {
                 subscriptionsView.nameSearchField.onValueChanged.AddListener((t) => UpdateSubscriptionFilters());
@@ -260,14 +259,14 @@ namespace ModIO.UI
                 string filterString = subscriptionsView.nameSearchField.text.ToUpper();
                 if(!String.IsNullOrEmpty(filterString))
                 {
-                    subscriptionViewFilter.titleFilterDelegate = (p) =>
+                    subscriptionsView.filter.titleFilterDelegate = (p) =>
                     {
                         return p.name.ToUpper().Contains(filterString);
                     };
                 }
             }
 
-            subscriptionViewFilter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
+            subscriptionsView.filter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
             if(subscriptionsView.sortByDropdown != null)
             {
                 subscriptionsView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => UpdateSubscriptionFilters());
@@ -276,7 +275,7 @@ namespace ModIO.UI
                 Comparison<ModProfile> sortFunc = subscriptionsView.sortByDropdown.GetSelectedSortFunction();
                 if(sortFunc != null)
                 {
-                    subscriptionViewFilter.sortDelegate = sortFunc;
+                    subscriptionsView.filter.sortDelegate = sortFunc;
                 }
             }
 
@@ -1002,25 +1001,25 @@ namespace ModIO.UI
                                                  Action<WebRequestError> onError)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-            SubscriptionViewFilter currentFilter = this.subscriptionViewFilter;
+            SubscriptionViewFilter currentFilter = this.subscriptionsView.filter;
 
             if(subscribedModIds.Count > 0)
             {
                 Action<List<ModProfile>> onGetModProfiles = (list) =>
                 {
                     // ensure it's still the same filter
-                    if(!currentFilter.Equals(this.subscriptionViewFilter)) { return; }
+                    if(!currentFilter.Equals(this.subscriptionsView.filter)) { return; }
 
                     List<ModProfile> filteredList = new List<ModProfile>(list.Count);
                     foreach(ModProfile profile in list)
                     {
-                        if(subscriptionViewFilter.titleFilterDelegate(profile))
+                        if(subscriptionsView.filter.titleFilterDelegate(profile))
                         {
                             filteredList.Add(profile);
                         }
                     }
 
-                    filteredList.Sort(this.subscriptionViewFilter.sortDelegate);
+                    filteredList.Sort(this.subscriptionsView.filter.sortDelegate);
 
                     onSuccess(filteredList);
                 };
@@ -1925,27 +1924,27 @@ namespace ModIO.UI
         public void UpdateSubscriptionFilters()
         {
             // filter
-            subscriptionViewFilter.titleFilterDelegate = (p) => true;
+            subscriptionsView.filter.titleFilterDelegate = (p) => true;
             if(subscriptionsView.nameSearchField != null
                && !String.IsNullOrEmpty(subscriptionsView.nameSearchField.text))
             {
                 // set initial value
                 string filterString = subscriptionsView.nameSearchField.text.ToUpper();
-                subscriptionViewFilter.titleFilterDelegate = (p) =>
+                subscriptionsView.filter.titleFilterDelegate = (p) =>
                 {
                     return p.name.ToUpper().Contains(filterString);
                 };
             }
 
             // sort
-            subscriptionViewFilter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
+            subscriptionsView.filter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
             if(subscriptionsView.sortByDropdown != null)
             {
                 // set initial value
                 Comparison<ModProfile> sortFunc = subscriptionsView.sortByDropdown.GetSelectedSortFunction();
                 if(sortFunc != null)
                 {
-                    subscriptionViewFilter.sortDelegate = sortFunc;
+                    subscriptionsView.filter.sortDelegate = sortFunc;
                 }
             }
 

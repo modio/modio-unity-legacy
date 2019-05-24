@@ -32,11 +32,13 @@ namespace ModIO.UI
         [Tooltip("Object to display when there are zero filtered results")]
         public GameObject noResultsDisplay;
 
-        [Header("Runtime Data")]
+        // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
 
         // --- TEMP ---
         public IEnumerable<ModTagCategory> tagCategories { get; set; }
+        // TODO(@jackson): Remove
+        public ModBrowser.SubscriptionViewFilter filter = new ModBrowser.SubscriptionViewFilter();
 
         // --- ACCESSORS ---
         public IEnumerable<ModView> modViews
