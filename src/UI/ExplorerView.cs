@@ -67,30 +67,6 @@ namespace ModIO.UI
                 return UIUtilities.CountVisibleGridCells(this.gridLayout);
             }
         }
-        public IEnumerable<ModTagCategory> tagCategories
-        {
-            get { return m_tagCategories; }
-            set
-            {
-                if(m_tagCategories == value)
-                {
-                    return;
-                }
-
-                m_tagCategories = value;
-                if(value == null) { return; }
-
-                if(tagFilterView != null)
-                {
-                    tagFilterView.tagCategories = value;
-                }
-                if(tagFilterBar != null)
-                {
-                    tagFilterBar.DisplayTags(filterTags, value);
-                    tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
-                }
-            }
-        }
         public IEnumerable<ModView> modViews
         {
             get
@@ -756,6 +732,24 @@ namespace ModIO.UI
             if(disableModRequested != null)
             {
                 disableModRequested(view);
+            }
+        }
+
+        public void OnGameProfileUpdated(GameProfile gameProfile)
+        {
+            if(this.m_tagCategories != gameProfile.tagCategories)
+            {
+                this.m_tagCategories = gameProfile.tagCategories;
+
+                if(tagFilterView != null)
+                {
+                    tagFilterView.tagCategories = this.m_tagCategories;
+                }
+                if(tagFilterBar != null)
+                {
+                    tagFilterBar.DisplayTags(filterTags, this.m_tagCategories);
+                    tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
+                }
             }
         }
 

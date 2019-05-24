@@ -478,7 +478,11 @@ namespace ModIO.UI
                 (g) =>
                 {
                     m_gameProfile = g;
-                    explorerView.tagCategories = g.tagCategories;
+                    if(explorerView != null)
+                    {
+                        explorerView.OnGameProfileUpdated(g);
+                    }
+
                     subscriptionsView.tagCategories = g.tagCategories;
                     inspectorView.tagCategories = g.tagCategories;
 
