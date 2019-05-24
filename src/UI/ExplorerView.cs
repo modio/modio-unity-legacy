@@ -210,7 +210,6 @@ namespace ModIO.UI
 
             this.UpdateCurrentPageDisplay();
             this.UpdatePageButtonInteractibility();
-
         }
 
         private void OnEnable()

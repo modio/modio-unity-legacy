@@ -695,7 +695,6 @@ namespace ModIO
             }
         }
 
-
         // ---------[ GAME PROFILE ]---------
         /// <summary>Fetches and caches the Game Profile (if not already cached).</summary>
         public static void GetGameProfile(Action<GameProfile> onSuccess,

@@ -241,8 +241,8 @@ namespace ModIO.UI
             subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             // - setup filter controls -
-            subscriptionsView.nameSearchField.onValueChanged.AddListener((t) => UpdateSubscriptionFilters());
-            subscriptionsView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => UpdateSubscriptionFilters());
+            subscriptionsView.nameSearchField.onValueChanged.AddListener((t) => subscriptionsView.UpdateFilter());
+            subscriptionsView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => subscriptionsView.UpdateFilter());
             subscriptionsView.UpdateFilter();
 
             // get page
@@ -1852,30 +1852,6 @@ namespace ModIO.UI
             loginDialog.gameObject.SetActive(false);
         }
 
-        public void UpdateSubscriptionFilters()
-        {
-            subscriptionsView.UpdateFilter();
-
-            // request page
-            subscriptionsView.FetchProfiles(subscriptionsView.DisplayProfiles,
-                                         (requestError) =>
-                                         {
-                                            if(requestError.isAuthenticationInvalid)
-                                            {
-                                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                                           requestError.displayMessage);
-
-                                                m_validOAuthToken = false;
-                                            }
-                                            else
-                                            {
-                                                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                                           "Failed to get subscription data from mod.io servers.\n"
-                                                                           + requestError.displayMessage);
-                                            }
-                                         });
-        }
-
         // ---------[ ENABLE/SUBSCRIBE MODS ]---------
         public void SubscribeToMod(int modId)
         {
@@ -2191,6 +2167,12 @@ namespace ModIO.UI
                                                  Action<WebRequestError> onError)
         {
             subscriptionsView.FetchProfiles(onSuccess, onError);
+        }
+
+        [Obsolete("User SubscriptionsView.UpdateFilter() instead.")]
+        public void UpdateSubscriptionFilters()
+        {
+            subscriptionsView.UpdateFilter();
         }
     }
 }

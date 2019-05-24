@@ -91,6 +91,14 @@ namespace ModIO.UI
                     this.sortDelegate = sortFunc;
                 }
             }
+
+            // request page
+            FetchProfiles(this.DisplayProfiles, (requestError) =>
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           "Failed to get subscription data from mod.io servers.\n"
+                                           + requestError.displayMessage);
+            });
         }
 
         public void FetchProfiles(Action<List<ModProfile>> onSuccess,
