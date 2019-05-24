@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
+using System.Linq;
+
 namespace ModIO.UI
 {
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
@@ -61,6 +63,34 @@ namespace ModIO.UI
                          "[mod.io] The SubscriptionView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
+        }
+
+        public void UpdateFilter()
+        {
+            // filter
+            this.filter.titleFilterDelegate = (p) => true;
+            if(this.nameSearchField != null
+               && !String.IsNullOrEmpty(this.nameSearchField.text))
+            {
+                // set initial value
+                string filterString = this.nameSearchField.text.ToUpper();
+                this.filter.titleFilterDelegate = (p) =>
+                {
+                    return p.name.ToUpper().Contains(filterString);
+                };
+            }
+
+            // sort
+            this.filter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
+            if(this.sortByDropdown != null)
+            {
+                // set initial value
+                Comparison<ModProfile> sortFunc = this.sortByDropdown.GetSelectedSortFunction();
+                if(sortFunc != null)
+                {
+                    this.filter.sortDelegate = sortFunc;
+                }
+            }
         }
 
         // ---------[ UI FUNCTIONALITY ]------------
