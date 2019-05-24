@@ -7,8 +7,8 @@ using UnityEditor;
 
 namespace ModIO.UI.Editor
 {
-    [CustomPropertyDrawer(typeof(SortByDropdownController.FieldSelectAttribute))]
-    public class SortByDropdownFieldSelectDrawer : UnityEditor.PropertyDrawer
+    [CustomPropertyDrawer(typeof(ExplorerSortDropdownController.FieldSelectAttribute))]
+    public class ExplorerSortDropdownFieldSelectDrawer : UnityEditor.PropertyDrawer
     {
         // ---------[ NESTED DATA-TYPES ]---------
         private struct FieldData
@@ -37,7 +37,7 @@ namespace ModIO.UI.Editor
                 dataList.Add(data);
             }
 
-            SortByDropdownFieldSelectDrawer.fieldData = dataList.ToArray();
+            ExplorerSortDropdownFieldSelectDrawer.fieldData = dataList.ToArray();
 
             // load guicontent
             GUIContent[] content = new GUIContent[dataList.Count];
@@ -48,7 +48,7 @@ namespace ModIO.UI.Editor
                     text = dataList[i].fieldName,
                 };
             }
-            SortByDropdownFieldSelectDrawer.popupOptions = content;
+            ExplorerSortDropdownFieldSelectDrawer.popupOptions = content;
         }
 
         // ---------[ GUI FUNCTIONALITY ]---------
@@ -56,7 +56,7 @@ namespace ModIO.UI.Editor
         {
             if(fieldData == null)
             {
-                SortByDropdownFieldSelectDrawer.LoadStaticData();
+                ExplorerSortDropdownFieldSelectDrawer.LoadStaticData();
             }
 
             string currentValue = property.stringValue;

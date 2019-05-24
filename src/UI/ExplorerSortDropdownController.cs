@@ -7,7 +7,7 @@ namespace ModIO.UI
 {
     /// <summary>Controls the options for a dropdown based on request sort options.</summary>
     [RequireComponent(typeof(Dropdown))]
-    public class SortByDropdownController : MonoBehaviour
+    public class ExplorerSortDropdownController : MonoBehaviour
     {
         // ---------[ NESTED DATA ]---------
         /// <summary>Attribute for facilitating inspector display.</summary>
@@ -61,7 +61,7 @@ namespace ModIO.UI
         // ---------[ EVENTS ]---------
         #if UNITY_EDITOR
         // BUG(@jackson): There's something that needs to be done here with serialization
-        // potentially - starting the application loads this late if unsaved?
+        // potentially - the dropdown seems to load the option data late?
         /// <summary>Fills the Dropdown options with the supplied data.</summary>
         private void OnValidate()
         {

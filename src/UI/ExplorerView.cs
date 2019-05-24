@@ -32,7 +32,7 @@ namespace ModIO.UI
         public InputField nameSearchField;
         public ModTagFilterView tagFilterView;
         public ModTagContainer tagFilterBar;
-        public SortByDropdownController sortByDropdown;
+        public ExplorerSortDropdownController sortByDropdown;
         public Button prevPageButton;
         public Button nextPageButton;
         public Text pageNumberText;
@@ -128,7 +128,7 @@ namespace ModIO.UI
                && this.sortByDropdown.options != null
                && this.sortByDropdown.options.Length > 0)
             {
-                SortByDropdownController.OptionData sortOption = this.sortByDropdown.options[0];
+                ExplorerSortDropdownController.OptionData sortOption = this.sortByDropdown.options[0];
                 this.m_requestFilter.sortFieldName = sortOption.fieldName;
                 this.m_requestFilter.isSortAscending = sortOption.isAscending;
             }
