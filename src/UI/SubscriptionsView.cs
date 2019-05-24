@@ -25,7 +25,7 @@ namespace ModIO.UI
         [Header("UI Components")]
         public ScrollRect scrollView;
         public InputField nameSearchField;
-        public Dropdown sortByDropdown;
+        public SubscriptionSortDropdownController sortByDropdown;
         public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noSubscriptionsDisplay;

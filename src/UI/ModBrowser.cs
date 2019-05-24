@@ -45,71 +45,6 @@ namespace ModIO.UI
         /// <summary>Number of seconds between update polls.</summary>
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
 
-        private delegate void SetFilterValuesDelegate(ref RequestFilter filter);
-        private readonly Dictionary<string, Comparison<ModProfile>> m_subscriptionSortOptions = new Dictionary<string, Comparison<ModProfile>>()
-        {
-            {
-                "A-Z", (a,b) =>
-                {
-                    int compareResult = String.Compare(a.name, b.name);
-                    if(compareResult == 0)
-                    {
-                        compareResult = a.id - b.id;
-                    }
-                    return compareResult;
-                }
-            },
-            {
-                "LARGEST", (a,b) =>
-                {
-                    int compareResult = (int)(b.currentBuild.fileSize - a.currentBuild.fileSize);
-                    if(compareResult == 0)
-                    {
-                        compareResult = String.Compare(a.name, b.name);
-                        if(compareResult == 0)
-                        {
-                            compareResult = a.id - b.id;
-                        }
-                    }
-                    return compareResult;
-                }
-            },
-            {
-                "UPDATED", (a,b) =>
-                {
-                    int compareResult = b.dateUpdated - a.dateUpdated;
-                    if(compareResult == 0)
-                    {
-                        compareResult = String.Compare(a.name, b.name);
-                        if(compareResult == 0)
-                        {
-                            compareResult = a.id - b.id;
-                        }
-                    }
-                    return compareResult;
-                }
-            },
-            {
-                "ENABLED", (a,b) =>
-                {
-                    int compareResult = 0;
-                    compareResult += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
-                    compareResult += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
-
-                    if(compareResult == 0)
-                    {
-                        compareResult = String.Compare(a.name, b.name);
-                        if(compareResult == 0)
-                        {
-                            compareResult = a.id - b.id;
-                        }
-                    }
-
-                    return compareResult;
-                }
-            },
-        };
-
         // ---------[ FIELDS ]---------
         [Tooltip("Debug All API Requests")]
         public bool debugAllAPIRequests = false;
@@ -332,15 +267,14 @@ namespace ModIO.UI
                 }
             }
 
-            subscriptionViewFilter.sortDelegate = m_subscriptionSortOptions.First().Value;
+            subscriptionViewFilter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
             if(subscriptionsView.sortByDropdown != null)
             {
-                subscriptionsView.sortByDropdown.onValueChanged.AddListener((v) => UpdateSubscriptionFilters());
+                subscriptionsView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => UpdateSubscriptionFilters());
 
                 // set initial value
-                string sortSelected = subscriptionsView.sortByDropdown.options[subscriptionsView.sortByDropdown.value].text.ToUpper();
-                Comparison<ModProfile> sortFunc = null;
-                if(m_subscriptionSortOptions.TryGetValue(sortSelected, out sortFunc))
+                Comparison<ModProfile> sortFunc = subscriptionsView.sortByDropdown.GetSelectedSortFunction();
+                if(sortFunc != null)
                 {
                     subscriptionViewFilter.sortDelegate = sortFunc;
                 }
@@ -2004,19 +1938,14 @@ namespace ModIO.UI
             }
 
             // sort
-            subscriptionViewFilter.sortDelegate = m_subscriptionSortOptions.First().Value;
+            subscriptionViewFilter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
             if(subscriptionsView.sortByDropdown != null)
             {
                 // set initial value
-                string sortSelected = subscriptionsView.sortByDropdown.options[subscriptionsView.sortByDropdown.value].text.ToUpper();
-                Comparison<ModProfile> sortFunc = null;
-                if(m_subscriptionSortOptions.TryGetValue(sortSelected, out sortFunc))
+                Comparison<ModProfile> sortFunc = subscriptionsView.sortByDropdown.GetSelectedSortFunction();
+                if(sortFunc != null)
                 {
                     subscriptionViewFilter.sortDelegate = sortFunc;
-                }
-                else
-                {
-                    Debug.LogWarning("[mod.io] No sort method found matching the selected dropdown option of \'" + sortSelected + "\'");
                 }
             }
 
