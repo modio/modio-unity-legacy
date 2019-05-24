@@ -31,12 +31,6 @@ namespace ModIO.UI
             public List<int> queuedSubscribes;
         }
 
-        public struct SubscriptionViewFilter
-        {
-            public Func<ModProfile, bool> titleFilterDelegate;
-            public Comparison<ModProfile> sortDelegate;
-        }
-
         // ---------[ CONST & STATIC ]---------
         /// <summary>File name used to store the browser manifest.</summary>
         public const string MANIFEST_FILENAME = "browser_manifest.data";
@@ -975,25 +969,31 @@ namespace ModIO.UI
                                                  Action<WebRequestError> onError)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-            SubscriptionViewFilter currentFilter = this.subscriptionsView.filter;
+
+            Func<ModProfile, bool> titleFilterDelegate = subscriptionsView.titleFilterDelegate;
+            Comparison<ModProfile> sortDelegate = subscriptionsView.sortDelegate;
 
             if(subscribedModIds.Count > 0)
             {
                 Action<List<ModProfile>> onGetModProfiles = (list) =>
                 {
                     // ensure it's still the same filter
-                    if(!currentFilter.Equals(this.subscriptionsView.filter)) { return; }
+                    if(titleFilterDelegate != subscriptionsView.titleFilterDelegate
+                       || sortDelegate != subscriptionsView.sortDelegate)
+                    {
+                        return;
+                    }
 
                     List<ModProfile> filteredList = new List<ModProfile>(list.Count);
                     foreach(ModProfile profile in list)
                     {
-                        if(subscriptionsView.filter.titleFilterDelegate(profile))
+                        if(titleFilterDelegate(profile))
                         {
                             filteredList.Add(profile);
                         }
                     }
 
-                    filteredList.Sort(this.subscriptionsView.filter.sortDelegate);
+                    filteredList.Sort(sortDelegate);
 
                     onSuccess(filteredList);
                 };
@@ -2218,5 +2218,15 @@ namespace ModIO.UI
         {
             explorerView.ChangePage(direction);
         }
+
+        [Obsolete]
+        public struct SubscriptionViewFilter
+        {
+            public Func<ModProfile, bool> titleFilterDelegate;
+            public Comparison<ModProfile> sortDelegate;
+        }
+
+        [Obsolete]
+        public SubscriptionViewFilter subscriptionViewFilter;
     }
 }

@@ -36,11 +36,11 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
+        public Func<ModProfile, bool> titleFilterDelegate = (p) => true;
+        public Comparison<ModProfile> sortDelegate = (a,b) => a.id - b.id;
 
         // --- TEMP ---
         public IEnumerable<ModTagCategory> tagCategories { get; set; }
-        // TODO(@jackson): Remove
-        public ModBrowser.SubscriptionViewFilter filter = new ModBrowser.SubscriptionViewFilter();
 
         // --- ACCESSORS ---
         public IEnumerable<ModView> modViews
@@ -68,27 +68,27 @@ namespace ModIO.UI
         public void UpdateFilter()
         {
             // filter
-            this.filter.titleFilterDelegate = (p) => true;
+            this.titleFilterDelegate = (p) => true;
             if(this.nameSearchField != null
                && !String.IsNullOrEmpty(this.nameSearchField.text))
             {
                 // set initial value
                 string filterString = this.nameSearchField.text.ToUpper();
-                this.filter.titleFilterDelegate = (p) =>
+                this.titleFilterDelegate = (p) =>
                 {
                     return p.name.ToUpper().Contains(filterString);
                 };
             }
 
             // sort
-            this.filter.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
+            this.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
             if(this.sortByDropdown != null)
             {
                 // set initial value
                 Comparison<ModProfile> sortFunc = this.sortByDropdown.GetSelectedSortFunction();
                 if(sortFunc != null)
                 {
-                    this.filter.sortDelegate = sortFunc;
+                    this.sortDelegate = sortFunc;
                 }
             }
         }
