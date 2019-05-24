@@ -250,8 +250,8 @@ namespace ModIO.UI
             // get page
             subscriptionsView.DisplayProfiles(null);
 
-            RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
-                                         WebRequestError.LogAsWarning);
+            subscriptionsView.FetchProfiles(subscriptionsView.DisplayProfiles,
+                                            WebRequestError.LogAsWarning);
 
             subscriptionsView.gameObject.SetActive(false);
 
@@ -962,47 +962,6 @@ namespace ModIO.UI
             else
             {
                 return -1;
-            }
-        }
-
-        public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
-                                                 Action<WebRequestError> onError)
-        {
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-
-            Func<ModProfile, bool> titleFilterDelegate = subscriptionsView.titleFilterDelegate;
-            Comparison<ModProfile> sortDelegate = subscriptionsView.sortDelegate;
-
-            if(subscribedModIds.Count > 0)
-            {
-                Action<List<ModProfile>> onGetModProfiles = (list) =>
-                {
-                    // ensure it's still the same filter
-                    if(titleFilterDelegate != subscriptionsView.titleFilterDelegate
-                       || sortDelegate != subscriptionsView.sortDelegate)
-                    {
-                        return;
-                    }
-
-                    List<ModProfile> filteredList = new List<ModProfile>(list.Count);
-                    foreach(ModProfile profile in list)
-                    {
-                        if(titleFilterDelegate(profile))
-                        {
-                            filteredList.Add(profile);
-                        }
-                    }
-
-                    filteredList.Sort(sortDelegate);
-
-                    onSuccess(filteredList);
-                };
-
-                ModManager.GetModProfiles(subscribedModIds, onGetModProfiles, onError);
-            }
-            else
-            {
-                onSuccess(new List<ModProfile>(0));
             }
         }
 
@@ -1900,7 +1859,7 @@ namespace ModIO.UI
             subscriptionsView.UpdateFilter();
 
             // request page
-            RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
+            subscriptionsView.FetchProfiles(subscriptionsView.DisplayProfiles,
                                          (requestError) =>
                                          {
                                             if(requestError.isAuthenticationInvalid)
@@ -2088,7 +2047,7 @@ namespace ModIO.UI
             explorerView.OnSubscriptionsUpdated();
 
             // - subscriptionsView -
-            RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
+            subscriptionsView.FetchProfiles(subscriptionsView.DisplayProfiles,
                                          (requestError) =>
                                          {
                                             if(requestError.isAuthenticationInvalid)
@@ -2228,5 +2187,12 @@ namespace ModIO.UI
 
         [Obsolete]
         public SubscriptionViewFilter subscriptionViewFilter;
+
+        [Obsolete("Use SubscriptionsView.FetchProfiles() instead.")]
+        public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
+                                                 Action<WebRequestError> onError)
+        {
+            subscriptionsView.FetchProfiles(onSuccess, onError);
+        }
     }
 }

@@ -93,6 +93,47 @@ namespace ModIO.UI
             }
         }
 
+        public void FetchProfiles(Action<List<ModProfile>> onSuccess,
+                                  Action<WebRequestError> onError)
+        {
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
+            Func<ModProfile, bool> titleFilterDelegate = this.titleFilterDelegate;
+            Comparison<ModProfile> sortDelegate = this.sortDelegate;
+
+            if(subscribedModIds.Count > 0)
+            {
+                Action<List<ModProfile>> onGetModProfiles = (list) =>
+                {
+                    // ensure it's still the same filter
+                    if(titleFilterDelegate != this.titleFilterDelegate
+                       || sortDelegate != this.sortDelegate)
+                    {
+                        return;
+                    }
+
+                    List<ModProfile> filteredList = new List<ModProfile>(list.Count);
+                    foreach(ModProfile profile in list)
+                    {
+                        if(titleFilterDelegate(profile))
+                        {
+                            filteredList.Add(profile);
+                        }
+                    }
+
+                    filteredList.Sort(sortDelegate);
+
+                    onSuccess(filteredList);
+                };
+
+                ModManager.GetModProfiles(subscribedModIds, onGetModProfiles, onError);
+            }
+            else
+            {
+                onSuccess(new List<ModProfile>(0));
+            }
+        }
+
         // ---------[ UI FUNCTIONALITY ]------------
         public void DisplayProfiles(IEnumerable<ModProfile> profileCollection)
         {
