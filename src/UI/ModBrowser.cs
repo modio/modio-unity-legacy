@@ -368,8 +368,11 @@ namespace ModIO.UI
                     {
                         explorerView.OnGameProfileUpdated(g);
                     }
+                    if(subscriptionsView != null)
+                    {
+                        subscriptionsView.OnGameProfileUpdated(g);
+                    }
 
-                    subscriptionsView.tagCategories = g.tagCategories;
                     inspectorView.tagCategories = g.tagCategories;
 
                     succeeded = true;

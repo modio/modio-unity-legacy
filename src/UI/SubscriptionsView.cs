@@ -36,11 +36,9 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
+        private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
         public Func<ModProfile, bool> titleFilterDelegate = (p) => true;
         public Comparison<ModProfile> sortDelegate = (a,b) => a.id - b.id;
-
-        // --- TEMP ---
-        public IEnumerable<ModTagCategory> tagCategories { get; set; }
 
         // --- ACCESSORS ---
         public IEnumerable<ModView> modViews
@@ -215,7 +213,7 @@ namespace ModIO.UI
                     // display mod
                     view.DisplayMod(orderedProfileList[i],
                                     null,
-                                    tagCategories,
+                                    this.m_tagCategories,
                                     true, // assume subscribed
                                     enabledMods.Contains(profile.id));
 
@@ -300,6 +298,14 @@ namespace ModIO.UI
             if(disableModRequested != null)
             {
                 disableModRequested(view);
+            }
+        }
+
+        public void OnGameProfileUpdated(GameProfile gameProfile)
+        {
+            if(this.m_tagCategories != gameProfile.tagCategories)
+            {
+                this.m_tagCategories = gameProfile.tagCategories;
             }
         }
 
