@@ -240,19 +240,7 @@ namespace ModIO.UI
             subscriptionsView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
             subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
-            // - setup filter controls -
-            subscriptionsView.nameSearchField.onValueChanged.AddListener((t) => subscriptionsView.UpdateFilter());
-            subscriptionsView.sortByDropdown.dropdown.onValueChanged.AddListener((v) => subscriptionsView.UpdateFilter());
-            subscriptionsView.UpdateFilter();
-
-            // get page
-            subscriptionsView.DisplayProfiles(null);
-
-            subscriptionsView.FetchProfiles(subscriptionsView.DisplayProfiles,
-                                            WebRequestError.LogAsWarning);
-
             subscriptionsView.gameObject.SetActive(false);
-
             if(subscriptionsViewIndicator != null)
             {
                 subscriptionsViewIndicator.isOn = false;
@@ -267,7 +255,6 @@ namespace ModIO.UI
             explorerView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
             explorerView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
-            // - setup filter -
             explorerView.gameObject.SetActive(true);
             if(explorerViewIndicator != null)
             {

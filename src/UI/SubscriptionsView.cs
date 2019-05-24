@@ -63,6 +63,16 @@ namespace ModIO.UI
                          "[mod.io] The SubscriptionView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
+
+            // - setup filter controls -
+            this.nameSearchField.onValueChanged.AddListener((t) => this.UpdateFilter());
+            this.sortByDropdown.dropdown.onValueChanged.AddListener((v) => this.UpdateFilter());
+            this.UpdateFilter();
+
+            // get page
+            this.DisplayProfiles(null);
+
+            this.FetchProfiles(this.DisplayProfiles, WebRequestError.LogAsWarning);
         }
 
         public void UpdateFilter()
