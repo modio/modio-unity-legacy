@@ -480,23 +480,6 @@ namespace ModIO.UI
             DisplayProfiles(this.targetPage.items, this.targetPageContainer);
         }
 
-        public void UpdateSubscriptionsDisplay()
-        {
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-
-            foreach(ModView view in m_modViews)
-            {
-                ModDisplayData modData = view.data;
-                bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
-
-                if(modData.isSubscribed != isSubscribed)
-                {
-                    modData.isSubscribed = isSubscribed;
-                    view.data = modData;
-                }
-            }
-        }
-
         private void DisplayProfiles(IEnumerable<ModProfile> profileCollection, RectTransform pageTransform)
         {
             #if DEBUG
@@ -749,6 +732,23 @@ namespace ModIO.UI
                 {
                     tagFilterBar.DisplayTags(filterTags, this.m_tagCategories);
                     tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
+                }
+            }
+        }
+
+        public void OnSubscriptionsUpdated()
+        {
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
+            foreach(ModView view in m_modViews)
+            {
+                ModDisplayData modData = view.data;
+                bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
+
+                if(modData.isSubscribed != isSubscribed)
+                {
+                    modData.isSubscribed = isSubscribed;
+                    view.data = modData;
                 }
             }
         }

@@ -2206,7 +2206,7 @@ namespace ModIO.UI
         private void UpdateViewSubscriptions()
         {
             // - explorerView -
-            explorerView.UpdateSubscriptionsDisplay();
+            explorerView.OnSubscriptionsUpdated();
 
             // - subscriptionsView -
             RequestSubscribedModProfiles(subscriptionsView.DisplayProfiles,
