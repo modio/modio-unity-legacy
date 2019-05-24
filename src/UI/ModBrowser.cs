@@ -856,56 +856,71 @@ namespace ModIO.UI
         private void VerifySubscriptionInstallations()
         {
             var subscribedModIds = ModManager.GetSubscribedModIds();
-            var installedModVersions = ModManager.GetInstalledModVersions(false);
+            IList<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
+            Dictionary<int, List<int>> groupedIds = new Dictionary<int, List<int>>();
 
+            // remove unsubbed mods
             foreach(ModfileIdPair idPair in installedModVersions)
             {
                 if(!subscribedModIds.Contains(idPair.modId))
                 {
                     ModManager.TryUninstallAllModVersions(idPair.modId);
                 }
+                else
+                {
+                    List<int> modfileIds = null;
+                    if(!groupedIds.TryGetValue(idPair.modId, out modfileIds))
+                    {
+                        modfileIds = new List<int>();
+                        groupedIds.Add(idPair.modId, modfileIds);
+                    }
+
+                    modfileIds.Add(idPair.modfileId);
+                }
             }
 
+            // assert subbed mod installs
             foreach(int modId in subscribedModIds)
             {
                 ModProfile profile = CacheClient.LoadModProfile(modId);
 
                 if(profile == null)
                 {
-                    Debug.LogWarning("[mod.io] Subscribed mod profile not found in cache. (Id: " + modId + ")");
-                    ModManager.GetModProfile(modId, null, null);
+                    ModManager.GetModProfile(modId, (p) => AssertInstalledLatest(p, groupedIds[modId]), null);
                 }
                 else
                 {
-                    bool isInstalled = false;
-                    List<ModfileIdPair> wrongVersions = new List<ModfileIdPair>();
-                    foreach(ModfileIdPair idPair in installedModVersions)
-                    {
-                        if(idPair.modId == profile.id)
-                        {
-                            if(idPair.modfileId == profile.currentBuild.id)
-                            {
-                                isInstalled = true;
-                            }
-                            else if(!wrongVersions.Contains(idPair))
-                            {
-                                wrongVersions.Add(idPair);
-                            }
-                        }
-                    }
+                    AssertInstalledLatest(profile, groupedIds[modId]);
+                }
+            }
+        }
 
-                    if(!isInstalled)
-                    {
-                        this.StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
-                    }
-                    // isInstalled &&
-                    else if(wrongVersions.Count > 0)
-                    {
-                        foreach(ModfileIdPair idPair in wrongVersions)
-                        {
-                            ModManager.TryUninstallModVersion(idPair.modId, idPair.modfileId);
-                        }
-                    }
+        private void AssertInstalledLatest(ModProfile profile, List<int> installedIds)
+        {
+            bool isInstalled = false;
+            List<int> wrongVersions = new List<int>();
+            foreach(int modfileId in installedIds)
+            {
+                if(modfileId == profile.currentBuild.id)
+                {
+                    isInstalled = true;
+                }
+                else if(!wrongVersions.Contains(modfileId))
+                {
+                    wrongVersions.Add(modfileId);
+                }
+            }
+
+            if(!isInstalled)
+            {
+                this.StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
+            }
+            // isInstalled &&
+            else if(wrongVersions.Count > 0)
+            {
+                foreach(int modfileId in wrongVersions)
+                {
+                    ModManager.TryUninstallModVersion(profile.id, modfileId);
                 }
             }
         }
