@@ -234,8 +234,6 @@ namespace ModIO.UI
 
         private void InitializeSubscriptionsView()
         {
-            subscriptionsView.Initialize();
-
             subscriptionsView.inspectRequested += InspectSubscriptionItem;
             subscriptionsView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
             subscriptionsView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);

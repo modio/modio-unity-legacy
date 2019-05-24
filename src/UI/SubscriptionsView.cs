@@ -49,7 +49,7 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        private void Start()
         {
             Debug.Assert(itemPrefab != null);
             Debug.Assert(scrollView != null);
@@ -284,5 +284,9 @@ namespace ModIO.UI
                 disableModRequested(view);
             }
         }
+
+        // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer necessary. Initialization occurs in Start().")]
+        public void Initialize() {}
     }
 }
