@@ -122,6 +122,7 @@ namespace ModIO.UI
                 return;
             }
 
+            this.m_modId = profile.id;
             this.profile = profile;
             this.statistics = statistics;
             this.m_tagCategories = tagCategories;
@@ -134,14 +135,6 @@ namespace ModIO.UI
 
         public void DisplayModSubscribed(bool isSubscribed)
         {
-            this.isModSubscribed = isSubscribed;
-
-            if(modView != null)
-            {
-                ModDisplayData data = modView.data;
-                data.isSubscribed = isSubscribed;
-                modView.data = data;
-            }
         }
 
         public void DisplayModEnabled(bool isEnabled)
@@ -316,6 +309,18 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
+            }
+        }
+
+        public void OnSubscriptionsUpdated()
+        {
+            this.isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
+
+            if(this.modView != null)
+            {
+                ModDisplayData data = modView.data;
+                data.isSubscribed = this.isModSubscribed;
+                modView.data = data;
             }
         }
 

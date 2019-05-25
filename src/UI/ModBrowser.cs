@@ -1994,12 +1994,7 @@ namespace ModIO.UI
         {
             explorerView.OnSubscriptionsUpdated();
             subscriptionsView.OnSubscriptionsUpdated();
-
-            // - inspectorView -
-            if(inspectorView.profile != null)
-            {
-                inspectorView.DisplayModSubscribed(ModManager.GetSubscribedModIds().Contains(inspectorView.profile.id));
-            }
+            inspectorView.OnSubscriptionsUpdated();
         }
 
         public void EnableMod(int modId)
