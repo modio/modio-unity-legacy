@@ -158,7 +158,7 @@ namespace ModIO.UI
 
         public void OnEnable()
         {
-            LayoutRebuilder.MarkLayoutForRebuild(container);
+            StartCoroutine(EndOfFrameUpdateCoroutine());
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
