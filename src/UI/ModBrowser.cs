@@ -372,8 +372,10 @@ namespace ModIO.UI
                     {
                         subscriptionsView.OnGameProfileUpdated(g);
                     }
-
-                    inspectorView.tagCategories = g.tagCategories;
+                    if(inspectorView != null)
+                    {
+                        inspectorView.OnGameProfileUpdated(g);
+                    }
 
                     succeeded = true;
                     isRequestDone = true;

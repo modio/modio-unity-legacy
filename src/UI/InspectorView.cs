@@ -33,9 +33,7 @@ namespace ModIO.UI
         public ModStatistics statistics;
         public bool isModSubscribed;
         public bool isModEnabled;
-
-        // ---[ TEMP DATA ]---
-        public IEnumerable<ModTagCategory> tagCategories { get; set; }
+        public IEnumerable<ModTagCategory> m_tagCategories;
 
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
@@ -239,6 +237,14 @@ namespace ModIO.UI
             if(disableRequested != null)
             {
                 disableRequested(this.profile);
+            }
+        }
+
+        public void OnGameProfileUpdated(GameProfile gameProfile)
+        {
+            if(this.m_tagCategories != gameProfile.tagCategories)
+            {
+                this.m_tagCategories = gameProfile.tagCategories;
             }
         }
 
