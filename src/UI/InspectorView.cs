@@ -33,9 +33,35 @@ namespace ModIO.UI
         public ModStatistics statistics;
         public bool isModSubscribed;
         public bool isModEnabled;
-        public IEnumerable<ModTagCategory> m_tagCategories;
+
+        private IEnumerable<ModTagCategory> m_tagCategories = new ModTagCategory[0];
+
+        private int m_modId = ModProfile.NULL_ID;
+        private IEnumerable<Modfile> m_versionHistory = new List<Modfile>(0);
+
+        // --- ACCESSORS ---
+        public int modId
+        {
+            get
+            {
+                return this.m_modId;
+            }
+            set
+            {
+                if(this.m_modId != value)
+                {
+                    this.m_modId = value;
+                    FetchDisplayData();
+                }
+            }
+        }
 
         // ---------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            if(this.scrollView != null) { this.scrollView.verticalNormalizedPosition = 1f; }
+        }
+
         public void Initialize()
         {
             // TODO(@jackson): Asserts
@@ -86,7 +112,7 @@ namespace ModIO.UI
 
         // ---------[ UPDATE VIEW ]---------
         public void DisplayMod(ModProfile profile, ModStatistics statistics,
-                               IEnumerable<ModTagCategory> tagCategories,
+                               IEnumerable<ModTagCategory> tagCategories, // TODO(@jackson): Remove
                                bool isModSubscribed, bool isModEnabled)
         {
             // TODO(@jackson): Remove
@@ -97,50 +123,12 @@ namespace ModIO.UI
 
             this.profile = profile;
             this.statistics = statistics;
+            this.m_tagCategories = tagCategories;
             this.isModSubscribed = isModSubscribed;
             this.isModEnabled = isModEnabled;
 
-            if(modView != null)
-            {
-                modView.DisplayMod(profile, statistics,
-                                   tagCategories,
-                                   isModSubscribed, isModEnabled);
-
-                if(modView.mediaContainer != null)
-                {
-                    ModMediaCollection media = profile.media;
-                    bool hasMedia = media != null;
-                    hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
-                                 || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
-
-                    modView.mediaContainer.gameObject.SetActive(hasMedia);
-                }
-            }
-
-            if(selectedMediaPreview != null)
-            {
-                selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
-            }
-
-            // - version history -
-            if(versionHistoryContainer != null
-               && versionHistoryItemPrefab != null)
-            {
-                foreach(Transform t in versionHistoryContainer)
-                {
-                    GameObject.Destroy(t.gameObject);
-                }
-
-                RequestFilter modfileFilter = new RequestFilter();
-                modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
-                modfileFilter.isSortAscending = false;
-
-                APIClient.GetAllModfiles(profile.id,
-                                         modfileFilter,
-                                         new APIPaginationParameters(){ limit = 20 },
-                                         (r) => PopulateVersionHistory(profile.id, r.items),
-                                         WebRequestError.LogAsWarning);
-            }
+            this.UpdateModView();
+            this.PopulateVersionHistory();
         }
 
         public void DisplayModSubscribed(bool isSubscribed)
@@ -179,22 +167,108 @@ namespace ModIO.UI
             }
         }
 
+        // TODO(@jackson): privatise
+        private void FetchDisplayData()
+        {
+            this.DisplayLoading();
+
+            this.profile = null;
+            this.statistics = null;
+            this.isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
+            this.isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
+
+            // profile
+            ModManager.GetModProfile(this.m_modId,
+                                     (p) =>
+                                     {
+                                        this.profile = p;
+                                        this.UpdateModView();
+                                     },
+                                     WebRequestError.LogAsWarning);
+
+
+            // statistics
+            ModManager.GetModStatistics(this.m_modId,
+                                        (s) =>
+                                        {
+                                            this.statistics = s;
+                                            this.UpdateModView();
+                                        },
+                                        WebRequestError.LogAsWarning);
+
+            // version history
+            if(versionHistoryContainer != null
+               && versionHistoryItemPrefab != null)
+            {
+                RequestFilter modfileFilter = new RequestFilter();
+                modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
+                modfileFilter.isSortAscending = false;
+
+                APIClient.GetAllModfiles(this.m_modId,
+                                         modfileFilter,
+                                         new APIPaginationParameters(){ limit = 20 },
+                                         (r) =>
+                                         {
+                                            this.m_versionHistory = r.items;
+                                            PopulateVersionHistory();
+                                         },
+                                         WebRequestError.LogAsWarning);
+            }
+        }
+
+        private void UpdateModView()
+        {
+            if(this.profile == null)
+            {
+                if(this.modView != null)
+                {
+                    this.modView.DisplayLoading();
+                }
+                if(this.selectedMediaPreview != null)
+                {
+                    this.selectedMediaPreview.DisplayLoading();
+                }
+                return;
+            }
+
+            if(modView != null)
+            {
+                modView.DisplayMod(this.profile, this.statistics,
+                                   this.m_tagCategories,
+                                   this.isModSubscribed, this.isModEnabled);
+
+                if(modView.mediaContainer != null)
+                {
+                    ModMediaCollection media = profile.media;
+                    bool hasMedia = media != null;
+                    hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
+                                 || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
+
+                    modView.mediaContainer.gameObject.SetActive(hasMedia);
+                }
+            }
+
+            if(selectedMediaPreview != null)
+            {
+                selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+            }
+        }
+
         // ---------[ UI ELEMENT CREATION ]---------
-        private void PopulateVersionHistory(int modId, IEnumerable<Modfile> modfiles)
+        private void PopulateVersionHistory()
         {
             #if UNITY_EDITOR
             if(!Application.isPlaying) { return; }
             #endif
-
-            // inspector has closed/changed mods since call was made
-            if(profile.id != modId) { return; }
 
             foreach(Transform t in versionHistoryContainer)
             {
                 GameObject.Destroy(t.gameObject);
             }
 
-            foreach(Modfile modfile in modfiles)
+            if(this.versionHistoryContainer == null) { return; }
+
+            foreach(Modfile modfile in this.m_versionHistory)
             {
                 GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, versionHistoryContainer) as GameObject;
                 go.name = "Mod Version: " + modfile.version;

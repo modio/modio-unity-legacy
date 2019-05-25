@@ -1762,43 +1762,11 @@ namespace ModIO.UI
 
         public void InspectMod(int modId)
         {
-            ModProfile profile = null;
-            ModStatistics stats = null;
-            IEnumerable<ModTagCategory> tagCategories = (m_gameProfile == null
-                                                         ? new ModTagCategory[0]
-                                                         : m_gameProfile.tagCategories);
-            bool isSubscribed = ModManager.GetSubscribedModIds().Contains(modId);
-            bool isEnabled = ModManager.GetEnabledModIds().Contains(modId);
-
-            inspectorView.DisplayLoading();
-            inspectorView.gameObject.SetActive(true);
-
-            // profile
-            ModManager.GetModProfile(modId,
-                                     (p) =>
-                                     {
-                                        profile = p;
-                                        inspectorView.DisplayMod(profile, stats,
-                                                                 tagCategories,
-                                                                 isSubscribed,
-                                                                 isEnabled);
-                                     },
-                                     WebRequestError.LogAsWarning);
-
-
-            // statistics
-            ModManager.GetModStatistics(modId,
-                                        (s) =>
-                                        {
-                                            stats = s;
-                                            inspectorView.DisplayMod(profile, stats,
-                                                                     tagCategories,
-                                                                     isSubscribed,
-                                                                     isEnabled);
-                                        },
-                                        WebRequestError.LogAsWarning);
-
-            if(inspectorView.scrollView != null) { inspectorView.scrollView.verticalNormalizedPosition = 1f; }
+            if(inspectorView != null)
+            {
+                inspectorView.modId = modId;
+                inspectorView.gameObject.SetActive(true);
+            }
         }
 
         public void CloseInspector()
