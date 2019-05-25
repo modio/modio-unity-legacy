@@ -21,7 +21,6 @@ GameObject:
   - component: {fileID: 224038741591881180}
   - component: {fileID: 222501604700431660}
   - component: {fileID: 114607557178251128}
-  - component: {fileID: 114540381121660090}
   m_Layer: 5
   m_Name: LoadingPlaceholder_32x32
   m_TagString: Untagged
@@ -39,6 +38,7 @@ GameObject:
   - component: {fileID: 224433563639083814}
   - component: {fileID: 222770372325431658}
   - component: {fileID: 114216086111054516}
+  - component: {fileID: 114955606931103800}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -73,19 +73,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114540381121660090
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1055552999682152}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3892f42da52044d3960d3b07645f079, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  icon: {fileID: 114216086111054516}
-  secondsPerRotation: 1.4
 --- !u!114 &114607557178251128
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -113,6 +100,18 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114955606931103800
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1475561604677524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3892f42da52044d3960d3b07645f079, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  secondsPerRotation: 1.4
 --- !u!222 &222501604700431660
 CanvasRenderer:
   m_ObjectHideFlags: 1
