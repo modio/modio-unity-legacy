@@ -63,7 +63,7 @@ namespace ModIO.UI
             if(this.scrollView != null) { this.scrollView.verticalNormalizedPosition = 1f; }
         }
 
-        public void Initialize()
+        private void Start()
         {
             // TODO(@jackson): Asserts
             ModMediaContainer mediaContainer = null;
@@ -376,5 +376,9 @@ namespace ModIO.UI
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;
         }
+
+        // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer necessary. Initialization occurs in Start().")]
+        public void Initialize() {}
     }
 }

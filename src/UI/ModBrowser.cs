@@ -226,7 +226,6 @@ namespace ModIO.UI
 
         private void InitializeInspectorView()
         {
-            inspectorView.Initialize();
             inspectorView.subscribeRequested += (p) => SubscribeToMod(p.id);
             inspectorView.unsubscribeRequested += (p) => UnsubscribeFromMod(p.id);
             inspectorView.gameObject.SetActive(false);
