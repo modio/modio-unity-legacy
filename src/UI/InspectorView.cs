@@ -26,6 +26,7 @@ namespace ModIO.UI
         public ScrollRect scrollView;
         public Button backToDiscoverButton;
         public Button backToSubscriptionsButton;
+        public GameObject loadingDisplay;
 
         // ---[ RUNTIME DATA ]---
         [Header("Runtime Data")]
@@ -155,22 +156,13 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayLoading()
-        {
-            if(modView != null)
-            {
-                modView.DisplayLoading();
-            }
-            if(selectedMediaPreview != null)
-            {
-                selectedMediaPreview.DisplayLoading();
-            }
-        }
-
         // TODO(@jackson): privatise
         private void FetchDisplayData()
         {
-            this.DisplayLoading();
+            if(this.loadingDisplay != null)
+            {
+                this.loadingDisplay.gameObject.SetActive(true);
+            }
 
             this.profile = null;
             this.statistics = null;
@@ -229,6 +221,11 @@ namespace ModIO.UI
                     this.selectedMediaPreview.DisplayLoading();
                 }
                 return;
+            }
+
+            if(this.loadingDisplay != null)
+            {
+                this.loadingDisplay.SetActive(false);
             }
 
             if(modView != null)
