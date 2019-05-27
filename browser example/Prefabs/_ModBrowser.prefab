@@ -655,6 +655,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224516608085733940}
   - component: {fileID: 114917030822615466}
+  - component: {fileID: 114587721738187494}
   m_Layer: 5
   m_Name: Window
   m_TagString: Untagged
@@ -1031,7 +1032,6 @@ GameObject:
   - component: {fileID: 224411454877224426}
   - component: {fileID: 222621147733746760}
   - component: {fileID: 114168544885101114}
-  - component: {fileID: 114156903628368184}
   m_Layer: 5
   m_Name: Blur
   m_TagString: Untagged
@@ -2991,6 +2991,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224175382895236050}
   - component: {fileID: 114433127020849870}
+  - component: {fileID: 114874852092570998}
   m_Layer: 5
   m_Name: _ModBrowser
   m_TagString: Untagged
@@ -4883,8 +4884,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114433127020849870}
-        m_MethodName: ShowExplorerView
+      - m_Target: {fileID: 114874852092570998}
+        m_MethodName: ActivateExplorerView
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6329,58 +6330,6 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 1
---- !u!114 &114156903628368184
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1214458995497246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 0
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 114168544885101114}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114433127020849870}
-        m_MethodName: CloseInspector
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114158016209991370
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11660,6 +11609,34 @@ MonoBehaviour:
   innerElements:
   - {fileID: 114921636375811584}
   scheme: {fileID: 11400000, guid: 34faed49ed46642ff979115cdc3a7259, type: 2}
+--- !u!114 &114587721738187494
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1146633615786084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f6a529edf81e49989488a2a1f8b6251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  constructOnEnable: 1
+  clickedOff:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1159034823061356}
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114588715152079566
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -13841,8 +13818,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114433127020849870}
-        m_MethodName: ShowSubscriptionsView
+      - m_Target: {fileID: 114874852092570998}
+        m_MethodName: ActivateSubscriptionsView
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14503,6 +14480,17 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: DETAILS
+--- !u!114 &114874852092570998
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1654289447257750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72f31809ad4774767b7c63f66ba9c5ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114876729179042576
 MonoBehaviour:
   m_ObjectHideFlags: 1

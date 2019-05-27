@@ -106,7 +106,7 @@ namespace ModIO.UI
         private bool m_validOAuthToken = false;
 
         // ---------[ INITIALIZATION ]---------
-        private void OnEnable()
+        private void Awake()
         {
             if(ModBrowser._instance == null)
             {
@@ -122,7 +122,10 @@ namespace ModIO.UI
                 this.enabled = false;
             }
             #endif
+        }
 
+        private void OnEnable()
+        {
             this.m_validOAuthToken = false;
             this.StartCoroutine(StartFetchRemoteData());
         }
@@ -138,11 +141,6 @@ namespace ModIO.UI
                && this.m_validOAuthToken)
             {
                 PushSubscriptionChanges();
-            }
-
-            if(ModBrowser._instance == this)
-            {
-                ModBrowser._instance = null;
             }
         }
 
@@ -1716,45 +1714,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ UI CONTROL ]---------
-        // ---[ VIEW MANAGEMENT ]---
-        public void ShowExplorerView()
-        {
-            explorerView.gameObject.SetActive(true);
-            inspectorView.gameObject.SetActive(false);
-            subscriptionsView.gameObject.SetActive(false);
-        }
-        public void ShowSubscriptionsView()
-        {
-            subscriptionsView.gameObject.SetActive(true);
-            inspectorView.gameObject.SetActive(false);
-            explorerView.gameObject.SetActive(false);
-        }
-
-        public void InspectMod(int modId)
-        {
-            if(inspectorView != null)
-            {
-                inspectorView.modId = modId;
-                inspectorView.gameObject.SetActive(true);
-            }
-        }
-
-        public void CloseInspector()
-        {
-            inspectorView.gameObject.SetActive(false);
-        }
-
-        public void InspectDiscoverItem(ModView view)
-        {
-            InspectMod(view.data.profile.modId);
-        }
-
-        public void InspectSubscriptionItem(ModView view)
-        {
-            InspectMod(view.data.profile.modId);
-        }
-
         // ---[ DIALOGS ]---
         public void OpenLoginDialog()
         {
@@ -2059,10 +2018,45 @@ namespace ModIO.UI
             subscriptionsView.FetchProfiles(onSuccess, onError);
         }
 
-        [Obsolete("User SubscriptionsView.UpdateFilter() instead.")]
+        [Obsolete("Use SubscriptionsView.UpdateFilter() instead.")]
         public void UpdateSubscriptionFilters()
         {
             subscriptionsView.UpdateFilter();
+        }
+
+        [Obsolete("Use ViewManager.InspectMod() instead.")]
+        public void InspectMod(int modId)
+        {
+            ViewManager.instance.InspectMod(modId);
+        }
+
+        [Obsolete("Use ViewManager.InspectMod() instead.")]
+        public void InspectDiscoverItem(ModView view)
+        {
+            InspectMod(view.data.profile.modId);
+        }
+
+        [Obsolete("Use ViewManager.InspectMod() instead.")]
+        public void InspectSubscriptionItem(ModView view)
+        {
+            InspectMod(view.data.profile.modId);
+        }
+
+        [Obsolete("Use InspectorView.gameObject.SetActive(false) instead.")]
+        public void CloseInspector()
+        {
+            inspectorView.gameObject.SetActive(false);
+        }
+
+        [Obsolete("Use ViewManager.ActivateExplorerView() instead.")]
+        public void ShowExplorerView()
+        {
+            ViewManager.instance.ActivateExplorerView();
+        }
+        [Obsolete("Use ViewManager.ActivateSubscriptionsView() instead.")]
+        public void ShowSubscriptionsView()
+        {
+            ViewManager.instance.ActivateSubscriptionsView();
         }
     }
 }

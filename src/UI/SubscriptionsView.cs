@@ -194,7 +194,7 @@ namespace ModIO.UI
                 view.Initialize();
 
                 // add listeners
-                view.onClick +=                 ModBrowser.instance.InspectSubscriptionItem;
+                view.onClick +=                 (v) => ViewManager.instance.InspectMod(v.data.profile.modId);
                 view.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
                 view.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
                 view.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
