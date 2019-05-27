@@ -18,7 +18,6 @@ namespace ModIO.UI
         /// <summary>The button to catch clicks for.</summary>
         private Button m_button;
 
-
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {

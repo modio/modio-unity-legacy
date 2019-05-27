@@ -6978,9 +6978,9 @@ MonoBehaviour:
   clickedOff:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114433127020849870}
-        m_MethodName: CloseLoginDialog
-        m_Mode: 1
+      - m_Target: {fileID: 1910410705308084}
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -9609,11 +9609,11 @@ MonoBehaviour:
       originalTexture: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a, type: 3}
       thumbnailTexture: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a,
         type: 3}
-  explorerView: {fileID: 114195835507779204}
-  subscriptionsView: {fileID: 114130614508925794}
-  inspectorView: {fileID: 114309666271251828}
   loggedUserView: {fileID: 114228279583796960}
   loginDialog: {fileID: 114863113973899486}
+  explorerView: {fileID: 114195835507779204}
+  inspectorView: {fileID: 114309666271251828}
+  subscriptionsView: {fileID: 114130614508925794}
 --- !u!114 &114434123071762936
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10043,16 +10043,16 @@ MonoBehaviour:
   onLoggedOutClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114433127020849870}
-        m_MethodName: OpenLoginDialog
-        m_Mode: 1
+      - m_Target: {fileID: 1910410705308084}
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null

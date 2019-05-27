@@ -88,9 +88,6 @@ namespace ModIO.UI
         };
 
         [Header("UI Components")]
-        public ExplorerView explorerView;
-        public SubscriptionsView subscriptionsView;
-        public InspectorView inspectorView;
         public UserView loggedUserView;
         public LoginDialog loginDialog;
 
@@ -208,7 +205,6 @@ namespace ModIO.UI
 
             LoadLocalData();
 
-            InitializeDialogs();
             InitializeDisplays();
         }
 
@@ -256,43 +252,6 @@ namespace ModIO.UI
             ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
             ImageDisplayData.logoThumbnailSize = this.logoThumbnailSize;
             ImageDisplayData.galleryThumbnailSize = this.galleryThumbnailSize;
-        }
-
-        private void InitializeDialogs()
-        {
-            loginDialog.gameObject.SetActive(false);
-            loginDialog.onSecurityCodeSent += (m) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
-                                           m.message);
-            };
-            loginDialog.onUserOAuthTokenReceived += (t) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
-                                           "Authorization Successful");
-                CloseLoginDialog();
-                LogUserIn(t);
-            };
-            loginDialog.onWebRequestError += (e) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                           e.displayMessage);
-            };
-            loginDialog.onInvalidSubmissionAttempted += (m) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                           m);
-            };
-            loginDialog.onEmailRefused += (m) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                           m);
-            };
-            loginDialog.onSecurityCodeRefused += (m) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                           m);
-            };
         }
 
         private void InitializeDisplays()
@@ -1714,18 +1673,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---[ DIALOGS ]---
-        public void OpenLoginDialog()
-        {
-            loginDialog.gameObject.SetActive(true);
-            loginDialog.Initialize();
-        }
-
-        public void CloseLoginDialog()
-        {
-            loginDialog.gameObject.SetActive(false);
-        }
-
         // ---------[ ENABLE/SUBSCRIBE MODS ]---------
         public void SubscribeToMod(int modId)
         {
@@ -1952,6 +1899,19 @@ namespace ModIO.UI
         #endif
 
         // ---------[ OBSOLETE ]---------
+        [Obsolete][HideInInspector]
+        public ExplorerView explorerView;
+        [Obsolete][HideInInspector]
+        public InspectorView inspectorView;
+        [Obsolete][HideInInspector]
+        public SubscriptionsView subscriptionsView;
+
+        [Obsolete("Use ViewManager.ActivateExplorerView() instead.")]
+        public void ShowExplorerView()
+        {
+            ViewManager.instance.ActivateExplorerView();
+        }
+
         [Obsolete("Use ExplorerView.FetchPage() instead.")]
         public void RequestExplorerPage(int pageIndex,
                                         Action<RequestPage<ModProfile>> onSuccess,
@@ -1994,6 +1954,12 @@ namespace ModIO.UI
         public void ChangeExplorerPage(int direction)
         {
             explorerView.ChangePage(direction);
+        }
+
+        [Obsolete("Use ViewManager.ActivateSubscriptionsView() instead.")]
+        public void ShowSubscriptionsView()
+        {
+            ViewManager.instance.ActivateSubscriptionsView();
         }
 
         [Obsolete]
@@ -2048,15 +2014,16 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
         }
 
-        [Obsolete("Use ViewManager.ActivateExplorerView() instead.")]
-        public void ShowExplorerView()
+        [Obsolete("Use LoginDialog.gameObject.SetActive(true) instead.")]
+        public void OpenLoginDialog()
         {
-            ViewManager.instance.ActivateExplorerView();
+            loginDialog.gameObject.SetActive(true);
         }
-        [Obsolete("Use ViewManager.ActivateSubscriptionsView() instead.")]
-        public void ShowSubscriptionsView()
+
+        [Obsolete("Use LoginDialog.gameObject.SetActive(false) instead.")]
+        public void CloseLoginDialog()
         {
-            ViewManager.instance.ActivateSubscriptionsView();
+            loginDialog.gameObject.SetActive(false);
         }
     }
 }

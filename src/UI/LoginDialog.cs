@@ -7,13 +7,6 @@ namespace ModIO.UI
     public class LoginDialog : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public event Action<string> onInvalidSubmissionAttempted;
-        public event Action<string> onEmailRefused;
-        public event Action<APIMessage> onSecurityCodeSent;
-        public event Action<string> onSecurityCodeRefused;
-        public event Action<string> onUserOAuthTokenReceived;
-        public event Action<WebRequestError> onWebRequestError;
-
         [Serializable]
         public struct InputStateDisplays
         {
@@ -36,12 +29,6 @@ namespace ModIO.UI
 
 
         // --------[ INITIALIZATION ]---------
-        public void Initialize()
-        {
-            inputField.text = string.Empty;
-            OnTextInputUpdated();
-        }
-
         private void Start()
         {
             inputField.onEndEdit.AddListener(val =>
@@ -51,18 +38,6 @@ namespace ModIO.UI
                     TrySubmitAuthentication();
                 }
             });
-
-            this.onSecurityCodeSent += (m) =>
-            {
-                inputField.text = string.Empty;
-                inputField.interactable = true;
-            };
-
-            this.onUserOAuthTokenReceived += (t) =>
-            {
-                inputField.text = string.Empty;
-                inputField.interactable = true;
-            };
         }
 
         // ---------[ EVENTS ]---------
@@ -95,24 +70,44 @@ namespace ModIO.UI
             if(Utility.IsEmail(trimmedInput))
             {
                 APIClient.SendSecurityCode(trimmedInput,
-                                           (m) => onSecurityCodeSent(m),
+                                           OnSecurityCodeSent,
                                            (e) => ProcessWebRequestError(e, false));
             }
             else if(Utility.IsSecurityCode(trimmedInput))
             {
                 APIClient.GetOAuthToken(trimmedInput.ToUpper(),
-                                        (s) => onUserOAuthTokenReceived(s),
+                                        OnUserOAuthTokenReceived,
                                         (e) => ProcessWebRequestError(e, true));
             }
             else
             {
                 StartCoroutine(DisableInteractivity(2f));
 
-                if(onInvalidSubmissionAttempted != null)
-                {
-                    onInvalidSubmissionAttempted(invalidSubmissionMessage);
-                }
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           invalidSubmissionMessage);
             }
+        }
+
+        private void OnSecurityCodeSent(APIMessage apiMessage)
+        {
+            inputField.text = string.Empty;
+            inputField.interactable = true;
+
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
+                                       apiMessage.message);
+        }
+
+        private void OnUserOAuthTokenReceived(string token)
+        {
+            inputField.text = string.Empty;
+            inputField.interactable = true;
+
+            MessageSystem.QueueMessage(MessageDisplayData.Type.Success,
+                                       "Login Successful");
+
+            this.gameObject.SetActive(false);
+
+            ModBrowser.instance.LogUserIn(token);
         }
 
         private void ProcessWebRequestError(WebRequestError e, bool isSecurityCode)
@@ -120,25 +115,19 @@ namespace ModIO.UI
             if(e.webRequest.responseCode == 401
                && isSecurityCode)
             {
-                if(onSecurityCodeRefused != null)
-                {
-                    onSecurityCodeRefused(e.errorMessage);
-                }
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           e.errorMessage);
             }
             else if(e.webRequest.responseCode == 422
                     && !isSecurityCode)
             {
-                if(onEmailRefused != null)
-                {
-                    onEmailRefused(emailRefusedMessage);
-                }
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           emailRefusedMessage);
             }
             else
             {
-                if(onWebRequestError != null)
-                {
-                    onWebRequestError(e);
-                }
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           e.displayMessage);
             }
 
 
@@ -153,5 +142,19 @@ namespace ModIO.UI
 
             inputField.interactable = true;
         }
+
+        // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer trigger by this object.")]
+        public event Action<string> onInvalidSubmissionAttempted;
+        [Obsolete("No longer trigger by this object.")]
+        public event Action<string> onEmailRefused;
+        [Obsolete("No longer trigger by this object.")]
+        public event Action<APIMessage> onSecurityCodeSent;
+        [Obsolete("No longer trigger by this object.")]
+        public event Action<string> onSecurityCodeRefused;
+        [Obsolete("No longer trigger by this object.")]
+        public event Action<string> onUserOAuthTokenReceived;
+        [Obsolete("No longer trigger by this object.")]
+        public event Action<WebRequestError> onWebRequestError;
     }
 }
