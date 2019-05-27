@@ -134,22 +134,6 @@ namespace ModIO.UI
             this.PopulateVersionHistory();
         }
 
-        public void DisplayModSubscribed(bool isSubscribed)
-        {
-        }
-
-        public void DisplayModEnabled(bool isEnabled)
-        {
-            this.isModEnabled = isEnabled;
-
-            if(modView != null)
-            {
-                ModDisplayData data = modView.data;
-                data.isModEnabled = isEnabled;
-                modView.data = data;
-            }
-        }
-
         // TODO(@jackson): privatise
         private void FetchDisplayData()
         {
@@ -422,6 +406,25 @@ namespace ModIO.UI
             if(disableRequested != null)
             {
                 disableRequested(this.profile);
+            }
+        }
+
+        [Obsolete("Use OnModSubscriptionsUpdated() instead")]
+        public void DisplayModSubscribed(bool isSubscribed)
+        {
+            this.OnModSubscriptionsUpdated();
+        }
+
+        [Obsolete("Use OnModEnabled()/OnModDisabled() instead")]
+        public void DisplayModEnabled(bool isEnabled)
+        {
+            if(isEnabled)
+            {
+                this.OnModEnabled(this.m_modId);
+            }
+            else
+            {
+                this.OnModDisabled(this.m_modId);
             }
         }
     }
