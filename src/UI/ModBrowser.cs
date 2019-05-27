@@ -206,7 +206,6 @@ namespace ModIO.UI
 
             InitializeInspectorView();
             InitializeSubscriptionsView();
-            InitializeExplorerView();
             InitializeDialogs();
             InitializeDisplays();
         }
@@ -273,15 +272,6 @@ namespace ModIO.UI
             subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             subscriptionsView.gameObject.SetActive(false);
-        }
-
-        private void InitializeExplorerView()
-        {
-            explorerView.inspectRequested += InspectDiscoverItem;
-            explorerView.subscribeRequested += (v) => SubscribeToMod(v.data.profile.modId);
-            explorerView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);
-            explorerView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
-            explorerView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
         }
 
         private void InitializeDialogs()
