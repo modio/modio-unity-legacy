@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-using System.Linq;
-
 namespace ModIO.UI
 {
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
@@ -15,7 +13,6 @@ namespace ModIO.UI
     public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
-
         [Header("Settings")]
         public GameObject itemPrefab;
 
@@ -100,7 +97,7 @@ namespace ModIO.UI
             }
 
             // sort
-            this.m_sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
+            this.m_sortDelegate = (a,b) => a.id - b.id;
             if(this.sortByDropdown != null)
             {
                 // set initial value
