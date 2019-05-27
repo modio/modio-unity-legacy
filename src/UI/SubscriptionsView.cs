@@ -12,7 +12,7 @@ namespace ModIO.UI
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
     // to be displayed is low enough that it does not cause memory issues. Safeguards against this
     // will be made in a future update, but is currently not a priority.
-    public class SubscriptionsView : MonoBehaviour
+    public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
 
