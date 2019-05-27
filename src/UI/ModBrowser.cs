@@ -1562,19 +1562,10 @@ namespace ModIO.UI
 
                 downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
 
-                if(this.explorerView != null)
+                IEnumerable<IModDownloadStartedReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModDownloadStartedReceiver>(true);
+                foreach(var receiver in updatedReceivers)
                 {
-                    this.explorerView.OnModDownloadStarted(modId, downloadInfo);
-                }
-
-                if(this.subscriptionsView != null)
-                {
-                    this.subscriptionsView.OnModDownloadStarted(modId, downloadInfo);
-                }
-
-                if(this.inspectorView != null)
-                {
-                    this.inspectorView.OnModDownloadStarted(modId, downloadInfo);
+                    receiver.OnModDownloadStarted(modId, downloadInfo);
                 }
 
                 while(!downloadInfo.isDone) { yield return null; }
