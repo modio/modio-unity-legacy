@@ -5601,7 +5601,18 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114130614508925794}
+        m_MethodName: set_titleFilter
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.InputField+OnChangeEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
@@ -6052,7 +6063,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemPrefab: {fileID: 1139133584329282, guid: 6d6023c94d9954c1b91501defdcfce07, type: 2}
   scrollView: {fileID: 114549700727417704}
-  nameSearchField: {fileID: 114098324929849516}
   resultCount: {fileID: 114423435185988604}
   noSubscriptionsDisplay: {fileID: 1338033130210044}
   noResultsDisplay: {fileID: 1478767563269758}

@@ -183,6 +183,7 @@ namespace ModIO.UI
         private void LoadLocalData()
         {
             // - GameData -
+            // TODO(@jackson): Remove?
             m_gameProfile = CacheClient.LoadGameProfile();
             if(m_gameProfile == null)
             {
@@ -1922,7 +1923,7 @@ namespace ModIO.UI
         [Obsolete("Use SubscriptionsView.UpdateFilter() instead.")]
         public void UpdateSubscriptionFilters()
         {
-            subscriptionsView.UpdateFilter();
+            subscriptionsView.Refresh();
         }
 
         [Obsolete("Use ViewManager.InspectMod() instead.")]

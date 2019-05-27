@@ -18,7 +18,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ScrollRect scrollView;
-        public InputField nameSearchField;
         public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noSubscriptionsDisplay;
@@ -29,8 +28,8 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
         private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
-        private Func<ModProfile, bool> m_titleFilterDelegate = (p) => true;
         private Comparison<ModProfile> m_sortDelegate = (a,b) => a.id - b.id;
+        private string m_titleFilter = null;
 
         // --- ACCESSORS ---
         public IEnumerable<ModView> modViews
@@ -46,7 +45,20 @@ namespace ModIO.UI
                 if(this.m_sortDelegate != value)
                 {
                     this.m_sortDelegate = value;
-                    this.UpdateFilter();
+                    this.Refresh();
+                }
+            }
+        }
+
+        public string titleFilter
+        {
+            get { return this.m_titleFilter; }
+            set
+            {
+                if(this.m_titleFilter != value)
+                {
+                    this.m_titleFilter = value;
+                    this.Refresh();
                 }
             }
         }
@@ -67,14 +79,9 @@ namespace ModIO.UI
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
 
-            // - setup filter controls -
-            this.nameSearchField.onValueChanged.AddListener((t) => this.UpdateFilter());
-            this.UpdateFilter();
-
             // get page
             this.DisplayProfiles(null);
-
-            this.FetchProfiles(this.DisplayProfiles, WebRequestError.LogAsWarning);
+            this.Refresh();
         }
 
         private void OnEnable()
@@ -92,21 +99,8 @@ namespace ModIO.UI
             }
         }
 
-        public void UpdateFilter()
+        public void Refresh()
         {
-            // filter
-            this.m_titleFilterDelegate = (p) => true;
-            if(this.nameSearchField != null
-               && !String.IsNullOrEmpty(this.nameSearchField.text))
-            {
-                // set initial value
-                string filterString = this.nameSearchField.text.ToUpper();
-                this.m_titleFilterDelegate = (p) =>
-                {
-                    return p.name.ToUpper().Contains(filterString);
-                };
-            }
-
             // request page
             FetchProfiles(this.DisplayProfiles, (requestError) =>
             {
@@ -121,7 +115,19 @@ namespace ModIO.UI
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
-            Func<ModProfile, bool> titleFilterDelegate = this.m_titleFilterDelegate;
+            // title filter
+            Func<ModProfile, bool> titleFilterDelegate = (p) => true;
+            if(!String.IsNullOrEmpty(this.m_titleFilter))
+            {
+                // set initial value
+                string filterString = this.m_titleFilter.ToUpper();
+                titleFilterDelegate = (p) =>
+                {
+                    return p.name.ToUpper().Contains(filterString);
+                };
+            }
+
+            string titleFilter = this.m_titleFilter;
             Comparison<ModProfile> sortDelegate = this.m_sortDelegate;
 
             if(subscribedModIds.Count > 0)
@@ -129,7 +135,7 @@ namespace ModIO.UI
                 Action<List<ModProfile>> onGetModProfiles = (list) =>
                 {
                     // ensure it's still the same filter
-                    if(titleFilterDelegate != this.m_titleFilterDelegate
+                    if(titleFilter != this.m_titleFilter
                        || sortDelegate != this.m_sortDelegate)
                     {
                         return;
