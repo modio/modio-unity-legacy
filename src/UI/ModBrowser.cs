@@ -1947,19 +1947,10 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            if(this.explorerView != null)
+            IEnumerable<IModEnabledReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModEnabledReceiver>(true);
+            foreach(var receiver in updatedReceivers)
             {
-                this.explorerView.OnModEnabled(modId);
-            }
-
-            if(this.subscriptionsView != null)
-            {
-                this.subscriptionsView.OnModEnabled(modId);
-            }
-
-            if(this.inspectorView != null)
-            {
-                this.inspectorView.OnModEnabled(modId);
+                receiver.OnModEnabled(modId);
             }
         }
 
@@ -1972,19 +1963,10 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            if(this.explorerView != null)
+            IEnumerable<IModDisabledReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModDisabledReceiver>(true);
+            foreach(var receiver in updatedReceivers)
             {
-                this.explorerView.OnModDisabled(modId);
-            }
-
-            if(this.subscriptionsView != null)
-            {
-                this.subscriptionsView.OnModDisabled(modId);
-            }
-
-            if(this.inspectorView != null)
-            {
-                this.inspectorView.OnModDisabled(modId);
+                receiver.OnModDisabled(modId);
             }
         }
 

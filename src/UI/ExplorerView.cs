@@ -13,7 +13,7 @@ namespace ModIO.UI
         FromRight,
     }
 
-    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver
+    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]

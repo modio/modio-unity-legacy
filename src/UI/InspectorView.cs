@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver
+    public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]
