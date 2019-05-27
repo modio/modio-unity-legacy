@@ -22,7 +22,13 @@ namespace ModIO.UI
             {
                 if(ModBrowser._instance == null)
                 {
-                    // Instantiate
+                    ModBrowser._instance = UIUtilities.FindComponentInScene<ModBrowser>(true);
+
+                    if(ModBrowser._instance == null)
+                    {
+                        GameObject go = new GameObject("Mod Browser");
+                        ModBrowser._instance = go.AddComponent<ModBrowser>();
+                    }
                 }
 
                 return ModBrowser._instance;
@@ -107,7 +113,7 @@ namespace ModIO.UI
                 ModBrowser._instance = this;
             }
             #if DEBUG
-            else
+            else if(ModBrowser._instance != this)
             {
                 Debug.LogWarning("[mod.io] Second instance of a ModBrowser"
                                  + " component enabled simultaneously."

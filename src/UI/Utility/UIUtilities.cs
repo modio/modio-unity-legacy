@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -129,6 +130,58 @@ namespace ModIO.UI
             }
 
             return rowCount * columnCount;
+        }
+
+
+        /// <summary>Finds the first instance of a component in the active scene.</summary>
+        public static T FindComponentInScene<T>(bool includeInactive)
+        where T : class
+        {
+            var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            IEnumerable<GameObject> rootObjects = activeScene.GetRootGameObjects();
+            T foundComponent = null;
+
+            foreach(var root in rootObjects)
+            {
+                if(includeInactive
+                   || root.activeInHierarchy)
+                {
+                    foundComponent = root.GetComponent<T>();
+                    if(foundComponent != null)
+                    {
+                        return foundComponent;
+                    }
+
+                    foundComponent = root.GetComponentInChildren<T>(includeInactive);
+                    if(foundComponent != null)
+                    {
+                        return foundComponent;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>Finds components within the active scene.</summary>
+        public static List<T> FindComponentsInScene<T>(bool includeInactive)
+        where T : class
+        {
+            var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            IEnumerable<GameObject> rootObjects = activeScene.GetRootGameObjects();
+            List<T> retVal = new List<T>();
+
+            foreach(var root in rootObjects)
+            {
+                if(includeInactive
+                   || root.activeInHierarchy)
+                {
+                    retVal.AddRange(root.GetComponents<T>());
+                    retVal.AddRange(root.GetComponentsInChildren<T>(includeInactive));
+                }
+            }
+
+            return retVal;
         }
     }
 }
