@@ -6,7 +6,7 @@ namespace ModIO.UI
 {
     /// <summary>Displays the details of the currently authenticated user.</summary>
     [RequireComponent(typeof(UserView))]
-    public class AuthenticatedUserViewController : MonoBehaviour
+    public class AuthenticatedUserViewController : MonoBehaviour, IAuthenticatedUserUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]
@@ -32,6 +32,7 @@ namespace ModIO.UI
             }
             else
             {
+                view.data = default(UserDisplayData);
                 StartCoroutine(FetchUserProfile());
             }
         }
@@ -88,6 +89,39 @@ namespace ModIO.UI
             {
                 Debug.Assert(profile != null);
 
+                view.DisplayUser(profile);
+            }
+        }
+
+        // ---------[ EVENTS ]---------
+        /// <summary>Interface for notification of user log-in event.</summary>
+        public void OnUserLoggedIn(UserProfile profile)
+        {
+            if(profile == null)
+            {
+                view.data = default(UserDisplayData);
+            }
+            else
+            {
+                view.DisplayUser(profile);
+            }
+        }
+
+        /// <summary>Interface for notification of user log-out event.</summary>
+        public void OnUserLoggedOut()
+        {
+            view.data = this.m_guestData;
+        }
+
+        /// <summary>Interface for notification of changes made to user profile.</summary>
+        public void OnUserProfileUpdated(UserProfile profile)
+        {
+            if(profile == null)
+            {
+                view.data = default(UserDisplayData);
+            }
+            else
+            {
                 view.DisplayUser(profile);
             }
         }
