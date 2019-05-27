@@ -324,6 +324,37 @@ namespace ModIO.UI
             }
         }
 
+        public void OnModEnabled(int modId)
+        {
+            if(this.m_modId == modId
+               && this.modView != null)
+            {
+                ModDisplayData data = this.modView.data;
+                data.isModEnabled = true;
+                this.modView.data = data;
+            }
+        }
+
+        public void OnModDisabled(int modId)
+        {
+            if(this.m_modId == modId
+               && this.modView != null)
+            {
+                ModDisplayData data = this.modView.data;
+                data.isModEnabled = false;
+                this.modView.data = data;
+            }
+        }
+
+        public void OnModDownloadStarted(int modId, FileDownloadInfo downloadInfo)
+        {
+            if(this.m_modId == modId
+               && this.modView != null)
+            {
+                this.modView.DisplayDownload(downloadInfo);
+            }
+        }
+
         private void MediaPreview_Logo(ImageDisplayComponent display)
         {
             ImageDisplayData imageData = display.data;
