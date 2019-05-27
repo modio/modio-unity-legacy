@@ -362,17 +362,11 @@ namespace ModIO.UI
                 (g) =>
                 {
                     m_gameProfile = g;
-                    if(explorerView != null)
+
+                    IEnumerable<IGameProfileUpdateReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
+                    foreach(var receiver in updatedReceivers)
                     {
-                        explorerView.OnGameProfileUpdated(g);
-                    }
-                    if(subscriptionsView != null)
-                    {
-                        subscriptionsView.OnGameProfileUpdated(g);
-                    }
-                    if(inspectorView != null)
-                    {
-                        inspectorView.OnGameProfileUpdated(g);
+                        receiver.OnGameProfileUpdated(g);
                     }
 
                     succeeded = true;
