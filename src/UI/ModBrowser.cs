@@ -14,6 +14,21 @@ namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour
     {
+        // ---------[ SINGLETON ]---------
+        private static ModBrowser _instance = null;
+        public static ModBrowser instance
+        {
+            get
+            {
+                if(ModBrowser._instance == null)
+                {
+                    // Instantiate
+                }
+
+                return ModBrowser._instance;
+            }
+        }
+
         // ---------[ NESTED CLASSES ]---------
         public enum ServerType
         {
@@ -87,6 +102,21 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void OnEnable()
         {
+            if(ModBrowser._instance == null)
+            {
+                ModBrowser._instance = this;
+            }
+            #if DEBUG
+            else
+            {
+                Debug.LogWarning("[mod.io] Second instance of a ModBrowser"
+                                 + " component enabled simultaneously."
+                                 + " Only one instance of a ModBrowser"
+                                 + " component should be active at a time.");
+                this.enabled = false;
+            }
+            #endif
+
             this.m_validOAuthToken = false;
             this.StartCoroutine(StartFetchRemoteData());
         }
@@ -102,6 +132,11 @@ namespace ModIO.UI
                && this.m_validOAuthToken)
             {
                 PushSubscriptionChanges();
+            }
+
+            if(ModBrowser._instance == this)
+            {
+                ModBrowser._instance = null;
             }
         }
 
