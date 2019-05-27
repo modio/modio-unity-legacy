@@ -60,9 +60,6 @@ namespace ModIO.UI
         private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
 
         // ---------[ FIELDS ]---------
-        [Tooltip("Debug All API Requests")]
-        public bool debugAllAPIRequests = false;
-
         [Tooltip("Size to use for the user avatar thumbnails")]
         public UserAvatarSize avatarThumbnailSize = UserAvatarSize.Thumbnail_50x50;
         [Tooltip("Size to use for the mod logo thumbnails")]
@@ -212,10 +209,6 @@ namespace ModIO.UI
                 this.m_queuedUnsubscribes = new List<int>();
                 WriteManifest();
             }
-
-            // - Log Requests -
-            APIClient.logAllRequests = debugAllAPIRequests;
-            DownloadClient.logAllRequests = debugAllAPIRequests;
 
             // - Image settings -
             ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
@@ -1826,16 +1819,12 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ EVENT HANDLING ]---------
-        #if UNITY_EDITOR
-        private void OnValidate()
-        {
-            APIClient.logAllRequests = debugAllAPIRequests;
-            DownloadClient.logAllRequests = debugAllAPIRequests;
-        }
-        #endif
-
         // ---------[ OBSOLETE ]---------
+        [Obsolete("Use PluginSettings.data.logAllRequests instead")]
+        public bool debugAllAPIRequests
+        {
+            get { return PluginSettings.data.logAllRequests; }
+        }
         [Obsolete][HideInInspector]
         public ExplorerView explorerView;
         [Obsolete][HideInInspector]

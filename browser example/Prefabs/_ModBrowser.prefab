@@ -744,6 +744,7 @@ GameObject:
   - component: {fileID: 224367460030586030}
   - component: {fileID: 114627007337132862}
   - component: {fileID: 114228279583796960}
+  - component: {fileID: 114209265986383670}
   m_Layer: 5
   m_Name: Welcome Header
   m_TagString: Untagged
@@ -6875,6 +6876,32 @@ MonoBehaviour:
   innerElements:
   - {fileID: 114100789564941816}
   scheme: {fileID: 11400000, guid: ef9b6381446d6437e890f100415b368d, type: 2}
+--- !u!114 &114209265986383670
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1157243610685526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6dafab91a9784c1e90c5bcefd518422, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_guestData:
+    profile:
+      userId: 0
+      nameId: 
+      username: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    avatar:
+      ownerId: 0
+      mediaType: 0
+      imageId: 
+      originalTexture: {fileID: 0}
+      thumbnailTexture: {fileID: 0}
 --- !u!114 &114210599929386890
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9589,31 +9616,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbcf13412947141a0816098403a73fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugAllAPIRequests: 0
   avatarThumbnailSize: 1
   logoThumbnailSize: 1
   galleryThumbnailSize: 1
-  m_guestData:
-    profile:
-      userId: -1
-      nameId: 
-      username: Sync Collection
-      lastOnline: 0
-      timezone: 
-      language: 
-      profileURL: 
-    avatar:
-      ownerId: -1
-      mediaType: 4
-      imageId: guest_avatar
-      originalTexture: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a, type: 3}
-      thumbnailTexture: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a,
-        type: 3}
-  loggedUserView: {fileID: 114228279583796960}
-  loginDialog: {fileID: 114863113973899486}
   explorerView: {fileID: 114195835507779204}
   inspectorView: {fileID: 114309666271251828}
   subscriptionsView: {fileID: 114130614508925794}
+  loginDialog: {fileID: 114863113973899486}
+  loggedUserView: {fileID: 0}
 --- !u!114 &114434123071762936
 MonoBehaviour:
   m_ObjectHideFlags: 1

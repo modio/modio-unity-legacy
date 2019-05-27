@@ -21,6 +21,8 @@ namespace ModIO
             public string   installationDirectory;
             [Tooltip("Directory to use for cached server data")]
             public string   cacheDirectory;
+            [Tooltip("Log all web requests made to using Debug.Log")]
+            public bool     logAllRequests;
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
@@ -149,6 +151,7 @@ namespace ModIO
             settings.m_data.gameAPIKey = string.Empty;
             settings.m_data.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$";
             settings.m_data.installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods";
+            settings.m_data.logAllRequests = false;
 
             UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();

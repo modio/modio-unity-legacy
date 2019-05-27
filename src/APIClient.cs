@@ -69,9 +69,6 @@ namespace ModIO
         public static string languageCode = "en";
 
         // ---------[ DEBUGGING ]---------
-        /// <summary>Enable logging of all web requests.</summary>
-        public static bool logAllRequests = false;
-
         /// <summary>Pairing of the WWWForm field types.</summary>
         private struct DebugFormData
         {
@@ -274,7 +271,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            if(APIClient.logAllRequests)
+            if(PluginSettings.data.logAllRequests)
             {
                 // Setup form data logging
                 DebugFormData formData = new DebugFormData()
@@ -318,7 +315,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            if(APIClient.logAllRequests)
+            if(PluginSettings.data.logAllRequests)
             {
                 // Setup form data logging
                 DebugFormData formData = new DebugFormData()
@@ -355,7 +352,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            if(APIClient.logAllRequests)
+            if(PluginSettings.data.logAllRequests)
             {
                 // Setup form data logging
                 DebugFormData formData = new DebugFormData()
@@ -379,7 +376,7 @@ namespace ModIO
             UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
 
             #if DEBUG
-            if(APIClient.logAllRequests)
+            if(PluginSettings.data.logAllRequests)
             {
                 Debug.Log("REQUEST SENT\n"
                           + APIClient.GenerateRequestDebugString(webRequest)
@@ -390,7 +387,7 @@ namespace ModIO
             requestOperation.completed += (operation) =>
             {
                 #if DEBUG
-                if(APIClient.logAllRequests)
+                if(PluginSettings.data.logAllRequests)
                 {
                     if(webRequest.isNetworkError || webRequest.isHttpError)
                     {
@@ -504,7 +501,7 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
-            if(APIClient.logAllRequests)
+            if(PluginSettings.data.logAllRequests)
             {
                 // Setup form data logging
                 DebugFormData formData = new DebugFormData()
@@ -1380,6 +1377,12 @@ namespace ModIO
             get { return PluginSettings.data.gameAPIKey; }
         }
 
+        /// <summary>Enable logging of all web requests.</summary>
+        [Obsolete("Use PluginSettings.data.logAllRequests instead.")]
+        public static bool logAllRequests
+        {
+            get { return PluginSettings.data.logAllRequests; }
+        }
 
         /// <summary>[Obsolete] Fetches the tag categories specified by the game profile.</summary>
         [Obsolete("Use APIClient.GetGameTagOptions() instead.")]

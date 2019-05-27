@@ -10,10 +10,6 @@ namespace ModIO
 {
     public static class DownloadClient
     {
-        // ---------[ SETTINGS ]---------
-        /// <summary>Enable logging of all download requests</summary>
-        public static bool logAllRequests = false;
-
         // ---------[ IMAGE DOWNLOADS ]---------
         public static ImageRequest DownloadModLogo(ModProfile profile, LogoSize size)
         {
@@ -111,7 +107,7 @@ namespace ModIO
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             #if DEBUG
-            if(DownloadClient.logAllRequests)
+            if(PluginSettings.data.logAllRequests)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
@@ -154,7 +150,7 @@ namespace ModIO
             else
             {
                 #if DEBUG
-                if(DownloadClient.logAllRequests)
+                if(PluginSettings.data.logAllRequests)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
                     Debug.Log(String.Format("{0} REQUEST SUCEEDED\nResponse received at: {1} [{2}]\nURL: {3}\nResponse: {4}\n",
@@ -299,7 +295,7 @@ namespace ModIO
             var operation = downloadInfo.request.SendWebRequest();
 
             #if DEBUG
-            if(DownloadClient.logAllRequests)
+            if(PluginSettings.data.logAllRequests)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
@@ -389,7 +385,7 @@ namespace ModIO
                    || request.error.ToUpper() == "REQUEST ABORTED")
                 {
                     #if DEBUG
-                    if(DownloadClient.logAllRequests)
+                    if(PluginSettings.data.logAllRequests)
                     {
                         Debug.Log("DOWNLOAD ABORTED"
                                   + "\nDownload aborted at: " + ServerTimeStamp.Now
@@ -410,7 +406,7 @@ namespace ModIO
                     if (downloadInfo.error.responseHeaders.TryGetValue("location", out headerLocation)
                         && !request.url.Equals(headerLocation))
                     {
-                        if (DownloadClient.logAllRequests)
+                        if (PluginSettings.data.logAllRequests)
                         {
                             Debug.LogFormat("CAUGHT DOWNLOAD REDIRECTION\nURL: {0}", headerLocation);
                         }
@@ -427,7 +423,7 @@ namespace ModIO
                 {
                     downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
 
-                    if(DownloadClient.logAllRequests)
+                    if(PluginSettings.data.logAllRequests)
                     {
                         WebRequestError.LogAsWarning(downloadInfo.error);
                     }
@@ -470,7 +466,7 @@ namespace ModIO
             if(succeeded)
             {
                 #if DEBUG
-                if(DownloadClient.logAllRequests)
+                if(PluginSettings.data.logAllRequests)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
                     Debug.Log("DOWNLOAD SUCEEDED"
@@ -487,6 +483,14 @@ namespace ModIO
             }
 
             modfileDownloadMap.Remove(idPair);
+        }
+
+        // ---------[ OBSOLETE ]---------
+        /// <summary>Enable logging of all web requests.</summary>
+        [Obsolete("Use PluginSettings.data.logAllRequests instead.")]
+        public static bool logAllRequests
+        {
+            get { return PluginSettings.data.logAllRequests; }
         }
     }
 }
