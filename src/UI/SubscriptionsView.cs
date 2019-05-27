@@ -12,7 +12,7 @@ namespace ModIO.UI
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
     // to be displayed is low enough that it does not cause memory issues. Safeguards against this
     // will be made in a future update, but is currently not a priority.
-    public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver
+    public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
 
@@ -286,7 +286,7 @@ namespace ModIO.UI
             }
         }
 
-        public void OnSubscriptionsUpdated()
+        public void OnModSubscriptionsUpdated()
         {
             FetchProfiles(this.DisplayProfiles, (requestError) =>
             {

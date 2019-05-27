@@ -1933,9 +1933,11 @@ namespace ModIO.UI
 
         private void UpdateViewSubscriptions()
         {
-            explorerView.OnSubscriptionsUpdated();
-            subscriptionsView.OnSubscriptionsUpdated();
-            inspectorView.OnSubscriptionsUpdated();
+            IEnumerable<IModSubscriptionsUpdateReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModSubscriptionsUpdateReceiver>(true);
+            foreach(var receiver in updatedReceivers)
+            {
+                receiver.OnModSubscriptionsUpdated();
+            }
         }
 
         public void EnableMod(int modId)

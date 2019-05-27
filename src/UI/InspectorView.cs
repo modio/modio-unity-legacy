@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver
+    public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]
@@ -284,7 +284,7 @@ namespace ModIO.UI
             }
         }
 
-        public void OnSubscriptionsUpdated()
+        public void OnModSubscriptionsUpdated()
         {
             this.isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
 

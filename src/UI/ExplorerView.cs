@@ -13,7 +13,7 @@ namespace ModIO.UI
         FromRight,
     }
 
-    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver
+    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]
@@ -692,7 +692,7 @@ namespace ModIO.UI
             }
         }
 
-        public void OnSubscriptionsUpdated()
+        public void OnModSubscriptionsUpdated()
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
