@@ -72,7 +72,6 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = null;
-        private UserProfile m_userProfile = null;
         private List<SimpleRating> m_userRatings = new List<SimpleRating>();
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
@@ -113,8 +112,7 @@ namespace ModIO.UI
                 StopCoroutine(m_updatesCoroutine);
             }
 
-            if(m_userProfile != null
-               && this.m_validOAuthToken)
+            if(this.m_validOAuthToken)
             {
                 PushSubscriptionChanges();
             }
@@ -187,12 +185,6 @@ namespace ModIO.UI
 
         private void LoadLocalData()
         {
-            // - UserData -
-            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
-            {
-                m_userProfile = CacheClient.LoadUserProfile(UserAuthenticationData.instance.userId);
-            }
-
             // - GameData -
             m_gameProfile = CacheClient.LoadGameProfile();
             if(m_gameProfile == null)
@@ -352,6 +344,7 @@ namespace ModIO.UI
             Debug.Assert(!String.IsNullOrEmpty(UserAuthenticationData.instance.token));
 
             bool succeeded = false;
+            string fetchToken = UserAuthenticationData.instance.token;
 
             // get user profile
             while(!succeeded)
@@ -365,12 +358,17 @@ namespace ModIO.UI
                 {
                     CacheClient.SaveUserProfile(u);
 
-                    m_userProfile = u;
-
-                    IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
-                    foreach(var receiver in updateReceivers)
+                    UserAuthenticationData data = UserAuthenticationData.instance;
+                    if(data.token == fetchToken)
                     {
-                        receiver.OnUserProfileUpdated(u);
+                        data.userId = u.id;
+                        UserAuthenticationData.instance = data;
+
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+                        foreach(var receiver in updateReceivers)
+                        {
+                            receiver.OnUserProfileUpdated(u);
+                        }
                     }
 
                     succeeded = true;
@@ -939,8 +937,7 @@ namespace ModIO.UI
                         }
                     }
                     // This may have changed during the request execution
-                    else if(this.m_userProfile != null
-                            && m_validOAuthToken)
+                    else if(m_validOAuthToken)
                     {
                         ProcessUserUpdates(userEventReponse);
                         this.lastSubscriptionSync = updateStartTimeStamp;
@@ -1318,15 +1315,8 @@ namespace ModIO.UI
 
             yield return this.StartCoroutine(FetchUserProfile());
 
-            if(m_userProfile != null)
+            if(this.m_validOAuthToken)
             {
-                // - save user data -
-                UserAuthenticationData.instance = new UserAuthenticationData()
-                {
-                    userId = m_userProfile.id,
-                    token = oAuthToken,
-                };
-
                 yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
         }
@@ -1352,9 +1342,7 @@ namespace ModIO.UI
             this.m_validOAuthToken = false;
             UserAuthenticationData.Clear();
 
-            // - set up guest account -
-            m_userProfile = null;
-
+            // - notify receivers -
             IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
@@ -1648,7 +1636,7 @@ namespace ModIO.UI
             OnSubscribedToMod(modId);
 
             // push sub
-            if(m_userProfile != null)
+            if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
             {
                 if(!m_queuedSubscribes.Contains(modId))
                 {
@@ -1672,7 +1660,7 @@ namespace ModIO.UI
             OnUnsubscribedFromMod(modId);
 
             // push unsub
-            if(m_userProfile != null)
+            if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
             {
                 if(!m_queuedUnsubscribes.Contains(modId))
                 {
@@ -1858,8 +1846,11 @@ namespace ModIO.UI
         public LoginDialog loginDialog;
         [Obsolete][HideInInspector]
         public UserView loggedUserView;
+
         [Obsolete("Use AuthenticatedUserViewController.m_guestData instead.")]
         private UserDisplayData m_guestData;
+        [Obsolete]
+        private UserProfile m_userProfile;
 
         [Obsolete("Use ViewManager.ActivateExplorerView() instead.")]
         public void ShowExplorerView()
