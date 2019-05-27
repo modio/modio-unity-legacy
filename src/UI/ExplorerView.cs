@@ -112,6 +112,7 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
+            // asserts
             Debug.Assert(itemPrefab != null);
 
             RectTransform prefabTransform = itemPrefab.GetComponent<RectTransform>();
@@ -122,6 +123,23 @@ namespace ModIO.UI
                          "[mod.io] The ExplorerView.itemPrefab does not have the required "
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
+
+            if(pageTemplate == null)
+            {
+                Debug.LogWarning("[mod.io] Page Template variable needs to be set in order for the"
+                                 + " Explorer View to function", this.gameObject);
+                this.enabled = false;
+                return;
+            }
+
+            this.gridLayout = pageTemplate.GetComponent<GridLayoutGroup>();
+            if(this.gridLayout == null)
+            {
+                Debug.LogWarning("[mod.io] Page Template needs a grid layout component in order for the"
+                                 + " Explorer View to function", this.gameObject);
+                this.enabled = false;
+                return;
+            }
 
             // - set initial sort -
             if(this.sortByDropdown != null
@@ -178,6 +196,21 @@ namespace ModIO.UI
                 };
             }
 
+            // - create pages -
+            pageTemplate.gameObject.SetActive(false);
+
+            GameObject pageGO;
+
+            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
+            pageGO.name = "Mod Page A";
+            currentPageContainer = pageGO.GetComponent<RectTransform>();
+            currentPageContainer.gameObject.SetActive(true);
+
+            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
+            pageGO.name = "Mod Page B";
+            targetPageContainer = pageGO.GetComponent<RectTransform>();
+            targetPageContainer.gameObject.SetActive(false);
+
             // - perform initial fetch -
             int pageSize = this.itemsPerPage;
             RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
@@ -214,59 +247,17 @@ namespace ModIO.UI
 
         private void OnEnable()
         {
-            // asserts
-            if(pageTemplate == null)
+            // NOTE(@jackson): This appears to be unnecessary?
+            // UpdateCurrentPageDisplay();
+
             {
-                Debug.LogWarning("[mod.io] Page Template variable needs to be set in order for the"
-                                 + " Explorer View to function", this.gameObject);
-                this.enabled = false;
-                return;
             }
-
-            this.gridLayout = pageTemplate.GetComponent<GridLayoutGroup>();
-            if(this.gridLayout == null)
-            {
-                Debug.LogWarning("[mod.io] Page Template needs a grid layout component in order for the"
-                                 + " Explorer View to function", this.gameObject);
-                this.enabled = false;
-                return;
-            }
-
-            // create pages
-            pageTemplate.gameObject.SetActive(false);
-
-            GameObject pageGO;
-
-            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
-            pageGO.name = "Mod Page A";
-            currentPageContainer = pageGO.GetComponent<RectTransform>();
-            currentPageContainer.gameObject.SetActive(true);
-
-            pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
-            pageGO.name = "Mod Page B";
-            targetPageContainer = pageGO.GetComponent<RectTransform>();
-            targetPageContainer.gameObject.SetActive(false);
-
-            // update view
-            UpdateCurrentPageDisplay();
-
-            // TODO(@jackson): handle transition?
         }
 
         private void OnDisable()
         {
-            // TODO(@jackson): handle transition?
-
-            if(currentPageContainer != null)
             {
-                GameObject.Destroy(currentPageContainer.gameObject);
             }
-            if(targetPageContainer != null)
-            {
-                GameObject.Destroy(targetPageContainer.gameObject);
-            }
-
-            m_modViews.Clear();
         }
 
         private void RemoveTag(string tag)
