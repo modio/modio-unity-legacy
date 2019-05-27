@@ -15,11 +15,6 @@ namespace ModIO.UI
     public class SubscriptionsView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public event Action<ModView> inspectRequested;
-        public event Action<ModView> subscribeRequested;
-        public event Action<ModView> unsubscribeRequested;
-        public event Action<ModView> enableModRequested;
-        public event Action<ModView> disableModRequested;
 
         [Header("Settings")]
         public GameObject itemPrefab;
@@ -196,12 +191,14 @@ namespace ModIO.UI
                                                            Quaternion.identity,
                                                            scrollView.content);
                 ModView view = viewGO.GetComponent<ModView>();
-                view.onClick +=                 NotifyInspectRequested;
-                view.subscribeRequested +=      NotifySubscribeRequested;
-                view.unsubscribeRequested +=    NotifyUnsubscribeRequested;
-                view.enableModRequested +=      NotifyEnableRequested;
-                view.disableModRequested +=     NotifyDisableRequested;
                 view.Initialize();
+
+                // add listeners
+                view.onClick +=                 ModBrowser.instance.InspectSubscriptionItem;
+                view.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
+                view.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
+                view.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
+                view.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
 
                 // register in map
                 int fakeModId = -i - 1;
@@ -281,42 +278,6 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        public void NotifyInspectRequested(ModView view)
-        {
-            if(inspectRequested != null)
-            {
-                inspectRequested(view);
-            }
-        }
-        public void NotifySubscribeRequested(ModView view)
-        {
-            if(subscribeRequested != null)
-            {
-                subscribeRequested(view);
-            }
-        }
-        public void NotifyUnsubscribeRequested(ModView view)
-        {
-            if(unsubscribeRequested != null)
-            {
-                unsubscribeRequested(view);
-            }
-        }
-        public void NotifyEnableRequested(ModView view)
-        {
-            if(enableModRequested != null)
-            {
-                enableModRequested(view);
-            }
-        }
-        public void NotifyDisableRequested(ModView view)
-        {
-            if(disableModRequested != null)
-            {
-                disableModRequested(view);
-            }
-        }
-
         public void OnGameProfileUpdated(GameProfile gameProfile)
         {
             if(this.m_tagCategories != gameProfile.tagCategories)
@@ -375,5 +336,56 @@ namespace ModIO.UI
         // ---------[ OBSOLETE ]---------
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
+
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModView> inspectRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifyInspectRequested(ModView view)
+        {
+            if(inspectRequested != null)
+            {
+                inspectRequested(view);
+            }
+        }
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModView> subscribeRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifySubscribeRequested(ModView view)
+        {
+            if(subscribeRequested != null)
+            {
+                subscribeRequested(view);
+            }
+        }
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModView> unsubscribeRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifyUnsubscribeRequested(ModView view)
+        {
+            if(unsubscribeRequested != null)
+            {
+                unsubscribeRequested(view);
+            }
+        }
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModView> enableModRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifyEnableRequested(ModView view)
+        {
+            if(enableModRequested != null)
+            {
+                enableModRequested(view);
+            }
+        }
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModView> disableModRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifyDisableRequested(ModView view)
+        {
+            if(disableModRequested != null)
+            {
+                disableModRequested(view);
+            }
+        }
     }
 }
