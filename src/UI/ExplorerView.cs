@@ -40,6 +40,7 @@ namespace ModIO.UI
         public Text resultCountText;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noResultsDisplay;
+        public StateToggleDisplay isActiveIndicator;
 
         [Header("Display Data")]
         public GridLayoutGroup gridLayout = null;
@@ -250,13 +251,17 @@ namespace ModIO.UI
             // NOTE(@jackson): This appears to be unnecessary?
             // UpdateCurrentPageDisplay();
 
+            if(this.isActiveIndicator != null)
             {
+                this.isActiveIndicator.isOn = true;
             }
         }
 
         private void OnDisable()
         {
+            if(this.isActiveIndicator != null)
             {
+                this.isActiveIndicator.isOn = false;
             }
         }
 

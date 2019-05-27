@@ -68,7 +68,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ExplorerView explorerView;
-        public StateToggleDisplay explorerViewIndicator;
         public SubscriptionsView subscriptionsView;
         public StateToggleDisplay subscriptionsViewIndicator;
         public InspectorView inspectorView;
@@ -253,12 +252,6 @@ namespace ModIO.UI
             explorerView.unsubscribeRequested += (v) => UnsubscribeFromMod(v.data.profile.modId);
             explorerView.enableModRequested += (v) => EnableMod(v.data.profile.modId);
             explorerView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
-
-            explorerView.gameObject.SetActive(true);
-            if(explorerViewIndicator != null)
-            {
-                explorerViewIndicator.isOn = true;
-            }
         }
 
         private void InitializeDialogs()
@@ -1734,10 +1727,6 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
             subscriptionsView.gameObject.SetActive(false);
 
-            if(explorerViewIndicator != null)
-            {
-                explorerViewIndicator.isOn = true;
-            }
             if(subscriptionsViewIndicator != null)
             {
                 subscriptionsViewIndicator.isOn = false;
@@ -1749,10 +1738,6 @@ namespace ModIO.UI
             inspectorView.gameObject.SetActive(false);
             explorerView.gameObject.SetActive(false);
 
-            if(explorerViewIndicator != null)
-            {
-                explorerViewIndicator.isOn = false;
-            }
             if(subscriptionsViewIndicator != null)
             {
                 subscriptionsViewIndicator.isOn = true;
@@ -2084,6 +2069,12 @@ namespace ModIO.UI
             get { return explorerView.nextPageButton; }
             set { explorerView.nextPageButton = value; }
         }
+        [Obsolete("Use ExporerView.isActiveIndicator instead.")]
+        public StateToggleDisplay explorerViewIndicator
+        {
+            get { return this.explorerView.isActiveIndicator; }
+        }
+
         [Obsolete("Use ExplorerView.UpdatePageButtonInteractibility() instead.")]
         public void UpdateExplorerViewPageButtonInteractibility()
         {
@@ -2109,7 +2100,7 @@ namespace ModIO.UI
             public Comparison<ModProfile> sortDelegate;
         }
 
-        [Obsolete]
+        [Obsolete("Use SubscriptionView.titleFilterDelegate and sortDelegate instead.")]
         public SubscriptionViewFilter subscriptionViewFilter;
 
         [Obsolete("Use SubscriptionsView.FetchProfiles() instead.")]

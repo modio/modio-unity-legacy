@@ -947,7 +947,7 @@ GameObject:
   - component: {fileID: 224812545755934066}
   - component: {fileID: 114691915214033132}
   m_Layer: 5
-  m_Name: DiscoverButton Container
+  m_Name: ExplorerView Button Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6938,6 +6938,7 @@ MonoBehaviour:
   pageCountText: {fileID: 114042995055664914}
   resultCountText: {fileID: 114383635685634226}
   noResultsDisplay: {fileID: 1633844475048514}
+  isActiveIndicator: {fileID: 114691915214033132}
   gridLayout: {fileID: 0}
   filterTags: []
   isTransitioning: 0
@@ -9683,7 +9684,6 @@ MonoBehaviour:
       thumbnailTexture: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a,
         type: 3}
   explorerView: {fileID: 114195835507779204}
-  explorerViewIndicator: {fileID: 114691915214033132}
   subscriptionsView: {fileID: 114130614508925794}
   subscriptionsViewIndicator: {fileID: 114774030270983842}
   inspectorView: {fileID: 114309666271251828}
