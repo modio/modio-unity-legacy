@@ -335,6 +335,43 @@ namespace ModIO.UI
             });
         }
 
+        public void OnModEnabled(int modId)
+        {
+            foreach(ModView view in this.modViews)
+            {
+                if(view.data.profile.modId == modId)
+                {
+                    ModDisplayData data = view.data;
+                    data.isModEnabled = true;
+                    view.data = data;
+                }
+            }
+        }
+
+        public void OnModDisabled(int modId)
+        {
+            foreach(ModView view in this.modViews)
+            {
+                if(view.data.profile.modId == modId)
+                {
+                    ModDisplayData data = view.data;
+                    data.isModEnabled = false;
+                    view.data = data;
+                }
+            }
+        }
+
+        public void OnModDownloadStarted(int modId, FileDownloadInfo downloadInfo)
+        {
+            foreach(ModView view in this.modViews)
+            {
+                if(view.data.profile.modId == modId)
+                {
+                    view.DisplayDownload(downloadInfo);
+                }
+            }
+        }
+
         // ---------[ OBSOLETE ]---------
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
