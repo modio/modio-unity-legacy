@@ -11,6 +11,7 @@ namespace ModIO.UI
         public GameObject offDisplay;
 
         [Header("Display Data")]
+        [SerializeField]
         private bool m_isOn = true;
 
         // --- ACCESSSORS ---
@@ -52,7 +53,8 @@ namespace ModIO.UI
         #if UNITY_EDITOR
         private void OnValidate()
         {
-            if(Application.isPlaying && this != null)
+            if(Application.isPlaying
+               && this != null)
             {
                 UpdateDisplay();
             }

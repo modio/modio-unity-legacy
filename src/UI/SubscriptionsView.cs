@@ -33,6 +33,7 @@ namespace ModIO.UI
         public GameObject noSubscriptionsDisplay;
         [Tooltip("Object to display when there are zero filtered results")]
         public GameObject noResultsDisplay;
+        public StateToggleDisplay isActiveIndicator;
 
         // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
@@ -71,6 +72,21 @@ namespace ModIO.UI
             this.DisplayProfiles(null);
 
             this.FetchProfiles(this.DisplayProfiles, WebRequestError.LogAsWarning);
+        }
+
+        private void OnEnable()
+        {
+            if(this.isActiveIndicator != null)
+            {
+                this.isActiveIndicator.isOn = true;
+            }
+        }
+        private void OnDisable()
+        {
+            if(this.isActiveIndicator != null)
+            {
+                this.isActiveIndicator.isOn = false;
+            }
         }
 
         public void UpdateFilter()

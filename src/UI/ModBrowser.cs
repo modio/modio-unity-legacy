@@ -69,7 +69,6 @@ namespace ModIO.UI
         [Header("UI Components")]
         public ExplorerView explorerView;
         public SubscriptionsView subscriptionsView;
-        public StateToggleDisplay subscriptionsViewIndicator;
         public InspectorView inspectorView;
         public UserView loggedUserView;
         public LoginDialog loginDialog;
@@ -239,10 +238,6 @@ namespace ModIO.UI
             subscriptionsView.disableModRequested += (v) => DisableMod(v.data.profile.modId);
 
             subscriptionsView.gameObject.SetActive(false);
-            if(subscriptionsViewIndicator != null)
-            {
-                subscriptionsViewIndicator.isOn = false;
-            }
         }
 
         private void InitializeExplorerView()
@@ -1726,22 +1721,12 @@ namespace ModIO.UI
             explorerView.gameObject.SetActive(true);
             inspectorView.gameObject.SetActive(false);
             subscriptionsView.gameObject.SetActive(false);
-
-            if(subscriptionsViewIndicator != null)
-            {
-                subscriptionsViewIndicator.isOn = false;
-            }
         }
         public void ShowSubscriptionsView()
         {
             subscriptionsView.gameObject.SetActive(true);
             inspectorView.gameObject.SetActive(false);
             explorerView.gameObject.SetActive(false);
-
-            if(subscriptionsViewIndicator != null)
-            {
-                subscriptionsViewIndicator.isOn = true;
-            }
         }
 
         public void InspectMod(int modId)
@@ -2099,9 +2084,14 @@ namespace ModIO.UI
             public Func<ModProfile, bool> titleFilterDelegate;
             public Comparison<ModProfile> sortDelegate;
         }
-
         [Obsolete("Use SubscriptionView.titleFilterDelegate and sortDelegate instead.")]
         public SubscriptionViewFilter subscriptionViewFilter;
+
+        [Obsolete("Use SubscriptionView.isActiveIndicator instead")]
+        public StateToggleDisplay subscriptionsViewIndicator
+        {
+            get { return this.subscriptionsView.isActiveIndicator; }
+        }
 
         [Obsolete("Use SubscriptionsView.FetchProfiles() instead.")]
         public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,

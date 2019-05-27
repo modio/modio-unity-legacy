@@ -459,7 +459,7 @@ GameObject:
   - component: {fileID: 114817360667517374}
   - component: {fileID: 114414166431347644}
   m_Layer: 5
-  m_Name: CollectionButton
+  m_Name: Activate Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -495,7 +495,7 @@ GameObject:
   - component: {fileID: 114782249491730434}
   - component: {fileID: 114609412473088570}
   m_Layer: 5
-  m_Name: CollectionButton_Highlighted
+  m_Name: Highlighted Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1052,7 +1052,7 @@ GameObject:
   - component: {fileID: 114043800757800282}
   - component: {fileID: 114115729092000268}
   m_Layer: 5
-  m_Name: DiscoverButton
+  m_Name: Activate Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2485,7 +2485,7 @@ GameObject:
   - component: {fileID: 114733538300870912}
   - component: {fileID: 114586238027110192}
   m_Layer: 5
-  m_Name: DiscoverButton_Highlighted
+  m_Name: Highlighted Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3201,7 +3201,7 @@ GameObject:
   - component: {fileID: 224375298187454738}
   - component: {fileID: 114774030270983842}
   m_Layer: 5
-  m_Name: CollectionButton Container
+  m_Name: SubscriptionsView Button Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6055,6 +6055,7 @@ MonoBehaviour:
   resultCount: {fileID: 114423435185988604}
   noSubscriptionsDisplay: {fileID: 1338033130210044}
   noResultsDisplay: {fileID: 1478767563269758}
+  isActiveIndicator: {fileID: 114774030270983842}
 --- !u!114 &114132291052275152
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9685,7 +9686,6 @@ MonoBehaviour:
         type: 3}
   explorerView: {fileID: 114195835507779204}
   subscriptionsView: {fileID: 114130614508925794}
-  subscriptionsViewIndicator: {fileID: 114774030270983842}
   inspectorView: {fileID: 114309666271251828}
   loggedUserView: {fileID: 114228279583796960}
   loginDialog: {fileID: 114863113973899486}
@@ -11530,6 +11530,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onDisplay: {fileID: 1192544799153522}
   offDisplay: {fileID: 1510903381889784}
+  m_isOn: 0
 --- !u!114 &114577455518944670
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -12720,6 +12721,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onDisplay: {fileID: 1511740963553394}
   offDisplay: {fileID: 1220760334851638}
+  m_isOn: 0
 --- !u!114 &114692684187547852
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -13466,6 +13468,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onDisplay: {fileID: 1115029031898048}
   offDisplay: {fileID: 1087624207143368}
+  m_isOn: 0
 --- !u!114 &114777182680518132
 MonoBehaviour:
   m_ObjectHideFlags: 1
