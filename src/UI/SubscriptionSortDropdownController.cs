@@ -19,11 +19,14 @@ namespace ModIO.UI
         public class OptionData
         {
             /// <summary>Text to use as the dropdown option.</summary>
-            public string displayText;
+            public string displayText = string.Empty;
 
             /// <summary>Value to use in the request filter.</summary>
             [FieldSelectAttribute]
-            public string fieldName;
+            public string fieldName = string.Empty;
+
+            /// <summary>Should the sort occur in ascending order.</summary>
+            public bool isAscending = true;
         }
 
         // ---------[ STATICS ]---------
@@ -44,7 +47,7 @@ namespace ModIO.UI
             {
                 "File Size", (a,b) =>
                 {
-                    int compareResult = (int)(b.currentBuild.fileSize - a.currentBuild.fileSize);
+                    int compareResult = (int)(a.currentBuild.fileSize - b.currentBuild.fileSize);
                     if(compareResult == 0)
                     {
                         compareResult = String.Compare(a.name, b.name);
@@ -59,7 +62,7 @@ namespace ModIO.UI
             {
                 "Date Updated", (a,b) =>
                 {
-                    int compareResult = b.dateUpdated - a.dateUpdated;
+                    int compareResult = a.dateUpdated - b.dateUpdated;
                     if(compareResult == 0)
                     {
                         compareResult = String.Compare(a.name, b.name);
@@ -137,7 +140,17 @@ namespace ModIO.UI
                 {
                     if(option.displayText == selection.text)
                     {
-                        return SubscriptionSortDropdownController.subscriptionSortOptions[option.fieldName];
+                        Comparison<ModProfile> sortFunc;
+                        if(option.isAscending)
+                        {
+                            sortFunc = SubscriptionSortDropdownController.subscriptionSortOptions[option.fieldName];
+                        }
+                        else
+                        {
+                            sortFunc = (a,b) => SubscriptionSortDropdownController.subscriptionSortOptions[option.fieldName](b,a);
+                        }
+
+                        return sortFunc;
                     }
                 }
             }

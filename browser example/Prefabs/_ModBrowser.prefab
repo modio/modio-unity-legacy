@@ -11647,12 +11647,16 @@ MonoBehaviour:
   options:
   - displayText: A-Z
     fieldName: Name
+    isAscending: 1
   - displayText: File Size
     fieldName: File Size
+    isAscending: 0
   - displayText: Updated
     fieldName: Date Updated
+    isAscending: 0
   - displayText: Enabled
     fieldName: Enabled
+    isAscending: 1
 --- !u!114 &114591770646757916
 MonoBehaviour:
   m_ObjectHideFlags: 1
