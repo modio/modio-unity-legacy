@@ -70,26 +70,6 @@ namespace ModIO.UI
         [Tooltip("Size to use for the mod gallery image thumbnails")]
         public ModGalleryImageSize galleryThumbnailSize = ModGalleryImageSize.Thumbnail_320x180;
 
-        [SerializeField] private UserDisplayData m_guestData = new UserDisplayData()
-        {
-            profile = new UserProfileDisplayData()
-            {
-                userId = UserProfile.NULL_ID,
-                username = "Guest",
-            },
-            avatar = new ImageDisplayData()
-            {
-                userId = UserProfile.NULL_ID,
-                imageId = "guest_avatar",
-                mediaType = ImageDisplayData.MediaType.UserAvatar,
-                originalTexture = null,
-                thumbnailTexture = null,
-            },
-        };
-
-        [Header("UI Components")]
-        public UserView loggedUserView;
-
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = null;
         private UserProfile m_userProfile = null;
@@ -203,8 +183,6 @@ namespace ModIO.UI
             #endif
 
             LoadLocalData();
-
-            InitializeDisplays();
         }
 
         private void LoadLocalData()
@@ -251,25 +229,6 @@ namespace ModIO.UI
             ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
             ImageDisplayData.logoThumbnailSize = this.logoThumbnailSize;
             ImageDisplayData.galleryThumbnailSize = this.galleryThumbnailSize;
-        }
-
-        private void InitializeDisplays()
-        {
-            if(loggedUserView != null)
-            {
-                loggedUserView.Initialize();
-
-                if(m_userProfile == null)
-                {
-                    loggedUserView.data = m_guestData;
-                }
-                else
-                {
-                    loggedUserView.DisplayUser(m_userProfile);
-                }
-
-                // loggedUserView.onClick += OnUserDisplayClicked;
-            }
         }
 
         private System.Collections.IEnumerator StartFetchRemoteData()
@@ -319,8 +278,8 @@ namespace ModIO.UI
                 {
                     m_gameProfile = g;
 
-                    IEnumerable<IGameProfileUpdateReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
-                    foreach(var receiver in updatedReceivers)
+                    IEnumerable<IGameProfileUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
+                    foreach(var receiver in updateReceivers)
                     {
                         receiver.OnGameProfileUpdated(g);
                     }
@@ -408,9 +367,10 @@ namespace ModIO.UI
 
                     m_userProfile = u;
 
-                    if(this.loggedUserView != null)
+                    IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+                    foreach(var receiver in updateReceivers)
                     {
-                        this.loggedUserView.DisplayUser(u);
+                        receiver.OnUserProfileUpdated(u);
                     }
 
                     succeeded = true;
@@ -1394,9 +1354,11 @@ namespace ModIO.UI
 
             // - set up guest account -
             m_userProfile = null;
-            if(this.loggedUserView != null)
+
+            IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+            foreach(var receiver in updateReceivers)
             {
-                this.loggedUserView.data = m_guestData;
+                receiver.OnUserLoggedOut();
             }
 
             // - notify -
@@ -1517,8 +1479,8 @@ namespace ModIO.UI
 
                 downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
 
-                IEnumerable<IModDownloadStartedReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModDownloadStartedReceiver>(true);
-                foreach(var receiver in updatedReceivers)
+                IEnumerable<IModDownloadStartedReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModDownloadStartedReceiver>(true);
+                foreach(var receiver in updateReceivers)
                 {
                     receiver.OnModDownloadStarted(modId, downloadInfo);
                 }
@@ -1837,8 +1799,8 @@ namespace ModIO.UI
 
         private void UpdateViewSubscriptions()
         {
-            IEnumerable<IModSubscriptionsUpdateReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModSubscriptionsUpdateReceiver>(true);
-            foreach(var receiver in updatedReceivers)
+            IEnumerable<IModSubscriptionsUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModSubscriptionsUpdateReceiver>(true);
+            foreach(var receiver in updateReceivers)
             {
                 receiver.OnModSubscriptionsUpdated();
             }
@@ -1853,8 +1815,8 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            IEnumerable<IModEnabledReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModEnabledReceiver>(true);
-            foreach(var receiver in updatedReceivers)
+            IEnumerable<IModEnabledReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModEnabledReceiver>(true);
+            foreach(var receiver in updateReceivers)
             {
                 receiver.OnModEnabled(modId);
             }
@@ -1869,8 +1831,8 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            IEnumerable<IModDisabledReceiver> updatedReceivers = UIUtilities.FindComponentsInScene<IModDisabledReceiver>(true);
-            foreach(var receiver in updatedReceivers)
+            IEnumerable<IModDisabledReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModDisabledReceiver>(true);
+            foreach(var receiver in updateReceivers)
             {
                 receiver.OnModDisabled(modId);
             }
@@ -1894,6 +1856,10 @@ namespace ModIO.UI
         public SubscriptionsView subscriptionsView;
         [Obsolete][HideInInspector]
         public LoginDialog loginDialog;
+        [Obsolete][HideInInspector]
+        public UserView loggedUserView;
+        [Obsolete("Use AuthenticatedUserViewController.m_guestData instead.")]
+        private UserDisplayData m_guestData;
 
         [Obsolete("Use ViewManager.ActivateExplorerView() instead.")]
         public void ShowExplorerView()
