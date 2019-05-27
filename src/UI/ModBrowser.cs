@@ -1567,12 +1567,9 @@ namespace ModIO.UI
                     this.subscriptionsView.OnModDownloadStarted(modId, downloadInfo);
                 }
 
-                foreach(ModView modView in IterateModViews())
+                if(this.inspectorView != null)
                 {
-                    if(modView.data.profile.modId == modId)
-                    {
-                        modView.DisplayDownload(downloadInfo);
-                    }
+                    this.inspectorView.OnModDownloadStarted(modId, downloadInfo);
                 }
 
                 while(!downloadInfo.isDone) { yield return null; }
@@ -1751,26 +1748,6 @@ namespace ModIO.UI
         public void CloseInspector()
         {
             inspectorView.gameObject.SetActive(false);
-        }
-
-        private IEnumerable<ModView> IterateModViews()
-        {
-            if(this.inspectorView != null
-               && this.inspectorView.modView != null)
-            {
-                yield return this.inspectorView.modView;
-            }
-
-            // if(this.subscriptionsView != null)
-            // {
-            //     foreach(var modView in this.subscriptionsView.modViews)
-            //     {
-            //         if(modView != null)
-            //         {
-            //             yield return modView;
-            //         }
-            //     }
-            // }
         }
 
         public void InspectDiscoverItem(ModView view)
@@ -1984,17 +1961,9 @@ namespace ModIO.UI
                 this.subscriptionsView.OnModEnabled(modId);
             }
 
-            if(this.isActiveAndEnabled)
+            if(this.inspectorView != null)
             {
-                foreach(ModView view in this.IterateModViews())
-                {
-                    if(view.data.profile.modId == modId)
-                    {
-                        ModDisplayData data = view.data;
-                        data.isModEnabled = true;
-                        view.data = data;
-                    }
-                }
+                this.inspectorView.OnModEnabled(modId);
             }
         }
 
@@ -2017,17 +1986,9 @@ namespace ModIO.UI
                 this.subscriptionsView.OnModDisabled(modId);
             }
 
-            if(this.isActiveAndEnabled)
+            if(this.inspectorView != null)
             {
-                foreach(ModView view in this.IterateModViews())
-                {
-                    if(view.data.profile.modId == modId)
-                    {
-                        ModDisplayData data = view.data;
-                        data.isModEnabled = false;
-                        view.data = data;
-                    }
-                }
+                this.inspectorView.OnModDisabled(modId);
             }
         }
 
