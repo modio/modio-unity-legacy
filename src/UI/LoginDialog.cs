@@ -144,6 +144,7 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
+        #pragma warning disable 0067
         [Obsolete("No longer trigger by this object.")]
         public event Action<string> onInvalidSubmissionAttempted;
         [Obsolete("No longer trigger by this object.")]
@@ -156,5 +157,6 @@ namespace ModIO.UI
         public event Action<string> onUserOAuthTokenReceived;
         [Obsolete("No longer trigger by this object.")]
         public event Action<WebRequestError> onWebRequestError;
+        #pragma warning restore 0067
     }
 }
