@@ -853,23 +853,22 @@ namespace ModIO.UI
             IList<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
             Dictionary<int, List<int>> groupedIds = new Dictionary<int, List<int>>();
 
-            // remove unsubbed mods
+            // create map
+            foreach(int modId in subscribedModIds)
+            {
+                groupedIds.Add(modId, new List<int>());
+            }
+
+            // sort installs
             foreach(ModfileIdPair idPair in installedModVersions)
             {
-                if(!subscribedModIds.Contains(idPair.modId))
+                if(subscribedModIds.Contains(idPair.modId))
                 {
-                    ModManager.TryUninstallAllModVersions(idPair.modId);
+                    groupedIds[idPair.modId].Add(idPair.modfileId);
                 }
                 else
                 {
-                    List<int> modfileIds = null;
-                    if(!groupedIds.TryGetValue(idPair.modId, out modfileIds))
-                    {
-                        modfileIds = new List<int>();
-                        groupedIds.Add(idPair.modId, modfileIds);
-                    }
-
-                    modfileIds.Add(idPair.modfileId);
+                    ModManager.TryUninstallAllModVersions(idPair.modId);
                 }
             }
 
