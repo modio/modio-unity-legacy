@@ -7221,7 +7221,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114309666271251828}
+      - m_Target: {fileID: 114906444019964150}
         m_MethodName: NotifySubscribeRequested
         m_Mode: 1
         m_Arguments:

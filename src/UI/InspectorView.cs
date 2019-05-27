@@ -10,11 +10,6 @@ namespace ModIO.UI
     public class InspectorView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public event Action<ModProfile> subscribeRequested;
-        public event Action<ModProfile> unsubscribeRequested;
-        public event Action<ModProfile> enableRequested;
-        public event Action<ModProfile> disableRequested;
-
         [Header("Settings")]
         public GameObject versionHistoryItemPrefab;
         public string missingVersionChangelogText;
@@ -78,6 +73,12 @@ namespace ModIO.UI
                 }
 
                 mediaContainer = modView.mediaContainer as ModMediaContainer;
+
+                // add listeners
+                modView.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
+                modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
+                modView.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
+                modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
             }
 
             if(selectedMediaPreview != null)
@@ -275,35 +276,6 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        public void NotifySubscribeRequested()
-        {
-            if(subscribeRequested != null)
-            {
-                subscribeRequested(this.profile);
-            }
-        }
-        public void NotifyUnsubscribeRequested()
-        {
-            if(unsubscribeRequested != null)
-            {
-                unsubscribeRequested(this.profile);
-            }
-        }
-        public void NotifyEnableRequested()
-        {
-            if(enableRequested != null)
-            {
-                enableRequested(this.profile);
-            }
-        }
-        public void NotifyDisableRequested()
-        {
-            if(disableRequested != null)
-            {
-                disableRequested(this.profile);
-            }
-        }
-
         public void OnGameProfileUpdated(GameProfile gameProfile)
         {
             if(this.m_tagCategories != gameProfile.tagCategories)
@@ -411,5 +383,46 @@ namespace ModIO.UI
         // ---------[ OBSOLETE ]---------
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
+
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModProfile> subscribeRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifySubscribeRequested()
+        {
+            if(subscribeRequested != null)
+            {
+                subscribeRequested(this.profile);
+            }
+        }
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModProfile> unsubscribeRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifyUnsubscribeRequested()
+        {
+            if(unsubscribeRequested != null)
+            {
+                unsubscribeRequested(this.profile);
+            }
+        }
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModProfile> enableRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifyEnableRequested()
+        {
+            if(enableRequested != null)
+            {
+                enableRequested(this.profile);
+            }
+        }
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public event Action<ModProfile> disableRequested;
+        [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
+        public void NotifyDisableRequested()
+        {
+            if(disableRequested != null)
+            {
+                disableRequested(this.profile);
+            }
+        }
     }
 }

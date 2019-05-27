@@ -204,7 +204,6 @@ namespace ModIO.UI
 
             LoadLocalData();
 
-            InitializeInspectorView();
             InitializeDialogs();
             InitializeDisplays();
         }
@@ -253,13 +252,6 @@ namespace ModIO.UI
             ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
             ImageDisplayData.logoThumbnailSize = this.logoThumbnailSize;
             ImageDisplayData.galleryThumbnailSize = this.galleryThumbnailSize;
-        }
-
-        private void InitializeInspectorView()
-        {
-            inspectorView.subscribeRequested += (p) => SubscribeToMod(p.id);
-            inspectorView.unsubscribeRequested += (p) => UnsubscribeFromMod(p.id);
-            inspectorView.gameObject.SetActive(false);
         }
 
         private void InitializeDialogs()
