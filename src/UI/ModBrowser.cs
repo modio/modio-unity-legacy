@@ -1557,6 +1557,11 @@ namespace ModIO.UI
 
                 downloadInfo = DownloadClient.StartModBinaryDownload(modId, modfileId, zipFilePath);
 
+                if(this.explorerView != null)
+                {
+                    this.explorerView.OnModDownloadStarted(modId, downloadInfo);
+                }
+
                 foreach(ModView modView in IterateModViews())
                 {
                     if(modView.data.profile.modId == modId)
@@ -1749,17 +1754,6 @@ namespace ModIO.UI
                && this.inspectorView.modView != null)
             {
                 yield return this.inspectorView.modView;
-            }
-
-            if(this.explorerView != null)
-            {
-                foreach(var modView in this.explorerView.modViews)
-                {
-                    if(modView != null)
-                    {
-                        yield return modView;
-                    }
-                }
             }
 
             if(this.subscriptionsView != null)
@@ -1975,6 +1969,11 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
+            if(this.explorerView != null)
+            {
+                this.explorerView.OnModEnabled(modId);
+            }
+
             if(this.isActiveAndEnabled)
             {
                 foreach(ModView view in this.IterateModViews())
@@ -1996,6 +1995,11 @@ namespace ModIO.UI
             {
                 mods.Remove(modId);
                 ModManager.SetEnabledModIds(mods);
+            }
+
+            if(this.explorerView != null)
+            {
+                this.explorerView.OnModDisabled(modId);
             }
 
             if(this.isActiveAndEnabled)
