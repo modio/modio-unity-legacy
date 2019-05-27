@@ -57,7 +57,7 @@ namespace ModIO.UI
                 }
             },
             {
-                "Last Updated", (a,b) =>
+                "Date Updated", (a,b) =>
                 {
                     int compareResult = b.dateUpdated - a.dateUpdated;
                     if(compareResult == 0)

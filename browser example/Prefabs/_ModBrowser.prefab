@@ -11650,7 +11650,7 @@ MonoBehaviour:
   - displayText: File Size
     fieldName: File Size
   - displayText: Updated
-    fieldName: Last Updated
+    fieldName: Date Updated
   - displayText: Enabled
     fieldName: Enabled
 --- !u!114 &114591770646757916
