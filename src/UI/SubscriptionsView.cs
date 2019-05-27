@@ -33,8 +33,8 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
         private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
-        public Func<ModProfile, bool> titleFilterDelegate = (p) => true;
-        public Comparison<ModProfile> sortDelegate = (a,b) => a.id - b.id;
+        private Func<ModProfile, bool> m_titleFilterDelegate = (p) => true;
+        private Comparison<ModProfile> m_sortDelegate = (a,b) => a.id - b.id;
 
         // --- ACCESSORS ---
         public IEnumerable<ModView> modViews
@@ -87,27 +87,27 @@ namespace ModIO.UI
         public void UpdateFilter()
         {
             // filter
-            this.titleFilterDelegate = (p) => true;
+            this.m_titleFilterDelegate = (p) => true;
             if(this.nameSearchField != null
                && !String.IsNullOrEmpty(this.nameSearchField.text))
             {
                 // set initial value
                 string filterString = this.nameSearchField.text.ToUpper();
-                this.titleFilterDelegate = (p) =>
+                this.m_titleFilterDelegate = (p) =>
                 {
                     return p.name.ToUpper().Contains(filterString);
                 };
             }
 
             // sort
-            this.sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
+            this.m_sortDelegate = SubscriptionSortDropdownController.subscriptionSortOptions.First().Value;
             if(this.sortByDropdown != null)
             {
                 // set initial value
                 Comparison<ModProfile> sortFunc = this.sortByDropdown.GetSelectedSortFunction();
                 if(sortFunc != null)
                 {
-                    this.sortDelegate = sortFunc;
+                    this.m_sortDelegate = sortFunc;
                 }
             }
 
@@ -125,16 +125,16 @@ namespace ModIO.UI
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
-            Func<ModProfile, bool> titleFilterDelegate = this.titleFilterDelegate;
-            Comparison<ModProfile> sortDelegate = this.sortDelegate;
+            Func<ModProfile, bool> titleFilterDelegate = this.m_titleFilterDelegate;
+            Comparison<ModProfile> sortDelegate = this.m_sortDelegate;
 
             if(subscribedModIds.Count > 0)
             {
                 Action<List<ModProfile>> onGetModProfiles = (list) =>
                 {
                     // ensure it's still the same filter
-                    if(titleFilterDelegate != this.titleFilterDelegate
-                       || sortDelegate != this.sortDelegate)
+                    if(titleFilterDelegate != this.m_titleFilterDelegate
+                       || sortDelegate != this.m_sortDelegate)
                     {
                         return;
                     }
