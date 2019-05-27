@@ -1562,6 +1562,11 @@ namespace ModIO.UI
                     this.explorerView.OnModDownloadStarted(modId, downloadInfo);
                 }
 
+                if(this.subscriptionsView != null)
+                {
+                    this.subscriptionsView.OnModDownloadStarted(modId, downloadInfo);
+                }
+
                 foreach(ModView modView in IterateModViews())
                 {
                     if(modView.data.profile.modId == modId)
@@ -1756,16 +1761,16 @@ namespace ModIO.UI
                 yield return this.inspectorView.modView;
             }
 
-            if(this.subscriptionsView != null)
-            {
-                foreach(var modView in this.subscriptionsView.modViews)
-                {
-                    if(modView != null)
-                    {
-                        yield return modView;
-                    }
-                }
-            }
+            // if(this.subscriptionsView != null)
+            // {
+            //     foreach(var modView in this.subscriptionsView.modViews)
+            //     {
+            //         if(modView != null)
+            //         {
+            //             yield return modView;
+            //         }
+            //     }
+            // }
         }
 
         public void InspectDiscoverItem(ModView view)
@@ -1974,6 +1979,11 @@ namespace ModIO.UI
                 this.explorerView.OnModEnabled(modId);
             }
 
+            if(this.subscriptionsView != null)
+            {
+                this.subscriptionsView.OnModEnabled(modId);
+            }
+
             if(this.isActiveAndEnabled)
             {
                 foreach(ModView view in this.IterateModViews())
@@ -2000,6 +2010,11 @@ namespace ModIO.UI
             if(this.explorerView != null)
             {
                 this.explorerView.OnModDisabled(modId);
+            }
+
+            if(this.subscriptionsView != null)
+            {
+                this.subscriptionsView.OnModDisabled(modId);
             }
 
             if(this.isActiveAndEnabled)
