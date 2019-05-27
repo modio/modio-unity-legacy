@@ -89,7 +89,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public UserView loggedUserView;
-        public LoginDialog loginDialog;
 
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = null;
@@ -269,7 +268,7 @@ namespace ModIO.UI
                     loggedUserView.DisplayUser(m_userProfile);
                 }
 
-                loggedUserView.onClick += OnUserDisplayClicked;
+                // loggedUserView.onClick += OnUserDisplayClicked;
             }
         }
 
@@ -1878,18 +1877,6 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENT HANDLING ]---------
-        private void OnUserDisplayClicked(UserView view)
-        {
-            if(m_userProfile == null)
-            {
-                OpenLoginDialog();
-            }
-            else
-            {
-                LogUserOut();
-            }
-        }
-
         #if UNITY_EDITOR
         private void OnValidate()
         {
@@ -1905,6 +1892,8 @@ namespace ModIO.UI
         public InspectorView inspectorView;
         [Obsolete][HideInInspector]
         public SubscriptionsView subscriptionsView;
+        [Obsolete][HideInInspector]
+        public LoginDialog loginDialog;
 
         [Obsolete("Use ViewManager.ActivateExplorerView() instead.")]
         public void ShowExplorerView()
