@@ -29,6 +29,12 @@ namespace ModIO.UI
 
 
         // --------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            // update button state
+            OnTextInputUpdated();
+        }
+
         private void Start()
         {
             inputField.onEndEdit.AddListener(val =>
