@@ -93,14 +93,36 @@ namespace ModIO.UI
         };
 
         // ---------[ FIELDS ]---------
+        /// <summary>SubscriptionsView to receive the sort delegate.</summary>
+        public SubscriptionsView view = null;
+
         /// <summary>Options for the controller to use.</summary>
         public OptionData[] options = new OptionData[0];
 
+        // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown
         { get { return this.gameObject.GetComponent<Dropdown>(); }}
 
+
+        // ---------[ INITIALIZATION ]---------
+        private void Start()
+        {
+            this.dropdown.onValueChanged.AddListener((v) => UpdateViewSort());
+            UpdateViewSort();
+        }
+
         // ---------[ FUNCTIONALITY ]---------
+        /// <summary>Sets the sort delegate on the targetted view.</summary>
+        public void UpdateViewSort()
+        {
+            Comparison<ModProfile> sortFunc = GetSelectedSortFunction();
+            if(sortFunc != null)
+            {
+                view.sortDelegate = sortFunc;
+            }
+        }
+
         /// <summary>Returns the sort function for the currently selected dropdown option.</summary>
         public Comparison<ModProfile> GetSelectedSortFunction()
         {

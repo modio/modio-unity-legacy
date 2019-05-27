@@ -19,7 +19,6 @@ namespace ModIO.UI
         [Header("UI Components")]
         public ScrollRect scrollView;
         public InputField nameSearchField;
-        public SubscriptionSortDropdownController sortByDropdown;
         public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noSubscriptionsDisplay;
@@ -37,6 +36,19 @@ namespace ModIO.UI
         public IEnumerable<ModView> modViews
         {
             get { return m_viewMap.Values; }
+        }
+
+        public Comparison<ModProfile> sortDelegate
+        {
+            get { return this.m_sortDelegate; }
+            set
+            {
+                if(this.m_sortDelegate != value)
+                {
+                    this.m_sortDelegate = value;
+                    this.UpdateFilter();
+                }
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -57,7 +69,6 @@ namespace ModIO.UI
 
             // - setup filter controls -
             this.nameSearchField.onValueChanged.AddListener((t) => this.UpdateFilter());
-            this.sortByDropdown.dropdown.onValueChanged.AddListener((v) => this.UpdateFilter());
             this.UpdateFilter();
 
             // get page
@@ -94,18 +105,6 @@ namespace ModIO.UI
                 {
                     return p.name.ToUpper().Contains(filterString);
                 };
-            }
-
-            // sort
-            this.m_sortDelegate = (a,b) => a.id - b.id;
-            if(this.sortByDropdown != null)
-            {
-                // set initial value
-                Comparison<ModProfile> sortFunc = this.sortByDropdown.GetSelectedSortFunction();
-                if(sortFunc != null)
-                {
-                    this.m_sortDelegate = sortFunc;
-                }
             }
 
             // request page

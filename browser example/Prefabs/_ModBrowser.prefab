@@ -6053,7 +6053,6 @@ MonoBehaviour:
   itemPrefab: {fileID: 1139133584329282, guid: 6d6023c94d9954c1b91501defdcfce07, type: 2}
   scrollView: {fileID: 114549700727417704}
   nameSearchField: {fileID: 114098324929849516}
-  sortByDropdown: {fileID: 114588715152079566}
   resultCount: {fileID: 114423435185988604}
   noSubscriptionsDisplay: {fileID: 1338033130210044}
   noResultsDisplay: {fileID: 1478767563269758}
@@ -11634,6 +11633,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86b8a1ff99c59458dae5fc9fab64ccd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  view: {fileID: 114130614508925794}
   options:
   - displayText: A-Z
     fieldName: Name
