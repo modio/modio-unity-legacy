@@ -2,20 +2,26 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 namespace ModIO.UI
 {
     public class ModTagFilterView : MonoBehaviour, IGameProfileUpdateReceiver
     {
-        // ---------[ FIELDS ]---------
-        public event Action<string> tagFilterAdded;
-        public event Action<string> tagFilterRemoved;
+        // ---------[ NESTED DATA-TYPES ]---------
+        [System.Serializable]
+        public class TagEvent : UnityEvent<string> {}
 
+        // ---------[ FIELDS ]---------
         [Header("Settings")]
         public GameObject tagCategoryPrefab;
 
         [Header("UI Components")]
         public RectTransform tagCategoryContainer;
+
+        [Header("Events")]
+        public TagEvent tagFilterAdded;
+        public TagEvent tagFilterRemoved;
 
         // --- RUNTIME DATA ---
         private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
@@ -52,8 +58,9 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        public void Initialize()
+        private void Start()
         {
+            // asserts
             Debug.Assert(tagCategoryContainer != null);
             Debug.Assert(tagCategoryPrefab != null);
             Debug.Assert(tagCategoryPrefab.GetComponent<ModTagCategoryDisplay>() != null);
@@ -69,9 +76,10 @@ namespace ModIO.UI
             Debug.Assert(tagContainer.tagDisplayPrefab.GetComponent<Toggle>() != null,
                          "[mod.io] ModTagFilterViews require the TagDisplayPrefab in the "
                          + "FilterView.tagCategoryPrefab to have a Toggle Component.");
+
         }
 
-        public void OnEnable()
+        private void OnEnable()
         {
             StartCoroutine(EndOfFrameUpdateCoroutine());
         }
@@ -165,7 +173,7 @@ namespace ModIO.UI
 
                 if(tagFilterRemoved != null)
                 {
-                    tagFilterRemoved(display.data.tagName);
+                    tagFilterRemoved.Invoke(display.data.tagName);
                 }
             }
             else
@@ -174,9 +182,13 @@ namespace ModIO.UI
 
                 if(tagFilterAdded != null)
                 {
-                    tagFilterAdded(display.data.tagName);
+                    tagFilterAdded.Invoke(display.data.tagName);
                 }
             }
         }
+
+        // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer necessary. Initialization occurs in Start().")]
+        public void Initialize() {}
     }
 }

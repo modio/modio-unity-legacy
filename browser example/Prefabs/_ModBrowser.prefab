@@ -6846,7 +6846,9 @@ MonoBehaviour:
   noResultsDisplay: {fileID: 1633844475048514}
   isActiveIndicator: {fileID: 114691915214033132}
   gridLayout: {fileID: 0}
-  filterTags: []
+  m_titleFilter: 
+  m_sortString: -date_live
+  m_tagFilter: []
   isTransitioning: 0
   currentPageContainer: {fileID: 0}
   targetPageContainer: {fileID: 0}
@@ -14671,6 +14673,38 @@ MonoBehaviour:
   tagCategoryPrefab: {fileID: 1722541123827752, guid: af713a3e81888417089a42d416dbf2af,
     type: 2}
   tagCategoryContainer: {fileID: 224738526159741542}
+  tagFilterAdded:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 114195835507779204}
+        m_MethodName: AddTagToFilter
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: ModIO.UI.ModTagFilterView+TagEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  tagFilterRemoved:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 114195835507779204}
+        m_MethodName: RemoveTagFromFilter
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: ModIO.UI.ModTagFilterView+TagEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114883614204342916
 MonoBehaviour:
   m_ObjectHideFlags: 1

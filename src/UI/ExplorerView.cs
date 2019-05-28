@@ -196,12 +196,6 @@ namespace ModIO.UI
             }
 
             // - initialize nested views -
-            if(tagFilterView != null)
-            {
-                tagFilterView.tagFilterAdded += AddTagToFilter;
-                tagFilterView.tagFilterRemoved += RemoveTagFromFilter;
-            }
-
             if(tagFilterBar != null)
             {
                 tagFilterBar.Initialize();
