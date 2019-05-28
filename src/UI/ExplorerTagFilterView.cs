@@ -22,7 +22,7 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         /// <summary>Categories to display.</summary>
-        private ModTagCategory[] m_categories = new ModTagCategory[0];
+        private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
         /// <summary>Displays for the mod tag categories.</summary>
         private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
         /// <summary>Tags to display as selected.</summary>
@@ -114,7 +114,7 @@ namespace ModIO.UI
             m_categoryDisplays.Clear();
 
             // create
-            foreach(ModTagCategory category in m_categories)
+            foreach(ModTagCategory category in m_tagCategories)
             {
                 GameObject categoryGO = CreateCategoryDisplayInstance(category,
                                                                       tagCategoryPrefab,
@@ -188,9 +188,15 @@ namespace ModIO.UI
         {
             Debug.Assert(gameProfile != null);
 
-            if(this.m_categories != gameProfile.tagCategories)
+            if(this.m_tagCategories != gameProfile.tagCategories)
             {
-                this.m_categories = gameProfile.tagCategories;
+                var tagCategories = gameProfile.tagCategories;
+                if(tagCategories == null)
+                {
+                    tagCategories = new ModTagCategory[0];
+                }
+
+                this.m_tagCategories = tagCategories;
                 this.Refresh();
             }
         }
