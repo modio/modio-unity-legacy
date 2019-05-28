@@ -69,6 +69,11 @@ namespace ModIO.UI
             Debug.Assert(tagContainer.tagDisplayPrefab.GetComponent<Toggle>() != null,
                          "[mod.io] ModTagFilterViews require the TagDisplayPrefab in the "
                          + "FilterView.tagCategoryPrefab to have a Toggle Component.");
+
+            this.view.onTagFilterUpdated += (t) =>
+            {
+                this.selectedTags = t;
+            };
         }
 
         private void OnEnable()

@@ -16,6 +16,8 @@ namespace ModIO.UI
     public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
+        public event Action<string[]> onTagFilterUpdated = null;
+
         [Header("Settings")]
         public GameObject itemPrefab = null;
         public float pageTransitionTimeSeconds = 0.4f;
@@ -23,7 +25,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public RectTransform contentPane;
-        public ExplorerTagFilterView tagFilterView;
         public ModTagContainer tagFilterBar;
         public Button prevPageButton;
         public Button nextPageButton;
@@ -127,6 +128,11 @@ namespace ModIO.UI
                 {
                     this.m_tagFilter = new List<string>(value);
                     this.Refresh();
+
+                    if(this.onTagFilterUpdated != null)
+                    {
+                        this.onTagFilterUpdated(this.m_tagFilter.ToArray());
+                    }
                 }
             }
         }
@@ -415,6 +421,11 @@ namespace ModIO.UI
             }
 
             this.Refresh();
+
+            if(this.onTagFilterUpdated != null)
+            {
+                this.onTagFilterUpdated(this.m_tagFilter.ToArray());
+            }
         }
 
         public void RemoveTagFromFilter(string tagName)
@@ -428,6 +439,11 @@ namespace ModIO.UI
             }
 
             this.Refresh();
+
+            if(this.onTagFilterUpdated != null)
+            {
+                this.onTagFilterUpdated(this.m_tagFilter.ToArray());
+            }
         }
 
         // ---------[ PAGE DISPLAY ]---------
@@ -661,10 +677,6 @@ namespace ModIO.UI
         {
             m_tagFilter.Clear();
 
-            if(tagFilterView != null)
-            {
-                tagFilterView.selectedTags = m_tagFilter.ToArray();
-            }
             if(tagFilterBar != null)
             {
                 tagFilterBar.DisplayTags(m_tagFilter, m_tagCategories);
@@ -672,6 +684,11 @@ namespace ModIO.UI
             }
 
             this.Refresh();
+
+            if(this.onTagFilterUpdated != null)
+            {
+                this.onTagFilterUpdated(new string[0]);
+            }
         }
 
         // ---------[ EVENTS ]---------
