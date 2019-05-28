@@ -190,6 +190,14 @@ namespace ModIO.UI
                 m_gameProfile = new GameProfile();
                 m_gameProfile.id = PluginSettings.data.gameId;
             }
+            else
+            {
+                IEnumerable<IGameProfileUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
+                foreach(var receiver in updateReceivers)
+                {
+                    receiver.OnGameProfileUpdated(m_gameProfile);
+                }
+            }
 
             // - Manifest -
             string manifestFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,

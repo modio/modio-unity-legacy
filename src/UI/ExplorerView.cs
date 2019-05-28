@@ -653,11 +653,6 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
-
-                if(tagFilterView != null)
-                {
-                    tagFilterView.tagCategories = this.m_tagCategories;
-                }
                 if(tagFilterBar != null)
                 {
                     tagFilterBar.DisplayTags(filterTags, this.m_tagCategories);

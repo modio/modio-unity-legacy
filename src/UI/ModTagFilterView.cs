@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ModTagFilterView : MonoBehaviour
+    public class ModTagFilterView : MonoBehaviour, IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         public event Action<string> tagFilterAdded;
@@ -20,7 +20,7 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
         private List<string> m_selectedTags = new List<string>();
-        private List<ModTagCategory> m_categories = new List<ModTagCategory>(0);
+        private ModTagCategory[] m_categories = new ModTagCategory[0];
 
         // --- ACCESSORS ---
         public IEnumerable<ModTagCategoryDisplay> categoryDisplays
@@ -51,41 +51,6 @@ namespace ModIO.UI
             }
         }
 
-        public IEnumerable<ModTagCategory> tagCategories
-        {
-            get { return m_categories; }
-            set
-            {
-                Debug.Assert(value != null);
-
-                m_categories = new List<ModTagCategory>(value);
-
-                // clear existing
-                foreach(ModTagCategoryDisplay cat in m_categoryDisplays)
-                {
-                    GameObject.Destroy(cat.gameObject);
-                }
-                m_categoryDisplays.Clear();
-
-                // create
-                foreach(ModTagCategory category in m_categories)
-                {
-                    GameObject categoryGO = CreateCategoryDisplayInstance(category,
-                                                                          m_selectedTags,
-                                                                          tagCategoryPrefab,
-                                                                          tagCategoryContainer);
-
-                    categoryGO.GetComponent<ModTagContainer>().tagClicked += TagClickHandler;
-                    m_categoryDisplays.Add(categoryGO.GetComponent<ModTagCategoryDisplay>());
-                }
-
-                if(this.isActiveAndEnabled)
-                {
-                    StartCoroutine(LateUpdateLayouting());
-                }
-            }
-        }
-
         // ---------[ INITIALIZATION ]---------
         public void Initialize()
         {
@@ -108,16 +73,44 @@ namespace ModIO.UI
 
         public void OnEnable()
         {
-            StartCoroutine(LateUpdateLayouting());
+            StartCoroutine(EndOfFrameUpdateCoroutine());
         }
 
-        public System.Collections.IEnumerator LateUpdateLayouting()
+        public System.Collections.IEnumerator EndOfFrameUpdateCoroutine()
         {
             yield return null;
-            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(tagCategoryContainer);
+            UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(tagCategoryContainer);
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
+        public void Refresh()
+        {
+            // clear existing
+            foreach(ModTagCategoryDisplay display in m_categoryDisplays)
+            {
+                GameObject.Destroy(display.gameObject);
+            }
+            m_categoryDisplays.Clear();
+
+            // create
+            foreach(ModTagCategory category in m_categories)
+            {
+                GameObject categoryGO = CreateCategoryDisplayInstance(category,
+                                                                      m_selectedTags,
+                                                                      tagCategoryPrefab,
+                                                                      tagCategoryContainer);
+
+                categoryGO.GetComponent<ModTagContainer>().tagClicked += TagClickHandler;
+                m_categoryDisplays.Add(categoryGO.GetComponent<ModTagCategoryDisplay>());
+            }
+
+            // layout
+            if(this.isActiveAndEnabled)
+            {
+                StartCoroutine(EndOfFrameUpdateCoroutine());
+            }
+        }
+
         private static GameObject CreateCategoryDisplayInstance(ModTagCategory category,
                                                                 List<string> selectedTags,
                                                                 GameObject prefab,
@@ -153,6 +146,17 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
+        public void OnGameProfileUpdated(GameProfile gameProfile)
+        {
+            Debug.Assert(gameProfile != null);
+
+            if(this.m_categories != gameProfile.tagCategories)
+            {
+                this.m_categories = gameProfile.tagCategories;
+                this.Refresh();
+            }
+        }
+
         private void TagClickHandler(ModTagDisplayComponent display)
         {
             if(m_selectedTags.Contains(display.data.tagName))
