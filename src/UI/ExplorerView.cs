@@ -23,7 +23,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public RectTransform contentPane;
-        public InputField nameSearchField;
         public ModTagFilterView tagFilterView;
         public ModTagContainer tagFilterBar;
         public Button prevPageButton;
@@ -49,11 +48,8 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
         private List<ModView> m_modViews = new List<ModView>();
-        private RequestFilter m_requestFilter = new RequestFilter()
-        {
-            sortFieldName = API.GetAllModsFilterFields.dateLive,
-            isSortAscending = false,
-        };
+        private string m_titleFilter = string.Empty;
+        private string m_sortString = "-" + API.GetAllModsFilterFields.dateLive;
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -73,16 +69,33 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Sets the values to use for sorting the mods.</summary>
-        public void SetSortValues(string fieldName, bool isAscending)
+        /// <summary>String to use for filtering the mod request.</summary>
+        public string titleFilter
         {
-            if(m_requestFilter.isSortAscending != isAscending
-               || m_requestFilter.sortFieldName.ToUpper() != fieldName.ToUpper())
+            get { return this.m_titleFilter; }
+            set
             {
-                this.m_requestFilter.sortFieldName = fieldName;
-                this.m_requestFilter.isSortAscending = isAscending;
+                if(value == null) { value = string.Empty; }
 
-                UpdateFilter();
+                if(this.m_titleFilter.ToUpper() != value.ToUpper())
+                {
+                    this.m_titleFilter = value.ToUpper();
+                    Refresh();
+                }
+            }
+        }
+
+        /// <summary>String to use for sorting the mod request.</summary>
+        public string sortString
+        {
+            get { return this.m_sortString; }
+            set
+            {
+                if(this.m_sortString.ToUpper() != value.ToUpper())
+                {
+                    this.m_sortString = value;
+                    Refresh();
+                }
             }
         }
 
@@ -152,15 +165,6 @@ namespace ModIO.UI
                 return;
             }
 
-            // - add listeners -
-            if(this.nameSearchField != null)
-            {
-                this.nameSearchField.onEndEdit.AddListener((t) =>
-                {
-                    this.UpdateFilter();
-                });
-            }
-
             // - initialize nested views -
             if(tagFilterView != null)
             {
@@ -176,7 +180,7 @@ namespace ModIO.UI
                         tagFilterBar.DisplayTags(filterTags, m_tagCategories);
                     }
 
-                    this.UpdateFilter();
+                    this.Refresh();
                 };
                 tagFilterView.tagFilterRemoved += RemoveTag;
             }
@@ -207,38 +211,11 @@ namespace ModIO.UI
             targetPageContainer = pageGO.GetComponent<RectTransform>();
             targetPageContainer.gameObject.SetActive(false);
 
-            // - perform initial fetch -
-            int pageSize = this.itemsPerPage;
-            RequestPage<ModProfile> modPage = new RequestPage<ModProfile>()
-            {
-                size = pageSize,
-                items = new ModProfile[pageSize],
-                resultOffset = 0,
-                resultTotal = 0,
-            };
-            this.currentPage = modPage;
-
-            this.FetchPage(0, (page) =>
-            {
-                #if DEBUG
-                if(!Application.isPlaying)
-                {
-                    return;
-                }
-                #endif
-
-                if(this != null
-                   && this.currentPage == modPage)
-                {
-                    this.currentPage = page;
-                    this.UpdateCurrentPageDisplay();
-                    this.UpdatePageButtonInteractibility();
-                }
-            },
-            null);
-
             this.UpdateCurrentPageDisplay();
             this.UpdatePageButtonInteractibility();
+
+            // - perform initial fetch -
+            this.Refresh();
         }
 
         // TODO(@jackson): Recheck page size
@@ -271,38 +248,11 @@ namespace ModIO.UI
                 tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
             }
 
-            this.UpdateFilter();
+            this.Refresh();
         }
 
-        // TODO(@jackson): Don't request page!!!!!!!
-        public void UpdateFilter()
+        public void Refresh()
         {
-            // title
-            if(this.nameSearchField == null
-               || String.IsNullOrEmpty(this.nameSearchField.text))
-            {
-                this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
-            }
-            else
-            {
-                this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
-                    = new StringLikeFilter() { likeValue = "*"+this.nameSearchField.text+"*" };
-            }
-
-            // tags
-            string[] filterTagNames = this.filterTags.ToArray();
-
-            if(filterTagNames.Length == 0)
-            {
-                this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
-            }
-            else
-            {
-                this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
-                    = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
-            }
-
-
             int pageSize = this.itemsPerPage;
             // TODO(@jackson): BAD ZERO?
             RequestPage<ModProfile> filteredPage = new RequestPage<ModProfile>()
@@ -316,7 +266,12 @@ namespace ModIO.UI
 
             this.FetchPage(0, (page) =>
             {
-                if(this.currentPage == filteredPage)
+                #if DEBUG
+                if(!Application.isPlaying) { return; }
+                #endif
+
+                if(this != null
+                   && this.currentPage == filteredPage)
                 {
                     this.currentPage = page;
                     this.UpdateCurrentPageDisplay();
@@ -340,8 +295,42 @@ namespace ModIO.UI
             pagination.offset = pageIndex * pageSize;
 
             // Send Request
-            APIClient.GetAllMods(this.m_requestFilter, pagination,
+            APIClient.GetAllMods(GenerateRequestFilter(), pagination,
                                  onSuccess, onError);
+        }
+
+        public RequestFilter GenerateRequestFilter()
+        {
+            RequestFilter filter = new RequestFilter()
+            {
+                sortFieldName = this.m_sortString,
+            };
+
+            // title
+            if(String.IsNullOrEmpty(this.m_titleFilter))
+            {
+                filter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
+            }
+            else
+            {
+                filter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
+                    = new StringLikeFilter() { likeValue = "*"+this.m_titleFilter+"*" };
+            }
+
+            // tags
+            string[] filterTagNames = this.filterTags.ToArray();
+
+            if(filterTagNames.Length == 0)
+            {
+                filter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
+            }
+            else
+            {
+                filter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
+                    = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
+            }
+
+            return filter;
         }
 
         public void UpdatePageButtonInteractibility()
@@ -643,11 +632,6 @@ namespace ModIO.UI
         // ---------[ FILTER MANAGEMENT ]---------
         public void ClearFilters()
         {
-            if(nameSearchField != null)
-            {
-                nameSearchField.text = string.Empty;
-            }
-
             filterTags.Clear();
 
             if(tagFilterView != null)
@@ -660,7 +644,7 @@ namespace ModIO.UI
                 tagFilterBar.gameObject.SetActive(false);
             }
 
-            this.UpdateFilter();
+            this.Refresh();
         }
 
         // ---------[ EVENTS ]---------

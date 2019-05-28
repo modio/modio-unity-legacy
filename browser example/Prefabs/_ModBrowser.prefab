@@ -6836,7 +6836,6 @@ MonoBehaviour:
   pageTransitionTimeSeconds: 0.4
   pageTemplate: {fileID: 224895251402852128}
   contentPane: {fileID: 224480924864000676}
-  nameSearchField: {fileID: 114280675296892522}
   tagFilterView: {fileID: 114881975973044358}
   tagFilterBar: {fileID: 114594926552467964}
   prevPageButton: {fileID: 114319778585326076}
@@ -7693,7 +7692,18 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114195835507779204}
+        m_MethodName: set_titleFilter
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.InputField+SubmitEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:

@@ -1880,10 +1880,10 @@ namespace ModIO.UI
             this.explorerView.UpdatePageButtonInteractibility();
         }
 
-        [Obsolete("Use ExplorerView.UpdateFilter() instead.")]
+        [Obsolete("Use ExplorerView.Refresh() instead.")]
         public void UpdateExplorerFilters()
         {
-            explorerView.UpdateFilter();
+            explorerView.Refresh();
         }
 
         [Obsolete("Use ExplorerView.ChangePage() instead.")]

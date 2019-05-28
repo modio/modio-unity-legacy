@@ -62,7 +62,7 @@ namespace ModIO.UI
             OptionData option = GetSelectedOption();
             if(option != null)
             {
-                view.SetSortValues(option.fieldName, option.isAscending);
+                view.sortString = (option.isAscending ? "" : "-") + option.fieldName;
             }
         }
 
