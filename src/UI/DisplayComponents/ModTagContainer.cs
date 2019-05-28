@@ -51,7 +51,7 @@ namespace ModIO.UI
             }
         }
 
-        private void PresentData(IEnumerable<ModTagDisplayData> displayData)
+        private void PresentData(IList<ModTagDisplayData> displayData)
         {
             Debug.Assert(displayData != null);
 
@@ -60,27 +60,34 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(false);
             }
 
-            // clear
-            foreach(ModTagDisplayComponent display in m_tagDisplays)
+            int newCount = displayData.Count;
+
+            // remove unneeded displays
+            while(newCount < m_tagDisplays.Count)
             {
+                ModTagDisplayComponent display = m_tagDisplays[newCount];
+                m_tagDisplays.RemoveAt(newCount);
+
                 GameObject.Destroy(display.gameObject);
             }
-            m_tagDisplays.Clear();
 
-            // create
-            foreach(ModTagDisplayData tagData in displayData)
+            // create new displays
+            while(m_tagDisplays.Count < newCount)
             {
-                GameObject displayGO = GameObject.Instantiate(tagDisplayPrefab,
-                                                              new Vector3(),
-                                                              Quaternion.identity,
-                                                              container);
+                GameObject displayGO = GameObject.Instantiate(tagDisplayPrefab);
+                displayGO.transform.SetParent(container, false);
 
                 ModTagDisplayComponent display = displayGO.GetComponent<ModTagDisplayComponent>();
                 display.Initialize();
-                display.data = tagData;
                 display.onClick += NotifyTagClicked;
 
                 m_tagDisplays.Add(display);
+            }
+
+            // assign data
+            for(int i = 0; i < newCount; ++i)
+            {
+                this.m_tagDisplays[i].data = displayData[i];
             }
 
             // fix layouting
@@ -185,7 +192,7 @@ namespace ModIO.UI
         public System.Collections.IEnumerator LateUpdateLayouting()
         {
             yield return null;
-            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+            UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(container);
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
