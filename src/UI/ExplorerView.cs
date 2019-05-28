@@ -25,7 +25,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public RectTransform contentPane;
-        public ModTagContainer tagFilterBar;
         public Button prevPageButton;
         public Button nextPageButton;
         public Text pageNumberText;
@@ -201,18 +200,6 @@ namespace ModIO.UI
                                  + " Explorer View to function", this.gameObject);
                 this.enabled = false;
                 return;
-            }
-
-            // - initialize nested views -
-            if(tagFilterBar != null)
-            {
-                tagFilterBar.Initialize();
-                tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
-
-                tagFilterBar.tagClicked += (display) =>
-                {
-                    RemoveTagFromFilter(display.data.tagName);
-                };
             }
 
             // - create pages -
@@ -413,13 +400,6 @@ namespace ModIO.UI
         public void AddTagToFilter(string tagName)
         {
             this.m_tagFilter.Add(tagName);
-
-            if(tagFilterBar != null)
-            {
-                tagFilterBar.DisplayTags(m_tagFilter, m_tagCategories);
-                tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
-            }
-
             this.Refresh();
 
             if(this.onTagFilterUpdated != null)
@@ -431,13 +411,6 @@ namespace ModIO.UI
         public void RemoveTagFromFilter(string tagName)
         {
             m_tagFilter.Remove(tagName);
-
-            if(tagFilterBar != null)
-            {
-                tagFilterBar.DisplayTags(m_tagFilter, m_tagCategories);
-                tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
-            }
-
             this.Refresh();
 
             if(this.onTagFilterUpdated != null)
@@ -676,13 +649,6 @@ namespace ModIO.UI
         public void ClearFilters()
         {
             m_tagFilter.Clear();
-
-            if(tagFilterBar != null)
-            {
-                tagFilterBar.DisplayTags(m_tagFilter, m_tagCategories);
-                tagFilterBar.gameObject.SetActive(false);
-            }
-
             this.Refresh();
 
             if(this.onTagFilterUpdated != null)
@@ -697,11 +663,6 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
-                if(tagFilterBar != null)
-                {
-                    tagFilterBar.DisplayTags(m_tagFilter, this.m_tagCategories);
-                    tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
-                }
             }
         }
 
