@@ -30,7 +30,15 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         /// <summary>Options for the controller to use.</summary>
-        public OptionData[] options = new OptionData[0];
+        public OptionData[] options = new OptionData[]
+        {
+            new OptionData()
+            {
+                displayText = "Newest",
+                fieldName = API.GetAllModsFilterFields.dateLive,
+                isAscending = false,
+            },
+        };
 
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown

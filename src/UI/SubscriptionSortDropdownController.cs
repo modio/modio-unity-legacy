@@ -100,7 +100,15 @@ namespace ModIO.UI
         public SubscriptionsView view = null;
 
         /// <summary>Options for the controller to use.</summary>
-        public OptionData[] options = new OptionData[0];
+        public OptionData[] options = new OptionData[]
+        {
+            new OptionData()
+            {
+                displayText = "A-Z",
+                fieldName = "Name",
+                isAscending = true,
+            },
+        };
 
         // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
