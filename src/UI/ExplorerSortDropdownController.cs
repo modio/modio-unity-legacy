@@ -29,6 +29,9 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
+        /// <summary>ExplorerView to set the sort value for.</summary>
+        public ExplorerView view = null;
+
         /// <summary>Options for the controller to use.</summary>
         public OptionData[] options = new OptionData[]
         {
@@ -40,11 +43,29 @@ namespace ModIO.UI
             },
         };
 
+        // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown
         { get { return this.gameObject.GetComponent<Dropdown>(); }}
 
+        // ---------[ INITIALIZATION ]---------
+        private void Start()
+        {
+            this.dropdown.onValueChanged.AddListener((v) => UpdateViewSort());
+            UpdateViewSort();
+        }
+
         // ---------[ FUNCTIONALITY ]---------
+        /// <summary>Sets the sort value on the targetted view.</summary>
+        public void UpdateViewSort()
+        {
+            OptionData option = GetSelectedOption();
+            if(option != null)
+            {
+                view.SetSortValues(option.fieldName, option.isAscending);
+            }
+        }
+
         /// <summary>Returns that sort by data for the currently selected dropdown option.</summary>
         public OptionData GetSelectedOption()
         {

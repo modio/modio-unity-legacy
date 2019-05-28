@@ -96,7 +96,7 @@ namespace ModIO.UI
         };
 
         // ---------[ FIELDS ]---------
-        /// <summary>SubscriptionsView to receive the sort delegate.</summary>
+        /// <summary>SubscriptionsView to set the sort delegate on.</summary>
         public SubscriptionsView view = null;
 
         /// <summary>Options for the controller to use.</summary>

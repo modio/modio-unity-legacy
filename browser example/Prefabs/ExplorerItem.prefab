@@ -1531,6 +1531,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onDisplay: {fileID: 1679741421745732}
   offDisplay: {fileID: 1647674045141892}
+  m_isOn: 0
 --- !u!114 &114585346223019312
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2284,10 +2285,10 @@ RectTransform:
   m_Father: {fileID: 224710281842853442}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 62, y: -21}
-  m_SizeDelta: {x: 10, y: 20}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224042147778130530
 RectTransform:
@@ -2377,10 +2378,10 @@ RectTransform:
   m_Father: {fileID: 224642422804450952}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 62, y: -21}
-  m_SizeDelta: {x: 9, y: 20}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224176544737257984
 RectTransform:
@@ -2395,10 +2396,10 @@ RectTransform:
   m_Father: {fileID: 224710281842853442}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 31, y: -21}
-  m_SizeDelta: {x: 18, y: 24}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 24}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224187641779000558
 RectTransform:
@@ -2817,8 +2818,8 @@ RectTransform:
   m_Father: {fileID: 224642422804450952}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 31.5, y: -21}
-  m_SizeDelta: {x: 18, y: 24}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 24}
   m_Pivot: {x: 0, y: 0.5}

@@ -6839,7 +6839,6 @@ MonoBehaviour:
   nameSearchField: {fileID: 114280675296892522}
   tagFilterView: {fileID: 114881975973044358}
   tagFilterBar: {fileID: 114594926552467964}
-  sortByDropdown: {fileID: 114835405491105780}
   prevPageButton: {fileID: 114319778585326076}
   nextPageButton: {fileID: 114347730188017132}
   pageNumberText: {fileID: 114036059310329162}
@@ -14026,6 +14025,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78aeaaead9ba84638b28e199e877c92a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  view: {fileID: 114195835507779204}
   options:
   - displayText: Newest
     fieldName: date_live

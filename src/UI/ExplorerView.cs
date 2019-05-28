@@ -26,7 +26,6 @@ namespace ModIO.UI
         public InputField nameSearchField;
         public ModTagFilterView tagFilterView;
         public ModTagContainer tagFilterBar;
-        public ExplorerSortDropdownController sortByDropdown;
         public Button prevPageButton;
         public Button nextPageButton;
         public Text pageNumberText;
@@ -50,7 +49,11 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private IEnumerable<ModTagCategory> m_tagCategories = null;
         private List<ModView> m_modViews = new List<ModView>();
-        public RequestFilter m_requestFilter = new RequestFilter();
+        private RequestFilter m_requestFilter = new RequestFilter()
+        {
+            sortFieldName = API.GetAllModsFilterFields.dateLive,
+            isSortAscending = false,
+        };
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -67,6 +70,19 @@ namespace ModIO.UI
             get
             {
                 return this.m_modViews;
+            }
+        }
+
+        /// <summary>Sets the values to use for sorting the mods.</summary>
+        public void SetSortValues(string fieldName, bool isAscending)
+        {
+            if(m_requestFilter.isSortAscending != isAscending
+               || m_requestFilter.sortFieldName.ToUpper() != fieldName.ToUpper())
+            {
+                this.m_requestFilter.sortFieldName = fieldName;
+                this.m_requestFilter.isSortAscending = isAscending;
+
+                UpdateFilter();
             }
         }
 
@@ -136,16 +152,6 @@ namespace ModIO.UI
                 return;
             }
 
-            // - set initial sort -
-            if(this.sortByDropdown != null
-               && this.sortByDropdown.options != null
-               && this.sortByDropdown.options.Length > 0)
-            {
-                ExplorerSortDropdownController.OptionData sortOption = this.sortByDropdown.options[0];
-                this.m_requestFilter.sortFieldName = sortOption.fieldName;
-                this.m_requestFilter.isSortAscending = sortOption.isAscending;
-            }
-
             // - add listeners -
             if(this.nameSearchField != null)
             {
@@ -153,11 +159,6 @@ namespace ModIO.UI
                 {
                     this.UpdateFilter();
                 });
-            }
-
-            if(this.sortByDropdown != null)
-            {
-                this.sortByDropdown.dropdown.onValueChanged.AddListener((v) => this.UpdateFilter());
             }
 
             // - initialize nested views -
@@ -240,6 +241,7 @@ namespace ModIO.UI
             this.UpdatePageButtonInteractibility();
         }
 
+        // TODO(@jackson): Recheck page size
         private void OnEnable()
         {
             // NOTE(@jackson): This appears to be unnecessary?
@@ -275,18 +277,6 @@ namespace ModIO.UI
         // TODO(@jackson): Don't request page!!!!!!!
         public void UpdateFilter()
         {
-            // sort
-            this.m_requestFilter.sortFieldName = null;
-            if(this.sortByDropdown != null)
-            {
-                var sortOption = this.sortByDropdown.GetSelectedOption();
-                if(sortOption != null)
-                {
-                    this.m_requestFilter.sortFieldName = sortOption.fieldName;
-                    this.m_requestFilter.isSortAscending = sortOption.isAscending;
-                }
-            }
-
             // title
             if(this.nameSearchField == null
                || String.IsNullOrEmpty(this.nameSearchField.text))
