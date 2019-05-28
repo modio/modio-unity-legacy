@@ -73,12 +73,21 @@ namespace ModIO.UI
                          "[mod.io] ModTagFilterViews require the TagDisplayPrefab in the "
                          + "FilterView.tagCategoryPrefab to have a Toggle Component.");
 
+            // init tag selection
             this.view.onTagFilterUpdated += (t) =>
             {
                 this.selectedTags = t;
             };
-
             this.m_selectedTags = new List<string>(this.view.tagFilter);
+
+            // init tag categories
+            var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
+            if(tagCategories != null)
+            {
+                this.m_tagCategories = tagCategories;
+            }
+
+            // update display
             this.Refresh();
         }
 

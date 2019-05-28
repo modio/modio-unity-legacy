@@ -79,6 +79,13 @@ namespace ModIO.UI
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
 
+            // init tag categories
+            var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
+            if(tagCategories != null)
+            {
+                this.m_tagCategories = tagCategories;
+            }
+
             // get page
             this.DisplayProfiles(null);
             this.Refresh();

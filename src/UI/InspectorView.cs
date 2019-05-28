@@ -60,6 +60,12 @@ namespace ModIO.UI
 
         private void Start()
         {
+            var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
+            if(tagCategories != null)
+            {
+                this.m_tagCategories = tagCategories;
+            }
+
             // TODO(@jackson): Asserts
             ModMediaContainer mediaContainer = null;
 

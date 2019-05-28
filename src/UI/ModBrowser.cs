@@ -67,8 +67,9 @@ namespace ModIO.UI
         [Tooltip("Size to use for the mod gallery image thumbnails")]
         public ModGalleryImageSize galleryThumbnailSize = ModGalleryImageSize.Thumbnail_320x180;
 
+
         // --- RUNTIME DATA ---
-        private GameProfile m_gameProfile = null;
+        private GameProfile m_gameProfile = new GameProfile();
         private List<SimpleRating> m_userRatings = new List<SimpleRating>();
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
@@ -76,6 +77,12 @@ namespace ModIO.UI
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
         private bool m_validOAuthToken = false;
+
+        // --- ACCESSORS ---
+        public GameProfile gameProfile
+        {
+            get { return this.m_gameProfile; }
+        }
 
         // ---------[ INITIALIZATION ]---------
         private void Awake()
@@ -190,13 +197,11 @@ namespace ModIO.UI
                 m_gameProfile = new GameProfile();
                 m_gameProfile.id = PluginSettings.data.gameId;
             }
-            else
+
+            IEnumerable<IGameProfileUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
+            foreach(var receiver in updateReceivers)
             {
-                IEnumerable<IGameProfileUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
-                foreach(var receiver in updateReceivers)
-                {
-                    receiver.OnGameProfileUpdated(m_gameProfile);
-                }
+                receiver.OnGameProfileUpdated(m_gameProfile);
             }
 
             // - Manifest -
