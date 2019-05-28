@@ -6836,7 +6836,6 @@ MonoBehaviour:
   pageTransitionTimeSeconds: 0.4
   pageTemplate: {fileID: 224895251402852128}
   contentPane: {fileID: 224480924864000676}
-  tagFilterView: {fileID: 0}
   tagFilterBar: {fileID: 114594926552467964}
   prevPageButton: {fileID: 114319778585326076}
   nextPageButton: {fileID: 114347730188017132}
@@ -15341,10 +15340,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c920c5b3f4e414e6393fdf6d47105a1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  view: {fileID: 114195835507779204}
   tagCategoryPrefab: {fileID: 1722541123827752, guid: af713a3e81888417089a42d416dbf2af,
     type: 2}
   tagCategoryContainer: {fileID: 224738526159741542}
-  view: {fileID: 114195835507779204}
 --- !u!114 &114927876813505234
 MonoBehaviour:
   m_ObjectHideFlags: 1

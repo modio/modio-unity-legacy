@@ -9,24 +9,27 @@ namespace ModIO.UI
     public class ExplorerTagFilterView : MonoBehaviour, IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
-        [Header("Settings")]
-        public GameObject tagCategoryPrefab;
-
-        [Header("UI Components")]
-        public RectTransform tagCategoryContainer;
-
         /// <summary>ExplorerView to set the tagFilter on.</summary>
         public ExplorerView view = null;
 
+        [Header("Settings")]
+        /// <summary>Prefab for the tag category display instances.</summary>
+        public GameObject tagCategoryPrefab;
+
+        [Header("UI Components")]
+        /// <summary>Container for the tag category display instances.</summary>
+        public RectTransform tagCategoryContainer;
+
         // --- RUNTIME DATA ---
-        private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
-        private List<string> m_selectedTags = new List<string>();
+        /// <summary>Categories to display.</summary>
         private ModTagCategory[] m_categories = new ModTagCategory[0];
+        /// <summary>Displays for the mod tag categories.</summary>
+        private List<ModTagCategoryDisplay> m_categoryDisplays = new List<ModTagCategoryDisplay>();
+        /// <summary>Tags to display as selected.</summary>
+        private List<string> m_selectedTags = new List<string>();
 
         // --- ACCESSORS ---
-        public IEnumerable<ModTagCategoryDisplay> categoryDisplays
-        { get { return m_categoryDisplays; } }
-
+        /// <summary>Tags to display as selected.</summary>
         public string[] selectedTags
         {
             get { return m_selectedTags.ToArray(); }
@@ -74,6 +77,9 @@ namespace ModIO.UI
             {
                 this.selectedTags = t;
             };
+
+            this.m_selectedTags = new List<string>(this.view.tagFilter);
+            this.Refresh();
         }
 
         private void OnEnable()
@@ -81,13 +87,14 @@ namespace ModIO.UI
             StartCoroutine(EndOfFrameUpdateCoroutine());
         }
 
-        public System.Collections.IEnumerator EndOfFrameUpdateCoroutine()
+        private System.Collections.IEnumerator EndOfFrameUpdateCoroutine()
         {
             yield return null;
             UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(tagCategoryContainer);
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
+        /// <summary>Rebuilds the view components with the current data.</summary>
         public void Refresh()
         {
             // clear existing
@@ -101,7 +108,6 @@ namespace ModIO.UI
             foreach(ModTagCategory category in m_categories)
             {
                 GameObject categoryGO = CreateCategoryDisplayInstance(category,
-                                                                      m_selectedTags,
                                                                       tagCategoryPrefab,
                                                                       tagCategoryContainer);
 
@@ -116,6 +122,7 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Updates the selected element display.</summary>
         private void UpdateSelectionDisplay()
         {
             foreach(ModTagCategoryDisplay categoryDisplay in m_categoryDisplays)
@@ -133,10 +140,10 @@ namespace ModIO.UI
             }
         }
 
-        private static GameObject CreateCategoryDisplayInstance(ModTagCategory category,
-                                                                List<string> selectedTags,
-                                                                GameObject prefab,
-                                                                RectTransform container)
+        /// <summary>Creates the display elements for the given ModTagCategory.</summary>
+        private GameObject CreateCategoryDisplayInstance(ModTagCategory category,
+                                                         GameObject prefab,
+                                                         RectTransform container)
         {
             GameObject displayGO = GameObject.Instantiate(prefab,
                                                           new Vector3(),
@@ -159,15 +166,15 @@ namespace ModIO.UI
             foreach(ModTagDisplay tagDisplay in tagContainer.tagDisplays)
             {
                 Toggle tagToggle = tagDisplay.GetComponent<Toggle>();
-                tagToggle.isOn = selectedTags.Contains(tagDisplay.data.tagName);
+                tagToggle.isOn = this.m_selectedTags.Contains(tagDisplay.data.tagName);
                 tagToggle.group = toggleGroup;
-                // TODO(@jackson): Need to register?
             }
 
             return displayGO;
         }
 
         // ---------[ EVENTS ]---------
+        /// <summary>React to game profile update message.</summary>
         public void OnGameProfileUpdated(GameProfile gameProfile)
         {
             Debug.Assert(gameProfile != null);
@@ -179,6 +186,7 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Event handler for a tag being clicked.</summary>
         private void TagClickHandler(ModTagDisplayComponent display)
         {
             string tagName = display.data.tagName;
