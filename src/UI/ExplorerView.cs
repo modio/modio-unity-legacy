@@ -38,7 +38,17 @@ namespace ModIO.UI
         public GridLayoutGroup gridLayout = null;
         public RequestPage<ModProfile> currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
-        public List<string> filterTags = new List<string>();
+
+        [Header("Request Data")]
+        /// <summary>String to use for filtering the mod request.</summary>
+        [SerializeField]
+        private string m_titleFilter = string.Empty;
+        /// <summary>String to use for sorting the mod request.</summary>
+        [SerializeField]
+        private string m_sortString = "-" + API.GetAllModsFilterFields.dateLive;
+        /// <summary>Tags to filter by.</summary>
+        [SerializeField]
+        private List<string> m_tagFilter = new List<string>();
 
         [Header("Runtime Data")]
         public bool isTransitioning = false;
@@ -46,10 +56,8 @@ namespace ModIO.UI
         public RectTransform targetPageContainer = null;
 
         // --- RUNTIME DATA ---
-        private IEnumerable<ModTagCategory> m_tagCategories = null;
         private List<ModView> m_modViews = new List<ModView>();
-        private string m_titleFilter = string.Empty;
-        private string m_sortString = "-" + API.GetAllModsFilterFields.dateLive;
+        private IEnumerable<ModTagCategory> m_tagCategories = null;
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -95,6 +103,28 @@ namespace ModIO.UI
                 {
                     this.m_sortString = value;
                     Refresh();
+                }
+            }
+        }
+
+        /// <summary>Tags to filter by.</summary>
+        public string[] tagFilter
+        {
+            get { return this.m_tagFilter.ToArray(); }
+            set
+            {
+                bool isSame = (this.m_tagFilter.Count == value.Length);
+                for(int i = 0;
+                    isSame && i < value.Length;
+                    ++i)
+                {
+                    isSame = (this.m_tagFilter[i] == value[i]);
+                }
+
+                if(!isSame)
+                {
+                    this.m_tagFilter = new List<string>(value);
+                    this.Refresh();
                 }
             }
         }
@@ -168,31 +198,18 @@ namespace ModIO.UI
             // - initialize nested views -
             if(tagFilterView != null)
             {
-                tagFilterView.Initialize();
-
-                tagFilterView.tagFilterAdded += (tag) =>
-                {
-                    filterTags.Add(tag);
-
-                    if(tagFilterBar != null)
-                    {
-                        tagFilterBar.gameObject.SetActive(true);
-                        tagFilterBar.DisplayTags(filterTags, m_tagCategories);
-                    }
-
-                    this.Refresh();
-                };
-                tagFilterView.tagFilterRemoved += RemoveTag;
+                tagFilterView.tagFilterAdded += AddTagToFilter;
+                tagFilterView.tagFilterRemoved += RemoveTagFromFilter;
             }
 
             if(tagFilterBar != null)
             {
                 tagFilterBar.Initialize();
-                tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
+                tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
 
                 tagFilterBar.tagClicked += (display) =>
                 {
-                    RemoveTag(display.data.tagName);
+                    RemoveTagFromFilter(display.data.tagName);
                 };
             }
 
@@ -236,19 +253,6 @@ namespace ModIO.UI
             {
                 this.isActiveIndicator.isOn = false;
             }
-        }
-
-        private void RemoveTag(string tag)
-        {
-            filterTags.Remove(tag);
-
-            if(tagFilterBar != null)
-            {
-                tagFilterBar.DisplayTags(filterTags, m_tagCategories);
-                tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
-            }
-
-            this.Refresh();
         }
 
         public void Refresh()
@@ -318,7 +322,7 @@ namespace ModIO.UI
             }
 
             // tags
-            string[] filterTagNames = this.filterTags.ToArray();
+            string[] filterTagNames = this.m_tagFilter.ToArray();
 
             if(filterTagNames.Length == 0)
             {
@@ -403,7 +407,34 @@ namespace ModIO.UI
             this.UpdatePageButtonInteractibility();
         }
 
-        // ----------[ PAGE DISPLAY ]---------
+        // ---------[ FILTER CONTROL ]---------
+        public void AddTagToFilter(string tagName)
+        {
+            this.m_tagFilter.Add(tagName);
+
+            if(tagFilterBar != null)
+            {
+                tagFilterBar.DisplayTags(m_tagFilter, m_tagCategories);
+                tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
+            }
+
+            this.Refresh();
+        }
+
+        public void RemoveTagFromFilter(string tagName)
+        {
+            m_tagFilter.Remove(tagName);
+
+            if(tagFilterBar != null)
+            {
+                tagFilterBar.DisplayTags(m_tagFilter, m_tagCategories);
+                tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
+            }
+
+            this.Refresh();
+        }
+
+        // ---------[ PAGE DISPLAY ]---------
         public void UpdateCurrentPageDisplay()
         {
             if(currentPageContainer == null) { return; }
@@ -632,15 +663,15 @@ namespace ModIO.UI
         // ---------[ FILTER MANAGEMENT ]---------
         public void ClearFilters()
         {
-            filterTags.Clear();
+            m_tagFilter.Clear();
 
             if(tagFilterView != null)
             {
-                tagFilterView.selectedTags = filterTags;
+                tagFilterView.selectedTags = m_tagFilter;
             }
             if(tagFilterBar != null)
             {
-                tagFilterBar.DisplayTags(filterTags, m_tagCategories);
+                tagFilterBar.DisplayTags(m_tagFilter, m_tagCategories);
                 tagFilterBar.gameObject.SetActive(false);
             }
 
@@ -655,8 +686,8 @@ namespace ModIO.UI
                 this.m_tagCategories = gameProfile.tagCategories;
                 if(tagFilterBar != null)
                 {
-                    tagFilterBar.DisplayTags(filterTags, this.m_tagCategories);
-                    tagFilterBar.gameObject.SetActive(filterTags.Count > 0);
+                    tagFilterBar.DisplayTags(m_tagFilter, this.m_tagCategories);
+                    tagFilterBar.gameObject.SetActive(m_tagFilter.Count > 0);
                 }
             }
         }
