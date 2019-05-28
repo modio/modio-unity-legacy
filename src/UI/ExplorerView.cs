@@ -23,7 +23,7 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public RectTransform contentPane;
-        public ModTagFilterView tagFilterView;
+        public ExplorerTagFilterView tagFilterView;
         public ModTagContainer tagFilterBar;
         public Button prevPageButton;
         public Button nextPageButton;
@@ -113,6 +113,8 @@ namespace ModIO.UI
             get { return this.m_tagFilter.ToArray(); }
             set
             {
+                if(value == null) { value = new string[0]; }
+
                 bool isSame = (this.m_tagFilter.Count == value.Length);
                 for(int i = 0;
                     isSame && i < value.Length;
@@ -661,7 +663,7 @@ namespace ModIO.UI
 
             if(tagFilterView != null)
             {
-                tagFilterView.selectedTags = m_tagFilter;
+                tagFilterView.selectedTags = m_tagFilter.ToArray();
             }
             if(tagFilterBar != null)
             {

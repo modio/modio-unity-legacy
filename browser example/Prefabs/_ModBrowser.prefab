@@ -4280,7 +4280,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224678418967515498}
-  - component: {fileID: 114881975973044358}
+  - component: {fileID: 114925739280037472}
   - component: {fileID: 114877046627212448}
   m_Layer: 5
   m_Name: FilterView
@@ -6836,7 +6836,7 @@ MonoBehaviour:
   pageTransitionTimeSeconds: 0.4
   pageTemplate: {fileID: 224895251402852128}
   contentPane: {fileID: 224480924864000676}
-  tagFilterView: {fileID: 114881975973044358}
+  tagFilterView: {fileID: 0}
   tagFilterBar: {fileID: 114594926552467964}
   prevPageButton: {fileID: 114319778585326076}
   nextPageButton: {fileID: 114347730188017132}
@@ -14659,52 +14659,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114881975973044358
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1962388266349238}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19000d240a76e4a199374e8c11d1e062, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tagCategoryPrefab: {fileID: 1722541123827752, guid: af713a3e81888417089a42d416dbf2af,
-    type: 2}
-  tagCategoryContainer: {fileID: 224738526159741542}
-  tagFilterAdded:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114195835507779204}
-        m_MethodName: AddTagToFilter
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: ModIO.UI.ModTagFilterView+TagEvent, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  tagFilterRemoved:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114195835507779204}
-        m_MethodName: RemoveTagFromFilter
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: ModIO.UI.ModTagFilterView+TagEvent, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114883614204342916
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -15376,6 +15330,21 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114925739280037472
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1962388266349238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c920c5b3f4e414e6393fdf6d47105a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tagCategoryPrefab: {fileID: 1722541123827752, guid: af713a3e81888417089a42d416dbf2af,
+    type: 2}
+  tagCategoryContainer: {fileID: 224738526159741542}
+  view: {fileID: 114195835507779204}
 --- !u!114 &114927876813505234
 MonoBehaviour:
   m_ObjectHideFlags: 1
