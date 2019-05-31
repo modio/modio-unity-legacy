@@ -111,19 +111,19 @@ namespace ModIO.UI
             }
             if(homepageURLDisplay != null)
             {
-                m_displayMapping.Add(homepageURLDisplay, (d) => d.homepageURL.Trim());
+                m_displayMapping.Add(homepageURLDisplay, (d) => Utility.SafeTrimString(d.homepageURL));
             }
             if(nameDisplay != null)
             {
-                m_displayMapping.Add(nameDisplay, (d) => d.name.Trim());
+                m_displayMapping.Add(nameDisplay, (d) => Utility.SafeTrimString(d.name));
             }
             if(nameIdDisplay != null)
             {
-                m_displayMapping.Add(nameIdDisplay, (d) => d.nameId.Trim());
+                m_displayMapping.Add(nameIdDisplay, (d) => Utility.SafeTrimString(d.nameId));
             }
             if(summaryDisplay != null)
             {
-                m_displayMapping.Add(summaryDisplay, (d) => d.summary.Trim());
+                m_displayMapping.Add(summaryDisplay, (d) => Utility.SafeTrimString(d.summary));
             }
             if(descriptionAsHTMLDisplay != null)
             {
@@ -137,7 +137,7 @@ namespace ModIO.UI
                         description = d.summary;
                     }
 
-                    return description.Trim();
+                    return Utility.SafeTrimString(description);
                 });
             }
             if(descriptionAsTextDisplay != null)
@@ -152,7 +152,7 @@ namespace ModIO.UI
                         description = d.summary;
                     }
 
-                    return description.Trim();
+                    return Utility.SafeTrimString(description);
                 });
             }
             if(metadataBlobDisplay != null)
@@ -161,7 +161,7 @@ namespace ModIO.UI
             }
             if(profileURLDisplay != null)
             {
-                m_displayMapping.Add(profileURLDisplay, (d) => d.profileURL.Trim());
+                m_displayMapping.Add(profileURLDisplay, (d) => Utility.SafeTrimString(d.profileURL.Trim()));
             }
         }
 

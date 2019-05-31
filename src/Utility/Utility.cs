@@ -131,5 +131,18 @@ namespace ModIO
 
             return retVal;
         }
+
+        /// <summary>Trims the given string, returning string.Empty if null.</summary>
+        public static string SafeTrimString(string s)
+        {
+            if(s == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return s.Trim();
+            }
+        }
     }
 }
