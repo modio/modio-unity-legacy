@@ -292,6 +292,7 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
+                this.Refresh();
             }
         }
 

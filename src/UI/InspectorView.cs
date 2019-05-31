@@ -120,19 +120,13 @@ namespace ModIO.UI
 
         // ---------[ UPDATE VIEW ]---------
         public void DisplayMod(ModProfile profile, ModStatistics statistics,
-                               IEnumerable<ModTagCategory> tagCategories, // TODO(@jackson): Remove
                                bool isModSubscribed, bool isModEnabled)
         {
-            // TODO(@jackson): Remove
-            if(profile == null)
-            {
-                return;
-            }
+            Debug.Assert(profile != null);
 
             this.m_modId = profile.id;
             this.profile = profile;
             this.statistics = statistics;
-            this.m_tagCategories = tagCategories;
             this.isModSubscribed = isModSubscribed;
             this.isModEnabled = isModEnabled;
 
@@ -140,7 +134,6 @@ namespace ModIO.UI
             this.PopulateVersionHistory();
         }
 
-        // TODO(@jackson): privatise
         private void FetchDisplayData()
         {
             if(this.loadingDisplay != null)
@@ -271,6 +264,7 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
+                this.UpdateModView();
             }
         }
 
@@ -432,6 +426,14 @@ namespace ModIO.UI
             {
                 this.OnModDisabled(this.m_modId);
             }
+        }
+
+        [Obsolete("No longer requires a ModTagCollection parameter.")]
+        public void DisplayMod(ModProfile profile, ModStatistics statistics,
+                               IEnumerable<ModTagCategory> tagCategories,
+                               bool isModSubscribed, bool isModEnabled)
+        {
+            DisplayMod(profile, statistics, isModSubscribed, isModEnabled);
         }
     }
 }
