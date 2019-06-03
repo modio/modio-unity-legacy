@@ -24,11 +24,10 @@ namespace ModIO.UI
         public GameObject loadingDisplay;
 
         // ---[ RUNTIME DATA ]---
-        [Header("Runtime Data")]
-        public ModProfile profile;
-        public ModStatistics statistics;
-        public bool isModSubscribed;
-        public bool isModEnabled;
+        private ModProfile m_profile;
+        private ModStatistics m_statistics;
+        private bool m_isModSubscribed;
+        private bool m_isModEnabled;
 
         private IEnumerable<ModTagCategory> m_tagCategories = new ModTagCategory[0];
 
@@ -123,10 +122,10 @@ namespace ModIO.UI
             Debug.Assert(profile != null);
 
             this.m_modId = profile.id;
-            this.profile = profile;
-            this.statistics = statistics;
-            this.isModSubscribed = isModSubscribed;
-            this.isModEnabled = isModEnabled;
+            this.m_profile = profile;
+            this.m_statistics = statistics;
+            this.m_isModSubscribed = isModSubscribed;
+            this.m_isModEnabled = isModEnabled;
 
             this.UpdateModView();
             this.PopulateVersionHistory();
@@ -139,16 +138,16 @@ namespace ModIO.UI
                 this.loadingDisplay.gameObject.SetActive(true);
             }
 
-            this.profile = null;
-            this.statistics = null;
-            this.isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
-            this.isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
+            this.m_profile = null;
+            this.m_statistics = null;
+            this.m_isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
+            this.m_isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
 
             // profile
             ModManager.GetModProfile(this.m_modId,
                                      (p) =>
                                      {
-                                        this.profile = p;
+                                        this.m_profile = p;
                                         this.UpdateModView();
                                      },
                                      WebRequestError.LogAsWarning);
@@ -158,7 +157,7 @@ namespace ModIO.UI
             ModManager.GetModStatistics(this.m_modId,
                                         (s) =>
                                         {
-                                            this.statistics = s;
+                                            this.m_statistics = s;
                                             this.UpdateModView();
                                         },
                                         WebRequestError.LogAsWarning);
@@ -185,7 +184,8 @@ namespace ModIO.UI
 
         private void UpdateModView()
         {
-            if(this.profile == null)
+            if(this.m_profile == null
+               || this.m_profile.id == ModProfile.NULL_ID)
             {
                 if(this.modView != null)
                 {
@@ -205,13 +205,13 @@ namespace ModIO.UI
 
             if(modView != null)
             {
-                modView.DisplayMod(this.profile, this.statistics,
+                modView.DisplayMod(this.m_profile, this.m_statistics,
                                    this.m_tagCategories,
-                                   this.isModSubscribed, this.isModEnabled);
+                                   this.m_isModSubscribed, this.m_isModEnabled);
 
                 if(modView.mediaContainer != null)
                 {
-                    ModMediaCollection media = profile.media;
+                    ModMediaCollection media = this.m_profile.media;
                     bool hasMedia = media != null;
                     hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
                                  || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
@@ -222,7 +222,7 @@ namespace ModIO.UI
 
             if(selectedMediaPreview != null)
             {
-                selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+                selectedMediaPreview.DisplayLogo(this.m_profile.id, this.m_profile.logoLocator);
             }
         }
 
@@ -268,12 +268,12 @@ namespace ModIO.UI
 
         public void OnModSubscriptionsUpdated()
         {
-            this.isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
+            this.m_isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
 
             if(this.modView != null)
             {
                 ModDisplayData data = modView.data;
-                data.isSubscribed = this.isModSubscribed;
+                data.isSubscribed = this.m_isModSubscribed;
                 modView.data = data;
             }
         }
@@ -319,7 +319,7 @@ namespace ModIO.UI
                 bool original = selectedMediaPreview.useOriginal;
                 LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
-                ModManager.GetModLogo(profile, size,
+                ModManager.GetModLogo(this.m_profile, size,
                                       (t) =>
                                       {
                                         if(Application.isPlaying
@@ -342,7 +342,7 @@ namespace ModIO.UI
                 bool original = selectedMediaPreview.useOriginal;
                 ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
 
-                ModManager.GetModGalleryImage(profile, display.data.fileName,
+                ModManager.GetModGalleryImage(this.m_profile, display.data.fileName,
                                               size,
                                               (t) =>
                                               {
@@ -363,6 +363,12 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
+        [Obsolete("Public access revoked.")]
+        public ModProfile profile
+        {
+            get { return this.m_profile; }
+        }
+
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
 
@@ -373,7 +379,7 @@ namespace ModIO.UI
         {
             if(subscribeRequested != null)
             {
-                subscribeRequested(this.profile);
+                subscribeRequested(this.m_profile);
             }
         }
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
@@ -383,7 +389,7 @@ namespace ModIO.UI
         {
             if(unsubscribeRequested != null)
             {
-                unsubscribeRequested(this.profile);
+                unsubscribeRequested(this.m_profile);
             }
         }
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
@@ -393,7 +399,7 @@ namespace ModIO.UI
         {
             if(enableRequested != null)
             {
-                enableRequested(this.profile);
+                enableRequested(this.m_profile);
             }
         }
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
@@ -403,7 +409,7 @@ namespace ModIO.UI
         {
             if(disableRequested != null)
             {
-                disableRequested(this.profile);
+                disableRequested(this.m_profile);
             }
         }
 
