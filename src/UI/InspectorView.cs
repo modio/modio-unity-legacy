@@ -71,8 +71,6 @@ namespace ModIO.UI
 
             if(modView != null)
             {
-                modView.Initialize();
-
                 if(modView.statisticsDisplay != null)
                 {
                     modView.statisticsDisplay.Initialize();

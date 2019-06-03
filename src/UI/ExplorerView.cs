@@ -503,7 +503,6 @@ namespace ModIO.UI
 
                     // initialize item
                     ModView view = itemGO.GetComponent<ModView>();
-                    view.Initialize();
 
                     if(profile == null)
                     {

@@ -41,19 +41,19 @@ namespace ModIO.UI
 
         // --- FUNCTION DELEGATES ---
         private delegate void GetDataDelegate(ref ModDisplayData data);
-        private List<GetDataDelegate> m_getDelegates = new List<GetDataDelegate>();
+        private List<GetDataDelegate> m_getDelegates = null;
 
         private delegate void SetDataDelegate(ModDisplayData data);
-        private List<SetDataDelegate> m_setDelegates = new List<SetDataDelegate>();
+        private List<SetDataDelegate> m_setDelegates = null;
 
         private delegate void DisplayProfileDelegate(ModProfile profile);
-        private List<DisplayProfileDelegate> m_displayDelegates = new List<DisplayProfileDelegate>();
+        private List<DisplayProfileDelegate> m_displayDelegates = null;
 
         private delegate void ProfileParserDelegate(ModProfile profile, ref ModDisplayData data);
-        private List<ProfileParserDelegate> m_missingDisplayParsers = new List<ProfileParserDelegate>();
+        private List<ProfileParserDelegate> m_missingDisplayParsers = null;
 
         private delegate void DisplayLoadingDelegate();
-        private List<DisplayLoadingDelegate> m_loadingDelegates = new List<DisplayLoadingDelegate>();
+        private List<DisplayLoadingDelegate> m_loadingDelegates = null;
 
         // --- ACCESSORS ---
         public ModDisplayData data
@@ -70,6 +70,11 @@ namespace ModIO.UI
 
         private ModDisplayData GetData()
         {
+            if(this.m_getDelegates == null)
+            {
+                CollectDelegates();
+            }
+
             foreach(GetDataDelegate getDelegate in m_getDelegates)
             {
                 getDelegate(ref m_data);
@@ -80,6 +85,11 @@ namespace ModIO.UI
 
         private void SetData(ModDisplayData value)
         {
+            if(this.m_setDelegates == null)
+            {
+                CollectDelegates();
+            }
+
             m_data = value;
             foreach(SetDataDelegate setDelegate in m_setDelegates)
             {
@@ -106,18 +116,13 @@ namespace ModIO.UI
             DisplayDownload(downloadInfo);
         }
 
-        public void Initialize()
-        {
-            CollectDelegates();
-        }
-
         private void CollectDelegates()
         {
-            m_getDelegates.Clear();
-            m_setDelegates.Clear();
-            m_displayDelegates.Clear();
-            m_missingDisplayParsers.Clear();
-            m_loadingDelegates.Clear();
+            m_getDelegates = new List<GetDataDelegate>();
+            m_setDelegates = new List<SetDataDelegate>();
+            m_displayDelegates = new List<DisplayProfileDelegate>();
+            m_missingDisplayParsers = new List<ProfileParserDelegate>();
+            m_loadingDelegates = new List<DisplayLoadingDelegate>();
 
             // - profile -
             if(profileDisplay != null)
@@ -415,6 +420,11 @@ namespace ModIO.UI
         {
             Debug.Assert(profile != null);
 
+            if(this.m_displayDelegates == null)
+            {
+                CollectDelegates();
+            }
+
             m_data = new ModDisplayData();
 
             foreach(DisplayProfileDelegate displayDelegate in m_displayDelegates)
@@ -543,6 +553,11 @@ namespace ModIO.UI
 
         public void DisplayLoading()
         {
+            if(this.m_loadingDelegates == null)
+            {
+                CollectDelegates();
+            }
+
             foreach(DisplayLoadingDelegate loadingDelegate in m_loadingDelegates)
             {
                 loadingDelegate();
@@ -593,8 +608,7 @@ namespace ModIO.UI
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(this != null
-                   && m_displayDelegates != null)
+                if(this != null)
                 {
                     CollectDelegates();
                     SetData(m_data);
@@ -602,5 +616,9 @@ namespace ModIO.UI
             };
         }
         #endif
+
+        // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer necessary.")]
+        public void Initialize() {}
     }
 }

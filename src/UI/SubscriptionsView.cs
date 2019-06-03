@@ -200,7 +200,6 @@ namespace ModIO.UI
                                                            Quaternion.identity,
                                                            scrollView.content);
                 ModView view = viewGO.GetComponent<ModView>();
-                view.Initialize();
 
                 // add listeners
                 view.onClick +=                 (v) => ViewManager.instance.InspectMod(v.data.profile.modId);
