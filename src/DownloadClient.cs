@@ -106,6 +106,10 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Get(imageURL);
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
+            var operation = webRequest.SendWebRequest();
+            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
+
+
             #if DEBUG
             if(PluginSettings.data.logAllRequests)
             {
@@ -122,16 +126,14 @@ namespace ModIO
                     }
                 }
 
-                Debug.Log("GENERATING DOWNLOAD REQUEST"
+                int timeStamp = ServerTimeStamp.Now;
+                Debug.Log("IMAGE REQUEST SENT"
+                          + "\nTimeStamp: [" + timeStamp.ToString() + "] "
+                          + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
                           + "\nURL: " + webRequest.url
-                          + "\nHeaders: " + requestHeaders
-                          + "\n"
-                          );
+                          + "\nHeaders: " + requestHeaders);
             }
             #endif
-
-            var operation = webRequest.SendWebRequest();
-            operation.completed += (o) => DownloadClient.OnImageDownloadCompleted(operation, request);
 
             return request;
         }
@@ -153,12 +155,9 @@ namespace ModIO
                 if(PluginSettings.data.logAllRequests)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
-                    Debug.Log(String.Format("{0} REQUEST SUCEEDED\nResponse received at: {1} [{2}]\nURL: {3}\nResponse: {4}\n",
-                                            webRequest.method.ToUpper(),
-                                            ServerTimeStamp.ToLocalDateTime(responseTimeStamp),
-                                            responseTimeStamp,
-                                            webRequest.url,
-                                            webRequest.downloadHandler.text));
+                    Debug.Log("IMAGE DOWNLOAD SUCEEDED"
+                              + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
+                              + "\nURL: " + webRequest.url);
                 }
                 #endif
 
@@ -318,7 +317,6 @@ namespace ModIO
                           + "\nHeaders: " + requestHeaders);
             }
             #endif
-
 
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
         }
