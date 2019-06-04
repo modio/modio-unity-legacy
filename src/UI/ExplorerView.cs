@@ -374,7 +374,7 @@ namespace ModIO.UI
             this.targetPage = targetPage;
             this.UpdateTargetPageDisplay();
 
-            this.requestManager.FetchPage(this.m_requestFilter, targetPageProfileOffset, pageItemCount,
+            this.requestManager.FetchPage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
             {
                 if(this.targetPage == targetPage)

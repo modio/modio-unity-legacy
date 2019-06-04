@@ -31,8 +31,13 @@ namespace ModIO.UI
                 {
                     if(onSuccess != null)
                     {
-                        cachedPage.size = profileCount;
-                        onSuccess(cachedPage);
+                        RequestPage<ModProfile> requestPage = new RequestPage<ModProfile>();
+                        requestPage.size = profileCount;
+                        requestPage.resultOffset = offsetIndex;
+                        requestPage.resultOffset = 0;
+                        requestPage.items = new ModProfile[0];
+
+                        onSuccess(requestPage);
                     }
                     return;
                 }
