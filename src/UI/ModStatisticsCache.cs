@@ -10,17 +10,32 @@ namespace ModIO.UI
         /// <summary>Cached ModStatistics to id map.</summary>
         public Dictionary<int, ModStatistics> cache = new Dictionary<int, ModStatistics>();
 
+        /// <summary>Should GetForId return null if the ModStatistics object is expired.</summary>
+        public bool returnNullIfExpired = false;
+
         // ---------[ ACCESSOR FUNCTIONS ]---------
         /// <summary>Attempts to retrieve a cached ModStatistics object.</summary>
-        public ModStatistics GetForId(int modId)
+        public virtual ModStatistics GetForId(int modId)
         {
             ModStatistics stats = null;
-            cache.TryGetValue(modId, out stats);
+
+            if(!cache.TryGetValue(modId, out stats))
+            {
+                cache[modId] = CacheClient.LoadModStatistics(modId);
+            }
+
+            if(returnNullIfExpired
+               && stats != null
+               && stats.dateExpires < ServerTimeStamp.Now)
+            {
+                stats = null;
+            }
+
             return stats;
         }
 
         /// <summary>Stores a ModStatistics object in the cache.</summary>
-        public void Store(IEnumerable<ModStatistics> statistics)
+        public virtual void Store(IEnumerable<ModStatistics> statistics)
         {
             foreach(ModStatistics statData in statistics)
             {
