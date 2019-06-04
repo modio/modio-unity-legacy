@@ -1861,12 +1861,23 @@ namespace ModIO.UI
             ViewManager.instance.ActivateExplorerView();
         }
 
-        [Obsolete("Use ExplorerView.FetchPage() instead.")]
+        [Obsolete("Use ModProfileRequestManager.FetchPage() instead.")]
         public void RequestExplorerPage(int pageIndex,
                                         Action<RequestPage<ModProfile>> onSuccess,
                                         Action<WebRequestError> onError)
         {
-            explorerView.FetchPage(pageIndex, onSuccess, onError);
+            if(this.explorerView == null
+               || this.explorerView.requestManager == null)
+            {
+                if(onError != null) { onError(null); }
+            }
+            else
+            {
+                this.explorerView.requestManager.FetchPage(this.explorerView.GenerateRequestFilter(),
+                                                           pageIndex * this.explorerView.itemsPerPage,
+                                                           this.explorerView.itemsPerPage,
+                                                           onSuccess, onError);
+            }
         }
 
         [Obsolete("Use ExplorerView.prevPageButton instead.")]

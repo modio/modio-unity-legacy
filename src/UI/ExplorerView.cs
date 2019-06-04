@@ -23,6 +23,7 @@ namespace ModIO.UI
         public float pageTransitionTimeSeconds = 0.4f;
         public RectTransform pageTemplate = null;
         public ModStatisticsCache statisticsCache = null;
+        public ModProfileRequestManager requestManager = null;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -59,6 +60,7 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private List<ModView> m_modViews = new List<ModView>();
         private IEnumerable<ModTagCategory> m_tagCategories = null;
+        private RequestFilter m_requestFilter = new RequestFilter();
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -89,6 +91,7 @@ namespace ModIO.UI
                 if(this.m_titleFilter.ToUpper() != value.ToUpper())
                 {
                     this.m_titleFilter = value.ToUpper();
+                    this.m_requestFilter = this.GenerateRequestFilter();
                     Refresh();
                 }
             }
@@ -103,6 +106,7 @@ namespace ModIO.UI
                 if(this.m_sortString.ToUpper() != value.ToUpper())
                 {
                     this.m_sortString = value;
+                    this.m_requestFilter = this.GenerateRequestFilter();
                     Refresh();
                 }
             }
@@ -127,6 +131,7 @@ namespace ModIO.UI
                 if(!isSame)
                 {
                     this.m_tagFilter = new List<string>(value);
+                    this.m_requestFilter = this.GenerateRequestFilter();
                     this.Refresh();
 
                     if(this.onTagFilterUpdated != null)
@@ -203,10 +208,17 @@ namespace ModIO.UI
                 return;
             }
 
+            if(this.requestManager == null)
+            {
+                this.requestManager = this.gameObject.AddComponent<ModProfileRequestManager>();
+            }
+
             if(this.statisticsCache == null)
             {
                 this.statisticsCache = this.gameObject.AddComponent<ModStatisticsCache>();
             }
+
+            this.m_requestFilter = this.GenerateRequestFilter();
 
             // - create pages -
             pageTemplate.gameObject.SetActive(false);
@@ -263,7 +275,8 @@ namespace ModIO.UI
             };
             this.currentPage = filteredPage;
 
-            this.FetchPage(0, (page) =>
+            this.requestManager.FetchPage(this.m_requestFilter, 0, pageSize,
+            (page) =>
             {
                 #if DEBUG
                 if(!Application.isPlaying) { return; }
@@ -283,24 +296,10 @@ namespace ModIO.UI
             this.UpdateCurrentPageDisplay();
         }
 
-        public void FetchPage(int pageIndex,
-                              Action<RequestPage<ModProfile>> onSuccess,
-                              Action<WebRequestError> onError)
-        {
-            // PaginationParameters
-            APIPaginationParameters pagination = new APIPaginationParameters();
-            int pageSize = this.itemsPerPage;
-            pagination.limit = pageSize;
-            pagination.offset = pageIndex * pageSize;
-
-            // Send Request
-            APIClient.GetAllMods(GenerateRequestFilter(), pagination,
-                                 onSuccess, onError);
-        }
-
         public RequestFilter GenerateRequestFilter()
         {
-            RequestFilter filter = new RequestFilter()
+            RequestFilter filter = new RequestFilter();
+            filter = new RequestFilter()
             {
                 sortFieldName = this.m_sortString,
             };
@@ -375,7 +374,8 @@ namespace ModIO.UI
             this.targetPage = targetPage;
             this.UpdateTargetPageDisplay();
 
-            this.FetchPage(targetPageIndex, (page) =>
+            this.requestManager.FetchPage(this.m_requestFilter, targetPageProfileOffset, pageItemCount,
+            (page) =>
             {
                 if(this.targetPage == targetPage)
                 {
