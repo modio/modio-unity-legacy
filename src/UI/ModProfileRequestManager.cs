@@ -61,26 +61,41 @@ namespace ModIO.UI
                     clampedLastIndex = cachedPage.resultTotal - 1;
                 }
 
-                // check if entire result set is cached
+                // check if entire result set encompassed by cache
                 int cachedLastIndex = cachedPage.resultOffset + cachedPage.items.Length;
                 if(cachedPage.resultOffset <= offsetIndex
                    && clampedLastIndex <= cachedLastIndex)
                 {
-                    if(onSuccess != null)
+                    // check for nulls
+                    bool nullFound = false;
+                    for(int arrayIndex = offsetIndex - cachedPage.resultOffset;
+                        arrayIndex < cachedPage.items.Length
+                        && arrayIndex <= clampedLastIndex - cachedPage.resultOffset
+                        && !nullFound;
+                        ++arrayIndex)
                     {
-                        RequestPage<ModProfile> requestPage = new RequestPage<ModProfile>();
-                        requestPage.size = profileCount;
-                        requestPage.resultOffset = offsetIndex;
-                        requestPage.resultTotal = cachedPage.resultTotal;
-
-                        // fill array
-                        requestPage.items = new ModProfile[clampedLastIndex - offsetIndex + 1];
-                        Array.Copy(cachedPage.items, offsetIndex - cachedPage.resultOffset,
-                                   requestPage.items, 0, requestPage.items.Length);
-
-                        onSuccess(requestPage);
+                        nullFound = (cachedPage.items[arrayIndex] == null);
                     }
-                    return;
+
+                    // return if no nulls found
+                    if(!nullFound)
+                    {
+                        if(onSuccess != null)
+                        {
+                            RequestPage<ModProfile> requestPage = new RequestPage<ModProfile>();
+                            requestPage.size = profileCount;
+                            requestPage.resultOffset = offsetIndex;
+                            requestPage.resultTotal = cachedPage.resultTotal;
+
+                            // fill array
+                            requestPage.items = new ModProfile[clampedLastIndex - offsetIndex + 1];
+                            Array.Copy(cachedPage.items, offsetIndex - cachedPage.resultOffset,
+                                       requestPage.items, 0, requestPage.items.Length);
+
+                            onSuccess(requestPage);
+                        }
+                        return;
+                    }
                 }
             }
 
