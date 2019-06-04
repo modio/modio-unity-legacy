@@ -17,10 +17,77 @@ namespace ModIO.UI
                                       Action<RequestPage<ModProfile>> onSuccess,
                                       Action<WebRequestError> onError)
         {
+            // ensure indicies are positive
+            if(offsetIndex < 0) { offsetIndex = 0; }
+            if(profileCount < 0) { profileCount = 0; }
+
+            // check if results already cached
+            string filterString = filter.GenerateFilterString();
+            RequestPage<ModProfile> cachedPage = null;
+            if(this.cachedRequests.TryGetValue(filterString, out cachedPage))
+            {
+                // early out if no results
+                if(cachedPage.resultTotal == 0)
+                {
+                    if(onSuccess != null)
+                    {
+                        cachedPage.size = profileCount;
+                        onSuccess(cachedPage);
+                    }
+                    return;
+                }
+
+                // early out if index is beyond results
+                if(offsetIndex >= cachedPage.resultTotal)
+                {
+                    if(onSuccess != null)
+                    {
+                        RequestPage<ModProfile> requestPage = new RequestPage<ModProfile>();
+                        requestPage.size = profileCount;
+                        requestPage.resultOffset = offsetIndex;
+                        requestPage.resultTotal = cachedPage.resultTotal;
+                        requestPage.items = new ModProfile[0];
+
+                        onSuccess(requestPage);
+                    }
+                    return;
+                }
+
+                // clamp last index
+                int clampedLastIndex = offsetIndex + profileCount-1;
+                if(clampedLastIndex >= cachedPage.resultTotal)
+                {
+                    // NOTE(@jackson): cachedPage.resultTotal > 0
+                    clampedLastIndex = cachedPage.resultTotal - 1;
+                }
+
+                // check if entire result set is cached
+                int cachedLastIndex = cachedPage.resultOffset + cachedPage.items.Length;
+                if(cachedPage.resultOffset <= offsetIndex
+                   && clampedLastIndex <= cachedLastIndex)
+                {
+                    if(onSuccess != null)
+                    {
+                        RequestPage<ModProfile> requestPage = new RequestPage<ModProfile>();
+                        requestPage.size = profileCount;
+                        requestPage.resultOffset = offsetIndex;
+                        requestPage.resultTotal = cachedPage.resultTotal;
+
+                        // fill array
+                        requestPage.items = new ModProfile[clampedLastIndex - offsetIndex + 1];
+                        Array.Copy(cachedPage.items, offsetIndex - cachedPage.resultOffset,
+                                   requestPage.items, 0, requestPage.items.Length);
+
+                        onSuccess(requestPage);
+                    }
+                    return;
+                }
+            }
+
             // PaginationParameters
             APIPaginationParameters pagination = new APIPaginationParameters();
-            pagination.limit = profileCount;
             pagination.offset = offsetIndex;
+            pagination.limit = profileCount;
 
             // Send Request
             APIClient.GetAllMods(filter, pagination,
