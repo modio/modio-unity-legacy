@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ModIO.UI
@@ -6,11 +7,13 @@ namespace ModIO.UI
     /// <summary>Manages requests made for ModProfiles.</summary>
     public class ModProfileRequestManager : MonoBehaviour
     {
+        // ---------[ FIELDS ]---------
+        /// <summary>Cached requests.</summary>
+        public Dictionary<string, RequestPage<ModProfile>> cachedRequests = new Dictionary<string, RequestPage<ModProfile>>();
+
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Fetchs page of ModProfiles grabbing from the cache where possible.</summary>
-        public virtual void FetchPage(RequestFilter filter,
-                                      int offsetIndex,
-                                      int profileCount,
+        public virtual void FetchPage(RequestFilter filter, int offsetIndex, int profileCount,
                                       Action<RequestPage<ModProfile>> onSuccess,
                                       Action<WebRequestError> onError)
         {
@@ -21,7 +24,67 @@ namespace ModIO.UI
 
             // Send Request
             APIClient.GetAllMods(filter, pagination,
-                                 onSuccess, onError);
+            (r) =>
+            {
+                if(this != null)
+                {
+                    this.AppendCachedPage(filter, r);
+                }
+
+                if(onSuccess != null)
+                {
+                    onSuccess(r);
+                }
+            }, onError);
+        }
+
+        /// <summary>Append the response page to the cached data.</summary>
+        public virtual void AppendCachedPage(RequestFilter filter, RequestPage<ModProfile> page)
+        {
+            Debug.Assert(filter != null);
+            Debug.Assert(page != null);
+
+            string filterString = filter.GenerateFilterString();
+            RequestPage<ModProfile> cachedPage = null;
+            if(this.cachedRequests.TryGetValue(filterString, out cachedPage))
+            {
+                ModProfile[] cachedPageArray = cachedPage.items;
+                int cachedPageArrayOffset = 0;
+
+                int newPageResultOffset = cachedPage.resultOffset;
+                int newPageArrayLength = cachedPage.items.Length;
+
+                // check for page.resultOffset stretching to lower indicies
+                if(page.resultOffset < newPageResultOffset)
+                {
+                    cachedPageArrayOffset = cachedPage.resultOffset - page.resultOffset;
+                    newPageResultOffset = page.resultOffset;
+                    newPageArrayLength = cachedPageArrayOffset + cachedPageArray.Length;
+                }
+
+                // check for page stretching to higher indicies
+                // p.ro = 35, p.i.l = 10 : npro = 10, npal = 30
+                if(page.resultOffset + page.items.Length > newPageResultOffset + newPageArrayLength)
+                {
+                    newPageArrayLength = (page.resultOffset - newPageResultOffset) + page.items.Length;
+                }
+
+                // create new array
+                ModProfile[] newItemArray = new ModProfile[newPageArrayLength];
+                Array.Copy(cachedPageArray, 0, newItemArray, cachedPageArrayOffset, cachedPageArray.Length);
+                Array.Copy(page.items, 0, newItemArray, page.resultOffset - newPageResultOffset, page.items.Length);
+
+                // update page
+                cachedPage.items = newItemArray;
+                cachedPage.size = newPageArrayLength;
+                cachedPage.resultOffset = newPageResultOffset;
+                // TODO(@jackson): CHECK THIS
+                cachedPage.resultTotal = page.resultTotal;
+            }
+            else
+            {
+                this.cachedRequests.Add(filterString, page);
+            }
         }
     }
 }
