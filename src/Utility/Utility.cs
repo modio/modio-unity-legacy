@@ -144,5 +144,22 @@ namespace ModIO
                 return s.Trim();
             }
         }
+
+        /// <summary>Map ModProfiles to id array.</summary>
+        public static int[] MapProfileIds(IList<ModProfile> profiles)
+        {
+            if(profiles == null) { return null; }
+
+            int[] retVal = new int[profiles.Count];
+            for(int i = 0; i < profiles.Count; ++i)
+            {
+                ModProfile profile = profiles[i];
+                retVal[i] = (profile != null
+                             ? profile.id
+                             : ModProfile.NULL_ID);
+            }
+
+            return retVal;
+        }
     }
 }
