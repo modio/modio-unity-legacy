@@ -97,6 +97,18 @@ namespace ModIO
         /// <summary>Iterates through all of the mod profiles from the given offset.</summary>
         public static IEnumerable<ModProfile> IterateAllModProfilesFromOffset(int offset)
         {
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods", "0")
+                         == CacheClient.GenerateModDirectoryPath(0),
+                         "[mod.io] This function relies on mod directory path being a generated in"
+                         + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
+                         + " necessitates changes in this function.");
+
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), "profile.data")
+                         == CacheClient.GenerateModProfileFilePath(0),
+                         "[mod.io] This function relies on mod directory profile file path being a generated in"
+                         + " a specific way. Changing CacheClient.GenerateModProfileFilePath()"
+                         + " necessitates changes in this function.");
+
             string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
             if(Directory.Exists(profileDirectory))
@@ -126,6 +138,69 @@ namespace ModIO
                                offsetDirCount);
 
                     foreach(string modDirectory in offsetModDirectories)
+                    {
+                        string profilePath = IOUtilities.CombinePath(modDirectory, "profile.data");
+                        ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profilePath);
+
+                        if(profile != null)
+                        {
+                            yield return profile;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>Iterates through all of the mod profiles returning only those matching the id filter.</summary>
+        public static IEnumerable<ModProfile> IterateFilteredModProfiles(IList<int> idFilter)
+        {
+            if(idFilter == null || idFilter.Count == 0)
+            {
+                yield break;
+            }
+
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods", "0")
+                         == CacheClient.GenerateModDirectoryPath(0),
+                         "[mod.io] This function relies on mod directory path being a generated in"
+                         + " a specific way. Changing CacheClient.GenerateModDirectoryPath()"
+                         + " necessitates changes in this function.");
+
+            Debug.Assert(IOUtilities.CombinePath(CacheClient.GenerateModDirectoryPath(0), "profile.data")
+                         == CacheClient.GenerateModProfileFilePath(0),
+                         "[mod.io] This function relies on mod directory profile file path being a generated in"
+                         + " a specific way. Changing CacheClient.GenerateModProfileFilePath()"
+                         + " necessitates changes in this function.");
+
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
+
+            if(Directory.Exists(profileDirectory))
+            {
+                string[] modDirectories;
+                try
+                {
+                    modDirectories = Directory.GetDirectories(profileDirectory);
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to read mod profile directory."
+                                          + "\nDirectory: " + profileDirectory + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+
+                    modDirectories = new string[0];
+                }
+
+                foreach(string modDirectory in modDirectories)
+                {
+                    string idPart = modDirectory.Substring(profileDirectory.Length + 1);
+                    int modId = ModProfile.NULL_ID;
+                    if(!int.TryParse(idPart, out modId))
+                    {
+                        modId = ModProfile.NULL_ID;
+                    }
+
+                    if(idFilter.Contains(modId))
                     {
                         string profilePath = IOUtilities.CombinePath(modDirectory, "profile.data");
                         ModProfile profile = IOUtilities.ReadJsonObjectFile<ModProfile>(profilePath);
