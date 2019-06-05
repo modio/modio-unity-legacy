@@ -9,13 +9,13 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>Cached requests.</summary>
-        public Dictionary<string, RequestPage<ModProfile>> cachedRequests = new Dictionary<string, RequestPage<ModProfile>>();
+        public Dictionary<string, RequestPage<ModProfile>> requestCache = new Dictionary<string, RequestPage<ModProfile>>();
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Fetchs page of ModProfiles grabbing from the cache where possible.</summary>
-        public virtual void FetchPage(RequestFilter filter, int offsetIndex, int profileCount,
-                                      Action<RequestPage<ModProfile>> onSuccess,
-                                      Action<WebRequestError> onError)
+        public virtual void FetchModProfilePage(RequestFilter filter, int offsetIndex, int profileCount,
+                                                Action<RequestPage<ModProfile>> onSuccess,
+                                                Action<WebRequestError> onError)
         {
             // ensure indicies are positive
             if(offsetIndex < 0) { offsetIndex = 0; }
@@ -24,7 +24,7 @@ namespace ModIO.UI
             // check if results already cached
             string filterString = filter.GenerateFilterString();
             RequestPage<ModProfile> cachedPage = null;
-            if(this.cachedRequests.TryGetValue(filterString, out cachedPage))
+            if(this.requestCache.TryGetValue(filterString, out cachedPage))
             {
                 // early out if no results
                 if(cachedPage.resultTotal == 0)
@@ -115,7 +115,7 @@ namespace ModIO.UI
             {
                 if(this != null)
                 {
-                    this.AppendCachedPage(filter, r);
+                    this.CacheRequestPage(filter, r);
                 }
 
                 if(onSuccess != null)
@@ -126,52 +126,65 @@ namespace ModIO.UI
         }
 
         /// <summary>Append the response page to the cached data.</summary>
-        public virtual void AppendCachedPage(RequestFilter filter, RequestPage<ModProfile> page)
+        public virtual void CacheRequestPage(RequestFilter filter, RequestPage<ModProfile> page)
         {
+            // asserts
             Debug.Assert(filter != null);
             Debug.Assert(page != null);
 
+            // store request
             string filterString = filter.GenerateFilterString();
             RequestPage<ModProfile> cachedPage = null;
-            if(this.cachedRequests.TryGetValue(filterString, out cachedPage))
+            if(this.requestCache.TryGetValue(filterString, out cachedPage))
             {
-                ModProfile[] cachedPageArray = cachedPage.items;
-                int cachedPageArrayOffset = 0;
-
-                int newPageResultOffset = cachedPage.resultOffset;
-                int newPageArrayLength = cachedPage.items.Length;
-
-                // check for page.resultOffset stretching to lower indicies
-                if(page.resultOffset < newPageResultOffset)
-                {
-                    cachedPageArrayOffset = cachedPage.resultOffset - page.resultOffset;
-                    newPageResultOffset = page.resultOffset;
-                    newPageArrayLength = cachedPageArrayOffset + cachedPageArray.Length;
-                }
-
-                // check for page stretching to higher indicies
-                // p.ro = 35, p.i.l = 10 : npro = 10, npal = 30
-                if(page.resultOffset + page.items.Length > newPageResultOffset + newPageArrayLength)
-                {
-                    newPageArrayLength = (page.resultOffset - newPageResultOffset) + page.items.Length;
-                }
-
-                // create new array
-                ModProfile[] newItemArray = new ModProfile[newPageArrayLength];
-                Array.Copy(cachedPageArray, 0, newItemArray, cachedPageArrayOffset, cachedPageArray.Length);
-                Array.Copy(page.items, 0, newItemArray, page.resultOffset - newPageResultOffset, page.items.Length);
-
-                // update page
-                cachedPage.items = newItemArray;
-                cachedPage.size = newPageArrayLength;
-                cachedPage.resultOffset = newPageResultOffset;
-                // TODO(@jackson): CHECK THIS
-                cachedPage.resultTotal = page.resultTotal;
+                this.requestCache[filterString] = this.CombinePages(cachedPage, page);
             }
             else
             {
-                this.cachedRequests.Add(filterString, page);
+                this.requestCache.Add(filterString, page);
             }
+        }
+
+        /// <summary>Combines two response pages.</summary>
+        public virtual RequestPage<ModProfile> CombinePages(RequestPage<ModProfile> pageA,
+                                                            RequestPage<ModProfile> pageB)
+        {
+            // asserts
+            Debug.Assert(pageA != null);
+            Debug.Assert(pageB != null);
+            Debug.Assert(pageA.resultTotal == pageB.resultTotal);
+
+            RequestPage<ModProfile> combinedPage = new RequestPage<ModProfile>();
+
+            // calc last indicies
+            int pageALastIndex = pageA.resultOffset + pageA.items.Length;
+            int pageBLastIndex = pageB.resultOffset + pageB.items.Length;
+
+            // calc offset
+            combinedPage.resultOffset = (pageA.resultOffset <= pageB.resultOffset
+                                         ? pageA.resultOffset
+                                         : pageB.resultOffset);
+            // create array
+            int newArrayLength = (pageALastIndex >= pageBLastIndex
+                                  ? pageALastIndex
+                                  : pageBLastIndex) - combinedPage.resultOffset;
+            combinedPage.items = new ModProfile[newArrayLength];
+
+            // fill array
+            Array.Copy(pageA.items, 0,
+                       combinedPage.items,
+                       pageA.resultOffset - combinedPage.resultOffset,
+                       pageA.items.Length);
+            Array.Copy(pageB.items, 0,
+                       combinedPage.items,
+                       pageB.resultOffset - combinedPage.resultOffset,
+                       pageB.items.Length);
+
+            // fill out details
+            combinedPage.size = newArrayLength;
+            combinedPage.resultTotal = pageA.resultTotal;
+
+            return combinedPage;
         }
     }
 }
