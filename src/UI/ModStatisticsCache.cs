@@ -7,11 +7,23 @@ namespace ModIO.UI
     public class ModStatisticsCache : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
+        /// <summary>Should the cache be cleared on disable</summary>
+        public bool clearCacheOnDisable = true;
+
         /// <summary>Cached ModStatistics to id map.</summary>
         public Dictionary<int, ModStatistics> cache = new Dictionary<int, ModStatistics>();
 
         /// <summary>Should GetForId return null if the ModStatistics object is expired.</summary>
         public bool returnNullIfExpired = false;
+
+        // ---------[ INITIALIZATION ]---------
+        protected virtual void OnDisable()
+        {
+            if(this.clearCacheOnDisable)
+            {
+                this.cache.Clear();
+            }
+        }
 
         // ---------[ ACCESSOR FUNCTIONS ]---------
         /// <summary>Attempts to retrieve a cached ModStatistics object.</summary>

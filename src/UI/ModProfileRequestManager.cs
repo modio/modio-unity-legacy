@@ -16,6 +16,9 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
+        /// <summary>Should the cache be cleared on disable</summary>
+        public bool clearCacheOnDisable = true;
+
         /// <summary>Cached requests.</summary>
         public Dictionary<string, RequestPageData> requestCache = new Dictionary<string, RequestPageData>();
 
@@ -24,6 +27,17 @@ namespace ModIO.UI
         {
             { ModProfile.NULL_ID, null },
         };
+
+        // ---------[ INITIALIZATION ]---------
+        protected virtual void OnDisable()
+        {
+            if(this.clearCacheOnDisable)
+            {
+                this.requestCache.Clear();
+                this.profileCache.Clear();
+                this.profileCache.Add(ModProfile.NULL_ID, null);
+            }
+        }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Fetchs page of ModProfiles grabbing from the cache where possible.</summary>
