@@ -228,5 +228,73 @@ namespace ModIO.UI
             },
             onError);
         }
+
+        /// <summary>Gets a collection of ModProfiles by id.</summary>
+        public virtual void GetModProfiles(IList<int> orderedIdList,
+                                           Action<IList<ModProfile>> onSuccess,
+                                           Action<WebRequestError> onError)
+        {
+            ModProfile[] results = new ModProfile[orderedIdList.Count];
+            List<int> missingIds = new List<int>(orderedIdList.Count);
+
+            // grab from cache
+            for(int i = 0; i < orderedIdList.Count; ++i)
+            {
+                int modId = orderedIdList[i];
+                ModProfile profile = null;
+                profileCache.TryGetValue(modId, out profile);
+                results[i] = profile;
+
+                if(profile == null)
+                {
+                    missingIds.Add(modId);
+                }
+            }
+
+            // check disk for any missing profiles
+            foreach(ModProfile profile in CacheClient.IterateFilteredModProfiles(missingIds))
+            {
+                int index = orderedIdList.IndexOf(profile.id);
+                if(index >= 0)
+                {
+                    results[index] = profile;
+                }
+
+                missingIds.Remove(profile.id);
+            }
+
+            // if no missing profiles, early out
+            if(missingIds.Count == 0)
+            {
+                onSuccess(results);
+                return;
+            }
+
+            // fetch missing profiles
+            RequestFilter filter = new RequestFilter();
+            filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
+                new InArrayFilter<int>() { filterArray = missingIds.ToArray(), });
+
+            APIClient.GetAllMods(filter, null, (r) =>
+            {
+                if(this != null)
+                {
+                    foreach(ModProfile profile in r.items)
+                    {
+                        profileCache.Add(profile.id, profile);
+                    }
+                }
+
+                foreach(ModProfile profile in r.items)
+                {
+                    int i = orderedIdList.IndexOf(profile.id);
+                    if(i >= 0)
+                    {
+                        results[i] = profile;
+                    }
+                    onSuccess(results);
+                }
+            }, onError);
+        }
     }
 }
