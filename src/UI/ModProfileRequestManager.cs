@@ -11,6 +11,9 @@ namespace ModIO.UI
         /// <summary>Cached requests.</summary>
         public Dictionary<string, RequestPage<ModProfile>> requestCache = new Dictionary<string, RequestPage<ModProfile>>();
 
+        /// <summary>Cached profiles.</summary>
+        public Dictionary<int, ModProfile> profileCache = new Dictionary<int, ModProfile>();
+
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Fetchs page of ModProfiles grabbing from the cache where possible.</summary>
         public virtual void FetchModProfilePage(RequestFilter filter, int offsetIndex, int profileCount,
@@ -143,6 +146,11 @@ namespace ModIO.UI
             {
                 this.requestCache.Add(filterString, page);
             }
+
+            foreach(ModProfile profile in page.items)
+            {
+                this.profileCache[profile.id] = profile;
+            }
         }
 
         /// <summary>Combines two response pages.</summary>
@@ -185,6 +193,40 @@ namespace ModIO.UI
             combinedPage.resultTotal = pageA.resultTotal;
 
             return combinedPage;
+        }
+
+        /// <summary>Gets an individual ModProfile by id.</summary>
+        public virtual void GetModProfile(int id,
+                                          Action<ModProfile> onSuccess, Action<WebRequestError> onError)
+        {
+            ModProfile profile = null;
+            if(profileCache.TryGetValue(id, out profile))
+            {
+                if(onSuccess != null) { onSuccess(profile); }
+                return;
+            }
+
+            profile = CacheClient.LoadModProfile(id);
+            if(profile != null)
+            {
+                profileCache.Add(id, profile);
+                if(onSuccess != null) { onSuccess(profile); }
+                return;
+            }
+
+            APIClient.GetMod(id, (p) =>
+            {
+                if(this != null)
+                {
+                    profileCache.Add(id, p);
+                }
+
+                if(onSuccess != null)
+                {
+                    onSuccess(p);
+                }
+            },
+            onError);
         }
     }
 }

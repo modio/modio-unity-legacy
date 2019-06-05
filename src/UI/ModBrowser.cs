@@ -1873,10 +1873,10 @@ namespace ModIO.UI
             }
             else
             {
-                this.explorerView.requestManager.FetchPage(this.explorerView.GenerateRequestFilter(),
-                                                           pageIndex * this.explorerView.itemsPerPage,
-                                                           this.explorerView.itemsPerPage,
-                                                           onSuccess, onError);
+                this.explorerView.requestManager.FetchModProfilePage(this.explorerView.GenerateRequestFilter(),
+                                                                     pageIndex * this.explorerView.itemsPerPage,
+                                                                     this.explorerView.itemsPerPage,
+                                                                     onSuccess, onError);
             }
         }
 

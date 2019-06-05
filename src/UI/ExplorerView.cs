@@ -275,7 +275,7 @@ namespace ModIO.UI
             };
             this.currentPage = filteredPage;
 
-            this.requestManager.FetchPage(this.m_requestFilter, 0, pageSize,
+            this.requestManager.FetchModProfilePage(this.m_requestFilter, 0, pageSize,
             (page) =>
             {
                 #if DEBUG
@@ -374,7 +374,7 @@ namespace ModIO.UI
             this.targetPage = targetPage;
             this.UpdateTargetPageDisplay();
 
-            this.requestManager.FetchPage(this.m_requestFilter, targetPageProfileOffset, pageSize,
+            this.requestManager.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
             {
                 if(this.targetPage == targetPage)
