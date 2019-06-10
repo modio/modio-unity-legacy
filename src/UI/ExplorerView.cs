@@ -526,7 +526,8 @@ namespace ModIO.UI
                         view.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
 
                         // display
-                        ModStatistics stats = this.statisticsCache.GetForId(profile.id);
+                        ModStatistics stats = null;
+                        this.statisticsCache.cache.TryGetValue(profile.id, out stats);
                         bool isModSubscribed = subscribedModIds.Contains(profile.id);
                         bool isModEnabled = enabledModIds.Contains(profile.id);
 
@@ -566,15 +567,15 @@ namespace ModIO.UI
                     filterArray = missingStatsData.ToArray(),
                 });
 
-                APIClient.GetAllModStats(statsFilter, null,
-                (r) =>
+                this.statisticsCache.RequestModStatistics(missingStatsData,
+                (statsArray) =>
                 {
                     if(this != null)
                     {
-                        this.statisticsCache.Store(r.items);
-                        UpdateStatisticsDisplays(missingStatsData);
+                        UpdateStatisticsDisplays(statsArray);
                     }
-                }, null);
+                },
+                null);
             }
 
             // fix layouting
@@ -584,17 +585,34 @@ namespace ModIO.UI
             }
         }
 
-        private void UpdateStatisticsDisplays(IList<int> modIds)
+        private void UpdateStatisticsDisplays(IEnumerable<ModStatistics> statsData)
         {
+            if(statsData == null) { return; }
+
+            List<ModStatistics> statsList = new List<ModStatistics>(statsData);
             foreach(ModView view in this.m_modViews)
             {
                 if(view != null)
                 {
                     ModDisplayData data = view.data;
-                    ModStatistics stats = this.statisticsCache.GetForId(data.profile.modId);
+                    ModStatistics stats = null;
 
-                    if(modIds.Contains(data.profile.modId)
-                       && stats != null)
+                    for(int i = 0;
+                        i < statsList.Count && stats == null;
+                        ++i)
+                    {
+                        stats = statsList[i];
+                        if(stats.modId == data.profile.modId)
+                        {
+                            statsList.RemoveAt(i);
+                        }
+                        else
+                        {
+                            stats = null;
+                        }
+                    }
+
+                    if(stats != null)
                     {
                         data.statistics = ModStatisticsDisplayData.CreateFromStatistics(stats);
                         view.data = data;
