@@ -1866,16 +1866,16 @@ namespace ModIO.UI
                                         Action<WebRequestError> onError)
         {
             if(this.explorerView == null
-               || this.explorerView.requestManager == null)
+               || this.explorerView.profileRequests == null)
             {
                 if(onError != null) { onError(null); }
             }
             else
             {
-                this.explorerView.requestManager.FetchModProfilePage(this.explorerView.GenerateRequestFilter(),
-                                                                     pageIndex * this.explorerView.itemsPerPage,
-                                                                     this.explorerView.itemsPerPage,
-                                                                     onSuccess, onError);
+                this.explorerView.profileRequests.FetchModProfilePage(this.explorerView.GenerateRequestFilter(),
+                                                                      pageIndex * this.explorerView.itemsPerPage,
+                                                                      this.explorerView.itemsPerPage,
+                                                                      onSuccess, onError);
             }
         }
 

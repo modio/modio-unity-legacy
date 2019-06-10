@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>A simple component for caching ModStatistics objects.</summary>
-    public class ModStatisticsCache : MonoBehaviour
+    public class ModStatisticsRequestManager : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
         /// <summary>Should the cache be cleared on disable</summary>
@@ -13,9 +13,6 @@ namespace ModIO.UI
 
         /// <summary>Cached ModStatistics to id map.</summary>
         public Dictionary<int, ModStatistics> cache = new Dictionary<int, ModStatistics>();
-
-        /// <summary>Should GetForId return null if the ModStatistics object is expired.</summary>
-        public bool returnNullIfExpired = false;
 
         /// <summary>Should the statistics be refetched if expired.</summary>
         public bool refetchIfExpired = true;

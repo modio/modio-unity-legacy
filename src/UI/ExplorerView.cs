@@ -22,8 +22,8 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         public float pageTransitionTimeSeconds = 0.4f;
         public RectTransform pageTemplate = null;
-        public ModProfileRequestManager requestManager = null;
-        public ModStatisticsCache statisticsCache = null;
+        public ModProfileRequestManager profileRequests = null;
+        public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -209,14 +209,14 @@ namespace ModIO.UI
             }
 
             // check for request managers
-            if(this.requestManager == null)
+            if(this.profileRequests == null)
             {
-                this.requestManager = this.gameObject.AddComponent<ModProfileRequestManager>();
+                this.profileRequests = this.gameObject.AddComponent<ModProfileRequestManager>();
             }
 
-            if(this.statisticsCache == null)
+            if(this.statisticsRequests == null)
             {
-                this.statisticsCache = this.gameObject.AddComponent<ModStatisticsCache>();
+                this.statisticsRequests = this.gameObject.AddComponent<ModStatisticsRequestManager>();
             }
 
             this.m_requestFilter = this.GenerateRequestFilter();
@@ -276,7 +276,7 @@ namespace ModIO.UI
             };
             this.currentPage = filteredPage;
 
-            this.requestManager.FetchModProfilePage(this.m_requestFilter, 0, pageSize,
+            this.profileRequests.FetchModProfilePage(this.m_requestFilter, 0, pageSize,
             (page) =>
             {
                 #if DEBUG
@@ -375,7 +375,7 @@ namespace ModIO.UI
             this.targetPage = targetPage;
             this.UpdateTargetPageDisplay();
 
-            this.requestManager.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
+            this.profileRequests.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
             {
                 if(this.targetPage == targetPage)
@@ -527,7 +527,7 @@ namespace ModIO.UI
 
                         // display
                         ModStatistics stats = null;
-                        this.statisticsCache.cache.TryGetValue(profile.id, out stats);
+                        this.statisticsRequests.cache.TryGetValue(profile.id, out stats);
                         bool isModSubscribed = subscribedModIds.Contains(profile.id);
                         bool isModEnabled = enabledModIds.Contains(profile.id);
 
@@ -567,7 +567,7 @@ namespace ModIO.UI
                     filterArray = missingStatsData.ToArray(),
                 });
 
-                this.statisticsCache.RequestModStatistics(missingStatsData,
+                this.statisticsRequests.RequestModStatistics(missingStatsData,
                 (statsArray) =>
                 {
                     if(this != null)

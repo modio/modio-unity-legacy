@@ -15,7 +15,7 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         public GameObject itemPrefab = null;
-        public ModProfileRequestManager requestManager = null;
+        public ModProfileRequestManager profileRequests = null;
 
         [Header("UI Components")]
         public ScrollRect scrollView;
@@ -81,9 +81,9 @@ namespace ModIO.UI
                          + "Please ensure these are all present.");
 
             // check for request managers
-            if(this.requestManager == null)
+            if(this.profileRequests == null)
             {
-                this.requestManager = this.gameObject.AddComponent<ModProfileRequestManager>();
+                this.profileRequests = this.gameObject.AddComponent<ModProfileRequestManager>();
             }
 
             // init tag categories
@@ -117,7 +117,7 @@ namespace ModIO.UI
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
-            this.requestManager.GetModProfiles(subscribedModIds,
+            this.profileRequests.GetModProfiles(subscribedModIds,
                                                (profiles) => Refresh_OnGetModProfiles(profiles,
                                                                                       this.m_titleFilter,
                                                                                       this.m_sortDelegate),
