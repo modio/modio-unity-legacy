@@ -16,6 +16,7 @@ namespace ModIO.UI
         [Header("Settings")]
         public GameObject itemPrefab = null;
         public ModProfileRequestManager profileRequests = null;
+        public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
         public ScrollRect scrollView;
@@ -84,6 +85,10 @@ namespace ModIO.UI
             if(this.profileRequests == null)
             {
                 this.profileRequests = this.gameObject.AddComponent<ModProfileRequestManager>();
+            }
+            if(this.statisticsRequests == null)
+            {
+                this.statisticsRequests = this.gameObject.AddComponent<ModStatisticsRequestManager>();
             }
 
             // init tag categories
@@ -219,8 +224,9 @@ namespace ModIO.UI
                 removedProfiles.Add(fakeModId);
             }
 
-            // order the game objects
+            // order the game objects and display new mods
             var enabledMods = ModManager.GetEnabledModIds();
+            List<int> missingStatsData = new List<int>();
             for(int i = 0; i < orderedProfileList.Count; ++i)
             {
                 ModProfile profile = orderedProfileList[i];
@@ -237,20 +243,17 @@ namespace ModIO.UI
                     m_viewMap.Add(profile.id, view);
 
                     // display mod
+                    ModStatistics stats = this.statisticsRequests.TryGetValid(profile.id);
                     view.DisplayMod(orderedProfileList[i],
-                                    null,
+                                    stats,
                                     this.m_tagCategories,
                                     true, // assume subscribed
                                     enabledMods.Contains(profile.id));
 
-                    ModManager.GetModStatistics(profile.id,
-                                                (s) =>
-                                                {
-                                                    ModDisplayData data = view.data;
-                                                    data.statistics = ModStatisticsDisplayData.CreateFromStatistics(s);
-                                                    view.data = data;
-                                                },
-                                                null);
+                    if(stats == null)
+                    {
+                        missingStatsData.Add(profile.id);
+                    }
                 }
 
                 view.transform.SetSiblingIndex(i);
@@ -283,10 +286,50 @@ namespace ModIO.UI
                                            && m_viewMap.Count == 0);
             }
 
+            if(missingStatsData.Count > 0)
+            {
+                this.statisticsRequests.RequestModStatistics(missingStatsData,
+                (statsArray) =>
+                {
+                    if(this != null)
+                    {
+                        UpdateStatisticsDisplays(statsArray);
+                    }
+
+                    IList<int> subbedIds = ModManager.GetSubscribedModIds();
+                    foreach(ModStatistics stats in statsArray)
+                    {
+                        if(subbedIds.Contains(stats.modId))
+                        {
+                            CacheClient.SaveModStatistics(stats);
+                        }
+                    }
+                },
+                // TODO(@jackson): something
+                null);
+            }
+
             // fix layouting
             if(this.isActiveAndEnabled)
             {
                 LayoutRebuilder.MarkLayoutForRebuild(scrollView.GetComponent<RectTransform>());
+            }
+        }
+
+        protected virtual void UpdateStatisticsDisplays(IEnumerable<ModStatistics> statsData)
+        {
+            if(statsData == null) { return; }
+
+            foreach(ModStatistics stats in statsData)
+            {
+                ModView view = null;
+                if(this.m_viewMap.TryGetValue(stats.modId, out view)
+                   && view != null)
+                {
+                    ModDisplayData data = view.data;
+                    data.statistics = ModStatisticsDisplayData.CreateFromStatistics(stats);
+                    view.data = data;
+                }
             }
         }
 

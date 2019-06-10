@@ -559,13 +559,6 @@ namespace ModIO.UI
 
             if(missingStatsData.Count > 0)
             {
-                // set up filter
-                RequestFilter statsFilter = new RequestFilter();
-                statsFilter.fieldFilters.Add(API.GetAllModStatsFilterFields.modId, new InArrayFilter<int>()
-                {
-                    filterArray = missingStatsData.ToArray(),
-                });
-
                 this.statisticsRequests.RequestModStatistics(missingStatsData,
                 (statsArray) =>
                 {
@@ -584,7 +577,7 @@ namespace ModIO.UI
             }
         }
 
-        private void UpdateStatisticsDisplays(IEnumerable<ModStatistics> statsData)
+        protected virtual void UpdateStatisticsDisplays(IEnumerable<ModStatistics> statsData)
         {
             if(statsData == null) { return; }
 
