@@ -60,17 +60,17 @@ namespace ModIO.UI
         }
 
         /// <summary>Requests a collection of ModStatistcs by id.</summary>
-        public virtual void RequestModStatistics(IList<int> idList,
+        public virtual void RequestModStatistics(IList<int> orderedIdList,
                                                  Action<ModStatistics[]> onSuccess,
                                                  Action<WebRequestError> onError)
         {
-            ModStatistics[] results = new ModStatistics[idList.Count];
-            List<int> missingIds = new List<int>(idList.Count);
+            ModStatistics[] results = new ModStatistics[orderedIdList.Count];
+            List<int> missingIds = new List<int>(orderedIdList.Count);
 
             // grab from cache
-            for(int i = 0; i < idList.Count; ++i)
+            for(int i = 0; i < orderedIdList.Count; ++i)
             {
-                int modId = idList[i];
+                int modId = orderedIdList[i];
                 ModStatistics stats = null;
                 this.cache.TryGetValue(modId, out stats);
                 results[i] = stats;
@@ -90,7 +90,7 @@ namespace ModIO.UI
 
                 if(this.IsValid(stats))
                 {
-                    int resultIndex = idList.IndexOf(id);
+                    int resultIndex = orderedIdList.IndexOf(id);
                     results[resultIndex] = stats;
                     missingIds.RemoveAt(missingIndex);
                 }
@@ -124,7 +124,7 @@ namespace ModIO.UI
 
                 foreach(ModStatistics stats in r.items)
                 {
-                    int i = idList.IndexOf(stats.modId);
+                    int i = orderedIdList.IndexOf(stats.modId);
                     if(i >= 0)
                     {
                         results[i] = stats;
