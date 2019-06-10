@@ -22,8 +22,8 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         public float pageTransitionTimeSeconds = 0.4f;
         public RectTransform pageTemplate = null;
-        public ModStatisticsCache statisticsCache = null;
         public ModProfileRequestManager requestManager = null;
+        public ModStatisticsCache statisticsCache = null;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -208,6 +208,7 @@ namespace ModIO.UI
                 return;
             }
 
+            // check for request managers
             if(this.requestManager == null)
             {
                 this.requestManager = this.gameObject.AddComponent<ModProfileRequestManager>();

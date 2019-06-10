@@ -264,7 +264,7 @@ namespace ModIO.UI
 
         /// <summary>Gets a collection of ModProfiles by id.</summary>
         public virtual void GetModProfiles(IList<int> orderedIdList,
-                                           Action<IList<ModProfile>> onSuccess,
+                                           Action<ModProfile[]> onSuccess,
                                            Action<WebRequestError> onError)
         {
             ModProfile[] results = new ModProfile[orderedIdList.Count];
@@ -327,7 +327,7 @@ namespace ModIO.UI
                     }
                     onSuccess(results);
                 }
-            }, onError);
+                }, onError);
         }
     }
 }

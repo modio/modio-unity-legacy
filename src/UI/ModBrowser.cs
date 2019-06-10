@@ -67,7 +67,6 @@ namespace ModIO.UI
         [Tooltip("Size to use for the mod gallery image thumbnails")]
         public ModGalleryImageSize galleryThumbnailSize = ModGalleryImageSize.Thumbnail_320x180;
 
-
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = new GameProfile();
         private List<SimpleRating> m_userRatings = new List<SimpleRating>();
@@ -1937,11 +1936,11 @@ namespace ModIO.UI
             get { return this.subscriptionsView.isActiveIndicator; }
         }
 
-        [Obsolete("Use SubscriptionsView.FetchProfiles() instead.")]
+        [Obsolete("Use SubscriptionsView.Refresh() instead.")]
         public void RequestSubscribedModProfiles(Action<List<ModProfile>> onSuccess,
                                                  Action<WebRequestError> onError)
         {
-            subscriptionsView.FetchProfiles(onSuccess, onError);
+            subscriptionsView.Refresh();
         }
 
         [Obsolete("Use SubscriptionsView.UpdateFilter() instead.")]

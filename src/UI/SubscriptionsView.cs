@@ -14,7 +14,8 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]
-        public GameObject itemPrefab;
+        public GameObject itemPrefab = null;
+        public ModProfileRequestManager requestManager = null;
 
         [Header("UI Components")]
         public ScrollRect scrollView;
@@ -79,6 +80,12 @@ namespace ModIO.UI
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
 
+            // check for request managers
+            if(this.requestManager == null)
+            {
+                this.requestManager = this.gameObject.AddComponent<ModProfileRequestManager>();
+            }
+
             // init tag categories
             var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
             if(tagCategories != null)
@@ -108,8 +115,13 @@ namespace ModIO.UI
 
         public void Refresh()
         {
-            // request page
-            FetchProfiles(this.DisplayProfiles, (requestError) =>
+            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+
+            this.requestManager.GetModProfiles(subscribedModIds,
+                                               (profiles) => Refresh_OnGetModProfiles(profiles,
+                                                                                      this.m_titleFilter,
+                                                                                      this.m_sortDelegate),
+                                               (requestError) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                            "Failed to get subscription data from mod.io servers.\n"
@@ -117,57 +129,50 @@ namespace ModIO.UI
             });
         }
 
-        public void FetchProfiles(Action<List<ModProfile>> onSuccess,
-                                  Action<WebRequestError> onError)
+        /// <summary>Handle the mods returned by the refresh request.</summary>
+        protected virtual void Refresh_OnGetModProfiles(IList<ModProfile> modProfiles,
+                                                        string requestedTitleFilter,
+                                                        Comparison<ModProfile> requstedSortDelegate)
         {
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+            // check for early outs
+            if(this == null
+               || this.m_titleFilter != requestedTitleFilter
+               || this.m_sortDelegate != requstedSortDelegate)
+            {
+                return;
+            }
 
-            // title filter
+            // check for null list
+            if(modProfiles == null
+               || modProfiles.Count == 0)
+            {
+                this.DisplayProfiles(new ModProfile[0]);
+            }
+
+            // filter
             Func<ModProfile, bool> titleFilterDelegate = (p) => true;
-            if(!String.IsNullOrEmpty(this.m_titleFilter))
+            if(!String.IsNullOrEmpty(requestedTitleFilter))
             {
                 // set initial value
-                string filterString = this.m_titleFilter.ToUpper();
+                string filterString = requestedTitleFilter.ToUpper();
                 titleFilterDelegate = (p) =>
                 {
                     return p.name.ToUpper().Contains(filterString);
                 };
             }
 
-            string titleFilter = this.m_titleFilter;
-            Comparison<ModProfile> sortDelegate = this.m_sortDelegate;
-
-            if(subscribedModIds.Count > 0)
+            List<ModProfile> filteredList = new List<ModProfile>(modProfiles.Count);
+            foreach(ModProfile profile in modProfiles)
             {
-                Action<List<ModProfile>> onGetModProfiles = (list) =>
+                if(titleFilterDelegate(profile))
                 {
-                    // ensure it's still the same filter
-                    if(titleFilter != this.m_titleFilter
-                       || sortDelegate != this.m_sortDelegate)
-                    {
-                        return;
-                    }
-
-                    List<ModProfile> filteredList = new List<ModProfile>(list.Count);
-                    foreach(ModProfile profile in list)
-                    {
-                        if(titleFilterDelegate(profile))
-                        {
-                            filteredList.Add(profile);
-                        }
-                    }
-
-                    filteredList.Sort(sortDelegate);
-
-                    onSuccess(filteredList);
-                };
-
-                ModManager.GetModProfiles(subscribedModIds, onGetModProfiles, onError);
+                    filteredList.Add(profile);
+                }
             }
-            else
-            {
-                onSuccess(new List<ModProfile>(0));
-            }
+
+            filteredList.Sort(requstedSortDelegate);
+
+            this.DisplayProfiles(filteredList);
         }
 
         // ---------[ UI FUNCTIONALITY ]------------
@@ -291,18 +296,17 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
-                this.Refresh();
+
+                if(this.isActiveAndEnabled)
+                {
+                    this.Refresh();
+                }
             }
         }
 
         public void OnModSubscriptionsUpdated()
         {
-            FetchProfiles(this.DisplayProfiles, (requestError) =>
-            {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                           "Failed to get subscription data from mod.io servers.\n"
-                                           + requestError.displayMessage);
-            });
+            this.Refresh();
         }
 
         public void OnModEnabled(int modId)
