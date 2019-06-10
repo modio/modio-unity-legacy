@@ -140,18 +140,6 @@ namespace ModIO.UI
             onError);
         }
 
-        /// <summary>Stores a ModStatistics object in the cache.</summary>
-        public virtual void Store(IEnumerable<ModStatistics> statistics)
-        {
-            foreach(ModStatistics statData in statistics)
-            {
-                if(statData != null)
-                {
-                    cache[statData.modId] = statData;
-                }
-            }
-        }
-
         /// <summary>A convenience function for checking if a stats object should be refetched.</summary>
         protected virtual bool IsValid(ModStatistics statistics)
         {
