@@ -30,6 +30,38 @@ namespace ModIO.UI
         }
 
         // ---------[ ACCESSOR FUNCTIONS ]---------
+        /// <summary>Requests an individual ModStatistics by id.</summary>
+        public virtual void RequestModStatistics(int modId,
+                                                 Action<ModStatistics> onSuccess,
+                                                 Action<WebRequestError> onError)
+        {
+            ModStatistics stats = null;
+
+            if(!this.cache.TryGetValue(modId, out stats))
+            {
+                stats = CacheClient.LoadModStatistics(modId);
+                this.cache.Add(modId, stats);
+            }
+
+            if(this.IsValid(stats))
+            {
+                onSuccess(stats);
+            }
+            else
+            {
+                APIClient.GetModStats(modId, (s) =>
+                {
+                    if(this != null)
+                    {
+                        this.cache[modId] = s;
+                    }
+
+                    onSuccess(s);
+                },
+                onError);
+            }
+        }
+
         /// <summary>Requests a collection of ModStatistcs by id.</summary>
         public virtual void RequestModStatistics(IList<int> idList,
                                                  Action<ModStatistics[]> onSuccess,
@@ -106,26 +138,6 @@ namespace ModIO.UI
 
             },
             onError);
-        }
-
-        /// <summary>Attempts to retrieve a cached ModStatistics object.</summary>
-        public virtual ModStatistics GetForId(int modId)
-        {
-            ModStatistics stats = null;
-
-            if(!cache.TryGetValue(modId, out stats))
-            {
-                cache[modId] = CacheClient.LoadModStatistics(modId);
-            }
-
-            if(returnNullIfExpired
-               && stats != null
-               && stats.dateExpires < ServerTimeStamp.Now)
-            {
-                stats = null;
-            }
-
-            return stats;
         }
 
         /// <summary>Stores a ModStatistics object in the cache.</summary>
