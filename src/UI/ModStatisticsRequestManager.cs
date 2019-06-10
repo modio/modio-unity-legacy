@@ -137,6 +137,22 @@ namespace ModIO.UI
             onError);
         }
 
+        /// <summary>Returns the a ModStatistics if the object is cached and valid.</summary>
+        public virtual ModStatistics TryGetValid(int modId)
+        {
+            ModStatistics stats = null;
+            this.cache.TryGetValue(modId, out stats);
+
+            if(this.IsValid(stats))
+            {
+                return stats;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         /// <summary>A convenience function for checking if a stats object should be refetched.</summary>
         protected virtual bool IsValid(ModStatistics statistics)
         {

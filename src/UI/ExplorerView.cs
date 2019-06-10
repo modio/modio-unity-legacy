@@ -526,8 +526,7 @@ namespace ModIO.UI
                         view.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
 
                         // display
-                        ModStatistics stats = null;
-                        this.statisticsRequests.cache.TryGetValue(profile.id, out stats);
+                        ModStatistics stats = this.statisticsRequests.TryGetValid(profile.id);
                         bool isModSubscribed = subscribedModIds.Contains(profile.id);
                         bool isModEnabled = enabledModIds.Contains(profile.id);
 
