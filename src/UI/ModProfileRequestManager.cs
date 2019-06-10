@@ -235,7 +235,7 @@ namespace ModIO.UI
             ModProfile profile = null;
             if(profileCache.TryGetValue(id, out profile))
             {
-                if(onSuccess != null) { onSuccess(profile); }
+                onSuccess(profile);
                 return;
             }
 
@@ -243,7 +243,7 @@ namespace ModIO.UI
             if(profile != null)
             {
                 profileCache.Add(id, profile);
-                if(onSuccess != null) { onSuccess(profile); }
+                onSuccess(profile);
                 return;
             }
 
@@ -254,10 +254,7 @@ namespace ModIO.UI
                     profileCache.Add(id, p);
                 }
 
-                if(onSuccess != null)
-                {
-                    onSuccess(p);
-                }
+                onSuccess(p);
             },
             onError);
         }
@@ -275,7 +272,7 @@ namespace ModIO.UI
             {
                 int modId = orderedIdList[i];
                 ModProfile profile = null;
-                profileCache.TryGetValue(modId, out profile);
+                this.profileCache.TryGetValue(modId, out profile);
                 results[i] = profile;
 
                 if(profile == null)
@@ -314,7 +311,7 @@ namespace ModIO.UI
                 {
                     foreach(ModProfile profile in r.items)
                     {
-                        profileCache.Add(profile.id, profile);
+                        this.profileCache[profile.id] = profile;
                     }
                 }
 
@@ -325,9 +322,11 @@ namespace ModIO.UI
                     {
                         results[i] = profile;
                     }
-                    onSuccess(results);
                 }
-                }, onError);
+
+                onSuccess(results);
+            },
+            onError);
         }
     }
 }
