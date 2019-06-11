@@ -84,13 +84,25 @@ namespace ModIO.UI
             // check for request managers
             if(this.profileRequests == null)
             {
+                Debug.Log("[mod.io] The profileRequests component on this SubscriptionView"
+                          + " has been automatically created. Assing a ModProfileRequestManager"
+                          + " component to this field that is shared by other views will allow"
+                          + " for a much more efficient and responsive browsing experience.",
+                          this);
+
                 this.profileRequests = this.gameObject.AddComponent<ModProfileRequestManager>();
             }
+
             if(this.statisticsRequests == null)
             {
+                Debug.Log("[mod.io] The statisticsRequests component on this SubscriptionView"
+                          + " has been automatically created. Assing a ModStatisticsRequestManager"
+                          + " component to this field that is shared by other views will allow"
+                          + " for a much more efficient and responsive browsing experience.",
+                          this);
+
                 this.statisticsRequests = this.gameObject.AddComponent<ModStatisticsRequestManager>();
             }
-
             // init tag categories
             var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
             if(tagCategories != null)
