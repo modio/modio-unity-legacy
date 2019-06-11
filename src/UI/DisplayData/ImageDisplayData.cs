@@ -53,5 +53,28 @@ namespace ModIO.UI
                 thumbnailTexture = value;
             }
         }
+
+        // ---------[ EQUALITY OVERRIDES ]---------
+        public override bool Equals(object obj)
+        {
+            if(!(obj is ImageDisplayData))
+            {
+                return false;
+            }
+
+            var other = (ImageDisplayData)obj;
+            bool isEqual = (this.ownerId == other.ownerId
+                            && this.mediaType == other.mediaType
+                            && this.imageId == other.imageId);
+            return isEqual;
+        }
+
+        public override int GetHashCode()
+        {
+            int idFactor = (string.IsNullOrEmpty(this.imageId)
+                            ? 1
+                            : this.imageId.GetHashCode());
+            return (this.ownerId << 2) ^ idFactor;
+        }
     }
 }
