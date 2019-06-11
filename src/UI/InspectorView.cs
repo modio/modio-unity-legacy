@@ -26,10 +26,11 @@ namespace ModIO.UI
         public GameObject loadingDisplay;
 
         // ---[ RUNTIME DATA ]---
-        private ModProfile m_profile;
-        private ModStatistics m_statistics;
-        private bool m_isModSubscribed;
-        private bool m_isModEnabled;
+        private ModProfile m_profile = null;
+        private ModStatistics m_statistics = null;
+        private bool m_isModSubscribed = false;
+        private bool m_isModEnabled = false;
+        private bool m_isInitialized = false;
 
         private IEnumerable<ModTagCategory> m_tagCategories = new ModTagCategory[0];
 
@@ -48,7 +49,11 @@ namespace ModIO.UI
                 if(this.m_modId != value)
                 {
                     this.m_modId = value;
-                    FetchDisplayData();
+
+                    if(this.m_isInitialized)
+                    {
+                        Refresh();
+                    }
                 }
             }
         }
@@ -137,30 +142,23 @@ namespace ModIO.UI
 
             Debug.Assert(!(versionHistoryItemPrefab != null && versionHistoryItemPrefab.GetComponent<ModfileDisplayComponent>() == null),
                          "[mod.io] The versionHistoryItemPrefab requires a ModfileDisplayComponent on the root Game Object.");
+
+            this.m_isInitialized = true;
+            Refresh();
         }
 
         // ---------[ UPDATE VIEW ]---------
-        public void DisplayMod(ModProfile profile, ModStatistics statistics,
-                               bool isModSubscribed, bool isModEnabled)
+        public void Refresh()
         {
-            Debug.Assert(profile != null);
+            Debug.Assert(this.m_isInitialized);
 
-            this.m_modId = profile.id;
-            this.m_profile = profile;
-            this.m_statistics = statistics;
-            this.m_isModSubscribed = isModSubscribed;
-            this.m_isModEnabled = isModEnabled;
-
-            this.UpdateModView();
-            this.PopulateVersionHistory();
-        }
-
-        private void FetchDisplayData()
-        {
             if(this.loadingDisplay != null)
             {
                 this.loadingDisplay.gameObject.SetActive(true);
             }
+
+            // early out if NULL_ID
+            if(this.m_modId == ModProfile.NULL_ID) { return; }
 
             this.m_profile = null;
             this.m_statistics = null;
@@ -168,23 +166,22 @@ namespace ModIO.UI
             this.m_isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
 
             // profile
-            ModManager.GetModProfile(this.m_modId,
-                                     (p) =>
-                                     {
-                                        this.m_profile = p;
-                                        this.UpdateModView();
-                                     },
-                                     WebRequestError.LogAsWarning);
-
+            this.profileRequests.RequestModProfile(this.m_modId,
+            (p) =>
+            {
+                this.m_profile = p;
+                this.UpdateModView();
+            },
+            WebRequestError.LogAsWarning);
 
             // statistics
-            ModManager.GetModStatistics(this.m_modId,
-                                        (s) =>
-                                        {
-                                            this.m_statistics = s;
-                                            this.UpdateModView();
-                                        },
-                                        WebRequestError.LogAsWarning);
+            this.statisticsRequests.RequestModStatistics(this.m_modId,
+            (s) =>
+            {
+                this.m_statistics = s;
+                this.UpdateModView();
+            },
+            WebRequestError.LogAsWarning);
 
             // version history
             if(versionHistoryContainer != null
@@ -196,7 +193,7 @@ namespace ModIO.UI
 
                 APIClient.GetAllModfiles(this.m_modId,
                                          modfileFilter,
-                                         new APIPaginationParameters(){ limit = 20 },
+                                         new APIPaginationParameters(){ limit = 10 },
                                          (r) =>
                                          {
                                             this.m_versionHistory = r.items;
