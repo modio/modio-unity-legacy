@@ -26,10 +26,6 @@ namespace ModIO.UI
         public GameObject loadingDisplay;
 
         // ---[ RUNTIME DATA ]---
-        private ModProfile m_profile = null;
-        private ModStatistics m_statistics = null;
-        private bool m_isModSubscribed = false;
-        private bool m_isModEnabled = false;
         private bool m_isInitialized = false;
 
         private IEnumerable<ModTagCategory> m_tagCategories = new ModTagCategory[0];
@@ -151,26 +147,60 @@ namespace ModIO.UI
         public void Refresh()
         {
             Debug.Assert(this.m_isInitialized);
+            Debug.Assert(this.modView != null);
 
-            if(this.loadingDisplay != null)
+            ModProfile profile = null;
+            ModStatistics stats = null;
+
+            // set initial values
+            this.SetLoadingDisplay(true);
+            this.modView.DisplayLoading();
+
+            if(this.selectedMediaPreview != null)
             {
-                this.loadingDisplay.gameObject.SetActive(true);
+                this.selectedMediaPreview.DisplayLoading();
             }
 
             // early out if NULL_ID
             if(this.m_modId == ModProfile.NULL_ID) { return; }
 
-            this.m_profile = null;
-            this.m_statistics = null;
-            this.m_isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
-            this.m_isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
+            // delegate for pushing changes to mod view
+            Action pushToView = () =>
+            {
+                bool isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
+                bool isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
+
+                modView.DisplayMod(profile, stats,
+                                   this.m_tagCategories,
+                                   isModSubscribed, isModEnabled);
+
+                // media container
+                if(modView.mediaContainer != null)
+                {
+                    ModMediaCollection media = profile.media;
+                    bool hasMedia = media != null;
+                    hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
+                                 || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
+
+                    modView.mediaContainer.gameObject.SetActive(hasMedia);
+                }
+
+                // media preview
+                if(selectedMediaPreview != null)
+                {
+                    selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+                }
+            };
 
             // profile
             this.profileRequests.RequestModProfile(this.m_modId,
             (p) =>
             {
-                this.m_profile = p;
-                this.UpdateModView();
+                if(this == null) { return; }
+
+                this.SetLoadingDisplay(false);
+                profile = p;
+                pushToView();
             },
             WebRequestError.LogAsWarning);
 
@@ -178,8 +208,10 @@ namespace ModIO.UI
             this.statisticsRequests.RequestModStatistics(this.m_modId,
             (s) =>
             {
-                this.m_statistics = s;
-                this.UpdateModView();
+                if(this == null) { return; }
+
+                stats = s;
+                pushToView();
             },
             WebRequestError.LogAsWarning);
 
@@ -203,47 +235,11 @@ namespace ModIO.UI
             }
         }
 
-        private void UpdateModView()
+        public void SetLoadingDisplay(bool visible)
         {
-            if(this.m_profile == null
-               || this.m_profile.id == ModProfile.NULL_ID)
-            {
-                if(this.modView != null)
-                {
-                    this.modView.DisplayLoading();
-                }
-                if(this.selectedMediaPreview != null)
-                {
-                    this.selectedMediaPreview.DisplayLoading();
-                }
-                return;
-            }
-
             if(this.loadingDisplay != null)
             {
-                this.loadingDisplay.SetActive(false);
-            }
-
-            if(modView != null)
-            {
-                modView.DisplayMod(this.m_profile, this.m_statistics,
-                                   this.m_tagCategories,
-                                   this.m_isModSubscribed, this.m_isModEnabled);
-
-                if(modView.mediaContainer != null)
-                {
-                    ModMediaCollection media = this.m_profile.media;
-                    bool hasMedia = media != null;
-                    hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
-                                 || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
-
-                    modView.mediaContainer.gameObject.SetActive(hasMedia);
-                }
-            }
-
-            if(selectedMediaPreview != null)
-            {
-                selectedMediaPreview.DisplayLogo(this.m_profile.id, this.m_profile.logoLocator);
+                this.loadingDisplay.SetActive(visible);
             }
         }
 
@@ -283,26 +279,34 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
-                this.UpdateModView();
+
+                if(this.m_isInitialized)
+                {
+                    Refresh();
+                }
             }
         }
 
         public void OnModSubscriptionsUpdated()
         {
-            this.m_isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
+            Debug.Assert(this.modView != null);
 
-            if(this.modView != null)
+            bool isSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
+
+            if(this.m_isInitialized)
             {
                 ModDisplayData data = modView.data;
-                data.isSubscribed = this.m_isModSubscribed;
+                data.isSubscribed = isSubscribed;
                 modView.data = data;
             }
         }
 
         public void OnModEnabled(int modId)
         {
-            if(this.m_modId == modId
-               && this.modView != null)
+            Debug.Assert(this.modView != null);
+
+            if(this.m_isInitialized
+               && this.m_modId == modId)
             {
                 ModDisplayData data = this.modView.data;
                 data.isModEnabled = true;
@@ -312,8 +316,10 @@ namespace ModIO.UI
 
         public void OnModDisabled(int modId)
         {
-            if(this.m_modId == modId
-               && this.modView != null)
+            Debug.Assert(this.modView != null);
+
+            if(this.m_isInitialized
+               && this.m_modId == modId)
             {
                 ModDisplayData data = this.modView.data;
                 data.isModEnabled = false;
@@ -323,8 +329,10 @@ namespace ModIO.UI
 
         public void OnModDownloadStarted(int modId, FileDownloadInfo downloadInfo)
         {
-            if(this.m_modId == modId
-               && this.modView != null)
+            Debug.Assert(this.modView != null);
+
+            if(this.m_isInitialized
+               && this.m_modId == modId)
             {
                 this.modView.DisplayDownload(downloadInfo);
             }
@@ -340,17 +348,25 @@ namespace ModIO.UI
                 bool original = selectedMediaPreview.useOriginal;
                 LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
-                ModManager.GetModLogo(this.m_profile, size,
-                                      (t) =>
-                                      {
-                                        if(Application.isPlaying
-                                           && selectedMediaPreview.data.Equals(imageData))
-                                        {
-                                            imageData.SetImageTexture(original, t);
-                                            selectedMediaPreview.data = imageData;
-                                        }
-                                      },
-                                      WebRequestError.LogAsWarning);
+                this.profileRequests.RequestModProfile(this.m_modId,
+                (p) =>
+                {
+                    if(this == null) { return; }
+
+                    ModManager.GetModLogo(p, size,
+                    (t) =>
+                    {
+                        if(this != null
+                           && Application.isPlaying
+                           && this.selectedMediaPreview.data.Equals(imageData))
+                        {
+                            imageData.SetImageTexture(original, t);
+                            selectedMediaPreview.data = imageData;
+                        }
+                    },
+                    WebRequestError.LogAsWarning);
+                },
+                WebRequestError.LogAsWarning);
             }
         }
         private void MediaPreview_GalleryImage(ImageDisplayComponent display)
@@ -363,18 +379,26 @@ namespace ModIO.UI
                 bool original = selectedMediaPreview.useOriginal;
                 ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
 
-                ModManager.GetModGalleryImage(this.m_profile, display.data.fileName,
-                                              size,
-                                              (t) =>
-                                              {
-                                                if(Application.isPlaying
-                                                   && selectedMediaPreview.data.Equals(imageData))
-                                                {
-                                                    imageData.SetImageTexture(original, t);
-                                                    selectedMediaPreview.data = imageData;
-                                                }
-                                              },
-                                              WebRequestError.LogAsWarning);
+                this.profileRequests.RequestModProfile(this.m_modId,
+                (p) =>
+                {
+                    if(this == null) { return; }
+
+                    ModManager.GetModGalleryImage(p, display.data.fileName, size,
+                    (t) =>
+                    {
+                        if(this != null
+                           && Application.isPlaying
+                           && this.selectedMediaPreview.data.Equals(imageData))
+                        {
+                            imageData.SetImageTexture(original, t);
+                            selectedMediaPreview.data = imageData;
+                        }
+                    },
+                    WebRequestError.LogAsWarning);
+                },
+                WebRequestError.LogAsWarning);
+
             }
         }
         private void MediaPreview_YouTubeThumbnail(ImageDisplayComponent display)
@@ -384,11 +408,16 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        [Obsolete("Public access revoked.")]
-        public ModProfile profile
-        {
-            get { return this.m_profile; }
-        }
+        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
+        public ModProfile profile;
+        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
+        private ModProfile m_profile;
+        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
+        private ModStatistics m_statistics;
+        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
+        private bool m_isModSubscribed;
+        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
+        private bool m_isModEnabled;
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
@@ -453,12 +482,13 @@ namespace ModIO.UI
             }
         }
 
-        [Obsolete("No longer requires a ModTagCollection parameter.")]
+        [Obsolete("Set the modId value and/or use Refresh() instead.")]
         public void DisplayMod(ModProfile profile, ModStatistics statistics,
                                IEnumerable<ModTagCategory> tagCategories,
                                bool isModSubscribed, bool isModEnabled)
         {
-            DisplayMod(profile, statistics, isModSubscribed, isModEnabled);
+            Debug.Assert(profile != null);
+            this.modId = profile.id;
         }
     }
 }
