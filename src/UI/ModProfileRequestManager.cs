@@ -92,7 +92,7 @@ namespace ModIO.UI
         }
 
         // ---------[ FUNCTIONALITY ]---------
-        /// <summary>Fetchs page of ModProfiles grabbing from the cache where possible.</summary>
+        /// <summary>Fetches page of ModProfiles grabbing from the cache where possible.</summary>
         public virtual void FetchModProfilePage(RequestFilter filter, int offsetIndex, int profileCount,
                                                 Action<RequestPage<ModProfile>> onSuccess,
                                                 Action<WebRequestError> onError)
