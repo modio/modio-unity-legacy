@@ -11,7 +11,12 @@ namespace ModIO.UI
 
         [Header("Settings")]
         [Tooltip("Display the image at its original resolution rather than using the thumbnail")]
-        public bool useOriginal;
+        [FormerlySerializedAs("m_useOriginal")]
+        public bool useOriginal = false;
+
+        [Tooltip("If the desired version is not yet cached, show an alternate cached version"
+                 + " instead of the loading display")]
+        public bool enableFallback = false;
 
         [Header("UI Components")]
         public Image image;
@@ -62,19 +67,19 @@ namespace ModIO.UI
             }
 
             // get fallback?
-            if(this.useOriginal
-               && ImageRequestManager.instance.cache.TryGetValue(this.m_data.GetImageURL(false), out texture))
+            if(this.enableFallback
+               && ImageRequestManager.instance.cache.TryGetValue(this.m_data.GetImageURL(!this.useOriginal),
+                                                                 out texture))
             {
                 DisplayTexture(texture);
                 SetOverlayVisibility(true);
             }
-
-            // request missing texture
-            if(texture == null)
+            else
             {
                 DisplayLoading();
             }
 
+            // request missing texture
             if(!string.IsNullOrEmpty(imageURL))
             {
                 ImageDisplayData iData = this.m_data;
