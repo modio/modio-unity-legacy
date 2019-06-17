@@ -28,15 +28,8 @@ namespace ModIO.UI
         // --- ACCESSORS ---
         public override bool useOriginal
         {
-            get { return m_useOriginal; }
-            set
-            {
-                if(m_useOriginal != value)
-                {
-                    m_useOriginal = value;
-                    PresentData();
-                }
-            }
+            get { return this.m_useOriginal; }
+            set { this.m_useOriginal = value;}
         }
         public override ImageDisplayData data
         {
@@ -44,7 +37,13 @@ namespace ModIO.UI
             set
             {
                 m_data = value;
-                PresentData();
+
+                #if UNITY_EDITOR
+                if(Application.isPlaying)
+                #endif
+                {
+                    PresentData();
+                }
             }
         }
 
@@ -55,24 +54,39 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(false);
             }
 
-            // if original is missing, just use thumbnail
-            bool original = m_useOriginal;
-            if(original && m_data.GetImageTexture(true) == null)
-            {
-                original = false;
-            }
+            string imageURL = this.m_data.GetImageURL(this.m_useOriginal);
+            Texture2D texture = null;
 
-            Texture2D texture = m_data.GetImageTexture(original);
+            // attempt cache retrieval
+            ImageRequestManager.instance.cache.TryGetValue(imageURL, out texture);
             if(texture != null)
             {
                 DisplayTexture(texture);
-            }
-            else
-            {
-                image.enabled = false;
+                SetOverlayVisibility(true);
+                return;
             }
 
-            SetOverlayVisibility(false);
+            // get fallback?
+            if(this.m_useOriginal
+               && ImageRequestManager.instance.cache.TryGetValue(this.m_data.GetImageURL(false), out texture))
+            {
+                DisplayTexture(texture);
+                SetOverlayVisibility(true);
+            }
+
+            // request missing texture
+            if(texture == null)
+            {
+                DisplayLoading();
+            }
+
+            ImageRequestManager.instance.RequestImage(imageURL,
+            (t) =>
+            {
+                DisplayTexture(t);
+                SetOverlayVisibility(true);
+            },
+            WebRequestError.LogAsWarning);
         }
 
         private void DisplayTexture(Texture2D texture)
@@ -92,26 +106,26 @@ namespace ModIO.UI
             }
         }
 
-        private void SetOverlayVisibility(bool hideAll)
+        private void SetOverlayVisibility(bool isVisible)
         {
             if(avatarOverlay != null)
             {
-                avatarOverlay.SetActive(!hideAll &&
+                avatarOverlay.SetActive(isVisible &&
                                         m_data.mediaType == ImageDisplayData.MediaType.UserAvatar);
             }
             if(logoOverlay != null)
             {
-                logoOverlay.SetActive(!hideAll
+                logoOverlay.SetActive(isVisible
                                       && m_data.mediaType == ImageDisplayData.MediaType.ModLogo);
             }
             if(galleryImageOverlay != null)
             {
-                galleryImageOverlay.SetActive(!hideAll
+                galleryImageOverlay.SetActive(isVisible
                                               && m_data.mediaType == ImageDisplayData.MediaType.ModGalleryImage);
             }
             if(youTubeOverlay != null)
             {
-                youTubeOverlay.SetActive(!hideAll
+                youTubeOverlay.SetActive(isVisible
                                          && m_data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail);
             }
         }
@@ -150,7 +164,7 @@ namespace ModIO.UI
         public void DisplayAvatar(int userId, AvatarImageLocator locator)
         {
             Debug.Assert(locator != null);
-            bool original = m_useOriginal;
+            bool original = this.m_useOriginal;
             UserAvatarSize size = (original ? UserAvatarSize.Original : ImageDisplayData.avatarThumbnailSize);
 
             ImageDisplayData displayData = ImageDisplayData.CreateForUserAvatar(userId, locator);
@@ -176,7 +190,7 @@ namespace ModIO.UI
         public void DisplayLogo(int modId, LogoImageLocator locator)
         {
             Debug.Assert(locator != null);
-            bool original = m_useOriginal;
+            bool original = this.m_useOriginal;
             LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
             ImageDisplayData displayData = ImageDisplayData.CreateForModLogo(modId, locator);
@@ -203,7 +217,7 @@ namespace ModIO.UI
         public void DisplayGalleryImage(int modId, GalleryImageLocator locator)
         {
             Debug.Assert(locator != null);
-            bool original = m_useOriginal;
+            bool original = this.m_useOriginal;
             ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
 
             ImageDisplayData displayData = ImageDisplayData.CreateForModGalleryImage(modId, locator);
@@ -263,18 +277,7 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(true);
             }
 
-            if(logoOverlay != null)
-            {
-                logoOverlay.SetActive(false);
-            }
-            if(galleryImageOverlay != null)
-            {
-                galleryImageOverlay.SetActive(false);
-            }
-            if(youTubeOverlay != null)
-            {
-                youTubeOverlay.SetActive(false);
-            }
+            SetOverlayVisibility(false);
         }
 
         // ---------[ EVENT HANDLING ]---------
@@ -285,21 +288,5 @@ namespace ModIO.UI
                 onClick(this);
             }
         }
-
-        #if UNITY_EDITOR
-        private void OnValidate()
-        {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                if(this != null
-                   && this.image != null)
-                {
-                    // NOTE(@jackson): Didn't notice any memory leakage with replacing textures.
-                    // "Should" be fine.
-                    PresentData();
-                }
-            };
-        }
-        #endif
     }
 }
