@@ -197,17 +197,14 @@ namespace ModIO.UI
             {
                 m_missingDisplayParsers.Add((ModProfile p, ref ModDisplayData d) =>
                 {
-                    ImageDisplayData logoData = new ImageDisplayData()
-                    {
-                        modId = p.id,
-                        mediaType = ImageDisplayData.MediaType.ModLogo,
-                        fileName = string.Empty,
-                        originalTexture = null,
-                        thumbnailTexture = null,
-                    };
+                    ImageDisplayData logoData;
                     if(p.logoLocator != null)
                     {
-                        logoData.fileName = p.logoLocator.fileName;
+                        logoData = ImageDisplayData.CreateForModLogo(p.id, p.logoLocator);
+                    }
+                    else
+                    {
+                        logoData = new ImageDisplayData();
                     }
 
                     d.logo = logoData;
@@ -260,22 +257,16 @@ namespace ModIO.UI
             {
                 m_missingDisplayParsers.Add((ModProfile p, ref ModDisplayData d) =>
                 {
-                    ImageDisplayData avatarData = new ImageDisplayData()
+                    ImageDisplayData avatarData;
+                    if(p.submittedBy != null
+                       && p.submittedBy.avatarLocator != null)
                     {
-                        userId = -1,
-                        mediaType = ImageDisplayData.MediaType.UserAvatar,
-                        fileName = string.Empty,
-                        originalTexture = null,
-                        thumbnailTexture = null,
-                    };
-                    if(p.submittedBy != null)
+                        avatarData = ImageDisplayData.CreateForUserAvatar(p.submittedBy.id,
+                                                                          p.submittedBy.avatarLocator);
+                    }
+                    else
                     {
-                        avatarData.userId = p.submittedBy.id;
-
-                        if(p.submittedBy.avatarLocator != null)
-                        {
-                            avatarData.fileName = p.submittedBy.avatarLocator.fileName;
-                        }
+                        avatarData = new ImageDisplayData();
                     }
 
                     d.submittorAvatar = avatarData;
@@ -377,14 +368,16 @@ namespace ModIO.UI
             {
                 foreach(GalleryImageLocator locator in profile.media.galleryImageLocators)
                 {
-                    ImageDisplayData imageData = new ImageDisplayData()
+                    ImageDisplayData imageData;
+                    if(locator != null)
                     {
-                        modId = profile.id,
-                        mediaType = ImageDisplayData.MediaType.ModGalleryImage,
-                        fileName = locator.fileName,
-                        originalTexture = null,
-                        thumbnailTexture = null,
-                    };
+                        imageData = ImageDisplayData.CreateForModGalleryImage(profile.id,
+                                                                              locator);
+                    }
+                    else
+                    {
+                        imageData = new ImageDisplayData();
+                    }
 
                     media.Add(imageData);
                 }
@@ -397,14 +390,16 @@ namespace ModIO.UI
             {
                 foreach(string url in profile.media.youTubeURLs)
                 {
-                    ImageDisplayData imageData = new ImageDisplayData()
+                    ImageDisplayData imageData;
+                    if(!string.IsNullOrEmpty(url))
                     {
-                        modId = profile.id,
-                        mediaType = ImageDisplayData.MediaType.YouTubeThumbnail,
-                        youTubeId = Utility.ExtractYouTubeIdFromURL(url),
-                        originalTexture = null,
-                        thumbnailTexture = null,
-                    };
+                        imageData = ImageDisplayData.CreateForYouTubeThumbnail(profile.id,
+                                                                               Utility.ExtractYouTubeIdFromURL(url));
+                    }
+                    else
+                    {
+                        imageData = new ImageDisplayData();
+                    }
 
                     media.Add(imageData);
                 }
