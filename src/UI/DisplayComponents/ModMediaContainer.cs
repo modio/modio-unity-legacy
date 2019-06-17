@@ -9,9 +9,9 @@ namespace ModIO.UI
     public class ModMediaContainer : ModMediaCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
-        public event Action<ImageDisplayComponent>  logoClicked;
-        public event Action<ImageDisplayComponent>  galleryImageClicked;
-        public event Action<ImageDisplayComponent>  youTubeThumbnailClicked;
+        public event Action<ImageDisplay>  logoClicked;
+        public event Action<ImageDisplay>  galleryImageClicked;
+        public event Action<ImageDisplay>  youTubeThumbnailClicked;
 
         [Header("Settings")]
         public GameObject logoPrefab;
@@ -22,23 +22,23 @@ namespace ModIO.UI
         public RectTransform container;
 
         [Header("Display Data")]
-        private ImageDisplayComponent m_logoDisplay = null;
-        private List<ImageDisplayComponent> m_galleryDisplays = new List<ImageDisplayComponent>();
-        private List<ImageDisplayComponent> m_youTubeDisplays = new List<ImageDisplayComponent>();
+        private ImageDisplay m_logoDisplay = null;
+        private List<ImageDisplay> m_galleryDisplays = new List<ImageDisplay>();
+        private List<ImageDisplay> m_youTubeDisplays = new List<ImageDisplay>();
 
         private ImageDisplayData m_logoData = default(ImageDisplayData);
         private ImageDisplayData[] m_youTubeData = new ImageDisplayData[0];
         private ImageDisplayData[] m_galleryData = new ImageDisplayData[0];
 
         // --- ACCESSORS ---
-        public ImageDisplayComponent logoDisplay
+        public ImageDisplay logoDisplay
         { get { return m_logoDisplay; } }
-        public IEnumerable<ImageDisplayComponent> youTubeDisplays
+        public IEnumerable<ImageDisplay> youTubeDisplays
         { get { return m_youTubeDisplays; } }
-        public IEnumerable<ImageDisplayComponent> galleryDisplays
+        public IEnumerable<ImageDisplay> galleryDisplays
         { get { return m_galleryDisplays; } }
 
-        public IEnumerable<ImageDisplayComponent> allDisplays
+        public IEnumerable<ImageDisplay> allDisplays
         {
             get
             {
@@ -274,7 +274,7 @@ namespace ModIO.UI
             #if UNITY_EDITOR
             if(!Application.isPlaying)
             {
-                foreach(ImageDisplayComponent display in m_youTubeDisplays)
+                foreach(ImageDisplay display in m_youTubeDisplays)
                 {
                     GameObject.DestroyImmediate(display.gameObject);
                 }
@@ -282,7 +282,7 @@ namespace ModIO.UI
             else
             #endif
             {
-                foreach(ImageDisplayComponent display in m_youTubeDisplays)
+                foreach(ImageDisplay display in m_youTubeDisplays)
                 {
                     GameObject.Destroy(display.gameObject);
                 }
@@ -321,7 +321,7 @@ namespace ModIO.UI
             #if UNITY_EDITOR
             if(!Application.isPlaying)
             {
-                foreach(ImageDisplayComponent display in m_galleryDisplays)
+                foreach(ImageDisplay display in m_galleryDisplays)
                 {
                     GameObject.DestroyImmediate(display.gameObject);
                 }
@@ -329,7 +329,7 @@ namespace ModIO.UI
             else
             #endif
             {
-                foreach(ImageDisplayComponent display in m_galleryDisplays)
+                foreach(ImageDisplay display in m_galleryDisplays)
                 {
                     GameObject.Destroy(display.gameObject);
                 }
@@ -359,7 +359,7 @@ namespace ModIO.UI
             #if UNITY_EDITOR
             if(!Application.isPlaying)
             {
-                foreach(ImageDisplayComponent display in allDisplays)
+                foreach(ImageDisplay display in allDisplays)
                 {
                     GameObject.DestroyImmediate(display.gameObject);
                 }
@@ -367,7 +367,7 @@ namespace ModIO.UI
             else
             #endif
             {
-                foreach(ImageDisplayComponent display in allDisplays)
+                foreach(ImageDisplay display in allDisplays)
                 {
                     GameObject.Destroy(display.gameObject);
                 }
@@ -408,7 +408,7 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENT HANDLING ]---------
-        public void NotifyLogoClicked(ImageDisplayComponent display)
+        public void NotifyLogoClicked(ImageDisplay display)
         {
             if(this.logoClicked != null)
             {
@@ -416,7 +416,7 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyYouTubeThumbnailClicked(ImageDisplayComponent display)
+        public void NotifyYouTubeThumbnailClicked(ImageDisplay display)
         {
             if(this.youTubeThumbnailClicked != null)
             {
@@ -424,7 +424,7 @@ namespace ModIO.UI
             }
         }
 
-        public void NotifyGalleryImageClicked(ImageDisplayComponent display)
+        public void NotifyGalleryImageClicked(ImageDisplay display)
         {
             if(this.galleryImageClicked != null)
             {

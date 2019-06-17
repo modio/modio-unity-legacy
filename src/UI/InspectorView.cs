@@ -21,8 +21,6 @@ namespace ModIO.UI
         public ImageDisplay selectedMediaPreview;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
-        public Button backToDiscoverButton;
-        public Button backToSubscriptionsButton;
         public GameObject loadingDisplay;
 
         // ---[ RUNTIME DATA ]---
@@ -338,17 +336,17 @@ namespace ModIO.UI
             }
         }
 
-        private void MediaPreview_Logo(ImageDisplayComponent display)
+        private void MediaPreview_Logo(ImageDisplay display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
         }
-        private void MediaPreview_GalleryImage(ImageDisplayComponent display)
+        private void MediaPreview_GalleryImage(ImageDisplay display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
         }
-        private void MediaPreview_YouTubeThumbnail(ImageDisplayComponent display)
+        private void MediaPreview_YouTubeThumbnail(ImageDisplay display)
         {
             ImageDisplayData displayData = display.data;
             selectedMediaPreview.data = displayData;

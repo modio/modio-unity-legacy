@@ -4,14 +4,14 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class ImageDisplay : ImageDisplayComponent
+    public class ImageDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public override event Action<ImageDisplayComponent> onClick;
+        public event Action<ImageDisplay> onClick;
 
         [Header("Settings")]
         [Tooltip("Display the image at its original resolution rather than using the thumbnail")]
-        [SerializeField] private bool m_useOriginal;
+        public bool useOriginal;
 
         [Header("UI Components")]
         public Image image;
@@ -26,12 +26,7 @@ namespace ModIO.UI
         [SerializeField] private ImageDisplayData m_data = new ImageDisplayData();
 
         // --- ACCESSORS ---
-        public override bool useOriginal
-        {
-            get { return this.m_useOriginal; }
-            set { this.m_useOriginal = value;}
-        }
-        public override ImageDisplayData data
+        public ImageDisplayData data
         {
             get { return m_data; }
             set
@@ -49,7 +44,7 @@ namespace ModIO.UI
 
         private void PresentData()
         {
-            string imageURL = this.m_data.GetImageURL(this.m_useOriginal);
+            string imageURL = this.m_data.GetImageURL(this.useOriginal);
             Texture2D texture = null;
 
             // attempt cache retrieval
@@ -67,7 +62,7 @@ namespace ModIO.UI
             }
 
             // get fallback?
-            if(this.m_useOriginal
+            if(this.useOriginal
                && ImageRequestManager.instance.cache.TryGetValue(this.m_data.GetImageURL(false), out texture))
             {
                 DisplayTexture(texture);
@@ -143,7 +138,7 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        public override void Initialize()
+        public void Initialize()
         {
             if(Application.isPlaying)
             {
@@ -213,7 +208,7 @@ namespace ModIO.UI
             PresentData();
         }
 
-        public override void DisplayLoading()
+        public void DisplayLoading()
         {
             if(image != null)
             {
