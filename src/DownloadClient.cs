@@ -89,9 +89,7 @@ namespace ModIO
 
             ImageRequest request = null;
 
-            string thumbnailURL = (@"https://img.youtube.com/vi/"
-                                   + youTubeId
-                                   + @"/hqdefault.jpg");
+            string thumbnailURL = Utility.GenerateYouTubeThumbnailURL(youTubeId);
 
             request = DownloadImage(thumbnailURL);
 

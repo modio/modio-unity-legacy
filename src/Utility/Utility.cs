@@ -94,7 +94,7 @@ namespace ModIO
             return debugString.ToString();
         }
 
-        /// <summary>Attempt to extract the video id from a YouTube URL.</summary>
+        /// <summary>Attempts to extract the video id from a YouTube URL.</summary>
         /// <para>Adapted by for C# by Jackson Wood.</para>
         /// <para>Author: Stephan Schmitz [[Email](mailto:eyecatchup@gmail.com)]</para>
         /// <para>URL: [[https://stackoverflow.com/a/10524505]].</para>
@@ -110,6 +110,13 @@ namespace ModIO
             }
 
             return yt_id;
+        }
+
+        /// <summary>Generates the URL for a YouTube video thumbnail for the given id.</summary>
+        public static string GenerateYouTubeThumbnailURL(string youTubeId)
+        {
+            Debug.Assert(youTubeId != null);
+            return (@"https://img.youtube.com/vi/" + youTubeId + @"/hqdefault.jpg");
         }
 
         /// <summary>Converts a byte array representing a Steam Ticket to a base64 string.</summary>
