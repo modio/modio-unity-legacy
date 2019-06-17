@@ -8,6 +8,27 @@ namespace ModIO.UI
     /// <summary>Manages caching of the textures required by the UI.</summary>
     public class ImageRequestManager : MonoBehaviour
     {
+        // ---------[ SINGLETON ]---------
+        private static ImageRequestManager _instance = null;
+        public static ImageRequestManager instance
+        {
+            get
+            {
+                if(ImageRequestManager._instance == null)
+                {
+                    ImageRequestManager._instance = UIUtilities.FindComponentInScene<ImageRequestManager>(true);
+
+                    if(ImageRequestManager._instance == null)
+                    {
+                        GameObject irmGO = new GameObject("Image Request Manager");
+                        ImageRequestManager._instance = irmGO.AddComponent<ImageRequestManager>();
+                    }
+                }
+
+                return ImageRequestManager._instance;
+            }
+        }
+
         // ---------[ NESTED DATA-TYPES ]---------
         private class Callbacks
         {
@@ -26,6 +47,24 @@ namespace ModIO.UI
         private Dictionary<string, Callbacks> m_callbackMap = new Dictionary<string, Callbacks>();
 
         // ---------[ INITIALIZATION ]---------
+        protected virtual void Awake()
+        {
+            if(ImageRequestManager._instance == null)
+            {
+                ImageRequestManager._instance = this;
+            }
+            #if DEBUG
+            else if(ImageRequestManager._instance != this)
+            {
+                Debug.LogWarning("[mod.io] Second instance of a ImageRequestManager"
+                                 + " component enabled simultaneously."
+                                 + " Only one instance of a ImageRequestManager"
+                                 + " component should be active at a time.");
+                this.enabled = false;
+            }
+            #endif
+        }
+
         protected virtual void OnDisable()
         {
             if(this.clearCacheOnDisable)
