@@ -77,6 +77,48 @@ namespace ModIO.UI
         }
 
         // ---------[ FUNCTIONALITY ]---------
+        /// <summary>Requests a mod logo.</summary>
+        public virtual void RequestModLogo(int modId, LogoImageLocator locator, LogoSize size,
+                                           Action<Texture2D> onSuccess,
+                                           Action<WebRequestError> onError)
+        {
+            // asserts
+            Debug.Assert(locator != null);
+            Debug.Assert(onSuccess != null);
+
+            string url = locator.GetSizeURL(size);
+
+            // check cache
+            Texture2D texture = null;
+            if(this.cache.TryGetValue(url, out texture))
+            {
+                onSuccess(texture);
+                return;
+            }
+
+            // check disk
+            texture = CacheClient.LoadModLogo(modId, locator.GetFileName(), size);
+            if(texture != null)
+            {
+                onSuccess(texture);
+                return;
+            }
+
+            // check currently downloading
+            Callbacks callbacks = null;
+            if(this.m_callbackMap.TryGetValue(url, out callbacks))
+            {
+                callbacks.succeeded.Add(onSuccess);
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+                return;
+            }
+
+            this.DownloadImage(url, onSuccess, onError);
+        }
+
         /// <summary>Requests an image at a given URL.</summary>
         public virtual void RequestImage(string url,
                                          Action<Texture2D> onSuccess,
@@ -98,16 +140,26 @@ namespace ModIO.UI
             if(this.m_callbackMap.TryGetValue(url, out callbacks))
             {
                 callbacks.succeeded.Add(onSuccess);
-                callbacks.failed.Add(onError);
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
                 return;
             }
 
+            this.DownloadImage(url, onSuccess, onError);
+        }
+
+        protected UnityWebRequestAsyncOperation DownloadImage(string url,
+                                                              Action<Texture2D> onSuccess,
+                                                              Action<WebRequestError> onError)
+        {
             // create new download
             UnityWebRequest webRequest = UnityWebRequest.Get(url);
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             // create new callbacks entry
-            callbacks = new Callbacks();
+            Callbacks callbacks = new Callbacks();
             callbacks.succeeded = new List<Action<Texture2D>>();
             callbacks.succeeded.Add(onSuccess);
             callbacks.failed = new List<Action<WebRequestError>>();
@@ -148,6 +200,8 @@ namespace ModIO.UI
                           + "\nHeaders: " + requestHeaders);
             }
             #endif
+
+            return operation;
         }
 
         /// <summary>Handles the completion of an image download.</summary>
