@@ -93,14 +93,15 @@ namespace ModIO.UI
             }
             else
             {
-                m_data.avatar = new ImageDisplayData()
+                if(profile.avatarLocator != null)
                 {
-                    userId = profile.id,
-                    mediaType = ImageDisplayData.MediaType.UserAvatar,
-                    imageId = profile.avatarLocator.fileName,
-                    originalTexture = null,
-                    thumbnailTexture = null,
-                };
+                    m_data.avatar = ImageDisplayData.CreateForUserAvatar(profile.id,
+                                                                         profile.avatarLocator);
+                }
+                else
+                {
+                    m_data.avatar = new ImageDisplayData();
+                }
             }
         }
 
