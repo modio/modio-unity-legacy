@@ -235,7 +235,7 @@ namespace ModIO.UI
         // ---------[ DATA PRESENTATION ]---------
         private void PresentLogoData()
         {
-            if(m_logoData.mediaType == ImageDisplayData.MediaType.None)
+            if(m_logoData.descriptor == ImageDescriptor.None)
             {
                 if(m_logoDisplay != null)
                 {

@@ -9,17 +9,9 @@ namespace ModIO.UI
         public static LogoSize logoThumbnailSize = LogoSize.Thumbnail_320x180;
         public static ModGalleryImageSize galleryThumbnailSize = ModGalleryImageSize.Thumbnail_320x180;
 
-        public enum MediaType
-        {
-            None,
-            ModLogo,
-            ModGalleryImage,
-            YouTubeThumbnail,
-            UserAvatar,
-        };
-
         public int ownerId;
-        public MediaType mediaType;
+        [UnityEngine.Serialization.FormerlySerializedAs("mediaType")]
+        public ImageDescriptor descriptor;
         public string imageId;
 
         /// <summary>The URL for the original version of the image.</summary>
@@ -47,7 +39,7 @@ namespace ModIO.UI
             ImageDisplayData retVal = new ImageDisplayData()
             {
                 ownerId = modId,
-                mediaType = MediaType.ModLogo,
+                descriptor = ImageDescriptor.ModLogo,
                 imageId = locator.GetFileName(),
                 originalURL = locator.GetSizeURL(LogoSize.Original),
                 thumbnailURL = locator.GetSizeURL(ImageDisplayData.logoThumbnailSize),
@@ -61,7 +53,7 @@ namespace ModIO.UI
             ImageDisplayData retVal = new ImageDisplayData()
             {
                 ownerId = modId,
-                mediaType = MediaType.ModGalleryImage,
+                descriptor = ImageDescriptor.ModGalleryImage,
                 imageId = locator.GetFileName(),
                 originalURL = locator.GetSizeURL(ModGalleryImageSize.Original),
                 thumbnailURL = locator.GetSizeURL(ImageDisplayData.galleryThumbnailSize),
@@ -77,7 +69,7 @@ namespace ModIO.UI
             ImageDisplayData retVal = new ImageDisplayData()
             {
                 ownerId = modId,
-                mediaType = MediaType.YouTubeThumbnail,
+                descriptor = ImageDescriptor.YouTubeThumbnail,
                 imageId = youTubeId,
                 originalURL = url,
                 thumbnailURL = url,
@@ -91,7 +83,7 @@ namespace ModIO.UI
             ImageDisplayData retVal = new ImageDisplayData()
             {
                 ownerId = userId,
-                mediaType = MediaType.UserAvatar,
+                descriptor = ImageDescriptor.UserAvatar,
                 imageId = locator.GetFileName(),
                 originalURL = locator.GetSizeURL(UserAvatarSize.Original),
                 thumbnailURL = locator.GetSizeURL(ImageDisplayData.avatarThumbnailSize),
@@ -101,6 +93,22 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
+        [System.Obsolete("Use ModIO.UI.ImageDescriptor instead.")]
+        public enum MediaType
+        {
+            None = 0,
+            ModLogo,
+            ModGalleryImage,
+            YouTubeThumbnail,
+            UserAvatar,
+        }
+        [System.Obsolete("Use ImageDisplayData.descriptor instead.")]
+        public MediaType mediaType
+        {
+            get { return (MediaType)this.descriptor; }
+            set { this.descriptor = (ImageDescriptor)value; }
+        }
+
         [System.Obsolete("Images are now to be fetched via ImageRequestManager")]
         public Texture2D originalTexture;
         [System.Obsolete("Images are now to be fetched via ImageRequestManager")]

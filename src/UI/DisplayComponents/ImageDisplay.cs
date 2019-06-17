@@ -11,7 +11,7 @@ namespace ModIO.UI
 
         [Header("Settings")]
         [Tooltip("Display the image at its original resolution rather than using the thumbnail")]
-        [FormerlySerializedAs("m_useOriginal")]
+        [UnityEngine.Serialization.FormerlySerializedAs("m_useOriginal")]
         public bool useOriginal = false;
 
         [Tooltip("If the desired version is not yet cached, show an alternate cached version"
@@ -123,22 +123,22 @@ namespace ModIO.UI
             if(avatarOverlay != null)
             {
                 avatarOverlay.SetActive(isVisible &&
-                                        m_data.mediaType == ImageDisplayData.MediaType.UserAvatar);
+                                        m_data.descriptor == ImageDescriptor.UserAvatar);
             }
             if(logoOverlay != null)
             {
                 logoOverlay.SetActive(isVisible
-                                      && m_data.mediaType == ImageDisplayData.MediaType.ModLogo);
+                                      && m_data.descriptor == ImageDescriptor.ModLogo);
             }
             if(galleryImageOverlay != null)
             {
                 galleryImageOverlay.SetActive(isVisible
-                                              && m_data.mediaType == ImageDisplayData.MediaType.ModGalleryImage);
+                                              && m_data.descriptor == ImageDescriptor.ModGalleryImage);
             }
             if(youTubeOverlay != null)
             {
                 youTubeOverlay.SetActive(isVisible
-                                         && m_data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail);
+                                         && m_data.descriptor == ImageDescriptor.YouTubeThumbnail);
             }
         }
 

@@ -112,7 +112,7 @@ namespace ModIO.UI
                 selectedMediaPreview.Initialize();
                 selectedMediaPreview.onClick += (d) =>
                 {
-                    if(d.data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail)
+                    if(d.data.descriptor == ImageDescriptor.YouTubeThumbnail)
                     {
                         UIUtilities.OpenYouTubeVideoURL(d.data.youTubeId);
                     }
