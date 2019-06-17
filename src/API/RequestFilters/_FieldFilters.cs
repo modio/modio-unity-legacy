@@ -8,8 +8,10 @@ namespace ModIO
         string GenerateFilterString(string fieldName);
     }
 
+    public interface IRequestFieldFilter<T> : IRequestFieldFilter {}
+
     // ------[ GENERIC FILTERS ]------
-    public class EqualToFilter<T> : IRequestFieldFilter
+    public class EqualToFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
     {
         public T filterValue;
 
@@ -19,7 +21,7 @@ namespace ModIO
         }
     }
 
-    public class NotEqualToFilter<T> : IRequestFieldFilter
+    public class NotEqualToFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
     {
         public T filterValue;
 
@@ -29,7 +31,7 @@ namespace ModIO
         }
     }
 
-    public class MatchesArrayFilter<T> : IRequestFieldFilter
+    public class MatchesArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
     {
         public T[] filterArray;
 
@@ -46,7 +48,7 @@ namespace ModIO
         }
     }
 
-    public class InArrayFilter<T> : IRequestFieldFilter
+    public class InArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
     {
         public T[] filterArray;
 
@@ -63,7 +65,7 @@ namespace ModIO
         }
     }
 
-    public class NotInArrayFilter<T> : IRequestFieldFilter
+    public class NotInArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
     {
         public T[] filterArray;
 
@@ -81,7 +83,7 @@ namespace ModIO
     }
 
     // ------[ NUMERIC FILTERS ]------
-    public class MinimumFilter<T> : IRequestFieldFilter
+    public class MinimumFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
         where T : IComparable<T>
     {
         public T minimum;
@@ -93,7 +95,7 @@ namespace ModIO
         }
     }
 
-    public class MaximumFilter<T> : IRequestFieldFilter
+    public class MaximumFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
         where T : IComparable<T>
     {
         public T maximum;
@@ -105,7 +107,7 @@ namespace ModIO
         }
     }
 
-    public class RangeFilter<T> : IRequestFieldFilter
+    public class RangeFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
         where T : IComparable<T>
     {
         public T min;
@@ -121,7 +123,7 @@ namespace ModIO
     }
 
     // ------[ INT FILTERS ]------
-    public class BitwiseAndFilter : IRequestFieldFilter
+    public class BitwiseAndFilter : IRequestFieldFilter, IRequestFieldFilter<int>
     {
         public int filterValue;
 
@@ -132,7 +134,7 @@ namespace ModIO
     }
 
     // ------[ STRING FILTERS ]------
-    public class StringLikeFilter : IRequestFieldFilter
+    public class StringLikeFilter : IRequestFieldFilter, IRequestFieldFilter<string>
     {
         public string likeValue;
 
@@ -141,7 +143,7 @@ namespace ModIO
             return fieldName + "-lk=" + likeValue;
         }
     }
-    public class StringNotLikeFilter : IRequestFieldFilter
+    public class StringNotLikeFilter : IRequestFieldFilter, IRequestFieldFilter<string>
     {
         public string notLikeValue;
 
