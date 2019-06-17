@@ -80,13 +80,20 @@ namespace ModIO.UI
                 DisplayLoading();
             }
 
-            ImageRequestManager.instance.RequestImage(imageURL,
-            (t) =>
+            if(!string.IsNullOrEmpty(imageURL))
             {
-                DisplayTexture(t);
-                SetOverlayVisibility(true);
-            },
-            WebRequestError.LogAsWarning);
+                ImageDisplayData iData = this.m_data;
+                ImageRequestManager.instance.RequestImage(imageURL,
+                (t) =>
+                {
+                    if(this != null && iData.Equals(this.m_data))
+                    {
+                        DisplayTexture(t);
+                        SetOverlayVisibility(true);
+                    }
+                },
+                WebRequestError.LogAsWarning);
+            }
         }
 
         private void DisplayTexture(Texture2D texture)

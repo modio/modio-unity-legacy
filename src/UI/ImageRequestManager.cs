@@ -79,6 +79,9 @@ namespace ModIO.UI
                                          Action<Texture2D> onSuccess,
                                          Action<WebRequestError> onError)
         {
+            Debug.Assert(!string.IsNullOrEmpty(url));
+            Debug.Assert(onSuccess != null);
+
             // check cache
             Texture2D texture = null;
             if(this.cache.TryGetValue(url, out texture))
