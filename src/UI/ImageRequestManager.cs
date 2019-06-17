@@ -120,15 +120,82 @@ namespace ModIO.UI
             {
                 OnDownloadCompleted(operation.webRequest);
             };
+
+            #if DEBUG
+            if(PluginSettings.data.logAllRequests)
+            {
+                string requestHeaders = "";
+                List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
+                requestKeys.AddRange(APIClient.MODIO_REQUEST_HEADER_KEYS);
+
+                foreach(string headerKey in requestKeys)
+                {
+                    string headerValue = webRequest.GetRequestHeader(headerKey);
+                    if(headerValue != null)
+                    {
+                        requestHeaders += "\n" + headerKey + ": " + headerValue;
+                    }
+                }
+
+                int timeStamp = ServerTimeStamp.Now;
+                Debug.Log("IMAGE REQUEST SENT"
+                          + "\nURL: " + webRequest.url
+                          + "\nTimeStamp: [" + timeStamp.ToString() + "] "
+                          + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
+                          + "\nHeaders: " + requestHeaders);
+            }
+            #endif
         }
 
         /// <summary>Handles the completion of an image download.</summary>
         protected virtual void OnDownloadCompleted(UnityWebRequest webRequest)
         {
+            // early out if destroyed
             if(this == null) { return; }
 
             Debug.Assert(webRequest != null);
 
+            // - logging -
+            #if DEBUG
+            if(PluginSettings.data.logAllRequests)
+            {
+                if(webRequest.isNetworkError || webRequest.isHttpError)
+                {
+                    WebRequestError.LogAsWarning(WebRequestError.GenerateFromWebRequest(webRequest));
+                }
+                else
+                {
+                    var headerString = new System.Text.StringBuilder();
+                    var responseHeaders = webRequest.GetResponseHeaders();
+                    if(responseHeaders != null
+                       && responseHeaders.Count > 0)
+                    {
+                        headerString.Append("\n");
+                        foreach(var kvp in responseHeaders)
+                        {
+                            headerString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
+                        }
+                    }
+                    else
+                    {
+                        headerString.Append(" NONE");
+                    }
+
+                    var responseTimeStamp = ServerTimeStamp.Now;
+                    string logString = ("IMAGE DOWNLOAD SUCCEEDED\n"
+                                        + "\nURL: " + webRequest.url
+                                        + "\nTime Stamp: " + responseTimeStamp + " ("
+                                        + ServerTimeStamp.ToLocalDateTime(responseTimeStamp) + ")"
+                                        + "\nResponse Headers: " + headerString.ToString()
+                                        + "\nResponse Code: " + webRequest.responseCode
+                                        + "\nResponse Error: " + webRequest.error
+                                        + "\n");
+                    Debug.Log(logString);
+                }
+            }
+            #endif
+
+            // handle callbacks
             Callbacks callbacks = this.m_callbackMap[webRequest.url];
 
             if(webRequest.isHttpError || webRequest.isNetworkError)
@@ -160,6 +227,7 @@ namespace ModIO.UI
                 this.cache[webRequest.url] = texture;
             }
 
+            // remove from "in progress"
             this.m_callbackMap.Remove(webRequest.url);
         }
     }
