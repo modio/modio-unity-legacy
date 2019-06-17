@@ -171,81 +171,30 @@ namespace ModIO.UI
         public void DisplayAvatar(int userId, AvatarImageLocator locator)
         {
             Debug.Assert(locator != null);
-            bool original = this.m_useOriginal;
-            UserAvatarSize size = (original ? UserAvatarSize.Original : ImageDisplayData.avatarThumbnailSize);
 
             ImageDisplayData displayData = ImageDisplayData.CreateForUserAvatar(userId, locator);
             m_data = displayData;
 
-            DisplayLoading();
-
-            ModManager.GetUserAvatar(displayData.userId,
-                                     locator,
-                                     size,
-                                     (t) =>
-                                     {
-                                        if(!Application.isPlaying) { return; }
-
-                                        if(m_data.Equals(displayData))
-                                        {
-                                            m_data.SetImageTexture(original, t);
-                                            PresentData();
-                                        }
-                                     },
-                                     WebRequestError.LogAsWarning);
+            PresentData();
         }
         public void DisplayLogo(int modId, LogoImageLocator locator)
         {
             Debug.Assert(locator != null);
-            bool original = this.m_useOriginal;
-            LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
             ImageDisplayData displayData = ImageDisplayData.CreateForModLogo(modId, locator);
             m_data = displayData;
 
-            DisplayLoading();
-
-            ModManager.GetModLogo(displayData.modId,
-                                  locator,
-                                  size,
-                                  (t) =>
-                                  {
-                                    if(!Application.isPlaying) { return; }
-
-                                    if(m_data.Equals(displayData))
-                                    {
-                                        m_data.SetImageTexture(original, t);
-                                        PresentData();
-                                    }
-                                  },
-                                  WebRequestError.LogAsWarning);
+            PresentData();
         }
 
         public void DisplayGalleryImage(int modId, GalleryImageLocator locator)
         {
             Debug.Assert(locator != null);
-            bool original = this.m_useOriginal;
-            ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
 
             ImageDisplayData displayData = ImageDisplayData.CreateForModGalleryImage(modId, locator);
             m_data = displayData;
 
-            DisplayLoading();
-
-            ModManager.GetModGalleryImage(displayData.modId,
-                                          locator,
-                                          size,
-                                          (t) =>
-                                          {
-                                            if(!Application.isPlaying) { return; }
-
-                                            if(m_data.Equals(displayData))
-                                            {
-                                                m_data.SetImageTexture(original, t);
-                                                PresentData();
-                                            }
-                                          },
-                                          WebRequestError.LogAsWarning);
+            PresentData();
         }
 
         public void DisplayYouTubeThumbnail(int modId, string youTubeVideoId)
@@ -256,21 +205,7 @@ namespace ModIO.UI
             ImageDisplayData displayData = ImageDisplayData.CreateForYouTubeThumbnail(modId, youTubeVideoId);
             m_data = displayData;
 
-            DisplayLoading();
-
-            ModManager.GetModYouTubeThumbnail(displayData.modId,
-                                              displayData.youTubeId,
-                                              (t) =>
-                                              {
-                                                if(!Application.isPlaying) { return; }
-                                                if(m_data.Equals(displayData))
-                                                {
-                                                    m_data.originalTexture = t;
-                                                    m_data.thumbnailTexture = t;
-                                                    PresentData();
-                                                }
-                                              },
-                                              WebRequestError.LogAsWarning);
+            PresentData();
         }
 
         public override void DisplayLoading()
