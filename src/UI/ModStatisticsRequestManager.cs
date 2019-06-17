@@ -158,7 +158,7 @@ namespace ModIO.UI
         {
             return (statistics != null
                     && (!this.refetchIfExpired
-                        || statistics.dateExpires < ServerTimeStamp.Now));
+                        || ServerTimeStamp.Now < statistics.dateExpires));
         }
     }
 }
