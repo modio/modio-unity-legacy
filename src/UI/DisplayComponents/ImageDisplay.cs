@@ -49,11 +49,6 @@ namespace ModIO.UI
 
         private void PresentData()
         {
-            if(loadingOverlay != null)
-            {
-                loadingOverlay.SetActive(false);
-            }
-
             string imageURL = this.m_data.GetImageURL(this.m_useOriginal);
             Texture2D texture = null;
 
@@ -61,6 +56,11 @@ namespace ModIO.UI
             ImageRequestManager.instance.cache.TryGetValue(imageURL, out texture);
             if(texture != null)
             {
+                if(loadingOverlay != null)
+                {
+                    loadingOverlay.SetActive(false);
+                }
+
                 DisplayTexture(texture);
                 SetOverlayVisibility(true);
                 return;
@@ -88,6 +88,11 @@ namespace ModIO.UI
                 {
                     if(this != null && iData.Equals(this.m_data))
                     {
+                        if(loadingOverlay != null)
+                        {
+                            loadingOverlay.SetActive(false);
+                        }
+
                         DisplayTexture(t);
                         SetOverlayVisibility(true);
                     }
