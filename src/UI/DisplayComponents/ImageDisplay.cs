@@ -137,14 +137,7 @@ namespace ModIO.UI
             bool original = m_useOriginal;
             UserAvatarSize size = (original ? UserAvatarSize.Original : ImageDisplayData.avatarThumbnailSize);
 
-            ImageDisplayData displayData = new ImageDisplayData()
-            {
-                userId = userId,
-                mediaType = ImageDisplayData.MediaType.UserAvatar,
-                fileName = locator.fileName,
-                originalTexture = null,
-                thumbnailTexture = null,
-            };
+            ImageDisplayData displayData = ImageDisplayData.CreateForUserAvatar(userId, locator);
             m_data = displayData;
 
             DisplayLoading();
@@ -170,14 +163,7 @@ namespace ModIO.UI
             bool original = m_useOriginal;
             LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
-            ImageDisplayData displayData = new ImageDisplayData()
-            {
-                modId = modId,
-                mediaType = ImageDisplayData.MediaType.ModLogo,
-                fileName = locator.fileName,
-                originalTexture = null,
-                thumbnailTexture = null,
-            };
+            ImageDisplayData displayData = ImageDisplayData.CreateForModLogo(modId, locator);
             m_data = displayData;
 
             DisplayLoading();
@@ -204,14 +190,7 @@ namespace ModIO.UI
             bool original = m_useOriginal;
             ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
 
-            ImageDisplayData displayData = new ImageDisplayData()
-            {
-                modId = modId,
-                mediaType = ImageDisplayData.MediaType.ModGalleryImage,
-                fileName = locator.fileName,
-                originalTexture = null,
-                thumbnailTexture = null,
-            };
+            ImageDisplayData displayData = ImageDisplayData.CreateForModGalleryImage(modId, locator);
             m_data = displayData;
 
             DisplayLoading();
@@ -237,14 +216,7 @@ namespace ModIO.UI
             Debug.Assert(!String.IsNullOrEmpty(youTubeVideoId),
                          "[mod.io] youTubeVideoId needs to be set to a valid YouTube video id.");
 
-            ImageDisplayData displayData = new ImageDisplayData()
-            {
-                modId = modId,
-                mediaType = ImageDisplayData.MediaType.YouTubeThumbnail,
-                youTubeId = youTubeVideoId,
-                originalTexture = null,
-                thumbnailTexture = null,
-            };
+            ImageDisplayData displayData = ImageDisplayData.CreateForYouTubeThumbnail(modId, youTubeVideoId);
             m_data = displayData;
 
             DisplayLoading();
