@@ -27,37 +27,11 @@ namespace ModIO.UI
         /// <summary>The URL for the thumbnail version of the image.</summary>
         public string thumbnailURL;
 
-        public Texture2D originalTexture;
-        public Texture2D thumbnailTexture;
-
         public int modId        { get { return ownerId; } set { ownerId = value; } }
         public int userId       { get { return ownerId; } set { ownerId = value; } }
 
         public string fileName  { get { return imageId; } set { imageId = value; } }
         public string youTubeId { get { return imageId; } set { imageId = value; } }
-
-        public Texture2D GetImageTexture(bool original)
-        {
-            if(original)
-            {
-                return originalTexture;
-            }
-            else
-            {
-                return thumbnailTexture;
-            }
-        }
-        public void SetImageTexture(bool original, Texture2D value)
-        {
-            if(original)
-            {
-                originalTexture = value;
-            }
-            else
-            {
-                thumbnailTexture = value;
-            }
-        }
 
         /// <summary>Returns the image URL depending on whether the original or thumbnail is desired.</summary>
         public string GetImageURL(bool original)
@@ -77,8 +51,6 @@ namespace ModIO.UI
                 imageId = locator.GetFileName(),
                 originalURL = locator.GetSizeURL(LogoSize.Original),
                 thumbnailURL = locator.GetSizeURL(ImageDisplayData.logoThumbnailSize),
-                originalTexture = null,
-                thumbnailTexture = null,
             };
 
             return retVal;
@@ -93,8 +65,6 @@ namespace ModIO.UI
                 imageId = locator.GetFileName(),
                 originalURL = locator.GetSizeURL(ModGalleryImageSize.Original),
                 thumbnailURL = locator.GetSizeURL(ImageDisplayData.galleryThumbnailSize),
-                originalTexture = null,
-                thumbnailTexture = null,
             };
 
             return retVal;
@@ -111,8 +81,6 @@ namespace ModIO.UI
                 imageId = youTubeId,
                 originalURL = url,
                 thumbnailURL = url,
-                originalTexture = null,
-                thumbnailTexture = null,
             };
 
             return retVal;
@@ -127,34 +95,19 @@ namespace ModIO.UI
                 imageId = locator.GetFileName(),
                 originalURL = locator.GetSizeURL(UserAvatarSize.Original),
                 thumbnailURL = locator.GetSizeURL(ImageDisplayData.avatarThumbnailSize),
-                originalTexture = null,
-                thumbnailTexture = null,
             };
 
             return retVal;
         }
 
-        // ---------[ EQUALITY OVERRIDES ]---------
-        public override bool Equals(object obj)
-        {
-            if(!(obj is ImageDisplayData))
-            {
-                return false;
-            }
-
-            var other = (ImageDisplayData)obj;
-            bool isEqual = (this.ownerId == other.ownerId
-                            && this.mediaType == other.mediaType
-                            && this.imageId == other.imageId);
-            return isEqual;
-        }
-
-        public override int GetHashCode()
-        {
-            int idFactor = (string.IsNullOrEmpty(this.imageId)
-                            ? 1
-                            : this.imageId.GetHashCode());
-            return (this.ownerId << 2) ^ idFactor;
-        }
+        // ---------[ OBSOLETE ]---------
+        [System.Obsolete("Images are now to be fetched via ImageRequestManager")]
+        public Texture2D originalTexture;
+        [System.Obsolete("Images are now to be fetched via ImageRequestManager")]
+        public Texture2D thumbnailTexture;
+        [System.Obsolete("Images are now to be fetched via ImageRequestManager")]
+        public Texture2D GetImageTexture(bool original) { return null; }
+        [System.Obsolete("Images are now to be fetched via ImageRequestManager")]
+        public void SetImageTexture(bool original, Texture2D value) {}
     }
 }
