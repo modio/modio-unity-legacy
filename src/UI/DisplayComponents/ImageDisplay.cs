@@ -55,48 +55,64 @@ namespace ModIO.UI
                 loadingOverlay.SetActive(false);
             }
 
-            if(avatarOverlay != null)
+            // if original is missing, just use thumbnail
+            bool original = m_useOriginal;
+            if(original && m_data.GetImageTexture(true) == null)
             {
-                avatarOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.UserAvatar);
+                original = false;
             }
-            if(logoOverlay != null)
+
+            Texture2D texture = m_data.GetImageTexture(original);
+            if(texture != null)
             {
-                logoOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.ModLogo);
+                DisplayTexture(texture);
             }
-            if(galleryImageOverlay != null)
+            else
             {
-                galleryImageOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.ModGalleryImage);
+                image.enabled = false;
             }
-            if(youTubeOverlay != null)
-            {
-                youTubeOverlay.SetActive(m_data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail);
-            }
+
+            SetOverlayVisibility(false);
+        }
+
+        private void DisplayTexture(Texture2D texture)
+        {
+            Debug.Assert(texture != null);
 
             if(image != null)
             {
-                // if original is missing, just use thumbnail
-                bool original = m_useOriginal;
-                if(original && m_data.GetImageTexture(true) == null)
+                image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
+
+                if(fitter != null)
                 {
-                    original = false;
+                    fitter.aspectRatio = ((float)texture.width / (float)texture.height);
                 }
 
-                Texture2D texture = m_data.GetImageTexture(original);
-                if(texture != null)
-                {
-                    image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
+                image.enabled = true;
+            }
+        }
 
-                    if(fitter != null)
-                    {
-                        fitter.aspectRatio = ((float)texture.width
-                                              / (float)texture.height);
-                    }
-                    image.enabled = true;
-                }
-                else
-                {
-                    image.enabled = false;
-                }
+        private void SetOverlayVisibility(bool hideAll)
+        {
+            if(avatarOverlay != null)
+            {
+                avatarOverlay.SetActive(!hideAll &&
+                                        m_data.mediaType == ImageDisplayData.MediaType.UserAvatar);
+            }
+            if(logoOverlay != null)
+            {
+                logoOverlay.SetActive(!hideAll
+                                      && m_data.mediaType == ImageDisplayData.MediaType.ModLogo);
+            }
+            if(galleryImageOverlay != null)
+            {
+                galleryImageOverlay.SetActive(!hideAll
+                                              && m_data.mediaType == ImageDisplayData.MediaType.ModGalleryImage);
+            }
+            if(youTubeOverlay != null)
+            {
+                youTubeOverlay.SetActive(!hideAll
+                                         && m_data.mediaType == ImageDisplayData.MediaType.YouTubeThumbnail);
             }
         }
 
