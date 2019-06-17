@@ -342,64 +342,11 @@ namespace ModIO.UI
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
-
-            if(imageData.GetImageTexture(selectedMediaPreview.useOriginal) == null)
-            {
-                bool original = selectedMediaPreview.useOriginal;
-                LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
-
-                this.profileRequests.RequestModProfile(this.m_modId,
-                (p) =>
-                {
-                    if(this == null) { return; }
-
-                    ModManager.GetModLogo(p, size,
-                    (t) =>
-                    {
-                        if(this != null
-                           && Application.isPlaying
-                           && this.selectedMediaPreview.data.Equals(imageData))
-                        {
-                            imageData.SetImageTexture(original, t);
-                            selectedMediaPreview.data = imageData;
-                        }
-                    },
-                    WebRequestError.LogAsWarning);
-                },
-                WebRequestError.LogAsWarning);
-            }
         }
         private void MediaPreview_GalleryImage(ImageDisplayComponent display)
         {
             ImageDisplayData imageData = display.data;
             selectedMediaPreview.data = imageData;
-
-            if(imageData.GetImageTexture(selectedMediaPreview.useOriginal) == null)
-            {
-                bool original = selectedMediaPreview.useOriginal;
-                ModGalleryImageSize size = (original ? ModGalleryImageSize.Original : ImageDisplayData.galleryThumbnailSize);
-
-                this.profileRequests.RequestModProfile(this.m_modId,
-                (p) =>
-                {
-                    if(this == null) { return; }
-
-                    ModManager.GetModGalleryImage(p, display.data.fileName, size,
-                    (t) =>
-                    {
-                        if(this != null
-                           && Application.isPlaying
-                           && this.selectedMediaPreview.data.Equals(imageData))
-                        {
-                            imageData.SetImageTexture(original, t);
-                            selectedMediaPreview.data = imageData;
-                        }
-                    },
-                    WebRequestError.LogAsWarning);
-                },
-                WebRequestError.LogAsWarning);
-
-            }
         }
         private void MediaPreview_YouTubeThumbnail(ImageDisplayComponent display)
         {
