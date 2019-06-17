@@ -37,7 +37,10 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
-        /// <summary>Should the cache be cleared on disable</summary>
+        /// <summary>Should requests made by the ImageRequestManager be logged.</summary>
+        public bool logDownloads = true;
+
+        /// <summary>Should the cache be cleared on disable.</summary>
         public bool clearCacheOnDisable = true;
 
         /// <summary>Cached images.</summary>
@@ -122,7 +125,7 @@ namespace ModIO.UI
             };
 
             #if DEBUG
-            if(PluginSettings.data.logAllRequests)
+            if(PluginSettings.data.logAllRequests && logDownloads)
             {
                 string requestHeaders = "";
                 List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
@@ -157,7 +160,7 @@ namespace ModIO.UI
 
             // - logging -
             #if DEBUG
-            if(PluginSettings.data.logAllRequests)
+            if(PluginSettings.data.logAllRequests && logDownloads)
             {
                 if(webRequest.isNetworkError || webRequest.isHttpError)
                 {
