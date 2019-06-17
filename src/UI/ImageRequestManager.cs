@@ -136,24 +136,8 @@ namespace ModIO.UI
             this.RequestImage_Internal(url, retrieveFromDisk, onSuccess, onError);
         }
 
-
-        /// <summary>Requests a mod logo.</summary>
-        public virtual void RequestModLogo(int modId, LogoImageLocator locator, LogoSize size,
-                                           Action<Texture2D> onSuccess,
-                                           Action<WebRequestError> onError)
-        {
-            // asserts
-            Debug.Assert(locator != null);
-            Debug.Assert(onSuccess != null);
-
-            string url = locator.GetSizeURL(size);
-
-            this.RequestImage_Internal(url,
-                                       () => CacheClient.LoadModLogo(modId, locator.GetFileName(), size),
-                                       onSuccess, onError);
-        }
-
         /// <summary>Requests an image at a given URL.</summary>
+        // NOTE(@jackson): This function *does not* check for data stored with CacheClient.
         public virtual void RequestImage(string url,
                                          Action<Texture2D> onSuccess,
                                          Action<WebRequestError> onError)

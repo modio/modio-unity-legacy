@@ -83,7 +83,7 @@ namespace ModIO.UI
             if(!string.IsNullOrEmpty(imageURL))
             {
                 ImageDisplayData iData = this.m_data;
-                ImageRequestManager.instance.RequestImage(imageURL,
+                ImageRequestManager.instance.RequestImageForData(this.m_data, this.useOriginal,
                 (t) =>
                 {
                     if(this != null && iData.Equals(this.m_data))
