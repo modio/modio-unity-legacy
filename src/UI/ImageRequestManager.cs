@@ -88,35 +88,9 @@ namespace ModIO.UI
 
             string url = locator.GetSizeURL(size);
 
-            // check cache
-            Texture2D texture = null;
-            if(this.cache.TryGetValue(url, out texture))
-            {
-                onSuccess(texture);
-                return;
-            }
-
-            // check disk
-            texture = CacheClient.LoadModLogo(modId, locator.GetFileName(), size);
-            if(texture != null)
-            {
-                onSuccess(texture);
-                return;
-            }
-
-            // check currently downloading
-            Callbacks callbacks = null;
-            if(this.m_callbackMap.TryGetValue(url, out callbacks))
-            {
-                callbacks.succeeded.Add(onSuccess);
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
-                return;
-            }
-
-            this.DownloadImage(url, onSuccess, onError);
+            this.RequestImage_Internal(url,
+                                       () => CacheClient.LoadModLogo(modId, locator.GetFileName(), size),
+                                       onSuccess, onError);
         }
 
         /// <summary>Requests an image at a given URL.</summary>
@@ -127,6 +101,14 @@ namespace ModIO.UI
             Debug.Assert(!string.IsNullOrEmpty(url));
             Debug.Assert(onSuccess != null);
 
+            this.RequestImage_Internal(url, null, onSuccess, onError);
+        }
+
+        protected virtual void RequestImage_Internal(string url,
+                                                     Func<Texture2D> retrieveFromDisk,
+                                                     Action<Texture2D> onSuccess,
+                                                     Action<WebRequestError> onError)
+        {
             // check cache
             Texture2D texture = null;
             if(this.cache.TryGetValue(url, out texture))
@@ -147,6 +129,18 @@ namespace ModIO.UI
                 return;
             }
 
+            // check disk
+            if(retrieveFromDisk != null)
+            {
+                texture = retrieveFromDisk();
+                if(texture != null)
+                {
+                    onSuccess(texture);
+                    return;
+                }
+            }
+
+            // download
             this.DownloadImage(url, onSuccess, onError);
         }
 
