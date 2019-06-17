@@ -77,6 +77,66 @@ namespace ModIO.UI
         }
 
         // ---------[ FUNCTIONALITY ]---------
+        /// <summary>Requests the image for a given ImageDisplayData.</summary>
+        public virtual void RequestImageForData(ImageDisplayData data, bool original,
+                                                Action<Texture2D> onSuccess,
+                                                Action<WebRequestError> onError)
+        {
+            string url = data.GetImageURL(original);
+
+            // asserts
+            Debug.Assert(onSuccess != null);
+            Debug.Assert(!string.IsNullOrEmpty(url));
+
+            // create disk retrieval function
+            Func<Texture2D> retrieveFromDisk = null;
+            switch(data.descriptor)
+            {
+                case ImageDescriptor.ModLogo:
+                {
+                    LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
+                    retrieveFromDisk = () =>
+                    {
+                        return CacheClient.LoadModLogo(data.ownerId, data.imageId, size);
+                    };
+                }
+                break;
+                case ImageDescriptor.ModGalleryImage:
+                {
+                    ModGalleryImageSize size = (original
+                                                ? ModGalleryImageSize.Original
+                                                : ImageDisplayData.galleryThumbnailSize);
+                    retrieveFromDisk = () =>
+                    {
+                        return CacheClient.LoadModGalleryImage(data.ownerId, data.imageId, size);
+                    };
+                }
+                break;
+                case ImageDescriptor.YouTubeThumbnail:
+                {
+                    retrieveFromDisk = () =>
+                    {
+                        return CacheClient.LoadModYouTubeThumbnail(data.ownerId, data.imageId);
+                    };
+                }
+                break;
+                case ImageDescriptor.UserAvatar:
+                {
+                    UserAvatarSize size = (original
+                                           ? UserAvatarSize.Original
+                                           : ImageDisplayData.avatarThumbnailSize);
+                    retrieveFromDisk = () =>
+                    {
+                        return CacheClient.LoadUserAvatar(data.ownerId, size);
+                    };
+                }
+                break;
+            }
+
+            this.RequestImage_Internal(url, retrieveFromDisk, onSuccess, onError);
+        }
+
+
         /// <summary>Requests a mod logo.</summary>
         public virtual void RequestModLogo(int modId, LogoImageLocator locator, LogoSize size,
                                            Action<Texture2D> onSuccess,
