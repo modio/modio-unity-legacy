@@ -43,6 +43,9 @@ namespace ModIO.UI
         /// <summary>Should the cache be cleared on disable.</summary>
         public bool clearCacheOnDisable = true;
 
+        /// <summary>If enabled, stores retrieved images for subscribed mods.</summary>
+        public bool storeIfSubscribed = true;
+
         /// <summary>Cached images.</summary>
         public Dictionary<string, Texture2D> cache = new Dictionary<string, Texture2D>();
 
@@ -88,17 +91,27 @@ namespace ModIO.UI
             Debug.Assert(onSuccess != null);
             Debug.Assert(!string.IsNullOrEmpty(url));
 
-            // create disk retrieval function
+            // create delegates
             Func<Texture2D> retrieveFromDisk = null;
+            Action<Texture2D> storeToDisk = null;
             switch(data.descriptor)
             {
                 case ImageDescriptor.ModLogo:
                 {
                     LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
-                    retrieveFromDisk = () =>
+
+                    retrieveFromDisk = () => CacheClient.LoadModLogo(data.ownerId, data.imageId, size);
+
+                    if(this.storeIfSubscribed)
                     {
-                        return CacheClient.LoadModLogo(data.ownerId, data.imageId, size);
-                    };
+                        storeToDisk = (t) =>
+                        {
+                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            {
+                                CacheClient.SaveModLogo(data.ownerId, data.imageId, size, t);
+                            }
+                        };
+                    }
                 }
                 break;
                 case ImageDescriptor.ModGalleryImage:
@@ -106,18 +119,35 @@ namespace ModIO.UI
                     ModGalleryImageSize size = (original
                                                 ? ModGalleryImageSize.Original
                                                 : ImageDisplayData.galleryThumbnailSize);
-                    retrieveFromDisk = () =>
+
+                    retrieveFromDisk = () => CacheClient.LoadModGalleryImage(data.ownerId, data.imageId, size);
+
+                    if(this.storeIfSubscribed)
                     {
-                        return CacheClient.LoadModGalleryImage(data.ownerId, data.imageId, size);
-                    };
+                        storeToDisk = (t) =>
+                        {
+                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            {
+                                CacheClient.SaveModGalleryImage(data.ownerId, data.imageId, size, t);
+                            }
+                        };
+                    }
                 }
                 break;
                 case ImageDescriptor.YouTubeThumbnail:
                 {
-                    retrieveFromDisk = () =>
+                    retrieveFromDisk = () => CacheClient.LoadModYouTubeThumbnail(data.ownerId, data.imageId);
+
+                    if(this.storeIfSubscribed)
                     {
-                        return CacheClient.LoadModYouTubeThumbnail(data.ownerId, data.imageId);
-                    };
+                        storeToDisk = (t) =>
+                        {
+                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            {
+                                CacheClient.SaveModYouTubeThumbnail(data.ownerId, data.imageId, t);
+                            }
+                        };
+                    }
                 }
                 break;
                 case ImageDescriptor.UserAvatar:
@@ -125,15 +155,13 @@ namespace ModIO.UI
                     UserAvatarSize size = (original
                                            ? UserAvatarSize.Original
                                            : ImageDisplayData.avatarThumbnailSize);
-                    retrieveFromDisk = () =>
-                    {
-                        return CacheClient.LoadUserAvatar(data.ownerId, size);
-                    };
+
+                    retrieveFromDisk = () => CacheClient.LoadUserAvatar(data.ownerId, size);
                 }
                 break;
             }
 
-            this.RequestImage_Internal(url, retrieveFromDisk, onSuccess, onError);
+            this.RequestImage_Internal(url, retrieveFromDisk, storeToDisk, onSuccess, onError);
         }
 
         /// <summary>Requests an image at a given URL.</summary>
@@ -145,11 +173,13 @@ namespace ModIO.UI
             Debug.Assert(!string.IsNullOrEmpty(url));
             Debug.Assert(onSuccess != null);
 
-            this.RequestImage_Internal(url, null, onSuccess, onError);
+            this.RequestImage_Internal(url, null, null, onSuccess, onError);
         }
 
+        /// <summary>Handles the computations for the image request.</summary>
         protected virtual void RequestImage_Internal(string url,
                                                      Func<Texture2D> retrieveFromDisk,
+                                                     Action<Texture2D> storeToDisk,
                                                      Action<Texture2D> onSuccess,
                                                      Action<WebRequestError> onError)
         {
@@ -186,8 +216,15 @@ namespace ModIO.UI
 
             // download
             this.DownloadImage(url, onSuccess, onError);
+
+            // check if storing on disk
+            if(storeToDisk != null)
+            {
+                this.m_callbackMap[url].succeeded.Add(storeToDisk);
+            }
         }
 
+        /// <summary>Creates and sends an image download request for the given url.</summary>
         protected UnityWebRequestAsyncOperation DownloadImage(string url,
                                                               Action<Texture2D> onSuccess,
                                                               Action<WebRequestError> onError)
