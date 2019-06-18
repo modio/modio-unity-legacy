@@ -22,7 +22,6 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         public float pageTransitionTimeSeconds = 0.4f;
         public RectTransform pageTemplate = null;
-        public ModProfileRequestManager profileRequests = null;
         public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
@@ -79,6 +78,8 @@ namespace ModIO.UI
                 return this.m_modViews;
             }
         }
+        private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
+
 
         /// <summary>String to use for filtering the mod request.</summary>
         public string titleFilter
@@ -209,17 +210,6 @@ namespace ModIO.UI
             }
 
             // check for request managers
-            if(this.profileRequests == null)
-            {
-                Debug.Log("[mod.io] The profileRequests component on this ExplorerView"
-                          + " has been automatically created. Assing a ModProfileRequestManager"
-                          + " component to this field that is shared by other views will allow"
-                          + " for a much more efficient and responsive browsing experience.",
-                          this);
-
-                this.profileRequests = this.gameObject.AddComponent<ModProfileRequestManager>();
-            }
-
             if(this.statisticsRequests == null)
             {
                 Debug.Log("[mod.io] The statisticsRequests component on this ExplorerView"
@@ -288,7 +278,7 @@ namespace ModIO.UI
             };
             this.currentPage = filteredPage;
 
-            this.profileRequests.FetchModProfilePage(this.m_requestFilter, 0, pageSize,
+            ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, 0, pageSize,
             (page) =>
             {
                 #if DEBUG
@@ -387,7 +377,7 @@ namespace ModIO.UI
             this.targetPage = targetPage;
             this.UpdateTargetPageDisplay();
 
-            this.profileRequests.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
+            ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
             {
                 if(this.targetPage == targetPage)

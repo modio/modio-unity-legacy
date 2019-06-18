@@ -1862,19 +1862,18 @@ namespace ModIO.UI
             ViewManager.instance.ActivateExplorerView();
         }
 
-        [Obsolete("Use ModProfileRequestManager.FetchPage() instead.")]
+        [Obsolete("Use ModProfileRequestManager.FetchModProfilePage() instead.")]
         public void RequestExplorerPage(int pageIndex,
                                         Action<RequestPage<ModProfile>> onSuccess,
                                         Action<WebRequestError> onError)
         {
-            if(this.explorerView == null
-               || this.explorerView.profileRequests == null)
+            if(this.explorerView == null)
             {
                 if(onError != null) { onError(null); }
             }
             else
             {
-                this.explorerView.profileRequests.FetchModProfilePage(this.explorerView.GenerateRequestFilter(),
+                ModProfileRequestManager.instance.FetchModProfilePage(this.explorerView.GenerateRequestFilter(),
                                                                       pageIndex * this.explorerView.itemsPerPage,
                                                                       this.explorerView.itemsPerPage,
                                                                       onSuccess, onError);
