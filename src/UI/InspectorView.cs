@@ -285,17 +285,23 @@ namespace ModIO.UI
             }
         }
 
-        public void OnModSubscriptionsUpdated()
+        public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
+                                              IList<int> removedSubscriptions)
         {
             Debug.Assert(this.modView != null);
-
-            bool isSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
 
             if(this.m_isInitialized)
             {
                 ModDisplayData data = modView.data;
-                data.isSubscribed = isSubscribed;
-                modView.data = data;
+                bool wasSubscribed = data.isSubscribed;
+                bool subChanged = ((!wasSubscribed && addedSubscriptions.Contains(this.m_modId))
+                                   || wasSubscribed && removedSubscriptions.Contains(this.m_modId));
+
+                if(subChanged)
+                {
+                    data.isSubscribed = !wasSubscribed;
+                    modView.data = data;
+                }
             }
         }
 
@@ -411,7 +417,15 @@ namespace ModIO.UI
         [Obsolete("Use OnModSubscriptionsUpdated() instead")]
         public void DisplayModSubscribed(bool isSubscribed)
         {
-            this.OnModSubscriptionsUpdated();
+            if(this.m_isInitialized)
+            {
+                ModDisplayData data = modView.data;
+                if(data.isSubscribed != isSubscribed)
+                {
+                    data.isSubscribed = isSubscribed;
+                    modView.data = data;
+                }
+            }
         }
 
         [Obsolete("Use OnModEnabled()/OnModDisabled() instead")]

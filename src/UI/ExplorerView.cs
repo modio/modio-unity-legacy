@@ -721,7 +721,8 @@ namespace ModIO.UI
             }
         }
 
-        public void OnModSubscriptionsUpdated()
+        public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
+                                              IList<int> removedSubscriptions)
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 

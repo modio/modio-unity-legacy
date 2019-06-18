@@ -1682,7 +1682,7 @@ namespace ModIO.UI
         public void OnSubscribedToMod(int modId)
         {
             EnableMod(modId);
-            UpdateViewSubscriptions();
+            UpdateSubscriptionReceivers(new int[] { modId }, null);
 
             ModManager.GetModProfile(modId,
             (p) =>
@@ -1725,7 +1725,7 @@ namespace ModIO.UI
 
             DisableMod(modId);
 
-            UpdateViewSubscriptions();
+            UpdateSubscriptionReceivers(null, new int[] { modId });
         }
 
         public void OnSubscriptionsChanged(IList<int> addedSubscriptions,
@@ -1806,15 +1806,17 @@ namespace ModIO.UI
             }
 
             ModManager.SetEnabledModIds(enabledMods);
-            UpdateViewSubscriptions();
+            UpdateSubscriptionReceivers(addedSubscriptions, removedSubscriptions);
         }
 
-        private void UpdateViewSubscriptions()
+        private void UpdateSubscriptionReceivers(IList<int> addedSubscriptions,
+                                                 IList<int> removedSubscriptions)
         {
             IEnumerable<IModSubscriptionsUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModSubscriptionsUpdateReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
-                receiver.OnModSubscriptionsUpdated();
+                receiver.OnModSubscriptionsUpdated(addedSubscriptions,
+                                                   removedSubscriptions);
             }
         }
 
