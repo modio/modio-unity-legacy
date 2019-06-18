@@ -234,7 +234,7 @@ namespace ModIO.UI
             // Ensure Start() has been finished
             yield return null;
 
-            if(!this.isActiveAndEnabled)
+            if(this == null || !this.isActiveAndEnabled)
             {
                 yield break;
             }
@@ -1387,6 +1387,7 @@ namespace ModIO.UI
 
             // get modfile
             while(modfile == null
+                  && this != null
                   && this.isActiveAndEnabled)
             {
                 APIClient.GetModfile(modId, modfileId,
@@ -1589,6 +1590,7 @@ namespace ModIO.UI
 
             // NOTE(@jackson): Do not uninstall/install unless the ModBrowser is active!
             if(isBinaryZipValid
+               && this != null
                && this.isActiveAndEnabled)
             {
                 bool isUpdate = (ModManager.IterateInstalledMods(new int[] { modId }).Count() > 0);
@@ -1685,7 +1687,7 @@ namespace ModIO.UI
             ModManager.GetModProfile(modId,
             (p) =>
             {
-                if(this.isActiveAndEnabled)
+                if(this != null && this.isActiveAndEnabled)
                 {
                     string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
                     if(!Directory.Exists(installDir))
@@ -1744,7 +1746,7 @@ namespace ModIO.UI
                     ModManager.GetModProfile(modId,
                     (p) =>
                     {
-                        if(this.isActiveAndEnabled)
+                        if(this != null && this.isActiveAndEnabled)
                         {
                             string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
                             if(!Directory.Exists(installDir))
