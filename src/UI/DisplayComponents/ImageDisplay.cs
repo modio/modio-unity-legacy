@@ -73,6 +73,11 @@ namespace ModIO.UI
             {
                 DisplayTexture(texture);
                 SetOverlayVisibility(true);
+
+                if(loadingOverlay != null)
+                {
+                    loadingOverlay.SetActive(true);
+                }
             }
             else
             {
