@@ -67,6 +67,29 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ SINGLETON ]---------
+        /// <summary>Singleton instance.</summary>
+        private static ModProfileRequestManager _instance = null;
+        /// <summary>Singleton instance.</summary>
+        public static ModProfileRequestManager instance
+        {
+            get
+            {
+                if(ModProfileRequestManager._instance == null)
+                {
+                    ModProfileRequestManager._instance = UIUtilities.FindComponentInScene<ModProfileRequestManager>(true);
+
+                    if(ModProfileRequestManager._instance == null)
+                    {
+                        GameObject go = new GameObject("Mod Profile Request Manager");
+                        ModProfileRequestManager._instance = go.AddComponent<ModProfileRequestManager>();
+                    }
+                }
+
+                return ModProfileRequestManager._instance;
+            }
+        }
+
         // ---------[ FIELDS ]---------
         /// <summary>Should the cache be cleared on disable</summary>
         public bool clearCacheOnDisable = true;
@@ -81,6 +104,24 @@ namespace ModIO.UI
         };
 
         // ---------[ INITIALIZATION ]---------
+        protected virtual void Awake()
+        {
+            if(ModProfileRequestManager._instance == null)
+            {
+                ModProfileRequestManager._instance = this;
+            }
+            #if DEBUG
+            else if(ModProfileRequestManager._instance != this)
+            {
+                Debug.LogWarning("[mod.io] Second instance of a ModProfileRequestManager"
+                                 + " component enabled simultaneously."
+                                 + " Only one instance of a ModProfileRequestManager"
+                                 + " component should be active at a time.");
+                this.enabled = false;
+            }
+            #endif
+        }
+
         protected virtual void OnDisable()
         {
             if(this.clearCacheOnDisable)
