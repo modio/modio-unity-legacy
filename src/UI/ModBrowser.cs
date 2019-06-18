@@ -1733,20 +1733,26 @@ namespace ModIO.UI
         {
             var enabledMods = ModManager.GetEnabledModIds();
 
+            // handle new subscriptions
             if(addedSubscriptions != null
                && addedSubscriptions.Count > 0)
             {
+                // enable mods
                 foreach(int modId in addedSubscriptions)
                 {
                     if(!enabledMods.Contains(modId))
                     {
                         enabledMods.Add(modId);
                     }
+                }
 
-                    ModManager.GetModProfile(modId,
-                    (p) =>
+                Action<IEnumerable<ModProfile>> storeModData = (modProfiles) =>
+                {
+                    var subbedMods = ModManager.GetSubscribedModIds();
+
+                    foreach(ModProfile p in modProfiles)
                     {
-                        if(this != null && this.isActiveAndEnabled)
+                        if(subbedMods.Contains(p.id))
                         {
                             string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
                             if(!Directory.Exists(installDir))
@@ -1754,24 +1760,34 @@ namespace ModIO.UI
                                 this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.currentBuild.id));
                             }
                         }
-                    },
-                    (requestError) =>
-                    {
-                        if(requestError.isAuthenticationInvalid)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
+                    }
+                };
 
-                            m_validOAuthToken = false;
-                        }
-                        else
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                       "Failed to start mod download. It will be retried shortly.\n"
-                                                       + requestError.displayMessage);
-                        }
-                    });
-                }
+                // store mod data and start downloads
+                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions,
+                (modProfiles) =>
+                {
+                    if(this != null && this.isActiveAndEnabled)
+                    {
+                        storeModData(modProfiles);
+                    }
+                },
+                (requestError) =>
+                {
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
+
+                        m_validOAuthToken = false;
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   "Failed to start mod downloads. They will be retried shortly.\n"
+                                                   + requestError.displayMessage);
+                    }
+                });
             }
 
             if(removedSubscriptions != null
