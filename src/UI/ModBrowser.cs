@@ -72,7 +72,6 @@ namespace ModIO.UI
         private List<SimpleRating> m_userRatings = new List<SimpleRating>();
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
-        private Coroutine m_updatesCoroutine = null;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
         private bool m_validOAuthToken = false;
@@ -110,11 +109,6 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            if(m_updatesCoroutine != null)
-            {
-                StopCoroutine(m_updatesCoroutine);
-            }
-
             if(this.m_validOAuthToken)
             {
                 PushSubscriptionChanges();
@@ -258,7 +252,8 @@ namespace ModIO.UI
 
             VerifySubscriptionInstallations();
 
-            m_updatesCoroutine = this.StartCoroutine(PollForUpdatesCoroutine());
+            this.StartCoroutine(PollForSubscribedModEventsCoroutine());
+            this.StartCoroutine(PollForUserEventsCoroutine());
         }
 
         private System.Collections.IEnumerator FetchGameProfile()
@@ -882,18 +877,84 @@ namespace ModIO.UI
         }
 
         // ---------[ UPDATES ]---------
-        private System.Collections.IEnumerator PollForUpdatesCoroutine()
+        private System.Collections.IEnumerator PollForSubscribedModEventsCoroutine()
         {
             bool cancelUpdates = false;
 
-            while(!cancelUpdates)
+            while(this != null
+                  && this.isActiveAndEnabled
+                  && !cancelUpdates)
             {
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
                 bool isRequestDone = false;
                 WebRequestError requestError = null;
 
-                // --- USER EVENTS ---
+                // --- MOD EVENTS ---
+                var subbedMods = ModManager.GetSubscribedModIds();
+                if(subbedMods != null
+                   && subbedMods.Count > 0)
+                {
+                    List<ModEvent> modEventResponse = null;
+                    ModManager.FetchModEvents(ModManager.GetSubscribedModIds(),
+                                              this.lastCacheUpdate,
+                                              updateStartTimeStamp,
+                                              (me) =>
+                                              {
+                                                modEventResponse = me;
+                                                isRequestDone = true;
+                                              },
+                                              (e) =>
+                                              {
+                                                requestError = e;
+                                                isRequestDone = true;
+                                              });
+
+                    while(!isRequestDone) { yield return null; }
+
+                    if(requestError != null)
+                    {
+                        int reattemptDelay = CalculateReattemptDelay(requestError);
+                        if(requestError.isAuthenticationInvalid)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       requestError.displayMessage);
+
+                            m_validOAuthToken = false;
+                        }
+                        else if(requestError.isRequestUnresolvable
+                                || reattemptDelay < 0)
+                        {
+                            cancelUpdates = true;
+                        }
+                        else
+                        {
+                            yield return new WaitForSeconds(reattemptDelay);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        this.lastCacheUpdate = updateStartTimeStamp;
+                        WriteManifest();
+                        yield return StartCoroutine(ProcessModUpdates(modEventResponse));
+                    }
+                }
+
+                yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
+            }
+        }
+
+        private System.Collections.IEnumerator PollForUserEventsCoroutine()
+        {
+            while(this != null
+                  && this.isActiveAndEnabled)
+            {
+                int updateStartTimeStamp = ServerTimeStamp.Now;
+
+                bool isRequestDone = false;
+                WebRequestError requestError = null;
+
                 if(this.m_validOAuthToken)
                 {
                     // fetch user events
@@ -955,64 +1016,8 @@ namespace ModIO.UI
                     }
                 }
 
-                isRequestDone = false;
-                requestError = null;
-
-                // --- MOD EVENTS ---
-                var subbedMods = ModManager.GetSubscribedModIds();
-                if(subbedMods != null
-                   && subbedMods.Count > 0)
-                {
-                    List<ModEvent> modEventResponse = null;
-                    ModManager.FetchModEvents(ModManager.GetSubscribedModIds(),
-                                              this.lastCacheUpdate,
-                                              updateStartTimeStamp,
-                                              (me) =>
-                                              {
-                                                modEventResponse = me;
-                                                isRequestDone = true;
-                                              },
-                                              (e) =>
-                                              {
-                                                requestError = e;
-                                                isRequestDone = true;
-                                              });
-
-                    while(!isRequestDone) { yield return null; }
-
-                    if(requestError != null)
-                    {
-                        int reattemptDelay = CalculateReattemptDelay(requestError);
-                        if(requestError.isAuthenticationInvalid)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
-
-                            m_validOAuthToken = false;
-                        }
-                        else if(requestError.isRequestUnresolvable
-                                || reattemptDelay < 0)
-                        {
-                            cancelUpdates = true;
-                        }
-                        else
-                        {
-                            yield return new WaitForSeconds(reattemptDelay);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        this.lastCacheUpdate = updateStartTimeStamp;
-                        WriteManifest();
-                        yield return StartCoroutine(ProcessModUpdates(modEventResponse));
-                    }
-                }
-
                 yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
             }
-
-            m_updatesCoroutine = null;
         }
 
         private void PushSubscriptionChanges()
