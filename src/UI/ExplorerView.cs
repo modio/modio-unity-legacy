@@ -79,36 +79,6 @@ namespace ModIO.UI
         }
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
 
-        /// <summary>Tags to filter by.</summary>
-        public string[] tagFilter
-        {
-            get { return this.m_tagFilter.ToArray(); }
-            set
-            {
-                if(value == null) { value = new string[0]; }
-
-                bool isSame = (this.m_tagFilter.Count == value.Length);
-                for(int i = 0;
-                    isSame && i < value.Length;
-                    ++i)
-                {
-                    isSame = (this.m_tagFilter[i] == value[i]);
-                }
-
-                if(!isSame)
-                {
-                    this.m_tagFilter = new List<string>(value);
-                    this.m_requestFilter = this.GenerateRequestFilter();
-                    this.Refresh();
-
-                    if(this.onTagFilterUpdated != null)
-                    {
-                        this.onTagFilterUpdated(this.m_tagFilter.ToArray());
-                    }
-                }
-            }
-        }
-
         // ---[ CALCULATED VARS ]----
         public int CurrentPageNumber
         {
@@ -392,8 +362,43 @@ namespace ModIO.UI
         /// <summary>Gets the sort string.</summary>
         public string GetSortString() { return this.m_sortString; }
 
+        /// <summary>Sets the tag filter and refreshes the results.</summary>
+        public void SetTagFilter(IList<string> tagFilter)
+        {
+            if(tagFilter == null) { tagFilter = new string[0]; }
+
+            bool isSame = (this.m_tagFilter.Count == tagFilter.Count);
+            for(int i = 0;
+                isSame && i < tagFilter.Count;
+                ++i)
+            {
+                isSame = (this.m_tagFilter[i] == tagFilter[i]);
+            }
+
+            if(!isSame)
+            {
+                this.m_tagFilter = new List<string>(tagFilter);
+                this.m_requestFilter = this.GenerateRequestFilter();
+                this.Refresh();
+
+                if(this.onTagFilterUpdated != null)
+                {
+                    this.onTagFilterUpdated(this.m_tagFilter.ToArray());
+                }
+            }
+        }
+
+        /// <summary>Gets the tag filter.</summary>
+        public string[] GetTagFilter()
+        {
+            return this.m_tagFilter.ToArray();
+        }
+
+        /// <summary>Adds a tag to the tag filter and refreshes the results.</summary>
         public void AddTagToFilter(string tagName)
         {
+            if(this.m_tagFilter.Contains(tagName)) { return; }
+
             this.m_tagFilter.Add(tagName);
             this.Refresh();
 
@@ -403,9 +408,12 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Removes a tag from the tag filter and refreshes the results.</summary>
         public void RemoveTagFromFilter(string tagName)
         {
-            m_tagFilter.Remove(tagName);
+            if(!this.m_tagFilter.Contains(tagName)) { return; }
+
+            this.m_tagFilter.Remove(tagName);
             this.Refresh();
 
             if(this.onTagFilterUpdated != null)
