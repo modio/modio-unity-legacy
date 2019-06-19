@@ -56,8 +56,11 @@ namespace ModIO.UI
         /// <summary>File name used to store the browser manifest.</summary>
         public const string MANIFEST_FILENAME = "browser_manifest.data";
 
-        /// <summary>Number of seconds between update polls.</summary>
-        private const float AUTOMATIC_UPDATE_INTERVAL = 15f;
+        /// <summary>Number of seconds between mod event polls.</summary>
+        private const float MOD_EVENT_POLLING_PERIOD = 120f;
+
+        /// <summary>Number of seconds between user event polls.</summary>
+        private const float USER_EVENT_POLLING_PERIOD = 15f;
 
         // ---------[ FIELDS ]---------
         [Tooltip("Size to use for the user avatar thumbnails")]
@@ -941,7 +944,7 @@ namespace ModIO.UI
                     }
                 }
 
-                yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
+                yield return new WaitForSeconds(MOD_EVENT_POLLING_PERIOD);
             }
         }
 
@@ -1016,7 +1019,7 @@ namespace ModIO.UI
                     }
                 }
 
-                yield return new WaitForSeconds(AUTOMATIC_UPDATE_INTERVAL);
+                yield return new WaitForSeconds(USER_EVENT_POLLING_PERIOD);
             }
         }
 
