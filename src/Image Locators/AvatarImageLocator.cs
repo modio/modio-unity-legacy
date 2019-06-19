@@ -61,13 +61,25 @@ namespace ModIO
             }
         }
         /// <summary>Returns all the URLs in the image locator.</summary>
-        public string[] GetAllURLs()
+        public SizeURLPair<UserAvatarSize>[] GetAllURLs()
         {
-            return new string[]
+            return new SizeURLPair<UserAvatarSize>[]
             {
-                original,
-                thumbnail_50x50,
-                thumbnail_100x100,
+                new SizeURLPair<UserAvatarSize>()
+                {
+                    size = UserAvatarSize.Original,
+                    url = this.original,
+                },
+                new SizeURLPair<UserAvatarSize>()
+                {
+                    size = UserAvatarSize.Thumbnail_50x50,
+                    url = this.thumbnail_50x50,
+                },
+                new SizeURLPair<UserAvatarSize>()
+                {
+                    size = UserAvatarSize.Thumbnail_100x100,
+                    url = this.thumbnail_100x100,
+                },
             };
         }
     }

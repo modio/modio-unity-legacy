@@ -52,12 +52,20 @@ namespace ModIO
             }
         }
         /// <summary>Returns all the URLs in the image locator.</summary>
-        public string[] GetAllURLs()
+        public SizeURLPair<ModGalleryImageSize>[] GetAllURLs()
         {
-            return new string[]
+            return new SizeURLPair<ModGalleryImageSize>[]
             {
-                original,
-                thumbnail_320x180,
+                new SizeURLPair<ModGalleryImageSize>()
+                {
+                    size = ModGalleryImageSize.Original,
+                    url = this.original,
+                },
+                new SizeURLPair<ModGalleryImageSize>()
+                {
+                    size = ModGalleryImageSize.Thumbnail_320x180,
+                    url = this.thumbnail_320x180,
+                },
             };
         }
     }
