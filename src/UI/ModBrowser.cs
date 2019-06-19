@@ -228,7 +228,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator StartFetchRemoteData()
         {
-            // Ensure Start() has been finished
+            // Ensure Start() has finished
             yield return null;
 
             if(this == null || !this.isActiveAndEnabled)
@@ -791,19 +791,22 @@ namespace ModIO.UI
             }
 
             // assert subbed mod installs
-            foreach(int modId in subscribedModIds)
+            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
+            (modProfiles) =>
             {
-                ModProfile profile = CacheClient.LoadModProfile(modId);
+                if(this == null) { return; }
 
-                if(profile == null)
+                IList<int> subModIds = ModManager.GetSubscribedModIds();
+                foreach(ModProfile profile in modProfiles)
                 {
-                    ModManager.GetModProfile(modId, (p) => AssertInstalledLatest(p, groupedIds[modId]), null);
+                    if(profile != null
+                       && subModIds.Contains(profile.id))
+                    {
+                        AssertInstalledLatest(profile, groupedIds[profile.id]);
+                    }
                 }
-                else
-                {
-                    AssertInstalledLatest(profile, groupedIds[modId]);
-                }
-            }
+            },
+            null);
         }
 
         private void AssertInstalledLatest(ModProfile profile, List<int> installedIds)
