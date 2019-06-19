@@ -94,6 +94,9 @@ namespace ModIO.UI
         /// <summary>Should the cache be cleared on disable</summary>
         public bool clearCacheOnDisable = true;
 
+        /// <summary>If enabled, stores retrieved profiles for subscribed mods.</summary>
+        public bool storeIfSubscribed = true;
+
         /// <summary>Cached requests.</summary>
         public Dictionary<string, RequestPageData> requestCache = new Dictionary<string, RequestPageData>();
 
@@ -268,12 +271,27 @@ namespace ModIO.UI
             {
                 this.profileCache[profile.id] = profile;
             }
+
+            // store
+            if(this.storeIfSubscribed)
+            {
+                IList<int> subMods = ModManager.GetSubscribedModIds();
+                foreach(ModProfile profile in page.items)
+                {
+                    if(subMods.Contains(profile.id))
+                    {
+                        CacheClient.SaveModProfile(profile);
+                    }
+                }
+            }
         }
 
         /// <summary>Requests an individual ModProfile by id.</summary>
         public virtual void RequestModProfile(int id,
                                               Action<ModProfile> onSuccess, Action<WebRequestError> onError)
         {
+            Debug.Assert(onSuccess != null);
+
             ModProfile profile = null;
             if(profileCache.TryGetValue(id, out profile))
             {
@@ -294,6 +312,12 @@ namespace ModIO.UI
                 if(this != null)
                 {
                     profileCache[p.id] = p;
+
+                    if(this.storeIfSubscribed
+                       && ModManager.GetSubscribedModIds().Contains(p.id))
+                    {
+                        CacheClient.SaveModProfile(p);
+                    }
                 }
 
                 onSuccess(p);
@@ -306,6 +330,9 @@ namespace ModIO.UI
                                                Action<ModProfile[]> onSuccess,
                                                Action<WebRequestError> onError)
         {
+            Debug.Assert(orderedIdList != null);
+            Debug.Assert(onSuccess != null);
+
             ModProfile[] results = new ModProfile[orderedIdList.Count];
             List<int> missingIds = new List<int>(orderedIdList.Count);
 
@@ -354,6 +381,18 @@ namespace ModIO.UI
                     foreach(ModProfile profile in r.items)
                     {
                         this.profileCache[profile.id] = profile;
+                    }
+
+                    if(this.storeIfSubscribed)
+                    {
+                        IList<int> subMods = ModManager.GetSubscribedModIds();
+                        foreach(ModProfile profile in r.items)
+                        {
+                            if(subMods.Contains(profile.id))
+                            {
+                                CacheClient.SaveModProfile(profile);
+                            }
+                        }
                     }
                 }
 
