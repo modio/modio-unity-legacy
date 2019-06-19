@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 namespace ModIO.UI
 {
     /// <summary>Manages caching of the textures required by the UI.</summary>
-    public class ImageRequestManager : MonoBehaviour
+    public class ImageRequestManager : MonoBehaviour, IModSubscriptionsUpdateReceiver
     {
         // ---------[ SINGLETON ]---------
         private static ImageRequestManager _instance = null;
@@ -361,6 +361,83 @@ namespace ModIO.UI
 
             // remove from "in progress"
             this.m_callbackMap.Remove(webRequest.url);
+        }
+
+        // ---------[ EVENTS ]---------
+        /// <summary>Stores any cached images when the mod subscriptions are updated.</summary>
+        public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
+                                              IList<int> removedSubscriptions)
+        {
+            if(this.storeIfSubscribed
+               && addedSubscriptions.Count > 0)
+            {
+                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions,
+                (modProfiles) =>
+                {
+                    if(this == null || !this.isActiveAndEnabled || modProfiles == null) { return; }
+
+                    IList<int> subbedIds = ModManager.GetSubscribedModIds();
+
+                    foreach(ModProfile profile in modProfiles)
+                    {
+                        if(profile != null && subbedIds.Contains(profile.id))
+                        {
+                            StoreModImages(profile);
+                        }
+                    }
+                },
+                null);
+            }
+        }
+
+        /// <summary>Finds any images relating to the profile and stores them using the CacheClient.</summary>
+        protected virtual void StoreModImages(ModProfile profile)
+        {
+            Texture2D cachedTexture = null;
+
+            // check for logo
+            if(profile.logoLocator != null)
+            {
+                foreach(var sizeURLPair in profile.logoLocator.GetAllURLs())
+                {
+                    if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
+                    {
+                        CacheClient.SaveModLogo(profile.id, profile.logoLocator.GetFileName(),
+                                                sizeURLPair.size, cachedTexture);
+                    }
+                }
+            }
+
+            // check for gallery images
+            if(profile.media != null && profile.media.galleryImageLocators != null)
+            {
+                foreach(var locator in profile.media.galleryImageLocators)
+                {
+                    foreach(var sizeURLPair in locator.GetAllURLs())
+                    {
+                        if(this.cache.TryGetValue(sizeURLPair.url, out cachedTexture))
+                        {
+                            CacheClient.SaveModGalleryImage(profile.id, locator.GetFileName(),
+                                                            sizeURLPair.size, cachedTexture);
+                        }
+                    }
+                }
+            }
+
+            // check for YouTube thumbs
+            if(profile.media != null && profile.media.youTubeURLs != null)
+            {
+                foreach(string videoURL in profile.media.youTubeURLs)
+                {
+                    string youTubeId = Utility.ExtractYouTubeIdFromURL(videoURL);
+                    string thumbURL = Utility.GenerateYouTubeThumbnailURL(youTubeId);
+
+                    if(this.cache.TryGetValue(thumbURL, out cachedTexture))
+                    {
+                        CacheClient.SaveModYouTubeThumbnail(profile.id, youTubeId, cachedTexture);
+                    }
+                }
+            }
         }
     }
 }
