@@ -13,7 +13,6 @@ namespace ModIO.UI
         [Header("Settings")]
         public GameObject versionHistoryItemPrefab = null;
         public string missingVersionChangelogText = "<i>None recorded.</i>";
-        public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
         public ModView modView;
@@ -65,18 +64,6 @@ namespace ModIO.UI
             if(tagCategories != null)
             {
                 this.m_tagCategories = tagCategories;
-            }
-
-            // check for request managers
-            if(this.statisticsRequests == null)
-            {
-                Debug.Log("[mod.io] The statisticsRequests component on this InspectorView"
-                          + " has been automatically created. Assing a ModStatisticsRequestManager"
-                          + " component to this field that is shared by other views will allow"
-                          + " for a much more efficient and responsive browsing experience.",
-                          this);
-
-                this.statisticsRequests = this.gameObject.AddComponent<ModStatisticsRequestManager>();
             }
 
             if(modView.statisticsDisplay != null)
@@ -191,7 +178,7 @@ namespace ModIO.UI
             WebRequestError.LogAsWarning);
 
             // statistics
-            this.statisticsRequests.RequestModStatistics(this.m_modId,
+            ModStatisticsRequestManager.instance.RequestModStatistics(this.m_modId,
             (s) =>
             {
                 if(this == null) { return; }
