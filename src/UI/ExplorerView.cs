@@ -59,7 +59,6 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private List<ModView> m_modViews = new List<ModView>();
         private IEnumerable<ModTagCategory> m_tagCategories = null;
-        private RequestFilter m_requestFilter = new RequestFilter();
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -146,8 +145,6 @@ namespace ModIO.UI
                 return;
             }
 
-            this.m_requestFilter = this.GenerateRequestFilter();
-
             // - create pages -
             pageTemplate.gameObject.SetActive(false);
 
@@ -203,7 +200,7 @@ namespace ModIO.UI
             };
             this.currentPage = filteredPage;
 
-            ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, 0, pageSize,
+            ModProfileRequestManager.instance.FetchModProfilePage(this.GenerateRequestFilter(), 0, pageSize,
             (page) =>
             {
                 #if DEBUG
@@ -308,7 +305,7 @@ namespace ModIO.UI
             this.targetPage = targetPage;
             this.UpdateTargetPageDisplay();
 
-            ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
+            ModProfileRequestManager.instance.FetchModProfilePage(this.GenerateRequestFilter(), targetPageProfileOffset, pageSize,
             (page) =>
             {
                 if(this.targetPage == targetPage)
@@ -345,7 +342,6 @@ namespace ModIO.UI
             if(this.m_titleFilter.ToUpper() != titleFilter.ToUpper())
             {
                 this.m_titleFilter = titleFilter;
-                this.m_requestFilter = this.GenerateRequestFilter();
                 Refresh();
             }
         }
@@ -361,7 +357,6 @@ namespace ModIO.UI
             if(this.m_sortString.ToUpper() != sortString.ToUpper())
             {
                 this.m_sortString = sortString;
-                this.m_requestFilter = this.GenerateRequestFilter();
                 Refresh();
             }
         }
@@ -385,7 +380,6 @@ namespace ModIO.UI
             if(!isSame)
             {
                 this.m_tagFilter = new List<string>(tagFilter);
-                this.m_requestFilter = this.GenerateRequestFilter();
                 this.Refresh();
 
                 if(this.onTagFilterUpdated != null)
@@ -716,7 +710,6 @@ namespace ModIO.UI
             this.m_sortString = string.Empty;
             this.m_tagFilter.Clear();
 
-            this.m_requestFilter = this.GenerateRequestFilter();
             this.Refresh();
 
             if(this.onTagFilterUpdated != null)
