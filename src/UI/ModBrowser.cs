@@ -885,6 +885,8 @@ namespace ModIO.UI
         // ---------[ UPDATES ]---------
         private System.Collections.IEnumerator PollForSubscribedModEventsCoroutine()
         {
+            yield return new WaitForSeconds(MOD_EVENT_POLLING_PERIOD);
+
             bool cancelUpdates = false;
 
             while(this != null
@@ -953,6 +955,8 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator PollForUserEventsCoroutine()
         {
+            yield return new WaitForSeconds(USER_EVENT_POLLING_PERIOD);
+
             while(this != null
                   && this.isActiveAndEnabled)
             {
