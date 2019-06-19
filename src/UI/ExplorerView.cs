@@ -22,7 +22,6 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         public float pageTransitionTimeSeconds = 0.4f;
         public RectTransform pageTemplate = null;
-        public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -207,18 +206,6 @@ namespace ModIO.UI
                                  + " Explorer View to function", this.gameObject);
                 this.enabled = false;
                 return;
-            }
-
-            // check for request managers
-            if(this.statisticsRequests == null)
-            {
-                Debug.Log("[mod.io] The statisticsRequests component on this ExplorerView"
-                          + " has been automatically created. Assing a ModStatisticsRequestManager"
-                          + " component to this field that is shared by other views will allow"
-                          + " for a much more efficient and responsive browsing experience.",
-                          this);
-
-                this.statisticsRequests = this.gameObject.AddComponent<ModStatisticsRequestManager>();
             }
 
             this.m_requestFilter = this.GenerateRequestFilter();
@@ -528,7 +515,7 @@ namespace ModIO.UI
                         view.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
 
                         // display
-                        ModStatistics stats = this.statisticsRequests.TryGetValid(profile.id);
+                        ModStatistics stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
                         bool isModSubscribed = subscribedModIds.Contains(profile.id);
                         bool isModEnabled = enabledModIds.Contains(profile.id);
 
@@ -561,7 +548,7 @@ namespace ModIO.UI
 
             if(missingStatsData.Count > 0)
             {
-                this.statisticsRequests.RequestModStatistics(missingStatsData,
+                ModStatisticsRequestManager.instance.RequestModStatistics(missingStatsData,
                 (statsArray) =>
                 {
                     if(this != null)
