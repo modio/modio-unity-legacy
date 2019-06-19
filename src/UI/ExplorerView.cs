@@ -79,21 +79,6 @@ namespace ModIO.UI
         }
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
 
-        /// <summary>String to use for sorting the mod request.</summary>
-        public string sortString
-        {
-            get { return this.m_sortString; }
-            set
-            {
-                if(this.m_sortString.ToUpper() != value.ToUpper())
-                {
-                    this.m_sortString = value;
-                    this.m_requestFilter = this.GenerateRequestFilter();
-                    Refresh();
-                }
-            }
-        }
-
         /// <summary>Tags to filter by.</summary>
         public string[] tagFilter
         {
@@ -375,7 +360,7 @@ namespace ModIO.UI
         }
 
         // ---------[ FILTER CONTROL ]---------
-        /// <summary>Sets the title filter and refreshes the page.</summary>
+        /// <summary>Sets the title filter and refreshes the results.</summary>
         public void SetTitleFilter(string titleFilter)
         {
             if(titleFilter == null) { titleFilter = string.Empty; }
@@ -390,6 +375,22 @@ namespace ModIO.UI
 
         /// <summary>Gets the title filter string.</summary>
         public string GetTitleFilter() { return this.m_titleFilter; }
+
+        /// <summary>Sets the sort method for the view and refreshes.</summary>
+        public void SetSortString(string sortString)
+        {
+            if(sortString == null) { sortString = string.Empty; }
+
+            if(this.m_sortString.ToUpper() != sortString.ToUpper())
+            {
+                this.m_sortString = sortString;
+                this.m_requestFilter = this.GenerateRequestFilter();
+                Refresh();
+            }
+        }
+
+        /// <summary>Gets the sort string.</summary>
+        public string GetSortString() { return this.m_sortString; }
 
         public void AddTagToFilter(string tagName)
         {
