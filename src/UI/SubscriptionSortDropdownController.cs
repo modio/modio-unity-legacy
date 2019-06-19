@@ -130,7 +130,7 @@ namespace ModIO.UI
             Comparison<ModProfile> sortFunc = GetSelectedSortFunction();
             if(sortFunc != null)
             {
-                view.sortDelegate = sortFunc;
+                view.SetSortDelegate(sortFunc);
             }
         }
 

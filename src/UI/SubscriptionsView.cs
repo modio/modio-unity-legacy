@@ -28,26 +28,13 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
         private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
-        private Comparison<ModProfile> m_sortDelegate = (a,b) => a.id - b.id;
+        private Comparison<ModProfile> m_sortDelegate = null;
         private string m_titleFilter = null;
 
         // --- ACCESSORS ---
         public IEnumerable<ModView> modViews
         {
             get { return m_viewMap.Values; }
-        }
-
-        public Comparison<ModProfile> sortDelegate
-        {
-            get { return this.m_sortDelegate; }
-            set
-            {
-                if(this.m_sortDelegate != value)
-                {
-                    this.m_sortDelegate = value;
-                    this.Refresh();
-                }
-            }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -112,12 +99,12 @@ namespace ModIO.UI
         /// <summary>Handle the mods returned by the refresh request.</summary>
         protected virtual void Refresh_OnGetModProfiles(IList<ModProfile> modProfiles,
                                                         string requestedTitleFilter,
-                                                        Comparison<ModProfile> requstedSortDelegate)
+                                                        Comparison<ModProfile> requestedSortDelegate)
         {
             // check for early outs
             if(this == null
                || this.m_titleFilter != requestedTitleFilter
-               || this.m_sortDelegate != requstedSortDelegate)
+               || this.m_sortDelegate != requestedSortDelegate)
             {
                 return;
             }
@@ -150,7 +137,13 @@ namespace ModIO.UI
                 }
             }
 
-            filteredList.Sort(requstedSortDelegate);
+            // sort
+            if(requestedSortDelegate == null)
+            {
+                requestedSortDelegate = this.DefaultSortFunction;
+            }
+
+            filteredList.Sort(requestedSortDelegate);
 
             this.DisplayProfiles(filteredList);
         }
@@ -324,6 +317,19 @@ namespace ModIO.UI
         /// <summary>Gets the title filter string.</summary>
         public string GetTitleFilter() { return this.m_titleFilter; }
 
+        /// <summary>Sets the sort delegate and refreshes the page.</summary>
+        public void SetSortDelegate(Comparison<ModProfile> sortDelegate)
+        {
+            if(this.m_sortDelegate != sortDelegate)
+            {
+                this.m_sortDelegate = sortDelegate;
+                this.Refresh();
+            }
+        }
+
+        /// <summary>Gets the sort delegate.</summary>
+        public Comparison<ModProfile> GetSortDelegate() { return this.m_sortDelegate; }
+
         // ---------[ EVENTS ]---------
         public void OnGameProfileUpdated(GameProfile gameProfile)
         {
@@ -379,6 +385,13 @@ namespace ModIO.UI
                     view.DisplayDownload(downloadInfo);
                 }
             }
+        }
+
+        // ---------[ UTILITY ]---------
+        /// <summary>Provides a default sorting function for the subscription view.</summary>
+        protected virtual int DefaultSortFunction(ModProfile a, ModProfile b)
+        {
+            return (a.id - b.id);
         }
 
         // ---------[ OBSOLETE ]---------
