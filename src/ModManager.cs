@@ -465,7 +465,7 @@ namespace ModIO
         }
 
         /// <summary>Downloads and updates mods to the latest version.</summary>
-        public static System.Collections.IEnumerator DownloadAndUpdateMods_Coroutine(IList<int> modIds)
+        public static System.Collections.IEnumerator DownloadAndUpdateMods_Coroutine(IList<int> modIds, Action onCompleted = null)
         {
             Debug.Assert(modIds != null);
 
@@ -692,6 +692,11 @@ namespace ModIO
                         }
                     }
                 }
+            }
+
+            if(onCompleted != null)
+            {
+                onCompleted();
             }
         }
 
@@ -1812,7 +1817,7 @@ namespace ModIO
                 modIds.Add(pair.modId);
             }
 
-            return ModManager.DownloadAndUpdateMods_Coroutine(modIds);
+            return ModManager.DownloadAndUpdateMods_Coroutine(modIds, null);
         }
     }
 }
