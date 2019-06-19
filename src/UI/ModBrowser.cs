@@ -1812,6 +1812,9 @@ namespace ModIO.UI
         private void UpdateSubscriptionReceivers(IList<int> addedSubscriptions,
                                                  IList<int> removedSubscriptions)
         {
+            if(addedSubscriptions == null)  { addedSubscriptions = new int[0]; }
+            if(removedSubscriptions == null){ removedSubscriptions = new int[0]; }
+
             IEnumerable<IModSubscriptionsUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModSubscriptionsUpdateReceiver>(true);
             foreach(var receiver in updateReceivers)
             {

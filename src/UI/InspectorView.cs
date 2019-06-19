@@ -295,7 +295,7 @@ namespace ModIO.UI
                 ModDisplayData data = modView.data;
                 bool wasSubscribed = data.isSubscribed;
                 bool subChanged = ((!wasSubscribed && addedSubscriptions.Contains(this.m_modId))
-                                   || wasSubscribed && removedSubscriptions.Contains(this.m_modId));
+                                   || (wasSubscribed && removedSubscriptions.Contains(this.m_modId)));
 
                 if(subChanged)
                 {
