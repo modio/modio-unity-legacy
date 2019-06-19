@@ -148,22 +148,18 @@ namespace ModIO.UI
                 return;
             }
 
-            // fetch missing profiles
-            RequestFilter filter = new RequestFilter();
-            filter.fieldFilters.Add(API.GetAllModStatsFilterFields.modId,
-                new InArrayFilter<int>() { filterArray = missingIds.ToArray(), });
-
-            APIClient.GetAllModStats(filter, null, (r) =>
+            // fetch missing statistics
+            Action<List<ModStatistics>> onFetchStats = (modStatistics) =>
             {
                 if(this != null)
                 {
-                    foreach(ModStatistics stats in r.items)
+                    foreach(ModStatistics stats in modStatistics)
                     {
                         this.cache[stats.modId] = stats;
                     }
                 }
 
-                foreach(ModStatistics stats in r.items)
+                foreach(ModStatistics stats in modStatistics)
                 {
                     int i = orderedIdList.IndexOf(stats.modId);
                     if(i >= 0)
@@ -173,9 +169,9 @@ namespace ModIO.UI
                 }
 
                 onSuccess(results);
+            };
 
-            },
-            onError);
+            this.StartCoroutine(this.FetchAllModStatistics(missingIds.ToArray(), onFetchStats, onError));
         }
 
         /// <summary>Returns the a ModStatistics if the object is cached and valid.</summary>
@@ -194,12 +190,73 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ UTILITY ]---------
         /// <summary>A convenience function for checking if a stats object should be refetched.</summary>
         protected virtual bool IsValid(ModStatistics statistics)
         {
             return (statistics != null
                     && (!this.refetchIfExpired
                         || ServerTimeStamp.Now < statistics.dateExpires));
+        }
+
+        /// <summary>Recursively fetches all of the mod statistics in the array.</summary>
+        protected System.Collections.IEnumerator FetchAllModStatistics(int[] modIds,
+                                                                       Action<List<ModStatistics>> onSuccess,
+                                                                       Action<WebRequestError> onError)
+        {
+            List<ModStatistics> modProfiles = new List<ModStatistics>();
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+            RequestFilter filter = new RequestFilter();
+            filter.fieldFilters.Add(API.GetAllModStatsFilterFields.modId,
+                new InArrayFilter<int>() { filterArray = modIds });
+
+            bool isDone = false;
+
+            while(!isDone)
+            {
+                RequestPage<ModStatistics> page = null;
+                WebRequestError error = null;
+
+                APIClient.GetAllModStats(filter, pagination,
+                                         (r) => page = r,
+                                         (e) => error = e);
+
+                while(page == null && error == null) { yield return null;}
+
+                if(error != null)
+                {
+                    if(onError != null)
+                    {
+                        onError(error);
+                    }
+
+                    modProfiles = null;
+                    isDone = true;
+                }
+                else
+                {
+                    modProfiles.AddRange(page.items);
+
+                    if(page.resultTotal <= (page.resultOffset + page.size))
+                    {
+                        isDone = true;
+                    }
+                    else
+                    {
+                        pagination.offset = page.resultOffset + page.size;
+                    }
+                }
+            }
+
+            if(isDone && modProfiles != null)
+            {
+                onSuccess(modProfiles);
+            }
         }
     }
 }

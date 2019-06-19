@@ -408,6 +408,7 @@ namespace ModIO.UI
             this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(), onFetchProfiles, onError));
         }
 
+        // ---------[ UTILITY ]---------
         /// <summary>Recursively fetches all of the mod profiles in the array.</summary>
         protected System.Collections.IEnumerator FetchAllModProfiles(int[] modIds,
                                                                      Action<List<ModProfile>> onSuccess,
