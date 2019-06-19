@@ -60,6 +60,8 @@ namespace ModIO.UI
 
         protected virtual void Start()
         {
+            Debug.Assert(modView != null);
+
             var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
             if(tagCategories != null)
             {
@@ -89,23 +91,18 @@ namespace ModIO.UI
                 this.statisticsRequests = this.gameObject.AddComponent<ModStatisticsRequestManager>();
             }
 
-            ModMediaContainer mediaContainer = null;
-
-            if(modView != null)
+            if(modView.statisticsDisplay != null)
             {
-                if(modView.statisticsDisplay != null)
-                {
-                    modView.statisticsDisplay.Initialize();
-                }
-
-                mediaContainer = modView.mediaContainer as ModMediaContainer;
-
-                // add listeners
-                modView.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
-                modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
-                modView.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
-                modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
+                modView.statisticsDisplay.Initialize();
             }
+
+            // add listeners
+            modView.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
+            modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
+            modView.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
+            modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
+
+            ModMediaContainer mediaContainer = modView.mediaContainer as ModMediaContainer;
 
             if(selectedMediaPreview != null)
             {
