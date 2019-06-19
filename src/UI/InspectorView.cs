@@ -168,25 +168,28 @@ namespace ModIO.UI
                 bool isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
                 bool isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
 
-                modView.DisplayMod(profile, stats,
-                                   this.m_tagCategories,
-                                   isModSubscribed, isModEnabled);
-
-                // media container
-                if(modView.mediaContainer != null)
+                if(profile != null)
                 {
-                    ModMediaCollection media = profile.media;
-                    bool hasMedia = media != null;
-                    hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
-                                 || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
+                    modView.DisplayMod(profile, stats,
+                                       this.m_tagCategories,
+                                       isModSubscribed, isModEnabled);
 
-                    modView.mediaContainer.gameObject.SetActive(hasMedia);
-                }
+                    // media container
+                    if(modView.mediaContainer != null)
+                    {
+                        ModMediaCollection media = profile.media;
+                        bool hasMedia = media != null;
+                        hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
+                                     || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
 
-                // media preview
-                if(selectedMediaPreview != null)
-                {
-                    selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+                        modView.mediaContainer.gameObject.SetActive(hasMedia);
+                    }
+
+                    // media preview
+                    if(selectedMediaPreview != null)
+                    {
+                        selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
+                    }
                 }
             };
 
