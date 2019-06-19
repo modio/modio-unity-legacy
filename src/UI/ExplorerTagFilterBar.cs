@@ -39,7 +39,7 @@ namespace ModIO.UI
                 this.m_selectedTags = new List<string>(t);
                 this.Refresh();
             };
-            this.m_selectedTags = new List<string>(this.view.tagFilter);
+            this.m_selectedTags = new List<string>(this.view.GetTagFilter());
 
             // init tag categories
             var tagCategories = ModBrowser.instance.gameProfile.tagCategories;

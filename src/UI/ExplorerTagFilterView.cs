@@ -78,7 +78,7 @@ namespace ModIO.UI
             {
                 this.selectedTags = t;
             };
-            this.m_selectedTags = new List<string>(this.view.tagFilter);
+            this.m_selectedTags = new List<string>(this.view.GetTagFilter());
 
             // init tag categories
             var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
@@ -214,7 +214,7 @@ namespace ModIO.UI
                 this.m_selectedTags.Add(tagName);
             }
 
-            this.view.tagFilter = this.m_selectedTags.ToArray();
+            this.view.SetTagFilter(this.m_selectedTags);
         }
 
         // ---------[ OBSOLETE ]---------
