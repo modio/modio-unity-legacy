@@ -9,5 +9,6 @@ namespace ModIO
     public interface IMultiSizeImageLocator<E> : IImageLocator
     {
         string GetSizeURL(E size);
+        string[] GetAllURLs();
     }
 }

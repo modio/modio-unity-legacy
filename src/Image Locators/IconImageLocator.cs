@@ -39,9 +39,11 @@ namespace ModIO
         public string thumbnail_256x256;
 
         // ---------[ INTERFACE IMPLEMENTATION ]---------
+        /// <summary>Returns the FileName for the image.</summary>
         public string GetFileName() { return this.fileName; }
+        /// <summary>Returns the URL for the original image.</summary>
         public string GetURL()      { return this.original; }
-
+        /// <summary>Returns the URL for the given size.</summary>
         public string GetSizeURL(IconSize size)
         {
             switch(size)
@@ -68,6 +70,17 @@ namespace ModIO
                     return string.Empty;
                 }
             }
+        }
+        /// <summary>Returns all the URLs in the image locator.</summary>
+        public string[] GetAllURLs()
+        {
+            return new string[]
+            {
+                original,
+                thumbnail_64x64,
+                thumbnail_128x128,
+                thumbnail_256x256,
+            };
         }
     }
 }
