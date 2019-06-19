@@ -293,7 +293,7 @@ namespace ModIO.UI
             {
                 if(this != null)
                 {
-                    profileCache.Add(id, p);
+                    profileCache[p.id] = p;
                 }
 
                 onSuccess(p);
