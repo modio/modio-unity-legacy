@@ -50,19 +50,6 @@ namespace ModIO.UI
             }
         }
 
-        public string titleFilter
-        {
-            get { return this.m_titleFilter; }
-            set
-            {
-                if(this.m_titleFilter != value)
-                {
-                    this.m_titleFilter = value;
-                    this.Refresh();
-                }
-            }
-        }
-
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
@@ -320,6 +307,22 @@ namespace ModIO.UI
                 }
             }
         }
+
+        // ---------[ FILTER CONTROL ]---------
+        /// <summary>Sets the title filter and refreshes the page.</summary>
+        public void SetTitleFilter(string titleFilter)
+        {
+            if(titleFilter == null) { titleFilter = string.Empty; }
+
+            if(this.m_titleFilter.ToUpper() != titleFilter.ToUpper())
+            {
+                this.m_titleFilter = titleFilter;
+                Refresh();
+            }
+        }
+
+        /// <summary>Gets the title filter string.</summary>
+        public string GetTitleFilter() { return this.m_titleFilter; }
 
         // ---------[ EVENTS ]---------
         public void OnGameProfileUpdated(GameProfile gameProfile)
