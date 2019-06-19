@@ -29,7 +29,7 @@ namespace ModIO.UI
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
         private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
         private Comparison<ModProfile> m_sortDelegate = null;
-        private string m_titleFilter = null;
+        private string m_titleFilter = string.Empty;
 
         // --- ACCESSORS ---
         public IEnumerable<ModView> modViews
