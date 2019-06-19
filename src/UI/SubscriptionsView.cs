@@ -15,7 +15,6 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         public GameObject itemPrefab = null;
-        public ModProfileRequestManager profileRequests = null;
         public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
@@ -82,17 +81,6 @@ namespace ModIO.UI
                          + "Please ensure these are all present.");
 
             // check for request managers
-            if(this.profileRequests == null)
-            {
-                Debug.Log("[mod.io] The profileRequests component on this SubscriptionView"
-                          + " has been automatically created. Assing a ModProfileRequestManager"
-                          + " component to this field that is shared by other views will allow"
-                          + " for a much more efficient and responsive browsing experience.",
-                          this);
-
-                this.profileRequests = this.gameObject.AddComponent<ModProfileRequestManager>();
-            }
-
             if(this.statisticsRequests == null)
             {
                 Debug.Log("[mod.io] The statisticsRequests component on this SubscriptionView"
@@ -134,7 +122,7 @@ namespace ModIO.UI
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
-            this.profileRequests.RequestModProfiles(subscribedModIds,
+            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
             (profiles) => Refresh_OnGetModProfiles(profiles,
                                                    this.m_titleFilter,
                                                    this.m_sortDelegate),
