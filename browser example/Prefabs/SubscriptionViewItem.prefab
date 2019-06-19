@@ -964,7 +964,7 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
+    m_NormalColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
     m_HighlightedColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
     m_PressedColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
     m_DisabledColor: {r: 0.1887742, g: 0.1887742, b: 0.231, a: 0.72156864}
@@ -1047,7 +1047,7 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
+    m_NormalColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
     m_HighlightedColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
     m_PressedColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
     m_DisabledColor: {r: 0.1887742, g: 0.1887742, b: 0.231, a: 0.72156864}
@@ -1538,8 +1538,10 @@ MonoBehaviour:
       profileURL: 
     submittorAvatar:
       ownerId: 0
-      mediaType: 0
+      descriptor: 0
       imageId: 
+      originalURL: 
+      thumbnailURL: 
       originalTexture: {fileID: 0}
       thumbnailTexture: {fileID: 0}
     currentBuild:
@@ -1558,8 +1560,10 @@ MonoBehaviour:
       virusScanHash: 
     logo:
       ownerId: 0
-      mediaType: 0
+      descriptor: 0
       imageId: 
+      originalURL: 
+      thumbnailURL: 
       originalTexture: {fileID: 0}
       thumbnailTexture: {fileID: 0}
     youTubeThumbnails: []
@@ -2780,7 +2784,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 918a09ebb078c4f4faac13aa5b0bd2c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_useOriginal: 0
+  useOriginal: 0
+  enableFallback: 0
   image: {fileID: 114614291720291810}
   fitter: {fileID: 114993654794377096}
   loadingOverlay: {fileID: 0}
@@ -2790,8 +2795,10 @@ MonoBehaviour:
   youTubeOverlay: {fileID: 0}
   m_data:
     ownerId: 0
-    mediaType: 0
+    descriptor: 0
     imageId: 
+    originalURL: 
+    thumbnailURL: 
     originalTexture: {fileID: 0}
     thumbnailTexture: {fileID: 0}
 --- !u!114 &114908413370012252

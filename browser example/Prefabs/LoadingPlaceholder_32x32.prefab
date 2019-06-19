@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 224038741591881180}
   - component: {fileID: 222501604700431660}
   - component: {fileID: 114607557178251128}
+  - component: {fileID: 114013789329759386}
   m_Layer: 5
   m_Name: LoadingPlaceholder_32x32
   m_TagString: Untagged
@@ -46,6 +47,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114013789329759386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1055552999682152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c05f81761d14b39a9bb7be6ce873a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scheme: {fileID: 11400000, guid: bd91cfd99e0fc44a39afa5149e300a48, type: 2}
+  innerElements:
+  - {fileID: 114216086111054516}
 --- !u!114 &114216086111054516
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -85,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4056604, g: 0.4056604, b: 0.4056604, a: 1}
+  m_Color: {r: 0.17254902, g: 0.17254902, b: 0.24705882, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:

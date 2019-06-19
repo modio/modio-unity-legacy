@@ -985,8 +985,10 @@ MonoBehaviour:
       profileURL: 
     submittorAvatar:
       ownerId: 0
-      mediaType: 0
+      descriptor: 0
       imageId: 
+      originalURL: 
+      thumbnailURL: 
       originalTexture: {fileID: 0}
       thumbnailTexture: {fileID: 0}
     currentBuild:
@@ -1005,8 +1007,10 @@ MonoBehaviour:
       virusScanHash: 
     logo:
       ownerId: 0
-      mediaType: 0
+      descriptor: 0
       imageId: 
+      originalURL: 
+      thumbnailURL: 
       originalTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
       thumbnailTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce,
         type: 3}
@@ -1157,7 +1161,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 918a09ebb078c4f4faac13aa5b0bd2c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_useOriginal: 0
+  useOriginal: 0
+  enableFallback: 0
   image: {fileID: 114941499694329136}
   fitter: {fileID: 0}
   loadingOverlay: {fileID: 1434857753398972}
@@ -1167,8 +1172,10 @@ MonoBehaviour:
   youTubeOverlay: {fileID: 0}
   m_data:
     ownerId: 0
-    mediaType: 0
+    descriptor: 0
     imageId: 
+    originalURL: 
+    thumbnailURL: 
     originalTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
     thumbnailTexture: {fileID: 2800000, guid: 2fb5061bf90bb4556b399e7f51df04ce, type: 3}
 --- !u!114 &114387252950168548
@@ -1941,7 +1948,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1536987132574178}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
