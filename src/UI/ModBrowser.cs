@@ -1746,30 +1746,25 @@ namespace ModIO.UI
                     }
                 }
 
-                Action<IEnumerable<ModProfile>> storeModData = (modProfiles) =>
-                {
-                    var subbedMods = ModManager.GetSubscribedModIds();
-
-                    foreach(ModProfile p in modProfiles)
-                    {
-                        if(subbedMods.Contains(p.id))
-                        {
-                            string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
-                            if(!Directory.Exists(installDir))
-                            {
-                                this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.currentBuild.id));
-                            }
-                        }
-                    }
-                };
-
-                // store mod data and start downloads
+                // start downloads
                 ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions,
                 (modProfiles) =>
                 {
                     if(this != null && this.isActiveAndEnabled)
                     {
-                        storeModData(modProfiles);
+                        var subbedMods = ModManager.GetSubscribedModIds();
+
+                        foreach(ModProfile p in modProfiles)
+                        {
+                            if(subbedMods.Contains(p.id))
+                            {
+                                string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
+                                if(!Directory.Exists(installDir))
+                                {
+                                    this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.currentBuild.id));
+                                }
+                            }
+                        }
                     }
                 },
                 (requestError) =>
