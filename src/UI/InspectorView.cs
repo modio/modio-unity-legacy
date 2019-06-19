@@ -13,7 +13,6 @@ namespace ModIO.UI
         [Header("Settings")]
         public GameObject versionHistoryItemPrefab = null;
         public string missingVersionChangelogText = "<i>None recorded.</i>";
-        public ModProfileRequestManager profileRequests = null;
         public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
@@ -69,17 +68,6 @@ namespace ModIO.UI
             }
 
             // check for request managers
-            if(this.profileRequests == null)
-            {
-                Debug.Log("[mod.io] The profileRequests component on this InspectorView"
-                          + " has been automatically created. Assing a ModProfileRequestManager"
-                          + " component to this field that is shared by other views will allow"
-                          + " for a much more efficient and responsive browsing experience.",
-                          this);
-
-                this.profileRequests = this.gameObject.AddComponent<ModProfileRequestManager>();
-            }
-
             if(this.statisticsRequests == null)
             {
                 Debug.Log("[mod.io] The statisticsRequests component on this InspectorView"
@@ -191,7 +179,7 @@ namespace ModIO.UI
             };
 
             // profile
-            this.profileRequests.RequestModProfile(this.m_modId,
+            ModProfileRequestManager.instance.RequestModProfile(this.m_modId,
             (p) =>
             {
                 if(this == null) { return; }
