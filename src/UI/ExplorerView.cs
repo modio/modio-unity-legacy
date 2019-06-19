@@ -16,7 +16,7 @@ namespace ModIO.UI
     public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
-        public event Action<string[]> onTagFilterUpdated = null;
+        public event Action<string[]> onTagFilterUpdated;
 
         [Header("Settings")]
         public GameObject itemPrefab = null;
@@ -78,24 +78,6 @@ namespace ModIO.UI
             }
         }
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
-
-
-        /// <summary>String to use for filtering the mod request.</summary>
-        public string titleFilter
-        {
-            get { return this.m_titleFilter; }
-            set
-            {
-                if(value == null) { value = string.Empty; }
-
-                if(this.m_titleFilter.ToUpper() != value.ToUpper())
-                {
-                    this.m_titleFilter = value.ToUpper();
-                    this.m_requestFilter = this.GenerateRequestFilter();
-                    Refresh();
-                }
-            }
-        }
 
         /// <summary>String to use for sorting the mod request.</summary>
         public string sortString
@@ -393,6 +375,22 @@ namespace ModIO.UI
         }
 
         // ---------[ FILTER CONTROL ]---------
+        /// <summary>Sets the title filter and refreshes the page.</summary>
+        public void SetTitleFilter(string titleFilter)
+        {
+            if(titleFilter == null) { titleFilter = string.Empty; }
+
+            if(this.m_titleFilter.ToUpper() != titleFilter.ToUpper())
+            {
+                this.m_titleFilter = titleFilter;
+                this.m_requestFilter = this.GenerateRequestFilter();
+                Refresh();
+            }
+        }
+
+        /// <summary>Gets the title filter string.</summary>
+        public string GetTitleFilter() { return this.m_titleFilter; }
+
         public void AddTagToFilter(string tagName)
         {
             this.m_tagFilter.Add(tagName);
