@@ -1695,7 +1695,7 @@ namespace ModIO.UI
             EnableMod(modId);
             UpdateSubscriptionReceivers(new int[] { modId }, null);
 
-            ModManager.GetModProfile(modId,
+            ModProfileRequestManager.instance.RequestModProfile(modId,
             (p) =>
             {
                 if(this != null && this.isActiveAndEnabled)
