@@ -336,7 +336,7 @@ namespace ModIO.UI
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
                     }
                 }
@@ -419,7 +419,7 @@ namespace ModIO.UI
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
                     }
                 }
@@ -494,7 +494,7 @@ namespace ModIO.UI
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
                     }
                 }
@@ -642,7 +642,7 @@ namespace ModIO.UI
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
                     }
                 }
@@ -742,7 +742,7 @@ namespace ModIO.UI
                     }
                     else
                     {
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
                     }
                 }
@@ -885,7 +885,7 @@ namespace ModIO.UI
         // ---------[ UPDATES ]---------
         private System.Collections.IEnumerator PollForSubscribedModEventsCoroutine()
         {
-            yield return new WaitForSeconds(MOD_EVENT_POLLING_PERIOD);
+            yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
 
             bool cancelUpdates = false;
 
@@ -937,7 +937,7 @@ namespace ModIO.UI
                         }
                         else
                         {
-                            yield return new WaitForSeconds(reattemptDelay);
+                            yield return new WaitForSecondsRealtime(reattemptDelay);
                             continue;
                         }
                     }
@@ -949,13 +949,13 @@ namespace ModIO.UI
                     }
                 }
 
-                yield return new WaitForSeconds(MOD_EVENT_POLLING_PERIOD);
+                yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
             }
         }
 
         private System.Collections.IEnumerator PollForUserEventsCoroutine()
         {
-            yield return new WaitForSeconds(USER_EVENT_POLLING_PERIOD);
+            yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
 
             while(this != null
                   && this.isActiveAndEnabled)
@@ -1009,7 +1009,7 @@ namespace ModIO.UI
                                                        + reattemptDelay.ToString()
                                                        + " seconds");
 
-                            yield return new WaitForSeconds(reattemptDelay);
+                            yield return new WaitForSecondsRealtime(reattemptDelay);
                             continue;
                         }
                     }
@@ -1026,7 +1026,7 @@ namespace ModIO.UI
                     }
                 }
 
-                yield return new WaitForSeconds(USER_EVENT_POLLING_PERIOD);
+                yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
             }
         }
 
@@ -1461,7 +1461,7 @@ namespace ModIO.UI
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
                     }
                 }
@@ -1538,7 +1538,7 @@ namespace ModIO.UI
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
 
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                         continue;
                     }
                 }
@@ -1594,7 +1594,7 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    errorMessage);
 
-                        yield return new WaitForSeconds(5f);
+                        yield return new WaitForSecondsRealtime(5f);
 
                         yield return StartCoroutine(DownloadAndInstallModVersion(modId, modfileId));
 

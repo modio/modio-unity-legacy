@@ -144,7 +144,7 @@ namespace ModIO.UI
         {
             inputField.interactable = false;
 
-            yield return new WaitForSeconds(seconds);
+            yield return new WaitForSecondsRealtime(seconds);
 
             inputField.interactable = true;
         }

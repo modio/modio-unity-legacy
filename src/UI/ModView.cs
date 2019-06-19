@@ -540,7 +540,7 @@ namespace ModIO.UI
 
             if(data.profile.modId == modId)
             {
-                yield return new WaitForSeconds(4f);
+                yield return new WaitForSecondsRealtime(4f);
 
                 downloadDisplay.gameObject.SetActive(false);
             }

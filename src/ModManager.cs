@@ -546,7 +546,7 @@ namespace ModIO
                         ++attemptCount;
 
                         int reattemptDelay = calcReattemptDelay(error);
-                        yield return new WaitForSeconds(reattemptDelay);
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
                     }
                 }
                 else
@@ -642,7 +642,7 @@ namespace ModIO
                                 ++attemptCount;
 
                                 int reattemptDelay = calcReattemptDelay(error);
-                                yield return new WaitForSeconds(reattemptDelay);
+                                yield return new WaitForSecondsRealtime(reattemptDelay);
                             }
                         }
                         else
@@ -687,7 +687,7 @@ namespace ModIO
                             else
                             {
                                 int reattemptDelay = calcReattemptDelay(downloadInfo.error);
-                                yield return new WaitForSeconds(reattemptDelay);
+                                yield return new WaitForSecondsRealtime(reattemptDelay);
                             }
                         }
                     }

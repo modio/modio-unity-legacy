@@ -69,7 +69,7 @@ namespace ModIO.UI
                     }
                     else
                     {
-                        yield return new WaitForSeconds(nextRetrySeconds);
+                        yield return new WaitForSecondsRealtime(nextRetrySeconds);
                         nextRetrySeconds += 5f;
                     }
                 }

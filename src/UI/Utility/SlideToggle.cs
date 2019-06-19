@@ -167,7 +167,7 @@ namespace ModIO.UI
             content.anchoredPosition = targetPos;
 
             // delay enabling buttons
-            yield return new WaitForSeconds(m_reactivateDelay);
+            yield return new WaitForSecondsRealtime(m_reactivateDelay);
             m_clickBlocker.SetActive(false);
 
             m_animation = null;
