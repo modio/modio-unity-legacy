@@ -15,7 +15,6 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("Settings")]
         public GameObject itemPrefab = null;
-        public ModStatisticsRequestManager statisticsRequests = null;
 
         [Header("UI Components")]
         public ScrollRect scrollView;
@@ -80,17 +79,6 @@ namespace ModIO.UI
                          + "ModBrowserItem, ModView, and RectTransform components.\n"
                          + "Please ensure these are all present.");
 
-            // check for request managers
-            if(this.statisticsRequests == null)
-            {
-                Debug.Log("[mod.io] The statisticsRequests component on this SubscriptionView"
-                          + " has been automatically created. Assing a ModStatisticsRequestManager"
-                          + " component to this field that is shared by other views will allow"
-                          + " for a much more efficient and responsive browsing experience.",
-                          this);
-
-                this.statisticsRequests = this.gameObject.AddComponent<ModStatisticsRequestManager>();
-            }
             // init tag categories
             var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
             if(tagCategories != null)
@@ -243,7 +231,7 @@ namespace ModIO.UI
                     m_viewMap.Add(profile.id, view);
 
                     // display mod
-                    ModStatistics stats = this.statisticsRequests.TryGetValid(profile.id);
+                    ModStatistics stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
                     view.DisplayMod(orderedProfileList[i],
                                     stats,
                                     this.m_tagCategories,
@@ -288,7 +276,7 @@ namespace ModIO.UI
 
             if(missingStatsData.Count > 0)
             {
-                this.statisticsRequests.RequestModStatistics(missingStatsData,
+                ModStatisticsRequestManager.instance.RequestModStatistics(missingStatsData,
                 (statsArray) =>
                 {
                     if(this != null)
