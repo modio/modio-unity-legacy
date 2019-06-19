@@ -38,7 +38,7 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         /// <summary>Should requests made by the ImageRequestManager be logged.</summary>
-        public bool logDownloads = true;
+        public bool logDownloads = false;
 
         /// <summary>Should the cache be cleared on disable.</summary>
         public bool clearCacheOnDisable = true;
@@ -268,7 +268,7 @@ namespace ModIO.UI
                 }
 
                 int timeStamp = ServerTimeStamp.Now;
-                Debug.Log("IMAGE REQUEST SENT"
+                Debug.Log("IMAGE DOWNLOAD STARTED"
                           + "\nURL: " + webRequest.url
                           + "\nTimeStamp: [" + timeStamp.ToString() + "] "
                           + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
@@ -314,7 +314,7 @@ namespace ModIO.UI
                     }
 
                     var responseTimeStamp = ServerTimeStamp.Now;
-                    string logString = ("IMAGE DOWNLOAD SUCCEEDED\n"
+                    string logString = ("IMAGE DOWNLOAD SUCCEEDED"
                                         + "\nURL: " + webRequest.url
                                         + "\nTime Stamp: " + responseTimeStamp + " ("
                                         + ServerTimeStamp.ToLocalDateTime(responseTimeStamp) + ")"
