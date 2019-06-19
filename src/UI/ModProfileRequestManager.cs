@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>Manages requests made for ModProfiles.</summary>
-    public class ModProfileRequestManager : MonoBehaviour
+    public class ModProfileRequestManager : MonoBehaviour, IModSubscriptionsUpdateReceiver
     {
         // ---------[ NESTED DATA-TYPES ]--------
         public struct RequestPageData
@@ -408,6 +408,25 @@ namespace ModIO.UI
                 onSuccess(results);
             },
             onError);
+        }
+
+        // ---------[ EVENTS ]---------
+        /// <summary>Stores any cached profiles when the mod subscriptions are updated.</summary>
+        public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
+                                              IList<int> removedSubscriptions)
+        {
+            if(this.storeIfSubscribed
+               && addedSubscriptions.Count > 0)
+            {
+                foreach(int modId in addedSubscriptions)
+                {
+                    ModProfile profile;
+                    if(this.profileCache.TryGetValue(modId, out profile))
+                    {
+                        CacheClient.SaveModProfile(profile);
+                    }
+                }
+            }
         }
     }
 }
