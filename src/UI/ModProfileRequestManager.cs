@@ -141,6 +141,7 @@ namespace ModIO.UI
                                                 Action<RequestPage<ModProfile>> onSuccess,
                                                 Action<WebRequestError> onError)
         {
+            Debug.Assert(profileCount <= APIPaginationParameters.LIMIT_MAX);
             Debug.Assert(onSuccess != null);
 
             // ensure indicies are positive
@@ -370,15 +371,11 @@ namespace ModIO.UI
             }
 
             // fetch missing profiles
-            RequestFilter filter = new RequestFilter();
-            filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
-                new InArrayFilter<int>() { filterArray = missingIds.ToArray(), });
-
-            APIClient.GetAllMods(filter, null, (r) =>
+            Action<List<ModProfile>> onFetchProfiles = (modProfiles) =>
             {
                 if(this != null)
                 {
-                    foreach(ModProfile profile in r.items)
+                    foreach(ModProfile profile in modProfiles)
                     {
                         this.profileCache[profile.id] = profile;
                     }
@@ -386,7 +383,7 @@ namespace ModIO.UI
                     if(this.storeIfSubscribed)
                     {
                         IList<int> subMods = ModManager.GetSubscribedModIds();
-                        foreach(ModProfile profile in r.items)
+                        foreach(ModProfile profile in modProfiles)
                         {
                             if(subMods.Contains(profile.id))
                             {
@@ -396,7 +393,7 @@ namespace ModIO.UI
                     }
                 }
 
-                foreach(ModProfile profile in r.items)
+                foreach(ModProfile profile in modProfiles)
                 {
                     int i = orderedIdList.IndexOf(profile.id);
                     if(i >= 0)
@@ -406,8 +403,69 @@ namespace ModIO.UI
                 }
 
                 onSuccess(results);
-            },
-            onError);
+            };
+
+            this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(), onFetchProfiles, onError));
+        }
+
+        /// <summary>Recursively fetches all of the mod profiles in the array.</summary>
+        protected System.Collections.IEnumerator FetchAllModProfiles(int[] modIds,
+                                                                     Action<List<ModProfile>> onSuccess,
+                                                                     Action<WebRequestError> onError)
+        {
+            List<ModProfile> modProfiles = new List<ModProfile>();
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+            RequestFilter filter = new RequestFilter();
+            filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
+                new InArrayFilter<int>() { filterArray = modIds, });
+
+            bool isDone = false;
+
+            while(!isDone)
+            {
+                RequestPage<ModProfile> page = null;
+                WebRequestError error = null;
+
+                APIClient.GetAllMods(filter, pagination,
+                                     (r) => page = r,
+                                     (e) => error = e);
+
+                while(page == null && error == null) { yield return null;}
+
+                if(error != null)
+                {
+                    if(onError != null)
+                    {
+                        onError(error);
+                    }
+
+                    modProfiles = null;
+                    isDone = true;
+                }
+                else
+                {
+                    modProfiles.AddRange(page.items);
+
+                    if(page.resultTotal <= (page.resultOffset + page.size))
+                    {
+                        isDone = true;
+                    }
+                    else
+                    {
+                        pagination.offset = page.resultOffset + page.size;
+                    }
+                }
+            }
+
+            if(isDone && modProfiles != null)
+            {
+                onSuccess(modProfiles);
+            }
         }
 
         // ---------[ EVENTS ]---------
