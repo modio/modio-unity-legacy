@@ -22,6 +22,7 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         public float pageTransitionTimeSeconds = 0.4f;
         public RectTransform pageTemplate = null;
+        public string defaultSortString = "-" + API.GetAllModsFilterFields.dateLive;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -45,7 +46,7 @@ namespace ModIO.UI
         private string m_titleFilter = string.Empty;
         /// <summary>String to use for sorting the mod request.</summary>
         [SerializeField]
-        private string m_sortString = "-" + API.GetAllModsFilterFields.dateLive;
+        private string m_sortString = string.Empty;
         /// <summary>Tags to filter by.</summary>
         [SerializeField]
         private List<string> m_tagFilter = new List<string>();
@@ -226,10 +227,16 @@ namespace ModIO.UI
         public RequestFilter GenerateRequestFilter()
         {
             RequestFilter filter = new RequestFilter();
-            filter = new RequestFilter()
+
+            // sort
+            if(string.IsNullOrEmpty(this.m_sortString))
             {
-                sortFieldName = this.m_sortString,
-            };
+                filter.sortFieldName = this.defaultSortString;
+            }
+            else
+            {
+                filter.sortFieldName = this.m_sortString;
+            }
 
             // title
             if(String.IsNullOrEmpty(this.m_titleFilter))
@@ -695,9 +702,21 @@ namespace ModIO.UI
         }
 
         // ---------[ FILTER MANAGEMENT ]---------
-        public void ClearFilters()
+        public void ClearAllFilters()
         {
-            m_tagFilter.Clear();
+            // Check if already cleared
+            if(string.IsNullOrEmpty(this.m_titleFilter)
+               && (string.IsNullOrEmpty(this.m_sortString) || this.m_sortString == this.defaultSortString)
+               && this.m_tagFilter.Count == 0)
+            {
+                return;
+            }
+
+            this.m_titleFilter = string.Empty;
+            this.m_sortString = string.Empty;
+            this.m_tagFilter.Clear();
+
+            this.m_requestFilter = this.GenerateRequestFilter();
             this.Refresh();
 
             if(this.onTagFilterUpdated != null)
