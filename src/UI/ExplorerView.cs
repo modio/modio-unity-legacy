@@ -189,36 +189,41 @@ namespace ModIO.UI
 
         public void Refresh()
         {
+            int pageIndex = 0;
+
+            RequestFilter filter = this.GenerateRequestFilter();
             int pageSize = this.itemsPerPage;
-            // TODO(@jackson): BAD ZERO?
+            int pageOffset = pageIndex * pageSize;
+            bool wasDisplayUpdated = false;
+
             RequestPage<ModProfile> filteredPage = new RequestPage<ModProfile>()
             {
                 size = pageSize,
                 items = new ModProfile[pageSize],
-                resultOffset = 0,
+                resultOffset = pageOffset,
                 resultTotal = 0,
             };
             this.currentPage = filteredPage;
 
-            ModProfileRequestManager.instance.FetchModProfilePage(this.GenerateRequestFilter(), 0, pageSize,
+            ModProfileRequestManager.instance.FetchModProfilePage(filter, pageOffset, pageSize,
             (page) =>
             {
-                #if DEBUG
-                if(!Application.isPlaying) { return; }
-                #endif
-
                 if(this != null
                    && this.currentPage == filteredPage)
                 {
                     this.currentPage = page;
                     this.UpdateCurrentPageDisplay();
                     this.UpdatePageButtonInteractibility();
+
+                    wasDisplayUpdated = true;
                 }
             },
             null);
 
-            // TODO(@jackson): Update Mod Count
-            this.UpdateCurrentPageDisplay();
+            if(!wasDisplayUpdated)
+            {
+                this.UpdateCurrentPageDisplay();
+            }
         }
 
         public RequestFilter GenerateRequestFilter()
