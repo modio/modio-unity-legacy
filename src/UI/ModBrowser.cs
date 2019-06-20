@@ -36,13 +36,6 @@ namespace ModIO.UI
         }
 
         // ---------[ NESTED CLASSES ]---------
-        public enum ServerType
-        {
-            TestServer,
-            ProductionServer,
-            CustomServer,
-        }
-
         [Serializable]
         private class ManifestData
         {
