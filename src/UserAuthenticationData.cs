@@ -14,6 +14,7 @@ namespace ModIO
             userId = UserProfile.NULL_ID,
             token = null,
             steamTicket = null,
+            gogTicket = null,
         };
 
         /// <summary>Location of the settings file.</summary>
@@ -29,6 +30,9 @@ namespace ModIO
 
         /// <summary>Steam ticket (if applicable).</summary>
         public string steamTicket;
+
+        /// <summary>GOG ticket (if applicable).</summary>
+        public string gogTicket;
 
         // ---------[ SINGLETON ]---------
         /// <summary>Singleton instance to be used as the current/active data.</summary>
