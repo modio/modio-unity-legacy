@@ -520,7 +520,6 @@ namespace ModIO
             return webRequest;
         }
 
-
         /// <summary>Requests a login code be sent to an email address.</summary>
         public static void SendSecurityCode(string emailAddress,
                                             Action<APIMessage> successCallback,
@@ -574,13 +573,13 @@ namespace ModIO
             else
             {
                 // create vars
-                string encodedTicket = Utility.ConvertSteamEncryptedAppTicket(pTicket, pcbTicket);
+                string encodedTicket = Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
 
                 if(string.IsNullOrEmpty(encodedTicket))
                 {
                     if(errorCallback != null)
                     {
-                        string message = ("Failed to convert steam ticket"
+                        string message = ("Failed to convert Steam ticket"
                                           + " and so authentication cannot"
                                           + " be attempted.");
                         errorCallback(WebRequestError.GenerateLocal(message));
@@ -614,6 +613,48 @@ namespace ModIO
             };
 
             APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
+        }
+
+        /// <summary>Request an OAuthToken using a GOG user authentication ticket.</summary>
+        public static void RequestGOGAuthentication(byte[] data, uint dataSize,
+                                                    Action<string> successCallback,
+                                                    Action<WebRequestError> errorCallback)
+        {
+            if(data == null
+               || data.Length == 0
+               || data.Length > 1024)
+            {
+                Debug.LogWarning("[mod.io] GOG Ticket is invalid. Ensure that the"
+                                 + " data is not null, and is less than 1024 bytes.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("GOG Ticket is invalid. Ensure"
+                        + " that the data is not null, and is less than 1024 bytes."));
+                }
+            }
+            else
+            {
+                // create vars
+                string encodedTicket = Utility.EncodeEncryptedAppTicket(data, dataSize);
+
+                if(string.IsNullOrEmpty(encodedTicket))
+                {
+                    if(errorCallback != null)
+                    {
+                        string message = ("Failed to convert GOG ticket"
+                                          + " and so authentication cannot"
+                                          + " be attempted.");
+                        errorCallback(WebRequestError.GenerateLocal(message));
+                    }
+                }
+                else
+                {
+                    APIClient.RequestGOGAuthentication(encodedTicket,
+                                                       successCallback,
+                                                       errorCallback);
+                }
+            }
         }
 
         /// <summary>Request an OAuthToken using a GOG Galaxy App ticket.</summary>

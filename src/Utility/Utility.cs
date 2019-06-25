@@ -119,15 +119,15 @@ namespace ModIO
             return (@"https://img.youtube.com/vi/" + youTubeId + @"/hqdefault.jpg");
         }
 
-        /// <summary>Converts a byte array representing a Steam Ticket to a base64 string.</summary>
-        public static string ConvertSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket)
+        /// <summary>Encodes a byte array representing a Steam Ticket to a base64 string.</summary>
+        public static string EncodeEncryptedAppTicket(byte[] ticketData, uint ticketSize)
         {
-            Debug.Assert(pTicket != null);
-            Debug.Assert(pTicket.Length > 0 && pTicket.Length <= 1024, "Invalid pTicket length");
-            Debug.Assert(pcbTicket > 0 && pcbTicket <= pTicket.Length, "Invalid pcbTicket");
+            Debug.Assert(ticketData != null);
+            Debug.Assert(ticketData.Length > 0 && ticketData.Length <= 1024, "Invalid ticketData length");
+            Debug.Assert(ticketSize > 0 && ticketSize <= ticketData.Length, "Invalid ticketSize");
 
-            byte[] trimmedTicket = new byte[pcbTicket];
-            Array.Copy(pTicket, trimmedTicket, pcbTicket);
+            byte[] trimmedTicket = new byte[ticketSize];
+            Array.Copy(ticketData, trimmedTicket, ticketSize);
 
             string retVal = null;
             try
@@ -167,6 +167,14 @@ namespace ModIO
             }
 
             return retVal;
+        }
+
+
+        /// <summary>[Obsolete] Converts a byte array representing a Steam Ticket to a base64 string.</summary>
+        [Obsolete("Use EncodeEncryptedAppTicket() instead")]
+        public static string ConvertSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket)
+        {
+            return Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
         }
     }
 }
