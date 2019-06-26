@@ -97,6 +97,9 @@ namespace ModIO.UI
         /// <summary>If enabled, stores retrieved profiles for subscribed mods.</summary>
         public bool storeIfSubscribed = true;
 
+        /// <summary>Minimum profile count to request from the API.</summary>
+        public int minimumFetchSize = APIPaginationParameters.LIMIT_MAX;
+
         /// <summary>Cached requests.</summary>
         public Dictionary<string, RequestPageData> requestCache = new Dictionary<string, RequestPageData>();
 
@@ -220,6 +223,10 @@ namespace ModIO.UI
             APIPaginationParameters pagination = new APIPaginationParameters();
             pagination.offset = offsetIndex;
             pagination.limit = profileCount;
+            if(profileCount < this.minimumFetchSize)
+            {
+                pagination.limit = this.minimumFetchSize;
+            }
 
             // Send Request
             APIClient.GetAllMods(filter, pagination,
@@ -232,7 +239,17 @@ namespace ModIO.UI
 
                 if(onSuccess != null)
                 {
-                    onSuccess(r);
+                    if(pagination.limit != profileCount)
+                    {
+                        var subPage = ModProfileRequestManager.CreatePageSubset(r,
+                                                                                offsetIndex,
+                                                                                profileCount);
+                        onSuccess(subPage);
+                    }
+                    else
+                    {
+                        onSuccess(r);
+                    }
                 }
             }, onError);
         }
@@ -466,6 +483,52 @@ namespace ModIO.UI
             if(isDone && modProfiles != null)
             {
                 onSuccess(modProfiles);
+            }
+        }
+
+        protected static RequestPage<ModProfile> CreatePageSubset(RequestPage<ModProfile> sourcePage,
+                                                                  int resultOffset,
+                                                                  int profileCount)
+        {
+            Debug.Assert(sourcePage != null);
+
+            if(resultOffset < sourcePage.resultOffset)
+            {
+                resultOffset = sourcePage.resultOffset;
+            }
+
+            RequestPage<ModProfile> subPage = new RequestPage<ModProfile>()
+            {
+                size = profileCount,
+                resultOffset = resultOffset,
+                resultTotal = sourcePage.resultTotal,
+            };
+
+            // early out for 0
+            if(profileCount <= 0)
+            {
+                subPage.size = 0;
+                subPage.items = new ModProfile[0];
+
+                return subPage;
+            }
+            else
+            {
+                int pageOffset = resultOffset - sourcePage.resultOffset;
+
+                int arraySize = profileCount;
+                if(pageOffset + arraySize > sourcePage.items.Length)
+                {
+                    arraySize = sourcePage.items.Length - pageOffset;
+                }
+
+                subPage.items = new ModProfile[arraySize];
+
+                Array.Copy(sourcePage.items, pageOffset,
+                           subPage.items, 0,
+                           subPage.items.Length);
+
+                return subPage;
             }
         }
 
