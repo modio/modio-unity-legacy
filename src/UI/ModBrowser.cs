@@ -1879,8 +1879,20 @@ namespace ModIO.UI
                 },
                 (e) =>
                 {
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                               e.errorMessage);
+                    if(this == null) { return; }
+
+                    // NOTE(@jackson): This is workaround is due to the response of a repeat rating
+                    // request returning an error.
+                    if(e.webRequest.responseCode == 400)
+                    {
+                        this.m_userRatings[modId] = ratingValue;
+                    }
+                    else
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                                   e.errorMessage);
+
+                    }
                 });
             }
             else
