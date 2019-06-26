@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
+    public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]
@@ -318,6 +318,17 @@ namespace ModIO.UI
                && this.m_modId == modId)
             {
                 this.modView.DisplayDownload(downloadInfo);
+            }
+        }
+
+        public void OnModRatingAdded(int modId, ModRatingValue rating)
+        {
+            if(this.m_isInitialized
+               && this.m_modId == modId)
+            {
+                ModDisplayData data = this.modView.data;
+                data.userRating = rating;
+                this.modView.data = data;
             }
         }
 

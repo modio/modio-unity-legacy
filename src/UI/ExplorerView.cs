@@ -13,7 +13,7 @@ namespace ModIO.UI
         FromRight,
     }
 
-    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
+    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
         public event Action<string[]> onTagFilterUpdated;
@@ -787,6 +787,19 @@ namespace ModIO.UI
                 if(view.data.profile.modId == modId)
                 {
                     view.DisplayDownload(downloadInfo);
+                }
+            }
+        }
+
+        public void OnModRatingAdded(int modId, ModRatingValue rating)
+        {
+            foreach(ModView view in this.modViews)
+            {
+                if(view.data.profile.modId == modId)
+                {
+                    ModDisplayData data = view.data;
+                    data.userRating = rating;
+                    view.data = data;
                 }
             }
         }

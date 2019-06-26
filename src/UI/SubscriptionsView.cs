@@ -10,7 +10,7 @@ namespace ModIO.UI
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
     // to be displayed is low enough that it does not cause memory issues. Safeguards against this
     // will be made in a future update, but is currently not a priority.
-    public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver
+    public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("Settings")]
@@ -386,6 +386,19 @@ namespace ModIO.UI
                 if(view.data.profile.modId == modId)
                 {
                     view.DisplayDownload(downloadInfo);
+                }
+            }
+        }
+
+        public void OnModRatingAdded(int modId, ModRatingValue rating)
+        {
+            foreach(ModView view in this.modViews)
+            {
+                if(view.data.profile.modId == modId)
+                {
+                    ModDisplayData data = view.data;
+                    data.userRating = rating;
+                    view.data = data;
                 }
             }
         }
