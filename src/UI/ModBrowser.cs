@@ -1751,7 +1751,7 @@ namespace ModIO.UI
                 }
 
                 // start downloads
-                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions,
+                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions, true, true,
                 (modProfiles) =>
                 {
                     if(this != null && this.isActiveAndEnabled)

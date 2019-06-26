@@ -84,7 +84,7 @@ namespace ModIO.UI
         {
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
-            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
+            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds, true, true,
             (profiles) => Refresh_OnGetModProfiles(profiles,
                                                    this.m_titleFilter,
                                                    this.m_sortDelegate),

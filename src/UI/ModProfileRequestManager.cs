@@ -345,6 +345,8 @@ namespace ModIO.UI
 
         /// <summary>Requests a collection of ModProfiles by id.</summary>
         public virtual void RequestModProfiles(IList<int> orderedIdList,
+                                               bool includeHiddenMods,
+                                               bool includeDeletedMods,
                                                Action<ModProfile[]> onSuccess,
                                                Action<WebRequestError> onError)
         {
@@ -359,8 +361,18 @@ namespace ModIO.UI
             {
                 int modId = orderedIdList[i];
                 ModProfile profile = null;
-                this.profileCache.TryGetValue(modId, out profile);
-                results[i] = profile;
+                if(this.profileCache.TryGetValue(modId, out profile))
+                {
+                    if((includeHiddenMods || profile.visibility != ModVisibility.Hidden)
+                       && (includeDeletedMods || profile.status != ModStatus.Deleted))
+                    {
+                        results[i] = profile;
+                    }
+                    else
+                    {
+                        results[i] = null;
+                    }
+                }
 
                 if(profile == null)
                 {
@@ -372,8 +384,18 @@ namespace ModIO.UI
             foreach(ModProfile profile in CacheClient.IterateFilteredModProfiles(missingIds))
             {
                 int index = orderedIdList.IndexOf(profile.id);
-                if(index >= 0)
+                if(index >= 0 && results[index] == null)
                 {
+                    if((includeHiddenMods || profile.visibility != ModVisibility.Hidden)
+                       && (includeDeletedMods || profile.status != ModStatus.Deleted))
+                    {
+                        results[index] = profile;
+                    }
+                    else
+                    {
+                        results[index] = null;
+                    }
+
                     results[index] = profile;
                 }
 
@@ -422,25 +444,55 @@ namespace ModIO.UI
                 onSuccess(results);
             };
 
-            this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(), onFetchProfiles, onError));
+            this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(),
+                                                         includeHiddenMods,
+                                                         includeDeletedMods,
+                                                         onFetchProfiles,
+                                                         onError));
         }
 
         // ---------[ UTILITY ]---------
         /// <summary>Recursively fetches all of the mod profiles in the array.</summary>
         protected System.Collections.IEnumerator FetchAllModProfiles(int[] modIds,
+                                                                     bool includeHiddenMods,
+                                                                     bool includeDeletedMods,
                                                                      Action<List<ModProfile>> onSuccess,
                                                                      Action<WebRequestError> onError)
         {
             List<ModProfile> modProfiles = new List<ModProfile>();
+
+            // create visibility filter
+            List<int> visibilityFilter = new List<int>() { (int)ModVisibility.Public, };
+            if(includeHiddenMods)
+            {
+                visibilityFilter.Add((int)ModVisibility.Hidden);
+            }
+
+            // create status filter
+            List<int> statusFilter = new List<int>()
+            {
+                (int)ModStatus.Accepted,
+                (int)ModStatus.Archived,
+            };
+            if(includeDeletedMods)
+            {
+                statusFilter.Add((int)ModStatus.Deleted);
+            }
+
 
             APIPaginationParameters pagination = new APIPaginationParameters()
             {
                 limit = APIPaginationParameters.LIMIT_MAX,
                 offset = 0,
             };
+
             RequestFilter filter = new RequestFilter();
             filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
                 new InArrayFilter<int>() { filterArray = modIds, });
+            filter.fieldFilters.Add(API.GetAllModsFilterFields.visible,
+                new InArrayFilter<int>() { filterArray = visibilityFilter.ToArray() });
+            filter.fieldFilters.Add(API.GetAllModsFilterFields.status,
+                new InArrayFilter<int>() { filterArray = statusFilter.ToArray() });
 
             bool isDone = false;
 
