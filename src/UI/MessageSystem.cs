@@ -21,7 +21,7 @@ namespace ModIO.UI
 
         [Header("Settings")]
         [Tooltip("Default base time to display a message (in seconds)")]
-        public float defaultBaseTime = 2.0f;
+        public float defaultBaseTime = 1.0f;
         [Tooltip("Additional time per character in the message (in seconds)")]
         public float defaultCharacterTime = 0.1f;
 
@@ -122,11 +122,7 @@ namespace ModIO.UI
             Debug.Assert(!System.String.IsNullOrEmpty(messageContent));
 
             // early out
-            if(instance == null)
-            {
-                Debug.LogWarning("[mod.io] No MessageSystem instance found.");
-                return;
-            }
+            if(instance == null) { return; }
 
             // check for default duration
             if(displayDuration <= 0f)
@@ -145,9 +141,10 @@ namespace ModIO.UI
 
             instance.queuedMessages.Add(newMessage);
 
-            if(instance.m_displayRoutine == null)
+            if(Application.isPlaying
+               && instance.isActiveAndEnabled
+               && instance.m_displayRoutine == null)
             {
-                Debug.Assert(instance.isActiveAndEnabled);
                 instance.m_displayRoutine = instance.StartCoroutine(instance.DisplayNextMessageRoutine());
             }
         }
@@ -218,7 +215,10 @@ namespace ModIO.UI
             queuedMessages.Remove(message);
             m_displayRoutine = null;
 
-            if(queuedMessages.Count > 0)
+            if(Application.isPlaying
+               && this != null
+               && this.isActiveAndEnabled
+               && queuedMessages.Count > 0)
             {
                 m_displayRoutine = StartCoroutine(DisplayNextMessageRoutine());
             }
