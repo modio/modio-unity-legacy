@@ -65,7 +65,7 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = new GameProfile();
-        private List<SimpleRating> m_userRatings = new List<SimpleRating>();
+        private Dictionary<int, ModRatingValue> m_userRatings = new Dictionary<int, ModRatingValue>();
         private int lastSubscriptionSync = -1;
         private int lastCacheUpdate = -1;
         private List<int> m_queuedUnsubscribes = new List<int>();
@@ -747,14 +747,10 @@ namespace ModIO.UI
                 }
             }
 
-            m_userRatings = new List<SimpleRating>(retrievedRatings.Count);
+            m_userRatings = new Dictionary<int, ModRatingValue>();
             foreach(ModRating rating in retrievedRatings)
             {
-                m_userRatings.Add(new SimpleRating()
-                {
-                    modId = rating.modId,
-                    isPositive = (rating.ratingValue == ModRatingValue.Positive),
-                });
+                m_userRatings.Add(rating.modId, rating.ratingValue);
             }
         }
 
