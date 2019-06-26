@@ -32,6 +32,7 @@ namespace ModIO.UI
         private ExplorerView m_explorerView = null;
         private SubscriptionsView m_subscriptionsView = null;
         private InspectorView m_inspectorView = null;
+        private LoginDialog m_loginDialog = null;
         private bool m_viewsFound = false;
 
         // ---------[ INITIALIZATION ]---------
@@ -62,19 +63,18 @@ namespace ModIO.UI
             this.m_explorerView = UIUtilities.FindComponentInScene<ExplorerView>(true);
             this.m_subscriptionsView = UIUtilities.FindComponentInScene<SubscriptionsView>(true);
             this.m_inspectorView = UIUtilities.FindComponentInScene<InspectorView>(true);
+            this.m_loginDialog = UIUtilities.FindComponentInScene<LoginDialog>(true);
             this.m_viewsFound = true;
         }
 
         // ---------[ VIEW MANAGEMENT ]---------
         public void InspectMod(int modId)
         {
-            #if DEBUG
             if(this.m_inspectorView == null)
             {
                 Debug.Log("[mod.io] Inspector View not found.");
             }
             else
-            #endif
             {
                 this.m_inspectorView.modId = modId;
                 this.m_inspectorView.gameObject.SetActive(true);
@@ -83,13 +83,11 @@ namespace ModIO.UI
 
         public void ActivateExplorerView()
         {
-            #if DEBUG
             if(this.m_explorerView == null)
             {
                 Debug.Log("[mod.io] Explorer View not found.");
             }
             else
-            #endif
             {
                 this.m_explorerView.gameObject.SetActive(true);
 
@@ -102,13 +100,11 @@ namespace ModIO.UI
 
         public void ActivateSubscriptionsView()
         {
-            #if DEBUG
             if(this.m_subscriptionsView == null)
             {
                 Debug.Log("[mod.io] Subscriptions View not found.");
             }
             else
-            #endif
             {
                 this.m_subscriptionsView.gameObject.SetActive(true);
 
@@ -116,6 +112,18 @@ namespace ModIO.UI
                 {
                     this.m_explorerView.gameObject.SetActive(false);
                 }
+            }
+        }
+
+        public void ShowLoginDialog()
+        {
+            if(this.m_loginDialog == null)
+            {
+                Debug.Log("[mod.io] Login Dialog not found.");
+            }
+            else
+            {
+                this.m_loginDialog.gameObject.SetActive(true);
             }
         }
     }
