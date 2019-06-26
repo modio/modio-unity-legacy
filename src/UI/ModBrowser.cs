@@ -246,8 +246,7 @@ namespace ModIO.UI
                 }
             }
 
-            VerifySubscriptionInstallations();
-
+            this.StartCoroutine(VerifySubscriptionInstallations());
             this.StartCoroutine(PollForSubscribedModEventsCoroutine());
             this.StartCoroutine(PollForUserEventsCoroutine());
         }
@@ -754,7 +753,7 @@ namespace ModIO.UI
             }
         }
 
-        private void VerifySubscriptionInstallations()
+        private System.Collections.IEnumerator VerifySubscriptionInstallations()
         {
             var subscribedModIds = ModManager.GetSubscribedModIds();
             IList<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
@@ -780,7 +779,7 @@ namespace ModIO.UI
             }
 
             // assert subbed mod installs
-            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
+            yield return StartCoroutine(FetchAllModProfiles(subscribedModIds.ToArray(),
             (modProfiles) =>
             {
                 if(this == null) { return; }
@@ -795,7 +794,7 @@ namespace ModIO.UI
                     }
                 }
             },
-            null);
+            null));
         }
 
         private void AssertInstalledLatest(ModProfile profile, List<int> installedIds)
@@ -825,6 +824,72 @@ namespace ModIO.UI
                 {
                     ModManager.TryUninstallModVersion(profile.id, modfileId);
                 }
+            }
+        }
+
+        private System.Collections.IEnumerator FetchAllModProfiles(int[] modIds,
+                                                                   Action<List<ModProfile>> onSuccess,
+                                                                   Action<WebRequestError> onError)
+        {
+            // early out for no profiles
+            if(modIds == null || modIds.Length == 0)
+            {
+                onSuccess(new List<ModProfile>(0));
+                yield break;
+            }
+
+            List<ModProfile> modProfiles = new List<ModProfile>();
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+            RequestFilter filter = new RequestFilter();
+            filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
+                new InArrayFilter<int>() { filterArray = modIds, });
+
+            bool isDone = false;
+
+            while(!isDone)
+            {
+                RequestPage<ModProfile> page = null;
+                WebRequestError error = null;
+
+                APIClient.GetAllMods(filter, pagination,
+                                     (r) => page = r,
+                                     (e) => error = e);
+
+                while(page == null && error == null) { yield return null;}
+
+                if(error != null)
+                {
+                    if(onError != null)
+                    {
+                        onError(error);
+                    }
+
+                    modProfiles = null;
+                    isDone = true;
+                }
+                else
+                {
+                    modProfiles.AddRange(page.items);
+
+                    if(page.resultTotal <= (page.resultOffset + page.size))
+                    {
+                        isDone = true;
+                    }
+                    else
+                    {
+                        pagination.offset = page.resultOffset + page.size;
+                    }
+                }
+            }
+
+            if(isDone && modProfiles != null)
+            {
+                onSuccess(modProfiles);
             }
         }
 
