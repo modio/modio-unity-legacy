@@ -76,6 +76,8 @@ namespace ModIO.UI
             modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
             modView.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
             modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
+            modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
+            modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
 
             ModMediaContainer mediaContainer = modView.mediaContainer as ModMediaContainer;
 
@@ -139,12 +141,14 @@ namespace ModIO.UI
             {
                 bool isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
                 bool isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
+                ModRatingValue rating = ModBrowser.instance.GetModRating(this.m_modId);
 
                 if(profile != null)
                 {
                     modView.DisplayMod(profile, stats,
                                        this.m_tagCategories,
-                                       isModSubscribed, isModEnabled);
+                                       isModSubscribed, isModEnabled,
+                                       rating);
 
                     // media container
                     if(modView.mediaContainer != null)

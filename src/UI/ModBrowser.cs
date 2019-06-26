@@ -1901,6 +1901,16 @@ namespace ModIO.UI
             }
         }
 
+        public ModRatingValue GetModRating(int modId)
+        {
+            ModRatingValue ratingValue;
+            if(!this.m_userRatings.TryGetValue(modId, out ratingValue))
+            {
+                ratingValue = ModRatingValue.None;
+            }
+            return ratingValue;
+        }
+
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use PluginSettings.data.logAllRequests instead")]
         public bool debugAllAPIRequests

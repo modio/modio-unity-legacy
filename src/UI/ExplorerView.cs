@@ -526,17 +526,21 @@ namespace ModIO.UI
                         view.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
                         view.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
                         view.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
+                        view.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
+                        view.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
 
                         // display
                         ModStatistics stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
                         bool isModSubscribed = subscribedModIds.Contains(profile.id);
                         bool isModEnabled = enabledModIds.Contains(profile.id);
+                        ModRatingValue ratingValue = ModBrowser.instance.GetModRating(profile.id);
 
                         view.DisplayMod(profile,
                                         stats,
                                         m_tagCategories,
                                         isModSubscribed,
-                                        isModEnabled);
+                                        isModEnabled,
+                                        ratingValue);
 
                         if(stats == null)
                         {
