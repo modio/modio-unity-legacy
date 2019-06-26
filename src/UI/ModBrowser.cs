@@ -753,7 +753,7 @@ namespace ModIO.UI
                 m_userRatings.Add(new SimpleRating()
                 {
                     modId = rating.modId,
-                    isPositive = (rating.ratingValue == ModRating.POSITIVE_VALUE),
+                    isPositive = (rating.ratingValue == ModRatingValue.Positive),
                 });
             }
         }
