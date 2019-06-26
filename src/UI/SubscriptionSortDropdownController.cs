@@ -36,6 +36,15 @@ namespace ModIO.UI
             {
                 "Name", (a,b) =>
                 {
+                    // null check
+                    if(a == null || b == null)
+                    {
+                        if(a == null && b == null) { return 0; }
+                        else if(a == null) { return 1; }
+                        else { return -1; }
+                    }
+
+                    // compare
                     int compareResult = String.Compare(a.name, b.name);
                     if(compareResult == 0)
                     {
@@ -47,6 +56,18 @@ namespace ModIO.UI
             {
                 "File Size", (a,b) =>
                 {
+                    // null check
+                    bool nullBuildA = (a == null || a.currentBuild == null);
+                    bool nullBuildB = (b == null || b.currentBuild == null);
+
+                    if(nullBuildA || nullBuildB)
+                    {
+                        if(nullBuildA && nullBuildB) { return 0; }
+                        else if(nullBuildA) { return 1; }
+                        else { return -1; }
+                    }
+
+                    // compare
                     int compareResult = (int)(a.currentBuild.fileSize - b.currentBuild.fileSize);
                     if(compareResult == 0)
                     {
@@ -62,6 +83,15 @@ namespace ModIO.UI
             {
                 "Date Updated", (a,b) =>
                 {
+                    // null check
+                    if(a == null || b == null)
+                    {
+                        if(a == null && b == null) { return 0; }
+                        else if(a == null) { return 1; }
+                        else { return -1; }
+                    }
+
+                    // compare
                     int compareResult = a.dateUpdated - b.dateUpdated;
                     if(compareResult == 0)
                     {
@@ -77,6 +107,15 @@ namespace ModIO.UI
             {
                 "Enabled", (a,b) =>
                 {
+                    // null check
+                    if(a == null || b == null)
+                    {
+                        if(a == null && b == null) { return 0; }
+                        else if(a == null) { return 1; }
+                        else { return -1; }
+                    }
+
+                    // compare
                     int compareResult = 0;
                     compareResult += (ModManager.GetEnabledModIds().Contains(a.id) ? -1 : 0);
                     compareResult += (ModManager.GetEnabledModIds().Contains(b.id) ? 1 : 0);
