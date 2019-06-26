@@ -21,6 +21,13 @@ namespace ModIO.UI
             public ImageDisplay                 avatar;
         }
 
+        [Serializable]
+        public struct UserRatingDisplay
+        {
+            public StateToggleDisplay positive;
+            public StateToggleDisplay negative;
+        }
+
         [Header("UI Components")]
         public ModProfileDisplayComponent           profileDisplay;
         public SubmittorDisplay                     submittorDisplay;
@@ -32,6 +39,7 @@ namespace ModIO.UI
         public DownloadDisplayComponent             downloadDisplay;
         public StateToggleDisplay                   subscriptionDisplay;
         public StateToggleDisplay                   modEnabledDisplay;
+        public UserRatingDisplay                    userRatingDisplay;
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
@@ -98,12 +106,21 @@ namespace ModIO.UI
 
             if(subscriptionDisplay != null)
             {
-                subscriptionDisplay.isOn = m_data.isSubscribed;
+                subscriptionDisplay.isOn = value.isSubscribed;
             }
 
             if(modEnabledDisplay != null)
             {
-                modEnabledDisplay.isOn = m_data.isModEnabled;
+                modEnabledDisplay.isOn = value.isModEnabled;
+            }
+
+            if(userRatingDisplay.positive != null)
+            {
+                userRatingDisplay.positive.isOn = (value.userRating == ModRatingValue.Positive);
+            }
+            if(userRatingDisplay.negative != null)
+            {
+                userRatingDisplay.negative.isOn = (value.userRating == ModRatingValue.Negative);
             }
         }
 
@@ -411,7 +428,8 @@ namespace ModIO.UI
                                ModStatistics statistics,
                                IEnumerable<ModTagCategory> tagCategories,
                                bool isSubscribed,
-                               bool isModEnabled)
+                               bool isModEnabled,
+                               ModRatingValue userRating = ModRatingValue.None)
         {
             Debug.Assert(profile != null);
 
@@ -482,6 +500,18 @@ namespace ModIO.UI
                 modEnabledDisplay.isOn = isModEnabled;
             }
             m_data.isModEnabled = isModEnabled;
+
+            // - rating -
+            if(userRatingDisplay.positive != null)
+            {
+                userRatingDisplay.positive.isOn = (userRating == ModRatingValue.Positive);
+            }
+            if(userRatingDisplay.negative != null)
+            {
+                userRatingDisplay.negative.isOn = (userRating == ModRatingValue.Negative);
+            }
+            m_data.userRating = userRating;
+
 
             #if UNITY_EDITOR
             if(Application.isPlaying)

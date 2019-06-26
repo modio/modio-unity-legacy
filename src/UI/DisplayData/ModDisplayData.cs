@@ -20,5 +20,6 @@ namespace ModIO.UI
 
         public bool isSubscribed;
         public bool isModEnabled;
+        public ModRatingValue userRating;
     }
 }
