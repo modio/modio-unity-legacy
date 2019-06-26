@@ -239,7 +239,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1451398163250784
 GameObject:
   m_ObjectHideFlags: 1
@@ -956,6 +956,9 @@ MonoBehaviour:
   downloadDisplay: {fileID: 0}
   subscriptionDisplay: {fileID: 114577918226820824}
   modEnabledDisplay: {fileID: 0}
+  userRatingDisplay:
+    positive: {fileID: 0}
+    negative: {fileID: 0}
   m_data:
     profile:
       modId: 0
@@ -1042,6 +1045,7 @@ MonoBehaviour:
       isActive: 0
     isSubscribed: 0
     isModEnabled: 0
+    userRating: 0
 --- !u!114 &114252801675974234
 MonoBehaviour:
   m_ObjectHideFlags: 1

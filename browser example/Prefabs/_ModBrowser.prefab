@@ -5909,7 +5909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d58100d13f6904c10aba706fdab48f03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 1139133584329282, guid: 6d6023c94d9954c1b91501defdcfce07, type: 2}
+  itemPrefab: {fileID: 1596363269089664, guid: 6d6023c94d9954c1b91501defdcfce07, type: 2}
   scrollView: {fileID: 114549700727417704}
   resultCount: {fileID: 114423435185988604}
   noSubscriptionsDisplay: {fileID: 1338033130210044}
@@ -14662,6 +14662,9 @@ MonoBehaviour:
   downloadDisplay: {fileID: 0}
   subscriptionDisplay: {fileID: 114573621612601718}
   modEnabledDisplay: {fileID: 0}
+  userRatingDisplay:
+    positive: {fileID: 0}
+    negative: {fileID: 0}
   m_data:
     profile:
       modId: 0
@@ -14767,6 +14770,7 @@ MonoBehaviour:
       isActive: 0
     isSubscribed: 0
     isModEnabled: 0
+    userRating: 0
 --- !u!114 &114908891659772908
 MonoBehaviour:
   m_ObjectHideFlags: 1
