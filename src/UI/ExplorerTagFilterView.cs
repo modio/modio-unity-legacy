@@ -188,7 +188,9 @@ namespace ModIO.UI
         {
             Debug.Assert(gameProfile != null);
 
-            if(this.m_tagCategories != gameProfile.tagCategories)
+            if(Application.isPlaying
+               && this != null
+               && this.m_tagCategories != gameProfile.tagCategories)
             {
                 var tagCategories = gameProfile.tagCategories;
                 if(tagCategories == null)
