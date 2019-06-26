@@ -1865,6 +1865,16 @@ namespace ModIO.UI
             bool loggedIn = !(UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE));
             if(loggedIn)
             {
+                ModRatingValue oldRating = this.GetModRating(modId);
+
+                // notify receivers
+                IEnumerable<IModRatingAddedReceiver> ratingReceivers = UIUtilities.FindComponentsInScene<IModRatingAddedReceiver>(true);
+                foreach(var receiver in ratingReceivers)
+                {
+                    receiver.OnModRatingAdded(modId, ratingValue);
+                }
+
+                // send request
                 var ratingParameters = new API.AddModRatingParameters()
                 {
                     ratingValue = ratingValue,
@@ -1890,8 +1900,15 @@ namespace ModIO.UI
                     else
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   e.errorMessage);
+                                                   e.displayMessage);
 
+                        foreach(var receiver in ratingReceivers)
+                        {
+                            if(receiver != null)
+                            {
+                                receiver.OnModRatingAdded(modId, oldRating);
+                            }
+                        }
                     }
                 });
             }
