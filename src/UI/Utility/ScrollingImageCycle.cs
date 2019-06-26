@@ -28,7 +28,7 @@ namespace ModIO.UI
                 Rect parentRect = ((RectTransform)transform.parent).rect;
 
                 Vector2 pos = transform.anchoredPosition;
-                pos.x += pixelsPerSecond * Time.deltaTime;
+                pos.x += pixelsPerSecond * Time.unscaledDeltaTime;
 
                 if(parentRect.width < pos.x)
                 {
@@ -43,7 +43,7 @@ namespace ModIO.UI
             }
             else
             {
-                secondsUntilScroll -= Time.deltaTime;
+                secondsUntilScroll -= Time.unscaledDeltaTime;
 
                 if(secondsUntilScroll <= 0f)
                 {

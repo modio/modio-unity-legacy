@@ -11,7 +11,7 @@ namespace ModIO.UI
         private void Update()
         {
             float degreesPerSecond = -360f / secondsPerRotation;
-            this.transform.Rotate(new Vector3(0f, 0f, Time.deltaTime * degreesPerSecond));
+            this.transform.Rotate(new Vector3(0f, 0f, Time.unscaledDeltaTime * degreesPerSecond));
         }
     }
 }

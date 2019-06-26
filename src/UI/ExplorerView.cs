@@ -676,7 +676,7 @@ namespace ModIO.UI
                 currentPageContainer.anchoredPosition = new Vector2(transPos, 0f);
                 targetPageContainer.anchoredPosition = new Vector2(transPos + transitionPaneStartX, 0f);
 
-                transitionTime += Time.deltaTime;
+                transitionTime += Time.unscaledDeltaTime;
 
                 yield return null;
             }

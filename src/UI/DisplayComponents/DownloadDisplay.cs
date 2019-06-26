@@ -155,7 +155,7 @@ namespace ModIO.UI
 
                 yield return null;
 
-                timeStepElapsed += Time.deltaTime;
+                timeStepElapsed += Time.unscaledDeltaTime;
             }
 
             m_data.bytesReceived = m_data.bytesTotal;

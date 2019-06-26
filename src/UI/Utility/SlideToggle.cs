@@ -159,7 +159,7 @@ namespace ModIO.UI
             {
                 currentPos = Vector2.LerpUnclamped(startPos, targetPos, elapsed / factoredDuration);
                 content.anchoredPosition = currentPos;
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
 
                 yield return null;
             }

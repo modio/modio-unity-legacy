@@ -178,7 +178,7 @@ namespace ModIO.UI
 
                         yield return null;
 
-                        animTimer += Time.deltaTime;
+                        animTimer += Time.unscaledDeltaTime;
                     }
 
                     rectTransform.anchoredPosition = origin;
@@ -191,7 +191,7 @@ namespace ModIO.UI
                 {
                     yield return null;
 
-                    displayTimer += Time.deltaTime;
+                    displayTimer += Time.unscaledDeltaTime;
                 }
 
                 if(anim != null)
@@ -206,7 +206,7 @@ namespace ModIO.UI
 
                         yield return null;
 
-                        animTimer += Time.deltaTime;
+                        animTimer += Time.unscaledDeltaTime;
                     }
 
                     rectTransform.anchoredPosition = origin;
