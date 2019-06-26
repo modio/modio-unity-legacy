@@ -1854,6 +1854,41 @@ namespace ModIO.UI
             }
         }
 
+        public void AttemptRateMod(int modId, ModRatingValue ratingValue)
+        {
+            if(ratingValue == ModRatingValue.None)
+            {
+                Debug.Log("[mod.io] Clearing a rating is currently unsupported.");
+                return;
+            }
+
+            bool loggedIn = !(UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE));
+            if(loggedIn)
+            {
+                var ratingParameters = new API.AddModRatingParameters()
+                {
+                    ratingValue = ratingValue,
+                };
+
+                APIClient.AddModRating(modId, ratingParameters, (m) =>
+                {
+                    if(this != null)
+                    {
+                        this.m_userRatings[modId] = ratingValue;
+                    }
+                },
+                (e) =>
+                {
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                               e.errorMessage);
+                });
+            }
+            else
+            {
+                ViewManager.instance.ShowLoginDialog();
+            }
+        }
+
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use PluginSettings.data.logAllRequests instead")]
         public bool debugAllAPIRequests
