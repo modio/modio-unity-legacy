@@ -163,8 +163,11 @@ namespace ModIO.UI
             {
                 foreach(ModProfile profile in profileCollection)
                 {
-                    orderedProfileList.Add(profile);
-                    removedProfiles.Remove(profile.id);
+                    if(profile != null)
+                    {
+                        orderedProfileList.Add(profile);
+                        removedProfiles.Remove(profile.id);
+                    }
                 }
             }
 
