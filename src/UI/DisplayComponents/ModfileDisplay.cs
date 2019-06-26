@@ -154,7 +154,7 @@ namespace ModIO.UI
                 dateAdded       = modfile.dateAdded,
                 fileName        = modfile.fileName,
                 fileSize        = modfile.fileSize,
-                MD5             = modfile.fileHash.md5,
+                MD5             = (modfile.fileHash == null ? string.Empty : modfile.fileHash.md5),
                 version         = modfile.version,
                 changelog       = modfile.changelog,
                 metadataBlob    = modfile.metadataBlob,
