@@ -13,6 +13,8 @@ namespace ModIO.UI
         public event Action<ModView> unsubscribeRequested;
         public event Action<ModView> enableModRequested;
         public event Action<ModView> disableModRequested;
+        public event Action<ModView> ratePositiveRequested;
+        public event Action<ModView> rateNegativeRequested;
 
         [Serializable]
         public struct SubmittorDisplay
@@ -625,6 +627,20 @@ namespace ModIO.UI
             if(disableModRequested != null)
             {
                 disableModRequested(this);
+            }
+        }
+        public void NotifyRatePositiveRequested()
+        {
+            if(this.ratePositiveRequested != null)
+            {
+                this.ratePositiveRequested(this);
+            }
+        }
+        public void NotifyRateNegativeRequested()
+        {
+            if(this.rateNegativeRequested != null)
+            {
+                this.rateNegativeRequested(this);
             }
         }
 
