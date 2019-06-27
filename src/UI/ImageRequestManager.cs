@@ -209,32 +209,15 @@ namespace ModIO.UI
                 texture = retrieveFromDisk();
                 if(texture != null)
                 {
+                    this.cache.Add(url, texture);
+
                     onSuccess(texture);
                     return;
                 }
             }
 
-            // download
-            this.DownloadImage(url, onSuccess, onError);
-
-            // check if storing on disk
-            if(storeToDisk != null)
-            {
-                this.m_callbackMap[url].succeeded.Add(storeToDisk);
-            }
-        }
-
-        /// <summary>Creates and sends an image download request for the given url.</summary>
-        protected UnityWebRequestAsyncOperation DownloadImage(string url,
-                                                              Action<Texture2D> onSuccess,
-                                                              Action<WebRequestError> onError)
-        {
-            // create new download
-            UnityWebRequest webRequest = UnityWebRequest.Get(url);
-            webRequest.downloadHandler = new DownloadHandlerTexture(true);
-
             // create new callbacks entry
-            Callbacks callbacks = new Callbacks();
+            callbacks = new Callbacks();
             callbacks.succeeded = new List<Action<Texture2D>>();
             callbacks.succeeded.Add(onSuccess);
             callbacks.failed = new List<Action<WebRequestError>>();
@@ -242,7 +225,26 @@ namespace ModIO.UI
             {
                 callbacks.failed.Add(onError);
             }
+
+            // check if storing on disk
+            if(storeToDisk != null)
+            {
+                callbacks.succeeded.Add(storeToDisk);
+            }
+
+            // add to map
             this.m_callbackMap.Add(url, callbacks);
+
+            // download
+            this.DownloadImage(url);
+        }
+
+        /// <summary>Creates and sends an image download request for the given url.</summary>
+        protected UnityWebRequestAsyncOperation DownloadImage(string url)
+        {
+            // create new download
+            UnityWebRequest webRequest = UnityWebRequest.Get(url);
+            webRequest.downloadHandler = new DownloadHandlerTexture(true);
 
             // start download and attach callbacks
             var operation = webRequest.SendWebRequest();
@@ -355,8 +357,6 @@ namespace ModIO.UI
                 {
                     successCallback(texture);
                 }
-
-                this.cache[webRequest.url] = texture;
             }
 
             // remove from "in progress"
