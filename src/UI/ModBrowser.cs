@@ -475,7 +475,7 @@ namespace ModIO.UI
                         {
                             if(m_validOAuthToken)
                             {
-                                m_validOAuthToken = false;
+                                this.m_validOAuthToken = false;
                                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                            e.displayMessage);
                             }
@@ -546,7 +546,7 @@ namespace ModIO.UI
                         {
                             if(m_validOAuthToken)
                             {
-                                m_validOAuthToken = false;
+                                this.m_validOAuthToken = false;
                                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                            e.displayMessage);
                             }
@@ -579,18 +579,19 @@ namespace ModIO.UI
         }
 
         /// <summary>Recursively fetches all of the remotely subscribed profiles.</summary>
-        private System.Collections.IEnumerator FetchRemoteSubscriptions(Action<List<ModProfile>, WebRequestError> onCompleted)
+        private System.Collections.IEnumerator FetchRemoteSubscriptions(Action<RequestPage<ModProfile>> onPageReceived,
+                                                                        Action onCompleted,
+                                                                        Action<WebRequestError> onFailed)
         {
             // early out if not authenticated or no queued actions
             if(string.IsNullOrEmpty(UserAuthenticationData.instance.token))
             {
-                onCompleted(new List<ModProfile>(0), null);
+                if(onCompleted != null) { onCompleted(); }
                 yield break;
             }
 
             // init
             bool isDone = false;
-            List<ModProfile> profiles = new List<ModProfile>();
             WebRequestError error = null;
 
             // set filter and initial pagination
@@ -629,7 +630,7 @@ namespace ModIO.UI
 
                 if(response != null)
                 {
-                    profiles.AddRange(response.items);
+                    onPageReceived(response);
 
                     pagination.offset = response.resultOffset + response.size;
                     isDone = (pagination.offset >= response.resultTotal);
@@ -653,6 +654,7 @@ namespace ModIO.UI
                         {
                             if(error.isAuthenticationInvalid)
                             {
+                                this.m_validOAuthToken = false;
                                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                            error.displayMessage);
                             }
@@ -662,6 +664,9 @@ namespace ModIO.UI
                                       + error.ToUnityDebugString());
 
                             isDone = true;
+
+                            if(onFailed != null) { onFailed(error); }
+                            yield break;
                         }
                     }
                     else
@@ -670,12 +675,15 @@ namespace ModIO.UI
                                   + " user subscriptions.");
 
                         isDone = true;
+
+                        if(onFailed != null) { onFailed(null); }
+                        yield break;
                     }
                 }
             }
 
             // done!
-            onCompleted(profiles, error);
+            if(onCompleted != null) { onCompleted(); }
         }
 
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
