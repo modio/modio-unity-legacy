@@ -225,7 +225,10 @@ namespace ModIO
                 // Unsupported Media Type
                 case 415:
                 {
-                    this.displayMessage = ("Error synchronizing with the mod.io servers.");
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = ("Error synchronizing with the mod.io servers.");
+                    }
 
                     this.isRequestUnresolvable = true;
 
@@ -236,8 +239,11 @@ namespace ModIO
                 // Bad authorization
                 case 401:
                 {
-                    this.displayMessage = ("Your mod.io authentication details have changed."
-                                           + "\nLogging out and in again should correct this issue.");
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = ("Your mod.io authentication details have changed."
+                                               + "\nTry logging in again.");
+                    }
 
                     this.isAuthenticationInvalid = true;
                     this.isRequestUnresolvable = true;
@@ -247,7 +253,10 @@ namespace ModIO
                 // Forbidden
                 case 403:
                 {
-                    this.displayMessage = ("Your account does not have the required permissions.");
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = ("Your account does not have the required permissions.");
+                    }
 
                     this.isRequestUnresolvable = true;
                 }
@@ -258,9 +267,10 @@ namespace ModIO
                 // Gone
                 case 410:
                 {
-                    this.displayMessage = ("A mod.io networking error was encountered."
-                                           + "\nPlease report this as [" + this.webRequest.responseCode.ToString()
-                                           + "@" + this.webRequest.url + "] to jackson@mod.io");
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = ("A networking error occurred.");
+                    }
 
                     this.isRequestUnresolvable = true;
                 }
@@ -272,8 +282,11 @@ namespace ModIO
                 // Timeout
                 case 408:
                 {
-                    this.displayMessage = ("The mod.io servers cannot be reached."
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = ("The mod.io servers could not be reached."
                                            + "\nPlease check your internet connection.");
+                    }
 
                     this.isServerUnreachable = true;
                 }
@@ -328,8 +341,11 @@ namespace ModIO
                                          + "-" + this.errorMessage + "]");
                     }
 
-                    this.displayMessage = ("Too many requests have been made to the mod.io servers."
-                                           + "\nReconnecting in " + retryAfterSeconds.ToString() + " seconds.");
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = ("Too many requests have been made to the mod.io servers."
+                                             + "\nReconnecting in " + retryAfterSeconds.ToString() + " seconds.");
+                    }
 
                     this.limitedUntilTimeStamp = this.timeStamp + retryAfterSeconds;
                 }
@@ -338,8 +354,11 @@ namespace ModIO
                 // Internal server error
                 case 500:
                 {
-                    this.displayMessage = ("There was an error with the mod.io servers. Staff have been"
-                                           + " notified, and will attempt to fix the issue as soon as possible.");
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = ("There was an error with the mod.io servers. Staff have been"
+                                             + " notified, and will attempt to fix the issue as soon as possible.");
+                    }
 
                     this.isRequestUnresolvable = true;
                 }
@@ -348,7 +367,10 @@ namespace ModIO
                 // Service Unavailable
                 case 503:
                 {
-                    this.displayMessage = "The mod.io servers are currently offline.";
+                    if(string.IsNullOrEmpty(this.errorMessage))
+                    {
+                        this.displayMessage = "The mod.io servers are currently offline.";
+                    }
 
                     this.isServerUnreachable = true;
                 }
@@ -376,6 +398,11 @@ namespace ModIO
                     }
                 }
                 break;
+            }
+
+            if(string.IsNullOrEmpty(this.displayMessage))
+            {
+                this.displayMessage = this.errorMessage;
             }
         }
 
@@ -408,6 +435,7 @@ namespace ModIO
                     }
                 }
                 debugString.AppendLine("Response Code: " + this.webRequest.responseCode.ToString());
+
                 debugString.AppendLine("errorMessage: " + this.errorMessage);
 
                 if(this.fieldValidationMessages != null
@@ -425,6 +453,19 @@ namespace ModIO
                 debugString.AppendLine("isRequestUnresolvable = "      + this.isRequestUnresolvable.ToString());
                 debugString.AppendLine("limitedUntilTimeStamp = "      + this.limitedUntilTimeStamp.ToString());
                 debugString.AppendLine("displayMessage = "             + this.displayMessage);
+
+                string contentText = "[NULL]";
+                if(this.webRequest.downloadHandler != null)
+                {
+                    try
+                    {
+                        contentText = this.webRequest.downloadHandler.text;
+                    }
+                    catch
+                    {
+                        contentText = "[NON-TEXT DATA]";
+                    }
+                }
             }
 
             return debugString.ToString();
