@@ -7,6 +7,29 @@ namespace ModIO.UI
     /// <summary>Manages requests made for ModProfiles.</summary>
     public class ModProfileRequestManager : MonoBehaviour, IModSubscriptionsUpdateReceiver
     {
+        // ---------[ SINGLETON ]---------
+        /// <summary>Singleton instance.</summary>
+        private static ModProfileRequestManager _instance = null;
+        /// <summary>Singleton instance.</summary>
+        public static ModProfileRequestManager instance
+        {
+            get
+            {
+                if(ModProfileRequestManager._instance == null)
+                {
+                    ModProfileRequestManager._instance = UIUtilities.FindComponentInScene<ModProfileRequestManager>(true);
+
+                    if(ModProfileRequestManager._instance == null)
+                    {
+                        GameObject go = new GameObject("Mod Profile Request Manager");
+                        ModProfileRequestManager._instance = go.AddComponent<ModProfileRequestManager>();
+                    }
+                }
+
+                return ModProfileRequestManager._instance;
+            }
+        }
+
         // ---------[ NESTED DATA-TYPES ]--------
         public struct RequestPageData
         {
@@ -67,29 +90,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ SINGLETON ]---------
-        /// <summary>Singleton instance.</summary>
-        private static ModProfileRequestManager _instance = null;
-        /// <summary>Singleton instance.</summary>
-        public static ModProfileRequestManager instance
-        {
-            get
-            {
-                if(ModProfileRequestManager._instance == null)
-                {
-                    ModProfileRequestManager._instance = UIUtilities.FindComponentInScene<ModProfileRequestManager>(true);
-
-                    if(ModProfileRequestManager._instance == null)
-                    {
-                        GameObject go = new GameObject("Mod Profile Request Manager");
-                        ModProfileRequestManager._instance = go.AddComponent<ModProfileRequestManager>();
-                    }
-                }
-
-                return ModProfileRequestManager._instance;
-            }
-        }
-
         // ---------[ FIELDS ]---------
         /// <summary>Should the cache be cleared on disable</summary>
         public bool clearCacheOnDisable = true;
@@ -108,6 +108,12 @@ namespace ModIO.UI
         {
             { ModProfile.NULL_ID, null },
         };
+
+        // --- ACCESSORS ---
+        public virtual bool isCachingPermitted
+        {
+            get { return this.isActiveAndEnabled || !this.clearCacheOnDisable; }
+        }
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -257,6 +263,9 @@ namespace ModIO.UI
         /// <summary>Append the response page to the cached data.</summary>
         public virtual void CacheRequestPage(RequestFilter filter, RequestPage<ModProfile> page)
         {
+            // early out if shouldn't cache
+            if(!this.isCachingPermitted) { return; }
+
             // asserts
             Debug.Assert(filter != null);
             Debug.Assert(page != null);
