@@ -578,6 +578,106 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Recursively fetches all of the remotely subscribed profiles.</summary>
+        private System.Collections.IEnumerator FetchRemoteSubscriptions(Action<List<ModProfile>, WebRequestError> onCompleted)
+        {
+            // early out if not authenticated or no queued actions
+            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            {
+                onCompleted(new List<ModProfile>(0), null);
+                yield break;
+            }
+
+            // init
+            bool isDone = false;
+            List<ModProfile> profiles = new List<ModProfile>();
+            WebRequestError error = null;
+
+            // set filter and initial pagination
+            RequestFilter subscriptionFilter = new RequestFilter();
+            subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+                new EqualToFilter<int>() { filterValue = PluginSettings.data.gameId, });
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            // get pages
+            while(!isDone)
+            {
+                bool requestFinished = false;
+                RequestPage<ModProfile> response = null;
+                error = null;
+
+                APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
+                (r) =>
+                {
+                    response = r;
+                    error = null;
+                    requestFinished = true;
+                },
+                (e) =>
+                {
+                    response = null;
+                    error = e;
+                    requestFinished = true;
+                });
+
+                while(!requestFinished) { yield return null; }
+
+                if(response != null)
+                {
+                    profiles.AddRange(response.items);
+
+                    pagination.offset = response.resultOffset + response.size;
+                    isDone = (pagination.offset >= response.resultTotal);
+                }
+                else
+                {
+                    if(error != null)
+                    {
+                        if(!error.isRequestUnresolvable)
+                        {
+                            int reattemptDelay = CalculateReattemptDelay(error);
+                            Debug.Log("[mod.io] Encountered error when attempting to fetch"
+                                      + " user subscriptions. Reattempting in "
+                                      + reattemptDelay.ToString() + " seconds.\n"
+                                      + error.ToUnityDebugString());
+
+                            yield return new WaitForSecondsRealtime(reattemptDelay);
+                            continue;
+                        }
+                        else
+                        {
+                            if(error.isAuthenticationInvalid)
+                            {
+                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                           error.displayMessage);
+                            }
+
+                            Debug.Log("[mod.io] Unresolvable error encountered when attempting to"
+                                      + " fetch user subscriptions.\n"
+                                      + error.ToUnityDebugString());
+
+                            isDone = true;
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("[mod.io] An unknown error occurred while attempting to fetch"
+                                  + " user subscriptions.");
+
+                        isDone = true;
+                    }
+                }
+            }
+
+            // done!
+            onCompleted(profiles, error);
+        }
+
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
         {
             if(!m_validOAuthToken) { yield break; }
