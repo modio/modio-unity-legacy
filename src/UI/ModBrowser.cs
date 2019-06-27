@@ -422,6 +422,96 @@ namespace ModIO.UI
             StartCoroutine(FetchUserRatings());
         }
 
+        /// <summary>Pushes the queued subscriptions to the server and returns the associated profiles.</summary>
+        private System.Collections.IEnumerator PushQueuedSubscriptions(Action<List<ModProfile>> onCompleted)
+        {
+            // early out if not authenticated
+            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            {
+                if(onCompleted != null) { onCompleted(null); }
+                yield break;
+            }
+
+            // early out if no subscriptions awaiting
+            if(this.m_queuedSubscribes.Count == 0)
+            {
+                if(onCompleted != null) { onCompleted(new List<ModProfile>()); }
+                yield break;
+            }
+
+            // init
+            int responsesPending = this.m_queuedSubscribes.Count;
+            List<ModProfile> subProfiles = new List<ModProfile>();
+
+            // push all subs
+            foreach(int modId in this.m_queuedSubscribes)
+            {
+                APIClient.SubscribeToMod(modId,
+                (p) =>
+                {
+                   --responsesPending;
+                   subProfiles.Add(p);
+                },
+                (e) =>
+                {
+                    // Error for "Mod is already subscribed"
+                    if(e.webRequest.responseCode == 400)
+                    {
+                        APIClient.GetMod(modId,
+                        (p) =>
+                        {
+                            --responsesPending;
+                            subProfiles.Add(p);
+                        },
+                        (gmp_e) =>
+                        {
+                            Debug.Log("[mod.io] Failed to collect mod profile for subscription (modId:"
+                                      + modId.ToString() + ")."
+                                      + "\nError Code: " + e.webRequest.responseCode.ToString()
+                                      + "\n" + e.displayMessage);
+
+                            --responsesPending;
+                            this.m_queuedSubscribes.Remove(modId);
+                        });
+                    }
+                    else
+                    {
+                        --responsesPending;
+                        if(e.isAuthenticationInvalid)
+                        {
+                            if(m_validOAuthToken)
+                            {
+                                m_validOAuthToken = false;
+                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                           e.displayMessage);
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning("[mod.io] Failed to subscribe to mod."
+                                             + "\nError Code: " + e.webRequest.responseCode.ToString()
+                                             + "\n" + e.displayMessage);
+                        }
+                    }
+                });
+            }
+
+            // wait for responses
+            while(responsesPending > 0) { yield return null; }
+
+            // remove from queue
+            foreach(ModProfile profile in subProfiles)
+            {
+                this.m_queuedSubscribes.Remove(profile.id);
+            }
+
+            // done!
+            if(onCompleted != null)
+            {
+                onCompleted(subProfiles);
+            }
+        }
+
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
         {
             if(!m_validOAuthToken) { yield break; }
