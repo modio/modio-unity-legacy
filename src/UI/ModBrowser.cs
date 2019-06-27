@@ -590,10 +590,6 @@ namespace ModIO.UI
                 yield break;
             }
 
-            // init
-            bool isDone = false;
-            WebRequestError error = null;
-
             // set filter and initial pagination
             RequestFilter subscriptionFilter = new RequestFilter();
             subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
@@ -606,77 +602,60 @@ namespace ModIO.UI
             };
 
             // get pages
+            bool isDone = false;
             while(!isDone)
             {
                 bool requestFinished = false;
-                RequestPage<ModProfile> response = null;
-                error = null;
+                WebRequestError error = null;
 
                 APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
-                (r) =>
+                (response) =>
                 {
-                    response = r;
+                    onPageReceived(response);
+
+                    pagination.offset = response.resultOffset + response.size;
+                    isDone = (pagination.offset >= response.resultTotal);
+
                     error = null;
                     requestFinished = true;
                 },
                 (e) =>
                 {
-                    response = null;
                     error = e;
                     requestFinished = true;
                 });
 
                 while(!requestFinished) { yield return null; }
 
-                if(response != null)
+                if(error != null)
                 {
-                    onPageReceived(response);
-
-                    pagination.offset = response.resultOffset + response.size;
-                    isDone = (pagination.offset >= response.resultTotal);
-                }
-                else
-                {
-                    if(error != null)
+                    if(!error.isRequestUnresolvable)
                     {
-                        if(!error.isRequestUnresolvable)
-                        {
-                            int reattemptDelay = CalculateReattemptDelay(error);
-                            Debug.Log("[mod.io] Encountered error when attempting to fetch"
-                                      + " user subscriptions. Reattempting in "
-                                      + reattemptDelay.ToString() + " seconds.\n"
-                                      + error.ToUnityDebugString());
+                        int reattemptDelay = CalculateReattemptDelay(error);
+                        Debug.Log("[mod.io] Encountered error when attempting to fetch"
+                                  + " user subscriptions. Reattempting in "
+                                  + reattemptDelay.ToString() + " seconds.\n"
+                                  + error.ToUnityDebugString());
 
-                            yield return new WaitForSecondsRealtime(reattemptDelay);
-                            continue;
-                        }
-                        else
-                        {
-                            if(error.isAuthenticationInvalid)
-                            {
-                                this.m_validOAuthToken = false;
-                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                           error.displayMessage);
-                            }
-
-                            Debug.Log("[mod.io] Unresolvable error encountered when attempting to"
-                                      + " fetch user subscriptions.\n"
-                                      + error.ToUnityDebugString());
-
-                            isDone = true;
-
-                            if(onFailed != null) { onFailed(error); }
-                            yield break;
-                        }
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
+                        continue;
                     }
                     else
                     {
-                        Debug.Log("[mod.io] An unknown error occurred while attempting to fetch"
-                                  + " user subscriptions.");
+                        if(error.isAuthenticationInvalid)
+                        {
+                            this.m_validOAuthToken = false;
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       error.displayMessage);
+                        }
+
+                        Debug.Log("[mod.io] Unresolvable error encountered when attempting to"
+                                  + " fetch user subscriptions.\n"
+                                  + error.ToUnityDebugString());
 
                         isDone = true;
 
-                        if(onFailed != null) { onFailed(null); }
+                        if(onFailed != null) { onFailed(error); }
                         yield break;
                     }
                 }
