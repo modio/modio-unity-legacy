@@ -422,18 +422,12 @@ namespace ModIO.UI
             StartCoroutine(FetchUserRatings());
         }
 
-        /// <summary>Pushes the queued subscriptions to the server and returns the associated profiles.</summary>
-        private System.Collections.IEnumerator PushQueuedSubscriptions(Action<List<ModProfile>> onCompleted)
+        /// <summary>Pushes the queued subscribe actions to the server and returns the associated profiles.</summary>
+        private System.Collections.IEnumerator PushQueuedSubscribes(Action<List<ModProfile>> onCompleted)
         {
-            // early out if not authenticated
-            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token))
-            {
-                if(onCompleted != null) { onCompleted(null); }
-                yield break;
-            }
-
-            // early out if no subscriptions awaiting
-            if(this.m_queuedSubscribes.Count == 0)
+            // early out if not authenticated or no queued subs
+            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token)
+               || this.m_queuedSubscribes.Count == 0)
             {
                 if(onCompleted != null) { onCompleted(new List<ModProfile>()); }
                 yield break;
@@ -488,7 +482,8 @@ namespace ModIO.UI
                         }
                         else
                         {
-                            Debug.LogWarning("[mod.io] Failed to subscribe to mod."
+                            Debug.LogWarning("[mod.io] Failed to push queued subscribe action for modId:"
+                                             + modId.ToString() + "."
                                              + "\nError Code: " + e.webRequest.responseCode.ToString()
                                              + "\n" + e.displayMessage);
                         }
@@ -509,6 +504,77 @@ namespace ModIO.UI
             if(onCompleted != null)
             {
                 onCompleted(subProfiles);
+            }
+        }
+
+        /// <summary>Pushes the queued unsubscribe actions to the server and returns the successful unsubscribes.</summary>
+        private System.Collections.IEnumerator PushQueuedUnsubscribes(Action<List<int>> onCompleted)
+        {
+            // early out if not authenticated or no queued actions
+            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token)
+               || this.m_queuedUnsubscribes.Count == 0)
+            {
+                if(onCompleted != null) { onCompleted(new List<int>(0)); }
+                yield break;
+            }
+
+            // init
+            int responsesPending = this.m_queuedUnsubscribes.Count;
+            List<int> successfulUnsubs = new List<int>(this.m_queuedUnsubscribes.Count);
+
+            // push all unsubs
+            foreach(int modId in this.m_queuedUnsubscribes)
+            {
+                APIClient.UnsubscribeFromMod(modId,
+                () =>
+                {
+                   --responsesPending;
+                   successfulUnsubs.Add(modId);
+                },
+                (e) =>
+                {
+                    // Error for "Mod is already subscribed"
+                    if(e.webRequest.responseCode == 400)
+                    {
+                        --responsesPending;
+                        successfulUnsubs.Add(modId);
+                    }
+                    else
+                    {
+                        --responsesPending;
+                        if(e.isAuthenticationInvalid)
+                        {
+                            if(m_validOAuthToken)
+                            {
+                                m_validOAuthToken = false;
+                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                           e.displayMessage);
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning("[mod.io] Failed to push queued unsubscribe action for modId:"
+                                             + modId.ToString() + "."
+                                             + "\nError Code: " + e.webRequest.responseCode.ToString()
+                                             + "\n" + e.displayMessage);
+                        }
+                    }
+                });
+            }
+
+            // wait for responses
+            while(responsesPending > 0) { yield return null; }
+
+            // remove from queue
+            foreach(int modId in successfulUnsubs)
+            {
+                this.m_queuedUnsubscribes.Remove(modId);
+            }
+
+            // done!
+            if(onCompleted != null)
+            {
+                onCompleted(successfulUnsubs);
             }
         }
 
