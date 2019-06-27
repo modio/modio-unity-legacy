@@ -146,6 +146,10 @@ namespace ModIO
                         {
                             yield return profile;
                         }
+                        else
+                        {
+                            IOUtilities.DeleteFile(profilePath);
+                        }
                     }
                 }
             }
@@ -208,6 +212,10 @@ namespace ModIO
                         if(profile != null)
                         {
                             yield return profile;
+                        }
+                        else
+                        {
+                            IOUtilities.DeleteFile(profilePath);
                         }
                     }
                 }
