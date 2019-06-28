@@ -231,8 +231,6 @@ namespace ModIO
                     }
 
                     this.isRequestUnresolvable = true;
-
-                    Debug.LogWarning("[mod.io] " + this.ToUnityDebugString());
                 }
                 break;
 
@@ -393,8 +391,7 @@ namespace ModIO
                         this.isRequestUnresolvable = true;
 
                         Debug.LogWarning("[mod.io] An unhandled error was returned during a web request."
-                                         + "\nPlease report this to jackson@mod.io with the following information:\n"
-                                         + this.ToUnityDebugString());
+                                         + "\nPlease report this to jackson@mod.io with the following information");
                     }
                 }
                 break;
