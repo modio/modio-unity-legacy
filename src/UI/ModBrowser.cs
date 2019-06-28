@@ -1025,22 +1025,38 @@ namespace ModIO.UI
             }
 
             // assert subbed mod installs
-            yield return StartCoroutine(FetchAllModProfiles(subscribedModIds.ToArray(),
+            List<Modfile> modfilesToAssert = new List<Modfile>(subscribedModIds.Count);
+            bool isRequestDone = false;
+
+            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds, true,
             (modProfiles) =>
             {
-                if(this == null) { return; }
+                subscribedModIds = ModManager.GetSubscribedModIds();
 
-                IList<int> subModIds = ModManager.GetSubscribedModIds();
                 foreach(ModProfile profile in modProfiles)
                 {
                     if(profile != null
-                       && subModIds.Contains(profile.id))
+                       && profile.currentBuild != null
+                       && subscribedModIds.Contains(profile.id))
                     {
-                        AssertInstalledLatest(profile, groupedIds[profile.id]);
+                        modfilesToAssert.Add(profile.currentBuild);
                     }
                 }
+
+                isRequestDone = true;
             },
-            null));
+            (e) =>
+            {
+                modfilesToAssert = null;
+                isRequestDone = true;
+            });
+
+            while(!isRequestDone) { yield return null; }
+
+            if(modfilesToAssert != null)
+            {
+                yield return this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(modfilesToAssert));
+            }
         }
 
         private void AssertInstalledLatest(ModProfile profile, List<int> installedIds)
