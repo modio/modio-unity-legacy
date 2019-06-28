@@ -101,6 +101,9 @@ namespace ModIO.UI
         {
             this.m_validOAuthToken = false;
             this.StartCoroutine(StartFetchRemoteData());
+
+            DownloadClient.modfileDownloadSucceeded += this.OnModfileDownloadSucceeded;
+            DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
 
         private void OnDisable()
@@ -117,6 +120,9 @@ namespace ModIO.UI
                     APIClient.UnsubscribeFromMod(modId, null, null);
                 }
             }
+
+            DownloadClient.modfileDownloadSucceeded -= this.OnModfileDownloadSucceeded;
+            DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
 
         private void Start()
@@ -2170,6 +2176,34 @@ namespace ModIO.UI
                 ratingValue = ModRatingValue.None;
             }
             return ratingValue;
+        }
+
+        // ---------[ EVENTS ]---------
+        private void OnModfileDownloadSucceeded(ModfileIdPair idPair, FileDownloadInfo info)
+        {
+            if(this == null) { return; }
+
+            ModProfileRequestManager.instance.RequestModProfile(idPair.modId,
+            (p) =>
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
+                                           p.name + " was successfully downloaded and will be installed shortly.");
+            },
+            null);
+        }
+
+        private void OnModfileDownloadFailed(ModfileIdPair idPair, WebRequestError error)
+        {
+            if(this == null) { return; }
+
+            ModProfileRequestManager.instance.RequestModProfile(idPair.modId,
+            (p) =>
+            {
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           p.name + " failed to download.\n"
+                                           + error.displayMessage);
+            },
+            null);
         }
 
         // ---------[ OBSOLETE ]---------
