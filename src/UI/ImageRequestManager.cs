@@ -250,7 +250,7 @@ namespace ModIO.UI
             var operation = webRequest.SendWebRequest();
             operation.completed += (o) =>
             {
-                OnDownloadCompleted(operation.webRequest);
+                OnDownloadCompleted(operation.webRequest, url);
             };
 
             #if DEBUG
@@ -282,7 +282,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Handles the completion of an image download.</summary>
-        protected virtual void OnDownloadCompleted(UnityWebRequest webRequest)
+        protected virtual void OnDownloadCompleted(UnityWebRequest webRequest, string imageURL)
         {
             // early out if destroyed
             if(this == null) { return; }
@@ -330,7 +330,18 @@ namespace ModIO.UI
             #endif
 
             // handle callbacks
-            Callbacks callbacks = this.m_callbackMap[webRequest.url];
+            Callbacks callbacks;
+            bool isURLMapped = this.m_callbackMap.TryGetValue(imageURL, out callbacks);
+            if(callbacks == null)
+            {
+                Debug.LogWarning("[mod.io] ImageRequestManager completed a download but the callbacks"
+                                 + " entry for the download was null."
+                                 + "\nImageURL = " + imageURL
+                                 + "\nWebRequest.URL = " + webRequest.url
+                                 + "\nm_callbackMap.TryGetValue() = " + isURLMapped.ToString()
+                                 );
+                return;
+            }
 
             if(webRequest.isHttpError || webRequest.isNetworkError)
             {
@@ -350,7 +361,7 @@ namespace ModIO.UI
 
                 if(this.isActiveAndEnabled || !this.clearCacheOnDisable)
                 {
-                    this.cache[webRequest.url] = texture;
+                    this.cache[imageURL] = texture;
                 }
 
                 foreach(var successCallback in callbacks.succeeded)
@@ -360,7 +371,7 @@ namespace ModIO.UI
             }
 
             // remove from "in progress"
-            this.m_callbackMap.Remove(webRequest.url);
+            this.m_callbackMap.Remove(imageURL);
         }
 
         // ---------[ EVENTS ]---------
