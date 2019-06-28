@@ -515,7 +515,7 @@ namespace ModIO.UI
             }
             WriteManifest();
 
-            // check unavailableModCount
+            // check unavailableMods
             if(unavailableMods.Count > 0)
             {
                 // update local data
@@ -576,6 +576,12 @@ namespace ModIO.UI
                         --responsesPending;
                         successfulUnsubs.Add(modId);
                     }
+                    // Error for "Mod is unavailable"
+                    else if(e.webRequest.responseCode == 404)
+                    {
+                        --responsesPending;
+                        successfulUnsubs.Add(modId);
+                    }
                     else
                     {
                         --responsesPending;
@@ -607,6 +613,7 @@ namespace ModIO.UI
             {
                 this.m_queuedUnsubscribes.Remove(modId);
             }
+            WriteManifest();
 
             // done!
             if(onCompleted != null)
