@@ -392,7 +392,7 @@ namespace ModIO.UI
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching User Profile failed."
+                        Debug.LogWarning("[mod.io] Fetching User Profile failed.\n"
                                          + requestError.ToUnityDebugString());
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -436,6 +436,7 @@ namespace ModIO.UI
             // init
             int responsesPending = this.m_queuedSubscribes.Count;
             List<ModProfile> subProfiles = new List<ModProfile>();
+            List<int> unavailableMods = new List<int>();
 
             // push all subs
             foreach(int modId in this.m_queuedSubscribes)
@@ -459,14 +460,27 @@ namespace ModIO.UI
                         },
                         (gmp_e) =>
                         {
+                            --responsesPending;
+
                             Debug.Log("[mod.io] Failed to collect mod profile for subscription (modId:"
                                       + modId.ToString() + ")."
                                       + "\nError Code: " + e.webRequest.responseCode.ToString()
                                       + "\n" + e.displayMessage);
 
-                            --responsesPending;
                             this.m_queuedSubscribes.Remove(modId);
                         });
+                    }
+                    // Error for "Mod is unavailable"
+                    else if(e.webRequest.responseCode == 404)
+                    {
+                        --responsesPending;
+
+                        this.m_queuedSubscribes.Remove(modId);
+
+                        Debug.Log("[mod.io] Mod has become unavailable since and cannot be"
+                                  + " subscribed to. (modId:" + modId.ToString() + ")");
+
+                        unavailableMods.Add(modId);
                     }
                     else
                     {
@@ -498,6 +512,29 @@ namespace ModIO.UI
             foreach(ModProfile profile in subProfiles)
             {
                 this.m_queuedSubscribes.Remove(profile.id);
+            }
+            WriteManifest();
+
+            // check unavailableModCount
+            if(unavailableMods.Count > 0)
+            {
+                // update local data
+                List<int> subscriptions = ModManager.GetSubscribedModIds();
+                foreach(int modId in unavailableMods)
+                {
+                    subscriptions.Remove(modId);
+                }
+                ModManager.SetSubscribedModIds(subscriptions);
+
+                // inform and act
+                OnSubscriptionsChanged(null, unavailableMods);
+
+                // message
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
+                                           unavailableMods.Count + " mod"
+                                           + (unavailableMods.Count > 1 ? "s have" : " has")
+                                           + " become unavailable and will be removed from your"
+                                           + " subscriptions.");
             }
 
             // done!
