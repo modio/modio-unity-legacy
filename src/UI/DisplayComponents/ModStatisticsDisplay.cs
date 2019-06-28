@@ -43,6 +43,15 @@ namespace ModIO.UI
 
         private void PresentData()
         {
+            #if UNITY_EDITOR
+            if(!Application.isPlaying && this.m_displayMapping == null) { return; }
+            #endif
+
+            if(this.m_displayMapping == null)
+            {
+                this.Initialize();
+            }
+
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 loadingOverlay.gameObject.SetActive(false);
@@ -56,8 +65,11 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
         {
-            BuildDisplayMap();
-            CollectLoadingOverlays();
+            if(this.m_displayMapping == null)
+            {
+                BuildDisplayMap();
+                CollectLoadingOverlays();
+            }
         }
 
         private void BuildDisplayMap()

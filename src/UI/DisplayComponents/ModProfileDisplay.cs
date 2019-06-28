@@ -52,6 +52,19 @@ namespace ModIO.UI
 
         private void PresentData()
         {
+            #if UNITY_EDITOR
+            if(!Application.isPlaying && this.m_displayMapping == null) { return; }
+            #endif
+
+            if(this.m_displayMapping == null)
+            {
+                this.Initialize();
+            }
+
+            foreach(var kvp in m_displayMapping)
+            {
+                kvp.Key.text = kvp.Value(m_data);
+            }
             foreach(TextLoadingOverlay loadingOverlay in m_loadingOverlays)
             {
                 if(loadingOverlay != null
@@ -60,17 +73,16 @@ namespace ModIO.UI
                     loadingOverlay.gameObject.SetActive(false);
                 }
             }
-            foreach(var kvp in m_displayMapping)
-            {
-                kvp.Key.text = kvp.Value(m_data);
-            }
         }
 
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
         {
-            BuildDisplayMap();
-            CollectLoadingOverlays();
+            if(this.m_displayMapping == null)
+            {
+                BuildDisplayMap();
+                CollectLoadingOverlays();
+            }
         }
 
         private void BuildDisplayMap()

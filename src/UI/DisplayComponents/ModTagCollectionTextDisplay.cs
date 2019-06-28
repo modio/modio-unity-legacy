@@ -45,6 +45,8 @@ namespace ModIO.UI
 
         private void PresentData(ModTagDisplayData[] displayData)
         {
+            Debug.Assert(displayData != null);
+
             StringBuilder builder = new StringBuilder();
             foreach(ModTagDisplayData tag in displayData)
             {

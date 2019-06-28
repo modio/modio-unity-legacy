@@ -46,8 +46,13 @@ namespace ModIO.UI
         private void PresentData(ModfileDisplayData displayData)
         {
             #if UNITY_EDITOR
-            if(m_displayMapping == null) { return; }
+            if(!Application.isPlaying && m_displayMapping == null) { return; }
             #endif
+
+            if(this.m_displayMapping == null)
+            {
+                this.Initialize();
+            }
 
             foreach(var kvp in m_displayMapping)
             {
@@ -63,8 +68,11 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         public override void Initialize()
         {
-            BuildDisplayMap();
-            CollectLoadingOverlays();
+            if(this.m_displayMapping == null)
+            {
+                BuildDisplayMap();
+                CollectLoadingOverlays();
+            }
         }
 
         private void BuildDisplayMap()
