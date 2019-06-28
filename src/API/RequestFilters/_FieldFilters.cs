@@ -1,4 +1,5 @@
 using System;
+using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
@@ -17,6 +18,9 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.filterValue != null);
+
             return fieldName + "=" + filterValue.ToString();
         }
     }
@@ -27,6 +31,9 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.filterValue != null);
+
             return fieldName + "-not=" + filterValue.ToString();
         }
     }
@@ -37,13 +44,21 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
-            string valueList = filterArray[0].ToString();
-            for(int i = 1;
-                i < filterArray.Length;
-                ++i)
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.filterArray != null);
+
+            string valueList = string.Empty;
+            if(filterArray.Length > 0)
             {
-                valueList += "," + filterArray[i];
+                valueList = filterArray[0].ToString();
+                for(int i = 1;
+                    i < filterArray.Length;
+                    ++i)
+                {
+                    valueList += "," + filterArray[i];
+                }
             }
+
             return fieldName + "=" + valueList;
         }
     }
@@ -54,13 +69,21 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
-            string valueList = filterArray[0].ToString();
-            for(int i = 1;
-                i < filterArray.Length;
-                ++i)
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.filterArray != null);
+
+            string valueList = string.Empty;
+            if(filterArray.Length > 0)
             {
-                valueList += "," + filterArray[i];
+                valueList = filterArray[0].ToString();
+                for(int i = 1;
+                    i < filterArray.Length;
+                    ++i)
+                {
+                    valueList += "," + filterArray[i];
+                }
             }
+
             return fieldName + "-in=" + valueList;
         }
     }
@@ -71,12 +94,20 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
-            string valueList = filterArray[0].ToString();
-            for(int i = 1;
-                i < filterArray.Length;
-                ++i)
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.filterArray != null);
+
+            string valueList = string.Empty;
+            if(filterArray.Length > 0)
             {
-                valueList += "," + filterArray[i];
+                valueList = filterArray[0].ToString();
+                for(int i = 1;
+                    i < filterArray.Length;
+                    ++i)
+                {
+                    valueList += "," + filterArray[i];
+                }
+
             }
             return fieldName + "-not-in=" + valueList;
         }
@@ -91,6 +122,9 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.minimum != null);
+
             return fieldName + (isInclusive ? "-min=" : "-gt=") + minimum;
         }
     }
@@ -103,6 +137,9 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.maximum != null);
+
             return fieldName + (isInclusive ? "-max=" : "-lt=") + maximum;
         }
     }
@@ -117,6 +154,10 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.min != null);
+            Debug.Assert(this.max != null);
+
             return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
                     + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt=") + max);
         }
@@ -129,6 +170,8 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+
             return fieldName + "-bitwise-and=" + filterValue;
         }
     }
@@ -140,6 +183,9 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(!string.IsNullOrEmpty(this.likeValue));
+
             return fieldName + "-lk=" + likeValue;
         }
     }
@@ -149,6 +195,9 @@ namespace ModIO
 
         public string GenerateFilterString(string fieldName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(!string.IsNullOrEmpty(this.notLikeValue));
+
             return fieldName + "-not-lk=" + notLikeValue;
         }
     }
