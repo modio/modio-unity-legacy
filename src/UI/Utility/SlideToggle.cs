@@ -90,8 +90,12 @@ namespace ModIO.UI
             UpdateScroll(false);
         }
 
-        private void Start()
+        private void OnDisable()
         {
+            if(m_untoggleOnMouseExit)
+            {
+                isOn = false;
+            }
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
