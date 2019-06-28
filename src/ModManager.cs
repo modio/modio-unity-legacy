@@ -469,6 +469,13 @@ namespace ModIO
         {
             Debug.Assert(modIds != null);
 
+            // early out for 0 mods
+            if(modIds.Count == 0)
+            {
+                if(onCompleted == null) { onCompleted(); }
+                yield break;
+            }
+
             // --- local delegates ---
             Func<WebRequestError, int> calcReattemptDelay = (requestError) =>
             {
@@ -577,8 +584,14 @@ namespace ModIO
             Debug.Assert(modfiles != null);
 
             List<Modfile> unmatchedModfiles = new List<Modfile>(modfiles);
-            List<Modfile> installedModBinaries = new List<Modfile>();
             List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
+
+            // early out for 0 modfiles
+            if(unmatchedModfiles.Count == 0)
+            {
+                if(onCompleted != null) { onCompleted(); }
+                yield break;
+            }
 
             // check for installs
             for(int i = 0;
@@ -624,7 +637,6 @@ namespace ModIO
                     if(isInstalled)
                     {
                         unmatchedModfiles.RemoveAt(i);
-                        installedModBinaries.Add(m);
                         --i;
                     }
                 }
