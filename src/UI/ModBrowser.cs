@@ -1039,7 +1039,17 @@ namespace ModIO.UI
                        && profile.currentBuild != null
                        && subscribedModIds.Contains(profile.id))
                     {
-                        modfilesToAssert.Add(profile.currentBuild);
+                        if(profile.currentBuild.modId != profile.id)
+                        {
+                            Debug.LogWarning("[mod.io] Profile \'" + profile.name + "("
+                                             + profile.id.ToString() + ") has a bad modfile."
+                                             + "\nThe modfile.modId is mismatched ("
+                                             + profile.currentBuild.modId.ToString() + ").");
+                        }
+                        else
+                        {
+                            modfilesToAssert.Add(profile.currentBuild);
+                        }
                     }
                 }
 
