@@ -707,7 +707,7 @@ namespace ModIO
             Debug.Assert(modfiles != null);
 
             List<Modfile> unmatchedModfiles = new List<Modfile>(modfiles);
-            List<Modfile> matchedModfiles = new List<Modfile>();
+            List<Modfile> installedModBinaries = new List<Modfile>();
             List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
 
             // check for installs
@@ -717,16 +717,45 @@ namespace ModIO
             {
                 Modfile m = unmatchedModfiles[i];
 
-                foreach(ModfileIdPair idPair in installedModVersions)
+                if(m == null)
                 {
-                    if(idPair.modId == m.modId
-                       && idPair.modfileId == m.id)
+                    unmatchedModfiles.RemoveAt(i);
+                    --i;
+                }
+                else
+                {
+                    // check if installed
+                    bool isInstalled = false;
+
+                    foreach(ModfileIdPair idPair in installedModVersions)
+                    {
+                        if(idPair.modId == m.modId
+                           && idPair.modfileId == m.id)
+                        {
+                            isInstalled = true;
+                            break;
+                        }
+                    }
+
+                    // check for zip
+                    if(!isInstalled)
+                    {
+                        string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(m.modId, m.id);
+                        bool isDownloadedAndValid = (System.IO.File.Exists(zipFilePath)
+                                                     && m.fileSize == IOUtilities.GetFileSize(zipFilePath)
+                                                     && m.fileHash != null
+                                                     && m.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+
+                        isInstalled = (isDownloadedAndValid
+                                       && ModManager.TryInstallMod(m.modId, m.id, false));
+                    }
+
+                    // update
+                    if(isInstalled)
                     {
                         unmatchedModfiles.RemoveAt(i);
-                        matchedModfiles.Add(m);
+                        installedModBinaries.Add(m);
                         --i;
-
-                        break;
                     }
                 }
             }
