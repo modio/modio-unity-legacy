@@ -7,7 +7,7 @@ namespace ModIO
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>An id value indicating an invalid profile.</summary>
-        public const int NULL_ID = 0;
+        public const int NULL_ID = -1;
 
         /// <summary>Maximum length for the username supported.</summary>
         public const int USERNAME_MAXLENGTH = 20;

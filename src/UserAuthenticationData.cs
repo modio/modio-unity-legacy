@@ -81,6 +81,10 @@ namespace ModIO
             {
                 UserAuthenticationData.m_instance = cachedData;
             }
+            else
+            {
+                UserAuthenticationData.m_instance = UserAuthenticationData.NONE;
+            }
         }
 
         /// <summary>Clears the instance and deletes the data on disk.</summary>
