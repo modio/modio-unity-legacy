@@ -700,6 +700,102 @@ namespace ModIO
             }
         }
 
+        /// <summary>Asserts that the given modfiles are downloaded and installed.</summary>
+        public static System.Collections.IEnumerator AssertDownloadedAndInstalled_Coroutine(IEnumerable<Modfile> modfiles,
+                                                                                            Action onCompleted = null)
+        {
+            Debug.Assert(modfiles != null);
+
+            List<Modfile> unmatchedModfiles = new List<Modfile>(modfiles);
+            List<Modfile> matchedModfiles = new List<Modfile>();
+            List<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
+
+            // check for installs
+            for(int i = 0;
+                i < unmatchedModfiles.Count;
+                ++i)
+            {
+                Modfile m = unmatchedModfiles[i];
+
+                foreach(ModfileIdPair idPair in installedModVersions)
+                {
+                    if(idPair.modId == m.modId
+                       && idPair.modfileId == m.id)
+                    {
+                        unmatchedModfiles.RemoveAt(i);
+                        matchedModfiles.Add(m);
+                        --i;
+
+                        break;
+                    }
+                }
+            }
+
+            // - download and install -
+            if(unmatchedModfiles.Count > 0)
+            {
+                bool startNextDownload = false;
+                Modfile downloadingModfile = null;
+
+                // set up event listeners
+                Action<ModfileIdPair, FileDownloadInfo> onDownloadSucceeded = (idPair, info) =>
+                {
+                    if(idPair.modfileId == downloadingModfile.id)
+                    {
+                        bool didInstall = ModManager.TryInstallMod(downloadingModfile.modId, downloadingModfile.id, true);
+                        if(!didInstall)
+                        {
+                            Debug.LogWarning("[mod.io] Successfully downloaded but failed to install mod (id:"
+                                             + downloadingModfile.modId.ToString()
+                                             + "-modfile:" + downloadingModfile.id.ToString()
+                                              + "). See logged message for details.");
+                        }
+
+                        startNextDownload = true;
+                    }
+                };
+
+                Action<ModfileIdPair, WebRequestError> onDownloadFailed = (idPair, e) =>
+                {
+                    if(idPair.modfileId == downloadingModfile.id)
+                    {
+                        Debug.LogWarning("[mod.io] Failed to download mod (id:"
+                                         + downloadingModfile.modId.ToString()
+                                         + "-modfile:" + downloadingModfile.id.ToString()
+                                          + "). See logged message for details.");
+
+                        startNextDownload = true;
+                    }
+                };
+
+                DownloadClient.modfileDownloadSucceeded += onDownloadSucceeded;
+                DownloadClient.modfileDownloadFailed += onDownloadFailed;
+
+                // go!
+                foreach(Modfile modfile in unmatchedModfiles)
+                {
+                    downloadingModfile = modfile;
+                    startNextDownload = false;
+
+                    string zipPath = CacheClient.GenerateModBinaryZipFilePath(downloadingModfile.modId,
+                                                                              downloadingModfile.id);
+
+                    DownloadClient.StartModBinaryDownload(modfile, zipPath);
+
+                    while(!startNextDownload) { yield return null; }
+                }
+
+                DownloadClient.modfileDownloadSucceeded -= onDownloadSucceeded;
+                DownloadClient.modfileDownloadFailed -= onDownloadFailed;
+            }
+
+            // done!
+            if(onCompleted != null)
+            {
+                onCompleted();
+            }
+        }
+
         // ---------[ GAME PROFILE ]---------
         /// <summary>Fetches and caches the Game Profile (if not already cached).</summary>
         public static void GetGameProfile(Action<GameProfile> onSuccess,
