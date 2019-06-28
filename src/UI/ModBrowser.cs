@@ -728,7 +728,7 @@ namespace ModIO.UI
             // confirm all subscriptions with remote
             int updateStartTimeStamp = ServerTimeStamp.Now;
             List<int> unmatchedSubscriptions = new List<int>(ModManager.GetSubscribedModIds());
-            bool removeMissingSubscriptions = true;
+            bool completedSuccessfully = false;
             int updateCount = 0;
 
             yield return this.StartCoroutine(FetchRemoteSubscriptions(
@@ -748,6 +748,15 @@ namespace ModIO.UI
                     unmatchedSubscriptions.Remove(profile.id);
                 }
 
+                // add to cache
+                if(ModProfileRequestManager.instance.isCachingPermitted)
+                {
+                    foreach(ModProfile profile in requestPage.items)
+                    {
+                        ModProfileRequestManager.instance.profileCache[profile.id] = profile;
+                    }
+                }
+
                 // add new subs
                 CacheClient.SaveModProfiles(requestPage.items);
                 if(newSubs.Count > 0)
@@ -760,14 +769,11 @@ namespace ModIO.UI
 
                 updateCount += newSubs.Count;
             },
-            ( ) => {},
-            (e) =>
-            {
-                removeMissingSubscriptions = false;
-            }));
+            ( ) => completedSuccessfully = true,
+            null));
 
             // handle removed ids
-            if(removeMissingSubscriptions)
+            if(completedSuccessfully)
             {
                 if(unmatchedSubscriptions.Count > 0)
                 {
