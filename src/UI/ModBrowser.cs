@@ -1559,10 +1559,19 @@ namespace ModIO.UI
                         // installs
                         CacheClient.SaveModProfiles(response.items);
 
+                        List<Modfile> latestBuilds = new List<Modfile>(response.items.Length);
+                        List<int> subscribedModIds = ModManager.GetSubscribedModIds();
                         foreach(ModProfile profile in response.items)
                         {
-                            yield return StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
+                            if(profile != null
+                               && profile.currentBuild != null
+                               && subscribedModIds.Contains(profile.id))
+                            {
+                                latestBuilds.Add(profile.currentBuild);
+                            }
                         }
+
+                        yield return this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(latestBuilds));
                     }
                 }
             }
