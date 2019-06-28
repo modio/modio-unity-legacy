@@ -247,7 +247,7 @@ namespace ModIO.UI
 
             if(UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE))
             {
-                yield return this.StartCoroutine(FetchAllSubscribedModProfiles());
+                yield return this.StartCoroutine(UpdateAllSubscribedModProfiles());
             }
             else
             {
@@ -762,9 +762,9 @@ namespace ModIO.UI
                         ModProfileRequestManager.instance.profileCache[profile.id] = profile;
                     }
                 }
+                CacheClient.SaveModProfiles(requestPage.items);
 
                 // add new subs
-                CacheClient.SaveModProfiles(requestPage.items);
                 if(newSubs.Count > 0)
                 {
                     var subscribedModIds = ModManager.GetSubscribedModIds();
@@ -816,7 +816,7 @@ namespace ModIO.UI
             }
         }
 
-        private System.Collections.IEnumerator FetchAllSubscribedModProfiles()
+        private System.Collections.IEnumerator UpdateAllSubscribedModProfiles()
         {
             int updateStartTimeStamp = ServerTimeStamp.Now;
             List<int> subscribedModIds = ModManager.GetSubscribedModIds();
@@ -926,8 +926,11 @@ namespace ModIO.UI
 
                     OnSubscriptionsChanged(null, removedModIds);
 
-                    string message = (removedModIds.Count.ToString() + " subscribed mods have become"
-                                      + " unavailable and have been removed from your subscriptions.");
+                    int deletedModCount = removedModIds.Count;
+                    string message = (deletedModCount.ToString()
+                                      + (deletedModCount > 1
+                                         ? " subscribed mods have become unavailable and have been removed from your subscriptions."
+                                         : " subscribed mod is now unavailable and was removed from your subscriptions."));
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
                 }
 
@@ -1437,7 +1440,17 @@ namespace ModIO.UI
 
                     OnSubscriptionsChanged(null, deletedMods);
 
-                    // TODO(@jackson): QueueMessage
+                    int deletedModCount = deletedMods.Count;
+                    string message;
+                    if(deletedModCount == 1)
+                    {
+                        message = "One of your subscribed mods is now unavailable and was removed from your subscriptions.";
+                    }
+                    else
+                    {
+                        message = deletedModCount.ToString() + " subscribed mods have become unavailable and have been removed from your subscriptions.";
+                    }
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
                 }
 
                 // remove duplicates from editedMods
