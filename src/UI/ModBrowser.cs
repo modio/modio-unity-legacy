@@ -721,115 +721,59 @@ namespace ModIO.UI
         {
             if(!m_validOAuthToken) { yield break; }
 
+            // push local actions
+            yield return this.StartCoroutine(PushQueuedSubscribes(null));
+            yield return this.StartCoroutine(PushQueuedUnsubscribes(null));
+
+            // confirm all subscriptions with remote
             int updateStartTimeStamp = ServerTimeStamp.Now;
+            List<int> unmatchedSubscriptions = new List<int>(ModManager.GetSubscribedModIds());
+            bool removeMissingSubscriptions = true;
             int updateCount = 0;
 
-            // set up initial vars
-            bool allPagesReceived = false;
-
-            APIPaginationParameters pagination = new APIPaginationParameters()
+            yield return this.StartCoroutine(FetchRemoteSubscriptions(
+            (requestPage) =>
             {
-                limit = APIPaginationParameters.LIMIT_MAX,
-                offset = 0,
-            };
+                // check which profiles are new
+                List<int> newSubs = new List<int>();
+                foreach(ModProfile profile in requestPage.items)
+                {
+                    if(!unmatchedSubscriptions.Contains(profile.id)
+                       && !m_queuedUnsubscribes.Contains(profile.id)
+                       && !m_queuedSubscribes.Contains(profile.id))
+                    {
+                        newSubs.Add(profile.id);
+                    }
 
-            RequestFilter subscriptionFilter = new RequestFilter();
-            subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
-                                                new EqualToFilter<int>() { filterValue = m_gameProfile.id });
+                    unmatchedSubscriptions.Remove(profile.id);
+                }
 
-            List<int> localSubscriptions = new List<int>(ModManager.GetSubscribedModIds());
+                // add new subs
+                CacheClient.SaveModProfiles(requestPage.items);
+                if(newSubs.Count > 0)
+                {
+                    var subscribedModIds = ModManager.GetSubscribedModIds();
+                    subscribedModIds.AddRange(newSubs);
+                    ModManager.SetSubscribedModIds(subscribedModIds);
+                    OnSubscriptionsChanged(newSubs, null);
+                }
 
-            // loop until done or broken
-            while(m_validOAuthToken
-                  && !allPagesReceived)
+                updateCount += newSubs.Count;
+            },
+            ( ) => {},
+            (e) =>
             {
-                bool isRequestDone = false;
-                WebRequestError requestError = null;
-                RequestPage<ModProfile> requestPage = null;
-
-                APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
-                                               (r) => { isRequestDone = true; requestPage = r; },
-                                               (e) => { isRequestDone = true; requestError = e; });
-
-                while(!isRequestDone) { yield return null; }
-
-                if(requestError != null)
-                {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(requestError.isAuthenticationInvalid)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   requestError.displayMessage);
-
-                        m_validOAuthToken = false;
-                        yield break;
-                    }
-                    else if(requestError.isRequestUnresolvable
-                            || reattemptDelay < 0)
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to synchronize subscriptions with mod.io servers.\n"
-                                                   + requestError.displayMessage);
-                        yield break;
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   "Failed to synchronize subscriptions with mod.io servers.\n"
-                                                   + requestError.displayMessage
-                                                   + "\nRetrying in "
-                                                   + reattemptDelay.ToString()
-                                                   + " seconds");
-
-                        yield return new WaitForSecondsRealtime(reattemptDelay);
-                        continue;
-                    }
-                }
-                else
-                {
-                    // check which profiles are new
-                    List<int> newSubs = new List<int>();
-                    foreach(ModProfile profile in requestPage.items)
-                    {
-                        if(!localSubscriptions.Contains(profile.id)
-                           && !m_queuedUnsubscribes.Contains(profile.id)
-                           && !m_queuedSubscribes.Contains(profile.id))
-                        {
-                            newSubs.Add(profile.id);
-                        }
-
-                        localSubscriptions.Remove(profile.id);
-                    }
-
-                    // add new subs
-                    CacheClient.SaveModProfiles(requestPage.items);
-                    if(newSubs.Count > 0)
-                    {
-                        var subscribedModIds = ModManager.GetSubscribedModIds();
-                        subscribedModIds.AddRange(newSubs);
-                        ModManager.SetSubscribedModIds(subscribedModIds);
-                        OnSubscriptionsChanged(newSubs, null);
-                    }
-
-                    updateCount += newSubs.Count;
-
-                    // check pages
-                    allPagesReceived = (requestPage.items.Length < requestPage.size);
-                    if(!allPagesReceived)
-                    {
-                        pagination.offset += pagination.limit;
-                    }
-                }
-            }
+                removeMissingSubscriptions = false;
+            }));
 
             // handle removed ids
-            if(allPagesReceived)
+            if(removeMissingSubscriptions)
             {
-                if(localSubscriptions.Count > 0)
+                if(unmatchedSubscriptions.Count > 0)
                 {
-                    var remoteUnsubs = new List<int>(localSubscriptions);
+                    var remoteUnsubs = new List<int>(unmatchedSubscriptions);
                     var subscribedModIds = ModManager.GetSubscribedModIds();
-                    foreach(int modId in localSubscriptions)
+                    foreach(int modId in unmatchedSubscriptions)
                     {
                         if(m_queuedSubscribes.Contains(modId))
                         {
@@ -843,20 +787,21 @@ namespace ModIO.UI
                     ModManager.SetSubscribedModIds(subscribedModIds);
                     OnSubscriptionsChanged(null, remoteUnsubs);
 
-                    updateCount += localSubscriptions.Count;
+                    updateCount += unmatchedSubscriptions.Count;
                 }
 
                 this.lastSubscriptionSync = updateStartTimeStamp;
                 this.lastCacheUpdate = updateStartTimeStamp;
             }
 
+            // display message
             if(updateCount > 0)
             {
-                string message = updateCount.ToString() + " subscription(s) synchronized with the server";
+                string message = (updateCount.ToString() + " subscription"
+                                  + (updateCount > 1 ? "s" : "")
+                                  + " synchronized with the server");
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
             }
-
-            PushSubscriptionChanges();
         }
 
         private System.Collections.IEnumerator FetchAllSubscribedModProfiles()
