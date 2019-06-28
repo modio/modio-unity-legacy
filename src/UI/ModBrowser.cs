@@ -1069,36 +1069,6 @@ namespace ModIO.UI
             }
         }
 
-        private void AssertInstalledLatest(ModProfile profile, List<int> installedIds)
-        {
-            bool isInstalled = false;
-            List<int> wrongVersions = new List<int>();
-            foreach(int modfileId in installedIds)
-            {
-                if(modfileId == profile.currentBuild.id)
-                {
-                    isInstalled = true;
-                }
-                else if(!wrongVersions.Contains(modfileId))
-                {
-                    wrongVersions.Add(modfileId);
-                }
-            }
-
-            if(!isInstalled)
-            {
-                this.StartCoroutine(DownloadAndInstallModVersion(profile.id, profile.currentBuild.id));
-            }
-            // isInstalled &&
-            else if(wrongVersions.Count > 0)
-            {
-                foreach(int modfileId in wrongVersions)
-                {
-                    ModManager.TryUninstallModVersion(profile.id, modfileId);
-                }
-            }
-        }
-
         private System.Collections.IEnumerator FetchAllModProfiles(int[] modIds,
                                                                    Action<List<ModProfile>> onSuccess,
                                                                    Action<WebRequestError> onError)
