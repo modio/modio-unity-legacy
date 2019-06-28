@@ -1935,13 +1935,11 @@ namespace ModIO.UI
             ModProfileRequestManager.instance.RequestModProfile(modId,
             (p) =>
             {
-                if(this != null && this.isActiveAndEnabled)
+                if(this != null && this.isActiveAndEnabled
+                   && p != null && p.currentBuild != null
+                   && ModManager.GetSubscribedModIds().Contains(p.id))
                 {
-                    string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
-                    if(!Directory.Exists(installDir))
-                    {
-                        this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.currentBuild.id));
-                    }
+                    this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(new Modfile[] { p.currentBuild }));
                 }
             },
             (requestError) =>
@@ -2002,17 +2000,19 @@ namespace ModIO.UI
                     {
                         var subbedMods = ModManager.GetSubscribedModIds();
 
+                        List<Modfile> modfiles = new List<Modfile>(modProfiles.Length);
+
                         foreach(ModProfile p in modProfiles)
                         {
-                            if(subbedMods.Contains(p.id))
+                            if(p != null
+                               && p.currentBuild != null
+                               && subbedMods.Contains(p.id))
                             {
-                                string installDir = ModManager.GetModInstallDirectory(p.id, p.currentBuild.id);
-                                if(!Directory.Exists(installDir))
-                                {
-                                    this.StartCoroutine(DownloadAndInstallModVersion(p.id, p.currentBuild.id));
-                                }
+                                modfiles.Add(p.currentBuild);
                             }
                         }
+
+                        this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(modfiles));
                     }
                 },
                 (requestError) =>

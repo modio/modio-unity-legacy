@@ -719,7 +719,7 @@ namespace ModIO
                         Debug.LogWarning("[mod.io] Failed to download mod (id:"
                                          + downloadingModfile.modId.ToString()
                                          + "-modfile:" + downloadingModfile.id.ToString()
-                                          + "). See logged message for details.");
+                                         + "). See logged message for details.");
 
                         startNextDownload = true;
                     }
