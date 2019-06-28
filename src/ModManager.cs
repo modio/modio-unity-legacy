@@ -747,7 +747,7 @@ namespace ModIO
                                                      && m.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
 
                         isInstalled = (isDownloadedAndValid
-                                       && ModManager.TryInstallMod(m.modId, m.id, false));
+                                       && ModManager.TryInstallMod(m.modId, m.id, true));
                     }
 
                     // update
@@ -758,6 +758,64 @@ namespace ModIO
                         --i;
                     }
                 }
+            }
+
+            // check for expired download links
+            int awaitingModfileUpdates = 0;
+            List<Modfile> badModfiles = new List<Modfile>();
+
+            for(int i = 0;
+                i < unmatchedModfiles.Count;
+                ++i)
+            {
+                int modIndex = i;
+                Modfile modfile = unmatchedModfiles[i];
+
+                if(modfile.downloadLocator == null
+                   || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now)
+                {
+                    ++awaitingModfileUpdates;
+
+                    APIClient.GetModfile(modfile.modId, modfile.id,
+                    (updatedModfile) =>
+                    {
+                        --awaitingModfileUpdates;
+
+                        if(modfile.downloadLocator == null
+                           || modfile.downloadLocator.dateExpires <= ServerTimeStamp.Now)
+                        {
+                            badModfiles.Add(modfile);
+
+                            Debug.LogWarning("[mod.io] Unable to get a good download locator for"
+                                             + " (modId:" + modfile.modId.ToString()
+                                             + "-modfileId:" + modfile.id.ToString()
+                                             + ").");
+                        }
+                        else
+                        {
+                            unmatchedModfiles[modIndex] = updatedModfile;
+                        }
+                    },
+                    (e) =>
+                    {
+                        --awaitingModfileUpdates;
+
+                        badModfiles.Add(modfile);
+
+                        Debug.LogWarning("[mod.io] Unable to get a good download locator for"
+                                         + " (modId:" + modfile.modId.ToString()
+                                         + "-modfileId:" + modfile.id.ToString()
+                                         + ").\n"
+                                         + e.ToUnityDebugString());
+                    });
+                }
+            }
+
+            while(awaitingModfileUpdates > 0) { yield return null; }
+
+            foreach(Modfile brokenModfile in badModfiles)
+            {
+                unmatchedModfiles.Remove(brokenModfile);
             }
 
             // - download and install -
