@@ -382,7 +382,7 @@ namespace ModIO.UI
             if(this.storeIfSubscribed
                && addedSubscriptions.Count > 0)
             {
-                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions, true, true,
+                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions, true,
                 (modProfiles) =>
                 {
                     if(this == null || !this.isActiveAndEnabled || modProfiles == null) { return; }
