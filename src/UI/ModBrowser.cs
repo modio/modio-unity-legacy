@@ -107,7 +107,15 @@ namespace ModIO.UI
         {
             if(this.m_validOAuthToken)
             {
-                PushSubscriptionChanges();
+                // attempt pushing of subs/unsubs
+                foreach(int modId in this.m_queuedSubscribes)
+                {
+                    APIClient.SubscribeToMod(modId, null, null);
+                }
+                foreach(int modId in this.m_queuedUnsubscribes)
+                {
+                    APIClient.UnsubscribeFromMod(modId, null, null);
+                }
             }
         }
 
@@ -1373,88 +1381,16 @@ namespace ModIO.UI
 
         private void PushSubscriptionChanges()
         {
-            if(!this.m_validOAuthToken) { return; }
-
-            // NOTE(@jackson): This is workaround is due to the response of a repeat sub and unsub
-            // request returning an error.
-            Action<WebRequestError, int> onSubFail = (e, modId) =>
+            if(this == null
+               || !this.isActiveAndEnabled
+               || !this.m_validOAuthToken)
             {
-                // Ignore error for "Mod is already subscribed"
-                if(e.webRequest.responseCode != 400)
-                {
-                    if(e.isAuthenticationInvalid)
-                    {
-                        if(m_validOAuthToken)
-                        {
-                            m_validOAuthToken = false;
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       e.displayMessage);
-                        }
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   e.displayMessage);
-                    }
-                }
-
-                if(e.isRequestUnresolvable
-                   && !e.isAuthenticationInvalid)
-                {
-                    m_queuedSubscribes.Remove(modId);
-                    WriteManifest();
-                }
-            };
-            Action<WebRequestError, int> onUnsubFail = (e, modId) =>
-            {
-                // Ignore error for "Mod is not subscribed"
-                if(e.webRequest.responseCode != 400)
-                {
-                    if(e.isAuthenticationInvalid)
-                    {
-                        if(m_validOAuthToken)
-                        {
-                            m_validOAuthToken = false;
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       e.displayMessage);
-                        }
-                    }
-                    else
-                    {
-                        MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                                   e.displayMessage);
-                    }
-                }
-
-                if(e.isRequestUnresolvable
-                   && !e.isAuthenticationInvalid)
-                {
-                    m_queuedUnsubscribes.Remove(modId);
-                    WriteManifest();
-                }
-            };
+                return;
+            }
 
             // push subs/unsubs
-            foreach(int modId in m_queuedSubscribes)
-            {
-                APIClient.SubscribeToMod(modId,
-                                         (p) =>
-                                         {
-                                            m_queuedSubscribes.Remove(p.id);
-                                            WriteManifest();
-                                         },
-                                         (e) => onSubFail(e, modId));
-            }
-            foreach(int modId in m_queuedUnsubscribes)
-            {
-                APIClient.UnsubscribeFromMod(modId,
-                                             () =>
-                                             {
-                                                m_queuedUnsubscribes.Remove(modId);
-                                                WriteManifest();
-                                             },
-                                             (e) => onUnsubFail(e, modId));
-            }
+            this.StartCoroutine(PushQueuedSubscribes(null));
+            this.StartCoroutine(PushQueuedUnsubscribes(null));
         }
 
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
