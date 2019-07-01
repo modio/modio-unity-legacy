@@ -1322,6 +1322,10 @@ namespace ModIO.UI
                     else if(UserAuthenticationData.instance.IsTokenValid)
                     {
                         ProcessUserUpdates(userEventReponse);
+
+                        yield return this.StartCoroutine(this.PushQueuedSubscribes(null));
+                        yield return this.StartCoroutine(this.PushQueuedUnsubscribes(null));
+
                         this.lastSubscriptionSync = updateStartTimeStamp;
                         WriteManifest();
 
