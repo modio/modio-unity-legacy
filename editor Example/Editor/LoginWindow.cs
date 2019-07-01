@@ -105,6 +105,7 @@ namespace ModIO.Editor
                                 {
                                     userId = userProfile.id,
                                     token = token,
+                                    wasTokenRejected = false,
                                 };
                                 UserAuthenticationData.instance = userData;
 
@@ -128,6 +129,7 @@ namespace ModIO.Editor
                                 {
                                     userId = UserProfile.NULL_ID,
                                     token = token,
+                                    wasTokenRejected = false,
                                 };
 
                                 APIClient.GetAuthenticatedUser((u) => onGetUserProfile(u, token),
