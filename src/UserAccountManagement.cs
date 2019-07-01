@@ -31,6 +31,7 @@ namespace ModIO
                 UserAuthenticationData authData = new UserAuthenticationData()
                 {
                     token = t,
+                    wasTokenRejected = false,
                     steamTicket = null,
                     gogTicket = null,
                 };
@@ -53,6 +54,7 @@ namespace ModIO
                 UserAuthenticationData authData = new UserAuthenticationData()
                 {
                     token = t,
+                    wasTokenRejected = false,
                     steamTicket = encodedTicket,
                     gogTicket = null,
                 };
@@ -75,6 +77,7 @@ namespace ModIO
                 UserAuthenticationData authData = new UserAuthenticationData()
                 {
                     token = t,
+                    wasTokenRejected = false,
                     gogTicket = encodedTicket,
                     steamTicket = null,
                 };
@@ -101,6 +104,15 @@ namespace ModIO
                 }
             },
             onError);
+        }
+
+        // ---------[ UTILITY ]---------
+        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
+        public static void MarkAuthTokenRejected()
+        {
+            UserAuthenticationData data = UserAuthenticationData.instance;
+            data.wasTokenRejected = true;
+            UserAuthenticationData.instance = data;
         }
     }
 }
