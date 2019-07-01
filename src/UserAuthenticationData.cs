@@ -13,6 +13,7 @@ namespace ModIO
         {
             userId = UserProfile.NULL_ID,
             token = null,
+            wasTokenRejected = false,
             steamTicket = null,
             gogTicket = null,
         };
@@ -28,11 +29,18 @@ namespace ModIO
         /// <summary>User authentication token to send with API requests identifying the user.</summary>
         public string token;
 
+        /// <summary>A flag to indicate that the auth token has been rejected.</summary>
+        public bool wasTokenRejected;
+
         /// <summary>Steam ticket (if applicable).</summary>
         public string steamTicket;
 
         /// <summary>GOG ticket (if applicable).</summary>
         public string gogTicket;
+
+        // --- ACCESSORS ---
+        public bool IsTokenValid
+        { get { return !this.wasTokenRejected && !string.IsNullOrEmpty(this.token); } }
 
         // ---------[ SINGLETON ]---------
         /// <summary>Singleton instance to be used as the current/active data.</summary>
