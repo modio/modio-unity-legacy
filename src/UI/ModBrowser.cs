@@ -243,11 +243,7 @@ namespace ModIO.UI
 
             this.StartCoroutine(FetchGameProfile());
 
-            if(UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE))
-            {
-                yield return this.StartCoroutine(UpdateAllSubscribedModProfiles());
-            }
-            else
+            if(UserAuthenticationData.instance.IsTokenValid)
             {
                 yield return this.StartCoroutine(FetchUserProfile());
 
@@ -256,6 +252,10 @@ namespace ModIO.UI
                 {
                     yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
                 }
+            }
+            else
+            {
+                yield return this.StartCoroutine(UpdateAllSubscribedModProfiles());
             }
 
             this.StartCoroutine(VerifySubscriptionInstallations());
@@ -300,7 +300,14 @@ namespace ModIO.UI
                     int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        if(String.IsNullOrEmpty(UserAuthenticationData.instance.token))
+                        if(UserAuthenticationData.instance.IsTokenValid)
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       requestError.displayMessage);
+
+                            UserAccountManagement.MarkAuthTokenRejected();
+                        }
+                        else
                         {
                             Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
                                              + " servers. Please check you Game Id and APIKey in the"
@@ -309,13 +316,6 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        "Failed to collect game data from mod.io.\n"
                                                        + requestError.displayMessage);
-                        }
-                        else
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
-
-                            UserAccountManagement.MarkAuthTokenRejected();
                         }
 
                         yield break;
@@ -349,7 +349,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserProfile()
         {
-            Debug.Assert(!String.IsNullOrEmpty(UserAuthenticationData.instance.token));
+            Debug.Assert(UserAuthenticationData.instance.IsTokenValid);
 
             bool succeeded = false;
             string fetchToken = UserAuthenticationData.instance.token;
@@ -438,7 +438,7 @@ namespace ModIO.UI
         private System.Collections.IEnumerator PushQueuedSubscribes(Action<List<ModProfile>> onCompleted)
         {
             // early out if not authenticated or no queued subs
-            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token)
+            if(!UserAuthenticationData.instance.IsTokenValid
                || this.m_queuedSubscribes.Count == 0)
             {
                 if(onCompleted != null) { onCompleted(new List<ModProfile>()); }
@@ -560,7 +560,7 @@ namespace ModIO.UI
         private System.Collections.IEnumerator PushQueuedUnsubscribes(Action<List<int>> onCompleted)
         {
             // early out if not authenticated or no queued actions
-            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token)
+            if(!UserAuthenticationData.instance.IsTokenValid
                || this.m_queuedUnsubscribes.Count == 0)
             {
                 if(onCompleted != null) { onCompleted(new List<int>(0)); }
@@ -640,8 +640,8 @@ namespace ModIO.UI
                                                                         Action onCompleted,
                                                                         Action<WebRequestError> onFailed)
         {
-            // early out if not authenticated or no queued actions
-            if(string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            // early out if not authenticated
+            if(!UserAuthenticationData.instance.IsTokenValid)
             {
                 if(onCompleted != null) { onCompleted(); }
                 yield break;

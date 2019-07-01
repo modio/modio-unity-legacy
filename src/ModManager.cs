@@ -1755,7 +1755,7 @@ namespace ModIO
                                           onSuccess,
                                           onError);
             }
-            else if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            else if(UserAuthenticationData.instance.IsTokenValid)
             {
                 APIClient.GetAuthenticatedUser(
                 (p) =>

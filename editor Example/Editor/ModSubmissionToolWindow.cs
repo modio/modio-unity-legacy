@@ -44,7 +44,7 @@ namespace ModIO.Editor
             uploadSucceededMessage = null;
             uploadFailedMessage = null;
 
-            if(!UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE))
+            if(UserAuthenticationData.instance.IsTokenValid)
             {
                 ModManager.GetAuthenticatedUserProfile((userProfile) =>
                 {

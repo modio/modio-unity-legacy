@@ -93,13 +93,22 @@ namespace ModIO
                 return false;
             }
 
-            if(isUserTokenRequired
-               && String.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            if(isUserTokenRequired)
             {
-                Debug.LogError("[mod.io] API request to modification or User-specific"
-                               + " endpoints cannot be made without first setting the"
-                               + " User Authorization Data instance with a valid token.");
-                return false;
+                if(String.IsNullOrEmpty(UserAuthenticationData.instance.token))
+                {
+                    Debug.LogError("[mod.io] API request to modification or User-specific"
+                                   + " endpoints cannot be made without first setting the"
+                                   + " User Authorization Data instance with a valid token.");
+                    return false;
+                }
+                else if(UserAuthenticationData.instance.wasTokenRejected)
+                {
+                    Debug.LogWarning("[mod.io] An API request is being made with a UserAuthenticationData"
+                                     + " token that has been flagged as previously rejected."
+                                     + " A check on UserAuthenticationData.instance.IsTokenValid"
+                                     + " should be made prior to making user-authrization calls.");
+                }
             }
 
             return true;
