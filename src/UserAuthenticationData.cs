@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 using Application = UnityEngine.Application;
 using Debug = UnityEngine.Debug;
 
@@ -39,6 +41,7 @@ namespace ModIO
         public string gogTicket;
 
         // --- ACCESSORS ---
+        [JsonIgnore]
         public bool IsTokenValid
         { get { return !this.wasTokenRejected && !string.IsNullOrEmpty(this.token); } }
 
