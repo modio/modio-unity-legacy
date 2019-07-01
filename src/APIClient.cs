@@ -207,13 +207,13 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
 
-            if(String.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            if(UserAuthenticationData.instance.IsTokenValid)
             {
-                webRequest.url += "&api_key=" + PluginSettings.data.gameAPIKey;
+                webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
             }
             else
             {
-                webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
+                webRequest.url += "&api_key=" + PluginSettings.data.gameAPIKey;
             }
 
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
