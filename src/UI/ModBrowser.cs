@@ -70,7 +70,6 @@ namespace ModIO.UI
         private int lastCacheUpdate = -1;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
-        private bool m_validOAuthToken = false;
 
         // --- ACCESSORS ---
         public GameProfile gameProfile
@@ -99,7 +98,6 @@ namespace ModIO.UI
 
         private void OnEnable()
         {
-            this.m_validOAuthToken = false;
             this.StartCoroutine(StartFetchRemoteData());
 
             DownloadClient.modfileDownloadSucceeded += this.OnModfileDownloadSucceeded;
@@ -108,7 +106,7 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            if(this.m_validOAuthToken)
+            if(UserAuthenticationData.instance.IsTokenValid)
             {
                 // attempt pushing of subs/unsubs
                 foreach(int modId in this.m_queuedSubscribes)
@@ -254,7 +252,7 @@ namespace ModIO.UI
                 yield return this.StartCoroutine(FetchUserProfile());
 
                 // NOTE(@jackson): There is the potential that the UserProfile request fails
-                if(m_validOAuthToken)
+                if(UserAuthenticationData.instance.IsTokenValid)
                 {
                     yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
                 }
@@ -317,7 +315,7 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            m_validOAuthToken = false;
+                            UserAccountManagement.MarkAuthTokenRejected();
                         }
 
                         yield break;
@@ -400,7 +398,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        m_validOAuthToken = false;
+                        UserAccountManagement.MarkAuthTokenRejected();
+
                         yield break;
                     }
                     else if(requestError.isRequestUnresolvable
@@ -413,7 +412,8 @@ namespace ModIO.UI
                                                    "Failed to collect user profile data from mod.io.\n"
                                                    + requestError.displayMessage);
 
-                        m_validOAuthToken = false;
+                        UserAccountManagement.MarkAuthTokenRejected();
+
                         yield break;
                     }
                     else
@@ -430,8 +430,6 @@ namespace ModIO.UI
                     }
                 }
             }
-
-            this.m_validOAuthToken = succeeded;
 
             StartCoroutine(FetchUserRatings());
         }
@@ -501,9 +499,9 @@ namespace ModIO.UI
                         --responsesPending;
                         if(e.isAuthenticationInvalid)
                         {
-                            if(m_validOAuthToken)
+                            if(UserAuthenticationData.instance.IsTokenValid)
                             {
-                                this.m_validOAuthToken = false;
+                                UserAccountManagement.MarkAuthTokenRejected();
                                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                            e.displayMessage);
                             }
@@ -601,9 +599,10 @@ namespace ModIO.UI
                         --responsesPending;
                         if(e.isAuthenticationInvalid)
                         {
-                            if(m_validOAuthToken)
+                            if(UserAuthenticationData.instance.IsTokenValid)
                             {
-                                this.m_validOAuthToken = false;
+                                UserAccountManagement.MarkAuthTokenRejected();
+
                                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                            e.displayMessage);
                             }
@@ -700,9 +699,10 @@ namespace ModIO.UI
                     }
                     else
                     {
-                        if(error.isAuthenticationInvalid)
+                        if(UserAuthenticationData.instance.IsTokenValid)
                         {
-                            this.m_validOAuthToken = false;
+                            UserAccountManagement.MarkAuthTokenRejected();
+
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        error.displayMessage);
                         }
@@ -725,7 +725,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
         {
-            if(!m_validOAuthToken) { yield break; }
+            if(!UserAuthenticationData.instance.IsTokenValid) { yield break; }
 
             // push local actions
             yield return this.StartCoroutine(PushQueuedSubscribes(null));
@@ -866,7 +866,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        m_validOAuthToken = false;
+                        UserAccountManagement.MarkAuthTokenRejected();
+
                         yield break;
                     }
                     else if(requestError.isRequestUnresolvable
@@ -941,8 +942,6 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserRatings()
         {
-            if(!m_validOAuthToken) { yield break; }
-
             APIPaginationParameters pagination = new APIPaginationParameters();
             RequestFilter filter = new RequestFilter();
             filter.fieldFilters[API.GetUserRatingsFilterFields.gameId]
@@ -951,7 +950,7 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(m_validOAuthToken
+            while(UserAuthenticationData.instance.IsTokenValid
                   && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
@@ -979,7 +978,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        m_validOAuthToken = false;
+                        UserAccountManagement.MarkAuthTokenRejected();
+
                         yield break;
                     }
                     else if(requestError.isRequestUnresolvable
@@ -1233,7 +1233,7 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            m_validOAuthToken = false;
+                            UserAccountManagement.MarkAuthTokenRejected();
                         }
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
@@ -1270,7 +1270,7 @@ namespace ModIO.UI
                 bool isRequestDone = false;
                 WebRequestError requestError = null;
 
-                if(this.m_validOAuthToken)
+                if(UserAuthenticationData.instance.IsTokenValid)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -1297,7 +1297,7 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            m_validOAuthToken = false;
+                            UserAccountManagement.MarkAuthTokenRejected();
                         }
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
@@ -1319,13 +1319,11 @@ namespace ModIO.UI
                         }
                     }
                     // This may have changed during the request execution
-                    else if(m_validOAuthToken)
+                    else if(UserAuthenticationData.instance.IsTokenValid)
                     {
                         ProcessUserUpdates(userEventReponse);
                         this.lastSubscriptionSync = updateStartTimeStamp;
                         WriteManifest();
-
-                        PushSubscriptionChanges();
 
                         StartCoroutine(FetchUserRatings());
                     }
@@ -1339,7 +1337,7 @@ namespace ModIO.UI
         {
             if(this == null
                || !this.isActiveAndEnabled
-               || !this.m_validOAuthToken)
+               || !UserAuthenticationData.instance.IsTokenValid)
             {
                 return;
             }
@@ -1533,7 +1531,7 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            m_validOAuthToken = false;
+                            UserAccountManagement.MarkAuthTokenRejected();
                         }
                         else
                         {
@@ -1581,6 +1579,7 @@ namespace ModIO.UI
             {
                 userId = UserProfile.NULL_ID,
                 token = oAuthToken,
+                wasTokenRejected = false,
             };
 
             m_queuedSubscribes.AddRange(ModManager.GetSubscribedModIds());
@@ -1588,7 +1587,7 @@ namespace ModIO.UI
 
             yield return this.StartCoroutine(FetchUserProfile());
 
-            if(this.m_validOAuthToken)
+            if(UserAuthenticationData.instance.IsTokenValid)
             {
                 yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
@@ -1612,7 +1611,6 @@ namespace ModIO.UI
             WriteManifest();
 
             // - clear current user -
-            this.m_validOAuthToken = false;
             UserAuthenticationData.Clear();
 
             // - notify receivers -
@@ -1695,10 +1693,10 @@ namespace ModIO.UI
             {
                 if(requestError.isAuthenticationInvalid)
                 {
+                    UserAccountManagement.MarkAuthTokenRejected();
+
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                requestError.displayMessage);
-
-                    m_validOAuthToken = false;
                 }
                 else
                 {
@@ -1771,7 +1769,7 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        m_validOAuthToken = false;
+                        UserAccountManagement.MarkAuthTokenRejected();
                     }
                     else
                     {
