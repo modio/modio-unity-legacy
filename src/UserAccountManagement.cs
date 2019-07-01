@@ -48,7 +48,15 @@ namespace ModIO
                                                                    Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
+                                                                          onSuccess, onError);
+        }
 
+        /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        public static void AuthenticateWithSteamEncryptedAppTicket(string encodedTicket,
+                                                                   Action<UserProfile> onSuccess,
+                                                                   Action<WebRequestError> onError)
+        {
             APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
             {
                 UserAuthenticationData authData = new UserAuthenticationData()
@@ -63,6 +71,7 @@ namespace ModIO
                 UserAccountManagement.FetchUserProfile(onSuccess, onError);
             },
             onError);
+
         }
 
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
@@ -71,7 +80,15 @@ namespace ModIO
                                                                  Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeEncryptedAppTicket(data, dataSize);
+            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket,
+                                                                        onSuccess, onError);
+        }
 
+        /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
+        public static void AuthenticateWithGOGEncryptedAppTicket(string encodedTicket,
+                                                                 Action<UserProfile> onSuccess,
+                                                                 Action<WebRequestError> onError)
+        {
             APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
             {
                 UserAuthenticationData authData = new UserAuthenticationData()

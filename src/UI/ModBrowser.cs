@@ -241,17 +241,73 @@ namespace ModIO.UI
                 yield break;
             }
 
+            if(UserAuthenticationData.instance.IsTokenValid)
+            {
+                this.StartCoroutine(FetchUserProfile());
+            }
+            else // if invalid token, check if externally authenticated
+            {
+                bool isAttemptingReauth = false;
+
+                if(!string.IsNullOrEmpty(UserAuthenticationData.instance.steamTicket))
+                {
+                    isAttemptingReauth = true;
+
+                    UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(UserAuthenticationData.instance.steamTicket,
+                    (u) =>
+                    {
+                        CacheClient.SaveUserProfile(u);
+
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+                        foreach(var receiver in updateReceivers)
+                        {
+                            receiver.OnUserProfileUpdated(u);
+                        }
+
+                        isAttemptingReauth = false;
+                    },
+                    (e) =>
+                    {
+                        Debug.Log("[mod.io] Failed to collect new OAuthToken for stored Steam user ticket.\n"
+                                  + e.errorMessage);
+
+                        isAttemptingReauth = false;
+                    });
+                }
+                else if(!string.IsNullOrEmpty(UserAuthenticationData.instance.gogTicket))
+                {
+                    isAttemptingReauth = true;
+
+                    UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(UserAuthenticationData.instance.gogTicket,
+                    (u) =>
+                    {
+                        CacheClient.SaveUserProfile(u);
+
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+                        foreach(var receiver in updateReceivers)
+                        {
+                            receiver.OnUserProfileUpdated(u);
+                        }
+
+                        isAttemptingReauth = false;
+                    },
+                    (e) =>
+                    {
+                        Debug.Log("[mod.io] Failed to collect new OAuthToken for stored GOG user ticket.\n"
+                                  + e.errorMessage);
+
+                        isAttemptingReauth = false;
+                    });
+                }
+
+                while(isAttemptingReauth) { yield return null; }
+            }
+
             this.StartCoroutine(FetchGameProfile());
 
             if(UserAuthenticationData.instance.IsTokenValid)
             {
-                yield return this.StartCoroutine(FetchUserProfile());
-
-                // NOTE(@jackson): There is the potential that the UserProfile request fails
-                if(UserAuthenticationData.instance.IsTokenValid)
-                {
-                    yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
-                }
+                yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
             else
             {
