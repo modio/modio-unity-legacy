@@ -1093,7 +1093,7 @@ namespace ModIO.UI
             List<Modfile> modfilesToAssert = new List<Modfile>(subscribedModIds.Count);
             bool isRequestDone = false;
 
-            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds, true,
+            ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
             (modProfiles) =>
             {
                 subscribedModIds = ModManager.GetSubscribedModIds();
@@ -1800,7 +1800,7 @@ namespace ModIO.UI
                 }
 
                 // start downloads
-                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions, true,
+                ModProfileRequestManager.instance.RequestModProfiles(addedSubscriptions,
                 (modProfiles) =>
                 {
                     if(this != null && this.isActiveAndEnabled)

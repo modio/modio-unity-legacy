@@ -354,7 +354,6 @@ namespace ModIO.UI
 
         /// <summary>Requests a collection of ModProfiles by id.</summary>
         public virtual void RequestModProfiles(IList<int> orderedIdList,
-                                               bool includeHiddenMods,
                                                Action<ModProfile[]> onSuccess,
                                                Action<WebRequestError> onError)
         {
@@ -371,14 +370,7 @@ namespace ModIO.UI
                 ModProfile profile = null;
                 if(this.profileCache.TryGetValue(modId, out profile))
                 {
-                    if((includeHiddenMods || profile.visibility != ModVisibility.Hidden))
-                    {
-                        results[i] = profile;
-                    }
-                    else
-                    {
-                        results[i] = null;
-                    }
+                    results[i] = profile;
                 }
 
                 if(profile == null)
@@ -393,15 +385,6 @@ namespace ModIO.UI
                 int index = orderedIdList.IndexOf(profile.id);
                 if(index >= 0 && results[index] == null)
                 {
-                    if((includeHiddenMods || profile.visibility != ModVisibility.Hidden))
-                    {
-                        results[index] = profile;
-                    }
-                    else
-                    {
-                        results[index] = null;
-                    }
-
                     results[index] = profile;
                 }
 
@@ -451,7 +434,6 @@ namespace ModIO.UI
             };
 
             this.StartCoroutine(this.FetchAllModProfiles(missingIds.ToArray(),
-                                                         includeHiddenMods,
                                                          onFetchProfiles,
                                                          onError));
         }
@@ -459,30 +441,22 @@ namespace ModIO.UI
         // ---------[ UTILITY ]---------
         /// <summary>Recursively fetches all of the mod profiles in the array.</summary>
         protected System.Collections.IEnumerator FetchAllModProfiles(int[] modIds,
-                                                                     bool includeHiddenMods,
                                                                      Action<List<ModProfile>> onSuccess,
                                                                      Action<WebRequestError> onError)
         {
             List<ModProfile> modProfiles = new List<ModProfile>();
 
-            // create visibility filter
-            List<int> visibilityFilter = new List<int>() { (int)ModVisibility.Public, };
-            if(includeHiddenMods)
-            {
-                visibilityFilter.Add((int)ModVisibility.Hidden);
-            }
-
+            // pagination
             APIPaginationParameters pagination = new APIPaginationParameters()
             {
                 limit = APIPaginationParameters.LIMIT_MAX,
                 offset = 0,
             };
 
+            // filter
             RequestFilter filter = new RequestFilter();
             filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
                 new InArrayFilter<int>() { filterArray = modIds, });
-            filter.fieldFilters.Add(API.GetAllModsFilterFields.visible,
-                new InArrayFilter<int>() { filterArray = visibilityFilter.ToArray() });
 
             bool isDone = false;
 
