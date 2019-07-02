@@ -22,10 +22,14 @@ namespace ModIO
             public int[] enabledModIds;
         }
 
-        /// <summary>Data that needs to be stored across sessions.</summary>
-        private static PersistentData m_data;
+        // ---------[ EVENTS ]---------
+        /// <summary>An event that notifies listeners that a mod has been installed.</summary>
+        public static event Action<ModfileIdPair> onModBinaryInstalled;
 
-        // ---------[ CONSTANTS & STATICS ]---------
+        /// <summary>An event that notifies listeners that a mod has been uninstalled.</summary>
+        public static event Action<ModfileIdPair> onModBinaryUninstalled;
+
+        // ---------[ CONSTANTS ]---------
         /// <summary>Current version of the ModManager/Plugin.</summary>
         public static readonly SimpleVersion VERSION = new SimpleVersion(2, 0);
 
@@ -34,6 +38,10 @@ namespace ModIO
 
         /// <summary>File name used to store the persistent data.</summary>
         public static readonly string PERSISTENTDATA_FILEPATH;
+
+        // ---------[ FIELDS ]---------
+        /// <summary>Data that needs to be stored across sessions.</summary>
+        private static PersistentData m_data;
 
         /// <summary>Install directory used by the ModManager.</summary>
         public static string installationDirectory;
@@ -218,6 +226,16 @@ namespace ModIO
                 IOUtilities.DeleteFile(zipFilePath);
             }
 
+            if(ModManager.onModBinaryInstalled != null)
+            {
+                ModfileIdPair idPair = new ModfileIdPair()
+                {
+                    modId = modId,
+                    modfileId = modfileId,
+                };
+                ModManager.onModBinaryInstalled(idPair);
+            }
+
             return true;
         }
 
@@ -229,10 +247,27 @@ namespace ModIO
 
             var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
 
+            List<ModfileIdPair> uninstalledBinaries = new List<ModfileIdPair>();
+
             bool succeeded = true;
             foreach(var installInfo in installedMods)
             {
-                succeeded = IOUtilities.DeleteDirectory(installInfo.Value) && succeeded;
+                if(IOUtilities.DeleteDirectory(installInfo.Value))
+                {
+                    uninstalledBinaries.Add(installInfo.Key);
+                }
+                else
+                {
+                    succeeded = false;
+                }
+            }
+
+            if(ModManager.onModBinaryUninstalled != null)
+            {
+                foreach(ModfileIdPair idPair in uninstalledBinaries)
+                {
+                    ModManager.onModBinaryUninstalled(idPair);
+                }
             }
 
             return succeeded;
@@ -253,6 +288,17 @@ namespace ModIO
                 {
                     succeeded = IOUtilities.DeleteDirectory(installInfo.Value) && succeeded;
                 }
+            }
+
+            if(succeeded && ModManager.onModBinaryUninstalled != null)
+            {
+                ModfileIdPair idPair = new ModfileIdPair()
+                {
+                    modId = modId,
+                    modfileId = modfileId,
+                };
+
+                ModManager.onModBinaryUninstalled(idPair);
             }
 
             return succeeded;
