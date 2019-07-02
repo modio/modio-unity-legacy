@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
+    [DisallowMultipleComponent]
     public class ModView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
@@ -16,6 +17,7 @@ namespace ModIO.UI
         public event Action<ModView> ratePositiveRequested;
         public event Action<ModView> rateNegativeRequested;
 
+        public event Action<ModProfile> onProfileChanged;
         [Serializable]
         public struct SubmittorDisplay
         {
@@ -45,6 +47,8 @@ namespace ModIO.UI
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
+
+        public ModProfile profile;
 
         // --- RUNTIME DATA ---
         private Coroutine m_downloadDisplayCoroutine = null;
@@ -127,6 +131,36 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        protected virtual void Awake()
+        {
+            #if DEBUG
+            ModView nested = this.gameObject.GetComponentInChildren<ModView>(true);
+            if(nested != null && nested != this)
+            {
+                Debug.LogError("[mod.io] Nesting ModViews is currently not supported due to the"
+                               + " way IModViewElement component parenting works."
+                               + "\nThe nested ModViews must be removed to allow ModView functionality."
+                               + "\nthis=" + this.gameObject.name
+                               + "\nnested=" + nested.gameObject.name,
+                               this);
+                return;
+            }
+            #endif
+
+            // assign mod view elements to this
+            var modViewElements = this.gameObject.GetComponents<IModViewElement>();
+            foreach(IModViewElement viewElement in modViewElements)
+            {
+                viewElement.SetModView(this);
+            }
+
+            modViewElements = this.gameObject.GetComponentsInChildren<IModViewElement>(true);
+            foreach(IModViewElement viewElement in modViewElements)
+            {
+                viewElement.SetModView(this);
+            }
+        }
+
         public void OnEnable()
         {
             GetData();
@@ -440,6 +474,7 @@ namespace ModIO.UI
                 CollectDelegates();
             }
 
+            this.profile = profile;
             m_data = new ModDisplayData();
 
             foreach(DisplayProfileDelegate displayDelegate in m_displayDelegates)
@@ -513,6 +548,11 @@ namespace ModIO.UI
                 userRatingDisplay.negative.isOn = (userRating == ModRatingValue.Negative);
             }
             m_data.userRating = userRating;
+
+            if(this.onProfileChanged != null)
+            {
+                this.onProfileChanged(profile);
+            }
 
 
             #if UNITY_EDITOR
