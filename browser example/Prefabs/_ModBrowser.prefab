@@ -14059,7 +14059,7 @@ MonoBehaviour:
     isAscending: 0
   - displayText: Popularity
     fieldName: popular
-    isAscending: 1
+    isAscending: 0
   - displayText: Rating
     fieldName: rating
     isAscending: 1
