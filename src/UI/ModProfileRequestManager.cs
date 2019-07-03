@@ -548,6 +548,23 @@ namespace ModIO.UI
             }
         }
 
+        protected ModProfile[] PullProfilesFromCache(IList<int> modIds)
+        {
+            Debug.Assert(modIds != null);
+
+            ModProfile[] result = new ModProfile[modIds.Count];
+
+            for(int i = 0; i < result.Length; ++i)
+            {
+                ModProfile profile = null;
+                this.profileCache.TryGetValue(modIds[i], out profile);
+
+                result[i] = profile;
+            }
+
+            return result;
+        }
+
         // ---------[ EVENTS ]---------
         /// <summary>Stores any cached profiles when the mod subscriptions are updated.</summary>
         public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
