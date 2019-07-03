@@ -2247,6 +2247,7 @@ MonoBehaviour:
   userRatingDisplay:
     positive: {fileID: 114141207373216668}
     negative: {fileID: 114919170284466144}
+  categoryIconDisplay: {fileID: 0}
   m_data:
     profile:
       modId: 0

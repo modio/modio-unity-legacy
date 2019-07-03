@@ -6915,7 +6915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cb07255079aa4069a3b4d94327d4cda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 1993137946962778, guid: fe012e6587fa0473888366b0a40ac3b0, type: 2}
+  itemPrefab: {fileID: 1883142307647628, guid: 45fd28efc5fde41a7a038e3df72b65b2, type: 2}
   pageTransitionTimeSeconds: 0.4
   pageTemplate: {fileID: 224895251402852128}
   defaultSortString: -date_live
@@ -15101,6 +15101,7 @@ MonoBehaviour:
   userRatingDisplay:
     positive: {fileID: 0}
     negative: {fileID: 0}
+  categoryIconDisplay: {fileID: 0}
   m_data:
     profile:
       modId: 0
