@@ -100,7 +100,7 @@ namespace ModIO.UI
         {
             this.StartCoroutine(StartFetchRemoteData());
 
-            DownloadClient.modfileDownloadSucceeded += this.OnModfileDownloadSucceeded;
+            ModManager.onModBinaryInstalled += this.OnModInstalled;
             DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
 
@@ -119,7 +119,7 @@ namespace ModIO.UI
                 }
             }
 
-            DownloadClient.modfileDownloadSucceeded -= this.OnModfileDownloadSucceeded;
+            ModManager.onModBinaryInstalled -= this.OnModInstalled;
             DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
 
@@ -1980,7 +1980,7 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        private void OnModfileDownloadSucceeded(ModfileIdPair idPair, FileDownloadInfo info)
+        private void OnModInstalled(ModfileIdPair idPair)
         {
             if(this == null) { return; }
 
@@ -1988,7 +1988,7 @@ namespace ModIO.UI
             (p) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Info,
-                                           p.name + " was successfully downloaded and will be installed shortly.");
+                                           p.name + " was successfully downloaded and installed.");
             },
             null);
         }
