@@ -44,11 +44,10 @@ namespace ModIO.UI
         public StateToggleDisplay                   subscriptionDisplay;
         public StateToggleDisplay                   modEnabledDisplay;
         public UserRatingDisplay                    userRatingDisplay;
+        public ObjectSwitchTagDisplay               categoryIconDisplay;
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
-
-        public ModProfile profile;
 
         // --- RUNTIME DATA ---
         private Coroutine m_downloadDisplayCoroutine = null;
@@ -128,39 +127,25 @@ namespace ModIO.UI
             {
                 userRatingDisplay.negative.isOn = (value.userRating == ModRatingValue.Negative);
             }
+
+            if(this.categoryIconDisplay != null)
+            {
+                List<string> tagNames = null;
+
+                if(value.tags != null)
+                {
+                    tagNames = new List<string>();
+                    foreach(ModTagDisplayData tag in value.tags)
+                    {
+                        tagNames.Add(tag.tagName);
+                    }
+                }
+
+                this.categoryIconDisplay.DisplayTags(tagNames);
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
-        protected virtual void Awake()
-        {
-            #if DEBUG
-            ModView nested = this.gameObject.GetComponentInChildren<ModView>(true);
-            if(nested != null && nested != this)
-            {
-                Debug.LogError("[mod.io] Nesting ModViews is currently not supported due to the"
-                               + " way IModViewElement component parenting works."
-                               + "\nThe nested ModViews must be removed to allow ModView functionality."
-                               + "\nthis=" + this.gameObject.name
-                               + "\nnested=" + nested.gameObject.name,
-                               this);
-                return;
-            }
-            #endif
-
-            // assign mod view elements to this
-            var modViewElements = this.gameObject.GetComponents<IModViewElement>();
-            foreach(IModViewElement viewElement in modViewElements)
-            {
-                viewElement.SetModView(this);
-            }
-
-            modViewElements = this.gameObject.GetComponentsInChildren<IModViewElement>(true);
-            foreach(IModViewElement viewElement in modViewElements)
-            {
-                viewElement.SetModView(this);
-            }
-        }
-
         public void OnEnable()
         {
             GetData();
@@ -474,7 +459,6 @@ namespace ModIO.UI
                 CollectDelegates();
             }
 
-            this.profile = profile;
             m_data = new ModDisplayData();
 
             foreach(DisplayProfileDelegate displayDelegate in m_displayDelegates)
@@ -554,6 +538,11 @@ namespace ModIO.UI
                 this.onProfileChanged(profile);
             }
 
+            if(categoryIconDisplay != null)
+            {
+                List<string> tagNames = new List<string>(profile.tagNames);
+                this.categoryIconDisplay.DisplayTags(tagNames);
+            }
 
             #if UNITY_EDITOR
             if(Application.isPlaying)
@@ -623,6 +612,11 @@ namespace ModIO.UI
             if(this.m_loadingDelegates == null)
             {
                 CollectDelegates();
+            }
+
+            if(this.categoryIconDisplay != null)
+            {
+                this.categoryIconDisplay.HideAll();
             }
 
             foreach(DisplayLoadingDelegate loadingDelegate in m_loadingDelegates)

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Enables objects based on matched tags.</summary>
-    public class ObjectSwitchTagDisplay : MonoBehaviour, IModViewElement
+    public class ObjectSwitchTagDisplay : MonoBehaviour
     {
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Data structure for pairing tags with GameObjects.</summary>
@@ -22,31 +22,31 @@ namespace ModIO.UI
         public List<TagObjectPair> tagObjectPairs = new List<TagObjectPair>();
 
         /// <summary>Parent Mod View.</summary>
-        private ModView m_view = null;
+        // private ModView m_view = null;
 
-        // ---------[ INTIALIZATION ]---------
-        /// <summary>IModViewElement interface.</summary>
-        public void SetModView(ModView view)
-        {
-            // early out
-            if(this.m_view == view) { return; }
+        // // ---------[ INTIALIZATION ]---------
+        // /// <summary>IModViewElement interface.</summary>
+        // public void SetModView(ModView view)
+        // {
+        //     // early out
+        //     if(this.m_view == view) { return; }
 
-            // unhook
-            if(this.m_view != null)
-            {
-                this.m_view.onProfileChanged -= DisplayProfile;
-            }
+        //     // unhook
+        //     if(this.m_view != null)
+        //     {
+        //         this.m_view.onProfileChanged -= DisplayProfile;
+        //     }
 
-            // hook
-            if(view != null)
-            {
-                view.onProfileChanged += DisplayProfile;
-            }
+        //     // hook
+        //     if(view != null)
+        //     {
+        //         view.onProfileChanged += DisplayProfile;
+        //     }
 
-            // finalize
-            this.m_view = view;
-            this.DisplayProfile(this.m_view.profile);
-        }
+        //     // finalize
+        //     this.m_view = view;
+        //     this.DisplayProfile(this.m_view.profile);
+        // }
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays tags of a profile.</summary>
