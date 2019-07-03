@@ -508,11 +508,6 @@ namespace ModIO.UI
         {
             Debug.Assert(sourcePage != null);
 
-            if(resultOffset < sourcePage.resultOffset)
-            {
-                resultOffset = sourcePage.resultOffset;
-            }
-
             RequestPage<ModProfile> subPage = new RequestPage<ModProfile>()
             {
                 size = profileCount,
@@ -520,32 +515,37 @@ namespace ModIO.UI
                 resultTotal = sourcePage.resultTotal,
             };
 
+            if(subPage.resultOffset < sourcePage.resultOffset)
+            {
+                int difference = sourcePage.resultOffset = subPage.resultOffset;
+
+                subPage.resultOffset = sourcePage.resultOffset;
+                subPage.size -= difference;
+            }
+
             // early out for 0
-            if(profileCount <= 0)
+            if(subPage.size <= 0)
             {
                 subPage.size = 0;
                 subPage.items = new ModProfile[0];
-
                 return subPage;
             }
-            else
+
+            int sourcePageOffset = subPage.resultOffset - sourcePage.resultOffset;
+
+            int subPageItemCount = subPage.size;
+            if(sourcePageOffset + subPageItemCount > sourcePage.items.Length)
             {
-                int pageOffset = resultOffset - sourcePage.resultOffset;
-
-                int arraySize = profileCount;
-                if(pageOffset + arraySize > sourcePage.items.Length)
-                {
-                    arraySize = sourcePage.items.Length - pageOffset;
-                }
-
-                subPage.items = new ModProfile[arraySize];
-
-                Array.Copy(sourcePage.items, pageOffset,
-                           subPage.items, 0,
-                           subPage.items.Length);
-
-                return subPage;
+                subPageItemCount = sourcePage.items.Length - sourcePageOffset;
             }
+
+            subPage.items = new ModProfile[subPageItemCount];
+
+            Array.Copy(sourcePage.items, sourcePageOffset,
+                       subPage.items, 0,
+                       subPage.items.Length);
+
+            return subPage;
         }
 
         protected ModProfile[] PullProfilesFromCache(IList<int> modIds)
