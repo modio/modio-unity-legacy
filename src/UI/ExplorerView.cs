@@ -50,6 +50,8 @@ namespace ModIO.UI
         /// <summary>Tags to filter by.</summary>
         [SerializeField]
         private List<string> m_tagFilter = new List<string>();
+        /// <summary>DateLive from to filter by.</summary>
+        private int m_dateFileFromFilter = -1;
 
         [Header("Runtime Data")]
         public bool isTransitioning = false;
@@ -241,24 +243,24 @@ namespace ModIO.UI
             }
 
             // title
-            if(String.IsNullOrEmpty(this.m_titleFilter))
-            {
-                filter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
-            }
-            else
+            if(!String.IsNullOrEmpty(this.m_titleFilter))
             {
                 filter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
                     = new StringLikeFilter() { likeValue = "*"+this.m_titleFilter+"*" };
             }
 
+            // dateLive
+            if(this.m_dateFileFromFilter > 0)
+            {
+                filter.fieldFilters[ModIO.API.GetAllModsFilterFields.dateLive]
+                    = new MinimumFilter<int>()
+                    { minimum = this.m_dateFileFromFilter, isInclusive = false };
+            }
+
             // tags
             string[] filterTagNames = this.m_tagFilter.ToArray();
 
-            if(filterTagNames.Length == 0)
-            {
-                filter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
-            }
-            else
+            if(filterTagNames.Length > 0)
             {
                 filter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
                     = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
@@ -353,6 +355,19 @@ namespace ModIO.UI
 
         /// <summary>Gets the title filter string.</summary>
         public string GetTitleFilter() { return this.m_titleFilter; }
+
+        /// <summary>Sets the period filter and refreshes the results.</summary>
+        public void SetDateLiveFilter(int fromTimeStamp)
+        {
+            if(this.m_dateFileFromFilter != fromTimeStamp)
+            {
+                this.m_dateFileFromFilter = fromTimeStamp;
+                Refresh();
+            }
+        }
+
+        /// <summary>Gets the period filter string.</summary>
+        public int GetDateLiveFilter() { return this.m_dateFileFromFilter; }
 
         /// <summary>Sets the sort method for the view and refreshes.</summary>
         public void SetSortString(string sortString)
