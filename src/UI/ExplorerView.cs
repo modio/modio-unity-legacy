@@ -17,6 +17,7 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         public event Action<string[]> onTagFilterUpdated;
+        public event Action onFiltersCleared;
 
         [Header("Settings")]
         public GameObject itemPrefab = null;
@@ -51,6 +52,7 @@ namespace ModIO.UI
         [SerializeField]
         private List<string> m_tagFilter = new List<string>();
         /// <summary>DateLive from to filter by.</summary>
+        [SerializeField]
         private int m_dateFileFromFilter = -1;
 
         [Header("Runtime Data")]
@@ -725,6 +727,7 @@ namespace ModIO.UI
             // Check if already cleared
             if(string.IsNullOrEmpty(this.m_titleFilter)
                && (string.IsNullOrEmpty(this.m_sortString) || this.m_sortString == this.defaultSortString)
+               && this.m_dateFileFromFilter <= 0
                && this.m_tagFilter.Count == 0)
             {
                 return;
@@ -732,6 +735,7 @@ namespace ModIO.UI
 
             this.m_titleFilter = string.Empty;
             this.m_sortString = string.Empty;
+            this.m_dateFileFromFilter = -1;
             this.m_tagFilter.Clear();
 
             this.Refresh();
@@ -739,6 +743,10 @@ namespace ModIO.UI
             if(this.onTagFilterUpdated != null)
             {
                 this.onTagFilterUpdated(new string[0]);
+            }
+            if(this.onFiltersCleared != null)
+            {
+                this.onFiltersCleared();
             }
         }
 
