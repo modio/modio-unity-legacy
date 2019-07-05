@@ -77,11 +77,11 @@ namespace ModIO.Editor
         {
             if(IOUtilities.DeleteDirectory(ModManager.installationDirectory))
             {
-                Debug.Log("[mod.io] Mod Intallation Data removed.");
+                Debug.Log("[mod.io] Mod Installation Data removed.");
             }
         }
 
-        [MenuItem("mod.io/Force Update ALL Color Scheme Applicators", false)]
+        [MenuItem("mod.io/Tools/Update ALL Color Scheme Applicators", false)]
         public static void ForceColorSchemeUpdate()
         {
             Resources.LoadAll<GraphicColorApplicator>(string.Empty);
