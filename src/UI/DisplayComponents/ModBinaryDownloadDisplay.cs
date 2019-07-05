@@ -147,14 +147,6 @@ namespace ModIO.UI
             }
         }
 
-        protected virtual void OnDisable()
-        {
-            if(this.m_updateCoroutine != null)
-            {
-                this.StopCoroutine(this.m_updateCoroutine);
-            }
-        }
-
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
         public void SetModView(ModView view)
@@ -187,30 +179,39 @@ namespace ModIO.UI
         /// <summary>Displays tags of a profile.</summary>
         public void DisplayProfile(ModProfile profile)
         {
-            this.m_downloadSpeed.Reset();
-
+            int newId = ModProfile.NULL_ID;
             if(profile != null)
             {
-                this.m_modId = profile.id;
+                newId = profile.id;
+            }
 
-                foreach(var kvp in DownloadClient.modfileDownloadMap)
+            if(this.m_modId != newId)
+            {
+                if(this.m_updateCoroutine != null)
                 {
-                    if(kvp.Key.modId == this.m_modId)
+                    this.StopCoroutine(this.m_updateCoroutine);
+                    this.m_updateCoroutine = null;
+                }
+
+                this.m_modId = newId;
+                this.m_downloadInfo = null;
+                this.m_downloadSpeed.Reset();
+
+                bool isDownloading = false;
+
+                if(newId != ModProfile.NULL_ID)
+                {
+                    foreach(var kvp in DownloadClient.modfileDownloadMap)
                     {
-                        OnDownloadStarted(kvp.Key, kvp.Value);
-                        return;
+                        if(kvp.Key.modId == this.m_modId)
+                        {
+                            isDownloading = true;
+                            OnDownloadStarted(kvp.Key, kvp.Value);
+                        }
                     }
                 }
-            }
-            else
-            {
-                this.m_modId = ModProfile.NULL_ID;
-            }
 
-            if(this.m_updateCoroutine != null)
-            {
-                this.StopCoroutine(this.m_updateCoroutine);
-                this.m_updateCoroutine = null;
+                this.gameObject.SetActive(isDownloading || !this.hideIfInactive);
             }
         }
 
