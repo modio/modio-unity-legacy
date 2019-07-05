@@ -100,8 +100,8 @@ namespace ModIO.UI
         public Text timeRemainingText   = null;
         /// <summary>Component to display the progress of the download.</summary>
         public HorizontalProgressBar progressBar = null;
-        // /// <summary>Determines whether the component should hide if not downloading.</summary>
-        // public bool hideIfInactive = true;
+        /// <summary>Determines whether the component should hide if not downloading.</summary>
+        public bool hideIfInactive = true;
 
         // --- Display Data---
         /// <summary>Parent ModView.</summary>
@@ -136,18 +136,26 @@ namespace ModIO.UI
             DownloadClient.modfileDownloadStarted -= OnDownloadStarted;
         }
 
-        protected virtual void Start()
+        protected virtual void OnEnable()
         {
-            if(this.m_modId != ModProfile.NULL_ID)
+            if(this.m_downloadInfo != null)
             {
-                foreach(var kvp in DownloadClient.modfileDownloadMap)
+                if(this.m_updateCoroutine == null)
                 {
-                    if(kvp.Key.modId == this.m_modId)
-                    {
-                        OnDownloadStarted(kvp.Key, kvp.Value);
-                        return;
-                    }
+                    this.m_updateCoroutine = this.StartCoroutine(this.UpdateCoroutine());
                 }
+            }
+            else if(this.hideIfInactive)
+            {
+                this.gameObject.SetActive(false);
+            }
+        }
+
+        protected virtual void OnDisable()
+        {
+            if(this.m_updateCoroutine != null)
+            {
+                this.StopCoroutine(this.m_updateCoroutine);
             }
         }
 
@@ -295,12 +303,15 @@ namespace ModIO.UI
             if(this.m_modId == idPair.modId
                && downloadInfo != null)
             {
-                // if(!this.isActiveAndEnabled && !this.hideIfInactive) { return; }
-
-                this.gameObject.SetActive(true);
                 this.m_downloadInfo = downloadInfo;
 
-                if(this.m_updateCoroutine == null)
+                if(!this.isActiveAndEnabled && this.hideIfInactive)
+                {
+                    this.gameObject.SetActive(true);
+                }
+
+                if(this.isActiveAndEnabled
+                   && this.m_updateCoroutine == null)
                 {
                     this.m_updateCoroutine = this.StartCoroutine(this.UpdateCoroutine());
                 }
