@@ -81,6 +81,7 @@ namespace ModIO.UI
 
         // ---------[ CONSTANTS ]---------
         public const float DOWNLOAD_SPEED_UPDATE_INTERVAL = 1f;
+        public const float HIDE_DELAY_SECONDS = 1.5f;
 
         // ---------[ FIELDS ]---------
         // --- Components ---
@@ -258,6 +259,7 @@ namespace ModIO.UI
 
             if(this.hideIfInactive)
             {
+                yield return new WaitForSecondsRealtime(HIDE_DELAY_SECONDS);
                 this.gameObject.SetActive(false);
             }
         }
