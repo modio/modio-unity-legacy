@@ -10,14 +10,17 @@ namespace ModIO.UI
     public class ModBinaryDownloadDisplay : MonoBehaviour, IModViewElement
     {
         // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>A structure used to calculate the current averaged download speed.</summary>
         [Serializable]
         private struct DownloadSpeed
         {
+            // ---------[ FIELDS ]---------
             public int lastIndex;
             public int stepsRecorded;
             public float[] timeStepMarker;
             public Int64[] bytesReceived;
 
+            // ---------[ METHODS ]---------
             public void Reset()
             {
                 this.lastIndex = -1;
@@ -139,6 +142,7 @@ namespace ModIO.UI
 
         protected virtual void OnEnable()
         {
+            // check for auto-hide and download start
             if(this.m_downloadInfo != null)
             {
                 if(this.m_updateCoroutine == null)
@@ -190,8 +194,10 @@ namespace ModIO.UI
                 newId = profile.id;
             }
 
+            // check for change
             if(this.m_modId != newId)
             {
+                // reset everything
                 if(this.m_updateCoroutine != null)
                 {
                     this.StopCoroutine(this.m_updateCoroutine);
@@ -202,6 +208,7 @@ namespace ModIO.UI
                 this.m_downloadInfo = null;
                 this.m_downloadSpeed.Reset();
 
+                // check if currently downloading
                 bool isDownloading = false;
 
                 if(newId != ModProfile.NULL_ID)
@@ -216,6 +223,7 @@ namespace ModIO.UI
                     }
                 }
 
+                // set active/inactive as appropriate
                 this.gameObject.SetActive(isDownloading || !this.hideIfInactive);
             }
         }
