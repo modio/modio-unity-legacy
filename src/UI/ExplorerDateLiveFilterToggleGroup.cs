@@ -31,6 +31,9 @@ namespace ModIO.UI
         /// <summary>Options for the controller to use.</summary>
         public Option[] options = new Option[0];
 
+        /// <summary>Used to indicate that the toggles are currently clearing.</summary>
+        private bool m_isClearing = false;
+
         // --- ACCESSORS ---
         /// <summary>ToggleGroup this component should refer to.</summary>
         public ToggleGroup toggleGroup
@@ -40,6 +43,16 @@ namespace ModIO.UI
         private void Start()
         {
             Debug.Assert(view != null);
+
+            this.view.onFiltersCleared += () =>
+            {
+                this.m_isClearing = true;
+                foreach(Option option in this.options)
+                {
+                    option.toggle.isOn = false;
+                }
+                this.m_isClearing = false;
+            };
 
             if(this.options != null)
             {
@@ -56,6 +69,8 @@ namespace ModIO.UI
         /// <summary>Sets the filter value on the targetted view.</summary>
         public void UpdateViewFilter()
         {
+            if(this.m_isClearing) { return; }
+
             // get toggle
             Toggle activeToggle = null;
             foreach(Toggle toggle in this.toggleGroup.ActiveToggles())
@@ -94,48 +109,5 @@ namespace ModIO.UI
             // set
             view.SetDateLiveFilter(fromTimeStamp);
         }
-
-        // // ---------[ EVENTS ]---------
-        // #if UNITY_EDITOR
-        // // BUG(@jackson): There's something that needs to be done here with serialization
-        // // potentially - the dropdown seems to load the option data late?
-        // /// <summary>Fills the Dropdown options with the supplied data.</summary>
-        // private void OnValidate()
-        // {
-        //     UnityEditor.EditorApplication.delayCall += () =>
-        //     {
-        //         // early out
-        //         if(this == null
-        //            || this.dropdown == null)
-        //         {
-        //             return;
-        //         }
-
-        //         // count options
-        //         int optionCount = 0;
-        //         if(this.options != null)
-        //         {
-        //             optionCount = this.options.Length;
-        //         }
-
-        //         var so = new UnityEditor.SerializedObject(this.dropdown);
-
-        //         var optionsProperty = so.FindProperty("m_Options.m_Options");
-        //         optionsProperty.arraySize = optionCount;
-
-        //         for(int i = 0;
-        //             i < optionCount;
-        //             ++i)
-        //         {
-        //             optionsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("m_Text").stringValue
-        //                 = this.options[i].displayText;
-        //             optionsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("m_Image").objectReferenceValue
-        //                 = null;
-        //         }
-
-        //         so.ApplyModifiedProperties();
-        //     };
-        // }
-        // #endif
     }
 }
