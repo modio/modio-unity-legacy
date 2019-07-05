@@ -165,6 +165,7 @@ namespace ModIO
         }
 
         // ---------[ BINARY DOWNLOADS ]---------
+        public static event Action<ModfileIdPair, FileDownloadInfo> modfileDownloadStarted;
         public static event Action<ModfileIdPair, FileDownloadInfo> modfileDownloadSucceeded;
         public static event Action<ModfileIdPair, WebRequestError> modfileDownloadFailed;
         public static Dictionary<ModfileIdPair, FileDownloadInfo> modfileDownloadMap = new Dictionary<ModfileIdPair, FileDownloadInfo>();
@@ -317,6 +318,11 @@ namespace ModIO
             #endif
 
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
+
+            if(DownloadClient.modfileDownloadStarted != null)
+            {
+                DownloadClient.modfileDownloadStarted(idPair, downloadInfo);
+            }
         }
 
 
