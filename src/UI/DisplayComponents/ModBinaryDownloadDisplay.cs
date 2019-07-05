@@ -86,6 +86,9 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ CONSTANTS ]---------
+        public const float DOWNLOAD_SPEED_UPDATE_INTERVAL = 1f;
+
         // ---------[ FIELDS ]---------
         // --- Components ---
         /// <summary>Component to display the total number of bytes for the download.</summary>
@@ -223,20 +226,32 @@ namespace ModIO.UI
         {
             Debug.Assert(this.m_downloadInfo != null);
 
+            float timeSinceSpeedUpdate = ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL;
+
             while(this != null
-                  && this.m_downloadInfo != null)
+                  && this.m_downloadInfo != null
+                  && !this.m_downloadInfo.isDone)
             {
+                timeSinceSpeedUpdate += Time.unscaledDeltaTime;
+
                 if(m_downloadInfo.request != null
                    && m_downloadInfo.request.downloadedBytes > 0
-                   && !m_downloadInfo.isDone)
+                   && !m_downloadInfo.isDone
+                   && timeSinceSpeedUpdate >= ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL)
                 {
+                    timeSinceSpeedUpdate = 0f;
                     this.m_downloadSpeed.AddMarker(Time.unscaledTime,
                                                    (Int64)m_downloadInfo.request.downloadedBytes);
                 }
 
                 this.UpdateComponents();
 
-                yield return new WaitForSecondsRealtime(1f);
+                yield return null;
+            }
+
+            if(this.hideIfInactive)
+            {
+                this.gameObject.SetActive(false);
             }
         }
 
