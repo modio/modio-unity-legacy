@@ -80,8 +80,12 @@ namespace ModIO.UI
         }
 
         // ---------[ CONSTANTS ]---------
-        public const float DOWNLOAD_SPEED_UPDATE_INTERVAL = 1f;
-        public const float HIDE_DELAY_SECONDS = 1.5f;
+        /// <summary>Interval between download speed updates.</summary>
+        public const float  DOWNLOAD_SPEED_UPDATE_INTERVAL = 0.5f;
+        /// <summary>Marker count used for smoothing download speed average.</summary>
+        public const int    DOWNLOAD_SPEED_MARKER_COUNT = 10;
+        /// <summary>Delay before hiding the game object (if enabled).</summary>
+        public const float  HIDE_DELAY_SECONDS = 1.5f;
 
         // ---------[ FIELDS ]---------
         // --- Components ---
@@ -118,8 +122,8 @@ namespace ModIO.UI
         {
             lastIndex = -1,
             stepsRecorded = 0,
-            timeStepMarker = new float[10],
-            bytesReceived = new Int64[10],
+            timeStepMarker = new float[DOWNLOAD_SPEED_MARKER_COUNT],
+            bytesReceived = new Int64[DOWNLOAD_SPEED_MARKER_COUNT],
         };
 
         // ---------[ INITIALIZATION ]---------
