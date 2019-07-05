@@ -511,14 +511,14 @@ GameObject:
   m_Component:
   - component: {fileID: 224254058427662812}
   - component: {fileID: 114532397366141452}
-  - component: {fileID: 114998110480483392}
+  - component: {fileID: 114689407169338980}
   m_Layer: 5
   m_Name: DownloadProgress
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1356648216090472
 GameObject:
   m_ObjectHideFlags: 1
@@ -2241,7 +2241,7 @@ MonoBehaviour:
   buildDisplay: {fileID: 114182622715923542}
   tagsDisplay: {fileID: 0}
   statisticsDisplay: {fileID: 0}
-  downloadDisplay: {fileID: 114998110480483392}
+  downloadDisplay: {fileID: 0}
   subscriptionDisplay: {fileID: 0}
   modEnabledDisplay: {fileID: 114971612267215378}
   userRatingDisplay:
@@ -2327,6 +2327,67 @@ MonoBehaviour:
     isSubscribed: 0
     isModEnabled: 1
     userRating: 0
+  profile:
+    id: 0
+    gameId: 0
+    status: 0
+    visibility: 0
+    submittedBy:
+      id: 0
+      nameId: 
+      username: 
+      avatarLocator:
+        fileName: 
+        original: 
+        thumbnail_50x50: 
+        thumbnail_100x100: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    dateAdded: 0
+    dateUpdated: 0
+    dateLive: 0
+    contentWarnings: 0
+    logoLocator:
+      fileName: 
+      original: 
+      thumbnail_320x180: 
+      thumbnail_640x360: 
+      thumbnail_1280x720: 
+    homepageURL: 
+    name: 
+    nameId: 
+    summary: 
+    descriptionAsHTML: 
+    descriptionAsText: 
+    metadataBlob: 
+    profileURL: 
+    currentBuild:
+      id: 0
+      modId: 0
+      dateAdded: 0
+      fileName: 
+      fileSize: 0
+      fileHash:
+        md5: 
+      version: 
+      changelog: 
+      metadataBlob: 
+      dateScanned: 0
+      virusScanStatus: 0
+      virusScanResult: 0
+      virusScanHash: 
+      downloadLocator:
+        binaryURL: 
+        dateExpires: 0
+    media:
+      youTubeURLs: []
+      sketchfabURLs: []
+      galleryImageLocators: []
+      galleryGIFLocators: []
+    metadataKVPs: []
+    tags: []
 --- !u!114 &114476946508786556
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2708,6 +2769,23 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &114689407169338980
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1344469363649826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 771d2f78ed39a4205955522e506492be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bytesTotalText: {fileID: 0}
+  bytesReceivedText: {fileID: 0}
+  percentageText: {fileID: 114796002884170526}
+  bytesPerSecondText: {fileID: 114916956751076758}
+  timeRemainingText: {fileID: 0}
+  progressBar: {fileID: 114989697292283438}
 --- !u!114 &114690754693231300
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3695,28 +3773,6 @@ MonoBehaviour:
   m_Text: '(
 
 '
---- !u!114 &114998110480483392
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1344469363649826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c89a5f2d7d0a64f05a0978ad3a6b9908, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  percentageText: {fileID: 114796002884170526}
-  bytesReceivedText: {fileID: 0}
-  bytesTotalText: {fileID: 0}
-  bytesPerSecondText: {fileID: 114916956751076758}
-  timeRemainingText: {fileID: 0}
-  progressBar: {fileID: 114989697292283438}
-  m_data:
-    bytesReceived: 50
-    bytesPerSecond: 2000
-    bytesTotal: 100
-    isActive: 0
 --- !u!222 &222003261648303098
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -4281,10 +4337,10 @@ RectTransform:
   m_Father: {fileID: 224670384082308778}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 568, y: -18}
-  m_SizeDelta: {x: 280, y: 36}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224259860260447658
 RectTransform:
@@ -4302,7 +4358,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 140, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224274144689866982
 RectTransform:
