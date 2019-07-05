@@ -33,6 +33,16 @@ namespace ModIO.UI
                     return;
                 }
 
+                // overwrite if 0
+                if(byteCount == 0
+                   && lastIndex >= 0
+                   && this.bytesReceived[lastIndex] == 0)
+                {
+                    this.timeStepMarker[lastIndex] = timeStamp;
+                    return;
+                }
+
+                // add!
                 ++lastIndex;
                 lastIndex %= timeStepMarker.Length;
 
@@ -53,34 +63,17 @@ namespace ModIO.UI
                 Debug.Assert(lastIndex >= 0);
                 Debug.Assert(this.timeStepMarker.Length == this.bytesReceived.Length);
 
-                int finalIndex = lastIndex - 1;
+                int firstIndex = (lastIndex + 1) % this.timeStepMarker.Length;
                 if(this.stepsRecorded <= this.timeStepMarker.Length)
                 {
-                    finalIndex = this.stepsRecorded-1;
-                }
-                else if(finalIndex < 0)
-                {
-                    finalIndex += this.timeStepMarker.Length;
+                    firstIndex = 0;
                 }
 
+                float initialTimeStamp = this.timeStepMarker[firstIndex];
+                Int64 initialByteCount = this.bytesReceived[firstIndex];
 
-                // for(int i = 1;
-                //     initialByteCount == 0
-                //     && i < timeStepMarker.Length
-                //     && i < stepsRecorded;
-                //     ++i)
-                // {
-                //     int thisIndex = (firstIndex + i) % timeStepMarker.Length;
-                //     initialTimeStamp = this.timeStepMarker[thisIndex];
-                //     initialByteCount = this.bytesReceived[thisIndex];
-                // }
-
-
-                float initialTimeStamp = this.timeStepMarker[lastIndex];
-                Int64 initialByteCount = this.bytesReceived[lastIndex];
-
-                float finalTimeStamp = this.timeStepMarker[finalIndex];
-                Int64 finalByteCount = this.bytesReceived[finalIndex];
+                float finalTimeStamp = this.timeStepMarker[lastIndex];
+                Int64 finalByteCount = this.bytesReceived[lastIndex];
 
                 return (Int64)((finalByteCount - initialByteCount)/(finalTimeStamp - initialTimeStamp));
             }
