@@ -220,21 +220,27 @@ namespace ModIO.UI
         {
             Debug.Assert(this.m_downloadInfo != null);
 
-            float timeSinceSpeedUpdate = ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL;
+            // set initial speed marker
+            float lastUpdate = Time.unscaledTime;
+            Int64 bytesDownloaded = 0;
+            if(this.m_downloadInfo.request != null)
+            {
+                bytesDownloaded = (Int64)this.m_downloadInfo.request.downloadedBytes;
+            }
 
+            this.m_downloadSpeed.AddMarker(lastUpdate, bytesDownloaded);
+
+            // loop while downloading
             while(this != null
                   && this.m_downloadInfo != null
                   && !this.m_downloadInfo.isDone)
             {
-                timeSinceSpeedUpdate += Time.unscaledDeltaTime;
-
+                float now = Time.unscaledTime;
                 if(m_downloadInfo.request != null
-                   && m_downloadInfo.request.downloadedBytes > 0
-                   && !m_downloadInfo.isDone
-                   && timeSinceSpeedUpdate >= ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL)
+                   && now - lastUpdate >= ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL)
                 {
-                    timeSinceSpeedUpdate = 0f;
-                    this.m_downloadSpeed.AddMarker(Time.unscaledTime,
+                    lastUpdate = now;
+                    this.m_downloadSpeed.AddMarker(now,
                                                    (Int64)m_downloadInfo.request.downloadedBytes);
                 }
 
@@ -242,6 +248,13 @@ namespace ModIO.UI
 
                 yield return null;
             }
+
+            if(this.m_downloadInfo != null)
+            {
+                this.m_downloadSpeed.AddMarker(Time.unscaledTime, this.m_downloadInfo.fileSize);
+            }
+
+            this.UpdateComponents();
 
             if(this.hideIfInactive)
             {
