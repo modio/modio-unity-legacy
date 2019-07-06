@@ -26,15 +26,7 @@ namespace ModIO.UI.Editor
                 }
                 else
                 {
-                    selectedComponent = assignedGameObject.GetComponent<TMPro.TMP_Text>();
-                    if(selectedComponent == null)
-                    {
-                        selectedComponent = assignedGameObject.GetComponent<UnityEngine.UI.Text>();
-                    }
-                    if(selectedComponent == null)
-                    {
-                        selectedComponent = assignedGameObject.GetComponent<UnityEngine.TextMesh>();
-                    }
+                    selectedComponent = GenericTextComponent.FindCompatibleTextComponent(assignedGameObject);
 
                     if(selectedComponent != null)
                     {

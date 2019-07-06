@@ -1,9 +1,34 @@
+using UnityEngine;
+using UnityEngine.UI;
+
 namespace ModIO.UI
 {
     /// <summary>A component that wraps various Text display components.</summary>
     [System.Serializable]
     public struct GenericTextComponent
     {
+        // ---------[ STATICS ]---------
+        /// <summary>Returns the first compatible component found on the GameObject.</summary>
+        public static Object FindCompatibleTextComponent(GameObject gameObject)
+        {
+            Object textComponent = null;
+
+            if(gameObject != null)
+            {
+                textComponent = gameObject.GetComponent<TMPro.TMP_Text>();
+                if(textComponent == null)
+                {
+                    textComponent = gameObject.GetComponent<Text>();
+                }
+                if(textComponent == null)
+                {
+                    textComponent = gameObject.GetComponent<TextMesh>();
+                }
+            }
+
+            return textComponent;
+        }
+
         // ---------[ FIELDS ]---------
         /// <summary>The text to display on the UI component.</summary>
         public string text
@@ -20,17 +45,17 @@ namespace ModIO.UI
                             return castComponent.text;
                         };
                     }
-                    else if(this.m_textDisplayComponent is UnityEngine.UI.Text)
+                    else if(this.m_textDisplayComponent is Text)
                     {
-                        var castComponent = (UnityEngine.UI.Text)this.m_textDisplayComponent;
+                        var castComponent = (Text)this.m_textDisplayComponent;
                         this.m_getTextDelegate = () =>
                         {
                             return castComponent.text;
                         };
                     }
-                    else if(this.m_textDisplayComponent is UnityEngine.TextMesh)
+                    else if(this.m_textDisplayComponent is TextMesh)
                     {
-                        var castComponent = (UnityEngine.TextMesh)this.m_textDisplayComponent;
+                        var castComponent = (TextMesh)this.m_textDisplayComponent;
                         this.m_getTextDelegate = () =>
                         {
                             return castComponent.text;
@@ -57,17 +82,17 @@ namespace ModIO.UI
                             castComponent.text = s;
                         };
                     }
-                    else if(this.m_textDisplayComponent is UnityEngine.UI.Text)
+                    else if(this.m_textDisplayComponent is Text)
                     {
-                        var castComponent = (UnityEngine.UI.Text)this.m_textDisplayComponent;
+                        var castComponent = (Text)this.m_textDisplayComponent;
                         this.m_setTextDelegate = (s) =>
                         {
                             castComponent.text = s;
                         };
                     }
-                    else if(this.m_textDisplayComponent is UnityEngine.TextMesh)
+                    else if(this.m_textDisplayComponent is TextMesh)
                     {
-                        var castComponent = (UnityEngine.TextMesh)this.m_textDisplayComponent;
+                        var castComponent = (TextMesh)this.m_textDisplayComponent;
                         this.m_setTextDelegate = (s) =>
                         {
                             castComponent.text = s;
@@ -84,8 +109,8 @@ namespace ModIO.UI
         }
 
         /// <summary>The component the this behaviour uses to display text.</summary>
-        [UnityEngine.SerializeField]
-        private UnityEngine.Object m_textDisplayComponent;
+        [SerializeField]
+        private Object m_textDisplayComponent;
 
         /// <summary>The delegate for displaying text.</summary>
         private System.Action<string> m_setTextDelegate;
