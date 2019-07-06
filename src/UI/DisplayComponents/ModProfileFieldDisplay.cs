@@ -14,11 +14,11 @@ namespace ModIO.UI
         [SerializeField]
         private string m_fieldName = "id";
 
-        /// <summary>Delegate for acquiring the display string.</summary>
-        private Func<ModProfile, string> m_getDisplayString = null;
+        /// <summary>Delegate for acquiring the display string from the ModProfile.</summary>
+        private Func<ModProfile, string> m_getDisplayStringDelegate = null;
 
-        /// <summary>Action for setting the text value.</summary>
-        private Action<string> m_setTextDelegate = null;
+        /// <summary>Wrapper for the text component.</summary>
+        private GenericTextComponent m_textComponent;
 
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
@@ -27,23 +27,24 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            this.m_getDisplayString = this.GenerateGetDisplayStringDelegate();
-            this.m_setTextDelegate = this.GenerateSetTextDelegate();
+            this.m_getDisplayStringDelegate = this.GenerateGetDisplayStringDelegate();
+            UnityEngine.Object textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
+            this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
             #if DEBUG
-            if(this.m_getDisplayString == null)
+            if(this.m_getDisplayStringDelegate == null)
             {
                 Debug.LogError("[mod.io] ModProfileFieldDisplay is unable to display the field \'"
                                + this.m_fieldName + "\' as it does not appear in the ModProfile"
                                + " object definition.",
                                this);
             }
-            if(this.m_setTextDelegate == null)
+            if(textDisplayComponent == null)
             {
                 Debug.LogWarning("[mod.io] No compatible text components were found on this "
                                  + "GameObject to set text for."
-                                 + "\nCompatible components are UnityEngine.UI.Text and "
-                                 + "UnityEngine.Text.",
+                                 + "\nCompatible components are UnityEngine.UI.Text, "
+                                 + "UnityEngine.TextMesh, and components derived from TMPro.TMP_Text.",
                                  this);
             }
             #endif
@@ -82,23 +83,6 @@ namespace ModIO.UI
             return null;
         }
 
-        protected virtual Action<string> GenerateSetTextDelegate()
-        {
-            Text textComponent = this.gameObject.GetComponent<Text>();
-            if(textComponent != null)
-            {
-                return (s) => textComponent.text = s;
-            }
-
-            TextMesh textMeshComponent = this.gameObject.GetComponent<TextMesh>();
-            if(textMeshComponent != null)
-            {
-                return (s) => textMeshComponent.text = s;
-            }
-
-            return null;
-        }
-
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
         public void SetModView(ModView view)
@@ -132,11 +116,11 @@ namespace ModIO.UI
         public void DisplayProfile(ModProfile profile)
         {
             // early out
-            if(this.m_getDisplayString == null || this.m_setTextDelegate == null) { return; }
+            if(this.m_getDisplayStringDelegate == null) { return; }
 
             // display
-            string displayString = this.m_getDisplayString(profile);
-            this.m_setTextDelegate(displayString);
+            string displayString = this.m_getDisplayStringDelegate(profile);
+            this.m_textComponent.text = displayString;
         }
 
         // ---------[ UTILITY ]---------
