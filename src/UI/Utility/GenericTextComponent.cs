@@ -30,6 +30,17 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
+        /// <summary>The component the this structure uses to display text.</summary>
+        [SerializeField]
+        private Object m_textDisplayComponent;
+
+        /// <summary>The delegate for displaying text.</summary>
+        private System.Action<string> m_setTextDelegate;
+
+        /// <summary>The delegate for getting the displayed text.</summary>
+        private System.Func<string> m_getTextDelegate;
+
+        // --- Accessors ---
         /// <summary>The text to display on the UI component.</summary>
         public string text
         {
@@ -108,14 +119,16 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>The component the this behaviour uses to display text.</summary>
-        [SerializeField]
-        private Object m_textDisplayComponent;
-
-        /// <summary>The delegate for displaying text.</summary>
-        private System.Action<string> m_setTextDelegate;
-
-        /// <summary>The delegate for getting the displayed text.</summary>
-        private System.Func<string> m_getTextDelegate;
+        // ---------[ UTILITIES ]---------
+        /// <summary>Sets the component to use in displaying text.</summary>
+        public void SetTextDisplayComponent(Object displayComponent)
+        {
+            if(displayComponent != this.m_textDisplayComponent)
+            {
+                this.m_textDisplayComponent = displayComponent;
+                this.m_setTextDelegate = null;
+                this.m_getTextDelegate = null;
+            }
+        }
     }
 }
