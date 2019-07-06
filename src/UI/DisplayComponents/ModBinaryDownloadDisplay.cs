@@ -93,15 +93,15 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         // --- Components ---
         /// <summary>Component to display the total number of bytes for the download.</summary>
-        public Text bytesTotalText      = null;
+        public GenericTextComponent bytesTotalText;
         /// <summary>Component to display the number of bytes received.</summary>
-        public Text bytesReceivedText   = null;
+        public GenericTextComponent bytesReceivedText;
         /// <summary>Component to display the percentage completed.</summary>
-        public Text percentageText      = null;
+        public GenericTextComponent percentageText;
         /// <summary>Component to display the number of bytes being downloaded per second.</summary>
-        public Text bytesPerSecondText  = null;
+        public GenericTextComponent bytesPerSecondText;
         /// <summary>Component to display the estimated time remaining for the download.</summary>
-        public Text timeRemainingText   = null;
+        public GenericTextComponent timeRemainingText;
         /// <summary>Component to display the progress of the download.</summary>
         public HorizontalProgressBar progressBar = null;
         /// <summary>Determines whether the component should hide if not downloading.</summary>
@@ -293,38 +293,24 @@ namespace ModIO.UI
                 downloadSpeed = this.m_downloadSpeed.GetAverageDownloadSpeed();
             }
 
-            if(this.bytesTotalText != null)
+            // calculate time remaining
+            string timeRemainingDisplayString = string.Empty;
+            if(fileSize > 0 && downloadSpeed > 0)
             {
-                this.bytesTotalText.text = UIUtilities.ByteCountToDisplayString(fileSize);
-            }
-            if(this.bytesReceivedText != null)
-            {
-                this.bytesReceivedText.text = UIUtilities.ByteCountToDisplayString(bytesReceived);
-            }
-            if(this.percentageText != null)
-            {
-                this.percentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
-            }
-            if(this.bytesPerSecondText != null)
-            {
-                this.bytesPerSecondText.text = (UIUtilities.ByteCountToDisplayString(downloadSpeed)
-                                                + "/s");
-            }
-            if(this.timeRemainingText != null)
-            {
-                string timeRemainingDisplayString = string.Empty;
-                if(fileSize > 0 && downloadSpeed > 0)
-                {
-                    Int64 secondsRemaining = (int)((fileSize - bytesReceived) / downloadSpeed);
+                Int64 secondsRemaining = (int)((fileSize - bytesReceived) / downloadSpeed);
 
-                    TimeSpan remaining = TimeSpan.FromSeconds(secondsRemaining);
-                    timeRemainingDisplayString = (remaining.TotalHours + ":"
-                                                  + remaining.Minutes + ":"
-                                                  + remaining.Seconds);
-                }
-
-                this.timeRemainingText.text = timeRemainingDisplayString;
+                TimeSpan remaining = TimeSpan.FromSeconds(secondsRemaining);
+                timeRemainingDisplayString = (remaining.TotalHours + ":"
+                                              + remaining.Minutes + ":"
+                                              + remaining.Seconds);
             }
+
+            // display
+            this.bytesTotalText.text = UIUtilities.ByteCountToDisplayString(fileSize);
+            this.bytesReceivedText.text = UIUtilities.ByteCountToDisplayString(bytesReceived);
+            this.percentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
+            this.bytesPerSecondText.text = (UIUtilities.ByteCountToDisplayString(downloadSpeed) + "/s");
+            this.timeRemainingText.text = timeRemainingDisplayString;
 
             if(this.progressBar != null)
             {
