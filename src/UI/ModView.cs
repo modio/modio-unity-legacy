@@ -48,7 +48,12 @@ namespace ModIO.UI
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
 
-        public ModProfile profile;
+        private ModProfile m_profile = null;
+
+        public ModProfile profile
+        {
+            get { return m_profile; }
+        }
 
         // --- RUNTIME DATA ---
         private Coroutine m_downloadDisplayCoroutine = null;
@@ -474,7 +479,7 @@ namespace ModIO.UI
                 CollectDelegates();
             }
 
-            this.profile = profile;
+            this.m_profile = profile;
             m_data = new ModDisplayData();
 
             foreach(DisplayProfileDelegate displayDelegate in m_displayDelegates)
