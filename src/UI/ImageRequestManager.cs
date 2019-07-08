@@ -161,7 +161,31 @@ namespace ModIO.UI
                 break;
             }
 
-            this.RequestImage_Internal(url, retrieveFromDisk, storeToDisk, onSuccess, onError);
+            // request image
+            Callbacks callbacks = null;
+            Texture2D texture = this.RequestImage_Internal(url, retrieveFromDisk, out callbacks);
+
+            if(texture != null)
+            {
+                onSuccess(texture);
+            }
+            else
+            {
+                Debug.Assert(callbacks != null);
+
+                // Add callbacks
+                if(storeToDisk != null)
+                {
+                    callbacks.succeeded.Add(storeToDisk);
+                }
+
+                callbacks.succeeded.Add(onSuccess);
+
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+            }
         }
 
         /// <summary>Requests an image at a given URL.</summary>
@@ -173,7 +197,26 @@ namespace ModIO.UI
             Debug.Assert(!string.IsNullOrEmpty(url));
             Debug.Assert(onSuccess != null);
 
-            this.RequestImage_Internal(url, null, null, onSuccess, onError);
+            Callbacks callbacks = null;
+            Texture2D texture = null;
+
+            texture = this.RequestImage_Internal(url, null, out callbacks);
+
+            if(texture != null)
+            {
+                onSuccess(texture);
+            }
+            else
+            {
+                Debug.Assert(callbacks != null);
+
+                callbacks.succeeded.Add(onSuccess);
+
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+            }
         }
 
         /// <summary>Handles the computations for the image request.</summary>
