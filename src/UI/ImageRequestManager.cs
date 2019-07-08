@@ -219,37 +219,6 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Handles the computations for the image request.</summary>
-        protected virtual void RequestImage_Internal(string url,
-                                                     Func<Texture2D> retrieveFromDisk,
-                                                     Action<Texture2D> storeToDisk,
-                                                     Action<Texture2D> onSuccess,
-                                                     Action<WebRequestError> onError)
-        {
-            Callbacks callbacks = null;
-            Texture2D texture = RequestImage_Internal(url,
-                                                      retrieveFromDisk,
-                                                      out callbacks);
-
-            if(texture != null)
-            {
-                onSuccess(texture);
-            }
-            else
-            {
-                if(storeToDisk != null)
-                {
-                    callbacks.succeeded.Add(storeToDisk);
-                }
-                callbacks.succeeded.Add(onSuccess);
-
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
-            }
-        }
-
         /// <summary>Handles computations for the image request.</summary>
         protected virtual Texture2D RequestImage_Internal(string url,
                                                           Func<Texture2D> retrieveFromDisk,
