@@ -33,9 +33,7 @@ namespace ModIO.UI
         }
 
         [Header("UI Components")]
-        public ModProfileDisplayComponent           profileDisplay;
         public SubmittorDisplay                     submittorDisplay;
-        public ImageDisplay                         logoDisplay;
         public ModMediaCollectionDisplayComponent   mediaContainer;
         public ModfileDisplayComponent              buildDisplay;
         public ModTagCollectionDisplayComponent     tagsDisplay;
@@ -706,5 +704,12 @@ namespace ModIO.UI
         // ---------[ OBSOLETE ]---------
         [Obsolete("No longer necessary.")]
         public void Initialize() {}
+
+        [Obsolete("Use ModProfileFieldDisplay components instead.")]
+        public ModProfileDisplayComponent profileDisplay;
+
+        [Obsolete("Use ModLogoDisplay component instead.")]
+        public ImageDisplay logoDisplay;
+
     }
 }
