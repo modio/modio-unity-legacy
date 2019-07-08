@@ -30,7 +30,7 @@ namespace ModIO.UI
         }
 
         // ---------[ NESTED DATA-TYPES ]---------
-        private class Callbacks
+        protected class Callbacks
         {
             public List<Action<Texture2D>> succeeded;
             public List<Action<WebRequestError>> failed;
@@ -183,24 +183,50 @@ namespace ModIO.UI
                                                      Action<Texture2D> onSuccess,
                                                      Action<WebRequestError> onError)
         {
-            // check cache
-            Texture2D texture = null;
-            if(this.cache.TryGetValue(url, out texture))
+            Callbacks callbacks = null;
+            Texture2D texture = RequestImage_Internal(url,
+                                                      retrieveFromDisk,
+                                                      out callbacks);
+
+            if(texture != null)
             {
                 onSuccess(texture);
-                return;
             }
-
-            // check currently downloading
-            Callbacks callbacks = null;
-            if(this.m_callbackMap.TryGetValue(url, out callbacks))
+            else
             {
+                if(storeToDisk != null)
+                {
+                    callbacks.succeeded.Add(storeToDisk);
+                }
                 callbacks.succeeded.Add(onSuccess);
+
                 if(onError != null)
                 {
                     callbacks.failed.Add(onError);
                 }
-                return;
+            }
+        }
+
+        /// <summary>Handles computations for the image request.</summary>
+        protected virtual Texture2D RequestImage_Internal(string url,
+                                                          Func<Texture2D> retrieveFromDisk,
+                                                          out Callbacks callbacks)
+        {
+            callbacks = null;
+
+            // check cache
+            Texture2D texture = null;
+            if(this.cache.TryGetValue(url, out texture))
+            {
+                return texture;
+            }
+
+            // check currently downloading
+            Callbacks c = null;
+            if(this.m_callbackMap.TryGetValue(url, out c))
+            {
+                callbacks = c;
+                return null;
             }
 
             // check disk
@@ -210,33 +236,20 @@ namespace ModIO.UI
                 if(texture != null)
                 {
                     this.cache.Add(url, texture);
-
-                    onSuccess(texture);
-                    return;
+                    return texture;
                 }
             }
 
             // create new callbacks entry
             callbacks = new Callbacks();
             callbacks.succeeded = new List<Action<Texture2D>>();
-            callbacks.succeeded.Add(onSuccess);
             callbacks.failed = new List<Action<WebRequestError>>();
-            if(onError != null)
-            {
-                callbacks.failed.Add(onError);
-            }
-
-            // check if storing on disk
-            if(storeToDisk != null)
-            {
-                callbacks.succeeded.Add(storeToDisk);
-            }
-
-            // add to map
             this.m_callbackMap.Add(url, callbacks);
 
-            // download
+            // start download
             this.DownloadImage(url);
+
+            return null;
         }
 
         /// <summary>Creates and sends an image download request for the given url.</summary>
@@ -401,6 +414,7 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ UTILITY ]---------
         /// <summary>Finds any images relating to the profile and stores them using the CacheClient.</summary>
         protected virtual void StoreModImages(ModProfile profile)
         {
