@@ -188,6 +188,75 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Requests the image for a given logoLocator.</summary>
+        public virtual void RequestModLogo(int modId, LogoImageLocator locator,
+                                           LogoSize size,
+                                           Action<Texture2D> onLogoReceived,
+                                           Action<Texture2D> onFallbackFound,
+                                           Action<WebRequestError> onError)
+        {
+            Debug.Assert(locator != null);
+            Debug.Assert(onLogoReceived != null);
+
+            // init vars
+            string url = locator.GetSizeURL(size);
+            string fileName = locator.GetFileName();
+            Callbacks callbacks = null;
+
+            // check for image
+            Texture2D requestedTexture
+                = RequestImage_Internal(url,
+                                        () => CacheClient.LoadModLogo(modId, fileName, size),
+                                        out callbacks);
+
+            if(requestedTexture != null)
+            {
+                onLogoReceived(requestedTexture);
+            }
+            else
+            {
+                Debug.Assert(callbacks != null);
+
+                // check for fallbacks
+                if(onFallbackFound != null)
+                {
+                    Texture2D fallbackTexture = null;
+                    foreach(var pair in locator.GetAllURLs())
+                    {
+                        Texture2D cachedTexture = null;
+                        if(pair.size != LogoSize.Original
+                           && this.cache.TryGetValue(pair.url, out cachedTexture))
+                        {
+                            fallbackTexture = cachedTexture;
+                        }
+                    }
+
+                    if(fallbackTexture != null)
+                    {
+                        onFallbackFound(fallbackTexture);
+                    }
+                }
+
+                // add callbacks
+                callbacks.succeeded.Add(onLogoReceived);
+                if(this.storeIfSubscribed)
+                {
+                    callbacks.succeeded.Add((t) =>
+                    {
+                        if(ModManager.GetSubscribedModIds().Contains(modId))
+                        {
+                            CacheClient.SaveModLogo(modId, fileName, size, t);
+                        }
+                    });
+                }
+
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+            }
+        }
+
         /// <summary>Requests an image at a given URL.</summary>
         // NOTE(@jackson): This function *does not* check for data stored with CacheClient.
         public virtual void RequestImage(string url,
