@@ -26,6 +26,7 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         /// <summary>ExplorerView to set the sort value for.</summary>
+        [HideInInspector]
         public ExplorerView view = null;
 
         /// <summary>Options for the controller to use.</summary>
@@ -42,34 +43,41 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
-            Debug.Assert(view != null);
-
-            this.view.onFiltersCleared += () =>
+            this.view = this.gameObject.GetComponentInParent<ExplorerView>();
+            if(this.view == null)
             {
-                this.m_isClearing = true;
-                foreach(Option option in this.options)
-                {
-                    option.toggle.isOn = false;
-                }
-                this.m_isClearing = false;
-            };
-
-            if(this.options != null)
-            {
-                foreach(Option option in this.options)
-                {
-                    option.toggle.onValueChanged.AddListener((b) => UpdateViewFilter());
-                }
+                Debug.LogWarning("[mod.io] Couldn't find an ExplorerView to work with this"
+                                 + " component.", this);
             }
+            else
+            {
+                this.view.onFiltersCleared += () =>
+                {
+                    this.m_isClearing = true;
+                    foreach(Option option in this.options)
+                    {
+                        option.toggle.isOn = false;
+                    }
+                    this.m_isClearing = false;
+                };
 
-            UpdateViewFilter();
+                if(this.options != null)
+                {
+                    foreach(Option option in this.options)
+                    {
+                        option.toggle.onValueChanged.AddListener((b) => UpdateViewFilter());
+                    }
+                }
+
+                UpdateViewFilter();
+            }
         }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Sets the filter value on the targetted view.</summary>
         public void UpdateViewFilter()
         {
-            if(this.m_isClearing) { return; }
+            if(this.m_isClearing || this.view == null) { return; }
 
             // get toggle
             Toggle activeToggle = null;

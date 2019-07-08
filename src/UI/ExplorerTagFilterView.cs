@@ -10,6 +10,7 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>ExplorerView to set the tagFilter on.</summary>
+        [HideInInspector]
         public ExplorerView view = null;
 
         [Header("Settings")]
@@ -73,22 +74,32 @@ namespace ModIO.UI
                          "[mod.io] ModTagFilterViews require the TagDisplayPrefab in the "
                          + "FilterView.tagCategoryPrefab to have a Toggle Component.");
 
-            // init tag selection
-            this.view.onTagFilterUpdated += (t) =>
-            {
-                this.selectedTags = t;
-            };
-            this.m_selectedTags = new List<string>(this.view.GetTagFilter());
+            this.view = this.gameObject.GetComponentInParent<ExplorerView>();
 
-            // init tag categories
-            var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
-            if(tagCategories != null)
+            if(this.view == null)
             {
-                this.m_tagCategories = tagCategories;
+                Debug.LogWarning("[mod.io] Couldn't find an ExplorerView to work with this"
+                                 + " component.", this);
             }
+            else
+            {
+                // init tag selection
+                this.view.onTagFilterUpdated += (t) =>
+                {
+                    this.selectedTags = t;
+                };
+                this.m_selectedTags = new List<string>(this.view.GetTagFilter());
 
-            // update display
-            this.Refresh();
+                // init tag categories
+                var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
+                if(tagCategories != null)
+                {
+                    this.m_tagCategories = tagCategories;
+                }
+
+                // update display
+                this.Refresh();
+            }
         }
 
         private void OnEnable()
@@ -206,6 +217,8 @@ namespace ModIO.UI
         /// <summary>Event handler for a tag being clicked.</summary>
         private void TagClickHandler(ModTagDisplayComponent display)
         {
+            if(this.view == null) { return; }
+
             string tagName = display.data.tagName;
             if(this.m_selectedTags.Contains(tagName))
             {
