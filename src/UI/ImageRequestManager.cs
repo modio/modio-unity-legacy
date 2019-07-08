@@ -476,5 +476,23 @@ namespace ModIO.UI
                 }
             }
         }
+
+        /// <summary>Get images from the cache that match the given URLS.</summary>
+        protected Texture2D[] PullImagesFromCache(IList<string> urlList)
+        {
+            Debug.Assert(urlList != null);
+
+            Texture2D[] result = new Texture2D[urlList.Count];
+
+            for(int i = 0; i < result.Length; ++i)
+            {
+                Texture2D t = null;
+                this.cache.TryGetValue(urlList[i], out t);
+
+                result[i] = t;
+            }
+
+            return result;
+        }
     }
 }
