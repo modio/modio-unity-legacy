@@ -10,14 +10,14 @@ namespace ModIO.UI
         /// <summary>Image component used to display the gallery image.</summary>
         public Image image = null;
 
-        /// <summary>Preferred Logo Size.</summary>
+        /// <summary>Preferred image size.</summary>
         public ModGalleryImageSize imageSize = ModGalleryImageSize.Original;
 
         /// <summary>Gallery image locator for the displayed image.</summary>
         private GalleryImageLocator m_locator = null;
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Displays tags of a profile.</summary>
+        /// <summary>Displays a Mod Gallery Image.</summary>
         public virtual void DisplayGalleryImage(int modId, GalleryImageLocator newLocator)
         {
             if(this.m_locator != newLocator)
