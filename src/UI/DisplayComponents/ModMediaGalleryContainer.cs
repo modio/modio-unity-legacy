@@ -6,12 +6,10 @@ namespace ModIO.UI
     public class ModMediaGalleryContainer : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
-        [Header("Settings")]
         /// <summary>Gallery image display object prefab.</summary>
         public ModGalleryImageDisplay itemPrefab = null;
 
-        [Header("UI Components")]
-        /// <summary>Container for the item prefabs.</summary>
+        /// <summary>Container for the display objects.</summary>
         public RectTransform container = null;
 
         // --- Run-Time Data ---
@@ -21,7 +19,7 @@ namespace ModIO.UI
         /// <summary>Gallery Image Locators to display.</summary>
         private GalleryImageLocator[] m_locators = null;
 
-        /// <summary>Gallery Image Locators to display.</summary>
+        /// <summary>Display objects.</summary>
         private ModGalleryImageDisplay[] m_displays = new ModGalleryImageDisplay[0];
 
         // ---------[ INITIALIZATION ]---------
@@ -57,7 +55,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Displays tags of a profile.</summary>
+        /// <summary>Displays gallery images of a profile.</summary>
         public virtual void DisplayProfile(ModProfile profile)
         {
             Debug.Log("Displaying profile: "
@@ -115,7 +113,6 @@ namespace ModIO.UI
                     GameObject displayGO = GameObject.Instantiate(itemPrefab.gameObject);
                     displayGO.name = "Mod Gallery Image [" + i.ToString("00") + "]";
                     displayGO.transform.SetParent(container, false);
-                    // TODO(@jackson): Fix layouting?
 
                     newDisplayArray[i] = displayGO.GetComponent<ModGalleryImageDisplay>();
                 }
