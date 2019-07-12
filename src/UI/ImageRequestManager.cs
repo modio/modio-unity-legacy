@@ -257,6 +257,75 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Requests the image for a given logoLocator.</summary>
+        public virtual void RequestModGalleryImage(int modId, GalleryImageLocator locator,
+                                                   ModGalleryImageSize size,
+                                                   Action<Texture2D> onImageReceived,
+                                                   Action<Texture2D> onFallbackFound,
+                                                   Action<WebRequestError> onError)
+        {
+            Debug.Assert(locator != null);
+            Debug.Assert(onImageReceived != null);
+
+            // init vars
+            string url = locator.GetSizeURL(size);
+            string fileName = locator.GetFileName();
+            Callbacks callbacks = null;
+
+            // check for image
+            Texture2D requestedTexture
+                = RequestImage_Internal(url,
+                                        () => CacheClient.LoadModGalleryImage(modId, fileName, size),
+                                        out callbacks);
+
+            if(requestedTexture != null)
+            {
+                onImageReceived(requestedTexture);
+            }
+            else
+            {
+                Debug.Assert(callbacks != null);
+
+                // check for fallbacks
+                if(onFallbackFound != null)
+                {
+                    Texture2D fallbackTexture = null;
+                    foreach(var pair in locator.GetAllURLs())
+                    {
+                        Texture2D cachedTexture = null;
+                        if(pair.size != ModGalleryImageSize.Original
+                           && this.cache.TryGetValue(pair.url, out cachedTexture))
+                        {
+                            fallbackTexture = cachedTexture;
+                        }
+                    }
+
+                    if(fallbackTexture != null)
+                    {
+                        onFallbackFound(fallbackTexture);
+                    }
+                }
+
+                // add callbacks
+                callbacks.succeeded.Add(onImageReceived);
+                if(this.storeIfSubscribed)
+                {
+                    callbacks.succeeded.Add((t) =>
+                    {
+                        if(ModManager.GetSubscribedModIds().Contains(modId))
+                        {
+                            CacheClient.SaveModGalleryImage(modId, fileName, size, t);
+                        }
+                    });
+                }
+
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+            }
+        }
+
         /// <summary>Requests an image at a given URL.</summary>
         // NOTE(@jackson): This function *does not* check for data stored with CacheClient.
         public virtual void RequestImage(string url,
