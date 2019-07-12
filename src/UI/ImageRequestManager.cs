@@ -326,6 +326,52 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Requests the thumbnail for a given YouTube video.</summary>
+        public virtual void RequestYouTubeThumbnail(int modId, string youTubeId,
+                                                    Action<Texture2D> onThumbnailReceived,
+                                                    Action<WebRequestError> onError)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(youTubeId));
+            Debug.Assert(onThumbnailReceived != null);
+
+            // init vars
+            string url = Utility.GenerateYouTubeThumbnailURL(youTubeId);
+            Callbacks callbacks = null;
+
+            // check for image
+            Texture2D requestedTexture
+                = RequestImage_Internal(url,
+                                        () => CacheClient.LoadModYouTubeThumbnail(modId, youTubeId),
+                                        out callbacks);
+
+            if(requestedTexture != null)
+            {
+                onThumbnailReceived(requestedTexture);
+            }
+            else
+            {
+                Debug.Assert(callbacks != null);
+
+                // add callbacks
+                callbacks.succeeded.Add(onThumbnailReceived);
+                if(this.storeIfSubscribed)
+                {
+                    callbacks.succeeded.Add((t) =>
+                    {
+                        if(ModManager.GetSubscribedModIds().Contains(modId))
+                        {
+                            CacheClient.SaveModYouTubeThumbnail(modId, youTubeId, t);
+                        }
+                    });
+                }
+
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+            }
+        }
+
         /// <summary>Requests an image at a given URL.</summary>
         // NOTE(@jackson): This function *does not* check for data stored with CacheClient.
         public virtual void RequestImage(string url,
