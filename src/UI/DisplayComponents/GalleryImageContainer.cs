@@ -3,11 +3,11 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>Displays the mod gallery images for a given mod.</summary>
-    public class ModMediaGalleryContainer : MonoBehaviour, IModViewElement
+    public class GalleryImageContainer : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Gallery image display object prefab.</summary>
-        public ModGalleryImageDisplay itemPrefab = null;
+        public GalleryImageDisplay itemPrefab = null;
 
         /// <summary>Container for the display objects.</summary>
         public RectTransform container = null;
@@ -20,7 +20,7 @@ namespace ModIO.UI
         private GalleryImageLocator[] m_locators = null;
 
         /// <summary>Display objects.</summary>
-        private ModGalleryImageDisplay[] m_displays = new ModGalleryImageDisplay[0];
+        private GalleryImageDisplay[] m_displays = new GalleryImageDisplay[0];
 
         // ---------[ INITIALIZATION ]---------
         // --- IMODVIEWELEMENT INTERFACE ---
@@ -97,7 +97,7 @@ namespace ModIO.UI
 
             if(difference > 0)
             {
-                ModGalleryImageDisplay[] newDisplayArray = new ModGalleryImageDisplay[newCount];
+                GalleryImageDisplay[] newDisplayArray = new GalleryImageDisplay[newCount];
 
                 for(int i = 0;
                     i < this.m_displays.Length;
@@ -113,15 +113,16 @@ namespace ModIO.UI
                     GameObject displayGO = GameObject.Instantiate(itemPrefab.gameObject);
                     displayGO.name = "Mod Gallery Image [" + i.ToString("00") + "]";
                     displayGO.transform.SetParent(container, false);
+                    // TODO(@jackson): Fix layouting?
 
-                    newDisplayArray[i] = displayGO.GetComponent<ModGalleryImageDisplay>();
+                    newDisplayArray[i] = displayGO.GetComponent<GalleryImageDisplay>();
                 }
 
                 this.m_displays = newDisplayArray;
             }
             else if(difference < 0)
             {
-                ModGalleryImageDisplay[] newDisplayArray = new ModGalleryImageDisplay[newCount];
+                GalleryImageDisplay[] newDisplayArray = new GalleryImageDisplay[newCount];
 
                 for(int i = 0;
                     i < newDisplayArray.Length;

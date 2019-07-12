@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Component for easily displaying a mod gallery image.</summary>
-    public class ModGalleryImageDisplay : MonoBehaviour
+    public class GalleryImageDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
         /// <summary>Image component used to display the gallery image.</summary>
