@@ -114,6 +114,26 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        private void OnEnable()
+        {
+            // NOTE(@jackson): This appears to be unnecessary?
+            // UpdateCurrentPageDisplay();
+
+            if(this.isActiveIndicator != null)
+            {
+                this.isActiveIndicator.isOn = true;
+            }
+
+            if(this.currentPageContainer != null)
+            {
+                int viewsOnCurrentPageCount = this.currentPageContainer.childCount;
+                if(this.itemsPerPage != viewsOnCurrentPageCount)
+                {
+                    Refresh();
+                }
+            }
+        }
+
         private void Start()
         {
             // asserts
@@ -167,18 +187,6 @@ namespace ModIO.UI
             this.Refresh();
         }
 
-        // TODO(@jackson): Recheck page size
-        private void OnEnable()
-        {
-            // NOTE(@jackson): This appears to be unnecessary?
-            // UpdateCurrentPageDisplay();
-
-            if(this.isActiveIndicator != null)
-            {
-                this.isActiveIndicator.isOn = true;
-            }
-        }
-
         private void OnDisable()
         {
             if(this.isActiveIndicator != null)
@@ -218,7 +226,7 @@ namespace ModIO.UI
                     wasDisplayUpdated = true;
                 }
             },
-            null);
+            WebRequestError.LogAsWarning);
 
             if(!wasDisplayUpdated)
             {
@@ -283,10 +291,8 @@ namespace ModIO.UI
 
         public void ChangePage(int pageDifferential)
         {
-            // TODO(@jackson): Queue on isTransitioning?
             if(this.isTransitioning)
             {
-                Debug.LogWarning("[mod.io] Cannot change during transition");
                 return;
             }
 
@@ -573,7 +579,7 @@ namespace ModIO.UI
                         UpdateStatisticsDisplays(statsArray);
                     }
                 },
-                null);
+                WebRequestError.LogAsWarning);
             }
 
             // fix layouting
@@ -733,6 +739,11 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
+
+                if(this.isActiveAndEnabled)
+                {
+                    this.Refresh();
+                }
             }
         }
 
