@@ -19,6 +19,9 @@ namespace ModIO.UI
         /// <summary>Current modId for the displayed logo.</summary>
         private int m_modId = ModProfile.NULL_ID;
 
+        /// <summary>Locator for the displayed logo.</summary>
+        private LogoImageLocator m_locator = null;
+
         // ---------[ INITIALIZATION ]---------
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
@@ -49,36 +52,47 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Displays tags of a profile.</summary>
+        /// <summary>Displays the logo of a profile.</summary>
         public virtual void DisplayProfile(ModProfile profile)
         {
-            int newId = ModProfile.NULL_ID;
+            int modId = ModProfile.NULL_ID;
+            LogoImageLocator locator = null;
             if(profile != null)
             {
-                newId = profile.id;
+                modId = profile.id;
+                locator = profile.logoLocator;
             }
 
-            if(this.m_modId != newId)
+            this.DisplayLogo(modId, locator);
+        }
+
+        /// <summary>Displays a Mod Logo using the locator.</summary>
+        public virtual void DisplayLogo(int modId, LogoImageLocator locator)
+        {
+            if(this.m_locator != locator)
             {
                 this.image.enabled = false;
-                this.m_modId = newId;
 
-                if(newId != ModProfile.NULL_ID
-                   && profile.logoLocator != null)
+                this.m_modId = modId;
+                this.m_locator = locator;
+
+                if(locator != null)
                 {
-                    ImageRequestManager.instance.RequestModLogo(newId, profile.logoLocator, this.logoSize,
-                                                                (t) => ApplyTexture(newId, t),
-                                                                (t) => ApplyTexture(newId, t), // fallback
+                    System.Action<Texture2D> displayDelegate = (t) => ApplyTexture(locator, t);
+
+                    ImageRequestManager.instance.RequestModLogo(modId, locator, this.logoSize,
+                                                                displayDelegate,
+                                                                displayDelegate, // fallback
                                                                 WebRequestError.LogAsWarning);
                 }
             }
         }
 
         /// <summary>Internal function for applying the texture.</summary>
-        protected virtual void ApplyTexture(int modId, Texture2D texture)
+        protected virtual void ApplyTexture(LogoImageLocator locator, Texture2D texture)
         {
             if(this != null
-               && modId == this.m_modId
+               && this.m_locator == locator
                && texture != null)
             {
                 this.image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
