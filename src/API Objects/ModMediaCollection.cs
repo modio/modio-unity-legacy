@@ -26,7 +26,7 @@ namespace ModIO
         public GalleryImageLocator[] galleryImageLocators;
 
         #if SEPARATE_GIF_IMAGES
-        /// <summary>Array of gallery images that are gifs.</summary>
+        /// <summary>Array of gallery images that are in the GIF-format.</summary>
         [JsonProperty("gif_images")]
         public GalleryImageLocator[] galleryGIFLocators;
         #endif

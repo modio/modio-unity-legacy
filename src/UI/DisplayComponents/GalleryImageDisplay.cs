@@ -7,11 +7,11 @@ namespace ModIO.UI
     public class GalleryImageDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Image component used to display the gallery image.</summary>
-        public Image image = null;
-
         /// <summary>Preferred image size.</summary>
         public ModGalleryImageSize imageSize = ModGalleryImageSize.Original;
+
+        /// <summary>Image component used to display the gallery image.</summary>
+        public Image image = null;
 
         /// <summary>Gallery image locator for the displayed image.</summary>
         private GalleryImageLocator m_locator = null;

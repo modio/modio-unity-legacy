@@ -4,25 +4,20 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Component for easily displaying a mod logo.</summary>
-    [RequireComponent(typeof(Image))]
     public class ModLogoDisplay : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Preferred Logo Size.</summary>
         public LogoSize logoSize = LogoSize.Original;
 
+        /// <summary>Image component used to display the logo.</summary>
+        public Image image = null;
+
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
 
         /// <summary>Current modId for the displayed logo.</summary>
         private int m_modId = ModProfile.NULL_ID;
-
-        // --- ACCESSORS ---
-        /// <summary>Image component to display with.</summary>
-        protected virtual Image image
-        {
-            get { return this.GetComponent<Image>(); }
-        }
 
         // ---------[ INITIALIZATION ]---------
         // --- IMODVIEWELEMENT INTERFACE ---
