@@ -30,6 +30,122 @@ Next, download the latest [UnityPackage release from Github](https://github.com/
 
 All mods [submitted to mod.io](https://mod.io/mods/add) will be automatically fetched and managed by the plugin, and are instantly downloadable and testable.
 
+## Usage
+### Browse Mods
+```java
+// -- Get as many mods as possible (unfiltered) --
+APIClient.GetAllMods(RequestFilter.None,
+                     null,
+                     (r) => OnModsReceived(r.items),
+                     (e) => OnError(e));
+
+
+// -- Get a specified subset of filtered mods --
+RequestFilter filter = new RequestFilter();
+filter.sortFieldName = API.GetAllModsFilterFields.dateLive;
+filter.isSortAscending = false;
+filter.fieldFilters[API.GetAllModsFilterFields.name]
+	= new StringLikeFilter() { likeValue = "mod" };
+
+APIPaginationParameters pagination = new APIPaginationParameters()
+{
+	offset = 20,
+	limit = 10,
+};
+
+APIClient.GetAllMods(filter
+                     pagination
+                     (r) => OnModsReceived(r.items),
+                     (e) => OnError(e));
+```
+
+### User Authentication
+```java
+// -- Authenticate using external service using wrapper functions --
+UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(ticketData, ticketSize,
+                                                            (userProfile) => OnUserAuthenticated(userProfile),
+                                                            (e) => OnError(e));
+
+
+
+// -- Authenticate via email-flow manually using APIClient --
+APIClient.SendSecurityCode("player@email_address.com",
+                           (message) => OnSecurityCodeSent(),
+                           (e) => OnError(e));
+
+APIClient.GetOAuthToken(securityCodeFromEmail,
+                        (token) => OnTokenReceived(token),
+                        (e) => OnError(e));
+
+UserAuthenticationData.instance = new UserAuthenticationData()
+{
+	token = receivedOAuthToken,
+};
+
+APIClient.GetAuthenticatedUser((userProfile) => OnProfileReceived(userProfile),
+                               (e) => OnError(e));
+
+UserAuthenticationData userData = UserAuthenticationData.instance;
+userData.userId = userProfile.id;
+UserAuthenticationData.instance = userData;
+
+CacheClient.SaveUserProfile(userProfile);
+```
+
+### Manage Subscriptions
+```java
+// -- Sub/Unsubscribe --
+APIClient.SubscribedToMod(modId,
+                          (modProfile) => OnSubscribed(modProfile),
+                          (e) => OnError(e));
+APIClient.UnsubscribeFromMod(modId,
+                             () => OnUnsubscribed(),
+                             (e) => OnError(e));
+
+// -- Fetch and Store ---
+APIClient.GetUserSubscriptions(RequestFilter.None,
+                               null,
+                               (subscribedMods) => OnSubscriptionsReceived(subscribedMods),
+                               (e) => OnError(e));
+
+int[] modIds = Utility.MapProfileIds(subscribedMods);
+ModManager.SetSubscribedModIds(modIds);
+
+// -- Download, Update, and Install Subscribed Mods --
+activeSceneComponent.StartCoroutine(ModManager.DownloadAndUpdateMods_Coroutine(modIds, 
+                                                                               () => OnCompleted()));
+```
+
+### Submit Mods
+```java
+// -- Changes to a Mod Profile --
+EditableModProfile modEdits = EditableModProfile.CreateFromProfile(existingModProfile);
+modEdits.name.value = "Updated Mod Name";
+modEdits.name.isDirty = true;
+modEdits.tags.value = new string[] { "campaign" };
+modEdits.tags.isDirty = true;
+
+ModManager.SubmitModChanges(modId,
+                            modEdits,
+                            (updatedProfile) => OnChangesSubmitted(updatedProfile),
+                            (e) => OnError(e));
+
+// -- Upload a new build --
+EditableModfile modBuildInformation = new EditableModfile();
+modBuildInformation.version.value = "1.2.0";
+modBuildInformation.version.isDirty = true;
+modBuildInformation.version.changelog = "Changes were made!";
+modBuildInformation.version.isDirty = true;
+modBuildInformation.version.metadatBlob = "Some game-specific metadata";
+modBuildInformation.version.isDirty = true;
+
+ModManager.UploadModBinaryDirectory(modId,
+                                    modBuildInformation,
+                                    true, // set as the current build
+                                    (modfile) => OnUploaded(modfile),
+                                    (e) => OnError(e));
+```
+
 ## Benefits
 mod.io offers the same core functionality as Steamworks Workshop (1 click mod installs in-game), plus mod hosting, moderation and all of the critical pieces needed. Where we differ is our approach to modding and the flexibility a REST API offers. For example: 
 
