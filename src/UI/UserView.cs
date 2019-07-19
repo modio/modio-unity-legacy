@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-    public class UserView : MonoBehaviour
+    public class UserView : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
         public event System.Action<UserView> onClick;
@@ -63,6 +63,9 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Parent ModView.</summary>
+        private ModView m_view = null;
+
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
@@ -106,6 +109,53 @@ namespace ModIO.UI
             {
                 avatarDisplay.Initialize();
             }
+        }
+
+        // --- IMODVIEWELEMENT INTERFACE ---
+        /// <summary>IModViewElement interface.</summary>
+        public void SetModView(ModView view)
+        {
+            // early out
+            if(this.m_view == view) { return; }
+
+            // unhook
+            if(this.m_view != null)
+            {
+                this.m_view.onProfileChanged -= DisplayModSubmittor;
+            }
+
+            // assign
+            this.m_view = view;
+
+            // hook
+            if(this.m_view != null)
+            {
+                this.m_view.onProfileChanged += DisplayModSubmittor;
+                this.DisplayModSubmittor(this.m_view.profile);
+            }
+            else
+            {
+                this.DisplayModSubmittor(null);
+            }
+        }
+
+        // ---------[ UI FUNCTIONALITY ]---------
+        /// <summary>Displays the submittor for a ModProfile.</summary>
+        public void DisplayModSubmittor(ModProfile modProfile)
+        {
+            UserProfile userProfile = null;
+            if(modProfile != null)
+            {
+                userProfile = modProfile.submittedBy;
+            }
+
+            // TEMP
+            if(userProfile == null)
+            {
+                userProfile = new UserProfile();
+            }
+
+            this.DisplayUser(userProfile);
         }
 
         public void DisplayUser(UserProfile profile)
