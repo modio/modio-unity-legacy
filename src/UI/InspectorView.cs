@@ -16,7 +16,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public ModView modView;
-        public ImageDisplay selectedMediaPreview;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
         public GameObject loadingDisplay;
@@ -79,27 +78,6 @@ namespace ModIO.UI
             modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
             modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
 
-            ModMediaContainer mediaContainer = modView.mediaContainer as ModMediaContainer;
-
-            if(selectedMediaPreview != null)
-            {
-                selectedMediaPreview.Initialize();
-                selectedMediaPreview.onClick += (d) =>
-                {
-                    if(d.data.descriptor == ImageDescriptor.YouTubeThumbnail)
-                    {
-                        UIUtilities.OpenYouTubeVideoURL(d.data.youTubeId);
-                    }
-                };
-
-                if(mediaContainer != null)
-                {
-                    mediaContainer.logoClicked += MediaPreview_Logo;
-                    mediaContainer.galleryImageClicked += MediaPreview_GalleryImage;
-                    mediaContainer.youTubeThumbnailClicked += MediaPreview_YouTubeThumbnail;
-                }
-            }
-
             if((versionHistoryContainer != null && versionHistoryItemPrefab == null)
                || (versionHistoryItemPrefab != null && versionHistoryContainer == null))
             {
@@ -116,6 +94,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UPDATE VIEW ]---------
+        /// <summary>Refreshes the view.</summary>
         public void Refresh()
         {
             Debug.Assert(this.m_isInitialized);
@@ -127,11 +106,6 @@ namespace ModIO.UI
             // set initial values
             this.SetLoadingDisplay(true);
             this.modView.DisplayLoading();
-
-            if(this.selectedMediaPreview != null)
-            {
-                this.selectedMediaPreview.DisplayLoading();
-            }
 
             // early out if NULL_ID
             if(this.m_modId == ModProfile.NULL_ID) { return; }
@@ -159,12 +133,6 @@ namespace ModIO.UI
                                      || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
 
                         modView.mediaContainer.gameObject.SetActive(hasMedia);
-                    }
-
-                    // media preview
-                    if(selectedMediaPreview != null)
-                    {
-                        selectedMediaPreview.DisplayLogo(profile.id, profile.logoLocator);
                     }
                 }
             };
@@ -332,22 +300,6 @@ namespace ModIO.UI
             }
         }
 
-        private void MediaPreview_Logo(ImageDisplay display)
-        {
-            ImageDisplayData imageData = display.data;
-            selectedMediaPreview.data = imageData;
-        }
-        private void MediaPreview_GalleryImage(ImageDisplay display)
-        {
-            ImageDisplayData imageData = display.data;
-            selectedMediaPreview.data = imageData;
-        }
-        private void MediaPreview_YouTubeThumbnail(ImageDisplay display)
-        {
-            ImageDisplayData displayData = display.data;
-            selectedMediaPreview.data = displayData;
-        }
-
         // ---------[ OBSOLETE ]---------
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
         public ModProfile profile;
@@ -359,6 +311,9 @@ namespace ModIO.UI
         private bool m_isModSubscribed;
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
         private bool m_isModEnabled;
+
+        [Obsolete("Use InspectorView.highlightedImage instead.")]
+        public ImageDisplay selectedMediaPreview;
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
