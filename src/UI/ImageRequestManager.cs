@@ -188,7 +188,7 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Requests the image for a given logoLocator.</summary>
+        /// <summary>Requests the image for a given locator.</summary>
         public virtual void RequestModLogo(int modId, LogoImageLocator locator,
                                            LogoSize size,
                                            Action<Texture2D> onLogoReceived,
@@ -257,7 +257,7 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Requests the image for a given logoLocator.</summary>
+        /// <summary>Requests the image for a given locator.</summary>
         public virtual void RequestModGalleryImage(int modId, GalleryImageLocator locator,
                                                    ModGalleryImageSize size,
                                                    Action<Texture2D> onImageReceived,
@@ -364,6 +364,64 @@ namespace ModIO.UI
                         }
                     });
                 }
+
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+            }
+        }
+
+        /// <summary>Requests the user avatar for the given locator.</summary>
+        public virtual void RequestUserAvatar(int userId, AvatarImageLocator locator,
+                                              UserAvatarSize size,
+                                              Action<Texture2D> onAvatarReceived,
+                                              Action<Texture2D> onFallbackFound,
+                                              Action<WebRequestError> onError)
+        {
+            Debug.Assert(locator != null);
+            Debug.Assert(onAvatarReceived != null);
+
+            // init vars
+            string url = locator.GetSizeURL(size);
+            Callbacks callbacks = null;
+
+            // check for image
+            Texture2D requestedTexture
+                = RequestImage_Internal(url,
+                                        () => CacheClient.LoadUserAvatar(userId, size),
+                                        out callbacks);
+
+            if(requestedTexture != null)
+            {
+                onAvatarReceived(requestedTexture);
+            }
+            else
+            {
+                Debug.Assert(callbacks != null);
+
+                // check for fallbacks
+                if(onFallbackFound != null)
+                {
+                    Texture2D fallbackTexture = null;
+                    foreach(var pair in locator.GetAllURLs())
+                    {
+                        Texture2D cachedTexture = null;
+                        if(pair.size != UserAvatarSize.Original
+                           && this.cache.TryGetValue(pair.url, out cachedTexture))
+                        {
+                            fallbackTexture = cachedTexture;
+                        }
+                    }
+
+                    if(fallbackTexture != null)
+                    {
+                        onFallbackFound(fallbackTexture);
+                    }
+                }
+
+                // add callbacks
+                callbacks.succeeded.Add(onAvatarReceived);
 
                 if(onError != null)
                 {
