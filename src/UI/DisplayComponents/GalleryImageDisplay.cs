@@ -6,12 +6,20 @@ namespace ModIO.UI
     /// <summary>Component for easily displaying a mod gallery image.</summary>
     public class GalleryImageDisplay : MonoBehaviour
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Event for notifying that the texture has changed.</summary>
+        [System.Serializable]
+        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D> {}
+
         // ---------[ FIELDS ]---------
         /// <summary>Image component used to display the gallery image.</summary>
         public Image image = null;
 
         /// <summary>Preferred image size.</summary>
         public ModGalleryImageSize imageSize = ModGalleryImageSize.Original;
+
+        /// <summary>Event notifying that the display texture was updated.</summary>
+        public TextureChangedEvent onTextureChanged = null;
 
         /// <summary>Current modId for the displayed image.</summary>
         private int m_modId = ModProfile.NULL_ID;
@@ -36,8 +44,15 @@ namespace ModIO.UI
 
             if(this.m_locator != locator)
             {
-                this.image.enabled = false;
                 this.m_locator = locator;
+
+                this.image.sprite = null;
+                this.image.enabled = false;
+
+                if(this.onTextureChanged != null)
+                {
+                    this.onTextureChanged.Invoke(null);
+                }
 
                 if(locator != null)
                 {
@@ -65,6 +80,11 @@ namespace ModIO.UI
             {
                 this.image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
                 this.image.enabled = true;
+
+                if(this.onTextureChanged != null)
+                {
+                    this.onTextureChanged.Invoke(texture);
+                }
             }
         }
     }
