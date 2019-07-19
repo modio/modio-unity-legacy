@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace ModIO.UI
@@ -9,9 +11,15 @@ namespace ModIO.UI
         /// <summary>Template to duplicate for the purpose of displaying the gallery images.</summary>
         public RectTransform template = null;
 
+        /// <summary>Should the template be disabled if empty?</summary>
+        public bool hideIfEmpty = true;
+
         // --- Run-Time Data ---
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
+
+        /// <summary>Instance of the template clone.</summary>
+        private GameObject m_templateClone = null;
 
         /// <summary>Container for the display objects.</summary>
         private RectTransform m_container = null;
@@ -19,11 +27,14 @@ namespace ModIO.UI
         /// <summary>Gallery image display object template.</summary>
         private GalleryImageDisplay m_itemTemplate = null;
 
+        /// <summary>ModId for the currently displayed images.</summary>
+        private int m_modId = ModProfile.NULL_ID;
+
         /// <summary>Gallery Image Locators to display.</summary>
-        private GalleryImageLocator[] m_locators = null;
+        private GalleryImageLocator[] m_locators = new GalleryImageLocator[0];
 
         /// <summary>Display objects.</summary>
-        public GalleryImageDisplay[] m_displays = new GalleryImageDisplay[0];
+        private GalleryImageDisplay[] m_displays = new GalleryImageDisplay[0];
 
 
         // ---------[ INITIALIZATION ]---------
@@ -35,14 +46,13 @@ namespace ModIO.UI
 
             if(this.m_itemTemplate != null)
             {
-                GameObject templateGO = GameObject.Instantiate(this.template.gameObject, this.template.parent);
+                this.m_templateClone = GameObject.Instantiate(this.template.gameObject, this.template.parent);
+                this.m_templateClone.SetActive(true);
 
                 this.m_displays = new GalleryImageDisplay[1];
-                this.m_displays[0] = templateGO.GetComponentInChildren<GalleryImageDisplay>(true);
+                this.m_displays[0] = this.m_templateClone.GetComponentInChildren<GalleryImageDisplay>(true);
 
                 this.m_container = (RectTransform)this.m_displays[0].transform.parent;
-
-                templateGO.SetActive(true);
             }
             else
             {
@@ -53,13 +63,16 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Ensure the displays are accurate.</summary>
+        protected virtual void OnEnable()
+        {
+            this.DisplayImages(this.m_modId, this.m_locators);
+        }
+
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
         public virtual void SetModView(ModView view)
         {
-            Debug.Log("Setting View: " + view.gameObject.name,
-                      this);
-
             // early out
             if(this.m_view == view) { return; }
 
@@ -88,35 +101,53 @@ namespace ModIO.UI
         /// <summary>Displays gallery images of a profile.</summary>
         public virtual void DisplayProfile(ModProfile profile)
         {
-            Debug.Log("Displaying profile: "
-                      + (profile == null ? "NULL" : profile.name));
-
-            GalleryImageLocator[] newLocators = null;
+            int modId = ModProfile.NULL_ID;
+            GalleryImageLocator[] locators = null;
 
             if(profile != null
                && profile.media != null)
             {
-                newLocators = profile.media.galleryImageLocators;
+                modId = profile.id;
+                locators = profile.media.galleryImageLocators;
             }
 
-            if(newLocators != this.m_locators)
-            {
-                this.m_locators = newLocators;
+            this.DisplayImages(modId, locators);
+        }
 
+        /// <summary>Displays a set of gallery images.</summary>
+        public virtual void DisplayImages(int modId, IList<GalleryImageLocator> locators)
+        {
+            this.m_modId = modId;
+
+            // copy locators
+            if(this.m_locators != locators)
+            {
                 int imageCount = 0;
-                if(newLocators != null)
+                if(locators != null)
                 {
-                    imageCount = newLocators.Length;
+                    imageCount = locators.Count;
                 }
 
-                this.SetDisplayCount(imageCount);
+                this.m_locators = new GalleryImageLocator[imageCount];
+                for(int i = 0; i < imageCount; ++i)
+                {
+                    this.m_locators[i] = locators[i];
+                }
+            }
+
+            // check if initialized
+            if(this.isActiveAndEnabled)
+            {
+                this.SetDisplayCount(this.m_locators.Length);
 
                 for(int i = 0;
-                    i < imageCount;
+                    i < this.m_locators.Length;
                     ++i)
                 {
-                    this.m_displays[i].DisplayGalleryImage(profile.id, newLocators[i]);
+                    this.m_displays[i].DisplayGalleryImage(modId, this.m_locators[i]);
                 }
+
+                this.m_templateClone.SetActive(this.m_locators.Length > 0 || !this.hideIfEmpty);
             }
         }
 
@@ -143,7 +174,6 @@ namespace ModIO.UI
                     GameObject displayGO = GameObject.Instantiate(this.m_itemTemplate.gameObject);
                     displayGO.name = "Mod Gallery Image [" + i.ToString("00") + "]";
                     displayGO.transform.SetParent(this.m_container, false);
-                    // TODO(@jackson): Fix layouting?
 
                     newDisplayArray[i] = displayGO.GetComponent<GalleryImageDisplay>();
                 }
