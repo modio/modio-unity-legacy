@@ -6,23 +6,53 @@ namespace ModIO.UI
     public class GalleryImageContainer : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Gallery image display object prefab.</summary>
-        public GalleryImageDisplay itemPrefab = null;
-
-        /// <summary>Container for the display objects.</summary>
-        public RectTransform container = null;
+        /// <summary>Template to duplicate for the purpose of displaying the gallery images.</summary>
+        public RectTransform template = null;
 
         // --- Run-Time Data ---
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
 
+        /// <summary>Container for the display objects.</summary>
+        private RectTransform m_container = null;
+
+        /// <summary>Gallery image display object template.</summary>
+        private GalleryImageDisplay m_itemTemplate = null;
+
         /// <summary>Gallery Image Locators to display.</summary>
         private GalleryImageLocator[] m_locators = null;
 
         /// <summary>Display objects.</summary>
-        private GalleryImageDisplay[] m_displays = new GalleryImageDisplay[0];
+        public GalleryImageDisplay[] m_displays = new GalleryImageDisplay[0];
+
 
         // ---------[ INITIALIZATION ]---------
+        /// <summary>Initialize template.</summary>
+        protected virtual void Awake()
+        {
+            this.template.gameObject.SetActive(false);
+            this.m_itemTemplate = this.template.GetComponentInChildren<GalleryImageDisplay>(true);
+
+            if(this.m_itemTemplate != null)
+            {
+                GameObject templateGO = GameObject.Instantiate(this.template.gameObject, this.template.parent);
+
+                this.m_displays = new GalleryImageDisplay[1];
+                this.m_displays[0] = templateGO.GetComponentInChildren<GalleryImageDisplay>(true);
+
+                this.m_container = (RectTransform)this.m_displays[0].transform.parent;
+
+                templateGO.SetActive(true);
+            }
+            else
+            {
+                Debug.LogError("[mod.io] This GalleryImageContainer has an invalid template"
+                               + " hierarchy. The Template must container a child with a"
+                               + " GalleryImageDisplay component to use as the item template.",
+                               this);
+            }
+        }
+
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
         public virtual void SetModView(ModView view)
@@ -110,9 +140,9 @@ namespace ModIO.UI
                     i < newDisplayArray.Length;
                     ++i)
                 {
-                    GameObject displayGO = GameObject.Instantiate(itemPrefab.gameObject);
+                    GameObject displayGO = GameObject.Instantiate(this.m_itemTemplate.gameObject);
                     displayGO.name = "Mod Gallery Image [" + i.ToString("00") + "]";
-                    displayGO.transform.SetParent(container, false);
+                    displayGO.transform.SetParent(this.m_container, false);
                     // TODO(@jackson): Fix layouting?
 
                     newDisplayArray[i] = displayGO.GetComponent<GalleryImageDisplay>();
