@@ -58,5 +58,14 @@ namespace ModIO.UI
                 this.image.enabled = true;
             }
         }
+
+        /// <summary>Opens the web browser for the displaying YouTube Thumbnail.</summary>
+        public virtual void OpenVideoInBrowser()
+        {
+            if(!string.IsNullOrEmpty(this.m_youTubeId))
+            {
+                UIUtilities.OpenYouTubeVideoURL(this.m_youTubeId);
+            }
+        }
     }
 }
