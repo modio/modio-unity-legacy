@@ -7,11 +7,11 @@ namespace ModIO.UI
     public class ModLogoDisplay : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Preferred Logo Size.</summary>
-        public LogoSize logoSize = LogoSize.Original;
-
         /// <summary>Image component used to display the logo.</summary>
         public Image image = null;
+
+        /// <summary>Preferred Logo Size.</summary>
+        public LogoSize logoSize = LogoSize.Original;
 
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;

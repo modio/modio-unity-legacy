@@ -7,34 +7,34 @@ namespace ModIO.UI
     public class GalleryImageDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Preferred image size.</summary>
-        public ModGalleryImageSize imageSize = ModGalleryImageSize.Original;
-
         /// <summary>Image component used to display the gallery image.</summary>
         public Image image = null;
+
+        /// <summary>Preferred image size.</summary>
+        public ModGalleryImageSize imageSize = ModGalleryImageSize.Original;
 
         /// <summary>Gallery image locator for the displayed image.</summary>
         private GalleryImageLocator m_locator = null;
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays a Mod Gallery Image.</summary>
-        public virtual void DisplayGalleryImage(int modId, GalleryImageLocator newLocator)
+        public virtual void DisplayGalleryImage(int modId, GalleryImageLocator locator)
         {
-            if(this.m_locator != newLocator)
+            if(this.m_locator != locator)
             {
                 this.image.enabled = false;
-                this.m_locator = newLocator;
+                this.m_locator = locator;
 
-                if(newLocator != null)
+                if(locator != null)
                 {
-                    System.Action<Texture2D> displayDelegate = (t) => ApplyTexture(newLocator, t);
+                    System.Action<Texture2D> displayDelegate = (t) => ApplyTexture(locator, t);
                     System.Action<Texture2D> fallbackDelegate = null;
                     if(imageSize == ModGalleryImageSize.Original)
                     {
                         fallbackDelegate = displayDelegate;
                     }
 
-                    ImageRequestManager.instance.RequestModGalleryImage(modId, newLocator, this.imageSize,
+                    ImageRequestManager.instance.RequestModGalleryImage(modId, locator, this.imageSize,
                                                                         displayDelegate,
                                                                         fallbackDelegate,
                                                                         WebRequestError.LogAsWarning);
