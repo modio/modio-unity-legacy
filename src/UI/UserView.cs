@@ -7,12 +7,19 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         public event System.Action<UserView> onClick;
 
+        public event System.Action<UserProfile> onProfileChanged;
+
         [Header("UI Components")]
         public UserProfileDisplayComponent  profileDisplay;
         public ImageDisplay                 avatarDisplay;
 
         [Header("Display Data")]
         [SerializeField] private UserDisplayData m_data = new UserDisplayData();
+
+        private UserProfile m_profile = null;
+
+        public UserProfile profile
+        { get { return this.m_profile; } }
 
         // --- ACCESSORS ---
         public UserDisplayData data
@@ -57,6 +64,37 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        protected virtual void Awake()
+        {
+            #if DEBUG
+            UserView nested = this.gameObject.GetComponentInChildren<UserView>(true);
+            if(nested != null && nested != this)
+            {
+                Debug.LogError("[mod.io] Nesting UserViews is currently not supported due to the"
+                               + " way IUserViewElement component parenting works."
+                               + "\nThe nested UserViews must be removed to allow UserView functionality."
+                               + "\nthis=" + this.gameObject.name
+                               + "\nnested=" + nested.gameObject.name,
+                               this);
+                return;
+            }
+            #endif
+
+            // assign user view elements to this
+            // TODO(@jackson): Looks like it's not neccessary?
+            var userViewElements = this.gameObject.GetComponents<IUserViewElement>();
+            foreach(IUserViewElement viewElement in userViewElements)
+            {
+                viewElement.SetUserView(this);
+            }
+
+            userViewElements = this.gameObject.GetComponentsInChildren<IUserViewElement>(true);
+            foreach(IUserViewElement viewElement in userViewElements)
+            {
+                viewElement.SetUserView(this);
+            }
+        }
+
         public void Initialize()
         {
             if(profileDisplay != null)
@@ -101,6 +139,16 @@ namespace ModIO.UI
                 else
                 {
                     m_data.avatar = new ImageDisplayData();
+                }
+            }
+
+            if(profile != this.m_profile)
+            {
+                this.m_profile = profile;
+
+                if(this.onProfileChanged != null)
+                {
+                    this.onProfileChanged(profile);
                 }
             }
         }
