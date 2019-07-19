@@ -678,13 +678,13 @@ namespace ModIO.UI
         [Obsolete("No longer necessary.")]
         public void Initialize() {}
 
-        [Obsolete("Use ModProfileFieldDisplay components instead.")]
+        [Obsolete("Use ModProfileFieldDisplay components instead.")][HideInInspector]
         public ModProfileDisplayComponent profileDisplay;
 
-        [Obsolete("Use ModLogoDisplay component instead.")]
+        [Obsolete("Use ModLogoDisplay component instead.")][HideInInspector]
         public ImageDisplay logoDisplay;
 
-        [Obsolete("Use ModLogoDisplay, GalleryImageContainer, and YouTubeThumbnailContainer components instead.")]
+        [Obsolete("Use ModLogoDisplay, GalleryImageContainer, and YouTubeThumbnailContainer components instead.")][HideInInspector]
         public ModMediaCollectionDisplayComponent mediaContainer;
     }
 }

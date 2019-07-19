@@ -11,7 +11,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public UserProfileDisplayComponent  profileDisplay;
-        public ImageDisplay                 avatarDisplay;
 
         [Header("Display Data")]
         [SerializeField] private UserDisplayData m_data = new UserDisplayData();
@@ -41,10 +40,6 @@ namespace ModIO.UI
             {
                 m_data.profile = profileDisplay.data;
             }
-            if(avatarDisplay != null)
-            {
-                m_data.avatar = avatarDisplay.data;
-            }
 
             return m_data;
         }
@@ -56,10 +51,6 @@ namespace ModIO.UI
             if(profileDisplay != null)
             {
                 profileDisplay.data = m_data.profile;
-            }
-            if(avatarDisplay != null)
-            {
-                avatarDisplay.data = m_data.avatar;
             }
         }
 
@@ -103,11 +94,6 @@ namespace ModIO.UI
             if(profileDisplay != null)
             {
                 profileDisplay.Initialize();
-            }
-
-            if(avatarDisplay != null)
-            {
-                avatarDisplay.Initialize();
             }
         }
 
@@ -174,22 +160,14 @@ namespace ModIO.UI
                 m_data.profile = UserProfileDisplayData.CreateFromProfile(profile);
             }
 
-            if(avatarDisplay != null)
+            if(profile.avatarLocator != null)
             {
-                avatarDisplay.DisplayAvatar(profile.id, profile.avatarLocator);
-                m_data.avatar = avatarDisplay.data;
+                m_data.avatar = ImageDisplayData.CreateForUserAvatar(profile.id,
+                                                                     profile.avatarLocator);
             }
             else
             {
-                if(profile.avatarLocator != null)
-                {
-                    m_data.avatar = ImageDisplayData.CreateForUserAvatar(profile.id,
-                                                                         profile.avatarLocator);
-                }
-                else
-                {
-                    m_data.avatar = new ImageDisplayData();
-                }
+                m_data.avatar = new ImageDisplayData();
             }
 
             if(profile != this.m_profile)
@@ -224,5 +202,9 @@ namespace ModIO.UI
             };
         }
         #endif
+
+        // ---------[ OBSOLETE ]---------
+        [System.Obsolete("Use UserAvatarDisplay component instead.")][HideInInspector]
+        public ImageDisplay avatarDisplay;
     }
 }
