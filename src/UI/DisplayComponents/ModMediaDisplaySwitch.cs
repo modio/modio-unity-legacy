@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Component used to display a mod media element by routing to various components.</summary>
-    public class ModMediaDisplaySwitch : MonoBehaviour, IModViewElement
+    public class ModMediaDisplaySwitch : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
         /// <summary>Logo display component.</summary>
@@ -14,55 +14,9 @@ namespace ModIO.UI
         /// <summary>YouTube Thumbnail display component.</summary>
         public YouTubeThumbnailDisplay youTubeThumbnail;
 
-        /// <summary>Parent ModView.</summary>
-        private ModView m_view = null;
-
-        /// <summary>ModProfile currently being displayed.</summary>
-        private ModProfile m_profile = null;
-
-        // ---------[ INITIALIZATION ]---------
-        // --- IMODVIEWELEMENT INTERFACE ---
-        /// <summary>IModViewElement interface.</summary>
-        public void SetModView(ModView view)
-        {
-            // early out
-            if(this.m_view == view) { return; }
-
-            // unhook
-            if(this.m_view != null)
-            {
-                this.m_view.onProfileChanged -= DisplayProfile;
-            }
-
-            // assign
-            this.m_view = view;
-
-            // hook
-            if(this.m_view != null)
-            {
-                this.m_view.onProfileChanged += DisplayProfile;
-                this.DisplayProfile(this.m_view.profile);
-            }
-            else
-            {
-                this.DisplayProfile(null);
-            }
-        }
-
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Extracts the necessary display data from the profile and presents it.</summary>
-        public void DisplayProfile(ModProfile profile)
-        {
-            if(this.m_profile != profile)
-            {
-                this.m_profile = profile;
-
-                this.DisplayProfileLogo();
-            }
-        }
-
-        /// <summary>Display logo for the assigned profile.</summary>
-        public void DisplayProfileLogo()
+        /// <summary>Display a logo via the linked logo display.</summary>
+        public void DisplayLogo(int modId, LogoImageLocator locator)
         {
             // disable other components
             if(this.galleryImage != null)
@@ -77,12 +31,32 @@ namespace ModIO.UI
             // display logo
             if(this.logo != null)
             {
-                this.logo.gameObject.SetActive(this.m_profile != null);
+                this.logo.gameObject.SetActive(locator != null);
+
+                if(locator != null)
+                {
+                    this.logo.DisplayLogo(modId, locator);
+                }
             }
         }
 
-        /// <summary>Display Gallery Image for the assigned profile.</summary>
-        public void DisplayProfileGalleryImage(string imageFileName)
+        /// <summary>Copies the data of another component to display.</summary>
+        public void DisplayLogo(ModLogoDisplay display)
+        {
+            int modId = ModProfile.NULL_ID;
+            LogoImageLocator locator = null;
+
+            if(display != null)
+            {
+                modId = display.ModId;
+                locator = display.Locator;
+            }
+
+            this.DisplayLogo(modId, locator);
+        }
+
+        /// <summary>Display a gallery image via the linked image display.</summary>
+        public void DisplayGalleryImage(int modId, GalleryImageLocator locator)
         {
             // disable other components
             if(this.logo != null)
@@ -97,25 +71,32 @@ namespace ModIO.UI
             // display gallery image
             if(this.galleryImage != null)
             {
-                // get locator
-                GalleryImageLocator locator = null;
-                if(this.m_profile != null
-                   && this.m_profile.media != null)
-                {
-                    locator = this.m_profile.media.GetGalleryImageWithFileName(imageFileName);
-                }
-
-                // display
                 this.galleryImage.gameObject.SetActive(locator != null);
+
                 if(locator != null)
                 {
-                    this.galleryImage.DisplayGalleryImage(this.m_profile.id, locator);
+                    this.galleryImage.DisplayGalleryImage(modId, locator);
                 }
             }
         }
 
-        /// <summary>Display YouTube Thumbnail for the assigned profile.</summary>
-        public void DisplayProfileYouTubeThumbnail(string youTubeId)
+        /// <summary>Copies the data of another component to display.</summary>
+        public void DisplayGalleryImage(GalleryImageDisplay display)
+        {
+            int modId = ModProfile.NULL_ID;
+            GalleryImageLocator locator = null;
+
+            if(display != null)
+            {
+                modId = display.ModId;
+                locator = display.Locator;
+            }
+
+            this.DisplayGalleryImage(modId, locator);
+        }
+
+        /// <summary>Display a YouTube thumbnail via the linked thumbnail display.</summary>
+        public void DisplayYouTubeThumbnail(int modId, string youTubeId)
         {
             // disable other components
             if(this.logo != null)
@@ -130,15 +111,30 @@ namespace ModIO.UI
             // display gallery image
             if(this.youTubeThumbnail != null)
             {
-                bool isDisplayable = (this.m_profile != null && !string.IsNullOrEmpty(youTubeId));
+                bool idExists = !string.IsNullOrEmpty(youTubeId);
 
                 // display
-                this.youTubeThumbnail.gameObject.SetActive(isDisplayable);
-                if(isDisplayable)
+                this.youTubeThumbnail.gameObject.SetActive(idExists);
+                if(idExists)
                 {
-                    this.youTubeThumbnail.DisplayThumbnail(this.m_profile.id, youTubeId);
+                    this.youTubeThumbnail.DisplayThumbnail(modId, youTubeId);
                 }
             }
+        }
+
+        /// <summary>Copies the data of another component to display.</summary>
+        public void DisplayYouTubeThumbnail(YouTubeThumbnailDisplay display)
+        {
+            int modId = ModProfile.NULL_ID;
+            string youTubeId = null;
+
+            if(display != null)
+            {
+                modId = display.ModId;
+                youTubeId = display.YouTubeId;
+            }
+
+            this.DisplayYouTubeThumbnail(modId, youTubeId);
         }
     }
 }
