@@ -44,10 +44,12 @@ namespace ModIO.UI
             this.template.gameObject.SetActive(false);
             this.m_itemTemplate = this.template.GetComponentInChildren<GalleryImageDisplay>(true);
 
-            if(this.m_itemTemplate != null)
+            if(this.m_itemTemplate != null
+               && this.template.gameObject != this.m_itemTemplate.gameObject)
             {
                 this.m_templateClone = GameObject.Instantiate(this.template.gameObject, this.template.parent);
                 this.m_templateClone.SetActive(true);
+                this.m_templateClone.transform.SetSiblingIndex(this.template.GetSiblingIndex() + 1);
 
                 this.m_displays = new GalleryImageDisplay[1];
                 this.m_displays[0] = this.m_templateClone.GetComponentInChildren<GalleryImageDisplay>(true);
@@ -135,7 +137,7 @@ namespace ModIO.UI
                 }
             }
 
-            // check if initialized
+            // display
             if(this.isActiveAndEnabled)
             {
                 this.SetDisplayCount(this.m_locators.Length);
