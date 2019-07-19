@@ -6,12 +6,20 @@ namespace ModIO.UI
     /// <summary>Component for easily displaying a mod logo.</summary>
     public class ModLogoDisplay : MonoBehaviour, IModViewElement
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Event for notifying that the texture has changed.</summary>
+        [System.Serializable]
+        public class TextureChangedEvent : UnityEngine.Events.UnityEvent<Texture2D> {}
+
         // ---------[ FIELDS ]---------
         /// <summary>Image component used to display the logo.</summary>
         public Image image = null;
 
         /// <summary>Preferred Logo Size.</summary>
         public LogoSize logoSize = LogoSize.Original;
+
+        /// <summary>Event notifying that the display texture was updated.</summary>
+        public TextureChangedEvent onTextureChanged = null;
 
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
@@ -82,9 +90,15 @@ namespace ModIO.UI
 
             if(this.m_locator != locator)
             {
+                this.m_locator = locator;
+
+                this.image.sprite = null;
                 this.image.enabled = false;
 
-                this.m_locator = locator;
+                if(this.onTextureChanged != null)
+                {
+                    this.onTextureChanged.Invoke(null);
+                }
 
                 if(locator != null)
                 {
@@ -107,6 +121,11 @@ namespace ModIO.UI
             {
                 this.image.sprite = UIUtilities.CreateSpriteFromTexture(texture);
                 this.image.enabled = true;
+
+                if(this.onTextureChanged != null)
+                {
+                    this.onTextureChanged.Invoke(texture);
+                }
             }
         }
     }
