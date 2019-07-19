@@ -21,6 +21,29 @@ namespace ModIO.UI
         private ModProfile m_profile = null;
 
         // ---------[ INITIALIZATION ]---------
+        protected virtual void OnEnable()
+        {
+            bool isDisplayActive = false;
+
+            if(this.logo != null)
+            {
+                this.logo.gameObject.SetActive(!isDisplayActive);
+                isDisplayActive = true;
+            }
+
+            if(this.galleryImage != null)
+            {
+                this.galleryImage.gameObject.SetActive(!isDisplayActive);
+                isDisplayActive = true;
+            }
+
+            if(this.youTubeThumbnail != null)
+            {
+                this.youTubeThumbnail.gameObject.SetActive(!isDisplayActive);
+                isDisplayActive = true;
+            }
+        }
+
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
         public void SetModView(ModView view)
