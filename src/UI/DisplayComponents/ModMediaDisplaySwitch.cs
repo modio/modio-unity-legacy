@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Component used to display a mod media element by routing to various components.</summary>
-    public class ModMediaDisplaySwitch : MonoBehaviour
+    public class ModMediaDisplaySwitch : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Logo display component.</summary>
@@ -14,7 +14,62 @@ namespace ModIO.UI
         /// <summary>YouTube Thumbnail display component.</summary>
         public YouTubeThumbnailDisplay youTubeThumbnail;
 
+        // --- Run-time data ---
+        /// <summary>Parent ModView.</summary>
+        private ModView m_view = null;
+        /// <summary>ModProfile currently being displayed.</summary>
+        private ModProfile m_profile = null;
+
+        // ---------[ INITIALIZATION ]---------
+        // --- IMODVIEWELEMENT INTERFACE ---
+        /// <summary>IModViewElement interface.</summary>
+        public void SetModView(ModView view)
+        {
+            // early out
+            if(this.m_view == view) { return; }
+
+            // unhook
+            if(this.m_view != null)
+            {
+                this.m_view.onProfileChanged -= DisplayProfile;
+            }
+
+            // assign
+            this.m_view = view;
+
+            // hook
+            if(this.m_view != null)
+            {
+                this.m_view.onProfileChanged += DisplayProfile;
+                this.DisplayProfile(this.m_view.profile);
+            }
+            else
+            {
+                this.DisplayProfile(null);
+            }
+        }
+
         // ---------[ UI FUNCTIONALITY ]---------
+        /// <summary>Extracts the necessary display data from the profile and presents it.</summary>
+        public void DisplayProfile(ModProfile profile)
+        {
+            if(this.m_profile != profile)
+            {
+                this.m_profile = profile;
+
+                int modId = ModProfile.NULL_ID;
+                LogoImageLocator locator = null;
+
+                if(profile != null)
+                {
+                    modId = profile.id;
+                    locator = profile.logoLocator;
+                }
+
+                this.DisplayLogo(modId, locator);
+            }
+        }
+
         /// <summary>Display a logo via the linked logo display.</summary>
         public void DisplayLogo(int modId, LogoImageLocator locator)
         {
