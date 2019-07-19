@@ -34,7 +34,6 @@ namespace ModIO.UI
 
         [Header("UI Components")]
         public SubmittorDisplay                     submittorDisplay;
-        public ModMediaCollectionDisplayComponent   mediaContainer;
         public ModfileDisplayComponent              buildDisplay;
         public ModTagCollectionDisplayComponent     tagsDisplay;
         public ModStatisticsDisplayComponent        statisticsDisplay;
@@ -203,32 +202,6 @@ namespace ModIO.UI
                 {
                     d.profile = ModProfileDisplayData.CreateFromProfile(p);
                 });
-            }
-
-            // - media -
-            if(mediaContainer != null)
-            {
-                mediaContainer.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.logo = mediaContainer.logoData;
-                    d.youTubeThumbnails = mediaContainer.youTubeData.ToArray();
-                    d.galleryImages = mediaContainer.galleryData.ToArray();
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    mediaContainer.logoData = d.logo;
-                    mediaContainer.youTubeData = d.youTubeThumbnails;
-                    mediaContainer.galleryData = d.galleryImages;
-                });
-
-                m_displayDelegates.Add((p) => mediaContainer.DisplayMedia(p));
-                m_loadingDelegates.Add(( ) => mediaContainer.DisplayLoading());
-            }
-            else
-            {
-                m_missingDisplayParsers.Add(ParseProfileMedia);
             }
 
             // - logo -
@@ -711,5 +684,7 @@ namespace ModIO.UI
         [Obsolete("Use ModLogoDisplay component instead.")]
         public ImageDisplay logoDisplay;
 
+        [Obsolete("Use ModLogoDisplay, GalleryImageContainer, and YouTubeThumbnailContainer components instead.")]
+        public ModMediaCollectionDisplayComponent mediaContainer;
     }
 }

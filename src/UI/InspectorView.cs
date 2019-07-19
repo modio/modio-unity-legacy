@@ -123,17 +123,6 @@ namespace ModIO.UI
                                        this.m_tagCategories,
                                        isModSubscribed, isModEnabled,
                                        rating);
-
-                    // media container
-                    if(modView.mediaContainer != null)
-                    {
-                        ModMediaCollection media = profile.media;
-                        bool hasMedia = media != null;
-                        hasMedia &= ((media.youTubeURLs != null && media.youTubeURLs.Length > 0)
-                                     || (media.galleryImageLocators != null && media.galleryImageLocators.Length > 0));
-
-                        modView.mediaContainer.gameObject.SetActive(hasMedia);
-                    }
                 }
             };
 
