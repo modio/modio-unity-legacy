@@ -10,13 +10,27 @@ namespace ModIO.UI
         /// <summary>Image component used to display the YouTube thumbnail.</summary>
         public Image image = null;
 
+        /// <summary>Current modId for the displayed thumbnail.</summary>
+        private int m_modId = ModProfile.NULL_ID;
+
         /// <summary>YouTube id for the displayed thumbnail.</summary>
         private string m_youTubeId = string.Empty;
+
+        // --- ACCESSORS ---
+        /// <summary>Current modId for the displayed thumbnail.</summary>
+        public int ModId
+        { get { return this.m_modId;    } }
+
+        /// <summary>YouTube id for the displayed thumbnail.</summary>
+        public string YouTubeId
+        { get { return this.m_youTubeId;  } }
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays a YouTube thumbnail.</summary>
         public virtual void DisplayThumbnail(int modId, string youTubeId)
         {
+            this.m_modId = modId;
+
             if(this.m_youTubeId != youTubeId)
             {
                 this.image.enabled = false;

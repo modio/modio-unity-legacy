@@ -13,13 +13,27 @@ namespace ModIO.UI
         /// <summary>Preferred image size.</summary>
         public ModGalleryImageSize imageSize = ModGalleryImageSize.Original;
 
+        /// <summary>Current modId for the displayed image.</summary>
+        private int m_modId = ModProfile.NULL_ID;
+
         /// <summary>Gallery image locator for the displayed image.</summary>
         private GalleryImageLocator m_locator = null;
+
+        // --- ACCESSORS ---
+        /// <summary>Current modId for the displayed image.</summary>
+        public int ModId
+        { get { return this.m_modId;    } }
+
+        /// <summary>Locator for the displayed image.</summary>
+        public GalleryImageLocator Locator
+        { get { return this.m_locator;  } }
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays a Mod Gallery Image.</summary>
         public virtual void DisplayGalleryImage(int modId, GalleryImageLocator locator)
         {
+            this.m_modId = modId;
+
             if(this.m_locator != locator)
             {
                 this.image.enabled = false;

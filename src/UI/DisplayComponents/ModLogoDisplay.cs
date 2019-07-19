@@ -22,6 +22,15 @@ namespace ModIO.UI
         /// <summary>Locator for the displayed logo.</summary>
         private LogoImageLocator m_locator = null;
 
+        // --- ACCESSORS ---
+        /// <summary>Current modId for the displayed logo.</summary>
+        public int ModId
+        { get { return this.m_modId;    } }
+
+        /// <summary>Locator for the displayed logo.</summary>
+        public LogoImageLocator Locator
+        { get { return this.m_locator;  } }
+
         // ---------[ INITIALIZATION ]---------
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
@@ -69,11 +78,12 @@ namespace ModIO.UI
         /// <summary>Displays a Mod Logo using the locator.</summary>
         public virtual void DisplayLogo(int modId, LogoImageLocator locator)
         {
+            this.m_modId = modId;
+
             if(this.m_locator != locator)
             {
                 this.image.enabled = false;
 
-                this.m_modId = modId;
                 this.m_locator = locator;
 
                 if(locator != null)
