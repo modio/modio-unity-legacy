@@ -21,7 +21,21 @@ namespace ModIO.UI
         // --- Accessors ---
         /// <summary>Currently displayed user profile.</summary>
         public UserProfile profile
-        { get { return this.m_profile; } }
+        {
+            get { return this.m_profile; }
+            set
+            {
+                if(this.m_profile != value)
+                {
+                    this.m_profile = value;
+
+                    if(this.onProfileChanged != null)
+                    {
+                        this.onProfileChanged(this.m_profile);
+                    }
+                }
+            }
+        }
 
 
         // ---------[ INITIALIZATION ]---------
@@ -87,20 +101,12 @@ namespace ModIO.UI
                 userProfile = modProfile.submittedBy;
             }
 
-            this.DisplayUser(userProfile);
+            this.profile = userProfile;
         }
 
-        public void DisplayUser(UserProfile profile)
+        public void DisplayUser(UserProfile userProfile)
         {
-            if(profile != this.m_profile)
-            {
-                this.m_profile = profile;
-
-                if(this.onProfileChanged != null)
-                {
-                    this.onProfileChanged(profile);
-                }
-            }
+            this.profile = userProfile;
         }
 
         // ---------[ EVENTS ]---------
