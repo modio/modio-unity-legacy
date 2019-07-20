@@ -92,19 +92,19 @@ namespace ModIO.UI
             Debug.Assert(!string.IsNullOrEmpty(url));
 
             // create delegates
-            Func<Texture2D> retrieveFromDisk = null;
-            Action<Texture2D> storeToDisk = null;
+            Func<Texture2D> loadFromDisk = null;
+            Action<Texture2D> saveToDisk = null;
             switch(data.descriptor)
             {
                 case ImageDescriptor.ModLogo:
                 {
                     LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
 
-                    retrieveFromDisk = () => CacheClient.LoadModLogo(data.ownerId, data.imageId, size);
+                    loadFromDisk = () => CacheClient.LoadModLogo(data.ownerId, data.imageId, size);
 
                     if(this.storeIfSubscribed)
                     {
-                        storeToDisk = (t) =>
+                        saveToDisk = (t) =>
                         {
                             if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
                             {
@@ -120,11 +120,11 @@ namespace ModIO.UI
                                                 ? ModGalleryImageSize.Original
                                                 : ImageDisplayData.galleryThumbnailSize);
 
-                    retrieveFromDisk = () => CacheClient.LoadModGalleryImage(data.ownerId, data.imageId, size);
+                    loadFromDisk = () => CacheClient.LoadModGalleryImage(data.ownerId, data.imageId, size);
 
                     if(this.storeIfSubscribed)
                     {
-                        storeToDisk = (t) =>
+                        saveToDisk = (t) =>
                         {
                             if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
                             {
@@ -136,11 +136,11 @@ namespace ModIO.UI
                 break;
                 case ImageDescriptor.YouTubeThumbnail:
                 {
-                    retrieveFromDisk = () => CacheClient.LoadModYouTubeThumbnail(data.ownerId, data.imageId);
+                    loadFromDisk = () => CacheClient.LoadModYouTubeThumbnail(data.ownerId, data.imageId);
 
                     if(this.storeIfSubscribed)
                     {
-                        storeToDisk = (t) =>
+                        saveToDisk = (t) =>
                         {
                             if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
                             {
@@ -156,36 +156,18 @@ namespace ModIO.UI
                                            ? UserAvatarSize.Original
                                            : ImageDisplayData.avatarThumbnailSize);
 
-                    retrieveFromDisk = () => CacheClient.LoadUserAvatar(data.ownerId, size);
+                    loadFromDisk = () => CacheClient.LoadUserAvatar(data.ownerId, size);
                 }
                 break;
             }
 
             // request image
-            Callbacks callbacks = null;
-            Texture2D texture = this.RequestImage_Internal(url, retrieveFromDisk, out callbacks);
+            this.RequestImage_Internal(url,
+                                       loadFromDisk,
+                                       saveToDisk,
+                                       onSuccess,
+                                       onError);
 
-            if(texture != null)
-            {
-                onSuccess(texture);
-            }
-            else
-            {
-                Debug.Assert(callbacks != null);
-
-                // Add callbacks
-                if(storeToDisk != null)
-                {
-                    callbacks.succeeded.Add(storeToDisk);
-                }
-
-                callbacks.succeeded.Add(onSuccess);
-
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
-            }
         }
 
         /// <summary>Requests the image for a given locator.</summary>
@@ -198,63 +180,25 @@ namespace ModIO.UI
             Debug.Assert(locator != null);
             Debug.Assert(onLogoReceived != null);
 
-            // init vars
-            string url = locator.GetSizeURL(size);
-            string fileName = locator.GetFileName();
-            Callbacks callbacks = null;
+            // set loading function
+            Func<Texture2D> loadFromDisk = () => CacheClient.LoadModLogo(modId, locator.GetFileName(), size);
 
-            // check for image
-            Texture2D requestedTexture
-                = RequestImage_Internal(url,
-                                        () => CacheClient.LoadModLogo(modId, fileName, size),
-                                        out callbacks);
-
-            if(requestedTexture != null)
+            // set saving function
+            Action<Texture2D> saveToDisk = null;
+            if(this.storeIfSubscribed)
             {
-                onLogoReceived(requestedTexture);
-            }
-            else
-            {
-                Debug.Assert(callbacks != null);
-
-                // check for fallbacks
-                if(onFallbackFound != null)
+                saveToDisk = (t) =>
                 {
-                    Texture2D fallbackTexture = null;
-                    foreach(var pair in locator.GetAllURLs())
+                    if(ModManager.GetSubscribedModIds().Contains(modId))
                     {
-                        Texture2D cachedTexture = null;
-                        if(pair.size != LogoSize.Original
-                           && this.cache.TryGetValue(pair.url, out cachedTexture))
-                        {
-                            fallbackTexture = cachedTexture;
-                        }
+                        CacheClient.SaveModLogo(modId, locator.GetFileName(), size, t);
                     }
-
-                    if(fallbackTexture != null)
-                    {
-                        onFallbackFound(fallbackTexture);
-                    }
-                }
-
-                // add callbacks
-                callbacks.succeeded.Add(onLogoReceived);
-                if(this.storeIfSubscribed)
-                {
-                    callbacks.succeeded.Add((t) =>
-                    {
-                        if(ModManager.GetSubscribedModIds().Contains(modId))
-                        {
-                            CacheClient.SaveModLogo(modId, fileName, size, t);
-                        }
-                    });
-                }
-
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
+                };
             }
+
+            // do the work
+            this.RequestImage_Internal(locator, size, loadFromDisk, saveToDisk,
+                                       onLogoReceived, onFallbackFound, onError);
         }
 
         /// <summary>Requests the image for a given locator.</summary>
@@ -267,109 +211,25 @@ namespace ModIO.UI
             Debug.Assert(locator != null);
             Debug.Assert(onImageReceived != null);
 
-            // init vars
-            string url = locator.GetSizeURL(size);
-            string fileName = locator.GetFileName();
-            Callbacks callbacks = null;
+            // set loading function
+            Func<Texture2D> loadFromDisk = () => CacheClient.LoadModGalleryImage(modId, locator.GetFileName(), size);
 
-            // check for image
-            Texture2D requestedTexture
-                = RequestImage_Internal(url,
-                                        () => CacheClient.LoadModGalleryImage(modId, fileName, size),
-                                        out callbacks);
-
-            if(requestedTexture != null)
+            // set saving function
+            Action<Texture2D> saveToDisk = null;
+            if(this.storeIfSubscribed)
             {
-                onImageReceived(requestedTexture);
-            }
-            else
-            {
-                Debug.Assert(callbacks != null);
-
-                // check for fallbacks
-                if(onFallbackFound != null)
+                saveToDisk = (t) =>
                 {
-                    Texture2D fallbackTexture = null;
-                    foreach(var pair in locator.GetAllURLs())
+                    if(ModManager.GetSubscribedModIds().Contains(modId))
                     {
-                        Texture2D cachedTexture = null;
-                        if(pair.size != ModGalleryImageSize.Original
-                           && this.cache.TryGetValue(pair.url, out cachedTexture))
-                        {
-                            fallbackTexture = cachedTexture;
-                        }
+                        CacheClient.SaveModGalleryImage(modId, locator.GetFileName(), size, t);
                     }
-
-                    if(fallbackTexture != null)
-                    {
-                        onFallbackFound(fallbackTexture);
-                    }
-                }
-
-                // add callbacks
-                callbacks.succeeded.Add(onImageReceived);
-                if(this.storeIfSubscribed)
-                {
-                    callbacks.succeeded.Add((t) =>
-                    {
-                        if(ModManager.GetSubscribedModIds().Contains(modId))
-                        {
-                            CacheClient.SaveModGalleryImage(modId, fileName, size, t);
-                        }
-                    });
-                }
-
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
+                };
             }
-        }
 
-        /// <summary>Requests the thumbnail for a given YouTube video.</summary>
-        public virtual void RequestYouTubeThumbnail(int modId, string youTubeId,
-                                                    Action<Texture2D> onThumbnailReceived,
-                                                    Action<WebRequestError> onError)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(youTubeId));
-            Debug.Assert(onThumbnailReceived != null);
-
-            // init vars
-            string url = Utility.GenerateYouTubeThumbnailURL(youTubeId);
-            Callbacks callbacks = null;
-
-            // check for image
-            Texture2D requestedTexture
-                = RequestImage_Internal(url,
-                                        () => CacheClient.LoadModYouTubeThumbnail(modId, youTubeId),
-                                        out callbacks);
-
-            if(requestedTexture != null)
-            {
-                onThumbnailReceived(requestedTexture);
-            }
-            else
-            {
-                Debug.Assert(callbacks != null);
-
-                // add callbacks
-                callbacks.succeeded.Add(onThumbnailReceived);
-                if(this.storeIfSubscribed)
-                {
-                    callbacks.succeeded.Add((t) =>
-                    {
-                        if(ModManager.GetSubscribedModIds().Contains(modId))
-                        {
-                            CacheClient.SaveModYouTubeThumbnail(modId, youTubeId, t);
-                        }
-                    });
-                }
-
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
-            }
+            // do the work
+            this.RequestImage_Internal(locator, size, loadFromDisk, saveToDisk,
+                                       onImageReceived, onFallbackFound, onError);
         }
 
         /// <summary>Requests the user avatar for the given locator.</summary>
@@ -382,52 +242,48 @@ namespace ModIO.UI
             Debug.Assert(locator != null);
             Debug.Assert(onAvatarReceived != null);
 
-            // init vars
-            string url = locator.GetSizeURL(size);
-            Callbacks callbacks = null;
+            // set loading function
+            Func<Texture2D> loadFromDisk = () => CacheClient.LoadUserAvatar(userId, size);
 
-            // check for image
-            Texture2D requestedTexture
-                = RequestImage_Internal(url,
-                                        () => CacheClient.LoadUserAvatar(userId, size),
-                                        out callbacks);
+            // do the work
+            this.RequestImage_Internal(locator, size, loadFromDisk, null,
+                                       onAvatarReceived, onFallbackFound, onError);
+        }
 
-            if(requestedTexture != null)
+        /// <summary>Requests the thumbnail for a given YouTube video.</summary>
+        public virtual void RequestYouTubeThumbnail(int modId, string youTubeId,
+                                                    Action<Texture2D> onThumbnailReceived,
+                                                    Action<WebRequestError> onError)
+        {
+            Debug.Assert(onThumbnailReceived != null);
+
+            // early out
+            if(string.IsNullOrEmpty(youTubeId))
             {
-                onAvatarReceived(requestedTexture);
+                onThumbnailReceived(null);
+                return;
             }
-            else
+
+            // set loading function
+            Func<Texture2D> loadFromDisk = () => CacheClient.LoadModYouTubeThumbnail(modId, youTubeId);
+
+            // set saving function
+            Action<Texture2D> saveToDisk = null;
+            if(this.storeIfSubscribed)
             {
-                Debug.Assert(callbacks != null);
-
-                // check for fallbacks
-                if(onFallbackFound != null)
+                saveToDisk = (t) =>
                 {
-                    Texture2D fallbackTexture = null;
-                    foreach(var pair in locator.GetAllURLs())
+                    if(ModManager.GetSubscribedModIds().Contains(modId))
                     {
-                        Texture2D cachedTexture = null;
-                        if(pair.size != UserAvatarSize.Original
-                           && this.cache.TryGetValue(pair.url, out cachedTexture))
-                        {
-                            fallbackTexture = cachedTexture;
-                        }
+                        CacheClient.SaveModYouTubeThumbnail(modId, youTubeId, t);
                     }
-
-                    if(fallbackTexture != null)
-                    {
-                        onFallbackFound(fallbackTexture);
-                    }
-                }
-
-                // add callbacks
-                callbacks.succeeded.Add(onAvatarReceived);
-
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
+                };
             }
+
+            // do the work
+            this.RequestImage_Internal(Utility.GenerateYouTubeThumbnailURL(youTubeId),
+                                       loadFromDisk, saveToDisk,
+                                       onThumbnailReceived, onError);
         }
 
         /// <summary>Requests an image at a given URL.</summary>
@@ -436,80 +292,86 @@ namespace ModIO.UI
                                          Action<Texture2D> onSuccess,
                                          Action<WebRequestError> onError)
         {
-            Debug.Assert(!string.IsNullOrEmpty(url));
             Debug.Assert(onSuccess != null);
 
-            Callbacks callbacks = null;
-            Texture2D texture = null;
-
-            texture = this.RequestImage_Internal(url, null, out callbacks);
-
-            if(texture != null)
-            {
-                onSuccess(texture);
-            }
-            else
-            {
-                Debug.Assert(callbacks != null);
-
-                callbacks.succeeded.Add(onSuccess);
-
-                if(onError != null)
-                {
-                    callbacks.failed.Add(onError);
-                }
-            }
+            // do the work
+            this.RequestImage_Internal(url, null, null, onSuccess, onError);
         }
 
         /// <summary>Handles computations for the image request.</summary>
-        protected virtual Texture2D RequestImage_Internal(string url,
-                                                          Func<Texture2D> retrieveFromDisk,
-                                                          out Callbacks callbacks)
+        protected virtual void RequestImage_Internal(string url,
+                                                     Func<Texture2D> loadFromDisk,
+                                                     Action<Texture2D> saveToDisk,
+                                                     Action<Texture2D> onSuccess,
+                                                     Action<WebRequestError> onError)
         {
-            callbacks = null;
+            Debug.Assert(onSuccess != null);
+
+            // early out
+            if(string.IsNullOrEmpty(url))
+            {
+                onSuccess(null);
+                return;
+            }
+
+            // init vars
+            Callbacks callbacks = null;
 
             // check cache
             Texture2D texture = null;
             if(this.cache.TryGetValue(url, out texture))
             {
-                return texture;
+                onSuccess(texture);
+                return;
             }
 
             // check currently downloading
-            Callbacks c = null;
-            if(this.m_callbackMap.TryGetValue(url, out c))
+            if(this.m_callbackMap.TryGetValue(url, out callbacks))
             {
-                callbacks = c;
-                return null;
+                // add callbacks
+                callbacks.succeeded.Add(onSuccess);
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+
+                return;
             }
 
             // check disk
-            if(retrieveFromDisk != null)
+            if(loadFromDisk != null)
             {
-                texture = retrieveFromDisk();
+                texture = loadFromDisk();
                 if(texture != null)
                 {
                     this.cache.Add(url, texture);
-                    return texture;
+                    onSuccess(texture);
+                    return;
                 }
             }
 
             // create new callbacks entry
-            callbacks = new Callbacks();
-            callbacks.succeeded = new List<Action<Texture2D>>();
-            callbacks.failed = new List<Action<WebRequestError>>();
+            callbacks = new Callbacks()
+            {
+                succeeded = new List<Action<Texture2D>>(),
+                failed = new List<Action<WebRequestError>>(),
+            };
             this.m_callbackMap.Add(url, callbacks);
+
+            // add functions
+            if(saveToDisk != null)
+            {
+                callbacks.succeeded.Add(saveToDisk);
+            }
+            callbacks.succeeded.Add(onSuccess);
 
             // start download
             this.DownloadImage(url);
-
-            return null;
         }
 
         /// <summary>Handles computations for the image request.</summary>
-        protected virtual void RequestImage_Internal<E>(IMultiSizeImageLocator<E> locator,
-                                                        E size,
-                                                        Func<Texture2D> retrieveFromDisk,
+        protected virtual void RequestImage_Internal<E>(IMultiSizeImageLocator<E> locator, E size,
+                                                        Func<Texture2D> loadFromDisk,
                                                         Action<Texture2D> saveToDisk,
                                                         Action<Texture2D> onSuccess,
                                                         Action<Texture2D> onFallback,
@@ -564,9 +426,9 @@ namespace ModIO.UI
             }
 
             // check disk
-            if(retrieveFromDisk != null)
+            if(loadFromDisk != null)
             {
-                texture = retrieveFromDisk();
+                texture = loadFromDisk();
                 if(texture != null)
                 {
                     this.cache.Add(url, texture);
