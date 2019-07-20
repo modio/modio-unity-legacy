@@ -2,60 +2,27 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
+    /// <summary>A view that provides information to children IUserViewElement components</summary>
+    [DisallowMultipleComponent]
     public class UserView : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
         public event System.Action<UserView> onClick;
 
+        /// <summary>Event fired when the profile changes.</summary>
         public event System.Action<UserProfile> onProfileChanged;
-
-        [Header("UI Components")]
-        public UserProfileDisplayComponent  profileDisplay;
-
-        [Header("Display Data")]
-        [SerializeField] private UserDisplayData m_data = new UserDisplayData();
-
-        private UserProfile m_profile = null;
-
-        public UserProfile profile
-        { get { return this.m_profile; } }
-
-        // --- ACCESSORS ---
-        public UserDisplayData data
-        {
-            get
-            {
-                return GetData();
-            }
-
-            set
-            {
-                SetData(value);
-            }
-        }
-
-        private UserDisplayData GetData()
-        {
-            if(profileDisplay != null)
-            {
-                m_data.profile = profileDisplay.data;
-            }
-
-            return m_data;
-        }
-
-        private void SetData(UserDisplayData value)
-        {
-            m_data = value;
-
-            if(profileDisplay != null)
-            {
-                profileDisplay.data = m_data.profile;
-            }
-        }
 
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
+
+        /// <summary>Currently displayed user profile.</summary>
+        private UserProfile m_profile = null;
+
+        // --- Accessors ---
+        /// <summary>Currently displayed user profile.</summary>
+        public UserProfile profile
+        { get { return this.m_profile; } }
+
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -75,25 +42,10 @@ namespace ModIO.UI
             #endif
 
             // assign user view elements to this
-            // TODO(@jackson): Looks like it's not neccessary?
-            var userViewElements = this.gameObject.GetComponents<IUserViewElement>();
+            var userViewElements = this.gameObject.GetComponentsInChildren<IUserViewElement>(true);
             foreach(IUserViewElement viewElement in userViewElements)
             {
                 viewElement.SetUserView(this);
-            }
-
-            userViewElements = this.gameObject.GetComponentsInChildren<IUserViewElement>(true);
-            foreach(IUserViewElement viewElement in userViewElements)
-            {
-                viewElement.SetUserView(this);
-            }
-        }
-
-        public void Initialize()
-        {
-            if(profileDisplay != null)
-            {
-                profileDisplay.Initialize();
             }
         }
 
@@ -135,41 +87,11 @@ namespace ModIO.UI
                 userProfile = modProfile.submittedBy;
             }
 
-            // TEMP
-            if(userProfile == null)
-            {
-                userProfile = new UserProfile();
-            }
-
             this.DisplayUser(userProfile);
         }
 
         public void DisplayUser(UserProfile profile)
         {
-            Debug.Assert(profile != null);
-
-            m_data = new UserDisplayData();
-
-            if(profileDisplay != null)
-            {
-                profileDisplay.DisplayProfile(profile);
-                m_data.profile = profileDisplay.data;
-            }
-            else
-            {
-                m_data.profile = UserProfileDisplayData.CreateFromProfile(profile);
-            }
-
-            if(profile.avatarLocator != null)
-            {
-                m_data.avatar = ImageDisplayData.CreateForUserAvatar(profile.id,
-                                                                     profile.avatarLocator);
-            }
-            else
-            {
-                m_data.avatar = new ImageDisplayData();
-            }
-
             if(profile != this.m_profile)
             {
                 this.m_profile = profile;
@@ -190,21 +112,37 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
-        private void OnValidate()
-        {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                if(this != null)
-                {
-                    SetData(m_data);
-                }
-            };
-        }
-        #endif
-
         // ---------[ OBSOLETE ]---------
         [System.Obsolete("Use UserAvatarDisplay component instead.")][HideInInspector]
         public ImageDisplay avatarDisplay;
+
+        [System.Obsolete("Use UserProfileFieldDisplay components instead.")][HideInInspector]
+        public UserProfileDisplayComponent  profileDisplay;
+
+        [System.Obsolete]
+        public UserDisplayData data
+        {
+            get
+            {
+                if(this.m_profile == null)
+                {
+                    return new UserDisplayData();
+                }
+                else
+                {
+                    UserDisplayData data = new UserDisplayData();
+                    data.profile = UserProfileDisplayData.CreateFromProfile(profile);
+                    data.avatar = ImageDisplayData.CreateForUserAvatar(profile.id, profile.avatarLocator);
+                    return data;
+                }
+            }
+            set
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        [System.Obsolete("No longer necessary.")]
+        public void Initialize() {}
     }
 }
