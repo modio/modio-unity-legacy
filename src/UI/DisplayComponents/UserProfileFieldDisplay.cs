@@ -6,22 +6,23 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>Component used to display a field of a mod profile in text.</summary>
-    public class ModProfileFieldDisplay : MonoBehaviour, IModViewElement
+    /// <summary>Component used to display a field of a user profile in text.</summary>
+    public class UserProfileFieldDisplay : MonoBehaviour, IUserViewElement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>ModProfile field to display.</summary>
+        /// <summary>UserProfile field to display.</summary>
         [SerializeField]
         private string m_fieldName = "id";
 
-        /// <summary>Delegate for acquiring the display string from the ModProfile.</summary>
-        private Func<ModProfile, string> m_getProfileFieldValue = null;
+        /// <summary>Delegate for acquiring the display string from the UserProfile.</summary>
+        private Func<UserProfile, string> m_getProfileFieldValue = null;
 
         /// <summary>Wrapper for the text component.</summary>
         private GenericTextComponent m_textComponent = new GenericTextComponent();
 
-        /// <summary>Parent ModView.</summary>
-        private ModView m_view = null;
+        /// <summary>Parent UserView.</summary>
+        private UserView m_view = null;
+
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -33,8 +34,8 @@ namespace ModIO.UI
             #if DEBUG
             if(this.m_getProfileFieldValue == null)
             {
-                Debug.LogError("[mod.io] ModProfileFieldDisplay is unable to display the field \'"
-                               + this.m_fieldName + "\' as it does not appear in the ModProfile"
+                Debug.LogError("[mod.io] UserProfileFieldDisplay is unable to display the field \'"
+                               + this.m_fieldName + "\' as it does not appear in the UserProfile"
                                + " object definition.",
                                this);
             }
@@ -62,19 +63,19 @@ namespace ModIO.UI
         }
 
         // --- DELEGATE GENERATION ---
-        protected virtual Func<ModProfile, string> GenerateGetDisplayStringDelegate()
+        protected virtual Func<UserProfile, string> GenerateGetDisplayStringDelegate()
         {
-            foreach(var fieldInfo in typeof(ModProfile).GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach(var fieldInfo in typeof(UserProfile).GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 if(fieldInfo.Name.Equals(this.m_fieldName))
                 {
                     if(fieldInfo.FieldType.IsValueType)
                     {
-                        return (p) => ModProfileFieldDisplay.GetProfileFieldValueString_ValueType(p, fieldInfo);
+                        return (p) => UserProfileFieldDisplay.GetProfileFieldValueString_ValueType(p, fieldInfo);
                     }
                     else
                     {
-                        return (p) => ModProfileFieldDisplay.GetProfileFieldValueString_Nullable(p, fieldInfo);
+                        return (p) => UserProfileFieldDisplay.GetProfileFieldValueString_Nullable(p, fieldInfo);
                     }
                 }
             }
@@ -83,8 +84,8 @@ namespace ModIO.UI
         }
 
         // --- IMODVIEWELEMENT INTERFACE ---
-        /// <summary>IModViewElement interface.</summary>
-        public void SetModView(ModView view)
+        /// <summary>IUserViewElement interface.</summary>
+        public void SetUserView(UserView view)
         {
             // early out
             if(this.m_view == view) { return; }
@@ -112,7 +113,7 @@ namespace ModIO.UI
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays the appropriate field of a given profile.</summary>
-        public void DisplayProfile(ModProfile profile)
+        public void DisplayProfile(UserProfile profile)
         {
             // early out
             if(this.m_getProfileFieldValue == null) { return; }
@@ -123,7 +124,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UTILITY ]---------
-        protected static string GetProfileFieldValueString_ValueType(ModProfile profile, FieldInfo fieldInfo)
+        protected static string GetProfileFieldValueString_ValueType(UserProfile profile, FieldInfo fieldInfo)
         {
             Debug.Assert(fieldInfo != null);
 
@@ -137,7 +138,7 @@ namespace ModIO.UI
             }
         }
 
-        protected static string GetProfileFieldValueString_Nullable(ModProfile profile, FieldInfo fieldInfo)
+        protected static string GetProfileFieldValueString_Nullable(UserProfile profile, FieldInfo fieldInfo)
         {
             Debug.Assert(fieldInfo != null);
 
