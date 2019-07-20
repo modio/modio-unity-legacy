@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [Obsolete("Use ModLogoDisplay, GalleryImageDisplay, YouTubeThumbnailDisplay, and UserAvatarDisplay instead.")]
     public class ImageDisplay : MonoBehaviour
     {
         // ---------[ FIELDS ]---------

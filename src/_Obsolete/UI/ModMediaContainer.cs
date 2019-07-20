@@ -6,6 +6,7 @@ using LayoutRebuilder = UnityEngine.UI.LayoutRebuilder;
 
 namespace ModIO.UI
 {
+    [Obsolete("Use ModLogoDisplay, GalleryImageContainer, and YouTubeThumbnailContainer instead.")]
     public class ModMediaContainer : ModMediaCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
