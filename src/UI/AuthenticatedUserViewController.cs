@@ -8,11 +8,18 @@ namespace ModIO.UI
     [RequireComponent(typeof(UserView))]
     public class AuthenticatedUserViewController : MonoBehaviour, IAuthenticatedUserUpdateReceiver
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        [System.Serializable]
+        private struct UserProfileData
+        {
+            public UserProfile profile;
+            public Texture2D avatar;
+        }
+
         // ---------[ FIELDS ]---------
-        [Header("Settings")]
         /// <summary>Display data for an unauthenticated user.</summary>
         [SerializeField]
-        private UserDisplayData m_guestData = default(UserDisplayData);
+        private UserProfileData m_unauthenticatedUser = new UserProfileData();
 
         // --- ACCESSORS ---
         /// <summary>The UserView this component controls.</summary>
@@ -22,17 +29,24 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        private void Start()
+        protected virtual void Start()
         {
-            view.Initialize();
+            // cache the guest avatar
+            string avatarURL = this.GetInstanceID().ToString() + @":GUEST_AVATAR";
+            this.m_unauthenticatedUser.profile.avatarLocator = new AvatarImageLocator()
+            {
+                fileName = "_AVATAR_",
+                original = avatarURL,
+                thumbnail_50x50 = avatarURL,
+                thumbnail_100x100 = avatarURL,
+            };
+            ImageRequestManager.instance.cache[avatarURL] = this.m_unauthenticatedUser.avatar;
 
-            if(UserAuthenticationData.instance.userId == UserProfile.NULL_ID)
+            // set view profile
+            this.view.profile = this.m_unauthenticatedUser.profile;
+
+            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
             {
-                view.data = this.m_guestData;
-            }
-            else
-            {
-                view.data = default(UserDisplayData);
                 StartCoroutine(FetchUserProfile());
             }
         }
@@ -87,9 +101,7 @@ namespace ModIO.UI
             }
             else if(this != null)
             {
-                Debug.Assert(profile != null);
-
-                view.DisplayUser(profile);
+                this.view.profile = profile;
             }
         }
 
@@ -97,33 +109,23 @@ namespace ModIO.UI
         /// <summary>Interface for notification of user log-in event.</summary>
         public void OnUserLoggedIn(UserProfile profile)
         {
-            if(profile == null)
-            {
-                view.data = default(UserDisplayData);
-            }
-            else
-            {
-                view.DisplayUser(profile);
-            }
+            this.view.profile = profile;
         }
 
         /// <summary>Interface for notification of user log-out event.</summary>
         public void OnUserLoggedOut()
         {
-            view.data = this.m_guestData;
+            this.view.profile = this.m_unauthenticatedUser.profile;
         }
 
         /// <summary>Interface for notification of changes made to user profile.</summary>
         public void OnUserProfileUpdated(UserProfile profile)
         {
-            if(profile == null)
-            {
-                view.data = default(UserDisplayData);
-            }
-            else
-            {
-                view.DisplayUser(profile);
-            }
+            this.view.profile = profile;
         }
+
+        // ---------[ OBSOLETE ]---------
+        [System.Obsolete][SerializeField][HideInInspector]
+        private UserDisplayData m_guestData;
     }
 }
