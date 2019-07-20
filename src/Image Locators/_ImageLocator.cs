@@ -10,6 +10,7 @@ namespace ModIO
     {
         string GetSizeURL(E size);
         SizeURLPair<E>[] GetAllURLs();
+        E GetOriginalSize();
     }
 
     public struct SizeURLPair<E>

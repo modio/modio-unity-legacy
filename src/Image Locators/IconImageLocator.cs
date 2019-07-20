@@ -98,5 +98,10 @@ namespace ModIO
                 },
             };
         }
+        /// <summary>Returns the size value associated with the original image.</summary>
+        public IconSize GetOriginalSize()
+        {
+            return IconSize.Original;
+        }
     }
 }
