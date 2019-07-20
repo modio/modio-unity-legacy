@@ -506,9 +506,129 @@ namespace ModIO.UI
             return null;
         }
 
+        /// <summary>Handles computations for the image request.</summary>
+        protected virtual void RequestImage_Internal<E>(IMultiSizeImageLocator<E> locator,
+                                                        E size,
+                                                        Func<Texture2D> retrieveFromDisk,
+                                                        Action<Texture2D> saveToDisk,
+                                                        Action<Texture2D> onSuccess,
+                                                        Action<Texture2D> onFallback,
+                                                        Action<WebRequestError> onError)
+        {
+            Debug.Assert(locator != null);
+            Debug.Assert(onSuccess != null);
+
+            // init vars
+            string url = locator.GetSizeURL(size);
+            string fileName = locator.GetFileName();
+            Callbacks callbacks = null;
+
+            // check for null URL
+            if(string.IsNullOrEmpty(url))
+            {
+                Debug.Log("[mod.io] Attempted to fetch image with a Null or Empty"
+                          + " url in the locator.");
+                onSuccess(null);
+                return;
+            }
+
+            // check cache
+            Texture2D texture = null;
+            if(this.cache.TryGetValue(url, out texture))
+            {
+                onSuccess(texture);
+                return;
+            }
+
+            // check currently downloading
+            if(this.m_callbackMap.TryGetValue(url, out callbacks))
+            {
+                // add callbacks
+                callbacks.succeeded.Add(onSuccess);
+                if(onError != null)
+                {
+                    callbacks.failed.Add(onError);
+                }
+
+                // check for fallback
+                if(onFallback != null)
+                {
+                    Texture2D fallback = FindFallbackTexture(locator);
+                    if(fallback != null)
+                    {
+                        onFallback(fallback);
+                    }
+                }
+
+                return;
+            }
+
+            // check disk
+            if(retrieveFromDisk != null)
+            {
+                texture = retrieveFromDisk();
+                if(texture != null)
+                {
+                    this.cache.Add(url, texture);
+                    onSuccess(texture);
+                    return;
+                }
+            }
+
+            // create new callbacks entry
+            callbacks = new Callbacks()
+            {
+                succeeded = new List<Action<Texture2D>>(),
+                failed = new List<Action<WebRequestError>>(),
+            };
+            this.m_callbackMap.Add(url, callbacks);
+
+            // add functions
+            if(saveToDisk != null)
+            {
+                callbacks.succeeded.Add(saveToDisk);
+            }
+            callbacks.succeeded.Add(onSuccess);
+
+            // check for fallback
+            if(onFallback != null)
+            {
+                Texture2D fallback = FindFallbackTexture(locator);
+                if(fallback != null)
+                {
+                    onFallback(fallback);
+                }
+            }
+
+            // start download
+            this.DownloadImage(url);
+        }
+
+        /// <summary>Finds a fallback texture for the given locator.</summary>
+        protected virtual Texture2D FindFallbackTexture<E>(IMultiSizeImageLocator<E> locator)
+        {
+            Debug.Assert(locator != null);
+
+            Texture2D fallbackTexture = null;
+            foreach(var pair in locator.GetAllURLs())
+            {
+                Texture2D cachedTexture = null;
+                E originalSize = locator.GetOriginalSize();
+                if(!pair.size.Equals(originalSize)
+                   && this.cache.TryGetValue(pair.url, out cachedTexture))
+                {
+                    fallbackTexture = cachedTexture;
+                }
+            }
+
+            return fallbackTexture;
+        }
+
         /// <summary>Creates and sends an image download request for the given url.</summary>
         protected UnityWebRequestAsyncOperation DownloadImage(string url)
         {
+            Debug.Assert(!string.IsNullOrEmpty(url));
+
             // create new download
             UnityWebRequest webRequest = UnityWebRequest.Get(url);
             webRequest.downloadHandler = new DownloadHandlerTexture(true);
