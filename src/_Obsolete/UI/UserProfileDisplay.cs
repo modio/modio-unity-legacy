@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("Use UserProfileFieldDisplayComponents instead.")]
     public class UserProfileDisplay : UserProfileDisplayComponent
     {
         // ---------[ FIELDS ]---------
