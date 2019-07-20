@@ -16,7 +16,7 @@ namespace ModIO.UI
         {
             if(slider.isAnimating) { return; }
 
-            if(view.data.profile.userId > 0)
+            if(view.profile.id != UserProfile.NULL_ID)
             {
                 slider.isOn = true;
             }
