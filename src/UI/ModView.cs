@@ -18,12 +18,6 @@ namespace ModIO.UI
         public event Action<ModView> rateNegativeRequested;
 
         public event Action<ModProfile> onProfileChanged;
-        [Serializable]
-        public struct SubmittorDisplay
-        {
-            public UserProfileDisplayComponent  profile;
-            public ImageDisplay                 avatar;
-        }
 
         [Serializable]
         public struct UserRatingDisplay
@@ -33,7 +27,6 @@ namespace ModIO.UI
         }
 
         [Header("UI Components")]
-        public SubmittorDisplay                     submittorDisplay;
         public ModfileDisplayComponent              buildDisplay;
         public ModTagCollectionDisplayComponent     tagsDisplay;
         public ModStatisticsDisplayComponent        statisticsDisplay;
@@ -686,5 +679,14 @@ namespace ModIO.UI
 
         [Obsolete("Use ModLogoDisplay, GalleryImageContainer, and YouTubeThumbnailContainer components instead.")][HideInInspector]
         public ModMediaCollectionDisplayComponent mediaContainer;
+
+        [Obsolete][Serializable]
+        public struct SubmittorDisplay
+        {
+            public UserProfileDisplayComponent  profile;
+            public ImageDisplay                 avatar;
+        }
+        [Obsolete("Use a nested UserView instead.")][HideInInspector]
+        public SubmittorDisplay submittorDisplay;
     }
 }
