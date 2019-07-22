@@ -4,16 +4,13 @@ namespace ModIO.UI
 {
     /// <summary>A view that provides information to children IUserViewElement components</summary>
     [DisallowMultipleComponent]
-    public class UserView : MonoBehaviour, IModViewElement
+    public class UserView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
         public event System.Action<UserView> onClick;
 
         /// <summary>Event fired when the profile changes.</summary>
         public event System.Action<UserProfile> onProfileChanged;
-
-        /// <summary>Parent ModView.</summary>
-        private ModView m_view = null;
 
         /// <summary>Currently displayed user profile.</summary>
         private UserProfile m_profile = null;
@@ -36,7 +33,6 @@ namespace ModIO.UI
                 }
             }
         }
-
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -63,47 +59,7 @@ namespace ModIO.UI
             }
         }
 
-        // --- IMODVIEWELEMENT INTERFACE ---
-        /// <summary>IModViewElement interface.</summary>
-        public void SetModView(ModView view)
-        {
-            // early out
-            if(this.m_view == view) { return; }
-
-            // unhook
-            if(this.m_view != null)
-            {
-                this.m_view.onProfileChanged -= DisplayModSubmittor;
-            }
-
-            // assign
-            this.m_view = view;
-
-            // hook
-            if(this.m_view != null)
-            {
-                this.m_view.onProfileChanged += DisplayModSubmittor;
-                this.DisplayModSubmittor(this.m_view.profile);
-            }
-            else
-            {
-                this.DisplayModSubmittor(null);
-            }
-        }
-
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Displays the submittor for a ModProfile.</summary>
-        public void DisplayModSubmittor(ModProfile modProfile)
-        {
-            UserProfile userProfile = null;
-            if(modProfile != null)
-            {
-                userProfile = modProfile.submittedBy;
-            }
-
-            this.profile = userProfile;
-        }
-
         public void DisplayUser(UserProfile userProfile)
         {
             this.profile = userProfile;
