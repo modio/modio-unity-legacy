@@ -6,36 +6,35 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>Component used to display a field of a user profile in text.</summary>
-    public class UserProfileFieldDisplay : MonoBehaviour, IUserViewElement
+    /// <summary>Component used to display a field of a modfile in text.</summary>
+    public class ModfileFieldDisplay : MonoBehaviour, IModfileViewElement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>UserProfile field to display.</summary>
+        /// <summary>Modfile field to display.</summary>
         [SerializeField]
         private string m_fieldName = "id";
 
-        /// <summary>Delegate for acquiring the display string from the UserProfile.</summary>
-        private Func<UserProfile, string> m_getProfileFieldValue = null;
+        /// <summary>Delegate for acquiring the display string from the Modfile.</summary>
+        private Func<Modfile, string> m_getModfileFieldValue = null;
 
         /// <summary>Wrapper for the text component.</summary>
         private GenericTextComponent m_textComponent = new GenericTextComponent();
 
-        /// <summary>Parent UserView.</summary>
-        private UserView m_view = null;
-
+        /// <summary>Parent ModfileView.</summary>
+        private ModfileView m_view = null;
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            this.m_getProfileFieldValue = this.GenerateGetDisplayStringDelegate();
+            this.m_getModfileFieldValue = this.GenerateGetDisplayStringDelegate();
             UnityEngine.Object textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
             #if DEBUG
-            if(this.m_getProfileFieldValue == null)
+            if(this.m_getModfileFieldValue == null)
             {
-                Debug.LogError("[mod.io] UserProfileFieldDisplay is unable to display the field \'"
-                               + this.m_fieldName + "\' as it does not appear in the UserProfile"
+                Debug.LogError("[mod.io] ModfileFieldDisplay is unable to display the field \'"
+                               + this.m_fieldName + "\' as it does not appear in the Modfile"
                                + " object definition.",
                                this);
             }
@@ -54,28 +53,28 @@ namespace ModIO.UI
         {
             if(this.m_view != null)
             {
-                this.DisplayProfile(this.m_view.profile);
+                this.DisplayModfile(this.m_view.modfile);
             }
             else
             {
-                this.DisplayProfile(null);
+                this.DisplayModfile(null);
             }
         }
 
         // --- DELEGATE GENERATION ---
-        protected virtual Func<UserProfile, string> GenerateGetDisplayStringDelegate()
+        protected virtual Func<Modfile, string> GenerateGetDisplayStringDelegate()
         {
-            foreach(var fieldInfo in typeof(UserProfile).GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach(var fieldInfo in typeof(Modfile).GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 if(fieldInfo.Name.Equals(this.m_fieldName))
                 {
                     if(fieldInfo.FieldType.IsValueType)
                     {
-                        return (p) => UserProfileFieldDisplay.GetProfileFieldValueString_ValueType(p, fieldInfo);
+                        return (m) => ModfileFieldDisplay.GetModfileFieldValueString_ValueType(m, fieldInfo);
                     }
                     else
                     {
-                        return (p) => UserProfileFieldDisplay.GetProfileFieldValueString_Nullable(p, fieldInfo);
+                        return (m) => ModfileFieldDisplay.GetModfileFieldValueString_Nullable(m, fieldInfo);
                     }
                 }
             }
@@ -83,9 +82,9 @@ namespace ModIO.UI
             return null;
         }
 
-        // --- IUserViewElement Interface ---
-        /// <summary>IUserViewElement interface.</summary>
-        public void SetUserView(UserView view)
+        // --- IModfileViewElement Interface ---
+        /// <summary>IModfileViewElement interface.</summary>
+        public void SetModfileView(ModfileView view)
         {
             // early out
             if(this.m_view == view) { return; }
@@ -93,7 +92,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged -= DisplayProfile;
+                this.m_view.onModfileChanged -= DisplayModfile;
             }
 
             // assign
@@ -102,53 +101,53 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged += DisplayProfile;
-                this.DisplayProfile(this.m_view.profile);
+                this.m_view.onModfileChanged += DisplayModfile;
+                this.DisplayModfile(this.m_view.modfile);
             }
             else
             {
-                this.DisplayProfile(null);
+                this.DisplayModfile(null);
             }
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Displays the appropriate field of a given profile.</summary>
-        public void DisplayProfile(UserProfile profile)
+        /// <summary>Displays the appropriate field of a given modfile.</summary>
+        public void DisplayModfile(Modfile modfile)
         {
             // early out
-            if(this.m_getProfileFieldValue == null) { return; }
+            if(this.m_getModfileFieldValue == null) { return; }
 
             // display
-            string displayString = this.m_getProfileFieldValue(profile);
+            string displayString = this.m_getModfileFieldValue(modfile);
             this.m_textComponent.text = displayString;
         }
 
         // ---------[ UTILITY ]---------
-        protected static string GetProfileFieldValueString_ValueType(UserProfile profile, FieldInfo fieldInfo)
+        protected static string GetModfileFieldValueString_ValueType(Modfile modfile, FieldInfo fieldInfo)
         {
             Debug.Assert(fieldInfo != null);
 
-            if(profile == null)
+            if(modfile == null)
             {
                 return string.Empty;
             }
             else
             {
-                return fieldInfo.GetValue(profile).ToString();
+                return fieldInfo.GetValue(modfile).ToString();
             }
         }
 
-        protected static string GetProfileFieldValueString_Nullable(UserProfile profile, FieldInfo fieldInfo)
+        protected static string GetModfileFieldValueString_Nullable(Modfile modfile, FieldInfo fieldInfo)
         {
             Debug.Assert(fieldInfo != null);
 
-            if(profile == null)
+            if(modfile == null)
             {
                 return string.Empty;
             }
             else
             {
-                var fieldValue = fieldInfo.GetValue(profile);
+                var fieldValue = fieldInfo.GetValue(modfile);
                 if(fieldValue == null)
                 {
                     return string.Empty;
