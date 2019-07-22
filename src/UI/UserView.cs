@@ -13,6 +13,7 @@ namespace ModIO.UI
         public event System.Action<UserProfile> onProfileChanged;
 
         /// <summary>Currently displayed user profile.</summary>
+        [SerializeField]
         private UserProfile m_profile = null;
 
         // --- Accessors ---
@@ -59,12 +60,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ UI FUNCTIONALITY ]---------
-        public void DisplayUser(UserProfile userProfile)
-        {
-            this.profile = userProfile;
-        }
-
         // ---------[ EVENTS ]---------
         public void NotifyClicked()
         {
@@ -106,5 +101,11 @@ namespace ModIO.UI
 
         [System.Obsolete("No longer necessary.")]
         public void Initialize() {}
+
+        [System.Obsolete("Use UserView.profile instead.")]
+        public void DisplayUser(UserProfile userProfile)
+        {
+            this.profile = userProfile;
+        }
     }
 }
