@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("Use TagContainer, of TagCollectionTextDisplay instead.")]
     public abstract class ModTagCollectionDisplayComponent : MonoBehaviour
     {
         public abstract IEnumerable<ModTagDisplayData> data { get; set; }

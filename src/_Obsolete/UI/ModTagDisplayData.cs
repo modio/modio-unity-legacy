@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("No longer supported.")]
     [System.Serializable]
     public struct ModTagDisplayData
     {
@@ -62,6 +63,7 @@ namespace ModIO.UI
         }
     }
 
+    [System.Obsolete("No longer supported.")]
     public abstract class ModTagDisplayComponent : UnityEngine.MonoBehaviour
     {
         public abstract event System.Action<ModTagDisplayComponent> onClick;

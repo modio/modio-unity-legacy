@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [Obsolete("No longer supported.")]
     public class ModTagDisplay : ModTagDisplayComponent
     {
         // ---------[ FIELDS ]---------

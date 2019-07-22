@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("Use TagContainer instead.")]
     public class ModTagContainer : ModTagCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
