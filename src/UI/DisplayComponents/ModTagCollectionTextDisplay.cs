@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Displays the tags of a mod in a single text component.</summary>
-    public class ModTagCollectionTextDisplay : ModTagCollectionDisplayComponent
+    public class ModTagCollectionTextDisplay : ModTagCollectionDisplayComponent, IModViewElement
     {
         // ---------[ FIELDS ]---------
         public event System.Action<ModTagCollectionDisplayComponent> onClick;
@@ -24,6 +24,9 @@ namespace ModIO.UI
 
         /// <summary>Wrapper for the text component.</summary>
         private GenericTextComponent m_textComponent = new GenericTextComponent();
+
+        /// <summary>Parent ModView.</summary>
+        private ModView m_view = null;
 
         // --- ACCESSORS ---
         public override IEnumerable<ModTagDisplayData> data
@@ -90,9 +93,47 @@ namespace ModIO.UI
             }
             #endif
         }
+        // ---------[ INITIALIZATION ]---------
+        /// <summary>IModViewElement interface.</summary>
+        public void SetModView(ModView view)
+        {
+            // early out
+            if(this.m_view == view) { return; }
 
+            // unhook
+            if(this.m_view != null)
+            {
+                this.m_view.onProfileChanged -= DisplayProfileTags;
+            }
 
-        // ---------[ UI FUNCTIONALITY ]--------
+            // assign
+            this.m_view = view;
+
+            // hook
+            if(this.m_view != null)
+            {
+                this.m_view.onProfileChanged += DisplayProfileTags;
+                this.DisplayProfileTags(this.m_view.profile);
+            }
+            else
+            {
+                this.DisplayProfileTags(null);
+            }
+        }
+
+        // ---------[ UI FUNCTIONALITY ]---------
+        /// <summary>Displays the tags for a given profile.</summary>
+        public void DisplayProfileTags(ModProfile profile)
+        {
+            IEnumerable<string> tags = null;
+            if(profile != null)
+            {
+                tags = profile.tagNames;
+            }
+
+            this.DisplayTags(tags, null);
+        }
+
         public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
