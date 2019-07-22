@@ -30,7 +30,6 @@ namespace ModIO.UI
         public ModStatisticsDisplayComponent        statisticsDisplay;
         public DownloadDisplayComponent             downloadDisplay;
         public StateToggleDisplay                   subscriptionDisplay;
-        public StateToggleDisplay                   modEnabledDisplay;
         public UserRatingDisplay                    userRatingDisplay;
 
         [Header("Display Data")]
@@ -548,5 +547,8 @@ namespace ModIO.UI
 
         [Obsolete("Use a TagContainer or TagCollectionTextDisplay component instead.")][HideInInspector]
         public ModTagCollectionDisplayComponent tagsDisplay;
+
+        [Obsolete("Use a ModEnabeldDisplay component instead.")][HideInInspector]
+        public StateToggleDisplay modEnabledDisplay;
     }
 }
