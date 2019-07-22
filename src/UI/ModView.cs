@@ -686,7 +686,7 @@ namespace ModIO.UI
             public UserProfileDisplayComponent  profile;
             public ImageDisplay                 avatar;
         }
-        [Obsolete("Use a nested UserView instead.")][HideInInspector]
+        [Obsolete("Use a ModSubmittorDisplay component instead.")][HideInInspector]
         public SubmittorDisplay submittorDisplay;
     }
 }
