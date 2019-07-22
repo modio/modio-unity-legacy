@@ -27,7 +27,7 @@ namespace ModIO.UI
         protected virtual void Awake()
         {
             this.m_getModfileFieldValue = this.GenerateGetDisplayStringDelegate();
-            UnityEngine.Object textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
+            Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
             #if DEBUG

@@ -9,9 +9,9 @@ namespace ModIO.UI
     {
         // ---------[ STATICS ]---------
         /// <summary>Returns the first compatible component found on the GameObject.</summary>
-        public static Object FindCompatibleTextComponent(GameObject gameObject)
+        public static Component FindCompatibleTextComponent(GameObject gameObject)
         {
-            Object textComponent = null;
+            Component textComponent = null;
 
             if(gameObject != null)
             {
@@ -32,7 +32,7 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         /// <summary>The component the this structure uses to display text.</summary>
         [SerializeField]
-        private Object m_textDisplayComponent;
+        private Component m_textDisplayComponent;
 
         /// <summary>The delegate for displaying text.</summary>
         private System.Action<string> m_setTextDelegate;
@@ -41,6 +41,12 @@ namespace ModIO.UI
         private System.Func<string> m_getTextDelegate;
 
         // --- Accessors ---
+        /// <summary>The component the this structure uses to display text.</summary>
+        public Component displayComponent
+        {
+            get { return this.m_textDisplayComponent; }
+        }
+
         /// <summary>The text to display on the UI component.</summary>
         public string text
         {
@@ -121,7 +127,7 @@ namespace ModIO.UI
 
         // ---------[ UTILITIES ]---------
         /// <summary>Sets the component to use in displaying text.</summary>
-        public void SetTextDisplayComponent(Object displayComponent)
+        public void SetTextDisplayComponent(Component displayComponent)
         {
             if(displayComponent != this.m_textDisplayComponent)
             {
