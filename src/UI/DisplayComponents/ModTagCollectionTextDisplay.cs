@@ -7,11 +7,9 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Displays the tags of a mod in a single text component.</summary>
-    public class ModTagCollectionTextDisplay : ModTagCollectionDisplayComponent, IModViewElement
+    public class ModTagCollectionTextDisplay : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
-        public event System.Action<ModTagCollectionDisplayComponent> onClick;
-
         [Header("Settings")]
         public bool includeCategory = false;
         public string tagSeparator = ", ";
@@ -29,7 +27,7 @@ namespace ModIO.UI
         private ModView m_view = null;
 
         // --- ACCESSORS ---
-        public override IEnumerable<ModTagDisplayData> data
+        public IEnumerable<ModTagDisplayData> data
         {
             get { return m_data; }
             set
@@ -134,13 +132,13 @@ namespace ModIO.UI
             this.DisplayTags(tags, null);
         }
 
-        public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
+        public void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
         {
             Debug.Assert(profile != null);
             this.DisplayTags(profile.tagNames, tagCategories);
         }
 
-        public override void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
+        public void DisplayTags(IEnumerable<string> tags, IEnumerable<ModTagCategory> tagCategories)
         {
             if(tags == null)
             {
@@ -151,7 +149,7 @@ namespace ModIO.UI
             PresentData(m_data);
         }
 
-        public override void DisplayLoading()
+        public void DisplayLoading()
         {
             this.m_textComponent.text = string.Empty;
 
@@ -162,14 +160,6 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENT HANDLING ]---------
-        public void NotifyClicked()
-        {
-            if(this.onClick != null)
-            {
-                this.onClick(this);
-            }
-        }
-
         #if UNITY_EDITOR
         private void OnValidate()
         {
@@ -184,8 +174,13 @@ namespace ModIO.UI
         #endif
 
         // ---------[ OBSOLETE ]---------
-        [System.Obsolete("No longer necessary.")]
-        public override void Initialize() {}
+        [System.Obsolete("No longer available.")]
+        public event System.Action<ModTagCollectionDisplayComponent> onClick;
 
+        [System.Obsolete("No longer necessary.")]
+        public void Initialize() {}
+
+        [System.Obsolete("No longer available.")]
+        public void NotifyClicked() {}
     }
 }
