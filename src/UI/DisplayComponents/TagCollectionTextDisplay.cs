@@ -22,10 +22,14 @@ namespace ModIO.UI
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
 
-        /// <summary>Tag category data.</summary>
-        private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
+        /// <summary>Tags to display.</summary>
+        private string[] m_tags = new string[0];
+
+        /// <summary>Tag-category mapping.</summary>
+        private Dictionary<string, string> m_tagCategoryMap = new Dictionary<string, string>();
 
         // ---------[ INITIALIZATION ]---------
+        /// <summary>Initialize text component.</summary>
         protected virtual void Awake()
         {
             Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
@@ -41,6 +45,12 @@ namespace ModIO.UI
                                  this);
             }
             #endif
+        }
+
+        /// <summary>Ensure the displays are accurate.</summary>
+        protected virtual void OnEnable()
+        {
+            this.DisplayTags(this.m_tags);
         }
 
         /// <summary>IModViewElement interface.</summary>
@@ -86,55 +96,88 @@ namespace ModIO.UI
         /// <summary>Displays a set of tags.</summary>
         public void DisplayTags(IEnumerable<string> tags)
         {
-            string displayString = string.Empty;
-
-            if(tags != null)
+            if(tags == null)
             {
-                StringBuilder builder = new StringBuilder();
-                List<string> tagDisplayStrings = new List<string>(tags);
+                tags = new string[0];
+            }
 
-                if(includeCategory && this.m_tagCategories.Length > 0)
+            // copy tags
+            List<string> newTagList = new List<string>();
+            foreach(string tagName in tags)
+            {
+                newTagList.Add(tagName);
+            }
+            this.m_tags = newTagList.ToArray();
+
+            // display
+            if(this.isActiveAndEnabled)
+            {
+                string displayString = string.Empty;
+
+                if(this.m_tags.Length > 0)
                 {
-                    foreach(ModTagCategory category in this.m_tagCategories)
+                    StringBuilder builder = new StringBuilder();
+                    List<string> tagDisplayStrings = new List<string>(this.m_tags);
+
+                    // append categories?
+                    if(this.includeCategory
+                       && this.m_tagCategoryMap.Count > 0)
                     {
-                        if(category.tags != null)
+                        for(int i = 0; i < tagDisplayStrings.Count; ++i)
                         {
-                            foreach(string tagName in category.tags)
+                            string tagName = tagDisplayStrings[i];
+                            string categoryName;
+                            if(this.m_tagCategoryMap.TryGetValue(tagName, out categoryName))
                             {
-                                int tagIndex = 0;
-                                while((tagIndex = tagDisplayStrings.IndexOf(tagName, tagIndex)) != -1)
-                                {
-                                    tagDisplayStrings[tagIndex] = category.name + ":" + tagName;
-                                }
+                                tagDisplayStrings[i] = categoryName + ":" + tagName;
                             }
                         }
                     }
+
+                    // build string
+                    foreach(string tagString in tagDisplayStrings)
+                    {
+                        builder.Append(tagString + tagSeparator);
+                    }
+                    if(builder.Length > 0)
+                    {
+                        builder.Length -= tagSeparator.Length;
+                    }
+                    displayString = builder.ToString();
                 }
 
-                foreach(string tagString in tagDisplayStrings)
-                {
-                    builder.Append(tagString + tagSeparator);
-                }
-
-                if(builder.Length > 0)
-                {
-                    builder.Length -= tagSeparator.Length;
-                }
-
-                displayString = builder.ToString();
+                this.m_textComponent.text = displayString;
             }
-
-            this.m_textComponent.text = displayString;
         }
 
         // ---------[ EVENTS ]---------
         /// <summary>Updates the tag categories.</summary>
         public void OnGameProfileUpdated(GameProfile gameProfile)
         {
-            if(this.m_tagCategories != gameProfile.tagCategories)
+            // get length
+            int categoryCount = 0;
+            if(gameProfile != null
+               && gameProfile.tagCategories != null)
             {
-                this.m_tagCategories = gameProfile.tagCategories;
+                categoryCount = gameProfile.tagCategories.Length;
             }
+
+            // build new map
+            this.m_tagCategoryMap = new Dictionary<string, string>(categoryCount);
+            for(int i = 0; i < categoryCount; ++i)
+            {
+                ModTagCategory category = gameProfile.tagCategories[i];
+                if(category.tags != null)
+                {
+                    foreach(string tagName in category.tags)
+                    {
+                        this.m_tagCategoryMap[tagName] = category.name;
+                    }
+                }
+            }
+
+            // resfresh
+            this.DisplayTags(this.m_tags);
         }
     }
 }
