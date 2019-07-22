@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    [RequireComponent(typeof(Text))]
+    /// <summary>Displays the tags of a mod in a single text component.</summary>
     public class ModTagCollectionTextDisplay : ModTagCollectionDisplayComponent
     {
         // ---------[ FIELDS ]---------
@@ -22,9 +22,10 @@ namespace ModIO.UI
         [Header("Display Data")]
         [SerializeField] private ModTagDisplayData[] m_data = new ModTagDisplayData[0];
 
-        // --- ACCESSORS ---
-        public Text text { get { return this.gameObject.GetComponent<Text>(); } }
+        /// <summary>Wrapper for the text component.</summary>
+        private GenericTextComponent m_textComponent = new GenericTextComponent();
 
+        // --- ACCESSORS ---
         public override IEnumerable<ModTagDisplayData> data
         {
             get { return m_data; }
@@ -64,8 +65,7 @@ namespace ModIO.UI
                 builder.Length -= tagSeparator.Length;
             }
 
-            text.text = builder.ToString();
-            text.enabled = true;
+            this.m_textComponent.text = builder.ToString();
 
             if(loadingOverlay != null)
             {
@@ -73,14 +73,24 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ INITIALIZE ]---------
-        public override void Initialize()
+        // ---------[ INITIALIZATION ]---------
+        protected virtual void Awake()
         {
-            if(Application.isPlaying)
+            Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
+            this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
+
+            #if DEBUG
+            if(textDisplayComponent == null)
             {
-                Debug.Assert(text != null);
+                Debug.LogWarning("[mod.io] No compatible text components were found on this "
+                                 + "GameObject to set text for."
+                                 + "\nCompatible components are UnityEngine.UI.Text, "
+                                 + "UnityEngine.TextMesh, and components derived from TMPro.TMP_Text.",
+                                 this);
             }
+            #endif
         }
+
 
         // ---------[ UI FUNCTIONALITY ]--------
         public override void DisplayTags(ModProfile profile, IEnumerable<ModTagCategory> tagCategories)
@@ -102,7 +112,7 @@ namespace ModIO.UI
 
         public override void DisplayLoading()
         {
-            text.text = string.Empty;
+            this.m_textComponent.text = string.Empty;
 
             if(loadingOverlay != null)
             {
@@ -131,5 +141,10 @@ namespace ModIO.UI
             };
         }
         #endif
+
+        // ---------[ OBSOLETE ]---------
+        [System.Obsolete("No longer necessary.")]
+        public override void Initialize() {}
+
     }
 }
