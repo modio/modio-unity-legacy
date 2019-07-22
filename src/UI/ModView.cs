@@ -19,18 +19,9 @@ namespace ModIO.UI
 
         public event Action<ModProfile> onProfileChanged;
 
-        [Serializable]
-        public struct UserRatingDisplay
-        {
-            public StateToggleDisplay positive;
-            public StateToggleDisplay negative;
-        }
-
         [Header("UI Components")]
         public ModStatisticsDisplayComponent        statisticsDisplay;
         public DownloadDisplayComponent             downloadDisplay;
-        public StateToggleDisplay                   subscriptionDisplay;
-        public UserRatingDisplay                    userRatingDisplay;
 
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
@@ -548,7 +539,19 @@ namespace ModIO.UI
         [Obsolete("Use a TagContainer or TagCollectionTextDisplay component instead.")][HideInInspector]
         public ModTagCollectionDisplayComponent tagsDisplay;
 
-        [Obsolete("Use a ModEnabeldDisplay component instead.")][HideInInspector]
+        [Obsolete("Use a ModEnabledDisplay component instead.")][HideInInspector]
         public StateToggleDisplay modEnabledDisplay;
+
+        [Obsolete("Use a ModSubscribedDisplay component instead.")][HideInInspector]
+        public StateToggleDisplay subscriptionDisplay;
+
+        [Obsolete][Serializable]
+        public struct UserRatingDisplay
+        {
+            public StateToggleDisplay positive;
+            public StateToggleDisplay negative;
+        }
+        [Obsolete("Use a ModUserRatingDisplay component instead.")][HideInInspector]
+        public UserRatingDisplay userRatingDisplay;
     }
 }
