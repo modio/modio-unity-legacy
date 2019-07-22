@@ -7,9 +7,12 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Displays a collection of tags single text component.</summary>
-    public class TagCollectionTextDisplay : MonoBehaviour, IModViewElement
+    public class TagCollectionTextDisplay : MonoBehaviour, IModViewElement, IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
+        /// <summary>Should the category be included in the tag displays?</summary>
+        public bool includeCategory = false;
+
         /// <summary>String that separates individual tags</summary>
         public string tagSeparator = ", ";
 
@@ -18,6 +21,9 @@ namespace ModIO.UI
 
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
+
+        /// <summary>Tag category data.</summary>
+        private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -85,9 +91,29 @@ namespace ModIO.UI
             if(tags != null)
             {
                 StringBuilder builder = new StringBuilder();
-                foreach(string tagName in tags)
+                List<string> tagDisplayStrings = new List<string>(tags);
+
+                if(includeCategory && this.m_tagCategories.Length > 0)
                 {
-                    builder.Append(tagName + tagSeparator);
+                    foreach(ModTagCategory category in this.m_tagCategories)
+                    {
+                        if(category.tags != null)
+                        {
+                            foreach(string tagName in category.tags)
+                            {
+                                int tagIndex = 0;
+                                while((tagIndex = tagDisplayStrings.IndexOf(tagName, tagIndex)) != -1)
+                                {
+                                    tagDisplayStrings[tagIndex] = category.name + ":" + tagName;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                foreach(string tagString in tagDisplayStrings)
+                {
+                    builder.Append(tagString + tagSeparator);
                 }
 
                 if(builder.Length > 0)
@@ -99,6 +125,16 @@ namespace ModIO.UI
             }
 
             this.m_textComponent.text = displayString;
+        }
+
+        // ---------[ EVENTS ]---------
+        /// <summary>Updates the tag categories.</summary>
+        public void OnGameProfileUpdated(GameProfile gameProfile)
+        {
+            if(this.m_tagCategories != gameProfile.tagCategories)
+            {
+                this.m_tagCategories = gameProfile.tagCategories;
+            }
         }
     }
 }
