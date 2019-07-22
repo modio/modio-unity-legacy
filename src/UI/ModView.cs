@@ -37,8 +37,12 @@ namespace ModIO.UI
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
 
+        /// <summary>Currently displayed mod profile.</summary>
+        [SerializeField]
         private ModProfile m_profile = null;
 
+        // --- Accessors ---
+        /// <summary>Currently displayed mod profile.</summary>
         public ModProfile profile
         {
             get { return m_profile; }
@@ -170,154 +174,6 @@ namespace ModIO.UI
             m_displayDelegates = new List<DisplayProfileDelegate>();
             m_missingDisplayParsers = new List<ProfileParserDelegate>();
             m_loadingDelegates = new List<DisplayLoadingDelegate>();
-
-            // - profile -
-            if(profileDisplay != null)
-            {
-                profileDisplay.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.profile = profileDisplay.data;
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    profileDisplay.data = d.profile;
-                });
-
-                m_displayDelegates.Add((p) => profileDisplay.DisplayProfile(p));
-                m_loadingDelegates.Add(() => profileDisplay.DisplayLoading());
-            }
-            else
-            {
-                m_missingDisplayParsers.Add((ModProfile p, ref ModDisplayData d) =>
-                {
-                    d.profile = ModProfileDisplayData.CreateFromProfile(p);
-                });
-            }
-
-            // - logo -
-            // NOTE(@jackson): Logo Data overrides Media Container Logo Data
-            if(logoDisplay != null)
-            {
-                logoDisplay.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.logo = logoDisplay.data;
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    logoDisplay.data = d.logo;
-                });
-
-                m_displayDelegates.Add((p) => logoDisplay.DisplayLogo(p.id, p.logoLocator));
-                m_loadingDelegates.Add(( ) => logoDisplay.DisplayLoading());
-            }
-            else
-            {
-                m_missingDisplayParsers.Add((ModProfile p, ref ModDisplayData d) =>
-                {
-                    ImageDisplayData logoData;
-                    if(p.logoLocator != null)
-                    {
-                        logoData = ImageDisplayData.CreateForModLogo(p.id, p.logoLocator);
-                    }
-                    else
-                    {
-                        logoData = new ImageDisplayData();
-                    }
-
-                    d.logo = logoData;
-                });
-            }
-
-            // - submittor -
-            if(submittorDisplay.profile != null)
-            {
-                submittorDisplay.profile.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.submittorProfile = submittorDisplay.profile.data;
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    submittorDisplay.profile.data = d.submittorProfile;
-                });
-
-                m_displayDelegates.Add((p) => submittorDisplay.profile.DisplayProfile(p.submittedBy));
-                m_loadingDelegates.Add(( ) => submittorDisplay.profile.DisplayLoading());
-            }
-            else
-            {
-                m_missingDisplayParsers.Add((ModProfile p, ref ModDisplayData d) =>
-                {
-                    d.submittorProfile = UserProfileDisplayData.CreateFromProfile(p.submittedBy);
-                });
-            }
-
-            if(submittorDisplay.avatar != null)
-            {
-                submittorDisplay.avatar.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.submittorAvatar = submittorDisplay.avatar.data;
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    submittorDisplay.avatar.data = d.submittorAvatar;
-                });
-
-                m_displayDelegates.Add((p) => submittorDisplay.avatar.DisplayAvatar(p.submittedBy.id,
-                                                                                    p.submittedBy.avatarLocator));
-                m_loadingDelegates.Add(( ) => submittorDisplay.avatar.DisplayLoading());
-            }
-            else
-            {
-                m_missingDisplayParsers.Add((ModProfile p, ref ModDisplayData d) =>
-                {
-                    ImageDisplayData avatarData;
-                    if(p.submittedBy != null
-                       && p.submittedBy.avatarLocator != null)
-                    {
-                        avatarData = ImageDisplayData.CreateForUserAvatar(p.submittedBy.id,
-                                                                          p.submittedBy.avatarLocator);
-                    }
-                    else
-                    {
-                        avatarData = new ImageDisplayData();
-                    }
-
-                    d.submittorAvatar = avatarData;
-                });
-            }
-
-            // - build -
-            if(buildDisplay != null)
-            {
-                buildDisplay.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.currentBuild = buildDisplay.data;
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    buildDisplay.data = d.currentBuild;
-                });
-
-                m_displayDelegates.Add((p) => buildDisplay.DisplayModfile(p.currentBuild));
-                m_loadingDelegates.Add(( ) => buildDisplay.DisplayLoading());
-            }
-            else
-            {
-                m_missingDisplayParsers.Add((ModProfile p, ref ModDisplayData d) =>
-                {
-                    d.currentBuild = ModfileDisplayData.CreateFromModfile(p.currentBuild);
-                });
-            }
 
             // - tags -
             // NOTE(@jackson): tags has no display/missing parse delegate as it requires categories
