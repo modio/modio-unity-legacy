@@ -89,7 +89,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged -= DisplayProfile;
+                this.m_view.onProfileChanged.RemoveListener(DisplayProfile);
             }
 
             // assign
@@ -98,7 +98,7 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged += DisplayProfile;
+                this.m_view.onProfileChanged.AddListener(DisplayProfile);
                 this.DisplayProfile(this.m_view.profile);
             }
             else

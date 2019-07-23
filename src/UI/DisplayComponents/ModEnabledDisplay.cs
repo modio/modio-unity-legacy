@@ -23,7 +23,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged -= DisplayModEnabled;
+                this.m_view.onProfileChanged.RemoveListener(DisplayModEnabled);
             }
 
             // assign
@@ -32,7 +32,7 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged += DisplayModEnabled;
+                this.m_view.onProfileChanged.AddListener(DisplayModEnabled);
                 this.DisplayModEnabled(this.m_view.profile);
             }
             else

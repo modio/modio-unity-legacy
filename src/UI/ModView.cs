@@ -8,6 +8,11 @@ namespace ModIO.UI
     [DisallowMultipleComponent]
     public class ModView : MonoBehaviour
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Event for notifying listeners of a change to the mod profile.</summary>
+        [Serializable]
+        public class ProfileChangedEvent : UnityEngine.Events.UnityEvent<ModProfile> {}
+
         // ---------[ FIELDS ]---------
         public event Action<ModView> onClick;
         public event Action<ModView> subscribeRequested;
@@ -17,9 +22,6 @@ namespace ModIO.UI
         public event Action<ModView> ratePositiveRequested;
         public event Action<ModView> rateNegativeRequested;
 
-        public event Action<ModProfile> onProfileChanged;
-        public event Action<ModStatistics> onStatisticsChanged;
-
         /// <summary>Currently displayed mod profile.</summary>
         [SerializeField]
         private ModProfile m_profile = null;
@@ -27,6 +29,12 @@ namespace ModIO.UI
         /// <summary>Currently displayed mod statistics.</summary>
         [SerializeField]
         private ModStatistics m_statistics = null;
+
+        /// <summary>Event for notifying listeners of a change to the mod profile.</summary>
+        public ProfileChangedEvent onProfileChanged = null;
+
+        /// <summary>Event for notifying listeners of a change to the mod statistics.</summary>
+        public event Action<ModStatistics> onStatisticsChanged;
 
         // --- Accessors ---
         /// <summary>Currently displayed mod profile.</summary>
@@ -41,7 +49,7 @@ namespace ModIO.UI
 
                     if(this.onProfileChanged != null)
                     {
-                        this.onProfileChanged(this.m_profile);
+                        this.onProfileChanged.Invoke(this.m_profile);
                     }
                 }
             }
@@ -66,6 +74,7 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
+        /// <summary>Collects and sets view on IModViewElements.</summary>
         protected virtual void Awake()
         {
             #if DEBUG

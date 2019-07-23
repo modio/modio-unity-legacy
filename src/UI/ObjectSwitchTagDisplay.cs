@@ -34,13 +34,13 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged -= DisplayProfile;
+                this.m_view.onProfileChanged.RemoveListener(DisplayProfile);
             }
 
             // hook
             if(view != null)
             {
-                view.onProfileChanged += DisplayProfile;
+                view.onProfileChanged.AddListener(DisplayProfile);
             }
 
             // finalize

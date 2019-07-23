@@ -20,7 +20,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged -= DisplayCurrentBuild;
+                this.m_view.onProfileChanged.RemoveListener(DisplayCurrentBuild);
             }
 
             // assign
@@ -29,7 +29,7 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged += DisplayCurrentBuild;
+                this.m_view.onProfileChanged.AddListener(DisplayCurrentBuild);
                 this.DisplayCurrentBuild(this.m_view.profile);
             }
             else

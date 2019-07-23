@@ -30,7 +30,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged -= DisplayModRating;
+                this.m_view.onProfileChanged.RemoveListener(DisplayModRating);
             }
 
             // assign
@@ -39,7 +39,7 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged += DisplayModRating;
+                this.m_view.onProfileChanged.AddListener(DisplayModRating);
                 this.DisplayModRating(this.m_view.profile);
             }
             else

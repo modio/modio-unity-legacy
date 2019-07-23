@@ -21,7 +21,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged -= DisplayModSubmittor;
+                this.m_view.onProfileChanged.RemoveListener(DisplayModSubmittor);
             }
 
             // assign
@@ -30,7 +30,7 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onProfileChanged += DisplayModSubmittor;
+                this.m_view.onProfileChanged.AddListener(DisplayModSubmittor);
                 this.DisplayModSubmittor(this.m_view.profile);
             }
             else
