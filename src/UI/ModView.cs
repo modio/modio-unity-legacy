@@ -114,65 +114,6 @@ namespace ModIO.UI
             DisplayDownload(downloadInfo);
         }
 
-        private void CollectDelegates()
-        {
-            m_getDelegates = new List<GetDataDelegate>();
-            m_setDelegates = new List<SetDataDelegate>();
-            m_displayDelegates = new List<DisplayProfileDelegate>();
-            m_missingDisplayParsers = new List<ProfileParserDelegate>();
-            m_loadingDelegates = new List<DisplayLoadingDelegate>();
-
-            // - tags -
-            // NOTE(@jackson): tags has no display/missing parse delegate as it requires categories
-            if(tagsDisplay != null)
-            {
-                tagsDisplay.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.tags = tagsDisplay.data.ToArray();
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    tagsDisplay.data = d.tags;
-                });
-
-                m_loadingDelegates.Add(( ) => tagsDisplay.DisplayLoading());
-            }
-
-            // - stats -
-            if(statisticsDisplay != null)
-            {
-                statisticsDisplay.Initialize();
-
-                m_getDelegates.Add((ref ModDisplayData d) =>
-                {
-                    d.statistics = statisticsDisplay.data;
-                });
-                m_setDelegates.Add((d) =>
-                {
-                    statisticsDisplay.data = d.statistics;
-                });
-
-                m_loadingDelegates.Add(( ) => statisticsDisplay.DisplayLoading());
-            }
-
-            // - download -
-            if(downloadDisplay != null)
-            {
-                downloadDisplay.Initialize();
-
-                // m_getDelegates.Add((ref ModDisplayData d) =>
-                // {
-                //     d.submittedBy = creatorView.data;
-                // });
-                // m_setDelegates.Add((d) =>
-                // {
-                //     creatorView.data = d.submittedBy;
-                // });
-            }
-        }
-
         // NOTE(@jackson): This ignores the Logo as it'll be set anyway
         private void ParseProfileMedia(ModProfile profile, ref ModDisplayData data)
         {
