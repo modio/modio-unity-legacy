@@ -18,6 +18,7 @@ namespace ModIO.UI
         public event Action<ModView> rateNegativeRequested;
 
         public event Action<ModProfile> onProfileChanged;
+        public event Action<ModStatistics> onStatisticsChanged;
 
         [Header("UI Components")]
         public ModStatisticsDisplayComponent        statisticsDisplay;
@@ -30,11 +31,21 @@ namespace ModIO.UI
         [SerializeField]
         private ModProfile m_profile = null;
 
+        /// <summary>Currently displayed mod statistics.</summary>
+        [SerializeField]
+        private ModStatistics m_statistics = null;
+
         // --- Accessors ---
         /// <summary>Currently displayed mod profile.</summary>
         public ModProfile profile
         {
-            get { return m_profile; }
+            get { return this.m_profile; }
+        }
+
+        /// <summary>Currently displayed mod statistics.</summary>
+        public ModStatistics statistics
+        {
+            get { return this.m_statistics; }
         }
 
         // --- RUNTIME DATA ---
@@ -135,13 +146,7 @@ namespace ModIO.UI
             #endif
 
             // assign mod view elements to this
-            var modViewElements = this.gameObject.GetComponents<IModViewElement>();
-            foreach(IModViewElement viewElement in modViewElements)
-            {
-                viewElement.SetModView(this);
-            }
-
-            modViewElements = this.gameObject.GetComponentsInChildren<IModViewElement>(true);
+            var modViewElements = this.gameObject.GetComponentsInChildren<IModViewElement>(true);
             foreach(IModViewElement viewElement in modViewElements)
             {
                 viewElement.SetModView(this);
@@ -287,7 +292,6 @@ namespace ModIO.UI
                 CollectDelegates();
             }
 
-            this.m_profile = profile;
             m_data = new ModDisplayData();
 
             foreach(DisplayProfileDelegate displayDelegate in m_displayDelegates)
@@ -362,11 +366,25 @@ namespace ModIO.UI
             }
             m_data.userRating = userRating;
 
-            if(this.onProfileChanged != null)
+            if(this.m_profile != profile)
             {
-                this.onProfileChanged(profile);
+                this.m_profile = profile;
+
+                if(this.onProfileChanged != null)
+                {
+                    this.onProfileChanged(profile);
+                }
             }
 
+            if(this.m_statistics != statistics)
+            {
+                this.m_statistics = statistics;
+
+                if(this.onStatisticsChanged != null)
+                {
+                    this.onStatisticsChanged(this.m_statistics);
+                }
+            }
 
             #if UNITY_EDITOR
             if(Application.isPlaying)
