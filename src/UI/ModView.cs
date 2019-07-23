@@ -33,12 +33,36 @@ namespace ModIO.UI
         public ModProfile profile
         {
             get { return this.m_profile; }
+            set
+            {
+                if(this.m_profile != value)
+                {
+                    this.m_profile = value;
+
+                    if(this.onProfileChanged != null)
+                    {
+                        this.onProfileChanged(this.m_profile);
+                    }
+                }
+            }
         }
 
         /// <summary>Currently displayed mod statistics.</summary>
         public ModStatistics statistics
         {
             get { return this.m_statistics; }
+            set
+            {
+                if(this.m_statistics != value)
+                {
+                    this.m_statistics = value;
+
+                    if(this.onStatisticsChanged != null)
+                    {
+                        this.onStatisticsChanged(this.m_statistics);
+                    }
+                }
+            }
         }
 
         // --- RUNTIME DATA ---
@@ -271,122 +295,6 @@ namespace ModIO.UI
             data.youTubeThumbnails = media.ToArray();
         }
 
-        public void DisplayMod(ModProfile profile,
-                               ModStatistics statistics,
-                               IEnumerable<ModTagCategory> tagCategories,
-                               bool isSubscribed,
-                               bool isModEnabled,
-                               ModRatingValue userRating = ModRatingValue.None)
-        {
-            Debug.Assert(profile != null);
-
-            if(this.m_displayDelegates == null)
-            {
-                CollectDelegates();
-            }
-
-            m_data = new ModDisplayData();
-
-            foreach(DisplayProfileDelegate displayDelegate in m_displayDelegates)
-            {
-                displayDelegate(profile);
-            }
-            foreach(ProfileParserDelegate parserDelegate in m_missingDisplayParsers)
-            {
-                parserDelegate(profile, ref m_data);
-            }
-
-            // - tags -
-            if(tagsDisplay != null)
-            {
-                tagsDisplay.DisplayTags(profile, tagCategories);
-            }
-            else
-            {
-                m_data.tags = ModTagDisplayData.GenerateArray(profile.tagNames, tagCategories);
-            }
-
-            // - stats -
-            ModStatisticsDisplayData statsData;
-            if(statistics == null)
-            {
-                statsData = new ModStatisticsDisplayData()
-                {
-                    modId = profile.id,
-                };
-            }
-            else
-            {
-                statsData = ModStatisticsDisplayData.CreateFromStatistics(statistics);
-            }
-
-            if(statisticsDisplay != null)
-            {
-                statisticsDisplay.data = statsData;
-            }
-            else
-            {
-                m_data.statistics = statsData;
-            }
-
-            // - download -
-            FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(m_data.profile.modId,
-                                                                                      m_data.currentBuild.modfileId);
-            DisplayDownload(downloadInfo);
-
-            // - subscribed -
-            if(subscriptionDisplay != null)
-            {
-                subscriptionDisplay.isOn = isSubscribed;
-            }
-            m_data.isSubscribed = isSubscribed;
-
-            // - enabled -
-            if(modEnabledDisplay != null)
-            {
-                modEnabledDisplay.isOn = isModEnabled;
-            }
-            m_data.isModEnabled = isModEnabled;
-
-            // - rating -
-            if(userRatingDisplay.positive != null)
-            {
-                userRatingDisplay.positive.isOn = (userRating == ModRatingValue.Positive);
-            }
-            if(userRatingDisplay.negative != null)
-            {
-                userRatingDisplay.negative.isOn = (userRating == ModRatingValue.Negative);
-            }
-            m_data.userRating = userRating;
-
-            if(this.m_profile != profile)
-            {
-                this.m_profile = profile;
-
-                if(this.onProfileChanged != null)
-                {
-                    this.onProfileChanged(profile);
-                }
-            }
-
-            if(this.m_statistics != statistics)
-            {
-                this.m_statistics = statistics;
-
-                if(this.onStatisticsChanged != null)
-                {
-                    this.onStatisticsChanged(this.m_statistics);
-                }
-            }
-
-            #if UNITY_EDITOR
-            if(Application.isPlaying)
-            {
-                // updates for inspection convenience
-                GetData();
-            }
-            #endif
-        }
 
         public void DisplayDownload(FileDownloadInfo downloadInfo)
         {
@@ -573,5 +481,17 @@ namespace ModIO.UI
 
         [Obsolete("Use ModBinaryDownloadDisplay instead.")][HideInInspector]
         public DownloadDisplayComponent downloadDisplay;
+
+        [Obsolete("Set via ModView.profile and ModView.statistics instead.")]
+        public void DisplayMod(ModProfile profile,
+                               ModStatistics statistics,
+                               IEnumerable<ModTagCategory> tagCategories,
+                               bool isSubscribed,
+                               bool isModEnabled,
+                               ModRatingValue userRating = ModRatingValue.None)
+        {
+            this.profile = profile;
+            this.statistics = statistics;
+        }
     }
 }
