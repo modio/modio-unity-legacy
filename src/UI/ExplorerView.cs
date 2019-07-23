@@ -590,9 +590,9 @@ namespace ModIO.UI
             List<ModStatistics> statsList = new List<ModStatistics>(statsData);
             foreach(ModView view in this.m_modViews)
             {
-                if(view != null)
+                if(view != null && view.profile != null)
                 {
-                    ModDisplayData data = view.data;
+                    int modId = view.profile.id;
                     ModStatistics stats = null;
 
                     for(int i = 0;
@@ -600,7 +600,7 @@ namespace ModIO.UI
                         ++i)
                     {
                         stats = statsList[i];
-                        if(stats.modId == data.profile.modId)
+                        if(stats.modId == modId)
                         {
                             statsList.RemoveAt(i);
                         }
@@ -612,8 +612,7 @@ namespace ModIO.UI
 
                     if(stats != null)
                     {
-                        data.statistics = ModStatisticsDisplayData.CreateFromStatistics(stats);
-                        view.data = data;
+                        view.statistics = stats;
                     }
                 }
             }
