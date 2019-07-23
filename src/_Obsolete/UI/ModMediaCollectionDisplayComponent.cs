@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("Use ModLogoDisplay, GalleryImageContainer, and YouTubeThumbnailContainer instead.")]
     public abstract class ModMediaCollectionDisplayComponent : MonoBehaviour
     {
         public abstract ImageDisplayData logoData { get; set; }
