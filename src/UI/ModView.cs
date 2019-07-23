@@ -65,9 +65,6 @@ namespace ModIO.UI
             }
         }
 
-        // --- RUNTIME DATA ---
-        private Coroutine m_downloadDisplayCoroutine = null;
-
         // --- FUNCTION DELEGATES ---
         private delegate void GetDataDelegate(ref ModDisplayData data);
         private List<GetDataDelegate> m_getDelegates = null;
@@ -170,46 +167,6 @@ namespace ModIO.UI
                 }
             }
             data.youTubeThumbnails = media.ToArray();
-        }
-
-
-        public void DisplayDownload(FileDownloadInfo downloadInfo)
-        {
-            bool activeDownload = (downloadInfo != null && !downloadInfo.isDone);
-
-            if(downloadDisplay != null)
-            {
-                if(m_downloadDisplayCoroutine != null)
-                {
-                    this.StopCoroutine(m_downloadDisplayCoroutine);
-                }
-
-                downloadDisplay.gameObject.SetActive(activeDownload);
-
-                if(this.isActiveAndEnabled
-                   && activeDownload)
-                {
-                    downloadDisplay.DisplayDownload(downloadInfo);
-                    m_downloadDisplayCoroutine = this.StartCoroutine(MonitorDownloadCoroutine(data.profile.modId));
-                }
-
-                m_data.binaryDownload = downloadDisplay.data;
-            }
-            else
-            {
-                DownloadDisplayData data = new DownloadDisplayData();
-                data.bytesReceived = 0;
-                data.bytesPerSecond = 0;
-                data.bytesTotal = 0;
-                data.isActive = activeDownload;
-
-                if(downloadInfo != null)
-                {
-                    data.bytesReceived = (downloadInfo.request == null
-                                          ? 0 : (Int64)downloadInfo.request.downloadedBytes);
-                    data.bytesTotal = downloadInfo.fileSize;
-                }
-            }
         }
 
         private System.Collections.IEnumerator MonitorDownloadCoroutine(int modId)
@@ -359,5 +316,8 @@ namespace ModIO.UI
 
         [Obsolete("No longer supported.")]
         public void DisplayLoading() { throw new System.NotImplementedException(); }
+
+        [Obsolete("No longer supported. Use a ModBinaryDownloadDisplay component instead.")]
+        public void DisplayDownload(FileDownloadInfo downloadInfo) { throw new System.NotImplementedException(); }
     }
 }
