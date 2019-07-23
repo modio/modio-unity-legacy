@@ -41,6 +41,10 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
+            // duplication protection
+            if(this.m_itemTemplate != null) { return; }
+
+            // initialize
             this.template.gameObject.SetActive(false);
             this.m_itemTemplate = this.template.GetComponentInChildren<TagContainerItem>(true);
 
