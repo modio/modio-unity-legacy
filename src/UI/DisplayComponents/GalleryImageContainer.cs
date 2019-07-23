@@ -36,7 +36,6 @@ namespace ModIO.UI
         /// <summary>Display objects.</summary>
         private GalleryImageDisplay[] m_displays = new GalleryImageDisplay[0];
 
-
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initialize template.</summary>
         protected virtual void Awake()
@@ -59,7 +58,7 @@ namespace ModIO.UI
             else
             {
                 Debug.LogError("[mod.io] This GalleryImageContainer has an invalid template"
-                               + " hierarchy. The Template must container a child with a"
+                               + " hierarchy. The Template must contain a child with a"
                                + " GalleryImageDisplay component to use as the item template.",
                                this);
             }

@@ -58,7 +58,7 @@ namespace ModIO.UI
             else
             {
                 Debug.LogError("[mod.io] This YouTubeThumbnailContainer has an invalid template"
-                               + " hierarchy. The Template must container a child with a"
+                               + " hierarchy. The Template must contain a child with a"
                                + " YouTubeThumbnailDisplay component to use as the item template.",
                                this);
             }
