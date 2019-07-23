@@ -6,15 +6,20 @@ namespace ModIO.UI
     [DisallowMultipleComponent]
     public class UserView : MonoBehaviour
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Event for notifying listeners of a change to the mod profile.</summary>
+        [System.Serializable]
+        public class ProfileChangedEvent : UnityEngine.Events.UnityEvent<UserProfile> {}
+
         // ---------[ FIELDS ]---------
         public event System.Action<UserView> onClick;
-
-        /// <summary>Event fired when the profile changes.</summary>
-        public event System.Action<UserProfile> onProfileChanged;
 
         /// <summary>Currently displayed user profile.</summary>
         [SerializeField]
         private UserProfile m_profile = null;
+
+        /// <summary>Event fired when the profile changes.</summary>
+        public ProfileChangedEvent onProfileChanged = null;
 
         // --- Accessors ---
         /// <summary>Currently displayed user profile.</summary>
@@ -29,7 +34,7 @@ namespace ModIO.UI
 
                     if(this.onProfileChanged != null)
                     {
-                        this.onProfileChanged(this.m_profile);
+                        this.onProfileChanged.Invoke(this.m_profile);
                     }
                 }
             }
