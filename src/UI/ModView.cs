@@ -65,20 +65,6 @@ namespace ModIO.UI
             }
         }
 
-        // --- FUNCTION DELEGATES ---
-        private delegate void GetDataDelegate(ref ModDisplayData data);
-        private List<GetDataDelegate> m_getDelegates = null;
-
-        private delegate void SetDataDelegate(ModDisplayData data);
-        private List<SetDataDelegate> m_setDelegates = null;
-
-        private delegate void DisplayProfileDelegate(ModProfile profile);
-        private List<DisplayProfileDelegate> m_displayDelegates = null;
-
-        private delegate void ProfileParserDelegate(ModProfile profile, ref ModDisplayData data);
-        private List<ProfileParserDelegate> m_missingDisplayParsers = null;
-
-
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
