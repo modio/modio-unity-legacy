@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    // TODO(@jackson): TEXT -> TEXTMESH/FLEX
     /// <summary>Represents the status of a mod binary download visually.</summary>
     public class ModBinaryDownloadDisplay : MonoBehaviour, IModViewElement
     {
@@ -185,7 +184,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Displays tags of a profile.</summary>
+        /// <summary>Displays download for a given mod.</summary>
         public void DisplayProfile(ModProfile profile)
         {
             int newId = ModProfile.NULL_ID;
