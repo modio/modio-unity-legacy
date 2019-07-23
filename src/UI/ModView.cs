@@ -20,9 +20,6 @@ namespace ModIO.UI
         public event Action<ModProfile> onProfileChanged;
         public event Action<ModStatistics> onStatisticsChanged;
 
-        [Header("UI Components")]
-        public DownloadDisplayComponent             downloadDisplay;
-
         [Header("Display Data")]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
 
@@ -573,5 +570,8 @@ namespace ModIO.UI
 
         [Obsolete("Use ModStatisticsFieldDisplay components instead.")][HideInInspector]
         public ModStatisticsDisplayComponent statisticsDisplay;
+
+        [Obsolete("Use ModBinaryDownloadDisplay instead.")]
+        public DownloadDisplayComponent downloadDisplay;
     }
 }
