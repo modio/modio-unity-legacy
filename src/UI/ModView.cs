@@ -97,64 +97,6 @@ namespace ModIO.UI
             DisplayDownload(downloadInfo);
         }
 
-        // NOTE(@jackson): This ignores the Logo as it'll be set anyway
-        private void ParseProfileMedia(ModProfile profile, ref ModDisplayData data)
-        {
-            // - early out -
-            if(profile.media == null)
-            {
-                data.galleryImages = new ImageDisplayData[0];
-                data.youTubeThumbnails = new ImageDisplayData[0];
-                return;
-            }
-
-            // - parse -
-            List<ImageDisplayData> media = new List<ImageDisplayData>();
-
-            if(profile.media.galleryImageLocators != null
-               && profile.media.galleryImageLocators.Length > 0)
-            {
-                foreach(GalleryImageLocator locator in profile.media.galleryImageLocators)
-                {
-                    ImageDisplayData imageData;
-                    if(locator != null)
-                    {
-                        imageData = ImageDisplayData.CreateForModGalleryImage(profile.id,
-                                                                              locator);
-                    }
-                    else
-                    {
-                        imageData = new ImageDisplayData();
-                    }
-
-                    media.Add(imageData);
-                }
-            }
-            data.galleryImages = media.ToArray();
-
-            media.Clear();
-            if(profile.media.youTubeURLs != null
-               && profile.media.youTubeURLs.Length > 0)
-            {
-                foreach(string url in profile.media.youTubeURLs)
-                {
-                    ImageDisplayData imageData;
-                    if(!string.IsNullOrEmpty(url))
-                    {
-                        imageData = ImageDisplayData.CreateForYouTubeThumbnail(profile.id,
-                                                                               Utility.ExtractYouTubeIdFromURL(url));
-                    }
-                    else
-                    {
-                        imageData = new ImageDisplayData();
-                    }
-
-                    media.Add(imageData);
-                }
-            }
-            data.youTubeThumbnails = media.ToArray();
-        }
-
         private System.Collections.IEnumerator MonitorDownloadCoroutine(int modId)
         {
             while(downloadDisplay.data.isActive)
