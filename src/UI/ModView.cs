@@ -81,8 +81,6 @@ namespace ModIO.UI
         private delegate void ProfileParserDelegate(ModProfile profile, ref ModDisplayData data);
         private List<ProfileParserDelegate> m_missingDisplayParsers = null;
 
-        private delegate void DisplayLoadingDelegate();
-        private List<DisplayLoadingDelegate> m_loadingDelegates = null;
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -288,19 +286,6 @@ namespace ModIO.UI
             }
         }
 
-        public void DisplayLoading()
-        {
-            if(this.m_loadingDelegates == null)
-            {
-                CollectDelegates();
-            }
-
-            foreach(DisplayLoadingDelegate loadingDelegate in m_loadingDelegates)
-            {
-                loadingDelegate();
-            }
-        }
-
         // ---------[ EVENTS ]---------
         public void NotifyClicked()
         {
@@ -430,5 +415,8 @@ namespace ModIO.UI
             this.profile = profile;
             this.statistics = statistics;
         }
+
+        [Obsolete("No longer supported.")]
+        public void DisplayLoading() { throw new System.NotImplementedException(); }
     }
 }
