@@ -1,5 +1,6 @@
 namespace ModIO.UI
 {
+    [System.Obsolete("No longer supported.")]
     [System.Serializable]
     public struct UserDisplayData
     {

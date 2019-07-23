@@ -2,6 +2,7 @@ using Int64 = System.Int64;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("No longer supported.")]
     [System.Serializable]
     public struct ModfileDisplayData
     {
@@ -44,6 +45,7 @@ namespace ModIO.UI
         }
     }
 
+    [System.Obsolete("No longer supported.")]
     public abstract class ModfileDisplayComponent : UnityEngine.MonoBehaviour
     {
         public abstract event System.Action<ModfileDisplayComponent> onClick;

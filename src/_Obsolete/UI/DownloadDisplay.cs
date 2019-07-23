@@ -5,6 +5,7 @@ using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 
 namespace ModIO.UI
 {
+    [Obsolete("Use ModBinaryDownloadDisplay instead.")]
     public class DownloadDisplay : DownloadDisplayComponent
     {
         // ---------[ FIELDS ]---------

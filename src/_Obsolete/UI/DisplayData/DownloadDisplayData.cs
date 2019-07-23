@@ -3,6 +3,7 @@ using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 
 namespace ModIO.UI
 {
+    [Obsolete("No longer supported.")]
     [Serializable]
     public struct DownloadDisplayData
     {
@@ -12,6 +13,7 @@ namespace ModIO.UI
         public bool isActive;
     }
 
+    [Obsolete("No longer supported.")]
     public abstract class DownloadDisplayComponent : UnityEngine.MonoBehaviour
     {
         public abstract event Action<DownloadDisplayComponent> onClick;
