@@ -13,6 +13,10 @@ namespace ModIO.UI
         [Serializable]
         public class ProfileChangedEvent : UnityEngine.Events.UnityEvent<ModProfile> {}
 
+        /// <summary>Event for notifying listeners of a change to the mod statistics.</summary>
+        [Serializable]
+        public class StatisticsChangedEvent : UnityEngine.Events.UnityEvent<ModStatistics> {}
+
         // ---------[ FIELDS ]---------
         public event Action<ModView> onClick;
         public event Action<ModView> subscribeRequested;
@@ -34,7 +38,7 @@ namespace ModIO.UI
         public ProfileChangedEvent onProfileChanged = null;
 
         /// <summary>Event for notifying listeners of a change to the mod statistics.</summary>
-        public event Action<ModStatistics> onStatisticsChanged;
+        public StatisticsChangedEvent onStatisticsChanged = null;
 
         // --- Accessors ---
         /// <summary>Currently displayed mod profile.</summary>
@@ -67,7 +71,7 @@ namespace ModIO.UI
 
                     if(this.onStatisticsChanged != null)
                     {
-                        this.onStatisticsChanged(this.m_statistics);
+                        this.onStatisticsChanged.Invoke(this.m_statistics);
                     }
                 }
             }

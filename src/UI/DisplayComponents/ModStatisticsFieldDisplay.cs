@@ -4,6 +4,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO(@jackson): Custom Editor
 namespace ModIO.UI
 {
     /// <summary>Component used to display a field of a mod statistics in text.</summary>
@@ -90,7 +91,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onStatisticsChanged -= DisplayStatistics;
+                this.m_view.onStatisticsChanged.RemoveListener(DisplayStatistics);
             }
 
             // assign
@@ -99,7 +100,7 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onStatisticsChanged += DisplayStatistics;
+                this.m_view.onStatisticsChanged.AddListener(DisplayStatistics);
                 this.DisplayStatistics(this.m_view.statistics);
             }
             else
