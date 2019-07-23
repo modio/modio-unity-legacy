@@ -52,6 +52,7 @@ namespace ModIO.UI
 
                 this.m_displays = new GalleryImageDisplay[1];
                 this.m_displays[0] = this.m_templateClone.GetComponentInChildren<GalleryImageDisplay>(true);
+                this.m_displays[0].gameObject.name = "Mod Gallery Image [00]";
 
                 this.m_container = (RectTransform)this.m_displays[0].transform.parent;
             }

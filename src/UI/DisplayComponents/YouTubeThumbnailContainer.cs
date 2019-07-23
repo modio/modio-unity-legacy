@@ -52,6 +52,7 @@ namespace ModIO.UI
 
                 this.m_displays = new YouTubeThumbnailDisplay[1];
                 this.m_displays[0] = this.m_templateClone.GetComponentInChildren<YouTubeThumbnailDisplay>(true);
+                this.m_displays[0].gameObject.name = "YouTube Thumbnail [00]";
 
                 this.m_container = (RectTransform)this.m_displays[0].transform.parent;
             }
@@ -182,7 +183,7 @@ namespace ModIO.UI
                     ++i)
                 {
                     GameObject displayGO = GameObject.Instantiate(m_itemTemplate.gameObject);
-                    displayGO.name = "Mod YouTube Thumbnail [" + i.ToString("00") + "]";
+                    displayGO.name = "YouTube Thumbnail [" + i.ToString("00") + "]";
                     displayGO.transform.SetParent(this.m_container, false);
 
                     newDisplayArray[i] = displayGO.GetComponent<YouTubeThumbnailDisplay>();

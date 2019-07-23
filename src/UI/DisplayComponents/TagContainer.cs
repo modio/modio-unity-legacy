@@ -53,6 +53,7 @@ namespace ModIO.UI
 
                 this.m_displays = new TagContainerItem[1];
                 this.m_displays[0] = this.m_templateClone.GetComponentInChildren<TagContainerItem>(true);
+                this.m_displays[0].gameObject.name = "Tag Container Item [00]";
 
                 this.m_container = (RectTransform)this.m_displays[0].transform.parent;
             }
