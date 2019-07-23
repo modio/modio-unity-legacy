@@ -21,7 +21,6 @@ namespace ModIO.UI
         public event Action<ModStatistics> onStatisticsChanged;
 
         [Header("UI Components")]
-        public ModStatisticsDisplayComponent        statisticsDisplay;
         public DownloadDisplayComponent             downloadDisplay;
 
         [Header("Display Data")]
@@ -571,5 +570,8 @@ namespace ModIO.UI
         }
         [Obsolete("Use a ModUserRatingDisplay component instead.")][HideInInspector]
         public UserRatingDisplay userRatingDisplay;
+
+        [Obsolete("Use ModStatisticsFieldDisplay components instead.")][HideInInspector]
+        public ModStatisticsDisplayComponent statisticsDisplay;
     }
 }

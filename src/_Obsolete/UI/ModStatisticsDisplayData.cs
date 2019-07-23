@@ -1,5 +1,6 @@
 namespace ModIO.UI
 {
+    [System.Obsolete("No longer supported.")]
     [System.Serializable]
     public struct ModStatisticsDisplayData
     {
@@ -36,6 +37,7 @@ namespace ModIO.UI
         }
     }
 
+    [System.Obsolete("No longer supported.")]
     public abstract class ModStatisticsDisplayComponent : UnityEngine.MonoBehaviour
     {
         public abstract event System.Action<ModStatisticsDisplayComponent> onClick;

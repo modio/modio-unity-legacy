@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [Obsolete("Use ModStatisticsFieldDisplay components instead.")]
     public class ModStatisticsDisplay : ModStatisticsDisplayComponent
     {
         // ---------[ FIELDS ]---------
