@@ -23,12 +23,16 @@ namespace ModIO.UI
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
 
+        /// <summary>Currently displayed ModProfile object.</summary>
+        private ModProfile m_profile = null;
+
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            this.m_getProfileFieldValue = this.GenerateGetDisplayStringDelegate();
             Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
+
+            this.m_getProfileFieldValue = this.GenerateGetDisplayStringDelegate();
 
             #if DEBUG
             if(this.m_getProfileFieldValue == null)
@@ -49,16 +53,9 @@ namespace ModIO.UI
             #endif
         }
 
-        protected virtual void Start()
+        protected virtual void OnEnable()
         {
-            if(this.m_view != null)
-            {
-                this.DisplayProfile(this.m_view.profile);
-            }
-            else
-            {
-                this.DisplayProfile(null);
-            }
+            this.DisplayProfile(this.m_profile);
         }
 
         // --- DELEGATE GENERATION ---
@@ -114,6 +111,8 @@ namespace ModIO.UI
         /// <summary>Displays the appropriate field of a given profile.</summary>
         public void DisplayProfile(ModProfile profile)
         {
+            this.m_profile = profile;
+
             // early out
             if(this.m_getProfileFieldValue == null) { return; }
 
