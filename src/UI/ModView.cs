@@ -84,67 +84,6 @@ namespace ModIO.UI
         private delegate void DisplayLoadingDelegate();
         private List<DisplayLoadingDelegate> m_loadingDelegates = null;
 
-        // --- ACCESSORS ---
-        public ModDisplayData data
-        {
-            get
-            {
-                return GetData();
-            }
-            set
-            {
-                SetData(value);
-            }
-        }
-
-        private ModDisplayData GetData()
-        {
-            if(this.m_getDelegates == null)
-            {
-                CollectDelegates();
-            }
-
-            foreach(GetDataDelegate getDelegate in m_getDelegates)
-            {
-                getDelegate(ref m_data);
-            }
-
-            return m_data;
-        }
-
-        private void SetData(ModDisplayData value)
-        {
-            if(this.m_setDelegates == null)
-            {
-                CollectDelegates();
-            }
-
-            m_data = value;
-            foreach(SetDataDelegate setDelegate in m_setDelegates)
-            {
-                setDelegate(value);
-            }
-
-            if(subscriptionDisplay != null)
-            {
-                subscriptionDisplay.isOn = value.isSubscribed;
-            }
-
-            if(modEnabledDisplay != null)
-            {
-                modEnabledDisplay.isOn = value.isModEnabled;
-            }
-
-            if(userRatingDisplay.positive != null)
-            {
-                userRatingDisplay.positive.isOn = (value.userRating == ModRatingValue.Positive);
-            }
-            if(userRatingDisplay.negative != null)
-            {
-                userRatingDisplay.negative.isOn = (value.userRating == ModRatingValue.Negative);
-            }
-        }
-
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
@@ -172,7 +111,6 @@ namespace ModIO.UI
 
         public void OnEnable()
         {
-            GetData();
             FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(m_data.profile.modId,
                                                                                       m_data.currentBuild.modfileId);
             DisplayDownload(downloadInfo);
@@ -416,26 +354,25 @@ namespace ModIO.UI
             }
         }
 
-        #if UNITY_EDITOR
-        private void OnValidate()
-        {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                if(this != null)
-                {
-                    CollectDelegates();
-                    SetData(m_data);
-                }
-            };
-        }
-        #endif
-
         // ---------[ OBSOLETE ]---------
         [Obsolete("No longer necessary.")]
         public void Initialize() {}
 
         [Obsolete("No longer supported.")][HideInInspector]
         [SerializeField] private ModDisplayData m_data = new ModDisplayData();
+
+        [Obsolete("No longer supported. Use ModView.profile and ModView.statistics instead.")]
+        public ModDisplayData data
+        {
+            get
+            {
+                return this.m_data;
+            }
+            set
+            {
+                this.m_data = value;
+            }
+        }
 
         [Obsolete("Use ModProfileFieldDisplay components instead.")][HideInInspector]
         public ModProfileDisplayComponent profileDisplay;
