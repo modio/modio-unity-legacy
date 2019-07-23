@@ -97,21 +97,6 @@ namespace ModIO.UI
             DisplayDownload(downloadInfo);
         }
 
-        private System.Collections.IEnumerator MonitorDownloadCoroutine(int modId)
-        {
-            while(downloadDisplay.data.isActive)
-            {
-                yield return null;
-            }
-
-            if(data.profile.modId == modId)
-            {
-                yield return new WaitForSecondsRealtime(4f);
-
-                downloadDisplay.gameObject.SetActive(false);
-            }
-        }
-
         // ---------[ EVENTS ]---------
         public void NotifyClicked()
         {
