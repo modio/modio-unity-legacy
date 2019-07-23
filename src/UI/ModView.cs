@@ -90,13 +90,6 @@ namespace ModIO.UI
             }
         }
 
-        public void OnEnable()
-        {
-            FileDownloadInfo downloadInfo = DownloadClient.GetActiveModBinaryDownload(m_data.profile.modId,
-                                                                                      m_data.currentBuild.modfileId);
-            DisplayDownload(downloadInfo);
-        }
-
         // ---------[ EVENTS ]---------
         public void NotifyClicked()
         {
