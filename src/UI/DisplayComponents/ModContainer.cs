@@ -8,7 +8,7 @@ namespace ModIO.UI
     public class ModContainer : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Template to duplicate for the purpose of displaying the gallery images.</summary>
+        /// <summary>Template to duplicate for the purpose of displaying the mod views.</summary>
         public RectTransform template = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
@@ -73,7 +73,7 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Displays a set of gallery images.</summary>
+        /// <summary>Displays a set of mods.</summary>
         public virtual void DisplayMods(IList<ModProfile> profiles, IList<ModStatistics> statistics)
         {
             // assert validity
