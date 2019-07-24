@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
+    public class InspectorView : MonoBehaviour, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("UI Components")]
@@ -16,8 +16,6 @@ namespace ModIO.UI
 
         // ---[ RUNTIME DATA ]---
         private bool m_isInitialized = false;
-
-        private IEnumerable<ModTagCategory> m_tagCategories = new ModTagCategory[0];
 
         private int m_modId = ModProfile.NULL_ID;
         private IEnumerable<Modfile> m_versionHistory = new List<Modfile>(0);
@@ -52,12 +50,6 @@ namespace ModIO.UI
         protected virtual void Start()
         {
             Debug.Assert(modView != null);
-
-            var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
-            if(tagCategories != null)
-            {
-                this.m_tagCategories = tagCategories;
-            }
 
             if(modView.statisticsDisplay != null)
             {
@@ -96,13 +88,8 @@ namespace ModIO.UI
                 bool isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
                 ModRatingValue rating = ModBrowser.instance.GetModRating(this.m_modId);
 
-                if(profile != null)
-                {
-                    modView.DisplayMod(profile, stats,
-                                       this.m_tagCategories,
-                                       isModSubscribed, isModEnabled,
-                                       rating);
-                }
+                this.modView.profile = profile;
+                this.modView.statistics = stats;
             };
 
             // profile
@@ -129,19 +116,6 @@ namespace ModIO.UI
         }
 
         // ---------[ EVENTS ]---------
-        public void OnGameProfileUpdated(GameProfile gameProfile)
-        {
-            if(this.m_tagCategories != gameProfile.tagCategories)
-            {
-                this.m_tagCategories = gameProfile.tagCategories;
-
-                if(this.m_isInitialized)
-                {
-                    Refresh();
-                }
-            }
-        }
-
         public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
                                               IList<int> removedSubscriptions)
         {
