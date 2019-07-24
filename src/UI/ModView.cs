@@ -34,6 +34,10 @@ namespace ModIO.UI
         [SerializeField]
         private ModStatistics m_statistics = null;
 
+        /// <summary>Replace an empty description with the summary?</summary>
+        [Tooltip("If the profile has no description, the description can be filled with the summary instead.")]
+        public bool replaceMissingDescription = true;
+
         /// <summary>Event for notifying listeners of a change to the mod profile.</summary>
         public ProfileChangedEvent onProfileChanged = null;
 
@@ -50,6 +54,18 @@ namespace ModIO.UI
                 if(this.m_profile != value)
                 {
                     this.m_profile = value;
+
+                    if(this.replaceMissingDescription
+                       && string.IsNullOrEmpty(this.m_profile.descriptionAsText))
+                    {
+                        this.m_profile.descriptionAsText = this.m_profile.summary;
+                    }
+
+                    if(this.replaceMissingDescription
+                       && string.IsNullOrEmpty(this.m_profile.descriptionAsHTML))
+                    {
+                        this.m_profile.descriptionAsHTML = this.m_profile.summary;
+                    }
 
                     if(this.onProfileChanged != null)
                     {
