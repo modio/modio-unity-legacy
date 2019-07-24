@@ -7,18 +7,15 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [RequireComponent(typeof(ModView))]
     public class InspectorView : MonoBehaviour, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
         [Header("UI Components")]
-        public ModView modView;
         public ScrollRect scrollView;
 
         // ---[ RUNTIME DATA ]---
-        private bool m_isInitialized = false;
-
         private int m_modId = ModProfile.NULL_ID;
-        private IEnumerable<Modfile> m_versionHistory = new List<Modfile>(0);
 
         // --- ACCESSORS ---
         public int modId
@@ -32,13 +29,14 @@ namespace ModIO.UI
                 if(this.m_modId != value)
                 {
                     this.m_modId = value;
-
-                    if(this.m_isInitialized)
-                    {
-                        Refresh();
-                    }
+                    Refresh();
                 }
             }
+        }
+
+        public ModView modView
+        {
+            get { return this.gameObject.GetComponent<ModView>(); }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -49,13 +47,6 @@ namespace ModIO.UI
 
         protected virtual void Start()
         {
-            Debug.Assert(modView != null);
-
-            if(modView.statisticsDisplay != null)
-            {
-                modView.statisticsDisplay.Initialize();
-            }
-
             // add listeners
             modView.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
             modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
@@ -63,18 +54,12 @@ namespace ModIO.UI
             modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
             modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
             modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
-
-            this.m_isInitialized = true;
-            Refresh();
         }
 
         // ---------[ UPDATE VIEW ]---------
         /// <summary>Refreshes the view.</summary>
         public void Refresh()
         {
-            Debug.Assert(this.m_isInitialized);
-            Debug.Assert(this.modView != null);
-
             ModProfile profile = null;
             ModStatistics stats = null;
 
@@ -121,7 +106,7 @@ namespace ModIO.UI
         {
             Debug.Assert(this.modView != null);
 
-            if(this.m_isInitialized)
+            if(this.isActiveAndEnabled)
             {
                 ModDisplayData data = modView.data;
                 bool wasSubscribed = data.isSubscribed;
@@ -140,7 +125,7 @@ namespace ModIO.UI
         {
             Debug.Assert(this.modView != null);
 
-            if(this.m_isInitialized
+            if(this.isActiveAndEnabled
                && this.m_modId == modId)
             {
                 ModDisplayData data = this.modView.data;
@@ -153,7 +138,7 @@ namespace ModIO.UI
         {
             Debug.Assert(this.modView != null);
 
-            if(this.m_isInitialized
+            if(this.isActiveAndEnabled
                && this.m_modId == modId)
             {
                 ModDisplayData data = this.modView.data;
@@ -166,7 +151,7 @@ namespace ModIO.UI
         {
             Debug.Assert(this.modView != null);
 
-            if(this.m_isInitialized
+            if(this.isActiveAndEnabled
                && this.m_modId == modId)
             {
                 this.modView.DisplayDownload(downloadInfo);
@@ -175,7 +160,7 @@ namespace ModIO.UI
 
         public void OnModRatingAdded(int modId, ModRatingValue rating)
         {
-            if(this.m_isInitialized
+            if(this.isActiveAndEnabled
                && this.m_modId == modId)
             {
                 ModDisplayData data = this.modView.data;
@@ -256,7 +241,7 @@ namespace ModIO.UI
         [Obsolete("Use OnModSubscriptionsUpdated() instead")]
         public void DisplayModSubscribed(bool isSubscribed)
         {
-            if(this.m_isInitialized)
+            if(this.isActiveAndEnabled)
             {
                 ModDisplayData data = modView.data;
                 if(data.isSubscribed != isSubscribed)
