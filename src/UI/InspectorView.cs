@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     [RequireComponent(typeof(ModView))]
-    public class InspectorView : MonoBehaviour, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
+    public class InspectorView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
         public ScrollRect scrollView;
@@ -104,75 +104,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ EVENTS ]---------
-        public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
-                                              IList<int> removedSubscriptions)
-        {
-            Debug.Assert(this.modView != null);
-
-            if(this.isActiveAndEnabled)
-            {
-                ModDisplayData data = modView.data;
-                bool wasSubscribed = data.isSubscribed;
-                bool subChanged = ((!wasSubscribed && addedSubscriptions.Contains(this.m_modId))
-                                   || (wasSubscribed && removedSubscriptions.Contains(this.m_modId)));
-
-                if(subChanged)
-                {
-                    data.isSubscribed = !wasSubscribed;
-                    modView.data = data;
-                }
-            }
-        }
-
-        public void OnModEnabled(int modId)
-        {
-            Debug.Assert(this.modView != null);
-
-            if(this.isActiveAndEnabled
-               && this.m_modId == modId)
-            {
-                ModDisplayData data = this.modView.data;
-                data.isModEnabled = true;
-                this.modView.data = data;
-            }
-        }
-
-        public void OnModDisabled(int modId)
-        {
-            Debug.Assert(this.modView != null);
-
-            if(this.isActiveAndEnabled
-               && this.m_modId == modId)
-            {
-                ModDisplayData data = this.modView.data;
-                data.isModEnabled = false;
-                this.modView.data = data;
-            }
-        }
-
-        public void OnModDownloadStarted(int modId, FileDownloadInfo downloadInfo)
-        {
-            Debug.Assert(this.modView != null);
-
-            if(this.isActiveAndEnabled
-               && this.m_modId == modId)
-            {
-                this.modView.DisplayDownload(downloadInfo);
-            }
-        }
-
-        public void OnModRatingAdded(int modId, ModRatingValue rating)
-        {
-            if(this.isActiveAndEnabled
-               && this.m_modId == modId)
-            {
-                ModDisplayData data = this.modView.data;
-                data.userRating = rating;
-                this.modView.data = data;
-            }
-        }
-
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use InspectorView.highlightedImage instead.")][HideInInspector]
         public ImageDisplay selectedMediaPreview;
@@ -256,18 +187,8 @@ namespace ModIO.UI
             }
         }
 
-        [Obsolete("Use OnModEnabled()/OnModDisabled() instead")]
-        public void DisplayModEnabled(bool isEnabled)
-        {
-            if(isEnabled)
-            {
-                this.OnModEnabled(this.m_modId);
-            }
-            else
-            {
-                this.OnModDisabled(this.m_modId);
-            }
-        }
+        [Obsolete("No longer necessary.")]
+        public void DisplayModEnabled(bool isEnabled) {}
 
         [Obsolete("Set the modId value and/or use Refresh() instead.")]
         public void DisplayMod(ModProfile profile, ModStatistics statistics,
