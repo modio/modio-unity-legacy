@@ -10,13 +10,8 @@ namespace ModIO.UI
     public class InspectorView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
-        [Header("Settings")]
-        public GameObject versionHistoryItemPrefab = null;
-        public string missingVersionChangelogText = "<i>None recorded.</i>";
-
         [Header("UI Components")]
         public ModView modView;
-        public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
 
         // ---[ RUNTIME DATA ]---
@@ -77,17 +72,6 @@ namespace ModIO.UI
             modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
             modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
 
-            if((versionHistoryContainer != null && versionHistoryItemPrefab == null)
-               || (versionHistoryItemPrefab != null && versionHistoryContainer == null))
-            {
-                Debug.LogWarning("[mod.io] In order to display a version history both the "
-                                 + "versionHistoryItemPrefab and versionHistoryContainer variables must "
-                                 + "be set for the InspectorView.", this);
-            }
-
-            Debug.Assert(!(versionHistoryItemPrefab != null && versionHistoryItemPrefab.GetComponent<ModfileDisplayComponent>() == null),
-                         "[mod.io] The versionHistoryItemPrefab requires a ModfileDisplayComponent on the root Game Object.");
-
             this.m_isInitialized = true;
             Refresh();
         }
@@ -142,55 +126,6 @@ namespace ModIO.UI
                 pushToView();
             },
             WebRequestError.LogAsWarning);
-
-            // version history
-            if(versionHistoryContainer != null
-               && versionHistoryItemPrefab != null)
-            {
-                RequestFilter modfileFilter = new RequestFilter();
-                modfileFilter.sortFieldName = ModIO.API.GetAllModfilesFilterFields.dateAdded;
-                modfileFilter.isSortAscending = false;
-
-                APIClient.GetAllModfiles(this.m_modId,
-                                         modfileFilter,
-                                         new APIPaginationParameters(){ limit = 10 },
-                                         (r) =>
-                                         {
-                                            this.m_versionHistory = r.items;
-                                            PopulateVersionHistory();
-                                         },
-                                         WebRequestError.LogAsWarning);
-            }
-        }
-
-        // ---------[ UI ELEMENT CREATION ]---------
-        private void PopulateVersionHistory()
-        {
-            #if UNITY_EDITOR
-            if(!Application.isPlaying) { return; }
-            #endif
-
-            foreach(Transform t in versionHistoryContainer)
-            {
-                GameObject.Destroy(t.gameObject);
-            }
-
-            if(this.versionHistoryContainer == null) { return; }
-
-            foreach(Modfile modfile in this.m_versionHistory)
-            {
-                GameObject go = GameObject.Instantiate(versionHistoryItemPrefab, versionHistoryContainer) as GameObject;
-                go.name = "Mod Version: " + modfile.version;
-
-                if(String.IsNullOrEmpty(modfile.changelog))
-                {
-                    modfile.changelog = missingVersionChangelogText;
-                }
-
-                var entry = go.GetComponent<ModfileDisplayComponent>();
-                entry.Initialize();
-                entry.DisplayModfile(modfile);
-            }
         }
 
         // ---------[ EVENTS ]---------
@@ -281,6 +216,14 @@ namespace ModIO.UI
         [Obsolete("No longer supported. Try an ObjectActiverSetter component instead.")]
         public GameObject loadingDisplay;
 
+        [Obsolete("Use a ModReleaseHistoryView instead.")]
+        public GameObject versionHistoryItemPrefab = null;
+        [Obsolete("Use ModfileView.emptyChangelogText instead.")]
+        public string missingVersionChangelogText = "<i>None recorded.</i>";
+
+        [Obsolete("Use a ModReleaseHistoryView instead.")]
+        public RectTransform versionHistoryContainer;
+
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
         public ModProfile profile;
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
@@ -291,7 +234,6 @@ namespace ModIO.UI
         private bool m_isModSubscribed;
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
         private bool m_isModEnabled;
-
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
