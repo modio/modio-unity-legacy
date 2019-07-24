@@ -47,13 +47,23 @@ namespace ModIO.UI
 
         protected virtual void Start()
         {
+            Func<ModView, int> getModId = (v) =>
+            {
+                if(v != null
+                   && v.profile != null)
+                {
+                    return v.profile.id;
+                }
+                return ModProfile.NULL_ID;
+            };
+
             // add listeners
-            modView.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
-            modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
-            modView.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
-            modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
-            modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
-            modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
+            modView.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(getModId(v));
+            modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(getModId(v));
+            modView.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(getModId(v));
+            modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(getModId(v));
+            modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(getModId(v), ModRatingValue.Positive);
+            modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(getModId(v), ModRatingValue.Negative);
         }
 
         // ---------[ UPDATE VIEW ]---------
