@@ -15,6 +15,9 @@ namespace ModIO.UI
         [SerializeField]
         private Modfile m_modfile = null;
 
+        /// <summary>Text to use in place of an empty changelog.</summary>
+        public string emptyChangelogText = string.Empty;
+
         /// <summary>Event fired when the modfile changes.</summary>
         public ModfileChangedEvent onModfileChanged = null;
 
@@ -28,6 +31,11 @@ namespace ModIO.UI
                 if(this.m_modfile != value)
                 {
                     this.m_modfile = value;
+
+                    if(string.IsNullOrEmpty(this.m_modfile.changelog))
+                    {
+                        this.m_modfile.changelog = this.emptyChangelogText;
+                    }
 
                     if(this.onModfileChanged != null)
                     {
