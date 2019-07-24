@@ -5,6 +5,12 @@ namespace ModIO.UI
     /// <summary>Variant of the AspectRatioFitter that can match the ratio of a given texture.</summary>
     public class TextureAspectRatioMatcher : AspectRatioFitter
     {
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            this.SetDirty();
+        }
+
         /// <summary>Sets the aspect ratio to match the given texture.</summary>
         public void MatchTexture(UnityEngine.Texture2D texture)
         {
