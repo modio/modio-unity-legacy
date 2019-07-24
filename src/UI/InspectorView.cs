@@ -11,7 +11,6 @@ namespace ModIO.UI
     public class InspectorView : MonoBehaviour, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
-        [Header("UI Components")]
         public ScrollRect scrollView;
 
         // ---[ RUNTIME DATA ]---
@@ -70,44 +69,39 @@ namespace ModIO.UI
         /// <summary>Refreshes the view.</summary>
         public void Refresh()
         {
-            ModProfile profile = null;
-            ModStatistics stats = null;
-
-            // early out if NULL_ID
-            if(this.m_modId == ModProfile.NULL_ID) { return; }
-
-            // delegate for pushing changes to mod view
-            Action pushToView = () =>
+            if(this.m_modId == ModProfile.NULL_ID)
             {
-                bool isModSubscribed = ModManager.GetSubscribedModIds().Contains(this.m_modId);
-                bool isModEnabled = ModManager.GetEnabledModIds().Contains(this.m_modId);
-                ModRatingValue rating = ModBrowser.instance.GetModRating(this.m_modId);
-
-                this.modView.profile = profile;
-                this.modView.statistics = stats;
-            };
-
-            // profile
-            ModProfileRequestManager.instance.RequestModProfile(this.m_modId,
-            (p) =>
+                this.modView.profile = null;
+                this.modView.statistics = null;
+            }
+            else
             {
-                if(this == null) { return; }
+                int modId = this.m_modId;
 
-                profile = p;
-                pushToView();
-            },
-            WebRequestError.LogAsWarning);
+                // profile
+                ModProfileRequestManager.instance.RequestModProfile(this.m_modId,
+                (p) =>
+                {
+                    if(this != null
+                       && this.m_modId == modId)
+                    {
+                        this.modView.profile = p;
+                    }
+                },
+                WebRequestError.LogAsWarning);
 
-            // statistics
-            ModStatisticsRequestManager.instance.RequestModStatistics(this.m_modId,
-            (s) =>
-            {
-                if(this == null) { return; }
-
-                stats = s;
-                pushToView();
-            },
-            WebRequestError.LogAsWarning);
+                // statistics
+                ModStatisticsRequestManager.instance.RequestModStatistics(this.m_modId,
+                (s) =>
+                {
+                    if(this != null
+                       && this.m_modId == modId)
+                    {
+                        this.modView.statistics = s;
+                    }
+                },
+                WebRequestError.LogAsWarning);
+            }
         }
 
         // ---------[ EVENTS ]---------
