@@ -18,7 +18,6 @@ namespace ModIO.UI
         public ModView modView;
         public RectTransform versionHistoryContainer;
         public ScrollRect scrollView;
-        public GameObject loadingDisplay;
 
         // ---[ RUNTIME DATA ]---
         private bool m_isInitialized = false;
@@ -103,10 +102,6 @@ namespace ModIO.UI
             ModProfile profile = null;
             ModStatistics stats = null;
 
-            // set initial values
-            this.SetLoadingDisplay(true);
-            this.modView.DisplayLoading();
-
             // early out if NULL_ID
             if(this.m_modId == ModProfile.NULL_ID) { return; }
 
@@ -132,7 +127,6 @@ namespace ModIO.UI
             {
                 if(this == null) { return; }
 
-                this.SetLoadingDisplay(false);
                 profile = p;
                 pushToView();
             },
@@ -169,13 +163,6 @@ namespace ModIO.UI
             }
         }
 
-        public void SetLoadingDisplay(bool visible)
-        {
-            if(this.loadingDisplay != null)
-            {
-                this.loadingDisplay.SetActive(visible);
-            }
-        }
 
         // ---------[ UI ELEMENT CREATION ]---------
         private void PopulateVersionHistory()
@@ -290,6 +277,11 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
+        [Obsolete("Use InspectorView.highlightedImage instead.")][HideInInspector]
+        public ImageDisplay selectedMediaPreview;
+        [Obsolete("No longer supported. Try an ObjectActiverSetter component instead.")]
+        public GameObject loadingDisplay;
+
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
         public ModProfile profile;
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
@@ -301,8 +293,6 @@ namespace ModIO.UI
         [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
         private bool m_isModEnabled;
 
-        [Obsolete("Use InspectorView.highlightedImage instead.")]
-        public ImageDisplay selectedMediaPreview;
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
@@ -383,5 +373,8 @@ namespace ModIO.UI
             Debug.Assert(profile != null);
             this.modId = profile.id;
         }
+
+        [Obsolete("No longer necessary.")]
+        public void SetLoadingDisplay(bool visible) {}
     }
 }
