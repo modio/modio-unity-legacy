@@ -5,13 +5,18 @@ namespace ModIO.UI
     /// <summary>A view that provides information to child IModfileViewElements.</summary>
     public class ModfileView : MonoBehaviour
     {
-        // ---------[ FIELDS ]---------
-        /// <summary>Event fired when the modfile changes.</summary>
-        public event System.Action<Modfile> onModfileChanged;
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Event for notifying listeners of a change to the modfile.</summary>
+        [System.Serializable]
+        public class ModfileChangedEvent : UnityEngine.Events.UnityEvent<Modfile> {}
 
+        // ---------[ FIELDS ]---------
         /// <summary>Currently displayed modfile.</summary>
         [SerializeField]
         private Modfile m_modfile = null;
+
+        /// <summary>Event fired when the modfile changes.</summary>
+        public ModfileChangedEvent onModfileChanged = null;
 
         // --- Accessors ---
         /// <summary>Currently displayed modfile.</summary>
@@ -26,7 +31,7 @@ namespace ModIO.UI
 
                     if(this.onModfileChanged != null)
                     {
-                        this.onModfileChanged(this.m_modfile);
+                        this.onModfileChanged.Invoke(this.m_modfile);
                     }
                 }
             }

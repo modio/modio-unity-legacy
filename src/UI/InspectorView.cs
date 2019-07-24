@@ -163,7 +163,6 @@ namespace ModIO.UI
             }
         }
 
-
         // ---------[ UI ELEMENT CREATION ]---------
         private void PopulateVersionHistory()
         {

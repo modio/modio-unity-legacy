@@ -92,7 +92,7 @@ namespace ModIO.UI
             // unhook
             if(this.m_view != null)
             {
-                this.m_view.onModfileChanged -= DisplayModfile;
+                this.m_view.onModfileChanged.RemoveListener(DisplayModfile);
             }
 
             // assign
@@ -101,7 +101,7 @@ namespace ModIO.UI
             // hook
             if(this.m_view != null)
             {
-                this.m_view.onModfileChanged += DisplayModfile;
+                this.m_view.onModfileChanged.AddListener(DisplayModfile);
                 this.DisplayModfile(this.m_view.modfile);
             }
             else
