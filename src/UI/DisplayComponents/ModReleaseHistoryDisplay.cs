@@ -4,7 +4,7 @@ namespace ModIO.UI
 {
     /// <summary>Displays the release history of a mod.</summary>
     [RequireComponent(typeof(ModfileContainer))]
-    public class ModReleaseHistoryView : MonoBehaviour, IModViewElement
+    public class ModReleaseHistoryDisplay : MonoBehaviour, IModViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Display in reverse chronological order?</summary>
