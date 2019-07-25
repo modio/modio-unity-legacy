@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    /// <summary>ViewController for displaying a single mod using a mod id.</summary>
     [RequireComponent(typeof(ModView))]
     public class InspectorView : MonoBehaviour
     {
@@ -28,9 +29,11 @@ namespace ModIO.UI
                 {
                     this.m_modId = value;
 
+                    // clear old data
                     this.modView.profile = null;
                     this.modView.statistics = null;
 
+                    // load if not null
                     if(this.m_modId != ModProfile.NULL_ID)
                     {
                         // profile
