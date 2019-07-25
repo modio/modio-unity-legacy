@@ -56,15 +56,14 @@ namespace ModIO.UI
                     this.m_profile = value;
 
                     if(this.replaceMissingDescription
-                       && string.IsNullOrEmpty(this.m_profile.descriptionAsText))
+                       && this.m_profile != null)
                     {
-                        this.m_profile.descriptionAsText = this.m_profile.summary;
-                    }
-
-                    if(this.replaceMissingDescription
-                       && string.IsNullOrEmpty(this.m_profile.descriptionAsHTML))
-                    {
-                        this.m_profile.descriptionAsHTML = this.m_profile.summary;
+                        if(string.IsNullOrEmpty(this.m_profile.descriptionAsText)
+                           && string.IsNullOrEmpty(this.m_profile.descriptionAsHTML))
+                        {
+                            this.m_profile.descriptionAsText = this.m_profile.summary;
+                            this.m_profile.descriptionAsHTML = this.m_profile.summary;
+                        }
                     }
 
                     if(this.onProfileChanged != null)
