@@ -14,6 +14,9 @@ namespace ModIO.UI
         /// <summary>Should the template be disabled if empty?</summary>
         public bool hideIfEmpty = true;
 
+        /// <summary>Limit of mod views that can be displayed in this container.</summary>
+        public int itemLimit = -1;
+
         // --- Run-Time Data ---
         /// <summary>Instance of the template clone.</summary>
         private GameObject m_templateClone = null;
@@ -81,7 +84,7 @@ namespace ModIO.UI
                && statistics != null
                && profiles.Count != statistics.Count)
             {
-                Debug.LogWarning("[mod.io] Cannot display the a collection of profiles"
+                Debug.LogWarning("[mod.io] Cannot display a collection of profiles"
                                  + " and statistics where the counts are not equal."
                                  + "\n profiles.Count = " + profiles.Count.ToString()
                                  + "\n statistics.Count = " + statistics.Count.ToString(),
@@ -90,32 +93,39 @@ namespace ModIO.UI
                 statistics = null;
             }
 
+            int itemCount = 0;
+            if(profiles != null)
+            {
+                itemCount = profiles.Count;
+            }
+            else if(statistics != null)
+            {
+                itemCount = statistics.Count;
+            }
+
+            if(this.itemLimit >= 0 && itemCount > this.itemLimit)
+            {
+                Debug.LogWarning("[mod.io] Attempting to display more mods than accepted by this"
+                                 + " Mod Container."
+                                 + "\n Item Limit = " + this.itemLimit.ToString()
+                                 + "\n Item Count = " + itemCount.ToString(),
+                                 this);
+            }
+
+
             // copy arrays
             if(this.m_modProfiles != profiles)
             {
-                int profileCount = 0;
-                if(profiles != null)
-                {
-                    profileCount = profiles.Count;
-                }
-
-                this.m_modProfiles = new ModProfile[profileCount];
-                for(int i = 0; i < profileCount; ++i)
+                this.m_modProfiles = new ModProfile[itemCount];
+                for(int i = 0; i < itemCount; ++i)
                 {
                     this.m_modProfiles[i] = profiles[i];
                 }
             }
-
-            if(this.m_modStatistics != profiles)
+            if(this.m_modStatistics != statistics)
             {
-                int statisticsCount = 0;
-                if(statistics != null)
-                {
-                    statisticsCount = statistics.Count;
-                }
-
-                this.m_modStatistics = new ModStatistics[statisticsCount];
-                for(int i = 0; i < statisticsCount; ++i)
+                this.m_modStatistics = new ModStatistics[itemCount];
+                for(int i = 0; i < itemCount; ++i)
                 {
                     this.m_modStatistics[i] = statistics[i];
                 }
@@ -124,27 +134,23 @@ namespace ModIO.UI
             // display
             if(this.isActiveAndEnabled)
             {
-                // set view count
-                int itemCount = this.m_modProfiles.Length;
-                if(itemCount == 0)
-                {
-                    itemCount = this.m_modStatistics.Length;
-                }
-
                 this.SetViewCount(itemCount);
 
-                // Assert we good
-                Debug.Assert(this.m_views.Length >= this.m_modProfiles.Length);
-                Debug.Assert(this.m_views.Length >= this.m_modStatistics.Length);
-
                 // display data
-                for(int i = 0; i < this.m_modProfiles.Length; ++i)
+                if(this.m_modProfiles != null)
                 {
-                    this.m_views[i].profile = this.m_modProfiles[i];
+                    for(int i = 0; i < this.m_modProfiles.Length; ++i)
+                    {
+                        this.m_views[i].profile = this.m_modProfiles[i];
+                    }
+
                 }
-                for(int i = 0; i < this.m_modStatistics.Length; ++i)
+                if(this.m_modStatistics != null)
                 {
-                    this.m_views[i].statistics = this.m_modStatistics[i];
+                    for(int i = 0; i < this.m_modStatistics.Length; ++i)
+                    {
+                        this.m_views[i].statistics = this.m_modStatistics[i];
+                    }
                 }
 
                 // hide if necessary
