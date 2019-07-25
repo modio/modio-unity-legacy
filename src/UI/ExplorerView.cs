@@ -774,6 +774,8 @@ namespace ModIO.UI
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use ExplorerView.containerTemplate instead.")][HideInInspector]
         public RectTransform pageTemplate = null;
+        [Obsolete("Use ExplorerView.containerTemplate instead.")][HideInInspector]
+        public GameObject itemPrefab = null;
 
         [Obsolete("No longer supported.")][HideInInspector]
         public RectTransform currentPageContainer;
