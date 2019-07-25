@@ -18,6 +18,10 @@ namespace ModIO.UI
         [SerializeField]
         private int m_itemLimit = -1;
 
+        /// <summary>Fill to item limit.</summary>
+        [Tooltip("If enabled, fills the container with hidden mod views to match the item limit.")]
+        public bool fillToLimit = false;
+
         // --- Run-Time Data ---
         /// <summary>Instance of the template clone.</summary>
         private GameObject m_templateClone = null;
@@ -39,7 +43,11 @@ namespace ModIO.UI
 
         // --- Accessors ---
         /// <summary>Limit of mod views that can be displayed in this container.</summary>
-        public int itemLimit { get; set; }
+        public int itemLimit
+        {
+            get { return this.m_itemLimit; }
+            set { this.m_itemLimit = value; }
+        }
 
         /// <summary>Profiles currently being displayed.</summary>
         public ModProfile[] modProfiles
@@ -52,7 +60,12 @@ namespace ModIO.UI
         protected virtual void Awake()
         {
             this.template.gameObject.SetActive(false);
+
             this.m_itemTemplate = this.template.GetComponentInChildren<ModView>(true);
+            if(this.m_itemTemplate.gameObject.GetComponent<CanvasGroup>() == null)
+            {
+                this.m_itemTemplate.gameObject.AddComponent<CanvasGroup>();
+            }
 
             // get template vars
             string templateInstance_name = this.template.gameObject.name + " (Instance)";
@@ -154,7 +167,6 @@ namespace ModIO.UI
                                  this);
             }
 
-
             // copy arrays
             if(this.m_modProfiles != profiles)
             {
@@ -203,11 +215,22 @@ namespace ModIO.UI
         /// <summary>Creates/Destroys views to match the given value.</summary>
         protected virtual void SetViewCount(int newCount)
         {
-            int difference = newCount - this.m_views.Length;
+            Debug.Assert(this.m_itemLimit < 0 || newCount <= this.m_itemLimit);
+
+            // checks for filling container
+            int visibleCount = newCount;
+            int viewCount = newCount;
+            if(this.fillToLimit && this.m_itemLimit >= 0)
+            {
+                viewCount = this.m_itemLimit;
+            }
+
+            // -- create/destroy as necessary --
+            int difference = viewCount - this.m_views.Length;
 
             if(difference > 0)
             {
-                ModView[] newViewArray = new ModView[newCount];
+                ModView[] newViewArray = new ModView[viewCount];
 
                 for(int i = 0;
                     i < this.m_views.Length;
@@ -231,7 +254,7 @@ namespace ModIO.UI
             }
             else if(difference < 0)
             {
-                ModView[] newViewArray = new ModView[newCount];
+                ModView[] newViewArray = new ModView[viewCount];
 
                 for(int i = 0;
                     i < newViewArray.Length;
@@ -248,6 +271,27 @@ namespace ModIO.UI
                 }
 
                 this.m_views = newViewArray;
+            }
+
+            // -- set view visibility --
+            for(int i = 0;
+                i < visibleCount;
+                ++i)
+            {
+                CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
+                c.alpha = 1f;
+                c.interactable = true;
+                c.blocksRaycasts = true;
+            }
+
+            for(int i = visibleCount;
+                i < viewCount;
+                ++i)
+            {
+                CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
+                c.alpha = 0f;
+                c.interactable = false;
+                c.blocksRaycasts = false;
             }
         }
     }
