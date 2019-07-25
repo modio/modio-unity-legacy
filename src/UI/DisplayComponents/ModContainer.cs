@@ -15,7 +15,8 @@ namespace ModIO.UI
         public bool hideIfEmpty = true;
 
         /// <summary>Limit of mod views that can be displayed in this container.</summary>
-        public int itemLimit = -1;
+        [SerializeField]
+        private int m_itemLimit = -1;
 
         // --- Run-Time Data ---
         /// <summary>Instance of the template clone.</summary>
@@ -35,6 +36,10 @@ namespace ModIO.UI
 
         /// <summary>Display objects.</summary>
         private ModView[] m_views = new ModView[0];
+
+        // --- Accessors ---
+        /// <summary>Limit of mod views that can be displayed in this container.</summary>
+        public int itemLimit { get; set; }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initialize template.</summary>
@@ -103,11 +108,11 @@ namespace ModIO.UI
                 itemCount = statistics.Count;
             }
 
-            if(this.itemLimit >= 0 && itemCount > this.itemLimit)
+            if(this.m_itemLimit >= 0 && itemCount > this.m_itemLimit)
             {
                 Debug.LogWarning("[mod.io] Attempting to display more mods than accepted by this"
                                  + " Mod Container."
-                                 + "\n Item Limit = " + this.itemLimit.ToString()
+                                 + "\n Item Limit = " + this.m_itemLimit.ToString()
                                  + "\n Item Count = " + itemCount.ToString(),
                                  this);
             }
