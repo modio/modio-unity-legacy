@@ -22,7 +22,6 @@ namespace ModIO.UI
         public event Action<string[]> onTagFilterUpdated;
 
         [Header("Settings")]
-        public GameObject itemPrefab = null;
         public float pageTransitionTimeSeconds = 0.4f;
         public string defaultSortString = "-" + API.GetAllModsFilterFields.dateLive;
 
@@ -124,9 +123,6 @@ namespace ModIO.UI
                          "[mod.io] The Explorer View and its Container Template cannot be the same"
                          + " Game Object. Please create a separate Game Object for the container template.");
 
-            /// <summary>Duplication protection.</summary>
-            if(this.m_currentPageContainer != null) { return; }
-
             // initialize
             this.containerTemplate.gameObject.SetActive(false);
 
@@ -151,38 +147,8 @@ namespace ModIO.UI
             this.m_targetPageContainer = templateCopyGO.GetComponent<ModContainer>();
         }
 
-
         private void Start()
         {
-            // asserts
-            Debug.Assert(itemPrefab != null);
-
-            RectTransform prefabTransform = itemPrefab.GetComponent<RectTransform>();
-            ModView prefabView = itemPrefab.GetComponent<ModView>();
-
-            Debug.Assert(prefabTransform != null
-                         && prefabView != null,
-                         "[mod.io] The ExplorerView.itemPrefab does not have the required "
-                         + "ModBrowserItem, ModView, and RectTransform components.\n"
-                         + "Please ensure these are all present.");
-
-            if(pageTemplate == null)
-            {
-                Debug.LogWarning("[mod.io] Page Template variable needs to be set in order for the"
-                                 + " Explorer View to function", this.gameObject);
-                this.enabled = false;
-                return;
-            }
-
-            this.gridLayout = pageTemplate.GetComponent<GridLayoutGroup>();
-            if(this.gridLayout == null)
-            {
-                Debug.LogWarning("[mod.io] Page Template needs a grid layout component in order for the"
-                                 + " Explorer View to function", this.gameObject);
-                this.enabled = false;
-                return;
-            }
-
             // - create pages -
             this.UpdateCurrentPageDisplay();
             this.UpdatePageButtonInteractibility();
