@@ -28,49 +28,86 @@ namespace ModIO.UI
         /// <summary>Mod View object template.</summary>
         private ModView m_itemTemplate = null;
 
+        /// <summary>Display objects.</summary>
+        private ModView[] m_views = new ModView[0];
+
         /// <summary>Profiles currently being displayed.</summary>
         private ModProfile[] m_modProfiles = new ModProfile[0];
 
         /// <summary>Statistics current being displayed.</summary>
         private ModStatistics[] m_modStatistics = new ModStatistics[0];
 
-        /// <summary>Display objects.</summary>
-        private ModView[] m_views = new ModView[0];
-
         // --- Accessors ---
         /// <summary>Limit of mod views that can be displayed in this container.</summary>
         public int itemLimit { get; set; }
+
+        /// <summary>Profiles currently being displayed.</summary>
+        public ModProfile[] modProfiles
+        {
+            get { return this.m_modProfiles; }
+        }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
-            // duplication protection
-            if(this.m_itemTemplate != null) { return; }
-
-            // initialize
             this.template.gameObject.SetActive(false);
             this.m_itemTemplate = this.template.GetComponentInChildren<ModView>(true);
 
-            if(this.m_itemTemplate != null
-               && this.template.gameObject != this.m_itemTemplate.gameObject)
+            // get template vars
+            string templateInstance_name = this.template.gameObject.name + " (Instance)";
+            int templateInstance_index = this.template.GetSiblingIndex() + 1;
+
+            // duplication protection
+            Transform templateParent = this.template.parent;
+            bool isInstantiated = (templateParent.childCount > templateInstance_index
+                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            if(isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.template.gameObject, this.template.parent);
-                this.m_templateClone.SetActive(true);
-                this.m_templateClone.transform.SetSiblingIndex(this.template.GetSiblingIndex() + 1);
+                this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
+                ModView[] viewInstances = this.m_templateClone.GetComponentsInChildren<ModView>(true);
 
-                this.m_views = new ModView[1];
-                this.m_views[0] = this.m_templateClone.GetComponentInChildren<ModView>(true);
-                this.m_views[0].gameObject.name = "Mod View [00]";
+                if(viewInstances == null
+                   || viewInstances.Length == 0)
+                {
+                    isInstantiated = false;
+                    GameObject.Destroy(this.m_templateClone);
+                }
+                else
+                {
+                    this.m_container = (RectTransform)viewInstances[0].transform.parent;
 
-                this.m_container = (RectTransform)this.m_views[0].transform.parent;
+                    foreach(ModView view in viewInstances)
+                    {
+                        GameObject.Destroy(view.gameObject);
+                    }
+                }
             }
-            else
+
+            if(!isInstantiated)
             {
-                Debug.LogError("[mod.io] This ModContainer has an invalid template"
-                               + " hierarchy. The Template must contain a child with a"
-                               + " ModView component to use as the item template.",
-                               this);
+                // instantiate template
+                if(this.m_itemTemplate != null
+                   && this.template.gameObject != this.m_itemTemplate.gameObject)
+                {
+                    this.m_templateClone = GameObject.Instantiate(this.template.gameObject, templateParent);
+                    this.m_templateClone.SetActive(true);
+                    this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
+                    this.m_templateClone.name = templateInstance_name;
+
+                    ModView viewInstance = this.m_templateClone.GetComponentInChildren<ModView>(true);
+                    this.m_container = (RectTransform)viewInstance.transform.parent;
+
+                    GameObject.Destroy(viewInstance.gameObject);
+                }
+                // bad template
+                else
+                {
+                    Debug.LogError("[mod.io] This ModContainer has an invalid template"
+                                   + " hierarchy. The Template must contain a child with a"
+                                   + " ModView component to use as the item template.",
+                                   this);
+                }
             }
         }
 
