@@ -27,7 +27,36 @@ namespace ModIO.UI
                 if(this.m_modId != value)
                 {
                     this.m_modId = value;
-                    Refresh();
+
+                    this.modView.profile = null;
+                    this.modView.statistics = null;
+
+                    if(this.m_modId != ModProfile.NULL_ID)
+                    {
+                        // profile
+                        ModProfileRequestManager.instance.RequestModProfile(this.m_modId,
+                        (p) =>
+                        {
+                            if(this != null
+                               && this.m_modId == value)
+                            {
+                                this.modView.profile = p;
+                            }
+                        },
+                        WebRequestError.LogAsWarning);
+
+                        // statistics
+                        ModStatisticsRequestManager.instance.RequestModStatistics(this.m_modId,
+                        (s) =>
+                        {
+                            if(this != null
+                               && this.m_modId == value)
+                            {
+                                this.modView.statistics = s;
+                            }
+                        },
+                        WebRequestError.LogAsWarning);
+                    }
                 }
             }
         }
@@ -58,45 +87,6 @@ namespace ModIO.UI
             modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(getModId(v));
             modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(getModId(v), ModRatingValue.Positive);
             modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(getModId(v), ModRatingValue.Negative);
-        }
-
-        // ---------[ UPDATE VIEW ]---------
-        /// <summary>Refreshes the view.</summary>
-        public void Refresh()
-        {
-            if(this.m_modId == ModProfile.NULL_ID)
-            {
-                this.modView.profile = null;
-                this.modView.statistics = null;
-            }
-            else
-            {
-                int modId = this.m_modId;
-
-                // profile
-                ModProfileRequestManager.instance.RequestModProfile(this.m_modId,
-                (p) =>
-                {
-                    if(this != null
-                       && this.m_modId == modId)
-                    {
-                        this.modView.profile = p;
-                    }
-                },
-                WebRequestError.LogAsWarning);
-
-                // statistics
-                ModStatisticsRequestManager.instance.RequestModStatistics(this.m_modId,
-                (s) =>
-                {
-                    if(this != null
-                       && this.m_modId == modId)
-                    {
-                        this.modView.statistics = s;
-                    }
-                },
-                WebRequestError.LogAsWarning);
-            }
         }
 
         // ---------[ OBSOLETE ]---------
@@ -196,5 +186,8 @@ namespace ModIO.UI
 
         [Obsolete("No longer necessary.")]
         public void SetLoadingDisplay(bool visible) {}
+
+        [Obsolete("No longer necessary.")]
+        public void Refresh() {}
     }
 }
