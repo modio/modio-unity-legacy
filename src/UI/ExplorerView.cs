@@ -60,8 +60,8 @@ namespace ModIO.UI
         private List<ModView> m_modViews = new List<ModView>();
         private IEnumerable<ModTagCategory> m_tagCategories = null;
 
-        public ModContainer m_currentPageContainer = null;
-        public ModContainer m_targetPageContainer = null;
+        private ModContainer m_currentPageContainer = null;
+        private ModContainer m_targetPageContainer = null;
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -472,14 +472,14 @@ namespace ModIO.UI
                                            || currentPage.items.Length == 0);
             }
 
-            IEnumerable<ModProfile> profiles = null;
+            IList<ModProfile> profiles = null;
             if(this.currentPage != null)
             {
                 profiles = this.currentPage.items;
             }
 
             UpdatePageNumberDisplay();
-            DisplayProfiles(profiles, this.m_currentPageContainer.transform as RectTransform);
+            this.DisplayProfiles(profiles, this.m_currentPageContainer);
         }
 
         public void UpdateTargetPageDisplay()
@@ -494,117 +494,95 @@ namespace ModIO.UI
             }
             #endif
 
-            DisplayProfiles(this.targetPage.items, this.m_targetPageContainer.transform as RectTransform);
+            this.DisplayProfiles(this.targetPage.items, this.m_targetPageContainer);
         }
 
-        private void DisplayProfiles(IEnumerable<ModProfile> profileCollection, RectTransform pageTransform)
+        private void DisplayProfiles(IList<ModProfile> profileCollection, ModContainer modContainer)
         {
-            #if DEBUG
-            if(!Application.isPlaying) { return; }
-            #endif
+            Debug.Assert(modContainer != null);
 
-            foreach(Transform t in pageTransform)
+            if(profileCollection == null)
             {
-                ModView view = t.GetComponent<ModView>();
-                if(view != null)
-                {
-                    m_modViews.Remove(view);
-                }
-                GameObject.Destroy(t.gameObject);
+                profileCollection = new ModProfile[0];
             }
 
-            List<int> missingStatsData = new List<int>();
-            List<ModView> pageModViews = new List<ModView>();
-            if(profileCollection != null)
+            // init vars
+            int displayCount = profileCollection.Count;
+            ModProfile[] displayProfiles = new ModProfile[displayCount];
+            ModStatistics[] displayStats = new ModStatistics[displayCount];
+            List<int> missingStatsData = new List<int>(displayCount);
+
+            // build arrays
+            for(int i = 0;
+                i < displayCount;
+                ++i)
             {
-                IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-                IList<int> enabledModIds = ModManager.GetEnabledModIds();
+                ModProfile profile = profileCollection[i];
+                ModStatistics stats = null;
 
-                foreach(ModProfile profile in profileCollection)
+                if(profile != null)
                 {
-                    if(pageModViews.Count >= itemsPerPage)
+                    stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
+
+                    if(stats == null)
                     {
-                        Debug.LogWarning("[mod.io] ProfileCollection contained more profiles than "
-                                         + "can be displayed per page", this.gameObject);
-                        break;
+                        missingStatsData.Add(profile.id);
                     }
-
-                    GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                                               new Vector3(),
-                                                               Quaternion.identity,
-                                                               pageTransform);
-                    itemGO.name = "Mod Tile [" + pageModViews.Count.ToString() + "]";
-
-                    // initialize item
-                    ModView view = itemGO.GetComponent<ModView>();
-
-                    if(profile == null)
-                    {
-                        view.DisplayLoading();
-                    }
-                    else
-                    {
-                        // add listeners
-                        view.onClick +=                 (v) => ViewManager.instance.InspectMod(v.data.profile.modId);
-                        view.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
-                        view.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
-                        view.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
-                        view.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
-                        view.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
-                        view.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
-
-                        // display
-                        ModStatistics stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
-                        bool isModSubscribed = subscribedModIds.Contains(profile.id);
-                        bool isModEnabled = enabledModIds.Contains(profile.id);
-                        ModRatingValue ratingValue = ModBrowser.instance.GetModRating(profile.id);
-
-                        view.DisplayMod(profile,
-                                        stats,
-                                        m_tagCategories,
-                                        isModSubscribed,
-                                        isModEnabled,
-                                        ratingValue);
-
-                        if(stats == null)
-                        {
-                            missingStatsData.Add(profile.id);
-                        }
-                    }
-
-                    pageModViews.Add(view);
                 }
 
-                if(pageModViews.Count > 0)
-                {
-                    for(int i = pageModViews.Count; i < itemsPerPage; ++i)
-                    {
-                        GameObject spacer = new GameObject("Spacing Tile [" + i.ToString("00") + "]",
-                                                           typeof(RectTransform));
-                        spacer.transform.SetParent(pageTransform);
-                    }
-                }
+                displayProfiles[i] = profile;
+                displayStats[i] = stats;
             }
-            m_modViews.AddRange(pageModViews);
 
+            // display
+            modContainer.DisplayMods(displayProfiles, displayStats);
+
+            // fetch missing stats
             if(missingStatsData.Count > 0)
             {
                 ModStatisticsRequestManager.instance.RequestModStatistics(missingStatsData,
                 (statsArray) =>
                 {
-                    if(this != null)
+                    if(this != null
+                       && modContainer != null)
                     {
-                        UpdateStatisticsDisplays(statsArray);
+                        // verify still valid
+                        bool doPushStats = (displayProfiles.Length == modContainer.modProfiles.Length);
+                        for(int i = 0;
+                            doPushStats && i < displayProfiles.Length;
+                            ++i)
+                        {
+                            // check profiles match
+                            ModProfile profile = displayProfiles[i];
+                            doPushStats = (profile == modContainer.modProfiles[i]);
+
+                            if(doPushStats
+                               && profile != null
+                               && displayStats[i] == null)
+                            {
+                                // get missing stats
+                                foreach(ModStatistics stats in statsArray)
+                                {
+                                    if(stats != null
+                                       && stats.modId == profile.id)
+                                    {
+                                        displayStats[i] = stats;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // push display data
+                        if(doPushStats)
+                        {
+                            modContainer.DisplayMods(displayProfiles, displayStats);
+                        }
                     }
                 },
-                null);
+                WebRequestError.LogAsWarning);
             }
 
-            // fix layouting
-            if(this.isActiveAndEnabled)
-            {
-                LayoutRebuilder.MarkLayoutForRebuild(pageTransform);
-            }
         }
 
         protected virtual void UpdateStatisticsDisplays(IEnumerable<ModStatistics> statsData)
