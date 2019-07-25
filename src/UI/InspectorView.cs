@@ -11,12 +11,11 @@ namespace ModIO.UI
     public class InspectorView : MonoBehaviour
     {
         // ---------[ FIELDS ]---------
-        public ScrollRect scrollView;
-
-        // ---[ RUNTIME DATA ]---
+        /// <summary>Id of the currently displayed mod.</summary>
         private int m_modId = ModProfile.NULL_ID;
 
         // --- ACCESSORS ---
+        /// <summary>Id of the currently displayed mod.</summary>
         public int modId
         {
             get
@@ -33,17 +32,13 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>The ModView sibling component.</summary>
         public ModView modView
         {
             get { return this.gameObject.GetComponent<ModView>(); }
         }
 
         // ---------[ INITIALIZATION ]---------
-        protected virtual void OnEnable()
-        {
-            if(this.scrollView != null) { this.scrollView.verticalNormalizedPosition = 1f; }
-        }
-
         protected virtual void Start()
         {
             Func<ModView, int> getModId = (v) =>
