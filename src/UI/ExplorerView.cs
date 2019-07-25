@@ -53,12 +53,13 @@ namespace ModIO.UI
 
         [Header("Runtime Data")]
         public bool isTransitioning = false;
-        public RectTransform currentPageContainer = null;
-        public RectTransform targetPageContainer = null;
 
         // --- RUNTIME DATA ---
         private List<ModView> m_modViews = new List<ModView>();
         private IEnumerable<ModTagCategory> m_tagCategories = null;
+
+        public ModContainer m_currentPageContainer = null;
+        public ModContainer m_targetPageContainer = null;
 
         // --- ACCESSORS ---
         public int itemsPerPage
@@ -152,13 +153,13 @@ namespace ModIO.UI
 
             pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
             pageGO.name = "Mod Page A";
-            currentPageContainer = pageGO.GetComponent<RectTransform>();
-            currentPageContainer.gameObject.SetActive(true);
+            this.m_currentPageContainer = pageGO.GetComponent<ModContainer>();
+            this.m_currentPageContainer.gameObject.SetActive(true);
 
             pageGO = (GameObject)GameObject.Instantiate(pageTemplate.gameObject, pageTemplate.parent);
             pageGO.name = "Mod Page B";
-            targetPageContainer = pageGO.GetComponent<RectTransform>();
-            targetPageContainer.gameObject.SetActive(false);
+            this.m_targetPageContainer = pageGO.GetComponent<ModContainer>();
+            this.m_targetPageContainer.gameObject.SetActive(false);
 
             this.UpdateCurrentPageDisplay();
             this.UpdatePageButtonInteractibility();
@@ -431,7 +432,7 @@ namespace ModIO.UI
         // ---------[ PAGE DISPLAY ]---------
         public void UpdateCurrentPageDisplay()
         {
-            if(currentPageContainer == null) { return; }
+            if(this.m_currentPageContainer == null) { return; }
 
             #if DEBUG
             if(isTransitioning)
@@ -455,12 +456,12 @@ namespace ModIO.UI
             }
 
             UpdatePageNumberDisplay();
-            DisplayProfiles(profiles, this.currentPageContainer);
+            DisplayProfiles(profiles, this.m_currentPageContainer.transform as RectTransform);
         }
 
         public void UpdateTargetPageDisplay()
         {
-            if(targetPageContainer == null) { return; }
+            if(this.m_targetPageContainer == null) { return; }
 
             #if DEBUG
             if(isTransitioning)
@@ -470,7 +471,7 @@ namespace ModIO.UI
             }
             #endif
 
-            DisplayProfiles(this.targetPage.items, this.targetPageContainer);
+            DisplayProfiles(this.targetPage.items, this.m_targetPageContainer.transform as RectTransform);
         }
 
         private void DisplayProfiles(IEnumerable<ModProfile> profileCollection, RectTransform pageTransform)
@@ -644,8 +645,8 @@ namespace ModIO.UI
                 float mainPaneTargetX = contentPane.rect.width * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
                 float transPaneStartX = mainPaneTargetX * -1f;
 
-                currentPageContainer.anchoredPosition = Vector2.zero;
-                targetPageContainer.anchoredPosition = new Vector2(transPaneStartX, 0f);
+                this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                this.m_targetPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPaneStartX, 0f);
 
                 StartCoroutine(TransitionPageCoroutine(mainPaneTargetX, transPaneStartX,
                                                        this.pageTransitionTimeSeconds, onTransitionCompleted));
@@ -663,7 +664,7 @@ namespace ModIO.UI
         {
             isTransitioning = true;
 
-            targetPageContainer.gameObject.SetActive(true);
+            this.m_targetPageContainer.gameObject.SetActive(true);
 
             float transitionTime = 0f;
 
@@ -672,8 +673,8 @@ namespace ModIO.UI
             {
                 float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / transitionLength);
 
-                currentPageContainer.anchoredPosition = new Vector2(transPos, 0f);
-                targetPageContainer.anchoredPosition = new Vector2(transPos + transitionPaneStartX, 0f);
+                this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPos, 0f);
+                this.m_targetPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPos + transitionPaneStartX, 0f);
 
                 transitionTime += Time.unscaledDeltaTime;
 
@@ -681,17 +682,17 @@ namespace ModIO.UI
             }
 
             // flip
-            var tempContainer = currentPageContainer;
-            currentPageContainer = targetPageContainer;
-            targetPageContainer = tempContainer;
+            var tempContainer = this.m_currentPageContainer;
+            this.m_currentPageContainer = this.m_targetPageContainer;
+            this.m_targetPageContainer = tempContainer;
 
             var tempPage = currentPage;
             currentPage = targetPage;
             targetPage = tempPage;
 
             // finalize
-            currentPageContainer.anchoredPosition = Vector2.zero;
-            targetPageContainer.gameObject.SetActive(false);
+            this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+            this.m_targetPageContainer.gameObject.SetActive(false);
 
             UpdatePageNumberDisplay();
 
@@ -804,6 +805,11 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer supported.")][HideInInspector]
+        public RectTransform currentPageContainer;
+        [Obsolete("No longer supported.")][HideInInspector]
+        public RectTransform transitionPageContainer;
+
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
 
