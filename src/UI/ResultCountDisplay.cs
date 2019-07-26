@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>Displays the number of results for the view.</summary>
-    public class ResultCountDisplay : MonoBehaviour, ISubscriptionsViewElement
+    public class ResultCountDisplay : MonoBehaviour, ISubscriptionsViewElement, IExplorerViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Wrapper for the text component.</summary>
@@ -11,6 +11,9 @@ namespace ModIO.UI
 
         /// <summary>Parent SubscriptionsView.</summary>
         private SubscriptionsView m_subsView = null;
+
+        /// <summary>Parent ExplorerView.</summary>
+        private ExplorerView m_explorerView = null;
 
         /// <summary>Currently displayed count.</summary>
         private int m_resultCount = 0;
@@ -51,8 +54,13 @@ namespace ModIO.UI
             {
                 this.m_subsView.onModPageChanged.RemoveListener(DisplayPageTotal);
             }
+            if(this.m_explorerView != null)
+            {
+                this.m_explorerView.onModPageChanged.RemoveListener(DisplayPageTotal);
+            }
 
             // assign
+            this.m_explorerView = null;
             this.m_subsView = view;
 
             // hook
@@ -60,6 +68,38 @@ namespace ModIO.UI
             {
                 this.m_subsView.onModPageChanged.AddListener(DisplayPageTotal);
                 this.DisplayPageTotal(this.m_subsView.displayedMods);
+            }
+            else
+            {
+                this.DisplayPageTotal(null);
+            }
+        }
+
+        /// <summary>IExplorerViewElement interface.</summary>
+        public void SetExplorerView(ExplorerView view)
+        {
+            // early out
+            if(this.m_explorerView == view) { return; }
+
+            // unhook
+            if(this.m_subsView != null)
+            {
+                this.m_subsView.onModPageChanged.RemoveListener(DisplayPageTotal);
+            }
+            if(this.m_explorerView != null)
+            {
+                this.m_explorerView.onModPageChanged.RemoveListener(DisplayPageTotal);
+            }
+
+            // assign
+            this.m_subsView = null;
+            this.m_explorerView = view;
+
+            // hook
+            if(this.m_explorerView != null)
+            {
+                this.m_explorerView.onModPageChanged.AddListener(DisplayPageTotal);
+                this.DisplayPageTotal(this.m_explorerView.displayedMods);
             }
             else
             {
