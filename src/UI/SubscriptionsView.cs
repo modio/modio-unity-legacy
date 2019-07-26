@@ -12,12 +12,21 @@ namespace ModIO.UI
     // will be made in a future update, but is currently not a priority.
     public class SubscriptionsView : MonoBehaviour, IModSubscriptionsUpdateReceiver
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Unity-serializable class to use with the event.</summary>
+        [Serializable]
+        public class ModProfilePage : RequestPage<ModProfile> {}
+
+        /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
+        [Serializable]
+        public class ModPageChanged : UnityEngine.Events.UnityEvent<ModProfilePage> {}
+
         // ---------[ FIELDS ]---------
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
 
         /// <summary>RequestPage being displayed.</summary>
-        public RequestPage<ModProfile> m_displayedMods = null;
+        public ModProfilePage m_displayedModPage = null;
 
         [Header("UI Components")]
         public Text resultCount;
@@ -27,15 +36,19 @@ namespace ModIO.UI
         public GameObject noResultsDisplay;
         public StateToggleDisplay isActiveIndicator;
 
+        [Header("Events")]
+        /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
+        public ModPageChanged onModPageChanged = null;
+
         // --- RUNTIME DATA ---
         private Comparison<ModProfile> m_sortDelegate = null;
         private string m_titleFilter = string.Empty;
 
         // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
-        public RequestPage<ModProfile> displayedMods
+        public ModProfilePage displayedMods
         {
-            get { return this.m_displayedMods; }
+            get { return this.m_displayedModPage; }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -64,7 +77,11 @@ namespace ModIO.UI
         public void Refresh()
         {
             // create null page
-            this.m_displayedMods = null;
+            this.m_displayedModPage = null;
+            if(this.onModPageChanged != null)
+            {
+                this.onModPageChanged.Invoke(this.m_displayedModPage);
+            }
 
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
@@ -130,13 +147,17 @@ namespace ModIO.UI
             this.DisplayProfiles(filteredList);
 
             // create request page
-            this.m_displayedMods = new RequestPage<ModProfile>()
+            this.m_displayedModPage = new ModProfilePage()
             {
                 size = filteredList.Count,
                 resultOffset = 0,
                 resultTotal = filteredList.Count,
                 items = filteredList.ToArray(),
             };
+            if(this.onModPageChanged != null)
+            {
+                this.onModPageChanged.Invoke(this.m_displayedModPage);
+            }
         }
 
         // ---------[ UI FUNCTIONALITY ]------------
