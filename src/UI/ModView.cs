@@ -119,6 +119,15 @@ namespace ModIO.UI
         }
 
         // ---------[ UI HELPER FUNCTIONS ]---------
+        /// <summary>Instructs the view manager to inspect the currently displayed mod.</summary>
+        public void InspectMod()
+        {
+            if(this.m_profile != null)
+            {
+                ViewManager.instance.InspectMod(this.m_profile.id);
+            }
+        }
+
         /// <summary>Attempts to subscribe to the currently displayed mod.</summary>
         public void AttemptSubscribe()
         {
@@ -152,6 +161,24 @@ namespace ModIO.UI
             if(this.m_profile != null)
             {
                 ModBrowser.instance.DisableMod(this.m_profile.id);
+            }
+        }
+
+        /// <summary>Attempts to add a positive rating the currently displayed mod.</summary>
+        public void AttemptRateModPositive()
+        {
+            if(this.m_profile != null)
+            {
+                ModBrowser.instance.AttemptRateMod(this.m_profile.id, ModRatingValue.Positive);
+            }
+        }
+
+        /// <summary>Attempts to add a negative rating the currently displayed mod.</summary>
+        public void AttemptRateModNegative()
+        {
+            if(this.m_profile != null)
+            {
+                ModBrowser.instance.AttemptRateMod(this.m_profile.id, ModRatingValue.Negative);
             }
         }
 
