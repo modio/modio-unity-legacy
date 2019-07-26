@@ -137,6 +137,24 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Attempts to enable the currently displayed mod.</summary>
+        public void AttemptEnableMod()
+        {
+            if(this.m_profile != null)
+            {
+                ModBrowser.instance.EnableMod(this.m_profile.id);
+            }
+        }
+
+        /// <summary>Attempts to disable the currently displayed mod.</summary>
+        public void AttemptDisableMod()
+        {
+            if(this.m_profile != null)
+            {
+                ModBrowser.instance.DisableMod(this.m_profile.id);
+            }
+        }
+
         // ---------[ EVENTS ]---------
         public void NotifyClicked()
         {
