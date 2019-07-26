@@ -25,15 +25,8 @@ namespace ModIO.UI
         public StateToggleDisplay isActiveIndicator;
 
         // --- RUNTIME DATA ---
-        private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
         private Comparison<ModProfile> m_sortDelegate = null;
         private string m_titleFilter = string.Empty;
-
-        // --- ACCESSORS ---
-        public IEnumerable<ModView> modViews
-        {
-            get { return m_viewMap.Values; }
-        }
 
         // ---------[ INITIALIZATION ]---------
         private void Start()
@@ -261,6 +254,12 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         [Obsolete][HideInInspector]
         public ScrollRect scrollView;
+
+        [Obsolete("No longer supported.")]
+        public IEnumerable<ModView> modViews
+        {
+            get { return null; }
+        }
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
