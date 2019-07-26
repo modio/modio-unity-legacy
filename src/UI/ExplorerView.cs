@@ -551,41 +551,6 @@ namespace ModIO.UI
 
         }
 
-        protected virtual void UpdateStatisticsDisplays(IEnumerable<ModStatistics> statsData)
-        {
-            if(statsData == null) { return; }
-
-            List<ModStatistics> statsList = new List<ModStatistics>(statsData);
-            foreach(ModView view in this.m_modViews)
-            {
-                if(view != null && view.profile != null)
-                {
-                    int modId = view.profile.id;
-                    ModStatistics stats = null;
-
-                    for(int i = 0;
-                        i < statsList.Count && stats == null;
-                        ++i)
-                    {
-                        stats = statsList[i];
-                        if(stats.modId == modId)
-                        {
-                            statsList.RemoveAt(i);
-                        }
-                        else
-                        {
-                            stats = null;
-                        }
-                    }
-
-                    if(stats != null)
-                    {
-                        view.statistics = stats;
-                    }
-                }
-            }
-        }
-
         private void UpdatePageNumberDisplay()
         {
             if(currentPage == null) { return; }
