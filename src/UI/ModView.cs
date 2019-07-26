@@ -18,14 +18,6 @@ namespace ModIO.UI
         public class StatisticsChangedEvent : UnityEngine.Events.UnityEvent<ModStatistics> {}
 
         // ---------[ FIELDS ]---------
-        public event Action<ModView> onClick;
-        public event Action<ModView> subscribeRequested;
-        public event Action<ModView> unsubscribeRequested;
-        public event Action<ModView> enableModRequested;
-        public event Action<ModView> disableModRequested;
-        public event Action<ModView> ratePositiveRequested;
-        public event Action<ModView> rateNegativeRequested;
-
         /// <summary>Currently displayed mod profile.</summary>
         [SerializeField]
         private ModProfile m_profile = null;
@@ -165,7 +157,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Attempts to add a positive rating the currently displayed mod.</summary>
-        public void AttemptRateModPositive()
+        public void AttemptRatePositive()
         {
             if(this.m_profile != null)
             {
@@ -174,7 +166,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Attempts to add a negative rating the currently displayed mod.</summary>
-        public void AttemptRateModNegative()
+        public void AttemptRateNegative()
         {
             if(this.m_profile != null)
             {
@@ -182,60 +174,22 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ EVENTS ]---------
-        public void NotifyClicked()
-        {
-            if(onClick != null)
-            {
-                onClick(this);
-            }
-        }
-
-        public void NotifySubscribeRequested()
-        {
-            if(subscribeRequested != null)
-            {
-                subscribeRequested(this);
-            }
-        }
-        public void NotifyUnsubscribeRequested()
-        {
-            if(unsubscribeRequested != null)
-            {
-                unsubscribeRequested(this);
-            }
-        }
-
-        public void NotifyEnableModRequested()
-        {
-            if(enableModRequested != null)
-            {
-                enableModRequested(this);
-            }
-        }
-        public void NotifyDisableModRequested()
-        {
-            if(disableModRequested != null)
-            {
-                disableModRequested(this);
-            }
-        }
-        public void NotifyRatePositiveRequested()
-        {
-            if(this.ratePositiveRequested != null)
-            {
-                this.ratePositiveRequested(this);
-            }
-        }
-        public void NotifyRateNegativeRequested()
-        {
-            if(this.rateNegativeRequested != null)
-            {
-                this.rateNegativeRequested(this);
-            }
-        }
-
         // ---------[ OBSOLETE ]---------
+        [Obsolete]
+        public event Action<ModView> onClick;
+        [Obsolete]
+        public event Action<ModView> subscribeRequested;
+        [Obsolete]
+        public event Action<ModView> unsubscribeRequested;
+        [Obsolete]
+        public event Action<ModView> enableModRequested;
+        [Obsolete]
+        public event Action<ModView> disableModRequested;
+        [Obsolete]
+        public event Action<ModView> ratePositiveRequested;
+        [Obsolete]
+        public event Action<ModView> rateNegativeRequested;
+
         [Obsolete("No longer necessary.")]
         public void Initialize() {}
 
@@ -317,5 +271,64 @@ namespace ModIO.UI
 
         [Obsolete("No longer supported. Use a ModBinaryDownloadDisplay component instead.")]
         public void DisplayDownload(FileDownloadInfo downloadInfo) { throw new System.NotImplementedException(); }
+
+        [Obsolete("Use InspectMod() instead.")]
+        public void NotifyClicked()
+        {
+            if(onClick != null)
+            {
+                onClick(this);
+            }
+        }
+
+        [Obsolete("Use AttemptSubscribe() instead.")]
+        public void NotifySubscribeRequested()
+        {
+            if(subscribeRequested != null)
+            {
+                subscribeRequested(this);
+            }
+        }
+        [Obsolete("Use AttemptUnsubscribe() instead.")]
+        public void NotifyUnsubscribeRequested()
+        {
+            if(unsubscribeRequested != null)
+            {
+                unsubscribeRequested(this);
+            }
+        }
+
+        [Obsolete("Use AttemptEnableMod() instead.")]
+        public void NotifyEnableModRequested()
+        {
+            if(enableModRequested != null)
+            {
+                enableModRequested(this);
+            }
+        }
+        [Obsolete("Use AttemptDisableMod() instead.")]
+        public void NotifyDisableModRequested()
+        {
+            if(disableModRequested != null)
+            {
+                disableModRequested(this);
+            }
+        }
+        [Obsolete("Use AttemptRatePositive() instead.")]
+        public void NotifyRatePositiveRequested()
+        {
+            if(this.ratePositiveRequested != null)
+            {
+                this.ratePositiveRequested(this);
+            }
+        }
+        [Obsolete("Use AttemptRateNegative() instead.")]
+        public void NotifyRateNegativeRequested()
+        {
+            if(this.rateNegativeRequested != null)
+            {
+                this.rateNegativeRequested(this);
+            }
+        }
     }
 }
