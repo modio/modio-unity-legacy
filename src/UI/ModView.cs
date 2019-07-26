@@ -86,7 +86,7 @@ namespace ModIO.UI
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Collects and sets view on IModViewElements.</summary>
-        protected virtual void Awake()
+        protected virtual void Start()
         {
             #if DEBUG
             ModView nested = this.gameObject.GetComponentInChildren<ModView>(true);
