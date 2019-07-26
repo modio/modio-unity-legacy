@@ -8,5 +8,11 @@ namespace ModIO.UI
         {
             this.gameObject.SetActive(o == null);
         }
+
+        /// <summary>Checks to see if an object is null.</summary>
+        public void ActiveOnlyIfNotNull(object o)
+        {
+            this.gameObject.SetActive(o != null);
+        }
     }
 }
