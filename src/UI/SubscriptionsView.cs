@@ -16,9 +16,6 @@ namespace ModIO.UI
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
 
-        [Header("Settings")]
-        public GameObject itemPrefab = null;
-
         [Header("UI Components")]
         public ScrollRect scrollView;
         public Text resultCount;
@@ -43,26 +40,6 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
-            Debug.Assert(itemPrefab != null);
-            Debug.Assert(scrollView != null);
-            Debug.Assert(scrollView.viewport != null && scrollView.content != null);
-
-            RectTransform prefabTransform = itemPrefab.GetComponent<RectTransform>();
-            ModView prefabView = itemPrefab.GetComponent<ModView>();
-
-            Debug.Assert(prefabTransform != null
-                         && prefabView != null,
-                         "[mod.io] The SubscriptionView.itemPrefab does not have the required "
-                         + "ModBrowserItem, ModView, and RectTransform components.\n"
-                         + "Please ensure these are all present.");
-
-            // init tag categories
-            var tagCategories = ModBrowser.instance.gameProfile.tagCategories;
-            if(tagCategories != null)
-            {
-                this.m_tagCategories = tagCategories;
-            }
-
             // get page
             this.DisplayProfiles(null);
             this.Refresh();
@@ -345,6 +322,9 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
+        [Obsolete("Use SubscriptionView.modContainer instead.")]
+        public GameObject itemPrefab = null;
+
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
 
