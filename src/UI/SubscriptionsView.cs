@@ -10,7 +10,7 @@ namespace ModIO.UI
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
     // to be displayed is low enough that it does not cause memory issues. Safeguards against this
     // will be made in a future update, but is currently not a priority.
-    public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
+    public class SubscriptionsView : MonoBehaviour, IModSubscriptionsUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         /// <summary>Container used to display mods.</summary>
@@ -26,7 +26,6 @@ namespace ModIO.UI
 
         // --- RUNTIME DATA ---
         private Dictionary<int, ModView> m_viewMap = new Dictionary<int, ModView>();
-        private ModTagCategory[] m_tagCategories = new ModTagCategory[0];
         private Comparison<ModProfile> m_sortDelegate = null;
         private string m_titleFilter = string.Empty;
 
@@ -244,73 +243,10 @@ namespace ModIO.UI
         public Comparison<ModProfile> GetSortDelegate() { return this.m_sortDelegate; }
 
         // ---------[ EVENTS ]---------
-        public void OnGameProfileUpdated(GameProfile gameProfile)
-        {
-            if(this.m_tagCategories != gameProfile.tagCategories)
-            {
-                this.m_tagCategories = gameProfile.tagCategories;
-
-                if(this.isActiveAndEnabled)
-                {
-                    this.Refresh();
-                }
-            }
-        }
-
         public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
                                               IList<int> removedSubscriptions)
         {
             this.Refresh();
-        }
-
-        public void OnModEnabled(int modId)
-        {
-            foreach(ModView view in this.modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    ModDisplayData data = view.data;
-                    data.isModEnabled = true;
-                    view.data = data;
-                }
-            }
-        }
-
-        public void OnModDisabled(int modId)
-        {
-            foreach(ModView view in this.modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    ModDisplayData data = view.data;
-                    data.isModEnabled = false;
-                    view.data = data;
-                }
-            }
-        }
-
-        public void OnModDownloadStarted(int modId, FileDownloadInfo downloadInfo)
-        {
-            foreach(ModView view in this.modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    view.DisplayDownload(downloadInfo);
-                }
-            }
-        }
-
-        public void OnModRatingAdded(int modId, ModRatingValue rating)
-        {
-            foreach(ModView view in this.modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    ModDisplayData data = view.data;
-                    data.userRating = rating;
-                    view.data = data;
-                }
-            }
         }
 
         // ---------[ UTILITY ]---------
