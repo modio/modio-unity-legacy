@@ -118,6 +118,25 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ UI HELPER FUNCTIONS ]---------
+        /// <summary>Attempts to subscribe to the currently displayed mod.</summary>
+        public void AttemptSubscribe()
+        {
+            if(this.m_profile != null)
+            {
+                ModBrowser.instance.SubscribeToMod(this.m_profile.id);
+            }
+        }
+
+        /// <summary>Attempts to unsubscribe from the currently displayed mod.</summary>
+        public void AttemptUnsubscribe()
+        {
+            if(this.m_profile != null)
+            {
+                ModBrowser.instance.UnsubscribeFromMod(this.m_profile.id);
+            }
+        }
+
         // ---------[ EVENTS ]---------
         public void NotifyClicked()
         {
