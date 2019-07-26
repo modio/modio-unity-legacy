@@ -16,6 +16,9 @@ namespace ModIO.UI
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
 
+        /// <summary>RequestPage being displayed.</summary>
+        public RequestPage<ModProfile> m_displayedMods = null;
+
         [Header("UI Components")]
         public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
@@ -27,6 +30,13 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private Comparison<ModProfile> m_sortDelegate = null;
         private string m_titleFilter = string.Empty;
+
+        // --- Accessors ---
+        /// <summary>RequestPage being displayed.</summary>
+        public RequestPage<ModProfile> displayedMods
+        {
+            get { return this.m_displayedMods; }
+        }
 
         // ---------[ INITIALIZATION ]---------
         private void Start()
@@ -53,6 +63,9 @@ namespace ModIO.UI
 
         public void Refresh()
         {
+            // create null page
+            this.m_displayedMods = null;
+
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
             ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
@@ -115,6 +128,15 @@ namespace ModIO.UI
             filteredList.Sort(requestedSortDelegate);
 
             this.DisplayProfiles(filteredList);
+
+            // create request page
+            this.m_displayedMods = new RequestPage<ModProfile>()
+            {
+                size = filteredList.Count,
+                resultOffset = 0,
+                resultTotal = filteredList.Count,
+                items = filteredList.ToArray(),
+            };
         }
 
         // ---------[ UI FUNCTIONALITY ]------------
