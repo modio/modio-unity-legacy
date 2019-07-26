@@ -52,8 +52,36 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        private void Start()
+        /// <summary>Collects and sets view on ISubscriptionsViewElements.</summary>
+        protected virtual void Start()
         {
+            #if UNITY_EDITOR
+            SubscriptionsView[] nested = this.gameObject.GetComponentsInChildren<SubscriptionsView>(true);
+            if(nested.Length > 1)
+            {
+                SubscriptionsView nestedView = nested[1];
+                if(nestedView == this)
+                {
+                    nestedView = nested[0];
+                }
+
+                Debug.LogError("[mod.io] Nesting SubscriptionsViews is currently not supported due to the"
+                               + " way ISubscriptionsViewElement component parenting works."
+                               + "\nThe nested SubscriptionsViews must be removed to allow SubscriptionsView functionality."
+                               + "\nthis=" + this.gameObject.name
+                               + "\nnested=" + nestedView.gameObject.name,
+                               this);
+                return;
+            }
+            #endif
+
+            // assign view elements to this
+            var viewElementChildren = this.gameObject.GetComponentsInChildren<ISubscriptionsViewElement>(true);
+            foreach(ISubscriptionsViewElement viewElement in viewElementChildren)
+            {
+                viewElement.SetSubscriptionsView(this);
+            }
+
             // get page
             this.DisplayProfiles(null);
             this.Refresh();
