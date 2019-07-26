@@ -26,10 +26,9 @@ namespace ModIO.UI
         public ModContainer modContainer = null;
 
         /// <summary>RequestPage being displayed.</summary>
-        public ModProfilePage m_displayedModPage = null;
+        private ModProfilePage m_displayedModPage = null;
 
         [Header("UI Components")]
-        public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noSubscriptionsDisplay;
         [Tooltip("Object to display when there are zero filtered results")]
@@ -325,6 +324,9 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         [Obsolete][HideInInspector]
         public ScrollRect scrollView;
+
+        [Obsolete("Use ResultCountDisplay instead.")][HideInInspector]
+        public Text resultCount;
 
         [Obsolete("No longer supported.")]
         public IEnumerable<ModView> modViews
