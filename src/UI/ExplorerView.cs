@@ -15,9 +15,17 @@ namespace ModIO.UI
 
     public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
+        [Serializable]
+        public class ModPageChanged : UnityEngine.Events.UnityEvent<RequestPage<ModProfile>> {}
+
         // ---------[ FIELDS ]---------
         /// <summary>Container used to display mods.</summary>
         public ModContainer containerTemplate = null;
+
+        /// <summary>RequestPage being displayed.</summary>
+        private RequestPage<ModProfile> m_displayedModPage = null;
 
         public event Action<string[]> onTagFilterUpdated;
 
@@ -37,7 +45,7 @@ namespace ModIO.UI
         public StateToggleDisplay isActiveIndicator;
 
         [Header("Display Data")]
-        public RequestPage<ModProfile> currentPage = null;
+        private RequestPage<ModProfile> m_currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
 
         [Header("Request Data")]
@@ -61,7 +69,35 @@ namespace ModIO.UI
         private ModContainer m_currentPageContainer = null;
         private ModContainer m_targetPageContainer = null;
 
+        [Header("Events")]
+        /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
+        public ModPageChanged onModPageChanged = null;
+
         // --- ACCESSORS ---
+        /// <summary>RequestPage being displayed.</summary>
+        public RequestPage<ModProfile> displayedMods
+        {
+            get { return this.m_displayedModPage; }
+        }
+
+        // TEMP
+        public RequestPage<ModProfile> currentPage
+        {
+            get { return this.m_currentPage; }
+            set
+            {
+                if(this.m_currentPage != value)
+                {
+                    this.m_currentPage = value;
+
+                    if(this.onModPageChanged != null)
+                    {
+                        this.onModPageChanged.Invoke(this.m_currentPage);
+                    }
+                }
+            }
+        }
+
         public IEnumerable<ModView> modViews
         {
             get
