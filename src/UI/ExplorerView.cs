@@ -37,7 +37,6 @@ namespace ModIO.UI
         public StateToggleDisplay isActiveIndicator;
 
         [Header("Display Data")]
-        public GridLayoutGroup gridLayout = null;
         public RequestPage<ModProfile> currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
 
@@ -63,15 +62,6 @@ namespace ModIO.UI
         private ModContainer m_targetPageContainer = null;
 
         // --- ACCESSORS ---
-        public int itemsPerPage
-        {
-            get
-            {
-                if(this.gridLayout == null) { return 0; }
-
-                return UIUtilities.CountVisibleGridCells(this.gridLayout);
-            }
-        }
         public IEnumerable<ModView> modViews
         {
             get
@@ -463,7 +453,7 @@ namespace ModIO.UI
             this.DisplayProfiles(this.targetPage.items, this.m_targetPageContainer);
         }
 
-        private void DisplayProfiles(IList<ModProfile> profileCollection, ModContainer modContainer)
+        protected virtual void DisplayProfiles(IList<ModProfile> profileCollection, ModContainer modContainer)
         {
             Debug.Assert(modContainer != null);
 
@@ -746,6 +736,17 @@ namespace ModIO.UI
         public RectTransform currentPageContainer;
         [Obsolete("No longer supported.")][HideInInspector]
         public RectTransform transitionPageContainer;
+        [Obsolete("No longer supported.")][HideInInspector]
+        public GridLayoutGroup gridLayout;
+
+        [Obsolete]
+        public int itemsPerPage
+        {
+            get
+            {
+                return this.containerTemplate.itemLimit;
+            }
+        }
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
