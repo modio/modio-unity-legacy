@@ -13,6 +13,9 @@ namespace ModIO.UI
     public class SubscriptionsView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
     {
         // ---------[ FIELDS ]---------
+        /// <summary>Container used to display mods.</summary>
+        public ModContainer modContainer = null;
+
         [Header("Settings")]
         public GameObject itemPrefab = null;
 
@@ -147,80 +150,33 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]------------
-        public void DisplayProfiles(IEnumerable<ModProfile> profileCollection)
+        /// <summary>Displays the profiles in the mod container.</summary>
+        protected virtual void DisplayProfiles(IList<ModProfile> profiles)
         {
-            #if DEBUG
-            if(!Application.isPlaying) { return; }
-            #endif
+            Debug.Assert(this.modContainer != null);
 
-            // sort lists
-            List<ModProfile> orderedProfileList = new List<ModProfile>();
-            List<int> removedProfiles = new List<int>(m_viewMap.Keys);
-
-            if(profileCollection != null)
+            if(profiles == null)
             {
-                foreach(ModProfile profile in profileCollection)
-                {
-                    if(profile != null)
-                    {
-                        orderedProfileList.Add(profile);
-                        removedProfiles.Remove(profile.id);
-                    }
-                }
+                profiles = new ModProfile[0];
             }
 
-            // ensure there are enough game objects
-            int excessProfileCount = orderedProfileList.Count - m_viewMap.Count;
-            for(int i = 0; i < excessProfileCount; ++i)
+            // init vars
+            int displayCount = profiles.Count;
+            ModProfile[] displayProfiles = new ModProfile[displayCount];
+            ModStatistics[] displayStats = new ModStatistics[displayCount];
+            List<int> missingStatsData = new List<int>(displayCount);
+
+            // build arrays
+            for(int i = 0;
+                i < displayCount;
+                ++i)
             {
-                // create GameObject
-                GameObject viewGO = GameObject.Instantiate(itemPrefab,
-                                                           new Vector3(),
-                                                           Quaternion.identity,
-                                                           scrollView.content);
-                ModView view = viewGO.GetComponent<ModView>();
+                ModProfile profile = profiles[i];
+                ModStatistics stats = null;
 
-                // add listeners
-                view.onClick +=                 (v) => ViewManager.instance.InspectMod(v.data.profile.modId);
-                view.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(v.data.profile.modId);
-                view.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(v.data.profile.modId);
-                view.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(v.data.profile.modId);
-                view.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(v.data.profile.modId);
-                view.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Positive);
-                view.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(v.data.profile.modId, ModRatingValue.Negative);
-
-                // register in map
-                int fakeModId = -i - 1;
-                m_viewMap.Add(fakeModId, view);
-                removedProfiles.Add(fakeModId);
-            }
-
-            // order the game objects and display new mods
-            var enabledMods = ModManager.GetEnabledModIds();
-            List<int> missingStatsData = new List<int>();
-            for(int i = 0; i < orderedProfileList.Count; ++i)
-            {
-                ModProfile profile = orderedProfileList[i];
-                ModView view;
-                if(!m_viewMap.TryGetValue(profile.id, out view))
+                if(profile != null)
                 {
-                    // collect unused view
-                    int oldModId = removedProfiles[0];
-                    removedProfiles.RemoveAt(0);
-
-                    view = m_viewMap[oldModId];
-
-                    m_viewMap.Remove(oldModId);
-                    m_viewMap.Add(profile.id, view);
-
-                    // display mod
-                    ModStatistics stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
-                    view.DisplayMod(orderedProfileList[i],
-                                    stats,
-                                    this.m_tagCategories,
-                                    true, // assume subscribed
-                                    enabledMods.Contains(profile.id),
-                                    ModBrowser.instance.GetModRating(profile.id));
+                    stats = ModStatisticsRequestManager.instance.TryGetValid(profile.id);
 
                     if(stats == null)
                     {
@@ -228,80 +184,57 @@ namespace ModIO.UI
                     }
                 }
 
-                view.transform.SetSiblingIndex(i);
+                displayProfiles[i] = profile;
+                displayStats[i] = stats;
             }
 
-            // remove unused profiles
-            foreach(int removedId in removedProfiles)
-            {
-                GameObject.Destroy(m_viewMap[removedId].gameObject);
-                m_viewMap.Remove(removedId);
-            }
+            // display
+            this.modContainer.DisplayMods(displayProfiles, displayStats);
 
-            // result count
-            if(resultCount != null)
-            {
-                resultCount.text = m_viewMap.Count.ToString();
-            }
-
-            // no results
-            int subCountTotal = ModManager.GetSubscribedModIds().Count;
-
-            if(noSubscriptionsDisplay != null)
-            {
-                noSubscriptionsDisplay.SetActive(subCountTotal == 0);
-            }
-
-            if(noResultsDisplay != null)
-            {
-                noResultsDisplay.SetActive(subCountTotal > 0
-                                           && m_viewMap.Count == 0);
-            }
-
+            // fetch missing stats
             if(missingStatsData.Count > 0)
             {
                 ModStatisticsRequestManager.instance.RequestModStatistics(missingStatsData,
                 (statsArray) =>
                 {
-                    if(this != null)
+                    if(this != null
+                       && this.modContainer != null)
                     {
-                        UpdateStatisticsDisplays(statsArray);
-                    }
-
-                    IList<int> subbedIds = ModManager.GetSubscribedModIds();
-                    foreach(ModStatistics stats in statsArray)
-                    {
-                        if(subbedIds.Contains(stats.modId))
+                        // verify still valid
+                        bool doPushStats = (displayProfiles.Length == this.modContainer.modProfiles.Length);
+                        for(int i = 0;
+                            doPushStats && i < displayProfiles.Length;
+                            ++i)
                         {
-                            CacheClient.SaveModStatistics(stats);
+                            // check profiles match
+                            ModProfile profile = displayProfiles[i];
+                            doPushStats = (profile == this.modContainer.modProfiles[i]);
+
+                            if(doPushStats
+                               && profile != null
+                               && displayStats[i] == null)
+                            {
+                                // get missing stats
+                                foreach(ModStatistics stats in statsArray)
+                                {
+                                    if(stats != null
+                                       && stats.modId == profile.id)
+                                    {
+                                        displayStats[i] = stats;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // push display data
+                        if(doPushStats)
+                        {
+                            this.modContainer.DisplayMods(displayProfiles, displayStats);
                         }
                     }
                 },
-                // TODO(@jackson): something
-                null);
-            }
-
-            // fix layouting
-            if(this.isActiveAndEnabled)
-            {
-                LayoutRebuilder.MarkLayoutForRebuild(scrollView.GetComponent<RectTransform>());
-            }
-        }
-
-        protected virtual void UpdateStatisticsDisplays(IEnumerable<ModStatistics> statsData)
-        {
-            if(statsData == null) { return; }
-
-            foreach(ModStatistics stats in statsData)
-            {
-                ModView view = null;
-                if(this.m_viewMap.TryGetValue(stats.modId, out view)
-                   && view != null)
-                {
-                    ModDisplayData data = view.data;
-                    data.statistics = ModStatisticsDisplayData.CreateFromStatistics(stats);
-                    view.data = data;
-                }
+                WebRequestError.LogAsWarning);
             }
         }
 
