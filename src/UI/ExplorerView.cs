@@ -13,7 +13,7 @@ namespace ModIO.UI
         FromRight,
     }
 
-    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver, IModDownloadStartedReceiver, IModEnabledReceiver, IModDisabledReceiver, IModSubscriptionsUpdateReceiver, IModRatingAddedReceiver
+    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         /// <summary>Container used to display mods.</summary>
@@ -655,74 +655,6 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
-            }
-        }
-
-        public void OnModSubscriptionsUpdated(IList<int> addedSubscriptions,
-                                              IList<int> removedSubscriptions)
-        {
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
-
-            foreach(ModView view in m_modViews)
-            {
-                ModDisplayData modData = view.data;
-                bool isSubscribed = subscribedModIds.Contains(modData.profile.modId);
-
-                if(modData.isSubscribed != isSubscribed)
-                {
-                    modData.isSubscribed = isSubscribed;
-                    view.data = modData;
-                }
-            }
-        }
-
-        public void OnModEnabled(int modId)
-        {
-            foreach(ModView view in this.m_modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    ModDisplayData data = view.data;
-                    data.isModEnabled = true;
-                    view.data = data;
-                }
-            }
-        }
-
-        public void OnModDisabled(int modId)
-        {
-            foreach(ModView view in this.m_modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    ModDisplayData data = view.data;
-                    data.isModEnabled = false;
-                    view.data = data;
-                }
-            }
-        }
-
-        public void OnModDownloadStarted(int modId, FileDownloadInfo downloadInfo)
-        {
-            foreach(ModView view in this.m_modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    view.DisplayDownload(downloadInfo);
-                }
-            }
-        }
-
-        public void OnModRatingAdded(int modId, ModRatingValue rating)
-        {
-            foreach(ModView view in this.modViews)
-            {
-                if(view.data.profile.modId == modId)
-                {
-                    ModDisplayData data = view.data;
-                    data.userRating = rating;
-                    view.data = data;
-                }
             }
         }
 
