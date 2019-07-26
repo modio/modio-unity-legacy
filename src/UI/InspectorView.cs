@@ -70,28 +70,6 @@ namespace ModIO.UI
             get { return this.gameObject.GetComponent<ModView>(); }
         }
 
-        // ---------[ INITIALIZATION ]---------
-        protected virtual void Start()
-        {
-            Func<ModView, int> getModId = (v) =>
-            {
-                if(v != null
-                   && v.profile != null)
-                {
-                    return v.profile.id;
-                }
-                return ModProfile.NULL_ID;
-            };
-
-            // add listeners
-            modView.subscribeRequested +=      (v) => ModBrowser.instance.SubscribeToMod(getModId(v));
-            modView.unsubscribeRequested +=    (v) => ModBrowser.instance.UnsubscribeFromMod(getModId(v));
-            modView.enableModRequested +=      (v) => ModBrowser.instance.EnableMod(getModId(v));
-            modView.disableModRequested +=     (v) => ModBrowser.instance.DisableMod(getModId(v));
-            modView.ratePositiveRequested +=   (v) => ModBrowser.instance.AttemptRateMod(getModId(v), ModRatingValue.Positive);
-            modView.rateNegativeRequested +=   (v) => ModBrowser.instance.AttemptRateMod(getModId(v), ModRatingValue.Negative);
-        }
-
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use InspectorView.highlightedImage instead.")][HideInInspector]
         public ImageDisplay selectedMediaPreview;
