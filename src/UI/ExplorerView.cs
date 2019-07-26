@@ -114,12 +114,39 @@ namespace ModIO.UI
                          + " Game Object. Please create a separate Game Object for the container template.");
         }
 
+        /// <summary>Collects view elements and intializes template.</summary>
         protected virtual void Start()
         {
-            // initialize
+            #if UNITY_EDITOR
+            ExplorerView[] nested = this.gameObject.GetComponentsInChildren<ExplorerView>(true);
+            if(nested.Length > 1)
+            {
+                ExplorerView nestedView = nested[1];
+                if(nestedView == this)
+                {
+                    nestedView = nested[0];
+                }
+
+                Debug.LogError("[mod.io] Nesting ExplorerViews is currently not supported due to the"
+                               + " way IExplorerViewElement component parenting works."
+                               + "\nThe nested ExplorerViews must be removed to allow ExplorerView functionality."
+                               + "\nthis=" + this.gameObject.name
+                               + "\nnested=" + nestedView.gameObject.name,
+                               this);
+                return;
+            }
+            #endif
+
+            // assign view elements to this
+            var viewElementChildren = this.gameObject.GetComponentsInChildren<IExplorerViewElement>(true);
+            foreach(IExplorerViewElement viewElement in viewElementChildren)
+            {
+                viewElement.SetExplorerView(this);
+            }
+
+            // -- initialize template ---
             this.containerTemplate.gameObject.SetActive(false);
 
-            // -- copy template --
             GameObject templateCopyGO;
 
             // current page
