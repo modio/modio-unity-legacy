@@ -17,7 +17,6 @@ namespace ModIO.UI
         public ModContainer modContainer = null;
 
         [Header("UI Components")]
-        public ScrollRect scrollView;
         public Text resultCount;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noSubscriptionsDisplay;
@@ -322,8 +321,10 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        [Obsolete("Use SubscriptionView.modContainer instead.")]
+        [Obsolete("Use SubscriptionView.modContainer instead.")][HideInInspector]
         public GameObject itemPrefab = null;
+        [Obsolete][HideInInspector]
+        public ScrollRect scrollView;
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
