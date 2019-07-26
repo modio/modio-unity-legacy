@@ -106,13 +106,16 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        /// <summary>Initialize templates.</summary>
+        /// <summary>Asserts.</summary>
         protected virtual void Awake()
         {
             Debug.Assert(this.gameObject != this.containerTemplate.gameObject,
                          "[mod.io] The Explorer View and its Container Template cannot be the same"
                          + " Game Object. Please create a separate Game Object for the container template.");
+        }
 
+        protected virtual void Start()
+        {
             // initialize
             this.containerTemplate.gameObject.SetActive(false);
 
@@ -135,10 +138,7 @@ namespace ModIO.UI
             templateCopyGO.SetActive(false);
             templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 2);
             this.m_targetPageContainer = templateCopyGO.GetComponent<ModContainer>();
-        }
 
-        private void Start()
-        {
             // - create pages -
             this.UpdateCurrentPageDisplay();
             this.UpdatePageButtonInteractibility();
@@ -538,7 +538,6 @@ namespace ModIO.UI
                 },
                 WebRequestError.LogAsWarning);
             }
-
         }
 
         private void UpdatePageNumberDisplay()
