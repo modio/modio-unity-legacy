@@ -142,15 +142,37 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        /// <summary>Asserts.</summary>
+        /// <summary>Asserts values and initializes templates.</summary>
         protected virtual void Awake()
         {
             Debug.Assert(this.gameObject != this.containerTemplate.gameObject,
                          "[mod.io] The Explorer View and its Container Template cannot be the same"
                          + " Game Object. Please create a separate Game Object for the container template.");
+
+            // -- initialize template ---
+            this.containerTemplate.gameObject.SetActive(false);
+
+            GameObject templateCopyGO;
+
+            // current page
+            templateCopyGO = GameObject.Instantiate(this.containerTemplate.gameObject,
+                                                    this.containerTemplate.transform.parent);
+            templateCopyGO.name = "Mod Page A";
+            // TODO(@jackson): Change this...
+            templateCopyGO.SetActive(true);
+            templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 1);
+            this.m_currentPageContainer = templateCopyGO.GetComponent<ModContainer>();
+
+            // transition page
+            templateCopyGO = GameObject.Instantiate(this.containerTemplate.gameObject,
+                                                    this.containerTemplate.transform.parent);
+            templateCopyGO.name = "Mod Page B";
+            templateCopyGO.SetActive(false);
+            templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 2);
+            this.m_targetPageContainer = templateCopyGO.GetComponent<ModContainer>();
         }
 
-        /// <summary>Collects view elements and intializes template.</summary>
+        /// <summary>Collects view elements.</summary>
         protected virtual void Start()
         {
             #if UNITY_EDITOR
@@ -179,28 +201,6 @@ namespace ModIO.UI
             {
                 viewElement.SetExplorerView(this);
             }
-
-            // -- initialize template ---
-            this.containerTemplate.gameObject.SetActive(false);
-
-            GameObject templateCopyGO;
-
-            // current page
-            templateCopyGO = GameObject.Instantiate(this.containerTemplate.gameObject,
-                                                    this.containerTemplate.transform.parent);
-            templateCopyGO.name = "Mod Page A";
-            // TODO(@jackson): Change this...
-            templateCopyGO.SetActive(true);
-            templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 1);
-            this.m_currentPageContainer = templateCopyGO.GetComponent<ModContainer>();
-
-            // transition page
-            templateCopyGO = GameObject.Instantiate(this.containerTemplate.gameObject,
-                                                    this.containerTemplate.transform.parent);
-            templateCopyGO.name = "Mod Page B";
-            templateCopyGO.SetActive(false);
-            templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 2);
-            this.m_targetPageContainer = templateCopyGO.GetComponent<ModContainer>();
 
             // - create pages -
             this.UpdateCurrentPageDisplay();
