@@ -20,18 +20,35 @@ namespace ModIO.UI
         [Serializable]
         public class ModPageChanged : UnityEngine.Events.UnityEvent<RequestPage<ModProfile>> {}
 
+        /// <summary>Sort method data.</summary>
+        [Serializable]
+        public struct SortMethod
+        {
+            public bool ascending;
+            public string fieldName;
+        }
+
         // ---------[ FIELDS ]---------
         /// <summary>Container used to display mods.</summary>
         public ModContainer containerTemplate = null;
 
+        /// <summary>Default sort method.</summary>
+        public SortMethod defaultSortMethod = new SortMethod()
+        {
+            ascending = false,
+            fieldName = API.GetAllModsFilterFields.dateLive,
+        };
+
         /// <summary>RequestPage being displayed.</summary>
         private RequestPage<ModProfile> m_displayedModPage = null;
+
+        /// <summary>Currently applied RequestFilter.</summary>
+        private RequestFilter m_requestFilter = new RequestFilter();
 
         public event Action<string[]> onTagFilterUpdated;
 
         [Header("Settings")]
         public float pageTransitionTimeSeconds = 0.4f;
-        public string defaultSortString = "-" + API.GetAllModsFilterFields.dateLive;
 
         [Header("UI Components")]
         public RectTransform contentPane;
@@ -52,9 +69,6 @@ namespace ModIO.UI
         /// <summary>String to use for filtering the mod request.</summary>
         [SerializeField]
         private string m_titleFilter = string.Empty;
-        /// <summary>String to use for sorting the mod request.</summary>
-        [SerializeField]
-        private string m_sortString = string.Empty;
         /// <summary>Tags to filter by.</summary>
         [SerializeField]
         private List<string> m_tagFilter = new List<string>();
@@ -397,20 +411,36 @@ namespace ModIO.UI
         /// <summary>Gets the title filter string.</summary>
         public string GetTitleFilter() { return this.m_titleFilter; }
 
-        /// <summary>Sets the sort method for the view and refreshes.</summary>
-        public void SetSortString(string sortString)
+        /// <summary>Sets the sort method and refreshes the view.</summary>
+        public void SetSortMethod(SortMethod sortMethod)
         {
-            if(sortString == null) { sortString = string.Empty; }
-
-            if(this.m_sortString.ToUpper() != sortString.ToUpper())
+            // null-checks
+            if(sortMethod.fieldName == null)
             {
-                this.m_sortString = sortString;
-                Refresh();
+                sortMethod.fieldName = string.Empty;
+            }
+
+            // apply filter
+            if(this.m_requestFilter.sortFieldName.ToUpper() != sortMethod.fieldName.ToUpper()
+               || this.m_requestFilter.isSortAscending != sortMethod.ascending)
+            {
+                this.m_requestFilter.sortFieldName = sortMethod.fieldName;
+                this.m_requestFilter.isSortAscending = sortMethod.ascending;
+
+                // refresh
+                if(this.isActiveAndEnabled) { this.Refresh(); }
             }
         }
 
-        /// <summary>Gets the sort string.</summary>
-        public string GetSortString() { return this.m_sortString; }
+        /// <summary>Gets the sort method.</summary>
+        public SortMethod GetSortMethod()
+        {
+            return new SortMethod()
+            {
+                ascending = this.m_requestFilter.isSortAscending,
+                fieldName = this.m_requestFilter.sortFieldName,
+            };
+        }
 
         /// <summary>Sets the tag filter and refreshes the results.</summary>
         public void SetTagFilter(IList<string> tagFilter)
@@ -725,6 +755,8 @@ namespace ModIO.UI
         public RectTransform pageTemplate = null;
         [Obsolete("Use ExplorerView.containerTemplate instead.")][HideInInspector]
         public GameObject itemPrefab = null;
+        [Obsolete("Use ExplorerView.defaultSortMethod instead.")][HideInInspector]
+        public string defaultSortString = string.Empty;
 
         [Obsolete("No longer supported.")][HideInInspector]
         public RectTransform currentPageContainer;
@@ -798,6 +830,43 @@ namespace ModIO.UI
             {
                 disableModRequested(view);
             }
+        }
+
+        [Obsolete("Use ExplorerView.SetSortMethod() instead.")]
+        public void SetSortString(string sortString)
+        {
+            if(sortString == null) { sortString = string.Empty; }
+
+            bool ascending = !sortString.StartsWith("-");
+            string fieldName = sortString;
+            if(ascending)
+            {
+                if(sortString.Length > 1)
+                {
+                    fieldName = sortString.Substring(1);
+                }
+                else
+                {
+                    fieldName = string.Empty;
+                }
+            }
+
+            SortMethod sortMethod = new SortMethod()
+            {
+                ascending = ascending,
+                fieldName = fieldName,
+            };
+
+            this.SetSortMethod(sortMethod);
+        }
+
+        [Obsolete("Use ExplorerView.GetSortMethod() instead.")]
+        public string GetSortString()
+        {
+            string sortString = (this.m_requestFilter.isSortAscending ? "" : "-")
+                + this.m_requestFilter.sortFieldName;
+
+            return sortString;
         }
     }
 }
