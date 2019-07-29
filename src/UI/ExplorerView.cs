@@ -966,10 +966,15 @@ namespace ModIO.UI
         {
             if(sortString == null) { sortString = string.Empty; }
 
-            bool ascending = !sortString.StartsWith("-");
+            // set vars
             string fieldName = sortString;
-            if(!ascending)
+            bool ascending = true;
+
+            // check for descending
+            if(sortString.StartsWith("-"))
             {
+                ascending = false;
+
                 if(sortString.Length > 1)
                 {
                     fieldName = sortString.Substring(1);
@@ -980,6 +985,7 @@ namespace ModIO.UI
                 }
             }
 
+            // create struct
             SortMethod sortMethod = new SortMethod()
             {
                 ascending = ascending,
