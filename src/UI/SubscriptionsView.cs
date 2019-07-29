@@ -13,20 +13,20 @@ namespace ModIO.UI
     public class SubscriptionsView : MonoBehaviour, IModSubscriptionsUpdateReceiver
     {
         // ---------[ NESTED DATA-TYPES ]---------
-        /// <summary>Unity-serializable class to use with the event.</summary>
-        [Serializable]
-        public class ModProfilePage : RequestPage<ModProfile> {}
-
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         [Serializable]
-        public class ModPageChanged : UnityEngine.Events.UnityEvent<ModProfilePage> {}
+        public class ModPageChanged : UnityEngine.Events.UnityEvent<RequestPage<ModProfile>> {}
+
+        /// <summary>Event for notifying listeners of a change to title filter.</summary>
+        [Serializable]
+        public class FilterChanged : UnityEngine.Events.UnityEvent<string> {}
 
         // ---------[ FIELDS ]---------
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
 
         /// <summary>RequestPage being displayed.</summary>
-        private ModProfilePage m_displayedModPage = null;
+        private RequestPage<ModProfile> m_displayedModPage = null;
 
         [Header("UI Components")]
         [Tooltip("Object to display when there are no subscribed mods")]
@@ -38,6 +38,8 @@ namespace ModIO.UI
         [Header("Events")]
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         public ModPageChanged onModPageChanged = null;
+        /// <summary>Event for notifying listeners of a change to title filter.</summary>
+        public FilterChanged onTitleFilterChanged = null;
 
         // --- RUNTIME DATA ---
         private Comparison<ModProfile> m_sortDelegate = null;
@@ -45,9 +47,15 @@ namespace ModIO.UI
 
         // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
-        public ModProfilePage displayedMods
+        public RequestPage<ModProfile> displayedMods
         {
             get { return this.m_displayedModPage; }
+        }
+
+        /// <summary>Title filter currently applied to the SubscriptionsView.</summary>
+        public string titleFilter
+        {
+            get { return this.m_titleFilter; }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -174,7 +182,7 @@ namespace ModIO.UI
             this.DisplayProfiles(filteredList);
 
             // create request page
-            this.m_displayedModPage = new ModProfilePage()
+            this.m_displayedModPage = new RequestPage<ModProfile>()
             {
                 size = filteredList.Count,
                 resultOffset = 0,
@@ -286,6 +294,11 @@ namespace ModIO.UI
             {
                 this.m_titleFilter = titleFilter;
                 Refresh();
+
+                if(this.onTitleFilterChanged != null)
+                {
+                    this.onTitleFilterChanged.Invoke(this.m_titleFilter);
+                }
             }
         }
 
