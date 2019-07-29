@@ -45,6 +45,68 @@ namespace ModIO.UI
         /// <summary>Currently applied RequestFilter.</summary>
         private RequestFilter m_requestFilter = new RequestFilter();
 
+        [Header("Events")]
+        /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
+        public ModPageChanged onModPageChanged = null;
+
+        // --- ACCESSORS ---
+        /// <summary>RequestPage being displayed.</summary>
+        public RequestPage<ModProfile> displayedMods
+        {
+            get { return this.m_displayedModPage; }
+        }
+
+        /// <summary>Currently applied RequestFilter.</summary>
+        public RequestFilter requestFilter
+        {
+            get { return this.m_requestFilter; }
+        }
+
+        /// <summary>Filter currently applied to the titleField.</summary>
+        protected StringLikeFilter titleLikeFieldFilter
+        {
+            get
+            {
+                IRequestFieldFilter filter = null;
+                this.m_requestFilter.fieldFilters.TryGetValue(ModIO.API.GetAllModsFilterFields.name, out filter);
+                return filter as StringLikeFilter;
+            }
+            set
+            {
+                if(value == null)
+                {
+                    this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
+                }
+                else
+                {
+                    this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name] = value;
+                }
+            }
+        }
+
+        /// <summary>Filter currently applied to the tags field.</summary>
+        protected MatchesArrayFilter<string> tagMatchFieldFilter
+        {
+            get
+            {
+                IRequestFieldFilter filter = null;
+                this.m_requestFilter.fieldFilters.TryGetValue(ModIO.API.GetAllModsFilterFields.tags, out filter);
+                return filter as MatchesArrayFilter<string>;
+            }
+            set
+            {
+                if(value == null)
+                {
+                    this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
+                }
+                else
+                {
+                    this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags] = value;
+                }
+            }
+        }
+
+        // ---------[ OLD ]---------
         public event Action<string[]> onTagFilterUpdated;
 
         [Header("Settings")]
@@ -65,14 +127,6 @@ namespace ModIO.UI
         private RequestPage<ModProfile> m_currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
 
-        [Header("Request Data")]
-        /// <summary>String to use for filtering the mod request.</summary>
-        [SerializeField]
-        private string m_titleFilter = string.Empty;
-        /// <summary>Tags to filter by.</summary>
-        [SerializeField]
-        private List<string> m_tagFilter = new List<string>();
-
         [Header("Runtime Data")]
         public bool isTransitioning = false;
 
@@ -82,17 +136,6 @@ namespace ModIO.UI
 
         private ModContainer m_currentPageContainer = null;
         private ModContainer m_targetPageContainer = null;
-
-        [Header("Events")]
-        /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
-        public ModPageChanged onModPageChanged = null;
-
-        // --- ACCESSORS ---
-        /// <summary>RequestPage being displayed.</summary>
-        public RequestPage<ModProfile> displayedMods
-        {
-            get { return this.m_displayedModPage; }
-        }
 
         // TEMP
         public RequestPage<ModProfile> currentPage
@@ -111,6 +154,7 @@ namespace ModIO.UI
                 }
             }
         }
+
 
         public IEnumerable<ModView> modViews
         {
@@ -247,9 +291,11 @@ namespace ModIO.UI
         public void Refresh()
         {
             int pageIndex = 0;
-
-            RequestFilter filter = this.GenerateRequestFilter();
-            int pageSize = this.itemsPerPage;
+            int pageSize = this.m_currentPageContainer.itemLimit;
+            if(pageSize < 0)
+            {
+                pageSize = APIPaginationParameters.LIMIT_MAX;
+            }
             int pageOffset = pageIndex * pageSize;
             bool wasDisplayUpdated = false;
 
@@ -262,7 +308,7 @@ namespace ModIO.UI
             };
             this.currentPage = filteredPage;
 
-            ModProfileRequestManager.instance.FetchModProfilePage(filter, pageOffset, pageSize,
+            ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, pageOffset, pageSize,
             (page) =>
             {
                 if(this != null
@@ -281,47 +327,6 @@ namespace ModIO.UI
             {
                 this.UpdateCurrentPageDisplay();
             }
-        }
-
-        public RequestFilter GenerateRequestFilter()
-        {
-            RequestFilter filter = new RequestFilter();
-
-            // sort
-            if(string.IsNullOrEmpty(this.m_sortString))
-            {
-                filter.sortFieldName = this.defaultSortString;
-            }
-            else
-            {
-                filter.sortFieldName = this.m_sortString;
-            }
-
-            // title
-            if(String.IsNullOrEmpty(this.m_titleFilter))
-            {
-                filter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
-            }
-            else
-            {
-                filter.fieldFilters[ModIO.API.GetAllModsFilterFields.name]
-                    = new StringLikeFilter() { likeValue = "*"+this.m_titleFilter+"*" };
-            }
-
-            // tags
-            string[] filterTagNames = this.m_tagFilter.ToArray();
-
-            if(filterTagNames.Length == 0)
-            {
-                filter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
-            }
-            else
-            {
-                filter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags]
-                    = new MatchesArrayFilter<string>() { filterArray = filterTagNames };
-            }
-
-            return filter;
         }
 
         public void UpdatePageButtonInteractibility()
@@ -347,7 +352,12 @@ namespace ModIO.UI
                 return;
             }
 
-            int pageSize = this.itemsPerPage;
+            int pageSize = this.m_currentPageContainer.itemLimit;
+            if(pageSize < 0)
+            {
+                pageSize = APIPaginationParameters.LIMIT_MAX;
+            }
+
             int targetPageIndex = this.CurrentPageNumber - 1 + pageDifferential;
             int targetPageProfileOffset = targetPageIndex * pageSize;
 
@@ -396,20 +406,56 @@ namespace ModIO.UI
         }
 
         // ---------[ FILTER CONTROL ]---------
-        /// <summary>Sets the title filter and refreshes the results.</summary>
+        /// <summary>Sets the title filter and refreshes the view.</summary>
         public void SetTitleFilter(string titleFilter)
         {
+            StringLikeFilter oldFilter = this.titleLikeFieldFilter;
+
+            // null-checks
             if(titleFilter == null) { titleFilter = string.Empty; }
 
-            if(this.m_titleFilter.ToUpper() != titleFilter.ToUpper())
+            string oldFilterValue = string.Empty;
+            if(oldFilter != null
+               && oldFilter.likeValue != null)
             {
-                this.m_titleFilter = titleFilter;
-                Refresh();
+                oldFilterValue = oldFilter.likeValue;
+            }
+
+            // apply filter
+            if(oldFilterValue.ToUpper() != titleFilter.ToUpper())
+            {
+                // set
+                if(String.IsNullOrEmpty(titleFilter))
+                {
+                    this.titleLikeFieldFilter = null;
+                }
+                else
+                {
+                    StringLikeFilter newFieldFilter = new StringLikeFilter()
+                    {
+                        likeValue = titleFilter,
+                    };
+                    this.titleLikeFieldFilter = newFieldFilter;
+                }
+
+                // refresh
+                if(this.isActiveAndEnabled) { this.Refresh(); }
             }
         }
 
         /// <summary>Gets the title filter string.</summary>
-        public string GetTitleFilter() { return this.m_titleFilter; }
+        public string GetTitleFilter()
+        {
+            StringLikeFilter filter = this.titleLikeFieldFilter;
+            if(filter == null)
+            {
+                return null;
+            }
+            else
+            {
+                return filter.likeValue;
+            }
+        }
 
         /// <summary>Sets the sort method and refreshes the view.</summary>
         public void SetSortMethod(SortMethod sortMethod)
@@ -445,24 +491,56 @@ namespace ModIO.UI
         /// <summary>Sets the tag filter and refreshes the results.</summary>
         public void SetTagFilter(IList<string> tagFilter)
         {
+            MatchesArrayFilter<string> oldFilter = this.tagMatchFieldFilter;
+
+            // null-checks
             if(tagFilter == null) { tagFilter = new string[0]; }
 
-            bool isSame = (this.m_tagFilter.Count == tagFilter.Count);
-            for(int i = 0;
-                isSame && i < tagFilter.Count;
-                ++i)
+            string[] oldFilterValue = new string[0];
+            if(oldFilter != null)
             {
-                isSame = (this.m_tagFilter[i] == tagFilter[i]);
+                oldFilterValue = oldFilter.filterArray;
             }
 
+            // check if same and copy
+            bool isSame = (oldFilterValue.Length == tagFilter.Count);
+            string[] newFilterValue = new string[tagFilter.Count];
+
+            if(tagFilter != oldFilterValue)
+            {
+                for(int i = 0;
+                    i < newFilterValue.Length;
+                    ++i)
+                {
+                    newFilterValue[i] = tagFilter[i];
+
+                    isSame &= (oldFilterValue[i] == newFilterValue[i]);
+                }
+            }
+
+            // apply
             if(!isSame)
             {
-                this.m_tagFilter = new List<string>(tagFilter);
-                this.Refresh();
+                // set
+                if(newFilterValue.Length == 0)
+                {
+                    this.tagMatchFieldFilter = null;
+                }
+                else
+                {
+                    MatchesArrayFilter<string> newFilter = new MatchesArrayFilter<string>()
+                    {
+                        filterArray = newFilterValue,
+                    };
+                    this.tagMatchFieldFilter = newFilter;
+                }
+
+                // refresh
+                if(this.isActiveAndEnabled) { this.Refresh(); }
 
                 if(this.onTagFilterUpdated != null)
                 {
-                    this.onTagFilterUpdated(this.m_tagFilter.ToArray());
+                    this.onTagFilterUpdated(newFilterValue);
                 }
             }
         }
@@ -470,34 +548,82 @@ namespace ModIO.UI
         /// <summary>Gets the tag filter.</summary>
         public string[] GetTagFilter()
         {
-            return this.m_tagFilter.ToArray();
+            MatchesArrayFilter<string> filter = this.tagMatchFieldFilter;
+            if(filter == null)
+            {
+                return null;
+            }
+            else
+            {
+                return filter.filterArray;
+            }
         }
 
         /// <summary>Adds a tag to the tag filter and refreshes the results.</summary>
         public void AddTagToFilter(string tagName)
         {
-            if(this.m_tagFilter.Contains(tagName)) { return; }
-
-            this.m_tagFilter.Add(tagName);
-            this.Refresh();
-
-            if(this.onTagFilterUpdated != null)
+            // get existing
+            MatchesArrayFilter<string> tagFilter = this.tagMatchFieldFilter;
+            if(tagFilter == null)
             {
-                this.onTagFilterUpdated(this.m_tagFilter.ToArray());
+                tagFilter = new MatchesArrayFilter<string>();
+            }
+
+            List<string> tagFilterValues = new List<string>();
+            tagFilterValues.AddRange(tagFilter.filterArray);
+
+            // add
+            if(!tagFilterValues.Contains(tagName))
+            {
+                tagFilterValues.Add(tagName);
+                tagFilter.filterArray = tagFilterValues.ToArray();
+
+                this.tagMatchFieldFilter = tagFilter;
+
+                // refresh
+                if(this.isActiveAndEnabled) { this.Refresh(); }
+
+                if(this.onTagFilterUpdated != null)
+                {
+                    this.onTagFilterUpdated(tagFilter.filterArray);
+                }
             }
         }
 
         /// <summary>Removes a tag from the tag filter and refreshes the results.</summary>
         public void RemoveTagFromFilter(string tagName)
         {
-            if(!this.m_tagFilter.Contains(tagName)) { return; }
+            MatchesArrayFilter<string> tagFilter = this.tagMatchFieldFilter;
 
-            this.m_tagFilter.Remove(tagName);
-            this.Refresh();
-
-            if(this.onTagFilterUpdated != null)
+            // early out
+            if(tagFilter == null
+               || tagFilter.filterArray == null
+               || tagFilter.filterArray.Length == 0)
             {
-                this.onTagFilterUpdated(this.m_tagFilter.ToArray());
+                return;
+            }
+
+            // create list
+            List<string> tagFilterValues = new List<string>(tagFilter.filterArray);
+
+            if(tagFilterValues.Contains(tagName))
+            {
+                tagFilterValues.Remove(tagName);
+                string[] newFilterValue = tagFilterValues.ToArray();
+
+                if(tagFilterValues.Count == 0)
+                {
+                    this.tagMatchFieldFilter = null;
+                    newFilterValue = null;
+                }
+
+                // refresh
+                if(this.isActiveAndEnabled) { this.Refresh(); }
+
+                if(this.onTagFilterUpdated != null)
+                {
+                    this.onTagFilterUpdated(newFilterValue);
+                }
             }
         }
 
@@ -722,22 +848,25 @@ namespace ModIO.UI
         public void ClearAllFilters()
         {
             // Check if already cleared
-            if(string.IsNullOrEmpty(this.m_titleFilter)
-               && (string.IsNullOrEmpty(this.m_sortString) || this.m_sortString == this.defaultSortString)
-               && this.m_tagFilter.Count == 0)
+            if(this.titleLikeFieldFilter == null
+               && this.tagMatchFieldFilter == null
+               && this.GetSortMethod().Equals(this.defaultSortMethod))
             {
                 return;
             }
 
-            this.m_titleFilter = string.Empty;
-            this.m_sortString = string.Empty;
-            this.m_tagFilter.Clear();
+            // Clear
+            this.m_requestFilter = new RequestFilter()
+            {
+                sortFieldName = this.defaultSortMethod.fieldName,
+                isSortAscending = this.defaultSortMethod.ascending,
+            };
 
             this.Refresh();
 
             if(this.onTagFilterUpdated != null)
             {
-                this.onTagFilterUpdated(new string[0]);
+                this.onTagFilterUpdated(null);
             }
         }
 
@@ -839,7 +968,7 @@ namespace ModIO.UI
 
             bool ascending = !sortString.StartsWith("-");
             string fieldName = sortString;
-            if(ascending)
+            if(!ascending)
             {
                 if(sortString.Length > 1)
                 {
@@ -867,6 +996,12 @@ namespace ModIO.UI
                 + this.m_requestFilter.sortFieldName;
 
             return sortString;
+        }
+
+        [Obsolete]
+        public RequestFilter GenerateRequestFilter()
+        {
+            return this.m_requestFilter;
         }
     }
 }
