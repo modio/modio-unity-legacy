@@ -2,6 +2,8 @@ namespace ModIO.API
 {
     public static class GetAllModsFilterFields
     {
+        // (string) Full-text search. (See: https://docs.mod.io/#filtering)
+        public const string fullTextSearch = "_q";
         // (integer) Unique id of the mod.
         public const string id = "id";
         // (integer) Unique id of the parent game.
