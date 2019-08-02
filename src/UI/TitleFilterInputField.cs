@@ -3,35 +3,87 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>A component that pairs an input field with the title filter of a ExplorerView.</summary>
+    /// <summary>A component that pairs an input field with the title filter of a ExplorerView or SubscriptionsView.</summary>
     [RequireComponent(typeof(InputField))]
-    public class TitleFilterInputField : MonoBehaviour, IExplorerViewElement
+    public class TitleFilterInputField : MonoBehaviour, IExplorerViewElement, ISubscriptionsViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Parent ExplorerView.</summary>
-        private ExplorerView m_view = null;
+        private ExplorerView m_explorerView = null;
+
+        /// <summary>Parent SubscriptionsView.</summary>
+        private SubscriptionsView m_subscriptionsView = null;
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>IExplorerViewElement interface.</summary>
         public void SetExplorerView(ExplorerView view)
         {
             // early out
-            if(this.m_view == view) { return; }
+            if(this.m_explorerView == view) { return; }
 
             // unhook
-            if(this.m_view != null)
+            if(this.m_explorerView != null)
             {
-                this.m_view.onRequestFilterChanged.RemoveListener(UpdateInputField);
+                this.m_explorerView.onRequestFilterChanged.RemoveListener(UpdateInputField);
+
+                this.GetComponent<InputField>().onEndEdit.RemoveListener(SetExplorerViewFilter);
+            }
+            if(this.m_subscriptionsView != null)
+            {
+                this.m_subscriptionsView.onTitleFilterChanged.RemoveListener(UpdateInputField);
+
+                this.GetComponent<InputField>().onValueChanged.RemoveListener(SetSubscriptionsViewFilter);
             }
 
             // assign
-            this.m_view = view;
+            this.m_explorerView = view;
+            this.m_subscriptionsView = null;
 
             // hook
-            if(this.m_view != null)
+            if(this.m_explorerView != null)
             {
-                this.m_view.onRequestFilterChanged.AddListener(UpdateInputField);
-                this.UpdateInputField(this.m_view.requestFilter);
+                this.m_explorerView.onRequestFilterChanged.AddListener(UpdateInputField);
+                this.UpdateInputField(this.m_explorerView.requestFilter);
+
+                this.GetComponent<InputField>().onEndEdit.AddListener(SetExplorerViewFilter);
+            }
+            else
+            {
+                this.UpdateInputField(string.Empty);
+            }
+        }
+
+        /// <summary>ISubscriptionsViewElement interface.</summary>
+        public void SetSubscriptionsView(SubscriptionsView view)
+        {
+            // early out
+            if(this.m_subscriptionsView == view) { return; }
+
+            // unhook
+            if(this.m_explorerView != null)
+            {
+                this.m_explorerView.onRequestFilterChanged.RemoveListener(UpdateInputField);
+
+                this.GetComponent<InputField>().onEndEdit.RemoveListener(SetExplorerViewFilter);
+            }
+            if(this.m_subscriptionsView != null)
+            {
+                this.m_subscriptionsView.onTitleFilterChanged.RemoveListener(UpdateInputField);
+
+                this.GetComponent<InputField>().onValueChanged.RemoveListener(SetSubscriptionsViewFilter);
+            }
+
+            // assign
+            this.m_explorerView = null;
+            this.m_subscriptionsView = view;
+
+            // hook
+            if(this.m_subscriptionsView != null)
+            {
+                this.m_subscriptionsView.onTitleFilterChanged.AddListener(UpdateInputField);
+                this.UpdateInputField(this.m_subscriptionsView.titleFilter);
+
+                this.GetComponent<InputField>().onValueChanged.AddListener(SetSubscriptionsViewFilter);
             }
             else
             {
@@ -40,12 +92,6 @@ namespace ModIO.UI
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
-        /// <summary>Attach event listeners to the input field.</summary>
-        protected virtual void Start()
-        {
-            this.GetComponent<InputField>().onEndEdit.AddListener(SetTitleFilter);
-        }
-
         /// <summary>Sets the value of the input field based on the value in the RequestFilter.</summary>
         public virtual void UpdateInputField(RequestFilter requestFilter)
         {
@@ -71,11 +117,20 @@ namespace ModIO.UI
         }
 
         /// <summary>Sets the filter value in the ExplorerView.</summary>
-        protected virtual void SetTitleFilter(string newValue)
+        protected virtual void SetExplorerViewFilter(string newValue)
         {
-            if(this.m_view != null)
+            if(this.m_explorerView != null)
             {
-                this.m_view.SetTitleFilter(newValue);
+                this.m_explorerView.SetTitleFilter(newValue);
+            }
+        }
+
+        /// <summary>Sets the filter value in the SubscriptionsView.</summary>
+        protected virtual void SetSubscriptionsViewFilter(string newValue)
+        {
+            if(this.m_subscriptionsView != null)
+            {
+                this.m_subscriptionsView.SetTitleFilter(newValue);
             }
         }
     }
