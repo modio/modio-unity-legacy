@@ -415,12 +415,12 @@ namespace ModIO.UI
 
         // ---------[ FILTER CONTROL ]---------
         /// <summary>Sets the title filter and refreshes the view.</summary>
-        public void SetTitleFilter(string titleFilter)
+        public void SetNameFieldFilter(string nameFilter)
         {
             EqualToFilter<string> oldFilter = this.nameFieldFilter;
 
             // null-checks
-            if(titleFilter == null) { titleFilter = string.Empty; }
+            if(nameFilter == null) { nameFilter = string.Empty; }
 
             string oldFilterValue = string.Empty;
             if(oldFilter != null
@@ -430,10 +430,10 @@ namespace ModIO.UI
             }
 
             // apply filter
-            if(oldFilterValue.ToUpper() != titleFilter.ToUpper())
+            if(oldFilterValue.ToUpper() != nameFilter.ToUpper())
             {
                 // set
-                if(String.IsNullOrEmpty(titleFilter))
+                if(String.IsNullOrEmpty(nameFilter))
                 {
                     this.nameFieldFilter = null;
                 }
@@ -441,7 +441,7 @@ namespace ModIO.UI
                 {
                     EqualToFilter<string> newFieldFilter = new EqualToFilter<string>()
                     {
-                        filterValue = titleFilter,
+                        filterValue = nameFilter,
                     };
                     this.nameFieldFilter = newFieldFilter;
                 }

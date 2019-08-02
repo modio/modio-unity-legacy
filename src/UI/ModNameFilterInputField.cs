@@ -121,7 +121,7 @@ namespace ModIO.UI
         {
             if(this.m_explorerView != null)
             {
-                this.m_explorerView.SetTitleFilter(newValue);
+                this.m_explorerView.SetNameFieldFilter(newValue);
             }
         }
 
