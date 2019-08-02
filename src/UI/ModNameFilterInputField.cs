@@ -30,7 +30,7 @@ namespace ModIO.UI
             }
             if(this.m_subscriptionsView != null)
             {
-                this.m_subscriptionsView.onTitleFilterChanged.RemoveListener(UpdateInputField);
+                this.m_subscriptionsView.onNameFieldFilterChanged.RemoveListener(UpdateInputField);
 
                 this.GetComponent<InputField>().onValueChanged.RemoveListener(SetSubscriptionsViewFilter);
             }
@@ -68,7 +68,7 @@ namespace ModIO.UI
             }
             if(this.m_subscriptionsView != null)
             {
-                this.m_subscriptionsView.onTitleFilterChanged.RemoveListener(UpdateInputField);
+                this.m_subscriptionsView.onNameFieldFilterChanged.RemoveListener(UpdateInputField);
 
                 this.GetComponent<InputField>().onValueChanged.RemoveListener(SetSubscriptionsViewFilter);
             }
@@ -80,8 +80,8 @@ namespace ModIO.UI
             // hook
             if(this.m_subscriptionsView != null)
             {
-                this.m_subscriptionsView.onTitleFilterChanged.AddListener(UpdateInputField);
-                this.UpdateInputField(this.m_subscriptionsView.titleFilter);
+                this.m_subscriptionsView.onNameFieldFilterChanged.AddListener(UpdateInputField);
+                this.UpdateInputField(this.m_subscriptionsView.nameFieldFilter);
 
                 this.GetComponent<InputField>().onValueChanged.AddListener(SetSubscriptionsViewFilter);
             }
@@ -130,7 +130,7 @@ namespace ModIO.UI
         {
             if(this.m_subscriptionsView != null)
             {
-                this.m_subscriptionsView.SetTitleFilter(newValue);
+                this.m_subscriptionsView.SetNameFieldFilter(newValue);
             }
         }
     }

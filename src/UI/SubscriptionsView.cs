@@ -39,11 +39,11 @@ namespace ModIO.UI
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         public ModPageChanged onModPageChanged = null;
         /// <summary>Event for notifying listeners of a change to title filter.</summary>
-        public FilterChanged onTitleFilterChanged = null;
+        public FilterChanged onNameFieldFilterChanged = null;
 
         // --- RUNTIME DATA ---
         private Comparison<ModProfile> m_sortDelegate = null;
-        private string m_titleFilter = string.Empty;
+        private string m_nameFieldFilter = string.Empty;
 
         // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
@@ -52,10 +52,10 @@ namespace ModIO.UI
             get { return this.m_displayedModPage; }
         }
 
-        /// <summary>Title filter currently applied to the SubscriptionsView.</summary>
-        public string titleFilter
+        /// <summary>Name field filter currently applied to the SubscriptionsView.</summary>
+        public string nameFieldFilter
         {
-            get { return this.m_titleFilter; }
+            get { return this.m_nameFieldFilter; }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -121,7 +121,7 @@ namespace ModIO.UI
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
             ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
-            (profiles) => Refresh_OnGetModProfiles(profiles, this.m_titleFilter, this.m_sortDelegate),
+            (profiles) => Refresh_OnGetModProfiles(profiles, this.m_nameFieldFilter, this.m_sortDelegate),
             (requestError) =>
             {
                 MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
@@ -137,7 +137,7 @@ namespace ModIO.UI
         {
             // check for early outs
             if(this == null
-               || this.m_titleFilter != requestedTitleFilter
+               || this.m_nameFieldFilter != requestedTitleFilter
                || this.m_sortDelegate != requestedSortDelegate)
             {
                 return;
@@ -151,12 +151,12 @@ namespace ModIO.UI
             }
 
             // filter
-            Func<ModProfile, bool> titleFilterDelegate = (p) => true;
+            Func<ModProfile, bool> nameFieldFilterDelegate = (p) => true;
             if(!String.IsNullOrEmpty(requestedTitleFilter))
             {
                 // set initial value
                 string filterString = requestedTitleFilter.ToUpper();
-                titleFilterDelegate = (p) =>
+                nameFieldFilterDelegate = (p) =>
                 {
                     return p.name.ToUpper().Contains(filterString);
                 };
@@ -165,7 +165,7 @@ namespace ModIO.UI
             List<ModProfile> filteredList = new List<ModProfile>(modProfiles.Count);
             foreach(ModProfile profile in modProfiles)
             {
-                if(titleFilterDelegate(profile))
+                if(nameFieldFilterDelegate(profile))
                 {
                     filteredList.Add(profile);
                 }
@@ -286,24 +286,24 @@ namespace ModIO.UI
 
         // ---------[ FILTER CONTROL ]---------
         /// <summary>Sets the title filter and refreshes the page.</summary>
-        public void SetTitleFilter(string titleFilter)
+        public void SetNameFieldFilter(string nameFieldFilter)
         {
-            if(titleFilter == null) { titleFilter = string.Empty; }
+            if(nameFieldFilter == null) { nameFieldFilter = string.Empty; }
 
-            if(this.m_titleFilter.ToUpper() != titleFilter.ToUpper())
+            if(this.m_nameFieldFilter.ToUpper() != nameFieldFilter.ToUpper())
             {
-                this.m_titleFilter = titleFilter;
+                this.m_nameFieldFilter = nameFieldFilter;
                 Refresh();
 
-                if(this.onTitleFilterChanged != null)
+                if(this.onNameFieldFilterChanged != null)
                 {
-                    this.onTitleFilterChanged.Invoke(this.m_titleFilter);
+                    this.onNameFieldFilterChanged.Invoke(this.m_nameFieldFilter);
                 }
             }
         }
 
         /// <summary>Gets the title filter string.</summary>
-        public string GetTitleFilter() { return this.m_titleFilter; }
+        public string GetTitleFilter() { return this.m_nameFieldFilter; }
 
         /// <summary>Sets the sort delegate and refreshes the page.</summary>
         public void SetSortDelegate(Comparison<ModProfile> sortDelegate)
