@@ -68,23 +68,23 @@ namespace ModIO.UI
         }
 
         /// <summary>Filter currently applied to the titleField.</summary>
-        protected StringLikeFilter titleLikeFieldFilter
+        protected EqualToFilter<string> titleLikeFieldFilter
         {
             get
             {
                 IRequestFieldFilter filter = null;
-                this.m_requestFilter.fieldFilters.TryGetValue(ModIO.API.GetAllModsFilterFields.name, out filter);
-                return filter as StringLikeFilter;
+                this.m_requestFilter.fieldFilters.TryGetValue(ModIO.API.GetAllModsFilterFields.fullTextSearch, out filter);
+                return filter as EqualToFilter<string>;
             }
             set
             {
                 if(value == null)
                 {
-                    this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.name);
+                    this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.fullTextSearch);
                 }
                 else
                 {
-                    this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.name] = value;
+                    this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.fullTextSearch] = value;
                 }
             }
         }
@@ -417,16 +417,16 @@ namespace ModIO.UI
         /// <summary>Sets the title filter and refreshes the view.</summary>
         public void SetTitleFilter(string titleFilter)
         {
-            StringLikeFilter oldFilter = this.titleLikeFieldFilter;
+            EqualToFilter<string> oldFilter = this.titleLikeFieldFilter;
 
             // null-checks
             if(titleFilter == null) { titleFilter = string.Empty; }
 
             string oldFilterValue = string.Empty;
             if(oldFilter != null
-               && oldFilter.likeValue != null)
+               && oldFilter.filterValue != null)
             {
-                oldFilterValue = oldFilter.likeValue;
+                oldFilterValue = oldFilter.filterValue;
             }
 
             // apply filter
@@ -439,9 +439,9 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    StringLikeFilter newFieldFilter = new StringLikeFilter()
+                    EqualToFilter<string> newFieldFilter = new EqualToFilter<string>()
                     {
-                        likeValue = titleFilter,
+                        filterValue = titleFilter,
                     };
                     this.titleLikeFieldFilter = newFieldFilter;
                 }
@@ -460,14 +460,14 @@ namespace ModIO.UI
         /// <summary>Gets the title filter string.</summary>
         public string GetTitleFilter()
         {
-            StringLikeFilter filter = this.titleLikeFieldFilter;
+            EqualToFilter<string> filter = this.titleLikeFieldFilter;
             if(filter == null)
             {
                 return null;
             }
             else
             {
-                return filter.likeValue;
+                return filter.filterValue;
             }
         }
 
