@@ -5,7 +5,7 @@ namespace ModIO.UI
 {
     /// <summary>A component that pairs an input field with the title filter of a ExplorerView or SubscriptionsView.</summary>
     [RequireComponent(typeof(InputField))]
-    public class TitleFilterInputField : MonoBehaviour, IExplorerViewElement, ISubscriptionsViewElement
+    public class ModNameFilterInputField : MonoBehaviour, IExplorerViewElement, ISubscriptionsViewElement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Parent ExplorerView.</summary>
