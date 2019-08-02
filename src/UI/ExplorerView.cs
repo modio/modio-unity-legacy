@@ -67,8 +67,8 @@ namespace ModIO.UI
             get { return this.m_requestFilter; }
         }
 
-        /// <summary>Filter currently applied to the titleField.</summary>
-        protected EqualToFilter<string> titleLikeFieldFilter
+        /// <summary>Filter currently applied to the mod name.</summary>
+        protected EqualToFilter<string> nameFieldFilter
         {
             get
             {
@@ -417,7 +417,7 @@ namespace ModIO.UI
         /// <summary>Sets the title filter and refreshes the view.</summary>
         public void SetTitleFilter(string titleFilter)
         {
-            EqualToFilter<string> oldFilter = this.titleLikeFieldFilter;
+            EqualToFilter<string> oldFilter = this.nameFieldFilter;
 
             // null-checks
             if(titleFilter == null) { titleFilter = string.Empty; }
@@ -435,7 +435,7 @@ namespace ModIO.UI
                 // set
                 if(String.IsNullOrEmpty(titleFilter))
                 {
-                    this.titleLikeFieldFilter = null;
+                    this.nameFieldFilter = null;
                 }
                 else
                 {
@@ -443,7 +443,7 @@ namespace ModIO.UI
                     {
                         filterValue = titleFilter,
                     };
-                    this.titleLikeFieldFilter = newFieldFilter;
+                    this.nameFieldFilter = newFieldFilter;
                 }
 
                 // refresh
@@ -460,7 +460,7 @@ namespace ModIO.UI
         /// <summary>Gets the title filter string.</summary>
         public string GetTitleFilter()
         {
-            EqualToFilter<string> filter = this.titleLikeFieldFilter;
+            EqualToFilter<string> filter = this.nameFieldFilter;
             if(filter == null)
             {
                 return null;
@@ -886,7 +886,7 @@ namespace ModIO.UI
         public void ClearAllFilters()
         {
             // Check if already cleared
-            if(this.titleLikeFieldFilter == null
+            if(this.nameFieldFilter == null
                && this.tagMatchFieldFilter == null
                && this.GetSortMethod().Equals(this.defaultSortMethod))
             {
