@@ -19,6 +19,9 @@ namespace ModIO.UI
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         [Serializable]
         public class ModPageChanged : UnityEngine.Events.UnityEvent<RequestPage<ModProfile>> {}
+        /// <summary>Event for notifying listeners of a change to the request filter.</summary>
+        [Serializable]
+        public class RequestFilterChanged : UnityEngine.Events.UnityEvent<RequestFilter> {}
 
         /// <summary>Sort method data.</summary>
         [Serializable]
@@ -48,6 +51,8 @@ namespace ModIO.UI
         [Header("Events")]
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         public ModPageChanged onModPageChanged = null;
+        /// <summary>Event for notifying listeners of a change to the request filter.</summary>
+        public RequestFilterChanged onRequestFilterChanged = null;
 
         // --- ACCESSORS ---
         /// <summary>RequestPage being displayed.</summary>
@@ -208,6 +213,9 @@ namespace ModIO.UI
                          + " Game Object. Please create a separate Game Object for the container template.");
 
             // -- initialize template ---
+            // NOTE(@jackson): Initializing in Start() was too late as isActiveAndEnabled is true
+            // before Start() was called. This may mean that other calls are being made too early,
+            // specifically the OnGameProfileUpdated() in ModBrowser.
             this.containerTemplate.gameObject.SetActive(false);
 
             GameObject templateCopyGO;
@@ -440,6 +448,12 @@ namespace ModIO.UI
 
                 // refresh
                 if(this.isActiveAndEnabled) { this.Refresh(); }
+
+                // notify
+                if(this.onRequestFilterChanged != null)
+                {
+                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
+                }
             }
         }
 
@@ -475,6 +489,12 @@ namespace ModIO.UI
 
                 // refresh
                 if(this.isActiveAndEnabled) { this.Refresh(); }
+
+                // notify
+                if(this.onRequestFilterChanged != null)
+                {
+                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
+                }
             }
         }
 
@@ -538,6 +558,12 @@ namespace ModIO.UI
                 // refresh
                 if(this.isActiveAndEnabled) { this.Refresh(); }
 
+                // notify
+                if(this.onRequestFilterChanged != null)
+                {
+                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
+                }
+
                 if(this.onTagFilterUpdated != null)
                 {
                     this.onTagFilterUpdated(newFilterValue);
@@ -583,6 +609,12 @@ namespace ModIO.UI
                 // refresh
                 if(this.isActiveAndEnabled) { this.Refresh(); }
 
+                // notify
+                if(this.onRequestFilterChanged != null)
+                {
+                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
+                }
+
                 if(this.onTagFilterUpdated != null)
                 {
                     this.onTagFilterUpdated(tagFilter.filterArray);
@@ -619,6 +651,12 @@ namespace ModIO.UI
 
                 // refresh
                 if(this.isActiveAndEnabled) { this.Refresh(); }
+
+                // notify
+                if(this.onRequestFilterChanged != null)
+                {
+                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
+                }
 
                 if(this.onTagFilterUpdated != null)
                 {
@@ -863,6 +901,12 @@ namespace ModIO.UI
             };
 
             this.Refresh();
+
+            // notify
+            if(this.onRequestFilterChanged != null)
+            {
+                this.onRequestFilterChanged.Invoke(this.m_requestFilter);
+            }
 
             if(this.onTagFilterUpdated != null)
             {
