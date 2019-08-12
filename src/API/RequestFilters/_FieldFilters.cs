@@ -159,7 +159,7 @@ namespace ModIO
             Debug.Assert(this.max != null);
 
             return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
-                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt=") + max);
+                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-st=") + max);
         }
     }
 
