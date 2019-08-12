@@ -8,7 +8,7 @@ namespace ModIO
 
         public string sortFieldName = string.Empty;
         public bool isSortAscending = true;
-        public Dictionary<string, IRequestFieldFilter> fieldFilters = new Dictionary<string, IRequestFieldFilter>();
+        public Dictionary<string, List<IRequestFieldFilter>> fieldFilterMap = new Dictionary<string, List<IRequestFieldFilter>>();
 
         public string GenerateFilterString()
         {
@@ -19,9 +19,18 @@ namespace ModIO
                 filterStringBuilder.Append("_sort=" + (isSortAscending ? "" : "-") + sortFieldName + "&");
             }
 
-            foreach(KeyValuePair<string, IRequestFieldFilter> kvp in fieldFilters)
+            foreach(KeyValuePair<string, List<IRequestFieldFilter>> kvp in this.fieldFilterMap)
             {
-                filterStringBuilder.Append(kvp.Value.GenerateFilterString(kvp.Key) + "&");
+                if(kvp.Value != null)
+                {
+                    foreach(IRequestFieldFilter fieldFilter in kvp.Value)
+                    {
+                        if(fieldFilter != null)
+                        {
+                            filterStringBuilder.Append(fieldFilter.GenerateFilterString(kvp.Key) + "&");
+                        }
+                    }
+                }
             }
 
             if(filterStringBuilder.Length > 1)
@@ -32,5 +41,9 @@ namespace ModIO
 
             return filterStringBuilder.ToString();
         }
+
+        // ---------[ OBSOLETE ]---------
+        [System.Obsolete("Use RequestFilter.fieldFilterMap instead.", true)]
+        public Dictionary<string, IRequestFieldFilter> fieldFilters;
     }
 }
