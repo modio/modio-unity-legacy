@@ -56,6 +56,29 @@ namespace ModIO
             list.Add(filter);
         }
 
+        #pragma warning disable 0618
+        public void AddFieldFilter<T>(string fieldName, RangeFilter<T> filter)
+            where T : System.IComparable<T>
+        {
+            if(filter != null)
+            {
+                MinimumFilter<T> minFilter = new MinimumFilter<T>()
+                {
+                    minimum = filter.min,
+                    isInclusive = filter.isMinInclusive,
+                };
+                MaximumFilter<T> maxFilter = new MaximumFilter<T>()
+                {
+                    maximum = filter.max,
+                    isInclusive = filter.isMaxInclusive,
+                };
+
+                this.AddFieldFilter(fieldName, minFilter);
+                this.AddFieldFilter(fieldName, maxFilter);
+            }
+        }
+        #pragma warning restore 0618
+
         // ---------[ OBSOLETE ]---------
         [System.Obsolete("Use RequestFilter.fieldFilterMap instead.", true)]
         public Dictionary<string, IRequestFieldFilter> fieldFilters;

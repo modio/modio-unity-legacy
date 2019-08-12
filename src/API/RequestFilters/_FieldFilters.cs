@@ -208,27 +208,6 @@ namespace ModIO
         }
     }
 
-    public class RangeFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
-        where T : IComparable<T>
-    {
-        public T min;
-        public bool isMinInclusive;
-        public T max;
-        public bool isMaxInclusive;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.min != null);
-            Debug.Assert(this.max != null);
-
-            return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
-                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt=") + max);
-        }
-
-        public FieldFilterMethod FilterMethod { get { throw new System.NotImplementedException(); } }
-    }
-
     // ------[ INT FILTERS ]------
     public class BitwiseAndFilter : IRequestFieldFilter, IRequestFieldFilter<int>
     {
@@ -273,4 +252,28 @@ namespace ModIO
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotLikeString; } }
     }
+
+    // ---------[ OBSOLETE ]---------
+    [Obsolete("Combine a MinimumFilter and MaximumFilter instead.")]
+    public class RangeFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+        where T : IComparable<T>
+    {
+        public T min;
+        public bool isMinInclusive;
+        public T max;
+        public bool isMaxInclusive;
+
+        public string GenerateFilterString(string fieldName)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.min != null);
+            Debug.Assert(this.max != null);
+
+            return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
+                    + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt=") + max);
+        }
+
+        public FieldFilterMethod FilterMethod { get { throw new System.NotImplementedException(); } }
+    }
+
 }
