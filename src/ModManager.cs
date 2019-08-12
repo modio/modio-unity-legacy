@@ -1179,13 +1179,18 @@ namespace ModIO
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.dateAdded;
-            modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.dateAdded, new RangeFilter<int>()
+
+            modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.dateAdded, new MinimumFilter<int>()
             {
-                min = fromTimeStamp,
-                isMinInclusive = false,
-                max = untilTimeStamp,
-                isMaxInclusive = true,
+                minimum = fromTimeStamp,
+                isInclusive = false,
             });
+            modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.dateAdded, new MaximumFilter<int>()
+            {
+                maximum = untilTimeStamp,
+                isInclusive = true,
+            });
+
             if(modIdFilter != null)
             {
                 modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
@@ -1209,13 +1214,18 @@ namespace ModIO
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
             userEventFilter.sortFieldName = GetUserEventsFilterFields.dateAdded;
-            userEventFilter.AddFieldFilter(GetUserEventsFilterFields.dateAdded, new RangeFilter<int>()
+
+            userEventFilter.AddFieldFilter(GetUserEventsFilterFields.dateAdded, new MinimumFilter<int>()
             {
-                min = fromTimeStamp,
-                isMinInclusive = false,
-                max = untilTimeStamp,
-                isMaxInclusive = true,
+                minimum = fromTimeStamp,
+                isInclusive = false,
             });
+            userEventFilter.AddFieldFilter(GetUserEventsFilterFields.dateAdded, new MaximumFilter<int>()
+            {
+                maximum = untilTimeStamp,
+                isInclusive = true,
+            });
+
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
             {
                 filterValue = PluginSettings.data.gameId,
