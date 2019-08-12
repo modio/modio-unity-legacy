@@ -1,4 +1,6 @@
 using System;
+using StringBuilder = System.Text.StringBuilder;
+
 using Debug = UnityEngine.Debug;
 
 namespace ModIO
@@ -52,19 +54,26 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(fieldName));
             Debug.Assert(this.filterArray != null);
 
-            string valueList = string.Empty;
+            StringBuilder valueList = new StringBuilder();
+
             if(filterArray.Length > 0)
             {
-                valueList = filterArray[0].ToString();
-                for(int i = 1;
-                    i < filterArray.Length;
-                    ++i)
+                foreach(T filterValue in this.filterArray)
                 {
-                    valueList += "," + filterArray[i];
+                    if(filterValue != null)
+                    {
+                        valueList.Append(filterValue.ToString() + ",");
+                    }
+                }
+
+                if(valueList.Length > 0)
+                {
+                    // Remove trailing comma
+                    valueList.Length -= 1;
                 }
             }
 
-            return fieldName + "=" + valueList;
+            return fieldName + "=" + valueList.ToString();
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.EquivalentCollection; } }
@@ -79,19 +88,26 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(fieldName));
             Debug.Assert(this.filterArray != null);
 
-            string valueList = string.Empty;
+            StringBuilder valueList = new StringBuilder();
+
             if(filterArray.Length > 0)
             {
-                valueList = filterArray[0].ToString();
-                for(int i = 1;
-                    i < filterArray.Length;
-                    ++i)
+                foreach(T filterValue in this.filterArray)
                 {
-                    valueList += "," + filterArray[i];
+                    if(filterValue != null)
+                    {
+                        valueList.Append(filterValue.ToString() + ",");
+                    }
+                }
+
+                if(valueList.Length > 0)
+                {
+                    // Remove trailing comma
+                    valueList.Length -= 1;
                 }
             }
 
-            return fieldName + "-in=" + valueList;
+            return fieldName + "-in=" + valueList.ToString();
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.InCollection; } }
@@ -106,19 +122,26 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(fieldName));
             Debug.Assert(this.filterArray != null);
 
-            string valueList = string.Empty;
+            StringBuilder valueList = new StringBuilder();
+
             if(filterArray.Length > 0)
             {
-                valueList = filterArray[0].ToString();
-                for(int i = 1;
-                    i < filterArray.Length;
-                    ++i)
+                foreach(T filterValue in this.filterArray)
                 {
-                    valueList += "," + filterArray[i];
+                    if(filterValue != null)
+                    {
+                        valueList.Append(filterValue.ToString() + ",");
+                    }
                 }
 
+                if(valueList.Length > 0)
+                {
+                    // Remove trailing comma
+                    valueList.Length -= 1;
+                }
             }
-            return fieldName + "-not-in=" + valueList;
+
+            return fieldName + "-not-in=" + valueList.ToString();
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotInCollection; } }
