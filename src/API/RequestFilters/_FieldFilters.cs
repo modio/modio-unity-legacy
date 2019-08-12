@@ -6,6 +6,7 @@ namespace ModIO
     // ------[ INTERFACE ]------
     public interface IRequestFieldFilter
     {
+        FieldFilterMethod FilterMethod { get; }
         string GenerateFilterString(string fieldName);
     }
 
@@ -23,6 +24,8 @@ namespace ModIO
 
             return fieldName + "=" + filterValue.ToString();
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.Equal; } }
     }
 
     public class NotEqualToFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
@@ -36,6 +39,8 @@ namespace ModIO
 
             return fieldName + "-not=" + filterValue.ToString();
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotEqual; } }
     }
 
     public class MatchesArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
@@ -61,6 +66,8 @@ namespace ModIO
 
             return fieldName + "=" + valueList;
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.EquivalentCollection; } }
     }
 
     public class InArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
@@ -86,6 +93,8 @@ namespace ModIO
 
             return fieldName + "-in=" + valueList;
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.InCollection; } }
     }
 
     public class NotInArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
@@ -111,6 +120,8 @@ namespace ModIO
             }
             return fieldName + "-not-in=" + valueList;
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotInCollection; } }
     }
 
     // ------[ NUMERIC FILTERS ]------
@@ -127,6 +138,21 @@ namespace ModIO
 
             return fieldName + (isInclusive ? "-min=" : "-gt=") + minimum;
         }
+
+        public FieldFilterMethod FilterMethod
+        {
+            get
+            {
+                if(this.isInclusive)
+                {
+                    return FieldFilterMethod.Minimum;
+                }
+                else
+                {
+                    return FieldFilterMethod.GreaterThan;
+                }
+            }
+        }
     }
 
     public class MaximumFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
@@ -141,6 +167,21 @@ namespace ModIO
             Debug.Assert(this.maximum != null);
 
             return fieldName + (isInclusive ? "-max=" : "-lt=") + maximum;
+        }
+
+        public FieldFilterMethod FilterMethod
+        {
+            get
+            {
+                if(this.isInclusive)
+                {
+                    return FieldFilterMethod.Maximum;
+                }
+                else
+                {
+                    return FieldFilterMethod.LessThan;
+                }
+            }
         }
     }
 
@@ -161,6 +202,8 @@ namespace ModIO
             return (fieldName + (isMinInclusive ? "-min=" : "-gt=") + min
                     + "&" + fieldName + (isMaxInclusive ? "-max=" : "-lt=") + max);
         }
+
+        public FieldFilterMethod FilterMethod { get { throw new System.NotImplementedException(); } }
     }
 
     // ------[ INT FILTERS ]------
@@ -174,6 +217,8 @@ namespace ModIO
 
             return fieldName + "-bitwise-and=" + filterValue;
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.BitwiseAnd; } }
     }
 
     // ------[ STRING FILTERS ]------
@@ -188,6 +233,8 @@ namespace ModIO
 
             return fieldName + "-lk=" + likeValue;
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.LikeString; } }
     }
     public class StringNotLikeFilter : IRequestFieldFilter, IRequestFieldFilter<string>
     {
@@ -200,5 +247,7 @@ namespace ModIO
 
             return fieldName + "-not-lk=" + notLikeValue;
         }
+
+        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotLikeString; } }
     }
 }
