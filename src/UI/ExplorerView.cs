@@ -564,7 +564,7 @@ namespace ModIO.UI
                 {
                     newFilterValue[i] = tagFilter[i];
 
-                    isSame &= (oldFilterValue[i] == newFilterValue[i]);
+                    isSame = isSame && (oldFilterValue[i] == newFilterValue[i]);
                 }
             }
 
