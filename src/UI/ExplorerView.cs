@@ -329,7 +329,7 @@ namespace ModIO.UI
                     wasDisplayUpdated = true;
                 }
             },
-            null);
+            WebRequestError.LogAsWarning);
 
             if(!wasDisplayUpdated)
             {
@@ -353,10 +353,8 @@ namespace ModIO.UI
 
         public void ChangePage(int pageDifferential)
         {
-            // TODO(@jackson): Queue on isTransitioning?
             if(this.isTransitioning)
             {
-                Debug.LogWarning("[mod.io] Cannot change during transition");
                 return;
             }
 
@@ -920,6 +918,11 @@ namespace ModIO.UI
             if(this.m_tagCategories != gameProfile.tagCategories)
             {
                 this.m_tagCategories = gameProfile.tagCategories;
+
+                if(this.isActiveAndEnabled)
+                {
+                    this.Refresh();
+                }
             }
         }
 

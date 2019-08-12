@@ -166,7 +166,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(fieldName));
             Debug.Assert(this.maximum != null);
 
-            return fieldName + (isInclusive ? "-max=" : "-lt=") + maximum;
+            return fieldName + (isInclusive ? "-max=" : "-st=") + maximum;
         }
 
         public FieldFilterMethod FilterMethod

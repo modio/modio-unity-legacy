@@ -356,14 +356,7 @@ namespace ModIO.UI
                     int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        if(UserAuthenticationData.instance.IsTokenValid)
-                        {
-                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                       requestError.displayMessage);
-
-                            UserAccountManagement.MarkAuthTokenRejected();
-                        }
-                        else
+                        if(string.IsNullOrEmpty(UserAuthenticationData.instance.token))
                         {
                             Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
                                              + " servers. Please check you Game Id and APIKey in the"
@@ -372,6 +365,13 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        "Failed to collect game data from mod.io.\n"
                                                        + requestError.displayMessage);
+                        }
+                        else
+                        {
+                            MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                       requestError.displayMessage);
+
+                            UserAccountManagement.MarkAuthTokenRejected();
                         }
 
                         yield break;
