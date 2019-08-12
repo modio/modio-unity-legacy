@@ -42,6 +42,20 @@ namespace ModIO
             return filterStringBuilder.ToString();
         }
 
+        public void AddFieldFilter(string fieldName, IRequestFieldFilter filter)
+        {
+            List<IRequestFieldFilter> list = null;
+            this.fieldFilterMap.TryGetValue(fieldName, out list);
+
+            if(list == null)
+            {
+                list = new List<IRequestFieldFilter>();
+                this.fieldFilterMap[fieldName] = list;
+            }
+
+            list.Add(filter);
+        }
+
         // ---------[ OBSOLETE ]---------
         [System.Obsolete("Use RequestFilter.fieldFilterMap instead.", true)]
         public Dictionary<string, IRequestFieldFilter> fieldFilters;

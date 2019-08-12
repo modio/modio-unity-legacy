@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -96,14 +98,26 @@ namespace ModIO.UI
         public virtual void UpdateInputField(RequestFilter requestFilter)
         {
             string filterValue = string.Empty;
-            IRequestFieldFilter fieldFilter;
+            List<IRequestFieldFilter> fieldFilterList;
             if(requestFilter != null
-               && requestFilter.fieldFilters.TryGetValue(ModIO.API.GetAllModsFilterFields.fullTextSearch, out fieldFilter))
+               && requestFilter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.fullTextSearch, out fieldFilterList)
+               && fieldFilterList != null
+               && fieldFilterList.Count > 0)
             {
-                EqualToFilter<string> likeFilter = fieldFilter as EqualToFilter<string>;
-                if(likeFilter != null)
+                IRequestFieldFilter fieldFilter = fieldFilterList[0];
+
+                switch(fieldFilter.FilterMethod)
                 {
-                    filterValue = likeFilter.filterValue;
+                    case FieldFilterMethod.Equal:
+                    {
+                        filterValue = ((EqualToFilter<string>)fieldFilter).filterValue;
+                    }
+                    break;
+                    case FieldFilterMethod.LikeString:
+                    {
+                        filterValue = ((StringLikeFilter)fieldFilter).likeValue;
+                    }
+                    break;
                 }
             }
 

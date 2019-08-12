@@ -212,7 +212,7 @@ namespace ModIO.UI
                 offset = 0,
             };
             RequestFilter filter = new RequestFilter();
-            filter.fieldFilters.Add(API.GetAllModStatsFilterFields.modId,
+            filter.AddFieldFilter(API.GetAllModStatsFilterFields.modId,
                 new InArrayFilter<int>() { filterArray = modIds });
 
             bool isDone = false;

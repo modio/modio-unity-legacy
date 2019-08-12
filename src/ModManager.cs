@@ -555,11 +555,10 @@ namespace ModIO
             List<Modfile> lastestBuilds = new List<Modfile>(modIds.Count);
 
             RequestFilter modFilter = new RequestFilter();
-            modFilter.fieldFilters[GetAllModsFilterFields.id]
-            = new InArrayFilter<int>()
+            modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
             {
                 filterArray = modIds.ToArray()
-            };
+            });
 
             while(!isRequestResolved
                   && attemptCount < attemptLimit)
@@ -889,11 +888,10 @@ namespace ModIO
                 // - Filter -
                 RequestFilter modFilter = new RequestFilter();
                 modFilter.sortFieldName = GetAllModsFilterFields.id;
-                modFilter.fieldFilters[GetAllModsFilterFields.id]
-                = new InArrayFilter<int>()
+                modFilter.AddFieldFilter(GetAllModsFilterFields.id, new InArrayFilter<int>()
                 {
                     filterArray = missingModIds.ToArray()
-                };
+                });
 
                 Action<List<ModProfile>> onGetMods = (profiles) =>
                 {
@@ -1181,21 +1179,19 @@ namespace ModIO
             // - Filter -
             RequestFilter modEventFilter = new RequestFilter();
             modEventFilter.sortFieldName = GetAllModEventsFilterFields.dateAdded;
-            modEventFilter.fieldFilters[GetAllModEventsFilterFields.dateAdded]
-            = new RangeFilter<int>()
+            modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.dateAdded, new RangeFilter<int>()
             {
                 min = fromTimeStamp,
                 isMinInclusive = false,
                 max = untilTimeStamp,
                 isMaxInclusive = true,
-            };
+            });
             if(modIdFilter != null)
             {
-                modEventFilter.fieldFilters[GetAllModEventsFilterFields.modId]
-                = new InArrayFilter<int>()
+                modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
                 {
                     filterArray = modIdFilter.ToArray(),
-                };
+                });
             }
 
             // - Get All Events -
@@ -1213,19 +1209,17 @@ namespace ModIO
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();
             userEventFilter.sortFieldName = GetUserEventsFilterFields.dateAdded;
-            userEventFilter.fieldFilters[GetUserEventsFilterFields.dateAdded]
-            = new RangeFilter<int>()
+            userEventFilter.AddFieldFilter(GetUserEventsFilterFields.dateAdded, new RangeFilter<int>()
             {
                 min = fromTimeStamp,
                 isMinInclusive = false,
                 max = untilTimeStamp,
                 isMaxInclusive = true,
-            };
-            userEventFilter.fieldFilters[GetUserEventsFilterFields.gameId]
-            = new EqualToFilter<int>()
+            });
+            userEventFilter.AddFieldFilter(GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
             {
                 filterValue = PluginSettings.data.gameId,
-            };
+            });
 
             // - Get All Events -
             ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
@@ -1826,8 +1820,10 @@ namespace ModIO
                                                       Action<WebRequestError> onError)
         {
             RequestFilter userModsFilter = new RequestFilter();
-            userModsFilter.fieldFilters[GetUserModFilterFields.gameId]
-            = new EqualToFilter<int>() { filterValue = PluginSettings.data.gameId };
+            userModsFilter.AddFieldFilter(GetUserModFilterFields.gameId, new EqualToFilter<int>()
+            {
+                filterValue = PluginSettings.data.gameId,
+            });
 
             Action<List<ModProfile>> onGetMods = (modProfiles) =>
             {

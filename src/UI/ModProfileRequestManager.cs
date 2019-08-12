@@ -450,7 +450,7 @@ namespace ModIO.UI
 
             // filter
             RequestFilter filter = new RequestFilter();
-            filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
+            filter.AddFieldFilter(API.GetAllModsFilterFields.id,
                 new InArrayFilter<int>() { filterArray = modIds, });
 
             bool isDone = false;

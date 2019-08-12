@@ -705,7 +705,7 @@ namespace ModIO.UI
 
             // set filter and initial pagination
             RequestFilter subscriptionFilter = new RequestFilter();
-            subscriptionFilter.fieldFilters.Add(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+            subscriptionFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
                 new EqualToFilter<int>() { filterValue = PluginSettings.data.gameId, });
 
             APIPaginationParameters pagination = new APIPaginationParameters()
@@ -895,11 +895,8 @@ namespace ModIO.UI
             };
 
             RequestFilter modFilter = new RequestFilter();
-            modFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.id]
-            = new InArrayFilter<int>()
-            {
-                filterArray = subscribedModIds.ToArray()
-            };
+            modFilter.AddFieldFilter(ModIO.API.GetAllModsFilterFields.id,
+                                     new InArrayFilter<int>() { filterArray = subscribedModIds.ToArray(), });
 
             // loop until done or broken
             while(!allPagesReceived)
@@ -1000,8 +997,8 @@ namespace ModIO.UI
         {
             APIPaginationParameters pagination = new APIPaginationParameters();
             RequestFilter filter = new RequestFilter();
-            filter.fieldFilters[API.GetUserRatingsFilterFields.gameId]
-                = new EqualToFilter<int>() { filterValue = m_gameProfile.id };
+            filter.AddFieldFilter(API.GetUserRatingsFilterFields.gameId,
+                                  new EqualToFilter<int>() { filterValue = m_gameProfile.id });
 
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
@@ -1153,7 +1150,7 @@ namespace ModIO.UI
                 offset = 0,
             };
             RequestFilter filter = new RequestFilter();
-            filter.fieldFilters.Add(API.GetAllModsFilterFields.id,
+            filter.AddFieldFilter(API.GetAllModsFilterFields.id,
                 new InArrayFilter<int>() { filterArray = modIds, });
 
             bool isDone = false;
@@ -1532,11 +1529,10 @@ namespace ModIO.UI
 
                     RequestFilter modFilter = new RequestFilter();
                     modFilter.sortFieldName = API.GetAllModsFilterFields.id;
-                    modFilter.fieldFilters[API.GetAllModsFilterFields.id]
-                    = new InArrayFilter<int>()
+                    modFilter.AddFieldFilter(API.GetAllModsFilterFields.id, new InArrayFilter<int>()
                     {
                         filterArray = editedMods.ToArray()
-                    };
+                    });
 
                     APIClient.GetAllMods(modFilter, pagination,
                     (r) =>
@@ -1558,11 +1554,10 @@ namespace ModIO.UI
 
                     RequestFilter modFilter = new RequestFilter();
                     modFilter.sortFieldName = API.GetAllModsFilterFields.id;
-                    modFilter.fieldFilters[API.GetAllModsFilterFields.id]
-                    = new InArrayFilter<int>()
+                    modFilter.AddFieldFilter(API.GetAllModsFilterFields.id, new InArrayFilter<int>()
                     {
                         filterArray = modfileChanged.ToArray()
-                    };
+                    });
 
                     bool isRequestDone = false;
                     RequestPage<ModProfile> response = null;

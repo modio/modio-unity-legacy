@@ -72,19 +72,35 @@ namespace ModIO.UI
         {
             get
             {
-                IRequestFieldFilter filter = null;
-                this.m_requestFilter.fieldFilters.TryGetValue(ModIO.API.GetAllModsFilterFields.fullTextSearch, out filter);
-                return filter as EqualToFilter<string>;
+                List<IRequestFieldFilter> filterList = null;
+                if(this.m_requestFilter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.fullTextSearch, out filterList)
+                   && filterList != null
+                   && filterList.Count > 0)
+                {
+                    return filterList[0] as EqualToFilter<string>;
+                }
+
+                return null;
             }
             set
             {
                 if(value == null)
                 {
-                    this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.fullTextSearch);
+                    this.m_requestFilter.fieldFilterMap.Remove(ModIO.API.GetAllModsFilterFields.fullTextSearch);
                 }
                 else
                 {
-                    this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.fullTextSearch] = value;
+                    List<IRequestFieldFilter> filterList = null;
+                    if(this.m_requestFilter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.fullTextSearch, out filterList)
+                       && filterList != null
+                       && filterList.Count > 0)
+                    {
+                        filterList[0] = value;
+                    }
+                    else
+                    {
+                        this.m_requestFilter.AddFieldFilter(ModIO.API.GetAllModsFilterFields.fullTextSearch, value);
+                    }
                 }
             }
         }
@@ -94,19 +110,35 @@ namespace ModIO.UI
         {
             get
             {
-                IRequestFieldFilter filter = null;
-                this.m_requestFilter.fieldFilters.TryGetValue(ModIO.API.GetAllModsFilterFields.tags, out filter);
-                return filter as MatchesArrayFilter<string>;
+                List<IRequestFieldFilter> filterList = null;
+                if(this.m_requestFilter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.tags, out filterList)
+                   && filterList != null
+                   && filterList.Count > 0)
+                {
+                    return filterList[0] as MatchesArrayFilter<string>;
+                }
+
+                return null;
             }
             set
             {
                 if(value == null)
                 {
-                    this.m_requestFilter.fieldFilters.Remove(ModIO.API.GetAllModsFilterFields.tags);
+                    this.m_requestFilter.fieldFilterMap.Remove(ModIO.API.GetAllModsFilterFields.tags);
                 }
                 else
                 {
-                    this.m_requestFilter.fieldFilters[ModIO.API.GetAllModsFilterFields.tags] = value;
+                    List<IRequestFieldFilter> filterList = null;
+                    if(this.m_requestFilter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.tags, out filterList)
+                       && filterList != null
+                       && filterList.Count > 0)
+                    {
+                        filterList[0] = value;
+                    }
+                    else
+                    {
+                        this.m_requestFilter.AddFieldFilter(ModIO.API.GetAllModsFilterFields.tags, value);
+                    }
                 }
             }
         }
