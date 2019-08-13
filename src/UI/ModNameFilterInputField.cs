@@ -106,7 +106,7 @@ namespace ModIO.UI
             {
                 IRequestFieldFilter fieldFilter = fieldFilterList[0];
 
-                switch(fieldFilter.FilterMethod)
+                switch(fieldFilter.filterMethod)
                 {
                     case FieldFilterMethod.Equal:
                     {

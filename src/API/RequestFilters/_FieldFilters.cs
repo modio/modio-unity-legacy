@@ -8,7 +8,7 @@ namespace ModIO
     // ------[ INTERFACE ]------
     public interface IRequestFieldFilter
     {
-        FieldFilterMethod FilterMethod { get; }
+        FieldFilterMethod filterMethod { get; }
         string GenerateFilterString(string fieldName);
     }
 
@@ -27,7 +27,7 @@ namespace ModIO
             return fieldName + "=" + filterValue.ToString();
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.Equal; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.Equal; } }
 
         // --- Initialization ---
         public EqualToFilter(T filterValue = default(T))
@@ -48,7 +48,7 @@ namespace ModIO
             return fieldName + "-not=" + filterValue.ToString();
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotEqual; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.NotEqual; } }
 
         // --- Initialization ---
         public NotEqualToFilter(T filterValue = default(T))
@@ -88,7 +88,7 @@ namespace ModIO
             return fieldName + "=" + valueList.ToString();
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.EquivalentCollection; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.EquivalentCollection; } }
 
         // --- Initialization ---
         public MatchesArrayFilter(T[] filterArray = null)
@@ -128,7 +128,7 @@ namespace ModIO
             return fieldName + "-in=" + valueList.ToString();
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.InCollection; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.InCollection; } }
 
         // --- Initialization ---
         public InArrayFilter(T[] filterArray = null)
@@ -168,7 +168,7 @@ namespace ModIO
             return fieldName + "-not-in=" + valueList.ToString();
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotInCollection; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.NotInCollection; } }
 
         // --- Initialization ---
         public NotInArrayFilter(T[] filterArray = null)
@@ -192,7 +192,7 @@ namespace ModIO
             return fieldName + (isInclusive ? "-min=" : "-gt=") + minimum;
         }
 
-        public FieldFilterMethod FilterMethod
+        public FieldFilterMethod filterMethod
         {
             get
             {
@@ -229,7 +229,7 @@ namespace ModIO
             return fieldName + (isInclusive ? "-max=" : "-st=") + maximum;
         }
 
-        public FieldFilterMethod FilterMethod
+        public FieldFilterMethod filterMethod
         {
             get
             {
@@ -264,7 +264,7 @@ namespace ModIO
             return fieldName + "-bitwise-and=" + filterValue;
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.BitwiseAnd; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.BitwiseAnd; } }
 
         // --- Initialization ---
         public BitwiseAndFilter(int filterValue = -1)
@@ -286,7 +286,7 @@ namespace ModIO
             return fieldName + "-lk=" + likeValue;
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.LikeString; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.LikeString; } }
 
         // --- Initialization ---
         public StringLikeFilter(string likeValue = null)
@@ -306,7 +306,7 @@ namespace ModIO
             return fieldName + "-not-lk=" + notLikeValue;
         }
 
-        public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotLikeString; } }
+        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.NotLikeString; } }
 
         // --- Initialization ---
         public StringNotLikeFilter(string notLikeValue = null)
@@ -335,7 +335,7 @@ namespace ModIO
                     + "&" + fieldName + (isMaxInclusive ? "-max=" : "-st=") + max);
         }
 
-        public FieldFilterMethod FilterMethod { get { throw new System.NotImplementedException(); } }
+        public FieldFilterMethod filterMethod { get { throw new System.NotImplementedException(); } }
     }
 
 }

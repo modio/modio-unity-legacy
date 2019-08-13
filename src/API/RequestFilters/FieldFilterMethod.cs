@@ -9,10 +9,10 @@ namespace ModIO
         LessThan,
         Maximum,
         BitwiseAnd,
+        LikeString,
+        NotLikeString,
         EquivalentCollection,
         InCollection,
         NotInCollection,
-        LikeString,
-        NotLikeString,
     }
 }
