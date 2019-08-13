@@ -5,319 +5,283 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
+    // NOTE(@jackson): This struct will eventually replace the various classes below.
+    /// <summary>The data necessary for filtering a set of results.</summary>
+    public struct FieldFilter<T>
+    {
+        public T filterValue;
+        public FieldFilterMethod filterMethod;
+    }
+
     // ------[ INTERFACE ]------
     public interface IRequestFieldFilter
     {
+        object filterValue { get; }
         FieldFilterMethod filterMethod { get; }
         string GenerateFilterString(string fieldName);
     }
 
-    public interface IRequestFieldFilter<T> : IRequestFieldFilter {}
+    public interface IRequestFieldFilter<T>
+    {
+        T filterValue { get; }
+        FieldFilterMethod filterMethod { get; }
+        string GenerateFilterString(string fieldName);
+    }
+
+    // ------[ BASE CLASSES ]------
+    public abstract class AFieldFilterBase<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    {
+        // --- Fields ---
+        protected FieldFilter<T> data = new FieldFilter<T>();
+        protected string apiStringOperator = string.Empty;
+
+        // Accessor
+        public T filterValue
+        {
+            get { return this.data.filterValue; }
+            set { this.data.filterValue = value; }
+        }
+
+        // --- Initialization ---
+        public AFieldFilterBase(FieldFilterMethod filterMethod, string apiStringOperator)
+        {
+            this.data.filterMethod = filterMethod;
+            this.apiStringOperator = apiStringOperator;
+        }
+
+        // ---- Interfaces ---
+        object IRequestFieldFilter.filterValue
+        {
+            get { return this.data.filterValue; }
+        }
+
+        T IRequestFieldFilter<T>.filterValue
+        {
+            get { return this.data.filterValue; }
+        }
+
+        public virtual FieldFilterMethod filterMethod
+        {
+            get { return this.data.filterMethod; }
+        }
+
+        public virtual string GenerateFilterString(string fieldName)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.filterValue != null);
+
+            return (fieldName
+                    + this.apiStringOperator
+                    + this.filterValue.ToString());
+        }
+    }
+
+    public abstract class ArrayFieldFilterBase<T> : AFieldFilterBase<T[]>
+    {
+        public T[] filterArray
+        {
+            get { return this.filterValue; }
+            set { this.filterValue = value; }
+        }
+
+        public ArrayFieldFilterBase(FieldFilterMethod filterMethod, string apiStringOperator)
+        : base(filterMethod, apiStringOperator) {}
+
+        public override string GenerateFilterString(string fieldName)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+            Debug.Assert(this.filterArray != null);
+
+            StringBuilder valueList = new StringBuilder();
+
+            if(this.filterArray.Length > 0)
+            {
+                foreach(T arrayItem in this.filterArray)
+                {
+                    if(arrayItem != null)
+                    {
+                        valueList.Append(arrayItem.ToString() + ",");
+                    }
+                }
+
+                if(valueList.Length > 0)
+                {
+                    // Remove trailing comma
+                    valueList.Length -= 1;
+                }
+            }
+
+            return fieldName + this.apiStringOperator + valueList.ToString();
+        }
+    }
 
     // ------[ GENERIC FILTERS ]------
-    public class EqualToFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    public class EqualToFilter<T> : AFieldFilterBase<T>
     {
-        public T filterValue;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.filterValue != null);
-
-            return fieldName + "=" + filterValue.ToString();
-        }
-
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.Equal; } }
-
-        // --- Initialization ---
         public EqualToFilter(T filterValue = default(T))
+        : base(FieldFilterMethod.Equal, "=")
         {
             this.filterValue = filterValue;
         }
     }
 
-    public class NotEqualToFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    public class NotEqualToFilter<T> : AFieldFilterBase<T>
     {
-        public T filterValue;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.filterValue != null);
-
-            return fieldName + "-not=" + filterValue.ToString();
-        }
-
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.NotEqual; } }
-
-        // --- Initialization ---
         public NotEqualToFilter(T filterValue = default(T))
+        : base(FieldFilterMethod.NotEqual, "-not=")
         {
             this.filterValue = filterValue;
         }
     }
 
-    public class MatchesArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T[]>
+    public class MatchesArrayFilter<T> : ArrayFieldFilterBase<T>
     {
-        public T[] filterArray;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.filterArray != null);
-
-            StringBuilder valueList = new StringBuilder();
-
-            if(filterArray.Length > 0)
-            {
-                foreach(T filterValue in this.filterArray)
-                {
-                    if(filterValue != null)
-                    {
-                        valueList.Append(filterValue.ToString() + ",");
-                    }
-                }
-
-                if(valueList.Length > 0)
-                {
-                    // Remove trailing comma
-                    valueList.Length -= 1;
-                }
-            }
-
-            return fieldName + "=" + valueList.ToString();
-        }
-
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.EquivalentCollection; } }
-
-        // --- Initialization ---
         public MatchesArrayFilter(T[] filterArray = null)
+        : base(FieldFilterMethod.EquivalentCollection, "=")
         {
             this.filterArray = filterArray;
         }
     }
 
-    public class InArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T[]>
+    public class InArrayFilter<T> : ArrayFieldFilterBase<T>
     {
-        public T[] filterArray;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.filterArray != null);
-
-            StringBuilder valueList = new StringBuilder();
-
-            if(filterArray.Length > 0)
-            {
-                foreach(T filterValue in this.filterArray)
-                {
-                    if(filterValue != null)
-                    {
-                        valueList.Append(filterValue.ToString() + ",");
-                    }
-                }
-
-                if(valueList.Length > 0)
-                {
-                    // Remove trailing comma
-                    valueList.Length -= 1;
-                }
-            }
-
-            return fieldName + "-in=" + valueList.ToString();
-        }
-
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.InCollection; } }
-
-        // --- Initialization ---
         public InArrayFilter(T[] filterArray = null)
+        : base(FieldFilterMethod.InCollection, "-in=")
         {
             this.filterArray = filterArray;
         }
     }
 
-    public class NotInArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T[]>
+    public class NotInArrayFilter<T> : ArrayFieldFilterBase<T>
     {
-        public T[] filterArray;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.filterArray != null);
-
-            StringBuilder valueList = new StringBuilder();
-
-            if(filterArray.Length > 0)
-            {
-                foreach(T filterValue in this.filterArray)
-                {
-                    if(filterValue != null)
-                    {
-                        valueList.Append(filterValue.ToString() + ",");
-                    }
-                }
-
-                if(valueList.Length > 0)
-                {
-                    // Remove trailing comma
-                    valueList.Length -= 1;
-                }
-            }
-
-            return fieldName + "-not-in=" + valueList.ToString();
-        }
-
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.NotInCollection; } }
-
-        // --- Initialization ---
         public NotInArrayFilter(T[] filterArray = null)
+        : base(FieldFilterMethod.NotInCollection, "-not-in=")
         {
             this.filterArray = filterArray;
         }
     }
 
     // ------[ NUMERIC FILTERS ]------
-    public class MinimumFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    public class MinimumFilter<T> : AFieldFilterBase<T>
         where T : IComparable<T>
     {
-        public T minimum;
-        public bool isInclusive;
-
-        public string GenerateFilterString(string fieldName)
+        public T minimum
         {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.minimum != null);
-
-            return fieldName + (isInclusive ? "-min=" : "-gt=") + minimum;
+            get { return this.filterValue; }
+            set { this.filterValue = value; }
         }
 
-        public FieldFilterMethod filterMethod
-        {
-            get
-            {
-                if(this.isInclusive)
-                {
-                    return FieldFilterMethod.Minimum;
-                }
-                else
-                {
-                    return FieldFilterMethod.GreaterThan;
-                }
-            }
-        }
+        public bool isInclusive = true;
 
         // --- Initialization ---
-        public MinimumFilter(T filterValue = default(T), bool isInclusive = false)
+        public MinimumFilter(T filterValue = default(T), bool isInclusive = true)
+        : base(FieldFilterMethod.Minimum, "-min=")
         {
             this.minimum = filterValue;
             this.isInclusive = isInclusive;
         }
-    }
 
-    public class MaximumFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
-        where T : IComparable<T>
-    {
-        public T maximum;
-        public bool isInclusive;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(this.maximum != null);
-
-            return fieldName + (isInclusive ? "-max=" : "-st=") + maximum;
-        }
-
-        public FieldFilterMethod filterMethod
+        public override FieldFilterMethod filterMethod
         {
             get
             {
-                if(this.isInclusive)
-                {
-                    return FieldFilterMethod.Maximum;
-                }
-                else
-                {
-                    return FieldFilterMethod.LessThan;
-                }
+                this.data.filterMethod = (this.isInclusive
+                                          ? FieldFilterMethod.Minimum
+                                          : FieldFilterMethod.GreaterThan);
+
+                return base.filterMethod;
             }
         }
 
+        public override string GenerateFilterString(string fieldName)
+        {
+            this.apiStringOperator = (isInclusive ? "-min=" : "-gt=");
+            return base.GenerateFilterString(fieldName);
+        }
+    }
+
+    public class MaximumFilter<T> : AFieldFilterBase<T>
+        where T : IComparable<T>
+    {
+        public T maximum
+        {
+            get { return this.filterValue; }
+            set { this.filterValue = value; }
+        }
+
+        public bool isInclusive = true;
+
         // --- Initialization ---
-        public MaximumFilter(T filterValue = default(T), bool isInclusive = false)
+        public MaximumFilter(T filterValue = default(T), bool isInclusive = true)
+        : base(FieldFilterMethod.Maximum, "-max=")
         {
             this.maximum = filterValue;
             this.isInclusive = isInclusive;
         }
+
+        public override FieldFilterMethod filterMethod
+        {
+            get
+            {
+                this.data.filterMethod = (this.isInclusive
+                                          ? FieldFilterMethod.Maximum
+                                          : FieldFilterMethod.LessThan);
+
+                return base.filterMethod;
+            }
+        }
+
+        public override string GenerateFilterString(string fieldName)
+        {
+            this.apiStringOperator = (isInclusive ? "-max=" : "-st=");
+            return base.GenerateFilterString(fieldName);
+        }
     }
 
     // ------[ INT FILTERS ]------
-    public class BitwiseAndFilter : IRequestFieldFilter, IRequestFieldFilter<int>
+    public class BitwiseAndFilter : AFieldFilterBase<int>
     {
-        public int filterValue;
-
-        public string GenerateFilterString(string fieldName)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-
-            return fieldName + "-bitwise-and=" + filterValue;
-        }
-
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.BitwiseAnd; } }
-
-        // --- Initialization ---
         public BitwiseAndFilter(int filterValue = -1)
+        : base(FieldFilterMethod.BitwiseAnd, "-bitwise-and=")
         {
             this.filterValue = filterValue;
         }
     }
 
     // ------[ STRING FILTERS ]------
-    public class StringLikeFilter : IRequestFieldFilter, IRequestFieldFilter<string>
+    public class StringLikeFilter : AFieldFilterBase<string>
     {
-        public string likeValue;
-
-        public string GenerateFilterString(string fieldName)
+        public string likeValue
         {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(!string.IsNullOrEmpty(this.likeValue));
-
-            return fieldName + "-lk=" + likeValue;
+            get { return this.filterValue; }
+            set { this.filterValue = value; }
         }
 
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.LikeString; } }
 
-        // --- Initialization ---
-        public StringLikeFilter(string likeValue = null)
+        public StringLikeFilter(string filterValue = null)
+        : base(FieldFilterMethod.LikeString, "-lk=")
         {
-            this.likeValue = likeValue;
+            this.filterValue = filterValue;
         }
     }
-    public class StringNotLikeFilter : IRequestFieldFilter, IRequestFieldFilter<string>
+    public class StringNotLikeFilter : AFieldFilterBase<string>
     {
-        public string notLikeValue;
-
-        public string GenerateFilterString(string fieldName)
+        public string notLikeValue
         {
-            Debug.Assert(!string.IsNullOrEmpty(fieldName));
-            Debug.Assert(!string.IsNullOrEmpty(this.notLikeValue));
-
-            return fieldName + "-not-lk=" + notLikeValue;
+            get { return this.filterValue; }
+            set { this.filterValue = value; }
         }
 
-        public FieldFilterMethod filterMethod { get { return FieldFilterMethod.NotLikeString; } }
-
-        // --- Initialization ---
-        public StringNotLikeFilter(string notLikeValue = null)
+        public StringNotLikeFilter(string filterValue = null)
+        : base(FieldFilterMethod.NotLikeString, "-not-lk=")
         {
-            this.notLikeValue = notLikeValue;
+            this.filterValue = filterValue;
         }
     }
 
     // ---------[ OBSOLETE ]---------
     [Obsolete("Combine a MinimumFilter and MaximumFilter instead.")]
-    public class RangeFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    public class RangeFilter<T> : IRequestFieldFilter<T>, IRequestFieldFilter
         where T : IComparable<T>
     {
         public T min;
@@ -336,6 +300,15 @@ namespace ModIO
         }
 
         public FieldFilterMethod filterMethod { get { throw new System.NotImplementedException(); } }
+        object IRequestFieldFilter.filterValue
+        {
+            get { throw new System.NotImplementedException(); }
+        }
+
+        T IRequestFieldFilter<T>.filterValue
+        {
+            get { throw new System.NotImplementedException(); }
+        }
     }
 
 }
