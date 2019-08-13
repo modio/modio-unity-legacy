@@ -28,6 +28,12 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.Equal; } }
+
+        // --- Initialization ---
+        public EqualToFilter(T filterValue = default(T))
+        {
+            this.filterValue = filterValue;
+        }
     }
 
     public class NotEqualToFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
@@ -43,9 +49,15 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotEqual; } }
+
+        // --- Initialization ---
+        public NotEqualToFilter(T filterValue = default(T))
+        {
+            this.filterValue = filterValue;
+        }
     }
 
-    public class MatchesArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    public class MatchesArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T[]>
     {
         public T[] filterArray;
 
@@ -77,9 +89,15 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.EquivalentCollection; } }
+
+        // --- Initialization ---
+        public MatchesArrayFilter(T[] filterArray = null)
+        {
+            this.filterArray = filterArray;
+        }
     }
 
-    public class InArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    public class InArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T[]>
     {
         public T[] filterArray;
 
@@ -111,9 +129,15 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.InCollection; } }
+
+        // --- Initialization ---
+        public InArrayFilter(T[] filterArray = null)
+        {
+            this.filterArray = filterArray;
+        }
     }
 
-    public class NotInArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
+    public class NotInArrayFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T[]>
     {
         public T[] filterArray;
 
@@ -145,6 +169,12 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotInCollection; } }
+
+        // --- Initialization ---
+        public NotInArrayFilter(T[] filterArray = null)
+        {
+            this.filterArray = filterArray;
+        }
     }
 
     // ------[ NUMERIC FILTERS ]------
@@ -176,6 +206,13 @@ namespace ModIO
                 }
             }
         }
+
+        // --- Initialization ---
+        public MinimumFilter(T filterValue = default(T), bool isInclusive = false)
+        {
+            this.minimum = filterValue;
+            this.isInclusive = isInclusive;
+        }
     }
 
     public class MaximumFilter<T> : IRequestFieldFilter, IRequestFieldFilter<T>
@@ -206,6 +243,13 @@ namespace ModIO
                 }
             }
         }
+
+        // --- Initialization ---
+        public MaximumFilter(T filterValue = default(T), bool isInclusive = false)
+        {
+            this.maximum = filterValue;
+            this.isInclusive = isInclusive;
+        }
     }
 
     // ------[ INT FILTERS ]------
@@ -221,6 +265,12 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.BitwiseAnd; } }
+
+        // --- Initialization ---
+        public BitwiseAndFilter(int filterValue = -1)
+        {
+            this.filterValue = filterValue;
+        }
     }
 
     // ------[ STRING FILTERS ]------
@@ -237,6 +287,12 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.LikeString; } }
+
+        // --- Initialization ---
+        public StringLikeFilter(string likeValue = null)
+        {
+            this.likeValue = likeValue;
+        }
     }
     public class StringNotLikeFilter : IRequestFieldFilter, IRequestFieldFilter<string>
     {
@@ -251,6 +307,12 @@ namespace ModIO
         }
 
         public FieldFilterMethod FilterMethod { get { return FieldFilterMethod.NotLikeString; } }
+
+        // --- Initialization ---
+        public StringNotLikeFilter(string notLikeValue = null)
+        {
+            this.notLikeValue = notLikeValue;
+        }
     }
 
     // ---------[ OBSOLETE ]---------
