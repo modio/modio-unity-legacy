@@ -42,7 +42,6 @@ namespace ModIO.UI
         protected virtual void Awake()
         {
             this.template.gameObject.SetActive(false);
-            this.m_itemTemplate = this.template.GetComponentInChildren<TagContainerItem>(true);
 
             // check template
             #if DEBUG
@@ -58,6 +57,7 @@ namespace ModIO.UI
             Transform templateParent = this.template.parent;
             string templateInstance_name = this.template.gameObject.name + " (Instance)";
             int templateInstance_index = this.template.GetSiblingIndex() + 1;
+            this.m_itemTemplate = this.template.GetComponentInChildren<TagContainerItem>(true);
 
             // check if instantiated
             bool isInstantiated = (templateParent.childCount > templateInstance_index
@@ -298,12 +298,13 @@ namespace ModIO.UI
                 isValid = false;
             }
 
-            if(container.m_itemTemplate == null
-               || container.template.gameObject != container.m_itemTemplate.gameObject)
+            TagContainerItem itemTemplate = container.template.GetComponentInChildren<TagContainerItem>(true);
+            if(itemTemplate == null
+               || container.template.gameObject == itemTemplate.gameObject)
             {
                 helpMessage = ("This Tag Container has an invalid template."
                                + "\nThe container template needs a child with the TagContainerItem"
-                               + " component attached.");
+                               + " component attached to use as the item template.");
                 isValid = false;
             }
 
