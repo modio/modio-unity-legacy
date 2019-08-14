@@ -28,7 +28,7 @@ namespace ModIO.UI
         /// <summary>Container for the display objects.</summary>
         private RectTransform m_container = null;
 
-        /// <summary>Gallery Image Locators to display.</summary>
+        /// <summary>Tags to display.</summary>
         private string[] m_tags = new string[0];
 
         /// <summary>Display objects.</summary>
@@ -41,32 +41,60 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
-            // duplication protection
-            if(this.m_itemTemplate != null) { return; }
-
-            // initialize
             this.template.gameObject.SetActive(false);
             this.m_itemTemplate = this.template.GetComponentInChildren<TagContainerItem>(true);
 
-            if(this.m_itemTemplate != null
-               && this.template.gameObject != this.m_itemTemplate.gameObject)
+            // check template
+            #if DEBUG
+            string message;
+            if(!TagContainer.HasValidTemplate(this, out message))
             {
-                this.m_templateClone = GameObject.Instantiate(this.template.gameObject, this.template.parent);
-                this.m_templateClone.SetActive(true);
-                this.m_templateClone.transform.SetSiblingIndex(this.template.GetSiblingIndex() + 1);
-
-                this.m_displays = new TagContainerItem[1];
-                this.m_displays[0] = this.m_templateClone.GetComponentInChildren<TagContainerItem>(true);
-                this.m_displays[0].gameObject.name = "Tag Container Item [00]";
-
-                this.m_container = (RectTransform)this.m_displays[0].transform.parent;
+                Debug.LogError("[mod.io] " + message, this);
+                return;
             }
-            else
+            #endif
+
+            // get template vars
+            Transform templateParent = this.template.parent;
+            string templateInstance_name = this.template.gameObject.name + " (Instance)";
+            int templateInstance_index = this.template.GetSiblingIndex() + 1;
+
+            // check if instantiated
+            bool isInstantiated = (templateParent.childCount > templateInstance_index
+                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            if(isInstantiated)
             {
-                Debug.LogError("[mod.io] This Tag Container has an invalid template"
-                               + " hierarchy. The Template must contain a child with a"
-                               + " Tag Container Item component to use as the item template.",
-                               this);
+                this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
+                TagContainerItem[] itemInstances = this.m_templateClone.GetComponentsInChildren<TagContainerItem>(true);
+
+                if(itemInstances == null || itemInstances.Length == 0)
+                {
+                    isInstantiated = false;
+                    GameObject.Destroy(this.m_templateClone);
+                }
+                else
+                {
+                    this.m_container = (RectTransform)itemInstances[0].transform.parent;
+
+                    foreach(TagContainerItem view in itemInstances)
+                    {
+                        GameObject.Destroy(view.gameObject);
+                    }
+                }
+            }
+
+            // instantiate
+            if(!isInstantiated)
+            {
+                this.m_templateClone = GameObject.Instantiate(this.template.gameObject, templateParent);
+                this.m_templateClone.SetActive(true);
+                this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
+                this.m_templateClone.name = templateInstance_name;
+
+                TagContainerItem itemInstance = this.m_templateClone.GetComponentInChildren<TagContainerItem>(true);
+                this.m_container = (RectTransform)itemInstance.transform.parent;
+
+                GameObject.Destroy(itemInstance.gameObject);
             }
         }
 
@@ -253,16 +281,33 @@ namespace ModIO.UI
             this.DisplayTags(this.m_tags);
         }
 
-        // public void OnEnable()
-        // {
-        //     StartCoroutine(LateUpdateLayouting());
-        // }
+        // ---------[ UTILITY ]---------
+        /// <summary>Checks a TagContainer's template structure.</summary>
+        public static bool HasValidTemplate(TagContainer container, out string helpMessage)
+        {
+            helpMessage = null;
+            bool isValid = true;
 
-        // public System.Collections.IEnumerator LateUpdateLayouting()
-        // {
-        //     yield return null;
-        //     UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(container);
-        // }
+            if(container.template.gameObject == container.gameObject
+               || container.transform.IsChildOf(container.template))
+            {
+                helpMessage = ("This Tag Container has an invalid template."
+                               + "\nThe container template cannot share the same GameObject"
+                               + " as this Tag Container component, and cannot be a parent of"
+                               + " this object.");
+                isValid = false;
+            }
 
+            if(container.m_itemTemplate == null
+               || container.template.gameObject != container.m_itemTemplate.gameObject)
+            {
+                helpMessage = ("This Tag Container has an invalid template."
+                               + "\nThe container template needs a child with the TagContainerItem"
+                               + " component attached.");
+                isValid = false;
+            }
+
+            return isValid;
+        }
     }
 }
