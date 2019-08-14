@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("Use ExplorerFilterTagsContainer instead.")]
     [RequireComponent(typeof(TagContainer))]
     public class ExplorerTagFilterBar : MonoBehaviour
     {
