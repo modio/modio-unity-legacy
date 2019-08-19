@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Displays a collection of tags as a series of text components.</summary>
-    public class TagContainer : MonoBehaviour, IModViewElement
+    public class TagContainer : MonoBehaviour, IModViewElement, IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
         /// <summary>Template to duplicate for the purpose of displaying tags.</summary>
@@ -168,7 +168,9 @@ namespace ModIO.UI
             if(this.isActiveAndEnabled)
             {
                 int tagCount = this.m_tags.Length;
-                this.SetDisplayCount(tagCount);
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
+                                             "Tag", tagCount,
+                                             ref this.m_displays);
 
                 // display categories?
                 if(m_itemTemplate.categoryName.displayComponent != null
@@ -195,57 +197,6 @@ namespace ModIO.UI
                 }
 
                 this.m_templateClone.SetActive(tagCount > 0 || !this.hideIfEmpty);
-            }
-        }
-
-        /// <summary>Creates/Destroys display objects to match the given value.</summary>
-        protected virtual void SetDisplayCount(int newCount)
-        {
-            int difference = newCount - this.m_displays.Length;
-
-            if(difference > 0)
-            {
-                TagContainerItem[] newDisplayArray = new TagContainerItem[newCount];
-
-                for(int i = 0;
-                    i < this.m_displays.Length;
-                    ++i)
-                {
-                    newDisplayArray[i] = this.m_displays[i];
-                }
-
-                for(int i = this.m_displays.Length;
-                    i < newDisplayArray.Length;
-                    ++i)
-                {
-                    GameObject displayGO = GameObject.Instantiate(this.m_itemTemplate.gameObject);
-                    displayGO.name = "Tag Container Item [" + i.ToString("00") + "]";
-                    displayGO.transform.SetParent(this.m_container, false);
-
-                    newDisplayArray[i] = displayGO.GetComponent<TagContainerItem>();
-                }
-
-                this.m_displays = newDisplayArray;
-            }
-            else if(difference < 0)
-            {
-                TagContainerItem[] newDisplayArray = new TagContainerItem[newCount];
-
-                for(int i = 0;
-                    i < newDisplayArray.Length;
-                    ++i)
-                {
-                    newDisplayArray[i] = this.m_displays[i];
-                }
-
-                for(int i = newDisplayArray.Length;
-                    i < this.m_displays.Length;
-                    ++i)
-                {
-                    GameObject.Destroy(this.m_displays[i].gameObject);
-                }
-
-                this.m_displays = newDisplayArray;
             }
         }
 

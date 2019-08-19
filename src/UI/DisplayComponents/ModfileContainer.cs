@@ -94,7 +94,9 @@ namespace ModIO.UI
             {
                 // set view count
                 int itemCount = this.m_modfiles.Length;
-                this.SetViewCount(itemCount);
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
+                                             "Mod View", itemCount,
+                                             ref this.m_views);
 
                 // display data
                 for(int i = 0; i < itemCount; ++i)
@@ -104,57 +106,6 @@ namespace ModIO.UI
 
                 // hide if necessary
                 this.m_templateClone.SetActive(itemCount > 0 || !this.hideIfEmpty);
-            }
-        }
-
-        /// <summary>Creates/Destroys views to match the given value.</summary>
-        protected virtual void SetViewCount(int newCount)
-        {
-            int difference = newCount - this.m_views.Length;
-
-            if(difference > 0)
-            {
-                ModfileView[] newViewArray = new ModfileView[newCount];
-
-                for(int i = 0;
-                    i < this.m_views.Length;
-                    ++i)
-                {
-                    newViewArray[i] = this.m_views[i];
-                }
-
-                for(int i = this.m_views.Length;
-                    i < newViewArray.Length;
-                    ++i)
-                {
-                    GameObject displayGO = GameObject.Instantiate(this.m_itemTemplate.gameObject);
-                    displayGO.name = "Modfile View [" + i.ToString("00") + "]";
-                    displayGO.transform.SetParent(this.m_container, false);
-
-                    newViewArray[i] = displayGO.GetComponent<ModfileView>();
-                }
-
-                this.m_views = newViewArray;
-            }
-            else if(difference < 0)
-            {
-                ModfileView[] newViewArray = new ModfileView[newCount];
-
-                for(int i = 0;
-                    i < newViewArray.Length;
-                    ++i)
-                {
-                    newViewArray[i] = this.m_views[i];
-                }
-
-                for(int i = newViewArray.Length;
-                    i < this.m_views.Length;
-                    ++i)
-                {
-                    GameObject.Destroy(this.m_views[i].gameObject);
-                }
-
-                this.m_views = newViewArray;
             }
         }
     }

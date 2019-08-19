@@ -69,7 +69,6 @@ namespace ModIO.UI
             }
         }
 
-        // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
         public virtual void SetModView(ModView view)
         {
@@ -153,7 +152,9 @@ namespace ModIO.UI
             // display
             if(this.isActiveAndEnabled)
             {
-                this.SetDisplayCount(this.m_youTubeIds.Length);
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
+                                             "YouTube Thumbnail", this.m_youTubeIds.Length,
+                                             ref this.m_displays);
 
                 for(int i = 0;
                     i < this.m_youTubeIds.Length;
@@ -163,57 +164,6 @@ namespace ModIO.UI
                 }
 
                 this.m_templateClone.SetActive(this.m_youTubeIds.Length > 0 || !this.hideIfEmpty);
-            }
-        }
-
-        /// <summary>Creates/Destroys display objects to match the given value.</summary>
-        protected virtual void SetDisplayCount(int newCount)
-        {
-            int difference = newCount - this.m_displays.Length;
-
-            if(difference > 0)
-            {
-                YouTubeThumbnailDisplay[] newDisplayArray = new YouTubeThumbnailDisplay[newCount];
-
-                for(int i = 0;
-                    i < this.m_displays.Length;
-                    ++i)
-                {
-                    newDisplayArray[i] = this.m_displays[i];
-                }
-
-                for(int i = this.m_displays.Length;
-                    i < newDisplayArray.Length;
-                    ++i)
-                {
-                    GameObject displayGO = GameObject.Instantiate(m_itemTemplate.gameObject);
-                    displayGO.name = "YouTube Thumbnail [" + i.ToString("00") + "]";
-                    displayGO.transform.SetParent(this.m_container, false);
-
-                    newDisplayArray[i] = displayGO.GetComponent<YouTubeThumbnailDisplay>();
-                }
-
-                this.m_displays = newDisplayArray;
-            }
-            else if(difference < 0)
-            {
-                YouTubeThumbnailDisplay[] newDisplayArray = new YouTubeThumbnailDisplay[newCount];
-
-                for(int i = 0;
-                    i < newDisplayArray.Length;
-                    ++i)
-                {
-                    newDisplayArray[i] = this.m_displays[i];
-                }
-
-                for(int i = newDisplayArray.Length;
-                    i < this.m_displays.Length;
-                    ++i)
-                {
-                    GameObject.Destroy(this.m_displays[i].gameObject);
-                }
-
-                this.m_displays = newDisplayArray;
             }
         }
     }

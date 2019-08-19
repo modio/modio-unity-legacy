@@ -187,7 +187,43 @@ namespace ModIO.UI
             // display
             if(this.m_itemTemplate != null)
             {
-                this.SetViewCount(itemCount);
+                // set instance count
+                int viewCount = itemCount;
+                if(this.fillToLimit && this.m_itemLimit >= 0)
+                {
+                    viewCount = this.m_itemLimit;
+                }
+
+                UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
+                                             "Mod View", viewCount,
+                                             ref this.m_views);
+
+
+                // -- set view visibility --
+                if(this.fillToLimit)
+                {
+                    int visibleCount = itemCount;
+
+                    for(int i = 0;
+                        i < visibleCount;
+                        ++i)
+                    {
+                        CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
+                        c.alpha = 1f;
+                        c.interactable = true;
+                        c.blocksRaycasts = true;
+                    }
+
+                    for(int i = visibleCount;
+                        i < viewCount;
+                        ++i)
+                    {
+                        CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
+                        c.alpha = 0f;
+                        c.interactable = false;
+                        c.blocksRaycasts = false;
+                    }
+                }
 
                 // display data
                 if(this.m_modProfiles != null)
@@ -211,88 +247,6 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Creates/Destroys views to match the given value.</summary>
-        protected virtual void SetViewCount(int newCount)
-        {
-            Debug.Assert(this.m_itemLimit < 0 || newCount <= this.m_itemLimit);
-
-            // checks for filling container
-            int visibleCount = newCount;
-            int viewCount = newCount;
-            if(this.fillToLimit && this.m_itemLimit >= 0)
-            {
-                viewCount = this.m_itemLimit;
-            }
-
-            // -- create/destroy as necessary --
-            int difference = viewCount - this.m_views.Length;
-
-            if(difference > 0)
-            {
-                ModView[] newViewArray = new ModView[viewCount];
-
-                for(int i = 0;
-                    i < this.m_views.Length;
-                    ++i)
-                {
-                    newViewArray[i] = this.m_views[i];
-                }
-
-                for(int i = this.m_views.Length;
-                    i < newViewArray.Length;
-                    ++i)
-                {
-                    GameObject displayGO = GameObject.Instantiate(this.m_itemTemplate.gameObject);
-                    displayGO.name = "Mod View [" + i.ToString("00") + "]";
-                    displayGO.transform.SetParent(this.m_container, false);
-
-                    newViewArray[i] = displayGO.GetComponent<ModView>();
-                }
-
-                this.m_views = newViewArray;
-            }
-            else if(difference < 0)
-            {
-                ModView[] newViewArray = new ModView[viewCount];
-
-                for(int i = 0;
-                    i < newViewArray.Length;
-                    ++i)
-                {
-                    newViewArray[i] = this.m_views[i];
-                }
-
-                for(int i = newViewArray.Length;
-                    i < this.m_views.Length;
-                    ++i)
-                {
-                    GameObject.Destroy(this.m_views[i].gameObject);
-                }
-
-                this.m_views = newViewArray;
-            }
-
-            // -- set view visibility --
-            for(int i = 0;
-                i < visibleCount;
-                ++i)
-            {
-                CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
-                c.alpha = 1f;
-                c.interactable = true;
-                c.blocksRaycasts = true;
-            }
-
-            for(int i = visibleCount;
-                i < viewCount;
-                ++i)
-            {
-                CanvasGroup c = this.m_views[i].GetComponent<CanvasGroup>();
-                c.alpha = 0f;
-                c.interactable = false;
-                c.blocksRaycasts = false;
-            }
-        }
 
         // ---------[ UTILITY ]---------
         /// <summary>Checks a ModContainer's template structure.</summary>
