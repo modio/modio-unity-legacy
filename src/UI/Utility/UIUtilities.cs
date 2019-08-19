@@ -215,8 +215,9 @@ namespace ModIO.UI
                     ++i)
                 {
                     GameObject displayGO = GameObject.Instantiate(template.gameObject);
-                    displayGO.name = instanceName + ":[" + i.ToString("00") + "]";
+                    displayGO.name = instanceName + " [" + i.ToString("00") + "]";
                     displayGO.transform.SetParent(container, false);
+                    displayGO.SetActive(true);
 
                     newInstanceArray[i] = displayGO.GetComponent<T>();
                 }
