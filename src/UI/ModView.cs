@@ -88,15 +88,15 @@ namespace ModIO.UI
         /// <summary>Collects and sets view on IModViewElements.</summary>
         protected virtual void Start()
         {
-            #if DEBUG
-            ModView nested = this.gameObject.GetComponentInChildren<ModView>(true);
-            if(nested != null && nested != this)
+            #if UNITY_EDITOR
+            ModView[] nested = this.gameObject.GetComponentsInChildren<ModView>(true);
+            if(nested.Length > 1)
             {
                 Debug.LogError("[mod.io] Nesting ModViews is currently not supported due to the"
                                + " way IModViewElement component parenting works."
                                + "\nThe nested ModViews must be removed to allow ModView functionality."
                                + "\nthis=" + this.gameObject.name
-                               + "\nnested=" + nested.gameObject.name,
+                               + "\nnested=" + nested[1].gameObject.name,
                                this);
                 return;
             }
