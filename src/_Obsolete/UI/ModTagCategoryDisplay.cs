@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [Obsolete("No longer supported. Use TagContainer instead.")]
     [RequireComponent(typeof(ModTagCollectionDisplayComponent))]
     public class ModTagCategoryDisplay : MonoBehaviour
     {
