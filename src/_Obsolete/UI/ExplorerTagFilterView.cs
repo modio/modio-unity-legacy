@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 namespace ModIO.UI
 {
+    [Obsolete("Use ExplorerFilterTagsSelector instead.")]
     public class ExplorerTagFilterView : MonoBehaviour, IGameProfileUpdateReceiver
     {
         // ---------[ FIELDS ]---------
