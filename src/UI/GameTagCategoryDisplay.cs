@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,6 +28,9 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
+        /// <summary>Event fired when the tags have been updated.</summary>
+        public event Action<IEnumerable<TagContainerItem>> onTagsChanged = null;
+
         /// <summary>Template data.</summary>
         public TemplateData template = new TemplateData();
 
@@ -191,6 +195,12 @@ namespace ModIO.UI
                     {
                         categoryItem.tagInstances[tag_i].tagName.text = category.tags[tag_i];
                     }
+                }
+
+                // fire event
+                if(this.onTagsChanged != null)
+                {
+                    this.onTagsChanged(this.tagItems);
                 }
             }
         }
