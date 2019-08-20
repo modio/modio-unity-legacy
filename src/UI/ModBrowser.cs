@@ -224,11 +224,6 @@ namespace ModIO.UI
                 this.m_queuedUnsubscribes = new List<int>();
                 WriteManifest();
             }
-
-            // - Image settings -
-            ImageDisplayData.avatarThumbnailSize = this.avatarThumbnailSize;
-            ImageDisplayData.logoThumbnailSize = this.logoThumbnailSize;
-            ImageDisplayData.galleryThumbnailSize = this.galleryThumbnailSize;
         }
 
         private System.Collections.IEnumerator StartFetchRemoteData()
