@@ -528,6 +528,19 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Sets the sort method and refreshes the view.</summary>
+        public void SetSortMethod(bool ascending, string fieldName)
+        {
+            // create struct
+            SortMethod sortMethod = new SortMethod()
+            {
+                ascending = ascending,
+                fieldName = fieldName,
+            };
+
+            this.SetSortMethod(sortMethod);
+        }
+
         /// <summary>Gets the sort method.</summary>
         public SortMethod GetSortMethod()
         {
@@ -1065,14 +1078,7 @@ namespace ModIO.UI
                 }
             }
 
-            // create struct
-            SortMethod sortMethod = new SortMethod()
-            {
-                ascending = ascending,
-                fieldName = fieldName,
-            };
-
-            this.SetSortMethod(sortMethod);
+            this.SetSortMethod(ascending, fieldName);
         }
 
         [Obsolete("Use ExplorerView.GetSortMethod() instead.")]
