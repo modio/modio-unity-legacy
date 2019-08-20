@@ -12,9 +12,6 @@ namespace ModIO.UI
         /// <summary>ExplorerView to set the tagFilter on.</summary>
         private ExplorerView m_view = null;
 
-        /// <summary>Tags to display as selected.</summary>
-        private List<string> m_selectedTags = new List<string>();
-
         // --- Accessors ---
         /// <summary>Container that this component controls.</summary>
         public TagContainer container

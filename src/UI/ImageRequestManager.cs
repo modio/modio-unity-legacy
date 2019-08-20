@@ -382,7 +382,6 @@ namespace ModIO.UI
 
             // init vars
             string url = locator.GetSizeURL(size);
-            string fileName = locator.GetFileName();
             Callbacks callbacks = null;
 
             // check for null URL
