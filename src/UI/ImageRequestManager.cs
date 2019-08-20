@@ -80,96 +80,6 @@ namespace ModIO.UI
         }
 
         // ---------[ FUNCTIONALITY ]---------
-        /// <summary>Requests the image for a given ImageDisplayData.</summary>
-        public virtual void RequestImageForData(ImageDisplayData data, bool original,
-                                                Action<Texture2D> onSuccess,
-                                                Action<WebRequestError> onError)
-        {
-            string url = data.GetImageURL(original);
-
-            // asserts
-            Debug.Assert(onSuccess != null);
-            Debug.Assert(!string.IsNullOrEmpty(url));
-
-            // create delegates
-            Func<Texture2D> loadFromDisk = null;
-            Action<Texture2D> saveToDisk = null;
-            switch(data.descriptor)
-            {
-                case ImageDescriptor.ModLogo:
-                {
-                    LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
-
-                    loadFromDisk = () => CacheClient.LoadModLogo(data.ownerId, data.imageId, size);
-
-                    if(this.storeIfSubscribed)
-                    {
-                        saveToDisk = (t) =>
-                        {
-                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
-                            {
-                                CacheClient.SaveModLogo(data.ownerId, data.imageId, size, t);
-                            }
-                        };
-                    }
-                }
-                break;
-                case ImageDescriptor.ModGalleryImage:
-                {
-                    ModGalleryImageSize size = (original
-                                                ? ModGalleryImageSize.Original
-                                                : ImageDisplayData.galleryThumbnailSize);
-
-                    loadFromDisk = () => CacheClient.LoadModGalleryImage(data.ownerId, data.imageId, size);
-
-                    if(this.storeIfSubscribed)
-                    {
-                        saveToDisk = (t) =>
-                        {
-                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
-                            {
-                                CacheClient.SaveModGalleryImage(data.ownerId, data.imageId, size, t);
-                            }
-                        };
-                    }
-                }
-                break;
-                case ImageDescriptor.YouTubeThumbnail:
-                {
-                    loadFromDisk = () => CacheClient.LoadModYouTubeThumbnail(data.ownerId, data.imageId);
-
-                    if(this.storeIfSubscribed)
-                    {
-                        saveToDisk = (t) =>
-                        {
-                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
-                            {
-                                CacheClient.SaveModYouTubeThumbnail(data.ownerId, data.imageId, t);
-                            }
-                        };
-                    }
-                }
-                break;
-                case ImageDescriptor.UserAvatar:
-                {
-                    UserAvatarSize size = (original
-                                           ? UserAvatarSize.Original
-                                           : ImageDisplayData.avatarThumbnailSize);
-
-                    loadFromDisk = () => CacheClient.LoadUserAvatar(data.ownerId, size);
-                }
-                break;
-            }
-
-            // request image
-            this.RequestImage_Internal(url,
-                                       loadFromDisk,
-                                       saveToDisk,
-                                       onSuccess,
-                                       onError);
-
-        }
-
         /// <summary>Requests the image for a given locator.</summary>
         public virtual void RequestModLogo(int modId, LogoImageLocator locator,
                                            LogoSize size,
@@ -717,5 +627,98 @@ namespace ModIO.UI
 
             return result;
         }
+
+        // ---------[ OBSOLETE ]---------
+        #pragma warning disable 0618
+        [Obsolete("No longer supported.")]
+        /// <summary>Requests the image for a given ImageDisplayData.</summary>
+        public virtual void RequestImageForData(ImageDisplayData data, bool original,
+                                                Action<Texture2D> onSuccess,
+                                                Action<WebRequestError> onError)
+        {
+            string url = data.GetImageURL(original);
+
+            // asserts
+            Debug.Assert(onSuccess != null);
+            Debug.Assert(!string.IsNullOrEmpty(url));
+
+            // create delegates
+            Func<Texture2D> loadFromDisk = null;
+            Action<Texture2D> saveToDisk = null;
+            switch(data.descriptor)
+            {
+                case ImageDescriptor.ModLogo:
+                {
+                    LogoSize size = (original ? LogoSize.Original : ImageDisplayData.logoThumbnailSize);
+
+                    loadFromDisk = () => CacheClient.LoadModLogo(data.ownerId, data.imageId, size);
+
+                    if(this.storeIfSubscribed)
+                    {
+                        saveToDisk = (t) =>
+                        {
+                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            {
+                                CacheClient.SaveModLogo(data.ownerId, data.imageId, size, t);
+                            }
+                        };
+                    }
+                }
+                break;
+                case ImageDescriptor.ModGalleryImage:
+                {
+                    ModGalleryImageSize size = (original
+                                                ? ModGalleryImageSize.Original
+                                                : ImageDisplayData.galleryThumbnailSize);
+
+                    loadFromDisk = () => CacheClient.LoadModGalleryImage(data.ownerId, data.imageId, size);
+
+                    if(this.storeIfSubscribed)
+                    {
+                        saveToDisk = (t) =>
+                        {
+                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            {
+                                CacheClient.SaveModGalleryImage(data.ownerId, data.imageId, size, t);
+                            }
+                        };
+                    }
+                }
+                break;
+                case ImageDescriptor.YouTubeThumbnail:
+                {
+                    loadFromDisk = () => CacheClient.LoadModYouTubeThumbnail(data.ownerId, data.imageId);
+
+                    if(this.storeIfSubscribed)
+                    {
+                        saveToDisk = (t) =>
+                        {
+                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            {
+                                CacheClient.SaveModYouTubeThumbnail(data.ownerId, data.imageId, t);
+                            }
+                        };
+                    }
+                }
+                break;
+                case ImageDescriptor.UserAvatar:
+                {
+                    UserAvatarSize size = (original
+                                           ? UserAvatarSize.Original
+                                           : ImageDisplayData.avatarThumbnailSize);
+
+                    loadFromDisk = () => CacheClient.LoadUserAvatar(data.ownerId, size);
+                }
+                break;
+            }
+
+            // request image
+            this.RequestImage_Internal(url,
+                                       loadFromDisk,
+                                       saveToDisk,
+                                       onSuccess,
+                                       onError);
+        }
+        #pragma warning restore 0618
     }
 }
