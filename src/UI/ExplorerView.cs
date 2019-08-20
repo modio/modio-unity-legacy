@@ -415,7 +415,7 @@ namespace ModIO.UI
             this.targetPage = targetPage;
             this.UpdateTargetPageDisplay();
 
-            ModProfileRequestManager.instance.FetchModProfilePage(this.GenerateRequestFilter(), targetPageProfileOffset, pageSize,
+            ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
             {
                 if(this.targetPage == targetPage)
@@ -623,6 +623,7 @@ namespace ModIO.UI
             if(tagFilter == null)
             {
                 tagFilter = new MatchesArrayFilter<string>();
+                tagFilter.filterValue = new string[0];
             }
 
             List<string> tagFilterValues = new List<string>();
