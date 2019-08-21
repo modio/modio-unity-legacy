@@ -9,15 +9,13 @@ namespace ModIO.UI.Editor
     {
         public override void OnInspectorGUI()
         {
+            base.OnInspectorGUI();
+
             bool locateSettings = GUILayout.Button("Plugin Settings");
             if(locateSettings)
             {
                 PluginSettings.FocusAsset();
             }
-
-            EditorGUILayout.Space();
-
-            base.OnInspectorGUI();
         }
     }
 }

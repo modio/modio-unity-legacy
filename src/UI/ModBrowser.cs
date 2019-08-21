@@ -55,14 +55,6 @@ namespace ModIO.UI
         /// <summary>Number of seconds between user event polls.</summary>
         private const float USER_EVENT_POLLING_PERIOD = 15f;
 
-        // ---------[ FIELDS ]---------
-        [Tooltip("Size to use for the user avatar thumbnails")]
-        public UserAvatarSize avatarThumbnailSize = UserAvatarSize.Thumbnail_50x50;
-        [Tooltip("Size to use for the mod logo thumbnails")]
-        public LogoSize logoThumbnailSize = LogoSize.Thumbnail_320x180;
-        [Tooltip("Size to use for the mod gallery image thumbnails")]
-        public ModGalleryImageSize galleryThumbnailSize = ModGalleryImageSize.Thumbnail_320x180;
-
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = new GameProfile();
         private Dictionary<int, ModRatingValue> m_userRatings = new Dictionary<int, ModRatingValue>();
