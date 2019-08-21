@@ -247,8 +247,32 @@ namespace ModIO.UI
             }
         }
 
-
         // ---------[ UTILITY ]---------
+        /// <summary>Returns the views currently being managed by the mod container.</summary>
+        public List<ModView> GetModViews()
+        {
+            List<ModView> retVal = null;
+            if(this.fillToLimit
+               && this.m_views != null)
+            {
+                retVal = new List<ModView>();
+
+                foreach(ModView view in this.m_views)
+                {
+                    if(view.gameObject.GetComponent<CanvasGroup>().alpha == 1f)
+                    {
+                        retVal.Add(view);
+                    }
+                }
+            }
+            else if(this.m_views != null)
+            {
+                retVal = new List<ModView>(this.m_views);
+            }
+
+            return retVal;
+        }
+
         /// <summary>Checks a ModContainer's template structure.</summary>
         public static bool HasValidTemplate(ModContainer container, out string helpMessage)
         {
