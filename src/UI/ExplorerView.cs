@@ -150,7 +150,6 @@ namespace ModIO.UI
         public float pageTransitionTimeSeconds = 0.4f;
 
         [Header("UI Components")]
-        public RectTransform contentPane;
         public Button prevPageButton;
         public Button nextPageButton;
         public Text pageNumberText;
@@ -862,7 +861,8 @@ namespace ModIO.UI
         {
             if(!m_isTransitioning)
             {
-                float mainPaneTargetX = contentPane.rect.width * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
+                float containerWidth = ((RectTransform)this.m_currentPageContainer.transform.parent).rect.width;
+                float mainPaneTargetX = containerWidth * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
                 float transPaneStartX = mainPaneTargetX * -1f;
 
                 this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
@@ -984,6 +984,20 @@ namespace ModIO.UI
         public RectTransform transitionPageContainer;
         [Obsolete("No longer supported.")][HideInInspector]
         public GridLayoutGroup gridLayout;
+
+        [Obsolete("No longer necessary.")][HideInInspector]
+        public RectTransform contentPane
+        {
+            get
+            {
+                if(this.m_currentPageContainer != null)
+                {
+                    return this.m_currentPageContainer.transform.parent as RectTransform;
+                }
+                return null;
+            }
+            set {}
+        }
 
         [Obsolete]
         public int itemsPerPage
