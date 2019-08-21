@@ -47,7 +47,7 @@ namespace ModIO.UI
 
         // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
-        public RequestPage<ModProfile> displayedMods
+        public RequestPage<ModProfile> modPage
         {
             get { return this.m_displayedModPage; }
         }

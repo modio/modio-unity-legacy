@@ -69,16 +69,25 @@ namespace ModIO.UI
 
         // --- Run-time Data ---
         /// <summary>RequestPage being displayed.</summary>
-        private RequestPage<ModProfile> m_displayedModPage = null;
+        private RequestPage<ModProfile> m_modPage = null;
+
+        /// <summary>RequestPage being transitioned to.</summary>
+        private RequestPage<ModProfile> m_transitionPage = null;
 
         /// <summary>Currently applied RequestFilter.</summary>
         private RequestFilter m_requestFilter = new RequestFilter();
 
         // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
-        public RequestPage<ModProfile> displayedMods
+        public RequestPage<ModProfile> modPage
         {
-            get { return this.m_displayedModPage; }
+            get { return this.m_modPage; }
+        }
+
+        /// <summary>RequestPage being transitioned to.</summary>
+        public RequestPage<ModProfile> transitionPage
+        {
+            get { return this.m_transitionPage; }
         }
 
         /// <summary>Currently applied RequestFilter.</summary>

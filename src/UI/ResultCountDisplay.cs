@@ -67,7 +67,7 @@ namespace ModIO.UI
             if(this.m_subsView != null)
             {
                 this.m_subsView.onModPageChanged.AddListener(DisplayPageTotal);
-                this.DisplayPageTotal(this.m_subsView.displayedMods);
+                this.DisplayPageTotal(this.m_subsView.modPage);
             }
             else
             {
@@ -99,7 +99,7 @@ namespace ModIO.UI
             if(this.m_explorerView != null)
             {
                 this.m_explorerView.onModPageChanged.AddListener(DisplayPageTotal);
-                this.DisplayPageTotal(this.m_explorerView.displayedMods);
+                this.DisplayPageTotal(this.m_explorerView.modPage);
             }
             else
             {
