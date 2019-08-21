@@ -24,5 +24,26 @@ namespace ModIO
         /// <summary>The data returned by the request.</summary>
         [JsonProperty("data")]
         public T[] items;
+
+        // ---------[ UTILITY ]------
+        /// <summary>Calculates the page count.</summary>
+        public int CalculatePageCount()
+        {
+            if(this.size > 0)
+            {
+                return UnityEngine.Mathf.CeilToInt((float)this.resultTotal / (float)this.size);
+            }
+            return -1;
+        }
+
+        /// <summary>Calculates the page index.</summary>
+        public int CalculatePageIndex()
+        {
+            if(this.size > 0)
+            {
+                return this.resultOffset / this.size;
+            }
+            return -1;
+        }
     }
 }
