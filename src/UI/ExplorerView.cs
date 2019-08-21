@@ -32,9 +32,15 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
+        [Header("UI Components")]
         /// <summary>Container used to display mods.</summary>
         public ModContainer containerTemplate = null;
+        /// <summary>Button for transitioning to the previous page of results.</summary>
+        public Button prevPageButton;
+        /// <summary>Button for transitioning to the next page of results.</summary>
+        public Button nextPageButton;
 
+        [Header("Settings")]
         /// <summary>Default sort method.</summary>
         public SortMethod defaultSortMethod = new SortMethod()
         {
@@ -42,11 +48,8 @@ namespace ModIO.UI
             fieldName = API.GetAllModsFilterFields.dateLive,
         };
 
-        /// <summary>RequestPage being displayed.</summary>
-        private RequestPage<ModProfile> m_displayedModPage = null;
-
-        /// <summary>Currently applied RequestFilter.</summary>
-        private RequestFilter m_requestFilter = new RequestFilter();
+        /// <summary>Number of seconds per page transition.</summary>
+        public float pageTransitionTimeSeconds = 0.4f;
 
         [Header("Events")]
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
@@ -54,7 +57,15 @@ namespace ModIO.UI
         /// <summary>Event for notifying listeners of a change to the request filter.</summary>
         public RequestFilterChanged onRequestFilterChanged = null;
 
-        // --- ACCESSORS ---
+
+        // --- Run-time Data ---
+        /// <summary>RequestPage being displayed.</summary>
+        private RequestPage<ModProfile> m_displayedModPage = null;
+
+        /// <summary>Currently applied RequestFilter.</summary>
+        private RequestFilter m_requestFilter = new RequestFilter();
+
+        // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
         public RequestPage<ModProfile> displayedMods
         {
@@ -146,12 +157,7 @@ namespace ModIO.UI
         // ---------[ OLD ]---------
         public event Action<string[]> onTagFilterUpdated;
 
-        [Header("Settings")]
-        public float pageTransitionTimeSeconds = 0.4f;
-
         [Header("UI Components")]
-        public Button prevPageButton;
-        public Button nextPageButton;
         public Text pageNumberText;
         public Text pageCountText;
         public Text resultCountText;
