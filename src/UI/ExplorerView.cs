@@ -158,9 +158,6 @@ namespace ModIO.UI
         public event Action<string[]> onTagFilterUpdated;
 
         [Header("UI Components")]
-        public Text pageNumberText;
-        public Text pageCountText;
-        public Text resultCountText;
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noResultsDisplay;
         public StateToggleDisplay isActiveIndicator;
@@ -738,7 +735,6 @@ namespace ModIO.UI
                 profiles = this.currentPage.items;
             }
 
-            UpdatePageNumberDisplay();
             this.DisplayProfiles(profiles, this.m_currentPageContainer);
         }
 
@@ -844,24 +840,6 @@ namespace ModIO.UI
             }
         }
 
-        private void UpdatePageNumberDisplay()
-        {
-            if(currentPage == null) { return; }
-
-            if(pageNumberText != null)
-            {
-                pageNumberText.text = CurrentPageNumber.ToString();
-            }
-            if(pageCountText != null)
-            {
-                pageCountText.text = CurrentPageCount.ToString();
-            }
-            if(resultCountText != null)
-            {
-                resultCountText.text = UIUtilities.ValueToDisplayString(currentPage.resultTotal);
-            }
-        }
-
         // ----------[ PAGE TRANSITIONS ]---------
         public void InitiateTargetPageTransition(PageTransitionDirection direction, Action onTransitionCompleted)
         {
@@ -919,8 +897,6 @@ namespace ModIO.UI
             // finalize
             this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
             this.m_targetPageContainer.gameObject.SetActive(false);
-
-            UpdatePageNumberDisplay();
 
             m_isTransitioning = false;
 
@@ -983,6 +959,13 @@ namespace ModIO.UI
         public GameObject itemPrefab = null;
         [Obsolete("Use ExplorerView.defaultSortMethod instead.")][HideInInspector]
         public string defaultSortString = string.Empty;
+
+        [Obsolete("Use PageNumberDisplay component instead.")][HideInInspector]
+        public Text pageNumberText;
+        [Obsolete("Use PageCountDisplay component instead.")][HideInInspector]
+        public Text pageCountText;
+        [Obsolete("Use ResultCountDisplay component instead.")][HideInInspector]
+        public Text resultCountText;
 
         [Obsolete("No longer supported.")][HideInInspector]
         public RectTransform currentPageContainer;
