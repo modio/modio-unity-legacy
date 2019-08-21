@@ -43,8 +43,8 @@ namespace ModIO.UI
             {
                 Debug.LogWarning("[mod.io] No compatible text components were found on this "
                                  + "GameObject to set text for."
-                                 + "\nCompatible components are UnityEngine.UI.Text, "
-                                 + "UnityEngine.TextMesh, and components derived from TMPro.TMP_Text.",
+                                 + "\nCompatible with any component that exposes a"
+                                 + " publicly settable \'.text\' property.",
                                  this);
             }
             #endif
