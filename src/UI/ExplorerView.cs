@@ -35,10 +35,19 @@ namespace ModIO.UI
         [Header("UI Components")]
         /// <summary>Container used to display mods.</summary>
         public ModContainer containerTemplate = null;
+
         /// <summary>Button for transitioning to the previous page of results.</summary>
         public Button prevPageButton;
+
         /// <summary>Button for transitioning to the next page of results.</summary>
         public Button nextPageButton;
+
+        /// <summary>Object to display when no results were found.</summary>
+        [Tooltip("Object to display when no results were found.")]
+        public GameObject noResultsDisplay;
+
+        /// <summary>Object that should react to this view being enabled/disabled.</summary>
+        public StateToggleDisplay isActiveIndicator;
 
         [Header("Settings")]
         /// <summary>Default sort method.</summary>
@@ -156,11 +165,6 @@ namespace ModIO.UI
 
         // ---------[ OLD ]---------
         public event Action<string[]> onTagFilterUpdated;
-
-        [Header("UI Components")]
-        [Tooltip("Object to display when there are no subscribed mods")]
-        public GameObject noResultsDisplay;
-        public StateToggleDisplay isActiveIndicator;
 
         [Header("Display Data")]
         private RequestPage<ModProfile> m_currentPage = null;
