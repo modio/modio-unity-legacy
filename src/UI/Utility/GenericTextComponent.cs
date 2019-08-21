@@ -1,9 +1,11 @@
+using System.Reflection;
+
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    /// <summary>A component that wraps various Text display components.</summary>
+    /// <summary>A component that wraps any component with a ".text" property.</summary>
     [System.Serializable]
     public struct GenericTextComponent
     {
@@ -15,14 +17,24 @@ namespace ModIO.UI
 
             if(gameObject != null)
             {
-                textComponent = gameObject.GetComponent<TMPro.TMP_Text>();
-                if(textComponent == null)
+                Component[] objectComponents = gameObject.GetComponents<Component>();
+
+                foreach(Component component in objectComponents)
                 {
-                    textComponent = gameObject.GetComponent<Text>();
-                }
-                if(textComponent == null)
-                {
-                    textComponent = gameObject.GetComponent<TextMesh>();
+                    var componentType = component.GetType();
+                    var propertyInfo = componentType.GetProperty("text",
+                                                                 BindingFlags.IgnoreCase
+                                                                 | BindingFlags.Public
+                                                                 | BindingFlags.Instance);
+
+                    if(propertyInfo != null
+                       && propertyInfo.PropertyType == typeof(string)
+                       && propertyInfo.GetGetMethod() != null
+                       && propertyInfo.GetSetMethod() != null)
+                    {
+                        textComponent = component;
+                        break;
+                    }
                 }
             }
 
@@ -35,10 +47,10 @@ namespace ModIO.UI
         private Component m_textDisplayComponent;
 
         /// <summary>The delegate for displaying text.</summary>
-        private System.Action<string> m_setTextDelegate;
+        private System.Action<Component, string> m_setTextDelegate;
 
         /// <summary>The delegate for getting the displayed text.</summary>
-        private System.Func<string> m_getTextDelegate;
+        private System.Func<Component, string> m_getTextDelegate;
 
         // --- Accessors ---
         /// <summary>The component the this structure uses to display text.</summary>
@@ -54,74 +66,20 @@ namespace ModIO.UI
             {
                 if(this.m_getTextDelegate == null)
                 {
-                    if(this.m_textDisplayComponent is TMPro.TMP_Text)
-                    {
-                        var castComponent = (TMPro.TMP_Text)this.m_textDisplayComponent;
-                        this.m_getTextDelegate = () =>
-                        {
-                            return castComponent.text;
-                        };
-                    }
-                    else if(this.m_textDisplayComponent is Text)
-                    {
-                        var castComponent = (Text)this.m_textDisplayComponent;
-                        this.m_getTextDelegate = () =>
-                        {
-                            return castComponent.text;
-                        };
-                    }
-                    else if(this.m_textDisplayComponent is TextMesh)
-                    {
-                        var castComponent = (TextMesh)this.m_textDisplayComponent;
-                        this.m_getTextDelegate = () =>
-                        {
-                            return castComponent.text;
-                        };
-                    }
-                    else
-                    {
-                        this.m_getTextDelegate = () => null;
-                    }
+                    GenerateDelegates();
                 }
 
-                return this.m_getTextDelegate();
+                return this.m_getTextDelegate(this.m_textDisplayComponent);
             }
 
             set
             {
                 if(this.m_setTextDelegate == null)
                 {
-                    if(this.m_textDisplayComponent is TMPro.TMP_Text)
-                    {
-                        var castComponent = (TMPro.TMP_Text)this.m_textDisplayComponent;
-                        this.m_setTextDelegate = (s) =>
-                        {
-                            castComponent.text = s;
-                        };
-                    }
-                    else if(this.m_textDisplayComponent is Text)
-                    {
-                        var castComponent = (Text)this.m_textDisplayComponent;
-                        this.m_setTextDelegate = (s) =>
-                        {
-                            castComponent.text = s;
-                        };
-                    }
-                    else if(this.m_textDisplayComponent is TextMesh)
-                    {
-                        var castComponent = (TextMesh)this.m_textDisplayComponent;
-                        this.m_setTextDelegate = (s) =>
-                        {
-                            castComponent.text = s;
-                        };
-                    }
-                    else
-                    {
-                        this.m_setTextDelegate = (s) => {};
-                    }
+                    GenerateDelegates();
                 }
 
-                this.m_setTextDelegate(value);
+                this.m_setTextDelegate(this.m_textDisplayComponent, value);
             }
         }
 
@@ -134,6 +92,40 @@ namespace ModIO.UI
                 this.m_textDisplayComponent = displayComponent;
                 this.m_setTextDelegate = null;
                 this.m_getTextDelegate = null;
+            }
+        }
+
+        /// <summary>Creates the get/set delegates.</summary>
+        private void GenerateDelegates()
+        {
+            PropertyInfo propertyInfo = null;
+            if(this.m_textDisplayComponent != null)
+            {
+                var componentType = this.m_textDisplayComponent.GetType();
+                propertyInfo = componentType.GetProperty("text",
+                                                         BindingFlags.IgnoreCase
+                                                         | BindingFlags.Public
+                                                         | BindingFlags.Instance);
+            }
+
+            if(propertyInfo != null
+               && propertyInfo.PropertyType != typeof(string)
+               && propertyInfo.GetGetMethod() == null
+               && propertyInfo.GetSetMethod() == null)
+            {
+                this.m_getTextDelegate = (component) =>
+                {
+                    return propertyInfo.GetValue(component, null) as string;
+                };
+                this.m_setTextDelegate = (component, s) =>
+                {
+                    propertyInfo.SetValue(component, s, null);
+                };
+            }
+            else
+            {
+                this.m_getTextDelegate = (component) => null;
+                this.m_setTextDelegate = (component, s) => {};
             }
         }
     }
