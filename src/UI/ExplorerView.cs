@@ -166,7 +166,6 @@ namespace ModIO.UI
         // ---------[ OLD ]---------
         [Header("Display Data")]
         private RequestPage<ModProfile> m_currentPage = null;
-        public RequestPage<ModProfile> targetPage = null;
 
         // --- Run-time Data ---
         private List<ModView> m_modViews = new List<ModView>();
@@ -193,6 +192,12 @@ namespace ModIO.UI
                     }
                 }
             }
+        }
+
+        private RequestPage<ModProfile> m_targetPage = null;
+        public RequestPage<ModProfile> targetPage
+        {
+            get { return this.targetPage; }
         }
 
         public IEnumerable<ModView> modViews
@@ -407,25 +412,25 @@ namespace ModIO.UI
             int pageItemCount = (int)Mathf.Min(pageSize,
                                                this.currentPage.resultTotal - targetPageProfileOffset);
 
-            RequestPage<ModProfile> targetPage = new RequestPage<ModProfile>()
+            RequestPage<ModProfile> m_targetPage = new RequestPage<ModProfile>()
             {
                 size = pageSize,
                 items = new ModProfile[pageItemCount],
                 resultOffset = targetPageProfileOffset,
                 resultTotal = this.currentPage.resultTotal,
             };
-            this.targetPage = targetPage;
+            this.m_targetPage = m_targetPage;
             this.UpdateTargetPageDisplay();
 
             ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
             {
-                if(this.targetPage == targetPage)
+                if(this.m_targetPage == m_targetPage)
                 {
-                    this.targetPage = page;
+                    this.m_targetPage = page;
                     this.UpdateTargetPageDisplay();
                 }
-                if(this.currentPage == targetPage)
+                if(this.currentPage == m_targetPage)
                 {
                     this.currentPage = page;
                     this.UpdateCurrentPageDisplay();
@@ -735,7 +740,7 @@ namespace ModIO.UI
             }
             #endif
 
-            this.DisplayProfiles(this.targetPage.items, this.m_targetPageContainer);
+            this.DisplayProfiles(this.m_targetPage.items, this.m_targetPageContainer);
         }
 
         protected virtual void DisplayProfiles(IList<ModProfile> profileCollection, ModContainer modContainer)
@@ -876,8 +881,8 @@ namespace ModIO.UI
             this.m_targetPageContainer = tempContainer;
 
             var tempPage = currentPage;
-            currentPage = targetPage;
-            targetPage = tempPage;
+            currentPage = m_targetPage;
+            m_targetPage = tempPage;
 
             // finalize
             this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
