@@ -13,7 +13,7 @@ namespace ModIO.UI
         FromRight,
     }
 
-    public class ExplorerView : MonoBehaviour, IGameProfileUpdateReceiver
+    public class ExplorerView : MonoBehaviour
     {
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
@@ -168,8 +168,6 @@ namespace ModIO.UI
         private RequestPage<ModProfile> m_currentPage = null;
 
         // --- Run-time Data ---
-        private IEnumerable<ModTagCategory> m_tagCategories = null;
-
         private ModContainer m_currentPageContainer = null;
         private ModContainer m_targetPageContainer = null;
 
@@ -912,20 +910,6 @@ namespace ModIO.UI
             if(this.onRequestFilterChanged != null)
             {
                 this.onRequestFilterChanged.Invoke(this.m_requestFilter);
-            }
-        }
-
-        // ---------[ EVENTS ]---------
-        public void OnGameProfileUpdated(GameProfile gameProfile)
-        {
-            if(this.m_tagCategories != gameProfile.tagCategories)
-            {
-                this.m_tagCategories = gameProfile.tagCategories;
-
-                if(this.isActiveAndEnabled)
-                {
-                    this.Refresh();
-                }
             }
         }
 
