@@ -179,12 +179,6 @@ namespace ModIO.UI
 
         private bool m_isTransitioning = false;
 
-        private RequestPage<ModProfile> m_targetPage = null;
-        public RequestPage<ModProfile> targetPage
-        {
-            get { return this.targetPage; }
-        }
-
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
 
         // ---------[ INITIALIZATION ]---------
@@ -359,25 +353,25 @@ namespace ModIO.UI
             int pageItemCount = (int)Mathf.Min(pageSize,
                                                this.m_modPage.resultTotal - targetPageProfileOffset);
 
-            RequestPage<ModProfile> m_targetPage = new RequestPage<ModProfile>()
+            RequestPage<ModProfile> transitionPlaceholder = new RequestPage<ModProfile>()
             {
                 size = pageSize,
                 items = new ModProfile[pageItemCount],
                 resultOffset = targetPageProfileOffset,
                 resultTotal = this.m_modPage.resultTotal,
             };
-            this.m_targetPage = m_targetPage;
+            this.m_transitionPage = transitionPlaceholder;
             this.UpdateTargetPageDisplay();
 
             ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
             {
-                if(this.m_targetPage == m_targetPage)
+                if(this.m_transitionPage == transitionPlaceholder)
                 {
-                    this.m_targetPage = page;
+                    this.m_transitionPage = page;
                     this.UpdateTargetPageDisplay();
                 }
-                if(this.m_modPage == m_targetPage)
+                if(this.m_modPage == transitionPlaceholder)
                 {
                     this.DisplayModPage(page);
                 }
@@ -682,7 +676,7 @@ namespace ModIO.UI
             }
             #endif
 
-            this.DisplayProfiles(this.m_targetPage.items, this.m_targetPageContainer);
+            this.DisplayProfiles(this.m_transitionPage.items, this.m_targetPageContainer);
         }
 
         protected virtual void DisplayProfiles(IList<ModProfile> profileCollection, ModContainer modContainer)
@@ -823,8 +817,8 @@ namespace ModIO.UI
             this.m_targetPageContainer = tempContainer;
 
             var tempPage = modPage;
-            this.m_modPage = this.m_targetPage;
-            this.m_targetPage = tempPage;
+            this.m_modPage = this.m_transitionPage;
+            this.m_transitionPage = tempPage;
 
             // finalize
             this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
@@ -915,19 +909,14 @@ namespace ModIO.UI
         [Obsolete("Use ExplorerView.modPage instead.")]
         public RequestPage<ModProfile> currentPage
         {
-            get { return this.m_modPage; }
-            set
-            {
-                if(this.m_modPage != value)
-                {
-                    this.m_modPage = value;
+            get { return this.modPage; }
+            set {}
+        }
 
-                    if(this.onModPageChanged != null)
-                    {
-                        this.onModPageChanged.Invoke(this.m_modPage);
-                    }
-                }
-            }
+        [Obsolete("Use ExplorerView.transitionPage instead.")]
+        public RequestPage<ModProfile> targetPage
+        {
+            get { return this.transitionPage; }
         }
 
         [Obsolete("No longer necessary.")][HideInInspector]
