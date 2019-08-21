@@ -173,32 +173,11 @@ namespace ModIO.UI
         }
 
         // ---------[ OLD ]---------
-        [Header("Display Data")]
-        private RequestPage<ModProfile> m_currentPage = null;
-
         // --- Run-time Data ---
         private ModContainer m_currentPageContainer = null;
         private ModContainer m_targetPageContainer = null;
 
         private bool m_isTransitioning = false;
-
-        // TEMP
-        public RequestPage<ModProfile> currentPage
-        {
-            get { return this.m_currentPage; }
-            set
-            {
-                if(this.m_currentPage != value)
-                {
-                    this.m_currentPage = value;
-
-                    if(this.onModPageChanged != null)
-                    {
-                        this.onModPageChanged.Invoke(this.m_currentPage);
-                    }
-                }
-            }
-        }
 
         private RequestPage<ModProfile> m_targetPage = null;
         public RequestPage<ModProfile> targetPage
@@ -207,40 +186,6 @@ namespace ModIO.UI
         }
 
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
-
-        // ---[ CALCULATED VARS ]----
-        public int CurrentPageNumber
-        {
-            get
-            {
-                int pageNumber = 0;
-
-                if(currentPage != null
-                   && currentPage.size > 0
-                   && currentPage.resultTotal > 0)
-                {
-                    pageNumber = (int)Mathf.Floor((float)currentPage.resultOffset / (float)currentPage.size) + 1;
-                }
-
-                return pageNumber;
-            }
-        }
-        public int CurrentPageCount
-        {
-            get
-            {
-                int pageCount = 0;
-
-                if(currentPage != null
-                   && currentPage.size > 0
-                   && currentPage.resultTotal > 0)
-                {
-                    pageCount = (int)Mathf.Ceil((float)currentPage.resultTotal / (float)currentPage.size);
-                }
-
-                return pageCount;
-            }
-        }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Asserts values and initializes templates.</summary>
@@ -352,18 +297,15 @@ namespace ModIO.UI
                 resultOffset = pageOffset,
                 resultTotal = 0,
             };
-            this.currentPage = filteredPage;
+            this.m_modPage = filteredPage;
 
             ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, pageOffset, pageSize,
             (page) =>
             {
                 if(this != null
-                   && this.currentPage == filteredPage)
+                   && this.m_modPage == filteredPage)
                 {
-                    this.currentPage = page;
-                    this.UpdateCurrentPageDisplay();
-                    this.UpdatePageButtonInteractibility();
-
+                    this.DisplayModPage(page);
                     wasDisplayUpdated = true;
                 }
             },
@@ -371,7 +313,9 @@ namespace ModIO.UI
 
             if(!wasDisplayUpdated)
             {
-                this.UpdateCurrentPageDisplay();
+                // force updates
+                this.m_modPage = null;
+                this.DisplayModPage(filteredPage);
             }
         }
 
@@ -380,17 +324,21 @@ namespace ModIO.UI
             if(this.prevPageButton != null)
             {
                 this.prevPageButton.interactable = (!this.m_isTransitioning
-                                                    && this.CurrentPageNumber > 1);
+                                                    && this.modPage != null
+                                                    && this.modPage.CalculatePageIndex() > 0);
             }
             if(this.nextPageButton != null)
             {
                 this.nextPageButton.interactable = (!this.m_isTransitioning
-                                                    && this.CurrentPageNumber < this.CurrentPageCount);
+                                                    && this.modPage != null
+                                                    && this.modPage.CalculatePageIndex()+1 < this.modPage.CalculatePageCount());
             }
         }
 
         public void ChangePage(int pageDifferential)
         {
+            Debug.Assert(this.modPage != null);
+
             if(this.m_isTransitioning)
             {
                 return;
@@ -402,21 +350,21 @@ namespace ModIO.UI
                 pageSize = APIPaginationParameters.LIMIT_MAX;
             }
 
-            int targetPageIndex = this.CurrentPageNumber - 1 + pageDifferential;
+            int targetPageIndex = this.m_modPage.CalculatePageIndex() + pageDifferential;
             int targetPageProfileOffset = targetPageIndex * pageSize;
 
             Debug.Assert(targetPageIndex >= 0);
-            Debug.Assert(targetPageIndex < this.CurrentPageCount);
+            Debug.Assert(targetPageIndex < this.m_modPage.CalculatePageCount());
 
             int pageItemCount = (int)Mathf.Min(pageSize,
-                                               this.currentPage.resultTotal - targetPageProfileOffset);
+                                               this.m_modPage.resultTotal - targetPageProfileOffset);
 
             RequestPage<ModProfile> m_targetPage = new RequestPage<ModProfile>()
             {
                 size = pageSize,
                 items = new ModProfile[pageItemCount],
                 resultOffset = targetPageProfileOffset,
-                resultTotal = this.currentPage.resultTotal,
+                resultTotal = this.m_modPage.resultTotal,
             };
             this.m_targetPage = m_targetPage;
             this.UpdateTargetPageDisplay();
@@ -429,11 +377,9 @@ namespace ModIO.UI
                     this.m_targetPage = page;
                     this.UpdateTargetPageDisplay();
                 }
-                if(this.currentPage == m_targetPage)
+                if(this.m_modPage == m_targetPage)
                 {
-                    this.currentPage = page;
-                    this.UpdateCurrentPageDisplay();
-                    this.UpdatePageButtonInteractibility();
+                    this.DisplayModPage(page);
                 }
             },
             null);
@@ -442,10 +388,7 @@ namespace ModIO.UI
                                                            ? PageTransitionDirection.FromLeft
                                                            : PageTransitionDirection.FromRight);
 
-            this.InitiateTargetPageTransition(transitionDirection, () =>
-            {
-                this.UpdatePageButtonInteractibility();
-            });
+            this.InitiateTargetPageTransition(transitionDirection, null);
             this.UpdatePageButtonInteractibility();
         }
 
@@ -713,15 +656,15 @@ namespace ModIO.UI
 
             if(noResultsDisplay != null)
             {
-                noResultsDisplay.SetActive(currentPage == null
-                                           || currentPage.items == null
-                                           || currentPage.items.Length == 0);
+                noResultsDisplay.SetActive(this.m_modPage == null
+                                           || this.m_modPage.items == null
+                                           || this.m_modPage.items.Length == 0);
             }
 
             IList<ModProfile> profiles = null;
-            if(this.currentPage != null)
+            if(this.m_modPage != null)
             {
-                profiles = this.currentPage.items;
+                profiles = this.m_modPage.items;
             }
 
             this.DisplayProfiles(profiles, this.m_currentPageContainer);
@@ -879,9 +822,9 @@ namespace ModIO.UI
             this.m_currentPageContainer = this.m_targetPageContainer;
             this.m_targetPageContainer = tempContainer;
 
-            var tempPage = currentPage;
-            currentPage = m_targetPage;
-            m_targetPage = tempPage;
+            var tempPage = modPage;
+            this.m_modPage = this.m_targetPage;
+            this.m_targetPage = tempPage;
 
             // finalize
             this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
@@ -889,13 +832,21 @@ namespace ModIO.UI
 
             m_isTransitioning = false;
 
+            // notify, etc
+            this.UpdatePageButtonInteractibility();
+            if(this.onModPageChanged != null)
+            {
+                this.onModPageChanged.Invoke(this.m_modPage);
+            }
+
             if(onTransitionCompleted != null)
             {
                 onTransitionCompleted();
             }
+
         }
 
-        // ---------[ FILTER MANAGEMENT ]---------
+        // ---------[ UTILITY ]---------
         public void ClearAllFilters()
         {
             // Check if already cleared
@@ -922,6 +873,23 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Sets the mod page, updates displays, and notifies event listeners.</summary>
+        protected void DisplayModPage(RequestPage<ModProfile> newModPage)
+        {
+            if(this.m_modPage != newModPage)
+            {
+                this.m_modPage = newModPage;
+
+                this.UpdateCurrentPageDisplay();
+                this.UpdatePageButtonInteractibility();
+
+                if(this.onModPageChanged != null)
+                {
+                    this.onModPageChanged.Invoke(newModPage);
+                }
+            }
+        }
+
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use ExplorerView.containerTemplate instead.")][HideInInspector]
         public RectTransform pageTemplate = null;
@@ -943,6 +911,24 @@ namespace ModIO.UI
         public RectTransform transitionPageContainer;
         [Obsolete("No longer supported.")][HideInInspector]
         public GridLayoutGroup gridLayout;
+
+        [Obsolete("Use ExplorerView.modPage instead.")]
+        public RequestPage<ModProfile> currentPage
+        {
+            get { return this.m_modPage; }
+            set
+            {
+                if(this.m_modPage != value)
+                {
+                    this.m_modPage = value;
+
+                    if(this.onModPageChanged != null)
+                    {
+                        this.onModPageChanged.Invoke(this.m_modPage);
+                    }
+                }
+            }
+        }
 
         [Obsolete("No longer necessary.")][HideInInspector]
         public RectTransform contentPane
@@ -977,6 +963,32 @@ namespace ModIO.UI
                     return this.m_currentPageContainer.GetModViews();
                 }
                 return null;
+            }
+        }
+
+        [Obsolete("Use ExplorerView.modPage.CalculatePageIndex() instead.")]
+        public int CurrentPageNumber
+        {
+            get
+            {
+                if(this.modPage != null)
+                {
+                    return 1+this.modPage.CalculatePageIndex();
+                }
+
+                return 0;
+            }
+        }
+        [Obsolete("Use ExplorerView.modPage.CalculatePageCount() instead.")]
+        public int CurrentPageCount
+        {
+            get
+            {
+                if(this.modPage != null)
+                {
+                    return this.modPage.CalculatePageCount();
+                }
+                return 0;
             }
         }
 
