@@ -164,8 +164,6 @@ namespace ModIO.UI
         }
 
         // ---------[ OLD ]---------
-        public event Action<string[]> onTagFilterUpdated;
-
         [Header("Display Data")]
         private RequestPage<ModProfile> m_currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
@@ -610,11 +608,6 @@ namespace ModIO.UI
                 {
                     this.onRequestFilterChanged.Invoke(this.m_requestFilter);
                 }
-
-                if(this.onTagFilterUpdated != null)
-                {
-                    this.onTagFilterUpdated(newFilterValue);
-                }
             }
         }
 
@@ -662,11 +655,6 @@ namespace ModIO.UI
                 {
                     this.onRequestFilterChanged.Invoke(this.m_requestFilter);
                 }
-
-                if(this.onTagFilterUpdated != null)
-                {
-                    this.onTagFilterUpdated(tagFilter.filterArray);
-                }
             }
         }
 
@@ -689,12 +677,10 @@ namespace ModIO.UI
             if(tagFilterValues.Contains(tagName))
             {
                 tagFilterValues.Remove(tagName);
-                string[] newFilterValue = tagFilterValues.ToArray();
 
                 if(tagFilterValues.Count == 0)
                 {
                     this.tagMatchFieldFilter = null;
-                    newFilterValue = null;
                 }
 
                 // refresh
@@ -704,11 +690,6 @@ namespace ModIO.UI
                 if(this.onRequestFilterChanged != null)
                 {
                     this.onRequestFilterChanged.Invoke(this.m_requestFilter);
-                }
-
-                if(this.onTagFilterUpdated != null)
-                {
-                    this.onTagFilterUpdated(newFilterValue);
                 }
             }
         }
@@ -935,11 +916,6 @@ namespace ModIO.UI
             {
                 this.onRequestFilterChanged.Invoke(this.m_requestFilter);
             }
-
-            if(this.onTagFilterUpdated != null)
-            {
-                this.onTagFilterUpdated(null);
-            }
         }
 
         // ---------[ EVENTS ]---------
@@ -1000,6 +976,9 @@ namespace ModIO.UI
                 return this.containerTemplate.itemLimit;
             }
         }
+
+        [Obsolete("No longer supported. Use ExplorerView.onRequestFilterChanged instead.", true)]
+        public event Action<string[]> onTagFilterUpdated;
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
