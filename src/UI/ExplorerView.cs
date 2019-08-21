@@ -164,15 +164,14 @@ namespace ModIO.UI
         private RequestPage<ModProfile> m_currentPage = null;
         public RequestPage<ModProfile> targetPage = null;
 
-        [Header("Runtime Data")]
-        public bool isTransitioning = false;
-
-        // --- RUNTIME DATA ---
+        // --- Run-time Data ---
         private List<ModView> m_modViews = new List<ModView>();
         private IEnumerable<ModTagCategory> m_tagCategories = null;
 
         private ModContainer m_currentPageContainer = null;
         private ModContainer m_targetPageContainer = null;
+
+        private bool m_isTransitioning = false;
 
         // TEMP
         public RequestPage<ModProfile> currentPage
@@ -191,7 +190,6 @@ namespace ModIO.UI
                 }
             }
         }
-
 
         public IEnumerable<ModView> modViews
         {
@@ -373,19 +371,19 @@ namespace ModIO.UI
         {
             if(this.prevPageButton != null)
             {
-                this.prevPageButton.interactable = (!this.isTransitioning
+                this.prevPageButton.interactable = (!this.m_isTransitioning
                                                     && this.CurrentPageNumber > 1);
             }
             if(this.nextPageButton != null)
             {
-                this.nextPageButton.interactable = (!this.isTransitioning
+                this.nextPageButton.interactable = (!this.m_isTransitioning
                                                     && this.CurrentPageNumber < this.CurrentPageCount);
             }
         }
 
         public void ChangePage(int pageDifferential)
         {
-            if(this.isTransitioning)
+            if(this.m_isTransitioning)
             {
                 return;
             }
@@ -715,7 +713,7 @@ namespace ModIO.UI
             if(this.m_currentPageContainer == null) { return; }
 
             #if DEBUG
-            if(isTransitioning)
+            if(m_isTransitioning)
             {
                 Debug.LogWarning("[mod.io] Explorer View is currently transitioning between pages. It"
                                  + " is recommended to not update page displays at this time.");
@@ -744,7 +742,7 @@ namespace ModIO.UI
             if(this.m_targetPageContainer == null) { return; }
 
             #if DEBUG
-            if(isTransitioning)
+            if(m_isTransitioning)
             {
                 Debug.LogWarning("[mod.io] Explorer View is currently transitioning between pages. It"
                                  + " is recommended to not update page displays at this time.");
@@ -862,7 +860,7 @@ namespace ModIO.UI
         // ----------[ PAGE TRANSITIONS ]---------
         public void InitiateTargetPageTransition(PageTransitionDirection direction, Action onTransitionCompleted)
         {
-            if(!isTransitioning)
+            if(!m_isTransitioning)
             {
                 float mainPaneTargetX = contentPane.rect.width * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
                 float transPaneStartX = mainPaneTargetX * -1f;
@@ -884,7 +882,7 @@ namespace ModIO.UI
         private IEnumerator TransitionPageCoroutine(float mainPaneTargetX, float transitionPaneStartX,
                                                     float transitionLength, Action onTransitionCompleted)
         {
-            isTransitioning = true;
+            m_isTransitioning = true;
 
             this.m_targetPageContainer.gameObject.SetActive(true);
 
@@ -918,7 +916,7 @@ namespace ModIO.UI
 
             UpdatePageNumberDisplay();
 
-            isTransitioning = false;
+            m_isTransitioning = false;
 
             if(onTransitionCompleted != null)
             {
