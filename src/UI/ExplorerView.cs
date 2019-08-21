@@ -168,7 +168,6 @@ namespace ModIO.UI
         private RequestPage<ModProfile> m_currentPage = null;
 
         // --- Run-time Data ---
-        private List<ModView> m_modViews = new List<ModView>();
         private IEnumerable<ModTagCategory> m_tagCategories = null;
 
         private ModContainer m_currentPageContainer = null;
@@ -200,13 +199,6 @@ namespace ModIO.UI
             get { return this.targetPage; }
         }
 
-        public IEnumerable<ModView> modViews
-        {
-            get
-            {
-                return this.m_modViews;
-            }
-        }
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
 
         // ---[ CALCULATED VARS ]----
@@ -979,6 +971,19 @@ namespace ModIO.UI
             get
             {
                 return this.containerTemplate.itemLimit;
+            }
+        }
+
+        [Obsolete("No longer supported.")]
+        public IEnumerable<ModView> modViews
+        {
+            get
+            {
+                if(this.m_currentPageContainer != null)
+                {
+                    return this.m_currentPageContainer.GetModViews();
+                }
+                return null;
             }
         }
 
