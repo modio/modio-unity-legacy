@@ -109,9 +109,9 @@ namespace ModIO.UI
             }
 
             if(propertyInfo != null
-               && propertyInfo.PropertyType != typeof(string)
-               && propertyInfo.GetGetMethod() == null
-               && propertyInfo.GetSetMethod() == null)
+               && propertyInfo.PropertyType == typeof(string)
+               && propertyInfo.GetGetMethod() != null
+               && propertyInfo.GetSetMethod() != null)
             {
                 this.m_getTextDelegate = (component) =>
                 {
