@@ -249,7 +249,7 @@ namespace ModIO.UI
             }
 
             // - create pages -
-            this.UpdateCurrentPageDisplay();
+            this.UpdateModPageDisplay();
             this.UpdatePageButtonInteractibility();
 
             // - perform initial fetch -
@@ -260,7 +260,7 @@ namespace ModIO.UI
         private void OnEnable()
         {
             // NOTE(@jackson): This appears to be unnecessary?
-            // UpdateCurrentPageDisplay();
+            // UpdateModPageDisplay();
 
             if(this.isActiveIndicator != null)
             {
@@ -364,7 +364,7 @@ namespace ModIO.UI
                 resultTotal = this.m_modPage.resultTotal,
             };
             this.m_transitionPage = transitionPlaceholder;
-            this.UpdateTargetPageDisplay();
+            this.UpdateTransitionPageDisplay();
 
             ModProfileRequestManager.instance.FetchModProfilePage(this.m_requestFilter, targetPageProfileOffset, pageSize,
             (page) =>
@@ -372,7 +372,7 @@ namespace ModIO.UI
                 if(this.m_transitionPage == transitionPlaceholder)
                 {
                     this.m_transitionPage = page;
-                    this.UpdateTargetPageDisplay();
+                    this.UpdateTransitionPageDisplay();
                 }
                 if(this.m_modPage == transitionPlaceholder)
                 {
@@ -639,7 +639,7 @@ namespace ModIO.UI
         }
 
         // ---------[ PAGE DISPLAY ]---------
-        public void UpdateCurrentPageDisplay()
+        public void UpdateModPageDisplay()
         {
             if(this.m_modPageContainer == null) { return; }
 
@@ -667,7 +667,7 @@ namespace ModIO.UI
             this.DisplayProfiles(profiles, this.m_modPageContainer);
         }
 
-        public void UpdateTargetPageDisplay()
+        public void UpdateTransitionPageDisplay()
         {
             if(this.m_transitionPageContainer == null) { return; }
 
@@ -877,7 +877,7 @@ namespace ModIO.UI
             {
                 this.m_modPage = newModPage;
 
-                this.UpdateCurrentPageDisplay();
+                this.UpdateModPageDisplay();
                 this.UpdatePageButtonInteractibility();
 
                 if(this.onModPageChanged != null)
@@ -989,6 +989,17 @@ namespace ModIO.UI
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
+
+        [Obsolete("Use ExplorerView.UpdateModPageDisplay() instead.")]
+        public void UpdateCurrentPageDisplay()
+        {
+            this.UpdateModPageDisplay();
+        }
+        [Obsolete("Use ExplorerView.UpdateTransitionPageDisplay() instead.")]
+        public void UpdateTargetPageDisplay()
+        {
+            this.UpdateTransitionPageDisplay();
+        }
 
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
         public event Action<ModView> inspectRequested;
