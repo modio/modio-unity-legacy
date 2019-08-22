@@ -34,7 +34,7 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         [Header("UI Components")]
         /// <summary>Container used to display mods.</summary>
-        public ModContainer containerTemplate = null;
+        public ModContainer pageTemplate = null;
 
         /// <summary>Button for transitioning to the previous page of results.</summary>
         public Button prevPageButton;
@@ -188,7 +188,7 @@ namespace ModIO.UI
         /// <summary>Asserts values and initializes templates.</summary>
         protected virtual void Awake()
         {
-            Debug.Assert(this.gameObject != this.containerTemplate.gameObject,
+            Debug.Assert(this.gameObject != this.pageTemplate.gameObject,
                          "[mod.io] The Explorer View and its Container Template cannot be the same"
                          + " Game Object. Please create a separate Game Object for the container template.");
 
@@ -196,25 +196,25 @@ namespace ModIO.UI
             // NOTE(@jackson): Initializing in Start() was too late as isActiveAndEnabled is true
             // before Start() was called. This may mean that other calls are being made too early,
             // specifically the OnGameProfileUpdated() in ModBrowser.
-            this.containerTemplate.gameObject.SetActive(false);
+            this.pageTemplate.gameObject.SetActive(false);
 
             GameObject templateCopyGO;
 
             // current page
-            templateCopyGO = GameObject.Instantiate(this.containerTemplate.gameObject,
-                                                    this.containerTemplate.transform.parent);
+            templateCopyGO = GameObject.Instantiate(this.pageTemplate.gameObject,
+                                                    this.pageTemplate.transform.parent);
             templateCopyGO.name = "Mod Page A";
             // TODO(@jackson): Change this...
             templateCopyGO.SetActive(true);
-            templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 1);
+            templateCopyGO.transform.SetSiblingIndex(this.pageTemplate.transform.GetSiblingIndex() + 1);
             this.m_modPageContainer = templateCopyGO.GetComponent<ModContainer>();
 
             // transition page
-            templateCopyGO = GameObject.Instantiate(this.containerTemplate.gameObject,
-                                                    this.containerTemplate.transform.parent);
+            templateCopyGO = GameObject.Instantiate(this.pageTemplate.gameObject,
+                                                    this.pageTemplate.transform.parent);
             templateCopyGO.name = "Mod Page B";
             templateCopyGO.SetActive(false);
-            templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 2);
+            templateCopyGO.transform.SetSiblingIndex(this.pageTemplate.transform.GetSiblingIndex() + 2);
             this.m_transitionPageContainer = templateCopyGO.GetComponent<ModContainer>();
         }
 
@@ -888,9 +888,7 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
-        [Obsolete("Use ExplorerView.containerTemplate instead.")][HideInInspector]
-        public RectTransform pageTemplate = null;
-        [Obsolete("Use ExplorerView.containerTemplate instead.")][HideInInspector]
+        [Obsolete("Use ExplorerView.pageTemplate instead.")][HideInInspector]
         public GameObject itemPrefab = null;
         [Obsolete("Use ExplorerView.defaultSortMethod instead.")][HideInInspector]
         public string defaultSortString = string.Empty;
@@ -941,7 +939,7 @@ namespace ModIO.UI
         {
             get
             {
-                return this.containerTemplate.itemLimit;
+                return this.pageTemplate.itemLimit;
             }
         }
 
