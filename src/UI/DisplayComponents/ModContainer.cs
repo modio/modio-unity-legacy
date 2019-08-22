@@ -19,8 +19,9 @@ namespace ModIO.UI
         private int m_itemLimit = -1;
 
         /// <summary>Fill to item limit.</summary>
+        [SerializeField]
         [Tooltip("If enabled, fills the container with hidden mod views to match the item limit.")]
-        public bool fillToLimit = false;
+        private bool m_fillToLimit = false;
 
         // --- Run-Time Data ---
         /// <summary>Instance of the template clone.</summary>
@@ -77,7 +78,7 @@ namespace ModIO.UI
             int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
 
             // NOTE(@jackson): The canvas group is required to hide the unused
-            // ModViews in the case of this.fillToLimit
+            // ModViews in the case of this.m_fillToLimit
             this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<ModView>(true);
             if(this.m_itemTemplate.gameObject.GetComponent<CanvasGroup>() == null)
             {
@@ -189,7 +190,7 @@ namespace ModIO.UI
             {
                 // set instance count
                 int viewCount = itemCount;
-                if(this.fillToLimit && this.m_itemLimit >= 0)
+                if(this.m_fillToLimit && this.m_itemLimit >= 0)
                 {
                     viewCount = this.m_itemLimit;
                 }
@@ -200,7 +201,7 @@ namespace ModIO.UI
 
 
                 // -- set view visibility --
-                if(this.fillToLimit)
+                if(this.m_fillToLimit)
                 {
                     int visibleCount = itemCount;
 
@@ -252,7 +253,7 @@ namespace ModIO.UI
         public List<ModView> GetModViews()
         {
             List<ModView> retVal = null;
-            if(this.fillToLimit
+            if(this.m_fillToLimit
                && this.m_views != null)
             {
                 retVal = new List<ModView>();
