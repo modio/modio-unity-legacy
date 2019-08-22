@@ -9,7 +9,7 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>Template to duplicate for the purpose of displaying the mod views.</summary>
-        public RectTransform template = null;
+        public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
         public bool hideIfEmpty = true;
@@ -59,7 +59,7 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
-            this.template.gameObject.SetActive(false);
+            this.containerTemplate.gameObject.SetActive(false);
 
             // check template
             #if DEBUG
@@ -72,13 +72,13 @@ namespace ModIO.UI
             #endif
 
             // get template vars
-            Transform templateParent = this.template.parent;
-            string templateInstance_name = this.template.gameObject.name + " (Instance)";
-            int templateInstance_index = this.template.GetSiblingIndex() + 1;
+            Transform templateParent = this.containerTemplate.parent;
+            string templateInstance_name = this.containerTemplate.gameObject.name + " (Instance)";
+            int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
 
             // NOTE(@jackson): The canvas group is required to hide the unused
             // ModViews in the case of this.fillToLimit
-            this.m_itemTemplate = this.template.GetComponentInChildren<ModView>(true);
+            this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<ModView>(true);
             if(this.m_itemTemplate.gameObject.GetComponent<CanvasGroup>() == null)
             {
                 this.m_itemTemplate.gameObject.AddComponent<CanvasGroup>();
@@ -111,7 +111,7 @@ namespace ModIO.UI
 
             if(!isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.template.gameObject, templateParent);
+                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
                 this.m_templateClone.SetActive(true);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
@@ -279,8 +279,8 @@ namespace ModIO.UI
             helpMessage = null;
             bool isValid = true;
 
-            if(container.template.gameObject == container.gameObject
-               || container.transform.IsChildOf(container.template))
+            if(container.containerTemplate.gameObject == container.gameObject
+               || container.transform.IsChildOf(container.containerTemplate))
             {
                 helpMessage = ("This Mod Container has an invalid template."
                                + "\nThe container template cannot share the same GameObject"
@@ -289,9 +289,9 @@ namespace ModIO.UI
                 isValid = false;
             }
 
-            ModView itemTemplate = container.template.GetComponentInChildren<ModView>(true);
+            ModView itemTemplate = container.containerTemplate.GetComponentInChildren<ModView>(true);
             if(itemTemplate == null
-               || container.template.gameObject == itemTemplate.gameObject)
+               || container.containerTemplate.gameObject == itemTemplate.gameObject)
             {
                 helpMessage = ("This Mod Container has an invalid template."
                                + "\nThe container template needs a child with the ModView"
