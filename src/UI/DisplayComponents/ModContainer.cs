@@ -47,7 +47,15 @@ namespace ModIO.UI
         public int itemLimit
         {
             get { return this.m_itemLimit; }
-            set { this.m_itemLimit = value; }
+            set
+            {
+                if(this.m_itemLimit != value)
+                {
+                    this.m_itemLimit = value;
+
+                    this.DisplayMods(this.m_modProfiles, this.m_modStatistics);
+                }
+            }
         }
 
         /// <summary>Profiles currently being displayed.</summary>
