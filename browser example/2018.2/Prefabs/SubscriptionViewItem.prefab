@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 224584221435741632}
   - component: {fileID: 222905577857396074}
   - component: {fileID: 114897942373279164}
+  - component: {fileID: 114360160955744932}
   m_Layer: 5
   m_Name: Fade
   m_TagString: Untagged
@@ -245,10 +246,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224302929402394316}
-  - component: {fileID: 114134785855272334}
   - component: {fileID: 222416402807786758}
   - component: {fileID: 114680457361654558}
-  - component: {fileID: 114310215236102322}
+  - component: {fileID: 114900820710955386}
+  - component: {fileID: 114822146053684974}
   m_Layer: 5
   m_Name: MogLogo
   m_TagString: Untagged
@@ -323,6 +324,7 @@ GameObject:
   - component: {fileID: 222328553293628938}
   - component: {fileID: 114662479940314534}
   - component: {fileID: 114615992555332160}
+  - component: {fileID: 114923784836327814}
   m_Layer: 5
   m_Name: BuildDateText
   m_TagString: Untagged
@@ -546,6 +548,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224406441920146206}
   - component: {fileID: 114864062204396540}
+  - component: {fileID: 114988160768202234}
   m_Layer: 5
   m_Name: Ratings
   m_TagString: Untagged
@@ -715,8 +718,8 @@ GameObject:
   m_Component:
   - component: {fileID: 224787336202783216}
   - component: {fileID: 114473892043867778}
-  - component: {fileID: 114114347842351678}
-  - component: {fileID: 114182622715923542}
+  - component: {fileID: 114364597632242384}
+  - component: {fileID: 114417803587953728}
   m_Layer: 5
   m_Name: SubscriptionViewItem
   m_TagString: Untagged
@@ -787,6 +790,7 @@ GameObject:
   - component: {fileID: 224487524298057844}
   - component: {fileID: 222111031520607962}
   - component: {fileID: 114690754693231300}
+  - component: {fileID: 114752416610642184}
   m_Layer: 5
   m_Name: VersionText
   m_TagString: Untagged
@@ -805,6 +809,7 @@ GameObject:
   - component: {fileID: 222447755423247606}
   - component: {fileID: 114797112761990950}
   - component: {fileID: 114965315646618330}
+  - component: {fileID: 114292107920202100}
   m_Layer: 5
   m_Name: ModName
   m_TagString: Untagged
@@ -838,6 +843,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224217830720817668}
+  - component: {fileID: 114708117418715184}
   - component: {fileID: 114971612267215378}
   - component: {fileID: 114793562122507710}
   m_Layer: 5
@@ -941,6 +947,7 @@ GameObject:
   - component: {fileID: 224610141510242210}
   - component: {fileID: 222791750141940046}
   - component: {fileID: 114322497158515638}
+  - component: {fileID: 114510499601637982}
   m_Layer: 5
   m_Name: SizeText
   m_TagString: Untagged
@@ -1197,52 +1204,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &114114347842351678
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1596363269089664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d31828b99f023475f834e02f5ade45cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  replaceMissingDescriptionWithSummary: 0
-  modIdDisplay: {fileID: 0}
-  gameIdDisplay: {fileID: 0}
-  nameDisplay: {fileID: 114797112761990950}
-  nameIdDisplay: {fileID: 0}
-  statusDisplay: {fileID: 0}
-  visibilityDisplay: {fileID: 0}
-  contentWarningsDisplay: {fileID: 0}
-  dateAddedDisplay: {fileID: 0}
-  dateUpdatedDisplay: {fileID: 0}
-  dateLiveDisplay: {fileID: 0}
-  summaryDisplay: {fileID: 0}
-  descriptionAsHTMLDisplay: {fileID: 0}
-  descriptionAsTextDisplay: {fileID: 0}
-  homepageURLDisplay: {fileID: 0}
-  profileURLDisplay: {fileID: 0}
-  metadataBlobDisplay: {fileID: 0}
-  m_data:
-    modId: 0
-    gameId: 0
-    status: 1
-    visibility: 1
-    dateAdded: 3428
-    dateUpdated: 3428
-    dateLive: 3428
-    contentWarnings: 0
-    homepageURL: 
-    name: A magical Mod
-    nameId: 
-    summary: What's a mod? Who's a mod? How's a mod?
-    descriptionAsHTML: 
-    descriptionAsText: 
-    metadataBlob: 
-    profileURL: 
-    metadataKVPs: []
 --- !u!114 &114125632523553384
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1284,34 +1245,6 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
---- !u!114 &114134785855272334
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1143173795038236}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 918a09ebb078c4f4faac13aa5b0bd2c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useOriginal: 0
-  enableFallback: 0
-  image: {fileID: 114680457361654558}
-  fitter: {fileID: 114310215236102322}
-  loadingOverlay: {fileID: 0}
-  avatarOverlay: {fileID: 0}
-  logoOverlay: {fileID: 0}
-  galleryImageOverlay: {fileID: 0}
-  youTubeOverlay: {fileID: 0}
-  m_data:
-    ownerId: 0
-    descriptor: 0
-    imageId: 
-    originalURL: 
-    thumbnailURL: 
-    originalTexture: {fileID: 0}
-    thumbnailTexture: {fileID: 0}
 --- !u!114 &114141207373216668
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1449,44 +1382,6 @@ MonoBehaviour:
   m_reactivateDelay: 0.05
   content: {fileID: 224503502675567128}
   m_isOn: 0
---- !u!114 &114182622715923542
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1596363269089664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e12b4065a2b874a64882bb8f754dfac2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  modfileIdDisplay: {fileID: 0}
-  modIdDisplay: {fileID: 0}
-  dateAddedDisplay: {fileID: 114662479940314534}
-  fileNameDisplay: {fileID: 0}
-  fileSizeDisplay: {fileID: 114322497158515638}
-  MD5Display: {fileID: 0}
-  versionDisplay: {fileID: 114690754693231300}
-  changelogDisplay: {fileID: 0}
-  metadataBlobDisplay: {fileID: 0}
-  virusScanDateDisplay: {fileID: 0}
-  virusScanStatusDisplay: {fileID: 0}
-  virusScanResultDisplay: {fileID: 0}
-  virusScanHashDisplay: {fileID: 0}
-  m_data:
-    modfileId: 0
-    modId: 0
-    dateAdded: 1519280093
-    fileName: 
-    fileSize: 25794969
-    MD5: 
-    version: v.123412312312341233123
-    changelog: 
-    metadataBlob: 
-    virusScanDate: 0
-    virusScanStatus: 0
-    virusScanResult: 0
-    virusScanHash: 
 --- !u!114 &114185616330359724
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1629,7 +1524,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114473892043867778}
-        m_MethodName: NotifyRateNegativeRequested
+        m_MethodName: AttemptRateNegative
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1852,6 +1747,18 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Unsubscribe
+--- !u!114 &114292107920202100
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1704609993657354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_fieldName: name
 --- !u!114 &114300818038883492
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1885,19 +1792,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Downloading:'
---- !u!114 &114310215236102322
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1143173795038236}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1254083943, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AspectMode: 1
-  m_AspectRatio: 1.7777778
 --- !u!114 &114322497158515638
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2049,6 +1943,28 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Version:'
+--- !u!114 &114360160955744932
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1062436550942036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c5f46561d454fddbebe1684378fdc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114364597632242384
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1596363269089664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd061a8d85e134fef86486c0352b08f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114366842051975184
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2149,6 +2065,41 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &114417803587953728
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1596363269089664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c483dccb43de747aeb762f4cc2f44ee1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_modfile:
+    id: 0
+    modId: 0
+    dateAdded: 0
+    fileName: 
+    fileSize: 0
+    fileHash:
+      md5: 
+    version: 
+    changelog: 
+    metadataBlob: 
+    dateScanned: 0
+    virusScanStatus: 0
+    virusScanResult: 0
+    virusScanHash: 
+    downloadLocator:
+      binaryURL: 
+      dateExpires: 0
+  emptyChangelogText: 
+  onModfileChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: ModIO.UI.ModfileView+ModfileChangedEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114428652324657198
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2232,21 +2183,90 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9eab47e1efcc481a9fb3c8f80af9b78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profileDisplay: {fileID: 114114347842351678}
-  submittorDisplay:
-    profile: {fileID: 0}
-    avatar: {fileID: 0}
-  logoDisplay: {fileID: 114134785855272334}
-  mediaContainer: {fileID: 0}
-  buildDisplay: {fileID: 114182622715923542}
-  tagsDisplay: {fileID: 0}
-  statisticsDisplay: {fileID: 0}
-  downloadDisplay: {fileID: 0}
-  subscriptionDisplay: {fileID: 0}
-  modEnabledDisplay: {fileID: 114971612267215378}
-  userRatingDisplay:
-    positive: {fileID: 114141207373216668}
-    negative: {fileID: 114919170284466144}
+  m_profile:
+    id: 0
+    gameId: 0
+    status: 0
+    visibility: 0
+    submittedBy:
+      id: 0
+      nameId: 
+      username: 
+      avatarLocator:
+        fileName: 
+        original: 
+        thumbnail_50x50: 
+        thumbnail_100x100: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    dateAdded: 0
+    dateUpdated: 0
+    dateLive: 0
+    contentWarnings: 0
+    logoLocator:
+      fileName: 
+      original: 
+      thumbnail_320x180: 
+      thumbnail_640x360: 
+      thumbnail_1280x720: 
+    homepageURL: 
+    name: 
+    nameId: 
+    summary: 
+    descriptionAsHTML: 
+    descriptionAsText: 
+    metadataBlob: 
+    profileURL: 
+    currentBuild:
+      id: 0
+      modId: 0
+      dateAdded: 0
+      fileName: 
+      fileSize: 0
+      fileHash:
+        md5: 
+      version: 
+      changelog: 
+      metadataBlob: 
+      dateScanned: 0
+      virusScanStatus: 0
+      virusScanResult: 0
+      virusScanHash: 
+      downloadLocator:
+        binaryURL: 
+        dateExpires: 0
+    media:
+      youTubeURLs: []
+      sketchfabURLs: []
+      galleryImageLocators: []
+      galleryGIFLocators: []
+    metadataKVPs: []
+    tags: []
+  m_statistics:
+    modId: 0
+    popularityRankPosition: 0
+    popularityRankModCount: 0
+    downloadCount: 0
+    subscriberCount: 0
+    ratingCount: 0
+    ratingPositiveCount: 0
+    ratingNegativeCount: 0
+    ratingWeightedAggregate: 0
+    ratingDisplayText: 
+    dateExpires: 0
+  replaceMissingDescription: 1
+  onProfileChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: ModIO.UI.ModView+ProfileChangedEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  onStatisticsChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: ModIO.UI.ModView+StatisticsChangedEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   m_data:
     profile:
       modId: 0
@@ -2327,67 +2347,21 @@ MonoBehaviour:
     isSubscribed: 0
     isModEnabled: 1
     userRating: 0
-  profile:
-    id: 0
-    gameId: 0
-    status: 0
-    visibility: 0
-    submittedBy:
-      id: 0
-      nameId: 
-      username: 
-      avatarLocator:
-        fileName: 
-        original: 
-        thumbnail_50x50: 
-        thumbnail_100x100: 
-      lastOnline: 0
-      timezone: 
-      language: 
-      profileURL: 
-    dateAdded: 0
-    dateUpdated: 0
-    dateLive: 0
-    contentWarnings: 0
-    logoLocator:
-      fileName: 
-      original: 
-      thumbnail_320x180: 
-      thumbnail_640x360: 
-      thumbnail_1280x720: 
-    homepageURL: 
-    name: 
-    nameId: 
-    summary: 
-    descriptionAsHTML: 
-    descriptionAsText: 
-    metadataBlob: 
-    profileURL: 
-    currentBuild:
-      id: 0
-      modId: 0
-      dateAdded: 0
-      fileName: 
-      fileSize: 0
-      fileHash:
-        md5: 
-      version: 
-      changelog: 
-      metadataBlob: 
-      dateScanned: 0
-      virusScanStatus: 0
-      virusScanResult: 0
-      virusScanHash: 
-      downloadLocator:
-        binaryURL: 
-        dateExpires: 0
-    media:
-      youTubeURLs: []
-      sketchfabURLs: []
-      galleryImageLocators: []
-      galleryGIFLocators: []
-    metadataKVPs: []
-    tags: []
+  profileDisplay: {fileID: 0}
+  logoDisplay: {fileID: 0}
+  mediaContainer: {fileID: 0}
+  submittorDisplay:
+    profile: {fileID: 0}
+    avatar: {fileID: 0}
+  buildDisplay: {fileID: 0}
+  tagsDisplay: {fileID: 0}
+  modEnabledDisplay: {fileID: 0}
+  subscriptionDisplay: {fileID: 0}
+  userRatingDisplay:
+    positive: {fileID: 0}
+    negative: {fileID: 0}
+  statisticsDisplay: {fileID: 0}
+  downloadDisplay: {fileID: 0}
 --- !u!114 &114476946508786556
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2505,6 +2479,18 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &114510499601637982
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1843010672036624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_fieldName: fileSize
 --- !u!114 &114520170650992576
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2703,7 +2689,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1143173795038236}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
@@ -2780,12 +2766,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 771d2f78ed39a4205955522e506492be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bytesTotalText: {fileID: 0}
-  bytesReceivedText: {fileID: 0}
-  percentageText: {fileID: 114796002884170526}
-  bytesPerSecondText: {fileID: 114916956751076758}
-  timeRemainingText: {fileID: 0}
+  bytesTotalText:
+    m_textDisplayComponent: {fileID: 0}
+  bytesReceivedText:
+    m_textDisplayComponent: {fileID: 0}
+  percentageText:
+    m_textDisplayComponent: {fileID: 114796002884170526}
+  bytesPerSecondText:
+    m_textDisplayComponent: {fileID: 114916956751076758}
+  timeRemainingText:
+    m_textDisplayComponent: {fileID: 0}
   progressBar: {fileID: 114989697292283438}
+  hideIfInactive: 1
 --- !u!114 &114690754693231300
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2859,7 +2851,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114473892043867778}
-        m_MethodName: NotifyClicked
+        m_MethodName: InspectMod
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2871,6 +2863,17 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114708117418715184
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1727056688636990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a02ed2f91085d4e7ab6f03a27679043f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114714268650200374
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2897,6 +2900,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
+--- !u!114 &114752416610642184
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1691128856693422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_fieldName: version
 --- !u!114 &114767689408301238
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3009,6 +3024,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: A magical Mod
+--- !u!114 &114822146053684974
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1143173795038236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fdec259e4f434b02ab3741cad5afbee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 1
+  m_AspectRatio: 1.7777778
 --- !u!114 &114823930119640064
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3298,6 +3326,46 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &114900820710955386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1143173795038236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dabf7a32e9d904f87aa7b32596b58a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  image: {fileID: 114680457361654558}
+  logoSize: 2
+  onTextureChanged:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 114822146053684974}
+        m_MethodName: MatchTexture
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 114360160955744932}
+        m_MethodName: ActiveOnlyIfNotNull
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114916524536277576
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3338,7 +3406,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114473892043867778}
-        m_MethodName: NotifyUnsubscribeRequested
+        m_MethodName: AttemptUnsubscribe
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3459,7 +3527,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114473892043867778}
-        m_MethodName: NotifyRatePositiveRequested
+        m_MethodName: AttemptRatePositive
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3471,6 +3539,18 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114923784836327814
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1190141313017178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_fieldName: dateAdded
 --- !u!114 &114928915249206222
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3642,7 +3722,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114473892043867778}
-        m_MethodName: NotifyEnableModRequested
+        m_MethodName: AttemptEnableMod
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3673,6 +3753,19 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114988160768202234
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1365877909351916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04713913316c14b1da0bbe323d2ba82f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  positiveRatingDisplay: {fileID: 114141207373216668}
+  negativeRatingDisplay: {fileID: 114919170284466144}
 --- !u!114 &114989697292283438
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3726,7 +3819,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114473892043867778}
-        m_MethodName: NotifyDisableModRequested
+        m_MethodName: AttemptDisableMod
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5106,7 +5199,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1120, y: 60}
+  m_SizeDelta: {x: 0, y: 60}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224799526579711112
 RectTransform:

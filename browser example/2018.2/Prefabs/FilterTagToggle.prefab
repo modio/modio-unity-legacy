@@ -53,10 +53,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224308662136839502}
-  - component: {fileID: 114566777623921686}
   - component: {fileID: 114377598044721038}
   - component: {fileID: 114636320712037520}
   - component: {fileID: 114789274538995098}
+  - component: {fileID: 114948586240111506}
+  - component: {fileID: 114051930205968066}
   m_Layer: 5
   m_Name: FilterTagToggle
   m_TagString: Untagged
@@ -108,6 +109,21 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114051930205968066
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1300801099346922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b94e5566880a41ea8564f809f91d9ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tagName:
+    m_textDisplayComponent: {fileID: 114159942404126762}
+  categoryName:
+    m_textDisplayComponent: {fileID: 0}
 --- !u!114 &114159942404126762
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -210,7 +226,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114566777623921686}
+      - m_Target: {fileID: 0}
         m_MethodName: NotifyClicked
         m_Mode: 1
         m_Arguments:
@@ -224,25 +240,6 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 1
---- !u!114 &114566777623921686
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1300801099346922}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a91cb8b2cf4214936a433cdc4f8b502b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  capitalizeName: 0
-  capitalizeCategory: 0
-  nameDisplay: {fileID: 114159942404126762}
-  categoryDisplay: {fileID: 0}
-  loadingOverlay: {fileID: 0}
-  m_data:
-    tagName: Test Tag
-    categoryName: 
 --- !u!114 &114636320712037520
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -277,6 +274,17 @@ MonoBehaviour:
   - {fileID: 114242462970327244}
   - {fileID: 114159942404126762}
   scheme: {fileID: 11400000, guid: 0a0441ef819354d93a239e54c3635326, type: 2}
+--- !u!114 &114948586240111506
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1300801099346922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4d04a53dfbfd43ac9f4a809f2134f8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &222256690445399160
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -332,10 +340,10 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 400, y: 24}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224925454888678408
 RectTransform:
