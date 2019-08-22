@@ -77,6 +77,15 @@ namespace ModIO.UI
         /// <summary>Currently applied RequestFilter.</summary>
         private RequestFilter m_requestFilter = new RequestFilter();
 
+        /// <summary>The mod container being used for the mod page display.</summary>
+        private ModContainer m_modPageContainer = null;
+
+        /// <summary>The mod container being used for the transition page display.</summary>
+        private ModContainer m_transitionPageContainer = null;
+
+        /// <summary>Whether the view is currently transitioning between pages.</summary>
+        private bool m_isTransitioning = false;
+
         // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
         public RequestPage<ModProfile> modPage
@@ -172,13 +181,7 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ OLD ]---------
-        // --- Run-time Data ---
-        private ModContainer m_currentPageContainer = null;
-        private ModContainer m_targetPageContainer = null;
-
-        private bool m_isTransitioning = false;
-
+        /// <summary>Accessor for the ModProfileRequestManager instance.</summary>
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
 
         // ---------[ INITIALIZATION ]---------
@@ -204,7 +207,7 @@ namespace ModIO.UI
             // TODO(@jackson): Change this...
             templateCopyGO.SetActive(true);
             templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 1);
-            this.m_currentPageContainer = templateCopyGO.GetComponent<ModContainer>();
+            this.m_modPageContainer = templateCopyGO.GetComponent<ModContainer>();
 
             // transition page
             templateCopyGO = GameObject.Instantiate(this.containerTemplate.gameObject,
@@ -212,7 +215,7 @@ namespace ModIO.UI
             templateCopyGO.name = "Mod Page B";
             templateCopyGO.SetActive(false);
             templateCopyGO.transform.SetSiblingIndex(this.containerTemplate.transform.GetSiblingIndex() + 2);
-            this.m_targetPageContainer = templateCopyGO.GetComponent<ModContainer>();
+            this.m_transitionPageContainer = templateCopyGO.GetComponent<ModContainer>();
         }
 
         /// <summary>Collects view elements.</summary>
@@ -276,7 +279,7 @@ namespace ModIO.UI
         public void Refresh()
         {
             int pageIndex = 0;
-            int pageSize = this.m_currentPageContainer.itemLimit;
+            int pageSize = this.m_modPageContainer.itemLimit;
             if(pageSize < 0)
             {
                 pageSize = APIPaginationParameters.LIMIT_MAX;
@@ -338,7 +341,7 @@ namespace ModIO.UI
                 return;
             }
 
-            int pageSize = this.m_currentPageContainer.itemLimit;
+            int pageSize = this.m_modPageContainer.itemLimit;
             if(pageSize < 0)
             {
                 pageSize = APIPaginationParameters.LIMIT_MAX;
@@ -638,7 +641,7 @@ namespace ModIO.UI
         // ---------[ PAGE DISPLAY ]---------
         public void UpdateCurrentPageDisplay()
         {
-            if(this.m_currentPageContainer == null) { return; }
+            if(this.m_modPageContainer == null) { return; }
 
             #if DEBUG
             if(m_isTransitioning)
@@ -661,12 +664,12 @@ namespace ModIO.UI
                 profiles = this.m_modPage.items;
             }
 
-            this.DisplayProfiles(profiles, this.m_currentPageContainer);
+            this.DisplayProfiles(profiles, this.m_modPageContainer);
         }
 
         public void UpdateTargetPageDisplay()
         {
-            if(this.m_targetPageContainer == null) { return; }
+            if(this.m_transitionPageContainer == null) { return; }
 
             #if DEBUG
             if(m_isTransitioning)
@@ -676,7 +679,7 @@ namespace ModIO.UI
             }
             #endif
 
-            this.DisplayProfiles(this.m_transitionPage.items, this.m_targetPageContainer);
+            this.DisplayProfiles(this.m_transitionPage.items, this.m_transitionPageContainer);
         }
 
         protected virtual void DisplayProfiles(IList<ModProfile> profileCollection, ModContainer modContainer)
@@ -771,12 +774,12 @@ namespace ModIO.UI
         {
             if(!m_isTransitioning)
             {
-                float containerWidth = ((RectTransform)this.m_currentPageContainer.transform.parent).rect.width;
+                float containerWidth = ((RectTransform)this.m_modPageContainer.transform.parent).rect.width;
                 float mainPaneTargetX = containerWidth * (direction == PageTransitionDirection.FromLeft ? 1f : -1f);
                 float transPaneStartX = mainPaneTargetX * -1f;
 
-                this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-                this.m_targetPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPaneStartX, 0f);
+                this.m_modPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                this.m_transitionPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPaneStartX, 0f);
 
                 StartCoroutine(TransitionPageCoroutine(mainPaneTargetX, transPaneStartX,
                                                        this.pageTransitionTimeSeconds, onTransitionCompleted));
@@ -794,7 +797,7 @@ namespace ModIO.UI
         {
             m_isTransitioning = true;
 
-            this.m_targetPageContainer.gameObject.SetActive(true);
+            this.m_transitionPageContainer.gameObject.SetActive(true);
 
             float transitionTime = 0f;
 
@@ -803,8 +806,8 @@ namespace ModIO.UI
             {
                 float transPos = Mathf.Lerp(0f, mainPaneTargetX, transitionTime / transitionLength);
 
-                this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPos, 0f);
-                this.m_targetPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPos + transitionPaneStartX, 0f);
+                this.m_modPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPos, 0f);
+                this.m_transitionPageContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(transPos + transitionPaneStartX, 0f);
 
                 transitionTime += Time.unscaledDeltaTime;
 
@@ -812,17 +815,17 @@ namespace ModIO.UI
             }
 
             // flip
-            var tempContainer = this.m_currentPageContainer;
-            this.m_currentPageContainer = this.m_targetPageContainer;
-            this.m_targetPageContainer = tempContainer;
+            var tempContainer = this.m_modPageContainer;
+            this.m_modPageContainer = this.m_transitionPageContainer;
+            this.m_transitionPageContainer = tempContainer;
 
             var tempPage = modPage;
             this.m_modPage = this.m_transitionPage;
             this.m_transitionPage = tempPage;
 
             // finalize
-            this.m_currentPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-            this.m_targetPageContainer.gameObject.SetActive(false);
+            this.m_modPageContainer.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+            this.m_transitionPageContainer.gameObject.SetActive(false);
 
             m_isTransitioning = false;
 
@@ -924,9 +927,9 @@ namespace ModIO.UI
         {
             get
             {
-                if(this.m_currentPageContainer != null)
+                if(this.m_modPageContainer != null)
                 {
-                    return this.m_currentPageContainer.transform.parent as RectTransform;
+                    return this.m_modPageContainer.transform.parent as RectTransform;
                 }
                 return null;
             }
@@ -947,9 +950,9 @@ namespace ModIO.UI
         {
             get
             {
-                if(this.m_currentPageContainer != null)
+                if(this.m_modPageContainer != null)
                 {
-                    return this.m_currentPageContainer.GetModViews();
+                    return this.m_modPageContainer.GetModViews();
                 }
                 return null;
             }
