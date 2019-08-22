@@ -23,6 +23,9 @@ namespace ModIO.UI
         [Tooltip("If enabled, fills the container with hidden mod views to match the item limit.")]
         private bool m_fillToLimit = false;
 
+        /// <summary>Event triggered when the item limit is changed.</summary>
+        public event System.Action<int> onItemLimitChanged = null;
+
         // --- Run-Time Data ---
         /// <summary>Instance of the template clone.</summary>
         private GameObject m_templateClone = null;
@@ -54,6 +57,11 @@ namespace ModIO.UI
                     this.m_itemLimit = value;
 
                     this.DisplayMods(this.m_modProfiles, this.m_modStatistics);
+
+                    if(this.onItemLimitChanged != null)
+                    {
+                        this.onItemLimitChanged.Invoke(this.m_itemLimit);
+                    }
                 }
             }
         }

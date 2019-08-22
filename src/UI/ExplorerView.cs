@@ -208,6 +208,7 @@ namespace ModIO.UI
             templateCopyGO.SetActive(true);
             templateCopyGO.transform.SetSiblingIndex(this.pageTemplate.transform.GetSiblingIndex() + 1);
             this.m_modPageContainer = templateCopyGO.GetComponent<ModContainer>();
+            this.m_modPageContainer.onItemLimitChanged += (i) => this.Refresh();
 
             // transition page
             templateCopyGO = GameObject.Instantiate(this.pageTemplate.gameObject,
@@ -256,12 +257,8 @@ namespace ModIO.UI
             this.Refresh();
         }
 
-        // TODO(@jackson): Recheck page size
         private void OnEnable()
         {
-            // NOTE(@jackson): This appears to be unnecessary?
-            // UpdateModPageDisplay();
-
             if(this.isActiveIndicator != null)
             {
                 this.isActiveIndicator.isOn = true;
