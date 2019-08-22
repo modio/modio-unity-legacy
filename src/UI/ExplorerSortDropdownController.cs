@@ -7,7 +7,7 @@ namespace ModIO.UI
 {
     /// <summary>Controls the options for a dropdown based on request sort options.</summary>
     [RequireComponent(typeof(Dropdown))]
-    public class ExplorerSortDropdownController : MonoBehaviour
+    public class ExplorerSortDropdownController : MonoBehaviour, IExplorerViewElement
     {
         // ---------[ NESTED DATA ]---------
         /// <summary>Attribute for facilitating inspector display.</summary>
@@ -29,9 +29,6 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
-        /// <summary>ExplorerView to set the sort value for.</summary>
-        public ExplorerView view = null;
-
         /// <summary>Options for the controller to use.</summary>
         public OptionData[] options = new OptionData[]
         {
@@ -43,6 +40,10 @@ namespace ModIO.UI
             },
         };
 
+        // --- Run-time Data ---
+        /// <summary>ExplorerView to set the sort value for.</summary>
+        private ExplorerView m_view = null;
+
         // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown
@@ -51,18 +52,89 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
-            this.dropdown.onValueChanged.AddListener((v) => UpdateViewSort());
-            UpdateViewSort();
+            this.dropdown.onValueChanged.AddListener((v) => SetExplorerViewSortMethod());
+            this.SetExplorerViewSortMethod();
+        }
+
+        /// <summary>IExplorerViewElement interface.</summary>
+        public void SetExplorerView(ExplorerView view)
+        {
+            // early out
+            if(this.m_view == view) { return; }
+
+            // unhook
+            if(this.m_view != null)
+            {
+                this.m_view.onRequestFilterChanged.RemoveListener(DisplaySortOption);
+            }
+
+            // assign
+            this.m_view = view;
+
+            // hook
+            if(this.m_view != null)
+            {
+                this.m_view.onRequestFilterChanged.AddListener(DisplaySortOption);
+                this.DisplaySortOption(this.m_view.requestFilter);
+            }
+            else
+            {
+                this.DisplaySortOption(null);
+            }
         }
 
         // ---------[ FUNCTIONALITY ]---------
-        /// <summary>Sets the sort value on the targetted view.</summary>
-        public void UpdateViewSort()
+        /// <summary>Displays the sort option for a request filter.</summary>
+        public void DisplaySortOption(RequestFilter filter)
         {
+            if(filter != null)
+            {
+                this.DisplaySortOption(filter.sortFieldName, filter.isSortAscending);
+            }
+        }
+
+        /// <summary>Displays the sort option.</summary>
+        public void DisplaySortOption(string fieldName, bool isAscending)
+        {
+            // early out
+            OptionData selectedOption = this.GetSelectedOption();
+            if(selectedOption != null
+               && selectedOption.fieldName == fieldName
+               && selectedOption.isAscending == isAscending)
+            {
+                return;
+            }
+
+            // get the matching option index
+            int optionIndex = -1;
+            for(int i = 0; i < this.options.Length && optionIndex < 0; ++i)
+            {
+                OptionData data = this.options[i];
+                if(data.fieldName == fieldName
+                   && data.isAscending == isAscending)
+                {
+                    optionIndex = i;
+                }
+            }
+
+            if(optionIndex < 0)
+            {
+                optionIndex = 0;
+            }
+
+            // set
+            this.dropdown.value = optionIndex;
+        }
+
+        /// <summary>Sets the sort value on the targetted view.</summary>
+        public void SetExplorerViewSortMethod()
+        {
+            if(this.m_view == null) { return; }
+
             OptionData option = GetSelectedOption();
             if(option != null)
             {
-                view.SetSortMethod(option.isAscending, option.fieldName);
+                this.m_view.SetSortMethod(option.isAscending, option.fieldName);
             }
         }
 
