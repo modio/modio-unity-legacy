@@ -186,16 +186,33 @@ namespace ModIO.UI
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Asserts values and initializes templates.</summary>
-        protected virtual void Awake()
+        protected virtual void Start()
         {
             Debug.Assert(this.gameObject != this.pageTemplate.gameObject,
                          "[mod.io] The Explorer View and its Container Template cannot be the same"
                          + " Game Object. Please create a separate Game Object for the container template.");
 
+            #if UNITY_EDITOR
+            ExplorerView[] nested = this.gameObject.GetComponentsInChildren<ExplorerView>(true);
+            if(nested.Length > 1)
+            {
+                ExplorerView nestedView = nested[1];
+                if(nestedView == this)
+                {
+                    nestedView = nested[0];
+                }
+
+                Debug.LogError("[mod.io] Nesting ExplorerViews is currently not supported due to the"
+                               + " way IExplorerViewElement component parenting works."
+                               + "\nThe nested ExplorerViews must be removed to allow ExplorerView functionality."
+                               + "\nthis=" + this.gameObject.name
+                               + "\nnested=" + nestedView.gameObject.name,
+                               this);
+                return;
+            }
+            #endif
+
             // -- initialize template ---
-            // NOTE(@jackson): Initializing in Start() was too late as isActiveAndEnabled is true
-            // before Start() was called. This may mean that other calls are being made too early,
-            // specifically the OnGameProfileUpdated() in ModBrowser.
             this.pageTemplate.gameObject.SetActive(false);
 
             GameObject templateCopyGO;
@@ -217,30 +234,6 @@ namespace ModIO.UI
             templateCopyGO.SetActive(false);
             templateCopyGO.transform.SetSiblingIndex(this.pageTemplate.transform.GetSiblingIndex() + 2);
             this.m_transitionPageContainer = templateCopyGO.GetComponent<ModContainer>();
-        }
-
-        /// <summary>Collects view elements.</summary>
-        protected virtual void Start()
-        {
-            #if UNITY_EDITOR
-            ExplorerView[] nested = this.gameObject.GetComponentsInChildren<ExplorerView>(true);
-            if(nested.Length > 1)
-            {
-                ExplorerView nestedView = nested[1];
-                if(nestedView == this)
-                {
-                    nestedView = nested[0];
-                }
-
-                Debug.LogError("[mod.io] Nesting ExplorerViews is currently not supported due to the"
-                               + " way IExplorerViewElement component parenting works."
-                               + "\nThe nested ExplorerViews must be removed to allow ExplorerView functionality."
-                               + "\nthis=" + this.gameObject.name
-                               + "\nnested=" + nestedView.gameObject.name,
-                               this);
-                return;
-            }
-            #endif
 
             // assign view elements to this
             var viewElementChildren = this.gameObject.GetComponentsInChildren<IExplorerViewElement>(true);
