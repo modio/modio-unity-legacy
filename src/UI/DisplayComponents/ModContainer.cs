@@ -174,15 +174,6 @@ namespace ModIO.UI
                 itemCount = statistics.Count;
             }
 
-            if(this.m_itemLimit >= 0 && itemCount > this.m_itemLimit)
-            {
-                Debug.LogWarning("[mod.io] Attempting to display more mods than accepted by this"
-                                 + " Mod Container."
-                                 + "\n Item Limit = " + this.m_itemLimit.ToString()
-                                 + "\n Item Count = " + itemCount.ToString(),
-                                 this);
-            }
-
             // copy arrays
             if(this.m_modProfiles != profiles)
             {
@@ -209,6 +200,11 @@ namespace ModIO.UI
                 if(this.m_fillToLimit && this.m_itemLimit >= 0)
                 {
                     viewCount = this.m_itemLimit;
+
+                    if(viewCount < itemCount)
+                    {
+                        itemCount = viewCount;
+                    }
                 }
 
                 UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
@@ -217,7 +213,7 @@ namespace ModIO.UI
 
 
                 // -- set view visibility --
-                if(this.m_fillToLimit)
+                if(this.m_fillToLimit && this.m_itemLimit >= 0)
                 {
                     int visibleCount = itemCount;
 
@@ -245,7 +241,9 @@ namespace ModIO.UI
                 // display data
                 if(this.m_modProfiles != null)
                 {
-                    for(int i = 0; i < this.m_modProfiles.Length; ++i)
+                    for(int i = 0;
+                        i < this.m_modProfiles.Length && i < viewCount;
+                        ++i)
                     {
                         this.m_views[i].profile = this.m_modProfiles[i];
                     }
@@ -253,7 +251,9 @@ namespace ModIO.UI
                 }
                 if(this.m_modStatistics != null)
                 {
-                    for(int i = 0; i < this.m_modStatistics.Length; ++i)
+                    for(int i = 0;
+                        i < this.m_modStatistics.Length && i < viewCount;
+                        ++i)
                     {
                         this.m_views[i].statistics = this.m_modStatistics[i];
                     }
