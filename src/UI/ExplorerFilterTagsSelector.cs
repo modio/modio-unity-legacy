@@ -43,6 +43,12 @@ namespace ModIO.UI
             this.categoryDisplay.onTagsChanged += (t) => this.UpdateSelectedTagsDisplay(this.m_selectedTags);
         }
 
+        /// <summary>Assert that the display is correct.</summary>
+        private void OnEnable()
+        {
+            this.UpdateSelectedTagsDisplay(this.m_selectedTags);
+        }
+
         /// <summary>IExplorerViewElement interface.</summary>
         public void SetExplorerView(ExplorerView view)
         {
@@ -69,7 +75,6 @@ namespace ModIO.UI
                 this.DisplayInArrayFilterTags(null);
             }
         }
-
 
         // ---------[ UI FUNCTIONALITY ]---------
         /// <summary>Displays the tags for a given RequestFilter.</summary>
