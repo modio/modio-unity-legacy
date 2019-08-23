@@ -10,7 +10,7 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>Template to duplicate for the purpose of displaying tags.</summary>
-        public RectTransform template = null;
+        public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
         public bool hideIfEmpty = true;
@@ -41,7 +41,7 @@ namespace ModIO.UI
         /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
-            this.template.gameObject.SetActive(false);
+            this.containerTemplate.gameObject.SetActive(false);
 
             // check template
             #if DEBUG
@@ -54,10 +54,10 @@ namespace ModIO.UI
             #endif
 
             // get template vars
-            Transform templateParent = this.template.parent;
-            string templateInstance_name = this.template.gameObject.name + " (Instance)";
-            int templateInstance_index = this.template.GetSiblingIndex() + 1;
-            this.m_itemTemplate = this.template.GetComponentInChildren<TagContainerItem>(true);
+            Transform templateParent = this.containerTemplate.parent;
+            string templateInstance_name = this.containerTemplate.gameObject.name + " (Instance)";
+            int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
+            this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<TagContainerItem>(true);
 
             // check if instantiated
             bool isInstantiated = (templateParent.childCount > templateInstance_index
@@ -86,7 +86,7 @@ namespace ModIO.UI
             // instantiate
             if(!isInstantiated)
             {
-                this.m_templateClone = GameObject.Instantiate(this.template.gameObject, templateParent);
+                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
                 this.m_templateClone.SetActive(true);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
@@ -200,7 +200,6 @@ namespace ModIO.UI
             }
         }
 
-
         // ---------[ EVENTS ]---------
         // TODO(@jackson): Seems silly that this is a local var...
         /// <summary>Updates the tag categories.</summary>
@@ -239,8 +238,8 @@ namespace ModIO.UI
             helpMessage = null;
             bool isValid = true;
 
-            if(container.template.gameObject == container.gameObject
-               || container.transform.IsChildOf(container.template))
+            if(container.containerTemplate.gameObject == container.gameObject
+               || container.transform.IsChildOf(container.containerTemplate))
             {
                 helpMessage = ("This Tag Container has an invalid template."
                                + "\nThe container template cannot share the same GameObject"
@@ -249,9 +248,9 @@ namespace ModIO.UI
                 isValid = false;
             }
 
-            TagContainerItem itemTemplate = container.template.GetComponentInChildren<TagContainerItem>(true);
+            TagContainerItem itemTemplate = container.containerTemplate.GetComponentInChildren<TagContainerItem>(true);
             if(itemTemplate == null
-               || container.template.gameObject == itemTemplate.gameObject)
+               || container.containerTemplate.gameObject == itemTemplate.gameObject)
             {
                 helpMessage = ("This Tag Container has an invalid template."
                                + "\nThe container template needs a child with the TagContainerItem"
