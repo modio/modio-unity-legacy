@@ -7,8 +7,13 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Controls the options for a dropdown based on request sort options.</summary>
+    // NOTE(@jackson): This component is currently unable to react to the sort method of a
+    // SubscriptionsView changing and updating to reflect the change.
+    // Currently the relationship is one-way, such that this component can only set the
+    // sort value on the SubscriptionsView.
+    // Fixing this issue is currently not a priority.
     [RequireComponent(typeof(Dropdown))]
-    public class SubscriptionSortDropdownController : MonoBehaviour
+    public class SubscriptionSortDropdownController : MonoBehaviour, ISubscriptionsViewElement
     {
         // ---------[ NESTED DATA ]---------
         /// <summary>Attribute for facilitating inspector display.</summary>
@@ -135,9 +140,6 @@ namespace ModIO.UI
         };
 
         // ---------[ FIELDS ]---------
-        /// <summary>SubscriptionsView to set the sort delegate on.</summary>
-        public SubscriptionsView view = null;
-
         /// <summary>Options for the controller to use.</summary>
         public OptionData[] options = new OptionData[]
         {
@@ -149,6 +151,9 @@ namespace ModIO.UI
             },
         };
 
+        /// <summary>SubscriptionsView to set the sort delegate on.</summary>
+        private SubscriptionsView m_view = null;
+
         // --- ACCESSORS ---
         /// <summary>The Dropdown component to be controlled.</summary>
         public Dropdown dropdown
@@ -158,18 +163,32 @@ namespace ModIO.UI
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
-            this.dropdown.onValueChanged.AddListener((v) => UpdateViewSort());
-            UpdateViewSort();
+            this.dropdown.onValueChanged.AddListener((v) => SetSubscriptionsViewSortMethod());
+            SetSubscriptionsViewSortMethod();
+        }
+
+        /// <summary>ISubscriptionsViewElement interface.</summary>
+        public void SetSubscriptionsView(SubscriptionsView view)
+        {
+            // early out
+            if(this.m_view == view) { return; }
+
+            // assign
+            this.m_view = view;
+
+            this.SetSubscriptionsViewSortMethod();
         }
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Sets the sort delegate on the targetted view.</summary>
-        public void UpdateViewSort()
+        public void SetSubscriptionsViewSortMethod()
         {
+            if(this.m_view == null) { return; }
+
             Comparison<ModProfile> sortFunc = GetSelectedSortFunction();
             if(sortFunc != null)
             {
-                view.SetSortDelegate(sortFunc);
+                this.m_view.SetSortDelegate(sortFunc);
             }
         }
 
