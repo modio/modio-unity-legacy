@@ -297,8 +297,14 @@ namespace ModIO.UI
             // check for null URL
             if(string.IsNullOrEmpty(url))
             {
-                Debug.Log("[mod.io] Attempted to fetch image with a Null or Empty"
-                          + " url in the locator.");
+                #if UNITY_EDITOR
+                if(this.logDownloads)
+                {
+                    Debug.Log("[mod.io] Attempted to fetch image with a Null or Empty"
+                              + " url in the locator.");
+                }
+                #endif
+
                 onSuccess(null);
                 return;
             }
