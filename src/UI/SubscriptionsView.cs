@@ -21,41 +21,63 @@ namespace ModIO.UI
         [Serializable]
         public class FilterChanged : UnityEngine.Events.UnityEvent<string> {}
 
+        /// <summary>Event for notifying listeners of a change to the sort delegate.</summary>
+        [Serializable]
+        public class SortChanged : UnityEngine.Events.UnityEvent<Comparison<ModProfile>> {}
+
         // ---------[ FIELDS ]---------
+        [Header("UI Components")]
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
 
-        /// <summary>RequestPage being displayed.</summary>
-        private RequestPage<ModProfile> m_displayedModPage = null;
-
-        [Header("UI Components")]
+        /// <summary>Object to display when there are no subscribed mods</summary>
         [Tooltip("Object to display when there are no subscribed mods")]
         public GameObject noSubscriptionsDisplay;
+
+        /// <summary>Object to display when there are zero filtered results</summary>
         [Tooltip("Object to display when there are zero filtered results")]
         public GameObject noResultsDisplay;
+
+        /// <summary>Object that should react to this view being enabled/disabled.</summary>
         public StateToggleDisplay isActiveIndicator;
 
         [Header("Events")]
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         public ModPageChanged onModPageChanged = null;
+
         /// <summary>Event for notifying listeners of a change to title filter.</summary>
         public FilterChanged onNameFieldFilterChanged = null;
 
-        // --- RUNTIME DATA ---
-        private Comparison<ModProfile> m_sortDelegate = null;
+        /// <summary>Event for notifying listeners of a change to sort delegate.</summary>
+        public SortChanged onSortDelegateChanged = null;
+
+        // --- Run-time Data ---
+        /// <summary>RequestPage being displayed.</summary>
+        private RequestPage<ModProfile> m_modPage = null;
+
+        /// <summary>Name filter to apply to the subscribed mods.</summary>
         private string m_nameFieldFilter = string.Empty;
+
+        /// <summary>Sort method for displaying subscribed mods.</summary>
+        private Comparison<ModProfile> m_sortDelegate = null;
 
         // --- Accessors ---
         /// <summary>RequestPage being displayed.</summary>
         public RequestPage<ModProfile> modPage
         {
-            get { return this.m_displayedModPage; }
+            get { return this.m_modPage; }
         }
 
         /// <summary>Name field filter currently applied to the SubscriptionsView.</summary>
         public string nameFieldFilter
         {
             get { return this.m_nameFieldFilter; }
+        }
+
+        /// <summary>Sort method for displaying subscribed mods.</summary>
+        public Comparison<ModProfile> sortDelegate
+        {
+            get { return this.m_sortDelegate; }
         }
 
         // ---------[ INITIALIZATION ]---------
@@ -112,10 +134,10 @@ namespace ModIO.UI
         public void Refresh()
         {
             // create null page
-            this.m_displayedModPage = null;
+            this.m_modPage = null;
             if(this.onModPageChanged != null)
             {
-                this.onModPageChanged.Invoke(this.m_displayedModPage);
+                this.onModPageChanged.Invoke(this.m_modPage);
             }
 
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
@@ -182,7 +204,7 @@ namespace ModIO.UI
             this.DisplayProfiles(filteredList);
 
             // create request page
-            this.m_displayedModPage = new RequestPage<ModProfile>()
+            this.m_modPage = new RequestPage<ModProfile>()
             {
                 size = filteredList.Count,
                 resultOffset = 0,
@@ -191,7 +213,7 @@ namespace ModIO.UI
             };
             if(this.onModPageChanged != null)
             {
-                this.onModPageChanged.Invoke(this.m_displayedModPage);
+                this.onModPageChanged.Invoke(this.m_modPage);
             }
         }
 
