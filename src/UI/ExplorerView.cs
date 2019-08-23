@@ -623,6 +623,10 @@ namespace ModIO.UI
                 {
                     this.tagMatchFieldFilter = null;
                 }
+                else
+                {
+                    tagFilter.filterArray = tagFilterValues.ToArray();
+                }
 
                 // refresh
                 if(this.isActiveAndEnabled) { this.Refresh(); }

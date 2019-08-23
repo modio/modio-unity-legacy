@@ -57,7 +57,7 @@ namespace ModIO.UI
                 filter.fieldFilterMap.TryGetValue(ModIO.API.GetAllModsFilterFields.tags, out tagsFilterList);
             }
 
-            string[] tags = new string[0];
+            string[] tags = null;
             if(tagsFilterList != null)
             {
                 MatchesArrayFilter<string> tagsFilter = null;
@@ -84,7 +84,8 @@ namespace ModIO.UI
         /// <summary>Helper function for removing a tag from the RequestFilter.</summary>
         public void RemoveTagFromExplorerFilter(TagContainerItem tagItem)
         {
-            if(this.m_view != null)
+            if(this.m_view != null
+               && tagItem != null)
             {
                 this.m_view.RemoveTagFromFilter(tagItem.tagName.text);
             }
