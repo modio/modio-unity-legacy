@@ -187,7 +187,7 @@ namespace ModIO.UI
         /// <summary>Creates/Destroys a number of GameObject instances as necessary.</summary>
         public static void SetInstanceCount<T>(Transform container, T template,
                                                string instanceName, int instanceCount,
-                                               ref T[] instanceArray)
+                                               ref T[] instanceArray, bool reactivateAll = false)
         where T : MonoBehaviour
         {
             if(instanceArray == null)
@@ -232,6 +232,16 @@ namespace ModIO.UI
 
                 // assign
                 instanceArray = newInstanceArray;
+            }
+
+            // reactivate
+            if(reactivateAll)
+            {
+                foreach(T instance in instanceArray)
+                {
+                    instance.gameObject.SetActive(false);
+                    instance.gameObject.SetActive(true);
+                }
             }
         }
     }

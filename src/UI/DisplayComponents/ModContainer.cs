@@ -214,7 +214,7 @@ namespace ModIO.UI
 
                 UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
                                              "Mod View", viewCount,
-                                             ref this.m_views);
+                                             ref this.m_views, true);
 
 
                 // -- set view visibility --
