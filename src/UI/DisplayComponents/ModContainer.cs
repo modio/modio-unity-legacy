@@ -73,12 +73,12 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
             this.containerTemplate.gameObject.SetActive(false);
         }
 
+        /// <summary>Initialize template.</summary>
         protected virtual void Start()
         {
             // check template
@@ -301,23 +301,35 @@ namespace ModIO.UI
             helpMessage = null;
             bool isValid = true;
 
-            if(container.containerTemplate.gameObject == container.gameObject
-               || container.transform.IsChildOf(container.containerTemplate))
+            ModView itemTemplate = null;
+
+            // null check
+            if(container.containerTemplate == null)
             {
-                helpMessage = ("This Mod Container has an invalid template."
-                               + "\nThe container template cannot share the same GameObject"
-                               + " as this Mod Container component, and cannot be a parent of"
-                               + " this object.");
+                helpMessage = ("Invalid template:"
+                               + " The container template is unassigned.");
                 isValid = false;
             }
-
-            ModView itemTemplate = container.containerTemplate.GetComponentInChildren<ModView>(true);
-            if(itemTemplate == null
-               || container.containerTemplate.gameObject == itemTemplate.gameObject)
+            // containerTemplate is child of Component
+            else if(!container.containerTemplate.IsChildOf(container.transform)
+                    || container.containerTemplate == container.transform)
             {
-                helpMessage = ("This Mod Container has an invalid template."
-                               + "\nThe container template needs a child with the ModView"
-                               + " component attached to use as the item template.");
+                helpMessage = ("Invalid template:"
+                               + " The container template must be a child of this object.");
+                isValid = false;
+            }
+            // ModView is found under containerTemplate
+            else if((itemTemplate = container.containerTemplate.gameObject.GetComponentInChildren<ModView>()) == null)
+            {
+                helpMessage = ("Invalid template:"
+                               + " No ModView component found in the children of the container template.");
+                isValid = false;
+            }
+            // ModView is on same gameObject as containerTemplate
+            else if(itemTemplate.transform == container.containerTemplate)
+            {
+                helpMessage = ("Invalid template:"
+                               + " The ModView component cannot share a GameObject with the container template.");
                 isValid = false;
             }
 
