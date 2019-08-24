@@ -77,7 +77,10 @@ namespace ModIO.UI
         protected virtual void Awake()
         {
             this.containerTemplate.gameObject.SetActive(false);
+        }
 
+        protected virtual void Start()
+        {
             // check template
             #if DEBUG
             string message;
@@ -129,14 +132,14 @@ namespace ModIO.UI
             if(!isInstantiated)
             {
                 this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
-                this.m_templateClone.SetActive(true);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
 
                 ModView viewInstance = this.m_templateClone.GetComponentInChildren<ModView>(true);
                 this.m_container = (RectTransform)viewInstance.transform.parent;
-
                 GameObject.Destroy(viewInstance.gameObject);
+
+                this.m_templateClone.SetActive(true);
             }
         }
 
@@ -195,6 +198,8 @@ namespace ModIO.UI
             // display
             if(this.m_itemTemplate != null)
             {
+                Debug.Assert(this.m_container != null);
+
                 // set instance count
                 int viewCount = itemCount;
                 if(this.m_fillToLimit && this.m_itemLimit >= 0)
