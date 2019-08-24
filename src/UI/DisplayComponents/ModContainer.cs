@@ -12,7 +12,7 @@ namespace ModIO.UI
         public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
-        public bool hideIfEmpty = true;
+        public bool hideIfEmpty = false;
 
         /// <summary>Limit of mod views that can be displayed in this container.</summary>
         [SerializeField]

@@ -13,7 +13,7 @@ namespace ModIO.UI
         public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
-        public bool hideIfEmpty = true;
+        public bool hideIfEmpty = false;
 
         // --- Run-Time Data ---
         /// <summary>Parent ModView.</summary>
