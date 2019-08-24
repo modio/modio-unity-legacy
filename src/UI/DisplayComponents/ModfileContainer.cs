@@ -9,7 +9,7 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>Template to duplicate for the purpose of displaying the gallery images.</summary>
-        public RectTransform template = null;
+        public RectTransform containerTemplate = null;
 
         /// <summary>Should the template be disabled if empty?</summary>
         public bool hideIfEmpty = false;
@@ -31,35 +31,65 @@ namespace ModIO.UI
         private ModfileView[] m_views = new ModfileView[0];
 
         // ---------[ INITIALIZATION ]---------
-        /// <summary>Initialize template.</summary>
         protected virtual void Awake()
         {
-            // duplication protection
-            if(this.m_itemTemplate != null) { return; }
+            this.containerTemplate.gameObject.SetActive(false);
+        }
 
-            // initialize
-            this.template.gameObject.SetActive(false);
-            this.m_itemTemplate = this.template.GetComponentInChildren<ModfileView>(true);
-
-            if(this.m_itemTemplate != null
-               && this.template.gameObject != this.m_itemTemplate.gameObject)
+        /// <summary>Initialize template.</summary>
+        protected virtual void Start()
+        {
+            // check template
+            #if DEBUG
+            string message;
+            if(!ModfileContainer.HasValidTemplate(this, out message))
             {
-                this.m_templateClone = GameObject.Instantiate(this.template.gameObject, this.template.parent);
-                this.m_templateClone.SetActive(true);
-                this.m_templateClone.transform.SetSiblingIndex(this.template.GetSiblingIndex() + 1);
-
-                this.m_views = new ModfileView[1];
-                this.m_views[0] = this.m_templateClone.GetComponentInChildren<ModfileView>(true);
-                this.m_views[0].gameObject.name = "Modfile View [00]";
-
-                this.m_container = (RectTransform)this.m_views[0].transform.parent;
+                Debug.LogError("[mod.io] " + message, this);
+                return;
             }
-            else
+            #endif
+
+            // get template vars
+            Transform templateParent = this.containerTemplate.parent;
+            string templateInstance_name = this.containerTemplate.gameObject.name + " (Instance)";
+            int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
+
+            // duplication protection
+            bool isInstantiated = (templateParent.childCount > templateInstance_index
+                                   && templateParent.GetChild(templateInstance_index).gameObject.name == templateInstance_name);
+            if(isInstantiated)
             {
-                Debug.LogError("[mod.io] This ModfileContainer has an invalid template"
-                               + " hierarchy. The Template must contain a child with a"
-                               + " ModfileView component to use as the item template.",
-                               this);
+                this.m_templateClone = templateParent.GetChild(templateInstance_index).gameObject;
+                ModfileView[] viewInstances = this.m_templateClone.GetComponentsInChildren<ModfileView>(true);
+
+                if(viewInstances == null
+                   || viewInstances.Length == 0)
+                {
+                    isInstantiated = false;
+                    GameObject.Destroy(this.m_templateClone);
+                }
+                else
+                {
+                    this.m_container = (RectTransform)viewInstances[0].transform.parent;
+
+                    foreach(ModfileView view in viewInstances)
+                    {
+                        GameObject.Destroy(view.gameObject);
+                    }
+                }
+            }
+
+            if(!isInstantiated)
+            {
+                this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
+                this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
+                this.m_templateClone.name = templateInstance_name;
+
+                ModfileView viewInstance = this.m_templateClone.GetComponentInChildren<ModfileView>(true);
+                this.m_container = (RectTransform)viewInstance.transform.parent;
+                GameObject.Destroy(viewInstance.gameObject);
+
+                this.m_templateClone.SetActive(true);
             }
         }
 
@@ -107,6 +137,48 @@ namespace ModIO.UI
                 // hide if necessary
                 this.m_templateClone.SetActive(itemCount > 0 || !this.hideIfEmpty);
             }
+        }
+
+        // ---------[ UTILITY ]---------
+        /// <summary>Checks a ModfileContainer's template structure.</summary>
+        public static bool HasValidTemplate(ModfileContainer container, out string helpMessage)
+        {
+            helpMessage = null;
+            bool isValid = true;
+
+            ModfileView itemTemplate = null;
+
+            // null check
+            if(container.containerTemplate == null)
+            {
+                helpMessage = ("Invalid template:"
+                               + " The container template is unassigned.");
+                isValid = false;
+            }
+            // containerTemplate is child of Component
+            else if(!container.containerTemplate.IsChildOf(container.transform)
+                    || container.containerTemplate == container.transform)
+            {
+                helpMessage = ("Invalid template:"
+                               + " The container template must be a child of this object.");
+                isValid = false;
+            }
+            // ModfileView is found under containerTemplate
+            else if((itemTemplate = container.containerTemplate.gameObject.GetComponentInChildren<ModfileView>()) == null)
+            {
+                helpMessage = ("Invalid template:"
+                               + " No ModfileView component found in the children of the container template.");
+                isValid = false;
+            }
+            // ModfileView is on same gameObject as containerTemplate
+            else if(itemTemplate.transform == container.containerTemplate)
+            {
+                helpMessage = ("Invalid template:"
+                               + " The ModfileView component cannot share a GameObject with the container template.");
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }
