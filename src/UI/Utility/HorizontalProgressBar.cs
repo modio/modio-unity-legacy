@@ -41,12 +41,6 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        private void Awake()
-        {
-            Debug.Assert(barTransform != null);
-            Debug.Assert(barTransform.parent != null);
-        }
-
         private void OnEnable()
         {
             SetBarTransformValues();
