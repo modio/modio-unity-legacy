@@ -87,7 +87,6 @@ namespace ModIO.UI
             if(!isInstantiated)
             {
                 this.m_templateClone = GameObject.Instantiate(this.containerTemplate.gameObject, templateParent);
-                this.m_templateClone.SetActive(true);
                 this.m_templateClone.transform.SetSiblingIndex(templateInstance_index);
                 this.m_templateClone.name = templateInstance_name;
 
@@ -95,6 +94,8 @@ namespace ModIO.UI
                 this.m_container = (RectTransform)itemInstance.transform.parent;
 
                 GameObject.Destroy(itemInstance.gameObject);
+
+                this.m_templateClone.SetActive(true);
             }
         }
 
