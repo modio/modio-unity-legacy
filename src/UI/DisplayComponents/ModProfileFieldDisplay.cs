@@ -61,9 +61,13 @@ namespace ModIO.UI
         // --- DELEGATE GENERATION ---
         protected virtual Func<ModProfile, string> GenerateGetDisplayStringDelegate()
         {
-            foreach(var fieldInfo in typeof(ModProfile).GetFields(BindingFlags.Instance | BindingFlags.Public))
+            string[] fieldNameParts = this.m_fieldName.Split(new char[] { '.', '\\', '/'});
+
+            if(fieldNameParts.Length == 1)
             {
-                if(fieldInfo.Name.Equals(this.m_fieldName))
+                FieldInfo fieldInfo = typeof(ModProfile).GetField(fieldNameParts[0]);
+
+                if(fieldInfo != null)
                 {
                     if(fieldInfo.FieldType.IsValueType)
                     {
@@ -73,6 +77,28 @@ namespace ModIO.UI
                     {
                         return (p) => ModProfileFieldDisplay.GetProfileFieldValueString_Nullable(p, fieldInfo);
                     }
+                }
+            }
+            else
+            {
+                Type lastType = typeof(ModProfile);
+                FieldInfo[] info = new FieldInfo[fieldNameParts.Length];
+
+                for(int i = 0; i < fieldNameParts.Length && lastType != null; ++i)
+                {
+                    FieldInfo fi = lastType.GetField(fieldNameParts[i]);
+                    lastType = null;
+
+                    if(fi != null)
+                    {
+                        info[i] = fi;
+                        lastType = fi.FieldType;
+                    }
+                }
+
+                if(info[fieldNameParts.Length-1] != null)
+                {
+                    return (p) => ModProfileFieldDisplay.GetProfileFieldValueString_Nested(p, info);
                 }
             }
 
@@ -155,6 +181,30 @@ namespace ModIO.UI
                     return fieldValue.ToString();
                 }
             }
+        }
+
+        protected static string GetProfileFieldValueString_Nested(ModProfile profile, FieldInfo[] fieldInfo)
+        {
+            Debug.Assert(fieldInfo != null);
+
+            if(profile != null
+               && fieldInfo.Length > 0)
+            {
+                object lastObject = profile;
+                for(int i = 0; i < fieldInfo.Length && lastObject != null; ++i)
+                {
+                    Debug.Assert(fieldInfo[i] != null);
+
+                    lastObject = fieldInfo[i].GetValue(lastObject);
+                }
+
+                if(lastObject != null)
+                {
+                    return lastObject.ToString();
+                }
+            }
+
+            return string.Empty;
         }
     }
 }
