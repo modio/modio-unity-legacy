@@ -1769,29 +1769,23 @@ namespace ModIO
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
-            {
-                ModManager.GetUserProfile(UserAuthenticationData.instance.userId,
-                                          onSuccess,
-                                          onError);
-            }
-            else if(UserAuthenticationData.instance.IsTokenValid)
-            {
-                APIClient.GetAuthenticatedUser(
-                (p) =>
-                {
-                    CacheClient.SaveUserProfile(p);
+            int userId = UserAuthenticationData.instance.userId;
+            var cachedProfile = CacheClient.LoadUserProfile(userId);
 
-                    if(onSuccess != null)
-                    {
-                        onSuccess(p);
-                    }
-                },
-                onError);
-            }
-            else if(onSuccess != null)
+            if(cachedProfile != null)
             {
-                onSuccess(null);
+                if(onSuccess != null) { onSuccess(cachedProfile); }
+            }
+            else
+            {
+                // - Fetch from Server -
+                Action<UserProfile> onGetUser = (profile) =>
+                {
+                    CacheClient.SaveUserProfile(profile);
+                    if(onSuccess != null) { onSuccess(profile); }
+                };
+
+                APIClient.GetAuthenticatedUser(onGetUser, onError);
             }
         }
 
