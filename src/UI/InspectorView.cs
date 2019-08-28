@@ -73,27 +73,19 @@ namespace ModIO.UI
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use InspectorView.highlightedImage instead.")][HideInInspector]
         public ImageDisplay selectedMediaPreview;
-        [Obsolete("No longer supported. Try an ObjectActiverSetter component instead.")]
+        [Obsolete("No longer supported. Try an ObjectActiverSetter component instead.")][HideInInspector]
         public GameObject loadingDisplay;
 
-        [Obsolete("Use a ModReleaseHistoryView instead.")]
-        public GameObject versionHistoryItemPrefab = null;
-        [Obsolete("Use ModfileView.emptyChangelogText instead.")]
-        public string missingVersionChangelogText = "<i>None recorded.</i>";
+        [Obsolete("Use a ModReleaseHistoryView instead.")][HideInInspector]
+        public GameObject versionHistoryItemPrefab;
+        [Obsolete("Use ModfileView.emptyChangelogText instead.")][HideInInspector]
+        public string missingVersionChangelogText;
 
-        [Obsolete("Use a ModReleaseHistoryView instead.")]
+        [Obsolete("Use a ModReleaseHistoryView instead.")][HideInInspector]
         public RectTransform versionHistoryContainer;
 
-        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
+        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")][HideInInspector]
         public ModProfile profile;
-        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
-        private ModProfile m_profile;
-        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
-        private ModStatistics m_statistics;
-        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
-        private bool m_isModSubscribed;
-        [Obsolete("No longer used. Refer to InspectorView.m_modId instead.")]
-        private bool m_isModEnabled;
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
@@ -105,7 +97,7 @@ namespace ModIO.UI
         {
             if(subscribeRequested != null)
             {
-                subscribeRequested(this.m_profile);
+                subscribeRequested(this.modView.profile);
             }
         }
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
@@ -115,7 +107,7 @@ namespace ModIO.UI
         {
             if(unsubscribeRequested != null)
             {
-                unsubscribeRequested(this.m_profile);
+                unsubscribeRequested(this.modView.profile);
             }
         }
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
@@ -125,7 +117,7 @@ namespace ModIO.UI
         {
             if(enableRequested != null)
             {
-                enableRequested(this.m_profile);
+                enableRequested(this.modView.profile);
             }
         }
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
@@ -135,7 +127,7 @@ namespace ModIO.UI
         {
             if(disableRequested != null)
             {
-                disableRequested(this.m_profile);
+                disableRequested(this.modView.profile);
             }
         }
 
