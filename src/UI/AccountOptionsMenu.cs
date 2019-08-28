@@ -75,10 +75,12 @@ namespace ModIO.UI
             {
                 this.viewProfileButton.interactable = false;
 
-                ModManager.GetUserProfile(userData.userId,
+                ModManager.GetAuthenticatedUserProfile(
                 (p) =>
                 {
-                    if(userData.userId != UserProfile.NULL_ID)
+                    if(this != null
+                       && p != null
+                       && userData.userId == p.id)
                     {
                         string profileURL = p.profileURL + @"/edit";
                         if(!string.IsNullOrEmpty(userData.steamTicket))

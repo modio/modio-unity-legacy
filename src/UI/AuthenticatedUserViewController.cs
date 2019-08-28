@@ -66,9 +66,8 @@ namespace ModIO.UI
                 WebRequestError error = null;
                 bool isDone = false;
 
-                ModManager.GetUserProfile(UserAuthenticationData.instance.userId,
-                                          (p) => { isDone = true; profile = p; },
-                                          (e) => { isDone = true; error = e; } );
+                ModManager.GetAuthenticatedUserProfile((p) => { isDone = true; profile = p; },
+                                                       (e) => { isDone = true; error = e; } );
 
                 while(!isDone) { yield return null; }
 
