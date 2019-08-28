@@ -11,7 +11,6 @@ using WWWForm = UnityEngine.WWWForm;
 using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
 using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyncOperation;
 
-using ModIO.API;
 
 namespace ModIO
 {
