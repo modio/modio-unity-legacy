@@ -1088,32 +1088,6 @@ namespace ModIO
 
 
         // ---------[ USERS ]---------
-        /// <summary>Fetches and caches a User Profile (if not already cached).</summary>
-        public static void GetUserProfile(int userId,
-                                          Action<UserProfile> onSuccess,
-                                          Action<WebRequestError> onError)
-        {
-            var cachedProfile = CacheClient.LoadUserProfile(userId);
-
-            if(cachedProfile != null)
-            {
-                if(onSuccess != null) { onSuccess(cachedProfile); }
-            }
-            else
-            {
-                // - Fetch from Server -
-                Action<UserProfile> onGetUser = (profile) =>
-                {
-                    CacheClient.SaveUserProfile(profile);
-                    if(onSuccess != null) { onSuccess(profile); }
-                };
-
-                APIClient.GetUser(userId,
-                                  onGetUser,
-                                  onError);
-            }
-        }
-
         /// <summary>Fetches and caches a User Avatar (if not already cached).</summary>
         public static void GetUserAvatar(UserProfile profile,
                                          UserAvatarSize size,
@@ -1929,6 +1903,40 @@ namespace ModIO
             }
 
             return ModManager.DownloadAndUpdateMods_Coroutine(modIds, null);
+        }
+
+        /// <summary>[Obsolete] Fetches and caches a User Profile (if not already cached).</summary>
+        [Obsolete("No longer supported by the mod.io API.")]
+        public static void GetUserProfile(int userId,
+                                          Action<UserProfile> onSuccess,
+                                          Action<WebRequestError> onError)
+        {
+            Debug.Assert(userId != UserProfile.NULL_ID);
+
+            if(UserAuthenticationData.instance.userId == userId)
+            {
+                var cachedProfile = CacheClient.LoadUserProfile(userId);
+
+                if(cachedProfile != null)
+                {
+                    if(onSuccess != null) { onSuccess(cachedProfile); }
+                }
+                else
+                {
+                    // - Fetch from Server -
+                    Action<UserProfile> onGetUser = (profile) =>
+                    {
+                        CacheClient.SaveUserProfile(profile);
+                        if(onSuccess != null) { onSuccess(profile); }
+                    };
+
+                    APIClient.GetAuthenticatedUser(onGetUser, onError);
+                }
+            }
+            else if(onError != null)
+            {
+                onError(WebRequestError.GenerateLocal("Non-authenticated user profiles can no-longer be fetched."));
+            }
         }
     }
 }
