@@ -114,7 +114,7 @@ NavMeshSettings:
 RectTransform:
   m_PrefabParentObject: {fileID: 224234992987308562, guid: bb2848c6221ca4e139874e85657065fb,
     type: 2}
-  m_PrefabInternal: {fileID: 2028618179}
+  m_PrefabInternal: {fileID: 1488137855}
 --- !u!1 &538368860
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,7 +429,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &2028618179
+--- !u!1001 &1488137855
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
