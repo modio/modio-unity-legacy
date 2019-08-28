@@ -140,6 +140,15 @@ namespace ModIO.UI
                 this.onModPageChanged.Invoke(this.m_modPage);
             }
 
+            if(this.noSubscriptionsDisplay != null)
+            {
+                this.noSubscriptionsDisplay.gameObject.SetActive(true);
+            }
+            if(this.noResultsDisplay != null)
+            {
+                this.noResultsDisplay.gameObject.SetActive(false);
+            }
+
             IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
 
             ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
@@ -165,43 +174,60 @@ namespace ModIO.UI
                 return;
             }
 
+            List<ModProfile> filteredList = null;
+
             // check for null list
             if(modProfiles == null
                || modProfiles.Count == 0)
             {
-                this.DisplayProfiles(new ModProfile[0]);
+                filteredList = new List<ModProfile>(0);
             }
-
-            // filter
-            Func<ModProfile, bool> nameFieldFilterDelegate = (p) => true;
-            if(!String.IsNullOrEmpty(requestedTitleFilter))
+            else
             {
-                // set initial value
-                string filterString = requestedTitleFilter.ToUpper();
-                nameFieldFilterDelegate = (p) =>
+                // filter
+                Func<ModProfile, bool> nameFieldFilterDelegate = (p) => true;
+                if(!String.IsNullOrEmpty(requestedTitleFilter))
                 {
-                    return p.name.ToUpper().Contains(filterString);
-                };
-            }
-
-            List<ModProfile> filteredList = new List<ModProfile>(modProfiles.Count);
-            foreach(ModProfile profile in modProfiles)
-            {
-                if(nameFieldFilterDelegate(profile))
-                {
-                    filteredList.Add(profile);
+                    // set initial value
+                    string filterString = requestedTitleFilter.ToUpper();
+                    nameFieldFilterDelegate = (p) =>
+                    {
+                        return p.name.ToUpper().Contains(filterString);
+                    };
                 }
+
+                filteredList = new List<ModProfile>(modProfiles.Count);
+                foreach(ModProfile profile in modProfiles)
+                {
+                    if(nameFieldFilterDelegate(profile))
+                    {
+                        filteredList.Add(profile);
+                    }
+                }
+
+                // sort
+                if(requestedSortDelegate == null)
+                {
+                    requestedSortDelegate = this.DefaultSortFunction;
+                }
+
+                filteredList.Sort(requestedSortDelegate);
+
             }
 
-            // sort
-            if(requestedSortDelegate == null)
-            {
-                requestedSortDelegate = this.DefaultSortFunction;
-            }
-
-            filteredList.Sort(requestedSortDelegate);
-
+            // update displays
             this.DisplayProfiles(filteredList);
+
+            if(this.noSubscriptionsDisplay != null)
+            {
+                this.noSubscriptionsDisplay.gameObject.SetActive(filteredList.Count == 0
+                                                                 && string.IsNullOrEmpty(this.m_nameFieldFilter));
+            }
+            if(this.noResultsDisplay != null)
+            {
+                this.noResultsDisplay.gameObject.SetActive(filteredList.Count == 0
+                                                           && !string.IsNullOrEmpty(this.m_nameFieldFilter));
+            }
 
             // create request page
             this.m_modPage = new RequestPage<ModProfile>()
