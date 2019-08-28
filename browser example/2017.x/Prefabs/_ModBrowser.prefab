@@ -1614,9 +1614,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224828049711594130}
+  - component: {fileID: 114486141158874974}
   - component: {fileID: 222177614735192514}
   - component: {fileID: 114186127770730600}
-  - component: {fileID: 114486141158874974}
   m_Layer: 5
   m_Name: Username
   m_TagString: Untagged
@@ -5740,6 +5740,7 @@ GameObject:
   - component: {fileID: 224686208739155210}
   - component: {fileID: 114647070328553356}
   - component: {fileID: 114561680273544266}
+  - component: {fileID: 114340673774329326}
   m_Layer: 5
   m_Name: Options Menu
   m_TagString: Untagged
@@ -12090,6 +12091,49 @@ MonoBehaviour:
   - {fileID: 114536068740671550}
   - {fileID: 114484126924573938}
   scheme: {fileID: 11400000, guid: d996a7df7972a48f1b56395b0f96cf94, type: 2}
+--- !u!114 &114340673774329326
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1887049943588804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6dafab91a9784c1e90c5bcefd518422, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_unauthenticatedUser:
+    profile:
+      id: 0
+      nameId: 
+      username: Guest
+      avatarLocator:
+        fileName: 
+        original: 
+        thumbnail_50x50: 
+        thumbnail_100x100: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    avatar: {fileID: 2800000, guid: fed58fbd9a94b4f3488602b9cd826c9a, type: 3}
+  m_guestData:
+    profile:
+      userId: 0
+      nameId: 
+      username: 
+      lastOnline: 0
+      timezone: 
+      language: 
+      profileURL: 
+    avatar:
+      ownerId: 0
+      descriptor: 0
+      imageId: 
+      originalURL: 
+      thumbnailURL: 
+      originalTexture: {fileID: 0}
+      thumbnailTexture: {fileID: 0}
 --- !u!114 &114342815398198748
 MonoBehaviour:
   m_ObjectHideFlags: 1
