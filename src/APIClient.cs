@@ -1277,33 +1277,6 @@ namespace ModIO
             APIClient.SendRequest(webRequest, successCallback, errorCallback);
         }
 
-        /// <summary>Fetches all the user profiles on mod.io.</summary>
-        public static void GetAllUsers(RequestFilter filter, APIPaginationParameters pagination,
-                                       Action<RequestPage<UserProfile>> successCallback, Action<WebRequestError> errorCallback)
-        {
-            string endpointURL = PluginSettings.data.apiURL + @"/users";
-
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                              filter.GenerateFilterString(),
-                                                              pagination);
-
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
-        }
-
-        /// <summary>Fetches a user profile from the mod.io servers.</summary>
-        public static void GetUser(int userId,
-                                   Action<UserProfile> successCallback, Action<WebRequestError> errorCallback)
-        {
-            string endpointURL = PluginSettings.data.apiURL + @"/users/" + userId;
-
-            UnityWebRequest webRequest = APIClient.GenerateQuery(endpointURL,
-                                                                 "",
-                                                                 null);
-
-            APIClient.SendRequest(webRequest, successCallback, errorCallback);
-        }
-
-
         // ---------[ REPORT ENDPOINTS ]---------
         /// <summary>Submits a report against a mod/resource on mod.io.</summary>
         public static void SubmitReport(SubmitReportParameters parameters,
@@ -1567,5 +1540,16 @@ namespace ModIO
 
             APIClient.DeleteModComment(modId, commentId, onSuccess, errorCallback);
         }
+
+        /// <summary>Fetches all the user profiles on mod.io.</summary>
+        [Obsolete("This endpoint has been removed from the mod.io API.", true)]
+        public static void GetAllUsers(RequestFilter filter, APIPaginationParameters pagination,
+                                       Action<RequestPage<UserProfile>> successCallback, Action<WebRequestError> errorCallback) {}
+
+        /// <summary>Fetches a user profile from the mod.io servers.</summary>
+        [Obsolete("This endpoint has been removed from the mod.io API.", true)]
+        public static void GetUser(int userId,
+                                   Action<UserProfile> successCallback, Action<WebRequestError> errorCallback) {}
+
     }
 }
