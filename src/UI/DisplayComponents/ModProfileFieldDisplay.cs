@@ -9,10 +9,23 @@ namespace ModIO.UI
     /// <summary>Component used to display a field of a mod profile in text.</summary>
     public class ModProfileFieldDisplay : MonoBehaviour, IModViewElement
     {
+        // ---------[ NESTED DATA-TYPE ]---------
+        public enum ValueFormatting
+        {
+            None,
+            ByteCount,
+            TimeStampAsDate,
+            AbbreviatedNumber,
+            Percentage,
+        }
+
         // ---------[ FIELDS ]---------
         /// <summary>ModProfile field to display.</summary>
         [FieldValueGetter.DropdownDisplay(typeof(ModProfile), displayArrays = false, displayNested = true)]
         public FieldValueGetter fieldGetter = new FieldValueGetter("id");
+
+        /// <summary>Formatting to apply to the object value.</summary>
+        public ValueFormatting formatting = ValueFormatting.None;
 
         /// <summary>Wrapper for the text component.</summary>
         private GenericTextComponent m_textComponent = new GenericTextComponent();
@@ -84,7 +97,38 @@ namespace ModIO.UI
             string displayString = string.Empty;
             if(fieldValue != null)
             {
-                displayString = fieldValue.ToString();
+                switch(this.formatting)
+                {
+                    case ValueFormatting.ByteCount:
+                    {
+                        displayString = UIUtilities.ByteCountToDisplayString((Int64)fieldValue);
+                    }
+                    break;
+
+                    case ValueFormatting.TimeStampAsDate:
+                    {
+                        displayString = ServerTimeStamp.ToLocalDateTime((int)fieldValue).ToString();
+                    }
+                    break;
+
+                    case ValueFormatting.AbbreviatedNumber:
+                    {
+                        displayString = UIUtilities.ValueToDisplayString((int)fieldValue);
+                    }
+                    break;
+
+                    case ValueFormatting.Percentage:
+                    {
+                        displayString = ((float)fieldValue * 100.0f).ToString("0.0") + "%";
+                    }
+                    break;
+
+                    default:
+                    {
+                        displayString = fieldValue.ToString();
+                    }
+                    break;
+                }
             }
 
             this.m_textComponent.text = displayString;
