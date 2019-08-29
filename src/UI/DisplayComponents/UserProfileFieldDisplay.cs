@@ -11,11 +11,8 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>UserProfile field to display.</summary>
-        [SerializeField]
-        private string m_fieldName = "id";
-
-        /// <summary>Delegate for acquiring the display string from the UserProfile.</summary>
-        private Func<UserProfile, string> m_getProfileFieldValue = null;
+        [FieldValueGetter.DropdownDisplay(typeof(UserProfile), displayArrays = false, displayNested = true)]
+        public FieldValueGetter fieldGetter = new FieldValueGetter("id");
 
         /// <summary>Wrapper for the text component.</summary>
         private GenericTextComponent m_textComponent = new GenericTextComponent();
@@ -23,22 +20,16 @@ namespace ModIO.UI
         /// <summary>Parent UserView.</summary>
         private UserView m_view = null;
 
+        /// <summary>Currently displayed UserProfile object.</summary>
+        private UserProfile m_profile = null;
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
-            this.m_getProfileFieldValue = this.GenerateGetDisplayStringDelegate();
             Component textDisplayComponent = GenericTextComponent.FindCompatibleTextComponent(this.gameObject);
             this.m_textComponent.SetTextDisplayComponent(textDisplayComponent);
 
             #if DEBUG
-            if(this.m_getProfileFieldValue == null)
-            {
-                Debug.LogError("[mod.io] UserProfileFieldDisplay is unable to display the field \'"
-                               + this.m_fieldName + "\' as it does not appear in the UserProfile"
-                               + " object definition.",
-                               this);
-            }
             if(textDisplayComponent == null)
             {
                 Debug.LogWarning("[mod.io] No compatible text components were found on this "
@@ -50,40 +41,11 @@ namespace ModIO.UI
             #endif
         }
 
-        protected virtual void Start()
+        protected virtual void OnEnable()
         {
-            if(this.m_view != null)
-            {
-                this.DisplayProfile(this.m_view.profile);
-            }
-            else
-            {
-                this.DisplayProfile(null);
-            }
+            this.DisplayProfile(this.m_profile);
         }
 
-        // --- DELEGATE GENERATION ---
-        protected virtual Func<UserProfile, string> GenerateGetDisplayStringDelegate()
-        {
-            foreach(var fieldInfo in typeof(UserProfile).GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                if(fieldInfo.Name.Equals(this.m_fieldName))
-                {
-                    if(fieldInfo.FieldType.IsValueType)
-                    {
-                        return (p) => UserProfileFieldDisplay.GetProfileFieldValueString_ValueType(p, fieldInfo);
-                    }
-                    else
-                    {
-                        return (p) => UserProfileFieldDisplay.GetProfileFieldValueString_Nullable(p, fieldInfo);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        // --- IUserViewElement Interface ---
         /// <summary>IUserViewElement interface.</summary>
         public void SetUserView(UserView view)
         {
@@ -115,49 +77,17 @@ namespace ModIO.UI
         /// <summary>Displays the appropriate field of a given profile.</summary>
         public void DisplayProfile(UserProfile profile)
         {
-            // early out
-            if(this.m_getProfileFieldValue == null) { return; }
+            this.m_profile = profile;
 
             // display
-            string displayString = this.m_getProfileFieldValue(profile);
+            object fieldValue = this.fieldGetter.GetValue(this.m_profile);
+            string displayString = string.Empty;
+            if(fieldValue != null)
+            {
+                displayString = fieldValue.ToString();
+            }
+
             this.m_textComponent.text = displayString;
-        }
-
-        // ---------[ UTILITY ]---------
-        protected static string GetProfileFieldValueString_ValueType(UserProfile profile, FieldInfo fieldInfo)
-        {
-            Debug.Assert(fieldInfo != null);
-
-            if(profile == null)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return fieldInfo.GetValue(profile).ToString();
-            }
-        }
-
-        protected static string GetProfileFieldValueString_Nullable(UserProfile profile, FieldInfo fieldInfo)
-        {
-            Debug.Assert(fieldInfo != null);
-
-            if(profile == null)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                var fieldValue = fieldInfo.GetValue(profile);
-                if(fieldValue == null)
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    return fieldValue.ToString();
-                }
-            }
         }
     }
 }
