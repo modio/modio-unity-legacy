@@ -7637,7 +7637,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: name
+  fieldGetter:
+    m_fieldPath: name
 --- !u!114 &114102997041691910
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9584,7 +9585,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: descriptionAsText
+  fieldGetter:
+    m_fieldPath: descriptionAsText
 --- !u!114 &114209466741654100
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11323,7 +11325,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: name
+  fieldGetter:
+    m_fieldPath: name
 --- !u!114 &114291449744305942
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -12679,7 +12682,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: submittedBy.username
+  fieldGetter:
+    m_fieldPath: submittedBy.username
 --- !u!114 &114383889550008360
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -13793,7 +13797,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: currentBuild.fileSize
+  fieldGetter:
+    m_fieldPath: currentBuild.fileSize
 --- !u!114 &114463776728015262
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -17441,7 +17446,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: dateLive
+  fieldGetter:
+    m_fieldPath: dateLive
 --- !u!114 &114642737301608100
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -20410,7 +20416,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: name
+  fieldGetter:
+    m_fieldPath: name
 --- !u!114 &114827473314391050
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -23206,7 +23213,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fieldName: dateUpdated
+  fieldGetter:
+    m_fieldPath: dateUpdated
 --- !u!114 &114998831224806782
 MonoBehaviour:
   m_ObjectHideFlags: 1
