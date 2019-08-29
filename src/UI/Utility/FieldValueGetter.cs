@@ -5,27 +5,28 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
-    /// <summary>Property to use for the custom property drawer.</summary>
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class FieldSelectionDisplayAttribute : PropertyAttribute
-    {
-        /// <summary>Type to use for reflection.</summary>
-        public Type objectType = null;
-        public bool displayArrays = false;
-        public bool displayNested = false;
-
-        public FieldSelectionDisplayAttribute(Type objectType, bool displayArrays = false, bool displayNested = false)
-        {
-            this.objectType = objectType;
-            this.displayArrays = displayArrays;
-            this.displayNested = displayNested;
-        }
-    }
-
     /// <summary>Structure to use for displaying the field of a piece of data.</summary>
     [System.Serializable]
     public struct FieldValueGetter
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Property to use for the custom property drawer.</summary>
+        [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+        public class DropdownDisplayAttribute : PropertyAttribute
+        {
+            /// <summary>Type to use for reflection.</summary>
+            public Type objectType = null;
+            public bool displayArrays = false;
+            public bool displayNested = false;
+
+            public DropdownDisplayAttribute(Type objectType, bool displayArrays = false, bool displayNested = false)
+            {
+                this.objectType = objectType;
+                this.displayArrays = displayArrays;
+                this.displayNested = displayNested;
+            }
+        }
+
         // ---------[ FIELDS ]---------
         /// <summary>Field of the object to display.</summary>
         [SerializeField]

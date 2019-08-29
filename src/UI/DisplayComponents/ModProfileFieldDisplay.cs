@@ -11,7 +11,7 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>ModProfile field to display.</summary>
-        [FieldSelectionDisplay(typeof(ModProfile), displayArrays = false, displayNested = true)]
+        [FieldValueGetter.DropdownDisplay(typeof(ModProfile), displayArrays = false, displayNested = true)]
         public FieldValueGetter fieldGetter = new FieldValueGetter("id");
 
         /// <summary>Wrapper for the text component.</summary>
