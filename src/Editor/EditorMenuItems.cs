@@ -11,12 +11,12 @@ namespace ModIO.Editor
     {
         static EditorMenuItems()
         {
-            new MenuItem("mod.io/Edit Settings", false, 0);
-            new MenuItem("mod.io/Debugging/", false, 1);
-            new MenuItem("mod.io/Tools/", false, 1);
+            new MenuItem("Tools/mod.io/Edit Settings", false, 0);
+            new MenuItem("Tools/mod.io/Debugging/", false, 1);
+            new MenuItem("Tools/mod.io/Tools/", false, 1);
         }
 
-        [MenuItem("mod.io/Debugging/Locate Cache...", false)]
+        [MenuItem("Tools/mod.io/Debugging/Locate Cache...", false)]
         public static void LocateCache()
         {
             if(!System.IO.Directory.Exists(CacheClient.cacheDirectory))
@@ -27,7 +27,7 @@ namespace ModIO.Editor
             EditorUtility.RevealInFinder(CacheClient.cacheDirectory);
         }
 
-        [MenuItem("mod.io/Debugging/Clear All Cached Data", false)]
+        [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
         public static void ClearCache()
         {
             if(IOUtilities.DeleteDirectory(CacheClient.cacheDirectory))
@@ -36,7 +36,7 @@ namespace ModIO.Editor
             }
         }
 
-        [MenuItem("mod.io/Debugging/Clear User Data", false)]
+        [MenuItem("Tools/mod.io/Debugging/Clear User Data", false)]
         public static void ClearCachedAuthenticatedUserData()
         {
             UserAuthenticationData.instance = UserAuthenticationData.NONE;
@@ -45,7 +45,7 @@ namespace ModIO.Editor
 
             Debug.Log("[mod.io] Cached User Data Deleted.");
         }
-        [MenuItem("mod.io/Debugging/Clear Game Data", false)]
+        [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
         {
             if(IOUtilities.DeleteFile(CacheClient.gameProfileFilePath))
@@ -53,7 +53,7 @@ namespace ModIO.Editor
                 Debug.Log("[mod.io] Cached Game Data Deleted.");
             }
         }
-        [MenuItem("mod.io/Debugging/Clear Mod Data", false)]
+        [MenuItem("Tools/mod.io/Debugging/Clear Mod Data", false)]
         public static void ClearCachedModData()
         {
             string modDir = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
@@ -62,7 +62,7 @@ namespace ModIO.Editor
                 Debug.Log("[mod.io] Cached Mod Data Deleted.");
             }
         }
-        [MenuItem("mod.io/Debugging/Clear User Profiles", false)]
+        [MenuItem("Tools/mod.io/Debugging/Clear User Profiles", false)]
         public static void ClearCachedUserProfiles()
         {
             string usersDir = IOUtilities.CombinePath(CacheClient.cacheDirectory, "users");
@@ -72,7 +72,7 @@ namespace ModIO.Editor
             }
         }
 
-        [MenuItem("mod.io/Debugging/Delete Installed Mods", false)]
+        [MenuItem("Tools/mod.io/Debugging/Delete Installed Mods", false)]
         public static void RemoveAllInstalledMods()
         {
             if(IOUtilities.DeleteDirectory(ModManager.installationDirectory))
@@ -81,7 +81,7 @@ namespace ModIO.Editor
             }
         }
 
-        [MenuItem("mod.io/Force Update ALL Color Scheme Applicators", false)]
+        [MenuItem("Tools/mod.io/Force Update ALL Color Scheme Applicators", false)]
         public static void ForceColorSchemeUpdate()
         {
             Resources.LoadAll<GraphicColorApplicator>(string.Empty);

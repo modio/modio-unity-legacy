@@ -11,7 +11,7 @@ namespace ModIO.Editor
     {
         // ---------[ MENU ITEM ]---------
         #if UNITY_EDITOR
-        [MenuItem("mod.io/Create Mod Profile")]
+        [MenuItem("Tools/mod.io/Create Mod Profile")]
         public static void CreateAssetInstance()
         {
             ScriptableModProfile asset = ScriptableObject.CreateInstance<ScriptableModProfile>();
