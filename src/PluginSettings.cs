@@ -122,7 +122,7 @@ namespace ModIO
 
         #if UNITY_EDITOR
         /// <summary>Locates the PluginSettings asset used by the plugin.</summary>
-        [UnityEditor.MenuItem("mod.io/Edit Settings", false)]
+        [UnityEditor.MenuItem("Tools/mod.io/Edit Settings", false)]
         public static void FocusAsset()
         {
             PluginSettings settings = Resources.Load<PluginSettings>(PluginSettings.FILE_PATH);
