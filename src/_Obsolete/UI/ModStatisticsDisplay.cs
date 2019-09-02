@@ -80,32 +80,32 @@ namespace ModIO.UI
             if(popularityRankDisplay != null)
             {
                 m_displayMapping.Add(popularityRankDisplay,
-                                     (s) => UIUtilities.ValueToDisplayString(s.popularityRankPosition));
+                                     (s) => ValueFormatting.AbbreviateInteger(s.popularityRankPosition, "0.0"));
             }
             if(popularityModCountDisplay != null)
             {
                 m_displayMapping.Add(popularityModCountDisplay,
-                                     (s) => UIUtilities.ValueToDisplayString(s.popularityRankModCount));
+                                     (s) => ValueFormatting.AbbreviateInteger(s.popularityRankModCount, "0.0"));
             }
             if(downloadCountDisplay != null)
             {
                 m_displayMapping.Add(downloadCountDisplay,
-                                     (s) => UIUtilities.ValueToDisplayString(s.downloadCount));
+                                     (s) => ValueFormatting.AbbreviateInteger(s.downloadCount, "0.0"));
             }
             if(subscriberCountDisplay != null)
             {
                 m_displayMapping.Add(subscriberCountDisplay,
-                                     (s) => UIUtilities.ValueToDisplayString(s.subscriberCount));
+                                     (s) => ValueFormatting.AbbreviateInteger(s.subscriberCount, "0.0"));
             }
             if(ratingCountDisplay != null)
             {
                 m_displayMapping.Add(ratingCountDisplay,
-                                     (s) => UIUtilities.ValueToDisplayString(s.ratingCount));
+                                     (s) => ValueFormatting.AbbreviateInteger(s.ratingCount, "0.0"));
             }
             if(ratingPositiveCountDisplay != null)
             {
                 m_displayMapping.Add(ratingPositiveCountDisplay,
-                                     (s) => UIUtilities.ValueToDisplayString(s.ratingPositiveCount));
+                                     (s) => ValueFormatting.AbbreviateInteger(s.ratingPositiveCount, "0.0"));
             }
             if(ratingPositivePercentageDisplay != null)
             {
@@ -117,7 +117,7 @@ namespace ModIO.UI
             if(ratingNegativeCountDisplay != null)
             {
                 m_displayMapping.Add(ratingNegativeCountDisplay,
-                                     (s) => UIUtilities.ValueToDisplayString(s.ratingNegativeCount));
+                                     (s) => ValueFormatting.AbbreviateInteger(s.ratingNegativeCount, "0.0"));
             }
             if(ratingNegativePercentageDisplay != null)
             {

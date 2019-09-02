@@ -56,17 +56,17 @@ namespace ModIO.UI
 
             if(bytesReceivedText != null)
             {
-                bytesReceivedText.text = UIUtilities.ByteCountToDisplayString(data.bytesReceived);
+                bytesReceivedText.text = ValueFormatting.ByteCount(data.bytesReceived, "0.0");
             }
 
             if(bytesTotalText != null)
             {
-                bytesTotalText.text = UIUtilities.ByteCountToDisplayString(data.bytesTotal);
+                bytesTotalText.text = ValueFormatting.ByteCount(data.bytesTotal, "0.0");
             }
 
             if(bytesPerSecondText != null)
             {
-                bytesPerSecondText.text = UIUtilities.ByteCountToDisplayString(data.bytesPerSecond) + "/s";
+                bytesPerSecondText.text = ValueFormatting.ByteCount(data.bytesPerSecond, "0.0") + "/s";
             }
 
             if(timeRemainingText != null)

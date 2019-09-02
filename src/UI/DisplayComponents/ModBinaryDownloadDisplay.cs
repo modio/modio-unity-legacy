@@ -305,10 +305,10 @@ namespace ModIO.UI
             }
 
             // display
-            this.bytesTotalText.text = UIUtilities.ByteCountToDisplayString(fileSize);
-            this.bytesReceivedText.text = UIUtilities.ByteCountToDisplayString(bytesReceived);
+            this.bytesTotalText.text = ValueFormatting.ByteCount(fileSize, "0.0");
+            this.bytesReceivedText.text = ValueFormatting.ByteCount(bytesReceived, "0.0");
             this.percentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
-            this.bytesPerSecondText.text = (UIUtilities.ByteCountToDisplayString(downloadSpeed) + "/s");
+            this.bytesPerSecondText.text = (ValueFormatting.ByteCount(downloadSpeed, "0.0") + "/s");
             this.timeRemainingText.text = timeRemainingDisplayString;
 
             if(this.progressBar != null)

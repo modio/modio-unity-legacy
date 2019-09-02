@@ -100,7 +100,7 @@ namespace ModIO.UI
             }
             if(fileSizeDisplay != null)
             {
-                m_displayMapping.Add(fileSizeDisplay, (d) => UIUtilities.ByteCountToDisplayString(d.fileSize));
+                m_displayMapping.Add(fileSizeDisplay, (d) => ValueFormatting.ByteCount(d.fileSize, "0.0"));
             }
             if(MD5Display != null)
             {
