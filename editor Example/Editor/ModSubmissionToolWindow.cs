@@ -14,7 +14,7 @@ namespace ModIO.Editor
 {
     public class ModSubmissionToolWindow : EditorWindow
     {
-        [MenuItem("mod.io/Mod Submission Tool")]
+        [MenuItem("Tools/mod.io/Mod Submission Tool")]
         public static void ShowWindow()
         {
             GetWindow<ModSubmissionToolWindow>("Submit Mod");
