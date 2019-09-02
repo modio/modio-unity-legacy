@@ -25,9 +25,6 @@ namespace ModIO.UI.Editor
         /// <summary>Is the dropdown open?</summary>
         public bool isExpanded = false;
 
-        /// <summary>Dropdown Attribute.</summary>
-        public FieldValueGetter.DropdownDisplayAttribute dropdownAttribute = null;
-
         /// <summary>Field Path property.</summary>
         public SerializedProperty fieldPathProperty = null;
 
@@ -38,14 +35,15 @@ namespace ModIO.UI.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             // Generate Display Values
-            if(this.dropdownAttribute == null
-               || this.fieldPathProperty == null
+            if(this.fieldPathProperty == null
                || this.displayValues == null)
             {
                 FieldValueGetter.DropdownDisplayAttribute dropdownAttribute
                     = (FieldValueGetter.DropdownDisplayAttribute)attribute;
 
                 this.fieldPathProperty = property.FindPropertyRelative("m_fieldPath");
+
+                Debug.Assert(dropdownAttribute != null);
 
                 // Generate field info
                 FieldInfo[] rootFields
@@ -85,6 +83,7 @@ namespace ModIO.UI.Editor
             }
 
             selectedIndex = EditorGUI.Popup(position, "Field Path", selectedIndex, this.displayValues);
+            this.fieldPathProperty.stringValue = this.displayValues[selectedIndex];
         }
 
         // ---------[ UTILITY ]---------
