@@ -14,6 +14,9 @@ namespace ModIO.UI
         [FieldValueGetter.DropdownDisplay(typeof(ModStatistics), displayArrays = false, displayNested = true)]
         public FieldValueGetter fieldGetter = new FieldValueGetter("modId");
 
+        /// <summary>Formatting to apply to the object value.</summary>
+        public ValueFormatter.Method formatting = ValueFormatter.Method.None;
+
         /// <summary>Wrapper for the text component.</summary>
         private GenericTextComponent m_textComponent = new GenericTextComponent();
 
@@ -81,11 +84,7 @@ namespace ModIO.UI
 
             // display
             object fieldValue = this.fieldGetter.GetValue(this.m_statistics);
-            string displayString = string.Empty;
-            if(fieldValue != null)
-            {
-                displayString = fieldValue.ToString();
-            }
+            string displayString = ValueFormatter.FormatValue(fieldValue, this.formatting);
 
             this.m_textComponent.text = displayString;
         }
