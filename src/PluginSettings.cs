@@ -8,7 +8,7 @@ namespace ModIO
         // ---------[ NESTED CLASSES ]---------
         /// <summary>Data struct that is wrapped by the ScriptableObject.</summary>
         [System.Serializable]
-        public struct Data
+        public class Data
         {
             // ---------[ FIELDS ]---------
             [Tooltip("API URL to use when making requests")]
@@ -62,6 +62,7 @@ namespace ModIO
         #pragma warning disable 0649
         private Data m_data;
         #pragma warning restore 0649
+        public Data InstanceData => m_data;
 
         // ---------[ FUNCTIONALITY ]---------
         /// <summary>Loads the Data from the asset instance.</summary>
