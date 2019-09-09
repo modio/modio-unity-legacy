@@ -110,6 +110,9 @@ namespace ModIO.UI
             // setup transform
             RectTransform cocRT = cocGO.GetComponent<RectTransform>();
             cocRT.SetParent(canvas.transform);
+            cocRT.localPosition = Vector3.zero;
+            cocRT.localRotation = Quaternion.identity;
+            cocRT.localScale = Vector3.one;
             cocRT.anchorMin = Vector2.zero;
             cocRT.anchorMax = Vector2.one;
             cocRT.offsetMin = cocRT.offsetMax = Vector2.zero;

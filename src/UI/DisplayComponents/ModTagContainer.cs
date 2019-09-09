@@ -134,8 +134,6 @@ namespace ModIO.UI
                 UnityEditor.EditorApplication.delayCall += () =>
                 {
                     GameObject displayGO = GameObject.Instantiate(tagDisplayPrefab,
-                                                                  new Vector3(),
-                                                                  Quaternion.identity,
                                                                   container);
                     displayGO.hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInInspector;
 

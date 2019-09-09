@@ -175,8 +175,6 @@ namespace ModIO.UI
             {
                 // create GameObject
                 GameObject viewGO = GameObject.Instantiate(itemPrefab,
-                                                           new Vector3(),
-                                                           Quaternion.identity,
                                                            scrollView.content);
                 ModView view = viewGO.GetComponent<ModView>();
 
