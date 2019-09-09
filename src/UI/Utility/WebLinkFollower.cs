@@ -6,6 +6,9 @@ namespace ModIO.UI
     {
         public void OpenBrowserAt(string url)
         {
+#if STEAM_VR
+            Valve.VR.OpenVR.Overlay.ShowDashboard("valve.steam.desktop");      
+#endif
             Application.OpenURL(url);
         }
     }

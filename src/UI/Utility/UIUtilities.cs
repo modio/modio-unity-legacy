@@ -77,6 +77,9 @@ namespace ModIO.UI
         {
             if(!String.IsNullOrEmpty(youTubeVideoId))
             {
+#if STEAM_VR
+                Valve.VR.OpenVR.Overlay.ShowDashboard("valve.steam.desktop");      
+#endif
                 Application.OpenURL(@"https://youtu.be/" + youTubeVideoId);
             }
         }

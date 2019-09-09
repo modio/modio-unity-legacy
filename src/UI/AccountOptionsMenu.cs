@@ -88,6 +88,9 @@ namespace ModIO.UI
                             profileURL += "?ref=steam";
                         }
 
+#if STEAM_VR
+                        Valve.VR.OpenVR.Overlay.ShowDashboard("valve.steam.desktop");      
+#endif
                         Application.OpenURL(profileURL);
                         this.viewProfileButton.interactable = true;
                     }
