@@ -53,6 +53,7 @@ namespace ModIO.UI
             Transform templateParent = this.containerTemplate.parent;
             string templateInstance_name = this.containerTemplate.gameObject.name + " (Instance)";
             int templateInstance_index = this.containerTemplate.GetSiblingIndex() + 1;
+            this.m_itemTemplate = this.containerTemplate.GetComponentInChildren<ModView>(true);
 
             // duplication protection
             bool isInstantiated = (templateParent.childCount > templateInstance_index
@@ -120,7 +121,7 @@ namespace ModIO.UI
             }
 
             // display
-            if(this.isActiveAndEnabled)
+            if(this.m_itemTemplate != null)
             {
                 // set view count
                 int itemCount = this.m_modfiles.Length;
