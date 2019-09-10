@@ -199,7 +199,7 @@ namespace ModIO.UI
                 m_gameProfile.id = PluginSettings.data.gameId;
             }
 
-            IEnumerable<IGameProfileUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
+            IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
                 receiver.OnGameProfileUpdated(m_gameProfile);
@@ -258,7 +258,7 @@ namespace ModIO.UI
                     {
                         CacheClient.SaveUserProfile(u);
 
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
                         foreach(var receiver in updateReceivers)
                         {
                             receiver.OnUserProfileUpdated(u);
@@ -283,7 +283,7 @@ namespace ModIO.UI
                     {
                         CacheClient.SaveUserProfile(u);
 
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
                         foreach(var receiver in updateReceivers)
                         {
                             receiver.OnUserProfileUpdated(u);
@@ -334,7 +334,7 @@ namespace ModIO.UI
                 {
                     m_gameProfile = g;
 
-                    IEnumerable<IGameProfileUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IGameProfileUpdateReceiver>(true);
+                    IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
                     foreach(var receiver in updateReceivers)
                     {
                         receiver.OnGameProfileUpdated(g);
@@ -428,7 +428,7 @@ namespace ModIO.UI
                         data.userId = u.id;
                         UserAuthenticationData.instance = data;
 
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
                         foreach(var receiver in updateReceivers)
                         {
                             receiver.OnUserProfileUpdated(u);
@@ -1674,7 +1674,7 @@ namespace ModIO.UI
             UserAuthenticationData.Clear();
 
             // - notify receivers -
-            IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IAuthenticatedUserUpdateReceiver>(true);
+            IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
                 receiver.OnUserLoggedOut();
@@ -1865,7 +1865,7 @@ namespace ModIO.UI
             if(addedSubscriptions == null)  { addedSubscriptions = new int[0]; }
             if(removedSubscriptions == null){ removedSubscriptions = new int[0]; }
 
-            IEnumerable<IModSubscriptionsUpdateReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModSubscriptionsUpdateReceiver>(true);
+            IEnumerable<IModSubscriptionsUpdateReceiver> updateReceivers = GetComponentsInChildren<IModSubscriptionsUpdateReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
                 receiver.OnModSubscriptionsUpdated(addedSubscriptions,
@@ -1882,7 +1882,7 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            IEnumerable<IModEnabledReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModEnabledReceiver>(true);
+            IEnumerable<IModEnabledReceiver> updateReceivers = GetComponentsInChildren<IModEnabledReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
                 receiver.OnModEnabled(modId);
@@ -1898,7 +1898,7 @@ namespace ModIO.UI
                 ModManager.SetEnabledModIds(mods);
             }
 
-            IEnumerable<IModDisabledReceiver> updateReceivers = UIUtilities.FindComponentsInScene<IModDisabledReceiver>(true);
+            IEnumerable<IModDisabledReceiver> updateReceivers = GetComponentsInChildren<IModDisabledReceiver>(true);
             foreach(var receiver in updateReceivers)
             {
                 receiver.OnModDisabled(modId);
@@ -1919,7 +1919,7 @@ namespace ModIO.UI
                 ModRatingValue oldRating = this.GetModRating(modId);
 
                 // notify receivers
-                IEnumerable<IModRatingAddedReceiver> ratingReceivers = UIUtilities.FindComponentsInScene<IModRatingAddedReceiver>(true);
+                IEnumerable<IModRatingAddedReceiver> ratingReceivers = GetComponentsInChildren<IModRatingAddedReceiver>(true);
                 foreach(var receiver in ratingReceivers)
                 {
                     receiver.OnModRatingAdded(modId, ratingValue);

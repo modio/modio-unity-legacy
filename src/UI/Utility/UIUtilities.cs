@@ -137,6 +137,14 @@ namespace ModIO.UI
         public static T FindComponentInScene<T>(bool includeInactive)
         where T : class
         {
+            /*
+             * JC (2019-09-07): UIs are sometimes managed in their own scenes
+             * (e.g. one scene per UI panel/screen), and those scenes will usually
+             * not be the active scenes. For the purpose of resolving a singleton
+             * instance, Resources.FindObjectsOfTypeAll<T>() is probably the safer
+             * approach (Object.FindObjectOfType(type) would be more efficient but
+             * cannot return inactive objects.
+             */ 
             var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             IEnumerable<GameObject> rootObjects = activeScene.GetRootGameObjects();
             T foundComponent = null;
@@ -167,6 +175,7 @@ namespace ModIO.UI
         public static List<T> FindComponentsInScene<T>(bool includeInactive)
         where T : class
         {
+            // JC (2019-09-07): See comment above (FindComponentInScene).
             var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             IEnumerable<GameObject> rootObjects = activeScene.GetRootGameObjects();
             List<T> retVal = new List<T>();
