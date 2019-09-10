@@ -512,8 +512,6 @@ namespace ModIO.UI
                     }
 
                     GameObject itemGO = GameObject.Instantiate(itemPrefab,
-                                                               new Vector3(),
-                                                               Quaternion.identity,
                                                                pageTransform);
                     itemGO.name = "Mod Tile [" + pageModViews.Count.ToString() + "]";
 

@@ -155,8 +155,6 @@ namespace ModIO.UI
                                                          RectTransform container)
         {
             GameObject displayGO = GameObject.Instantiate(prefab,
-                                                          new Vector3(),
-                                                          Quaternion.identity,
                                                           container);
             displayGO.name = category.name;
 
