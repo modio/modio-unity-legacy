@@ -2,10 +2,10 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomPropertyDrawer(typeof(GenericTextComponent))]
-    public class GenericTextComponentDrawer : UnityEditor.PropertyDrawer
+    public class GenericTextComponentDrawer : PropertyDrawer
     {
         // ---------[ GUI FUNCTIONALITY ]---------
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

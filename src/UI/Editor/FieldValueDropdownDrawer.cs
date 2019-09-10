@@ -7,11 +7,11 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     /// <summary>Draws a dropdown selection in place of the FieldValueGetter.</summary>
     [CustomPropertyDrawer(typeof(FieldValueGetter.DropdownDisplayAttribute))]
-    public class FieldValueDropdownDrawer : UnityEditor.PropertyDrawer
+    public class FieldValueDropdownDrawer : PropertyDrawer
     {
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>A structure for pairing the FieldInfo with a path.</summary>
