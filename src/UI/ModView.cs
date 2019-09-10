@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace ModIO.UI
 {
+    /// <summary>A view that provides information to child IModViewElements.</summary>
     [DisallowMultipleComponent]
     public class ModView : MonoBehaviour
     {
