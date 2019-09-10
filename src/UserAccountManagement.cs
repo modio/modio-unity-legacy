@@ -61,7 +61,7 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            string encodedTicket = Utility.EncodeEncryptedAppTicket(authTicketData, authTicketData.Length);
+            string encodedTicket = Utility.EncodeEncryptedAppTicket(authTicketData, (uint)authTicketData.Length);
             UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
                                                                           onSuccess, onError);
         }
