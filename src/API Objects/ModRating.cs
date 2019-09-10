@@ -77,7 +77,7 @@ namespace ModIO
         }
 
         [JsonProperty("rating")]
-        private int? _apiRatingValue;
+        private int? _apiRatingValue = null;
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)

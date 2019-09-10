@@ -19,7 +19,11 @@ namespace ModIO.UI
         // ---------[ FIELDS ]---------
         /// <summary>Display data for an unauthenticated user.</summary>
         [SerializeField]
-        private UserProfileData m_unauthenticatedUser = new UserProfileData();
+        private UserProfileData m_unauthenticatedUser = new UserProfileData()
+        {
+            profile = new UserProfile(),
+            avatar = null,
+        };
 
         // --- ACCESSORS ---
         /// <summary>The UserView this component controls.</summary>

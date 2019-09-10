@@ -976,8 +976,10 @@ namespace ModIO.UI
             }
         }
 
+        #pragma warning disable 0067
         [Obsolete("No longer supported. Use ExplorerView.onRequestFilterChanged instead.", true)]
         public event Action<string[]> onTagFilterUpdated;
+        #pragma warning restore 0067
 
         [Obsolete("No longer necessary. Initialization occurs in Start().")]
         public void Initialize() {}
