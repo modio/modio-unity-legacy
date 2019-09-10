@@ -139,6 +139,22 @@ namespace ModIO
         /// <summary>Creates the asset instance that the plugin will use.</summary>
         private static PluginSettings InitializeAsset()
         {
+            PluginSettings.Data data = new PluginSettings.Data()
+            {
+                apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
+                gameId = 0,
+                gameAPIKey = string.Empty,
+                cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
+                installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
+                logAllRequests = false,
+            };
+
+            return SetGlobalValues(data);
+        }
+
+        /// <summary>Sets the values of the Plugin Settings.</summary>
+        public static PluginSettings SetGlobalValues(PluginSettings.Data data)
+        {
             string assetPath = "Assets/Resources/" + PluginSettings.FILE_PATH + ".asset";
             PluginSettings settings = ScriptableObject.CreateInstance<PluginSettings>();
 
@@ -146,18 +162,28 @@ namespace ModIO
             {
                 UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
             }
-            settings.m_data.apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION;
-            settings.m_data.gameId = 0;
-            settings.m_data.gameAPIKey = string.Empty;
-            settings.m_data.cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$";
-            settings.m_data.installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods";
-            settings.m_data.logAllRequests = false;
+
+            settings.m_data = data;
 
             UnityEditor.AssetDatabase.CreateAsset(settings, assetPath);
             UnityEditor.AssetDatabase.SaveAssets();
             UnityEditor.AssetDatabase.Refresh();
 
             return settings;
+        }
+
+        /// <summary>Copies a Plugin Settings' values into the main asset.</summary>
+        public static PluginSettings SetAssetAsGlobal(string assetPath)
+        {
+            PluginSettings valuesToCopy = UnityEditor.AssetDatabase.LoadAssetAtPath<PluginSettings>(assetPath);
+            if(valuesToCopy == null)
+            {
+                Debug.LogError("[mod.io] PluginSettings at " + assetPath + " could not be found and"
+                               + " thus the globally used PluginSettings asset was unchanged.");
+                return null;
+            }
+
+            return PluginSettings.SetGlobalValues(valuesToCopy.m_data);
         }
         #endif
     }

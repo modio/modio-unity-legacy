@@ -43,6 +43,8 @@ namespace ModIO
         }
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        /// <remarks>This version is designed to match the Steamworks.NET implementation by
+        /// @rlabrecque at https://github.com/rlabrecque/Steamworks.NET</remarks>
         public static void AuthenticateWithSteamEncryptedAppTicket(byte[] pTicket, uint pcbTicket,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
@@ -51,6 +53,19 @@ namespace ModIO
             UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
                                                                           onSuccess, onError);
         }
+
+        /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
+        /// <remarks>This version is designed to match the FacePunch.SteamWorks implementation by
+        /// @garrynewman at https://github.com/Facepunch/Facepunch.Steamworks</remarks>
+        public static void AuthenticateWithSteamEncryptedAppTicket(byte[] authTicketData,
+                                                                   Action<UserProfile> onSuccess,
+                                                                   Action<WebRequestError> onError)
+        {
+            string encodedTicket = Utility.EncodeEncryptedAppTicket(authTicketData, (uint)authTicketData.Length);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
+                                                                          onSuccess, onError);
+        }
+
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         public static void AuthenticateWithSteamEncryptedAppTicket(string encodedTicket,
