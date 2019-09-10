@@ -22,7 +22,7 @@ namespace ModIO.UI
             {
                 if(ModBrowser._instance == null)
                 {
-                    ModBrowser._instance = UIUtilities.FindComponentInScene<ModBrowser>(true);
+                    ModBrowser._instance = UIUtilities.FindComponentInAllScenes<ModBrowser>(true);
 
                     if(ModBrowser._instance == null)
                     {
