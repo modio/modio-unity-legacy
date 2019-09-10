@@ -993,6 +993,12 @@ namespace ModIO.UI
             this.UpdateTransitionPageDisplay();
         }
 
+        [Obsolete("Use ExplorerView.ClearAllFilters() instead.")]
+        public void ClearFilters()
+        {
+            ClearAllFilters();
+        }
+
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]
         public event Action<ModView> inspectRequested;
         [Obsolete("No longer necessary. Event is directly linked to ModBrowser.")]

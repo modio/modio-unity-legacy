@@ -16,7 +16,7 @@ namespace ModIO.UI
             {
                 if(ImageRequestManager._instance == null)
                 {
-                    ImageRequestManager._instance = UIUtilities.FindComponentInScene<ImageRequestManager>(true);
+                    ImageRequestManager._instance = UIUtilities.FindComponentInAllScenes<ImageRequestManager>(true);
 
                     if(ImageRequestManager._instance == null)
                     {

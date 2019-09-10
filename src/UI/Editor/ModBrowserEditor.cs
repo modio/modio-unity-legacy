@@ -1,11 +1,12 @@
 ﻿#if UNITY_EDITOR
+
 using UnityEngine;
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomEditor(typeof(ModBrowser))]
-    public class ModBrowserEditor : UnityEditor.Editor
+    public class ModBrowserEditor : Editor
     {
         public override void OnInspectorGUI()
         {

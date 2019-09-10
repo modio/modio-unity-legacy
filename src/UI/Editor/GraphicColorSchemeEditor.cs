@@ -3,10 +3,10 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomEditor(typeof(GraphicColorScheme))]
-    public class GraphicColorSchemeEditor : UnityEditor.Editor
+    public class GraphicColorSchemeEditor : Editor
     {
         public override void OnInspectorGUI()
         {

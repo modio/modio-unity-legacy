@@ -13,7 +13,7 @@ namespace ModIO.UI
             {
                 if(ViewManager._instance == null)
                 {
-                    ViewManager._instance = UIUtilities.FindComponentInScene<ViewManager>(true);
+                    ViewManager._instance = UIUtilities.FindComponentInAllScenes<ViewManager>(true);
 
                     if(ViewManager._instance == null)
                     {
@@ -60,10 +60,10 @@ namespace ModIO.UI
         {
             if(this.m_viewsFound) { return; }
 
-            this.m_explorerView = UIUtilities.FindComponentInScene<ExplorerView>(true);
-            this.m_subscriptionsView = UIUtilities.FindComponentInScene<SubscriptionsView>(true);
-            this.m_inspectorView = UIUtilities.FindComponentInScene<InspectorView>(true);
-            this.m_loginDialog = UIUtilities.FindComponentInScene<LoginDialog>(true);
+            this.m_explorerView = GetComponentInChildren<ExplorerView>(true);
+            this.m_subscriptionsView = GetComponentInChildren<SubscriptionsView>(true);
+            this.m_inspectorView = GetComponentInChildren<InspectorView>(true);
+            this.m_loginDialog = GetComponentInChildren<LoginDialog>(true);
             this.m_viewsFound = true;
         }
 

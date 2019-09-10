@@ -17,7 +17,7 @@ namespace ModIO.UI
             {
                 if(ModProfileRequestManager._instance == null)
                 {
-                    ModProfileRequestManager._instance = UIUtilities.FindComponentInScene<ModProfileRequestManager>(true);
+                    ModProfileRequestManager._instance = UIUtilities.FindComponentInAllScenes<ModProfileRequestManager>(true);
 
                     if(ModProfileRequestManager._instance == null)
                     {

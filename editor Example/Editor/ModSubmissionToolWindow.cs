@@ -10,11 +10,11 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     public class ModSubmissionToolWindow : EditorWindow
     {
-        [MenuItem("mod.io/Mod Submission Tool")]
+        [MenuItem("Tools/mod.io/Mod Submission Tool")]
         public static void ShowWindow()
         {
             GetWindow<ModSubmissionToolWindow>("Submit Mod");

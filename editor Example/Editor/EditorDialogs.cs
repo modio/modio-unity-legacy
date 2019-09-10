@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     public static class EditorDialogs
     {

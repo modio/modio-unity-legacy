@@ -16,7 +16,7 @@ namespace ModIO.UI
     #if UNITY_EDITOR
     [CustomEditor(typeof(ToastAnimationSettings))]
     [CanEditMultipleObjects]
-    public class ToastAnimationEditor : Editor
+    public class ToastAnimationEditor : UnityEditor.Editor
     {
         private void OnSceneGUI()
         {

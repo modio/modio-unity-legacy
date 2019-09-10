@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomPropertyDrawer(typeof(ExplorerSortDropdownController.FieldSelectAttribute))]
-    public class ExplorerSortDropdownFieldSelectDrawer : UnityEditor.PropertyDrawer
+    public class ExplorerSortDropdownFieldSelectDrawer : PropertyDrawer
     {
         // ---------[ NESTED DATA-TYPES ]---------
         private struct FieldData

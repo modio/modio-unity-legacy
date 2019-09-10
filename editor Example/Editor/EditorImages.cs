@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     [CreateAssetMenu(fileName = "New Editor Image Set", menuName = "ModIO/Theming/Editor Image Set")]
     public class EditorImages : ScriptableObject

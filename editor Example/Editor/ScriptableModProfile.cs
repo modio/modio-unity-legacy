@@ -4,14 +4,14 @@ using UnityEditor;
 
 using UnityEngine;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     [CreateAssetMenu(fileName = "New Mod Profile", menuName = "ModIO/Create Mod Profile")]
     public class ScriptableModProfile : ScriptableObject
     {
         // ---------[ MENU ITEM ]---------
         #if UNITY_EDITOR
-        [MenuItem("mod.io/Create Mod Profile")]
+        [MenuItem("Tools/mod.io/Create Mod Profile")]
         public static void CreateAssetInstance()
         {
             ScriptableModProfile asset = ScriptableObject.CreateInstance<ScriptableModProfile>();

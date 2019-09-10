@@ -2,10 +2,10 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomEditor(typeof(PluginSettings))]
-    public class PluginSettingsEditor : UnityEditor.Editor
+    public class PluginSettingsEditor : Editor
     {
         SerializedProperty apiURLProperty;
 
