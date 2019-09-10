@@ -132,8 +132,70 @@ namespace ModIO.UI
             return rowCount * columnCount;
         }
 
+        /// <summary>Finds the first instance of a component in any loaded scenes.</summary>
+        public static T FindComponentInAllScenes<T>(bool includeInactive)
+        where T : Behaviour
+        {
+            foreach(T component in Resources.FindObjectsOfTypeAll<T>())
+            {
+                if(component.hideFlags == HideFlags.NotEditable
+                    || component.hideFlags == HideFlags.HideAndDontSave)
+                {
+                    continue;
+                }
 
-        /// <summary>Finds the first instance of a component in the active scene.</summary>
+                #if UNITY_EDITOR
+                if(UnityEditor.EditorUtility.IsPersistent(component.transform.root.gameObject))
+                {
+                    continue;
+                }
+                #endif
+
+                if(includeInactive
+                   || component.isActiveAndEnabled)
+                {
+                    return component;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>Finds the instances of a component in any loaded scenes.</summary>
+        public static List<T> FindComponentsInAllScenes<T>(bool includeInactive)
+        where T : Behaviour
+        {
+
+            List<T> sceneComponents = new List<T>();
+
+            foreach(T component in Resources.FindObjectsOfTypeAll<T>())
+            {
+                if(component.hideFlags == HideFlags.NotEditable
+                    || component.hideFlags == HideFlags.HideAndDontSave)
+                {
+                    continue;
+                }
+
+                #if UNITY_EDITOR
+                if(UnityEditor.EditorUtility.IsPersistent(component.transform.root.gameObject))
+                {
+                    continue;
+                }
+                #endif
+
+                if(includeInactive
+                   || component.isActiveAndEnabled)
+                {
+                    sceneComponents.Add(component);
+                }
+            }
+
+            return sceneComponents;
+        }
+
+        // ---------[ OBSOLETE ]---------
+        /// <summary>[Obsolete] Finds the first instance of a component in the active scene.</summary>
+        [Obsolete("Use UIUtilities.FindComponentInAllScenes() instead.")]
         public static T FindComponentInScene<T>(bool includeInactive)
         where T : class
         {
@@ -144,7 +206,7 @@ namespace ModIO.UI
              * instance, Resources.FindObjectsOfTypeAll<T>() is probably the safer
              * approach (Object.FindObjectOfType(type) would be more efficient but
              * cannot return inactive objects.
-             */ 
+             */
             var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             IEnumerable<GameObject> rootObjects = activeScene.GetRootGameObjects();
             T foundComponent = null;
@@ -171,7 +233,8 @@ namespace ModIO.UI
             return null;
         }
 
-        /// <summary>Finds components within the active scene.</summary>
+        /// <summary>[Obsolete] Finds components within the active scene.</summary>
+        [Obsolete("Use UIUtilities.FindComponentsInLoadedScenes() instead.")]
         public static List<T> FindComponentsInScene<T>(bool includeInactive)
         where T : class
         {
