@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/modio/UnityPlugin/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/389039439487434752.svg?label=Discord&logo=discord&color=7289DA&labelColor=2C2F33)](https://discord.mod.io)
 [![Master docs](https://img.shields.io/badge/docs-master-green.svg)](https://github.com/modio/UnityPlugin/wiki)
-[![Unity 3D](https://img.shields.io/badge/Unity-2018.2-lightgrey.svg)](https://unity3d.com/)
+[![Unity 3D](https://img.shields.io/badge/Unity-2017.2+-lightgrey.svg)](https://unity3d.com/)
 
 Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
@@ -112,7 +112,7 @@ int[] modIds = Utility.MapProfileIds(subscribedMods);
 ModManager.SetSubscribedModIds(modIds);
 
 // -- Download, Update, and Install Subscribed Mods --
-activeSceneComponent.StartCoroutine(ModManager.DownloadAndUpdateMods_Coroutine(modIds, 
+activeSceneComponent.StartCoroutine(ModManager.DownloadAndUpdateMods_Coroutine(modIds,
                                                                                () => OnCompleted()));
 ```
 
@@ -156,7 +156,7 @@ mod.io offers the same core functionality as Steamworks Workshop (1 click mod in
 * Your community can consume the mod.io API to build modding fan sites or discord bots if they want
 * Communicate and interact with your players, using our built-in emailer
 
-## Large studios and Publishers 
+## Large studios and Publishers
 A private white label option is available to license, if you want a fully featured mod-platform that you can control and host in-house. [Contact us](mailto:developers@mod.io?subject=Whitelabel) to discuss.
 
 ## Dependencies
