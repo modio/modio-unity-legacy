@@ -4,7 +4,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     public static class EditorUtilityExtensions
     {
