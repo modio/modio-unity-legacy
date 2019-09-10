@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     // NOTE(@jackson): Could do with a beauty-pass
     [CustomEditor(typeof(ScriptableModProfile))]

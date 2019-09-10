@@ -2,10 +2,10 @@
 
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomEditor(typeof(Touchable))]
-    public class TouchableEditor : UnityEditor.Editor
+    public class TouchableEditor : Editor
     {
         public override void OnInspectorGUI(){}
     }

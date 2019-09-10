@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomPropertyDrawer(typeof(SubscriptionSortDropdownController.FieldSelectAttribute))]
-    public class SubscriptionSortDropdownFieldSelectDrawer : UnityEditor.PropertyDrawer
+    public class SubscriptionSortDropdownFieldSelectDrawer : PropertyDrawer
     {
         // ---------[ STATIC DATA ]---------
         private static GUIContent[] popupOptions = null;

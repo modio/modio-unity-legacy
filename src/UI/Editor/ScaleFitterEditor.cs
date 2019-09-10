@@ -2,11 +2,11 @@
 
 using UnityEditor;
 
-namespace ModIO.UI.Editor
+namespace ModIO.UI.EditorCode
 {
     [CustomEditor(typeof(ScaleFitter))]
     [CanEditMultipleObjects]
-    public class ScaleFitterEditor : UnityEditor.Editor
+    public class ScaleFitterEditor : Editor
     {
         private void OnEnable()
         {

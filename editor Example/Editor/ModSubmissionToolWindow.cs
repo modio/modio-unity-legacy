@@ -10,7 +10,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     public class ModSubmissionToolWindow : EditorWindow
     {

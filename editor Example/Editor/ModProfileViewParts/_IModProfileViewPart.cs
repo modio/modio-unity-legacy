@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
 
-namespace ModIO.Editor
+namespace ModIO.EditorCode
 {
     public interface IModProfileViewPart
     {
