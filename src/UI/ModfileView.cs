@@ -3,6 +3,7 @@ using UnityEngine;
 namespace ModIO.UI
 {
     /// <summary>A view that provides information to child IModfileViewElements.</summary>
+    [DisallowMultipleComponent]
     public class ModfileView : MonoBehaviour
     {
         // ---------[ NESTED DATA-TYPES ]---------
