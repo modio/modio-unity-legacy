@@ -10,6 +10,31 @@ namespace ModIO
 {
     public static class DownloadClient
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        private class DownloadProgressMarkerCollection
+        {
+            // ---------[ FIELDS ]---------
+            public int lastIndex;
+            public int recordedCount;
+            public float[] timeStamps;
+            public Int64[] byteCounts;
+
+            // ---------[ INITIALIZATION ]---------
+            public DownloadProgressMarkerCollection(int markerCount)
+            {
+                this.lastIndex = -1;
+                this.recordedCount = 0;
+                this.timeStamps = new float[markerCount];
+                this.byteCounts = new Int64[markerCount];
+            }
+
+            public DownloadProgressMarkerCollection() : this(0) {}
+        }
+
+        // ---------[ CONSTANTS ]---------
+        /// <summary>Marker count used for smoothing download speed average.</summary>
+        public const int DOWNLOAD_SPEED_MARKER_COUNT = 10;
+
         // ---------[ IMAGE DOWNLOADS ]---------
         public static ImageRequest DownloadModLogo(ModProfile profile, LogoSize size)
         {
