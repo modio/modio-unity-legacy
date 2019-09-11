@@ -519,6 +519,78 @@ namespace ModIO
             DownloadClient.modfileProgressMarkers.Remove(idPair);
         }
 
+        public static void UpdateDownloadSpeed(ModfileIdPair idPair)
+        {
+            FileDownloadInfo downloadInfo = null;
+            DownloadProgressMarkerCollection markers = null;
+
+            if(DownloadClient.modfileDownloadMap.TryGetValue(idPair, out downloadInfo)
+               && DownloadClient.modfileProgressMarkers.TryGetValue(idPair, out markers)
+               && !downloadInfo.isDone)
+            {
+                Int64 bytesReceived = (downloadInfo.request == null ? 0
+                                       : (Int64)downloadInfo.request.downloadedBytes);
+
+                DownloadClient.AddDownloadProgressMarker(markers, bytesReceived);
+                downloadInfo.bytesPerSecond = DownloadClient.CalculateAverageDownloadSpeed(markers);
+            }
+        }
+
+        private static Int64 CalculateAverageDownloadSpeed(DownloadProgressMarkerCollection markers)
+        {
+            if(markers.lastIndex < 0 || markers.recordedCount <= 1)
+            {
+                return 0;
+            }
+
+            int firstIndex = 0;
+            if(markers.recordedCount > markers.timeStamps.Length)
+            {
+                firstIndex = (markers.lastIndex + 1) % markers.timeStamps.Length;
+            }
+
+            float initialTimeStamp = markers.timeStamps[firstIndex];
+            Int64 initialByteCount = markers.byteCounts[firstIndex];
+
+            float finalTimeStamp = markers.timeStamps[markers.lastIndex];
+            Int64 finalByteCount = markers.byteCounts[markers.lastIndex];
+
+            return (Int64)((finalByteCount - initialByteCount)/(finalTimeStamp - initialTimeStamp));
+        }
+
+        private static void AddDownloadProgressMarker(DownloadProgressMarkerCollection markers, Int64 bytesReceived)
+        {
+            float now = Time.unscaledTime;
+
+            // ignore if not newer timeStamp
+            if(markers.lastIndex >= 0
+               && (now - markers.timeStamps[markers.lastIndex] <= 0f))
+            {
+                return;
+            }
+
+            if(markers.recordedCount <= 1
+               && bytesReceived == 0)
+            {
+                // overwrite if unstarted
+                markers.lastIndex = 0;
+                markers.recordedCount = 1;
+                markers.timeStamps[0] = now;
+                markers.byteCounts[0] = 0;
+            }
+            else
+            {
+                // increment counters
+                ++markers.lastIndex;
+                markers.lastIndex %= markers.timeStamps.Length;
+                ++markers.recordedCount;
+
+                // add marker
+                markers.timeStamps[markers.lastIndex] = now;
+                markers.byteCounts[markers.lastIndex] = bytesReceived;
+            }
+        }
+
         // ---------[ OBSOLETE ]---------
         /// <summary>Enable logging of all web requests.</summary>
         [Obsolete("Use PluginSettings.data.logAllRequests instead.")]
