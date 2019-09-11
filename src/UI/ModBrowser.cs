@@ -161,7 +161,7 @@ namespace ModIO.UI
                 this.gameObject.SetActive(false);
                 return;
             }
-            if(String.IsNullOrEmpty(settings.cacheDirectory))
+            if(String.IsNullOrEmpty(settings.CacheDirectory))
             {
                 Debug.LogError("[mod.io] Cache Directory is missing from the Plugin Settings.\n"
                                + "This must be configured by selecting the mod.io > Edit Settings menu"
@@ -172,7 +172,7 @@ namespace ModIO.UI
                 this.gameObject.SetActive(false);
                 return;
             }
-            if(String.IsNullOrEmpty(settings.installationDirectory))
+            if(String.IsNullOrEmpty(settings.InstallationDirectory))
             {
                 Debug.LogError("[mod.io] Mod Installation Directory is missing from the Plugin Settings.\n"
                                + "This must be configured by selecting the mod.io > Edit Settings menu"

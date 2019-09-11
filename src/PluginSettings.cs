@@ -13,16 +13,74 @@ namespace ModIO
             // ---------[ FIELDS ]---------
             [Tooltip("API URL to use when making requests")]
             public string   apiURL;
+            
             [Tooltip("Game Id assigned to your game profile")]
             public int      gameId;
+            
             [Tooltip("API Key assigned to your game profile")]
             public string   gameAPIKey;
+            
             [Tooltip("Directory to use for mod installations")]
-            public string   installationDirectory;
+            [SerializeField]
+            // Use InstallationDirectory instead!
+            private string installationDirectory;
+            private string installationDirectoryCached;
+            public string InstallationDirectory
+            {
+                set { installationDirectory = value; }
+                get
+                {
+                    if (installationDirectoryCached == null)
+                    {
+                        installationDirectoryCached = ReplaceKeywords(installationDirectory);
+                    }
+
+                    return installationDirectoryCached;
+                }
+            }
+            
             [Tooltip("Directory to use for cached server data")]
-            public string   cacheDirectory;
+            [SerializeField]
+            // Use CacheDirectory instead!
+            private string cacheDirectory;
+            private string cacheDirectoryCached;
+            public string CacheDirectory
+            {
+                set { cacheDirectory = value; }
+                get
+                {
+                    if (cacheDirectoryCached == null)
+                    {
+                        cacheDirectoryCached = ReplaceKeywords(cacheDirectory);
+                    }
+
+                    return cacheDirectoryCached;
+                }
+            }
+            
             [Tooltip("Log all web requests made to using Debug.Log")]
             public bool     logAllRequests;
+
+            private string ReplaceKeywords(string input)
+            {
+                if(input != null)
+                {
+                    string[] cacheDirParts = input.Split(System.IO.Path.AltDirectorySeparatorChar,
+                                                         System.IO.Path.DirectorySeparatorChar);
+                    for(int i = 0; i < cacheDirParts.Length; ++i)
+                    {
+                        if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
+                        {
+                            cacheDirParts[i] = Application.persistentDataPath;
+                        }
+
+                        cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", gameId.ToString());
+                    }
+                    input = IOUtilities.CombinePath(cacheDirParts);
+                }
+
+                return input;
+            }
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
@@ -75,46 +133,8 @@ namespace ModIO
             }
             else
             {
-                Data settings = wrapper.m_data;
-
-                // - Path variable replacement -
-                // cachedir
-                if(settings.cacheDirectory != null)
-                {
-                    string[] cacheDirParts = settings.cacheDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
-                                                                           System.IO.Path.DirectorySeparatorChar);
-                    for(int i = 0; i < cacheDirParts.Length; ++i)
-                    {
-                        if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                        {
-                            cacheDirParts[i] = Application.persistentDataPath;
-                        }
-
-                        cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
-                    }
-                    settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
-                }
-
-                // installdir
-                if(settings.installationDirectory != null)
-                {
-                    string[] installDirParts = settings.installationDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
-                                                                                    System.IO.Path.DirectorySeparatorChar);
-                    for(int i = 0; i < installDirParts.Length; ++i)
-                    {
-                        if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                        {
-                            installDirParts[i] = Application.persistentDataPath;
-                        }
-
-                        installDirParts[i] = installDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
-                    }
-
-                    settings.installationDirectory = IOUtilities.CombinePath(installDirParts);
-                }
-
                 // apply to data instance
-                PluginSettings._dataInstance = settings;
+                PluginSettings._dataInstance =  wrapper.m_data;
             }
 
             PluginSettings._loaded = true;
@@ -144,8 +164,8 @@ namespace ModIO
                 apiURL = APIClient.API_URL_PRODUCTIONSERVER + APIClient.API_VERSION,
                 gameId = 0,
                 gameAPIKey = string.Empty,
-                cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
-                installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
+                CacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
+                InstallationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
                 logAllRequests = false,
             };
 
