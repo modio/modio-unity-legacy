@@ -195,6 +195,8 @@ namespace ModIO
         public static event Action<ModfileIdPair, WebRequestError> modfileDownloadFailed;
         public static Dictionary<ModfileIdPair, FileDownloadInfo> modfileDownloadMap = new Dictionary<ModfileIdPair, FileDownloadInfo>();
 
+        private static Dictionary<ModfileIdPair, DownloadProgressMarkerCollection> modfileProgressMarkers = new Dictionary<ModfileIdPair, DownloadProgressMarkerCollection>();
+
         public static FileDownloadInfo GetActiveModBinaryDownload(int modId, int modfileId)
         {
             ModfileIdPair idPair = new ModfileIdPair()
@@ -234,6 +236,8 @@ namespace ModIO
                     request = null,
                     isDone = false,
                 };
+
+                DownloadClient.modfileProgressMarkers[idPair] = new DownloadProgressMarkerCollection(DownloadClient.DOWNLOAD_SPEED_MARKER_COUNT);
 
                 // - Acquire Download URL -
                 APIClient.GetModfile(modId, modfileId,
@@ -275,6 +279,8 @@ namespace ModIO
                     request = null,
                     isDone = false,
                 };
+
+                DownloadClient.modfileProgressMarkers[idPair] = new DownloadProgressMarkerCollection(DownloadClient.DOWNLOAD_SPEED_MARKER_COUNT);
 
                 DownloadModBinary_Internal(idPair, modfile.downloadLocator.binaryURL);
             }
@@ -510,6 +516,7 @@ namespace ModIO
             }
 
             modfileDownloadMap.Remove(idPair);
+            DownloadClient.modfileProgressMarkers.Remove(idPair);
         }
 
         // ---------[ OBSOLETE ]---------
