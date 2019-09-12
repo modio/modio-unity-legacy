@@ -50,20 +50,6 @@ namespace ModIO.UI
             get { return this.m_downloadInfo; }
         }
 
-        // --- Components ---
-        /// <summary>Component to display the total number of bytes for the download.</summary>
-        public GenericTextComponent bytesTotalText;
-        /// <summary>Component to display the number of bytes received.</summary>
-        public GenericTextComponent bytesReceivedText;
-        /// <summary>Component to display the percentage completed.</summary>
-        public GenericTextComponent percentageText;
-        /// <summary>Component to display the number of bytes being downloaded per second.</summary>
-        public GenericTextComponent bytesPerSecondText;
-        /// <summary>Component to display the estimated time remaining for the download.</summary>
-        public GenericTextComponent timeRemainingText;
-        /// <summary>Component to display the progress of the download.</summary>
-        public HorizontalProgressBar progressBar = null;
-
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
         {
