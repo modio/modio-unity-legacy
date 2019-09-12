@@ -11,8 +11,8 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>Modfile field to display.</summary>
-        [FieldValueGetter.DropdownDisplay(typeof(Modfile), displayArrays = false, displayNested = true)]
-        public FieldValueGetter fieldGetter = new FieldValueGetter("id");
+        [MemberReference.DropdownDisplay(typeof(Modfile), displayEnumerables = false, displayNested = true)]
+        public MemberReference reference = new MemberReference("id");
 
         /// <summary>Formatting to apply to the object value.</summary>
         public ValueFormatting formatting = new ValueFormatting();
@@ -84,7 +84,7 @@ namespace ModIO.UI
             this.m_modfile = modfile;
 
             // display
-            object fieldValue = this.fieldGetter.GetValue(this.m_modfile);
+            object fieldValue = this.reference.GetValue(this.m_modfile);
             string displayString = ValueFormatting.FormatValue(fieldValue,
                                                                this.formatting.method,
                                                                this.formatting.toStringParameter);

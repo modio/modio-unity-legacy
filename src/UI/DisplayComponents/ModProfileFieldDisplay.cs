@@ -11,8 +11,8 @@ namespace ModIO.UI
     {
         // ---------[ FIELDS ]---------
         /// <summary>ModProfile field to display.</summary>
-        [FieldValueGetter.DropdownDisplay(typeof(ModProfile), displayArrays = false, displayNested = true)]
-        public FieldValueGetter fieldGetter = new FieldValueGetter("id");
+        [MemberReference.DropdownDisplay(typeof(ModProfile), displayEnumerables = false, displayNested = true)]
+        public MemberReference reference = new MemberReference("id");
 
         /// <summary>Formatting to apply to the object value.</summary>
         public ValueFormatting formatting = new ValueFormatting();
@@ -83,7 +83,7 @@ namespace ModIO.UI
             this.m_profile = profile;
 
             // display
-            object fieldValue = this.fieldGetter.GetValue(this.m_profile);
+            object fieldValue = this.reference.GetValue(this.m_profile);
             string displayString = ValueFormatting.FormatValue(fieldValue,
                                                                this.formatting.method,
                                                                this.formatting.toStringParameter);

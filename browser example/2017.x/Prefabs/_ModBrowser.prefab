@@ -7638,8 +7638,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: name
+  reference:
+    m_memberPath: name
   formatting:
     method: 0
     toStringParameter: 
@@ -8066,8 +8066,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: dateAdded
+  reference:
+    m_memberPath: dateAdded
   formatting:
     method: 3
     toStringParameter: MMM d\, yyyy
@@ -9593,8 +9593,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: descriptionAsText
+  reference:
+    m_memberPath: descriptionAsText
   formatting:
     method: 0
     toStringParameter: 
@@ -10993,8 +10993,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: subscriberCount
+  reference:
+    m_memberPath: subscriberCount
   formatting:
     method: 0
     toStringParameter: 
@@ -11340,8 +11340,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: name
+  reference:
+    m_memberPath: name
   formatting:
     method: 0
     toStringParameter: 
@@ -11677,8 +11677,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: downloadCount
+  reference:
+    m_memberPath: downloadCount
   formatting:
     method: 2
     toStringParameter: 0.0
@@ -11919,8 +11919,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: dateAdded
+  reference:
+    m_memberPath: dateAdded
   formatting:
     method: 3
     toStringParameter: d
@@ -12655,8 +12655,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: version
+  reference:
+    m_memberPath: version
   formatting:
     method: 0
     toStringParameter: 
@@ -12712,8 +12712,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: submittedBy.username
+  reference:
+    m_memberPath: submittedBy.username
   formatting:
     method: 0
     toStringParameter: 
@@ -13841,8 +13841,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: currentBuild.fileSize
+  reference:
+    m_memberPath: currentBuild.fileSize
   formatting:
     method: 1
     toStringParameter: 0
@@ -14339,8 +14339,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fee5f394b3d2841feaf8e09278564539, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: username
+  reference:
+    m_memberPath: username
   formatting:
     method: 0
     toStringParameter: 
@@ -15342,8 +15342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: ratingWeightedAggregate
+  reference:
+    m_memberPath: ratingWeightedAggregate
   formatting:
     method: 4
     toStringParameter: 
@@ -16683,8 +16683,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: ratingCount
+  reference:
+    m_memberPath: ratingCount
   formatting:
     method: 2
     toStringParameter: 0.0
@@ -17505,8 +17505,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: dateLive
+  reference:
+    m_memberPath: dateLive
   formatting:
     method: 3
     toStringParameter: MMM d\, yyyy
@@ -17600,8 +17600,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: popularityRankPosition
+  reference:
+    m_memberPath: popularityRankPosition
   formatting:
     method: 0
     toStringParameter: 
@@ -19496,8 +19496,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: popularityRankModCount
+  reference:
+    m_memberPath: popularityRankModCount
   formatting:
     method: 2
     toStringParameter: 0.0
@@ -20486,8 +20486,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: name
+  reference:
+    m_memberPath: name
   formatting:
     method: 0
     toStringParameter: 
@@ -20699,8 +20699,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: changelog
+  reference:
+    m_memberPath: changelog
   formatting:
     method: 0
     toStringParameter: 
@@ -21050,8 +21050,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: ratingDisplayText
+  reference:
+    m_memberPath: ratingPositiveCount
   formatting:
     method: 0
     toStringParameter: 
@@ -21435,8 +21435,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: version
+  reference:
+    m_memberPath: version
   formatting:
     method: 0
     toStringParameter: 
@@ -21991,8 +21991,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a39eb253c2c34504a83123448b3200e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: downloadCount
+  reference:
+    m_memberPath: downloadCount
   formatting:
     method: 0
     toStringParameter: 
@@ -22733,8 +22733,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64fb2f67212a64fd3a9bba61a3fbd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: fileSize
+  reference:
+    m_memberPath: fileSize
   formatting:
     method: 1
     toStringParameter: 0.0
@@ -23308,8 +23308,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5181f1741151b4d179eb404c95cff100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldGetter:
-    m_fieldPath: dateUpdated
+  reference:
+    m_memberPath: dateUpdated
   formatting:
     method: 3
     toStringParameter: MMM d\, yyyy
