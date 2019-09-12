@@ -8,6 +8,11 @@ namespace ModIO.UI
     /// <summary>Represents the status of a mod binary download visually.</summary>
     public class DownloadView : MonoBehaviour, IModViewElement
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Event for notifying listeners of a change to the download info.</summary>
+        [Serializable]
+        public class DownloadInfoUpdatedEvent : UnityEngine.Events.UnityEvent<FileDownloadInfo> {}
+
         // ---------[ CONSTANTS ]---------
         /// <summary>Interval between download speed updates.</summary>
         public const float  DOWNLOAD_SPEED_UPDATE_INTERVAL = 0.5f;
@@ -15,6 +20,35 @@ namespace ModIO.UI
         public const float  HIDE_DELAY_SECONDS = 1.5f;
 
         // ---------[ FIELDS ]---------
+        /// <summary>Download Info.</summary>
+        private FileDownloadInfo m_downloadInfo = null;
+
+        /// <summary>Determines whether the component should hide if not downloading.</summary>
+        public bool hideIfInactive = true;
+
+        /// <summary>Event for notifying listeners of a change to the download info.</summary>
+        public DownloadInfoUpdatedEvent onDownloadInfoUpdated = null;
+
+        // --- Run-time Data ---
+        /// <summary>Parent ModView.</summary>
+        private ModView m_view = null;
+
+        /// <summary>ModId of the mod currently being monitored.</summary>
+        private int m_modId = ModProfile.NULL_ID;
+
+        /// <summary>ModfileId of the mod currently being monitored.</summary>
+        private int m_modfileId = Modfile.NULL_ID;
+
+        /// <summary>The currently running update coroutine.</summary>
+        private Coroutine m_updateCoroutine = null;
+
+        // --- Accessors ---
+        /// <summary>Download Info.</summary>
+        public FileDownloadInfo downloadInfo
+        {
+            get { return this.m_downloadInfo; }
+        }
+
         // --- Components ---
         /// <summary>Component to display the total number of bytes for the download.</summary>
         public GenericTextComponent bytesTotalText;
@@ -28,24 +62,6 @@ namespace ModIO.UI
         public GenericTextComponent timeRemainingText;
         /// <summary>Component to display the progress of the download.</summary>
         public HorizontalProgressBar progressBar = null;
-        /// <summary>Determines whether the component should hide if not downloading.</summary>
-        public bool hideIfInactive = true;
-
-        // --- Display Data---
-        /// <summary>Parent ModView.</summary>
-        private ModView m_view = null;
-
-        /// <summary>ModId of the mod currently being monitored.</summary>
-        private int m_modId = ModProfile.NULL_ID;
-
-        /// <summary>ModfileId of the mod currently being monitored.</summary>
-        private int m_modfileId = Modfile.NULL_ID;
-
-        /// <summary>Download Info.</summary>
-        private FileDownloadInfo m_downloadInfo = null;
-
-        /// <summary>The currently running update coroutine.</summary>
-        private Coroutine m_updateCoroutine = null;
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -157,6 +173,7 @@ namespace ModIO.UI
             // loop while downloading
             while(this != null
                   && this.m_downloadInfo != null
+                  && this.onDownloadInfoUpdated != null
                   && !this.m_downloadInfo.isDone)
             {
                 float now = Time.unscaledTime;
@@ -167,12 +184,14 @@ namespace ModIO.UI
                 }
 
                 this.UpdateComponents();
+                this.onDownloadInfoUpdated.Invoke(this.m_downloadInfo);
 
                 yield return null;
             }
 
             DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
             this.UpdateComponents();
+            this.onDownloadInfoUpdated.Invoke(this.m_downloadInfo);
 
             if(this.hideIfInactive)
             {
