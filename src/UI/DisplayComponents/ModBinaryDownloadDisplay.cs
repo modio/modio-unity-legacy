@@ -236,14 +236,8 @@ namespace ModIO.UI
             Debug.Assert(this.m_downloadInfo != null);
 
             // set initial speed marker
-            float lastUpdate = Time.unscaledTime;
-            Int64 bytesDownloaded = 0;
-            if(this.m_downloadInfo.request != null)
-            {
-                bytesDownloaded = (Int64)this.m_downloadInfo.request.downloadedBytes;
-            }
-
-            this.m_downloadSpeed.AddMarker(lastUpdate, bytesDownloaded);
+            float lastSpeedUpdate = Time.unscaledTime;
+            DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
 
             // loop while downloading
             while(this != null
@@ -251,12 +245,10 @@ namespace ModIO.UI
                   && !this.m_downloadInfo.isDone)
             {
                 float now = Time.unscaledTime;
-                if(m_downloadInfo.request != null
-                   && now - lastUpdate >= ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL)
+                if(now - lastSpeedUpdate >= ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL)
                 {
-                    lastUpdate = now;
-                    this.m_downloadSpeed.AddMarker(now,
-                                                   (Int64)m_downloadInfo.request.downloadedBytes);
+                    DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
+                    lastSpeedUpdate = now;
                 }
 
                 this.UpdateComponents();
@@ -264,11 +256,7 @@ namespace ModIO.UI
                 yield return null;
             }
 
-            if(this.m_downloadInfo != null)
-            {
-                this.m_downloadSpeed.AddMarker(Time.unscaledTime, this.m_downloadInfo.fileSize);
-            }
-
+            DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
             this.UpdateComponents();
 
             if(this.hideIfInactive)
@@ -292,7 +280,7 @@ namespace ModIO.UI
                 fileSize = this.m_downloadInfo.fileSize;
                 bytesReceived = (Int64)this.m_downloadInfo.request.downloadedBytes;
                 percentComplete = (float)bytesReceived / (float)fileSize;
-                downloadSpeed = this.m_downloadSpeed.GetAverageDownloadSpeed();
+                downloadSpeed = this.m_downloadInfo.bytesPerSecond;
             }
 
             // calculate time remaining
