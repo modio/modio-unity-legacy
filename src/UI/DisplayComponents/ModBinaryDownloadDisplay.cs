@@ -113,11 +113,14 @@ namespace ModIO.UI
         /// <summary>ModId of the mod currently being monitored.</summary>
         private int m_modId = ModProfile.NULL_ID;
 
-        /// <summary>The currently running update coroutine.</summary>
-        private Coroutine m_updateCoroutine = null;
+        /// <summary>ModfileId of the mod currently being monitored.</summary>
+        private int m_modfileId = Modfile.NULL_ID;
 
         /// <summary>Download Info.</summary>
         private FileDownloadInfo m_downloadInfo = null;
+
+        /// <summary>The currently running update coroutine.</summary>
+        private Coroutine m_updateCoroutine = null;
 
         /// <summary>Current download speed.</summary>
         private DownloadSpeed m_downloadSpeed = new DownloadSpeed()
@@ -321,9 +324,9 @@ namespace ModIO.UI
         /// <summary>Initializes the component display.</summary>
         protected virtual void OnDownloadStarted(ModfileIdPair idPair, FileDownloadInfo downloadInfo)
         {
-            if(this.m_modId == idPair.modId
-               && downloadInfo != null)
+            if(this.m_modId == idPair.modId)
             {
+                this.m_modfileId = idPair.modfileId;
                 this.m_downloadInfo = downloadInfo;
 
                 if(!this.isActiveAndEnabled && this.hideIfInactive)
