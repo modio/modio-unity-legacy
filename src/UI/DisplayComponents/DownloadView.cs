@@ -6,6 +6,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Represents the status of a mod binary download visually.</summary>
+    [DisallowMultipleComponent]
     public class DownloadView : MonoBehaviour, IModViewElement
     {
         // ---------[ NESTED DATA-TYPES ]---------
@@ -67,6 +68,30 @@ namespace ModIO.UI
         protected virtual void Awake()
         {
             DownloadClient.modfileDownloadStarted += OnDownloadStarted;
+        }
+
+        protected virtual void Start()
+        {
+            #if UNITY_EDITOR
+            DownloadView[] nested = this.gameObject.GetComponentsInChildren<DownloadView>(true);
+            if(nested.Length > 1)
+            {
+                Debug.LogError("[mod.io] Nesting DownloadViews is currently not supported due to the"
+                               + " way IDownloadViewElement component parenting works."
+                               + "\nThe nested DownloadViews must be removed to allow DownloadView functionality."
+                               + "\nthis=" + this.gameObject.name
+                               + "\nnested=" + nested[1].gameObject.name,
+                               this);
+                return;
+            }
+            #endif
+
+            // assign download view elements to this
+            var downloadViewElements = this.gameObject.GetComponentsInChildren<IDownloadViewElement>(true);
+            foreach(IDownloadViewElement viewElement in downloadViewElements)
+            {
+                viewElement.SetDownloadView(this);
+            }
         }
 
         protected virtual void OnDestroy()
