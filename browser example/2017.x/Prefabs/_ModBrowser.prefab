@@ -15380,7 +15380,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   reference:
-    m_memberPath: ratingWeightedAggregate
+    m_memberPath: ratingPositivePercentage
   formatting:
     method: 4
     toStringParameter: 

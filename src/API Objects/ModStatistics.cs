@@ -54,5 +54,27 @@ namespace ModIO
         /// <summary>Unix timestamp until this object is considered out-dated.</summary>
         [JsonProperty("date_expires")]
         public int dateExpires;
+
+        // --- Accessors ---
+        /// <summary>Percentage of votes that are positive.</summary>
+        [JsonIgnore]
+        public float ratingPositivePercentage
+        {
+            get
+            {
+                return (this.ratingCount == 0 ? 0f
+                        : (float)this.ratingPositiveCount/(float)this.ratingCount);
+            }
+        }
+        /// <summary>Percentage of votes that are negative.</summary>
+        [JsonIgnore]
+        public float ratingNegativePercentage
+        {
+            get
+            {
+                return (this.ratingCount == 0 ? 0f
+                        : (float)this.ratingNegativeCount/(float)this.ratingCount);
+            }
+        }
     }
 }
