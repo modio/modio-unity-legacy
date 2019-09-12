@@ -95,7 +95,7 @@ namespace ModIO.UI.EditorCode
                 selectedIndex = 0;
             }
 
-            selectedIndex = EditorGUI.Popup(position, "Target Member", selectedIndex, this.displayValues);
+            selectedIndex = EditorGUI.Popup(position, "Member Path", selectedIndex, this.displayValues);
             this.memberPathProperty.stringValue = this.displayValues[selectedIndex];
         }
 
@@ -226,6 +226,8 @@ namespace ModIO.UI.EditorCode
         /// <summary>Determins if a type is Enumerable.</summary>
         private static bool IsTypeEnumerable(Type objectType)
         {
+            if(objectType == typeof(string)) { return false; }
+
             foreach(Type i in objectType.GetInterfaces())
             {
                 if(i == typeof(IEnumerable)
