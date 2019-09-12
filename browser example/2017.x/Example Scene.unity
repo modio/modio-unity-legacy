@@ -114,7 +114,7 @@ NavMeshSettings:
 RectTransform:
   m_PrefabParentObject: {fileID: 224234992987308562, guid: bb2848c6221ca4e139874e85657065fb,
     type: 2}
-  m_PrefabInternal: {fileID: 610432217}
+  m_PrefabInternal: {fileID: 911046975}
 --- !u!1 &538368860
 GameObject:
   m_ObjectHideFlags: 0
@@ -210,7 +210,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1001 &610432217
+--- !u!1001 &911046975
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
