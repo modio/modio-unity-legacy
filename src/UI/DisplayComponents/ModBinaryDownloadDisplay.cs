@@ -8,84 +8,9 @@ namespace ModIO.UI
     /// <summary>Represents the status of a mod binary download visually.</summary>
     public class ModBinaryDownloadDisplay : MonoBehaviour, IModViewElement
     {
-        // ---------[ NESTED DATA-TYPES ]---------
-        /// <summary>A structure used to calculate the current averaged download speed.</summary>
-        [Serializable]
-        private struct DownloadSpeed
-        {
-            // ---------[ FIELDS ]---------
-            public int lastIndex;
-            public int stepsRecorded;
-            public float[] timeStepMarker;
-            public Int64[] bytesReceived;
-
-            // ---------[ METHODS ]---------
-            public void Reset()
-            {
-                this.lastIndex = -1;
-                this.stepsRecorded = 0;
-            }
-
-            public void AddMarker(float timeStamp, Int64 byteCount)
-            {
-                // ignore if not newer timeStamp
-                if(lastIndex >= 0
-                   && (timeStamp - this.timeStepMarker[lastIndex] <= 0f))
-                {
-                    return;
-                }
-
-                // overwrite if 0
-                if(byteCount == 0
-                   && lastIndex >= 0
-                   && this.bytesReceived[lastIndex] == 0)
-                {
-                    this.timeStepMarker[lastIndex] = timeStamp;
-                    return;
-                }
-
-                // add!
-                ++lastIndex;
-                lastIndex %= timeStepMarker.Length;
-
-                this.timeStepMarker[lastIndex] = timeStamp;
-                this.bytesReceived[lastIndex] = byteCount;
-
-                ++stepsRecorded;
-
-            }
-
-            public Int64 GetAverageDownloadSpeed()
-            {
-                if(stepsRecorded <= 1)
-                {
-                    return 0;
-                }
-
-                Debug.Assert(lastIndex >= 0);
-                Debug.Assert(this.timeStepMarker.Length == this.bytesReceived.Length);
-
-                int firstIndex = (lastIndex + 1) % this.timeStepMarker.Length;
-                if(this.stepsRecorded <= this.timeStepMarker.Length)
-                {
-                    firstIndex = 0;
-                }
-
-                float initialTimeStamp = this.timeStepMarker[firstIndex];
-                Int64 initialByteCount = this.bytesReceived[firstIndex];
-
-                float finalTimeStamp = this.timeStepMarker[lastIndex];
-                Int64 finalByteCount = this.bytesReceived[lastIndex];
-
-                return (Int64)((finalByteCount - initialByteCount)/(finalTimeStamp - initialTimeStamp));
-            }
-        }
-
         // ---------[ CONSTANTS ]---------
         /// <summary>Interval between download speed updates.</summary>
         public const float  DOWNLOAD_SPEED_UPDATE_INTERVAL = 0.5f;
-        /// <summary>Marker count used for smoothing download speed average.</summary>
-        public const int    DOWNLOAD_SPEED_MARKER_COUNT = 10;
         /// <summary>Delay before hiding the game object (if enabled).</summary>
         public const float  HIDE_DELAY_SECONDS = 1.5f;
 
@@ -121,15 +46,6 @@ namespace ModIO.UI
 
         /// <summary>The currently running update coroutine.</summary>
         private Coroutine m_updateCoroutine = null;
-
-        /// <summary>Current download speed.</summary>
-        private DownloadSpeed m_downloadSpeed = new DownloadSpeed()
-        {
-            lastIndex = -1,
-            stepsRecorded = 0,
-            timeStepMarker = new float[DOWNLOAD_SPEED_MARKER_COUNT],
-            bytesReceived = new Int64[DOWNLOAD_SPEED_MARKER_COUNT],
-        };
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
@@ -208,7 +124,6 @@ namespace ModIO.UI
 
                 this.m_modId = newId;
                 this.m_downloadInfo = null;
-                this.m_downloadSpeed.Reset();
 
                 // check if currently downloading
                 bool isDownloading = false;
