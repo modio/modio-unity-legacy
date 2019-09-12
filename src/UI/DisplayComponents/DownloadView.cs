@@ -208,62 +208,18 @@ namespace ModIO.UI
                     lastSpeedUpdate = now;
                 }
 
-                this.UpdateComponents();
                 this.onDownloadInfoUpdated.Invoke(this.m_downloadInfo);
 
                 yield return null;
             }
 
             DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
-            this.UpdateComponents();
             this.onDownloadInfoUpdated.Invoke(this.m_downloadInfo);
 
             if(this.hideIfInactive)
             {
                 yield return new WaitForSecondsRealtime(HIDE_DELAY_SECONDS);
                 this.gameObject.SetActive(false);
-            }
-        }
-
-        /// <summary>Updates the display components.</summary>
-        protected virtual void UpdateComponents()
-        {
-            // collect vars
-            Int64 fileSize = 0;
-            Int64 bytesReceived = 0;
-            Int64 downloadSpeed = 0;
-            float percentComplete = 0f;
-
-            if(this.m_downloadInfo != null)
-            {
-                fileSize = this.m_downloadInfo.fileSize;
-                bytesReceived = (Int64)this.m_downloadInfo.request.downloadedBytes;
-                percentComplete = (float)bytesReceived / (float)fileSize;
-                downloadSpeed = this.m_downloadInfo.bytesPerSecond;
-            }
-
-            // calculate time remaining
-            string timeRemainingDisplayString = string.Empty;
-            if(fileSize > 0 && downloadSpeed > 0)
-            {
-                Int64 secondsRemaining = (int)((fileSize - bytesReceived) / downloadSpeed);
-
-                TimeSpan remaining = TimeSpan.FromSeconds(secondsRemaining);
-                timeRemainingDisplayString = (remaining.TotalHours + ":"
-                                              + remaining.Minutes + ":"
-                                              + remaining.Seconds);
-            }
-
-            // display
-            this.bytesTotalText.text = ValueFormatting.ByteCount(fileSize, "0.0");
-            this.bytesReceivedText.text = ValueFormatting.ByteCount(bytesReceived, "0.0");
-            this.percentageText.text = (percentComplete * 100f).ToString("0.0") + "%";
-            this.bytesPerSecondText.text = (ValueFormatting.ByteCount(downloadSpeed, "0.0") + "/s");
-            this.timeRemainingText.text = timeRemainingDisplayString;
-
-            if(this.progressBar != null)
-            {
-                this.progressBar.percentComplete = percentComplete;
             }
         }
 
