@@ -519,6 +519,11 @@ namespace ModIO
             DownloadClient.modfileProgressMarkers.Remove(idPair);
         }
 
+        public static void UpdateDownloadSpeed(int modId, int modfileId)
+        {
+            DownloadClient.UpdateDownloadSpeed(new ModfileIdPair(modId, modfileId));
+        }
+
         public static void UpdateDownloadSpeed(ModfileIdPair idPair)
         {
             FileDownloadInfo downloadInfo = null;
