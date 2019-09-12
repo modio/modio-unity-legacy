@@ -13,8 +13,9 @@ namespace ModIO.UI
             None,
             ByteCount,
             AbbreviatedNumber,
-            DateTime,
+            TimeStampAsDateTime,
             Percentage,
+            SecondsAsTime,
         }
 
         // ---------[ FIELDS ]---------
@@ -63,7 +64,7 @@ namespace ModIO.UI
                 }
                 break;
 
-                case Method.DateTime:
+                case Method.TimeStampAsDateTime:
                 {
                     if(value == null)
                     {
@@ -87,6 +88,19 @@ namespace ModIO.UI
                     {
                         displayString = ((float)value * 100.0f).ToString(toStringParameter) + "%";
                     }
+                }
+                break;
+
+                case Method.SecondsAsTime:
+                {
+                    int seconds = 0;
+
+                    if(value != null)
+                    {
+                        seconds = (int)value;
+                    }
+
+                    displayString = ValueFormatting.SecondsAsTime(seconds);
                 }
                 break;
 
@@ -192,6 +206,28 @@ namespace ModIO.UI
             {
                 return adjustedSize + sizeSuffixes[sizeIndex];
             }
+        }
+
+        /// <summary>Converts seconds to a time display in the format "HH:MM:SS".</summary>
+        public static string SecondsAsTime(int seconds)
+        {
+            int minutes = 0;
+            int hours = 0;
+
+            if(seconds > 60)
+            {
+                minutes = (int)System.Math.Floor(seconds / 60.0f);
+                seconds %= 60;
+            }
+            if(minutes > 60)
+            {
+                hours = (int)System.Math.Floor(minutes / 60.0f);
+                minutes %= 60;
+            }
+
+            return (hours.ToString("00")
+                    + ":" + minutes.ToString("00")
+                    + ":" + seconds.ToString("00"));
         }
     }
 }
