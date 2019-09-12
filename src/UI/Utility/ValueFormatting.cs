@@ -35,62 +35,96 @@ namespace ModIO.UI
                 toStringParameter = "G";
             }
 
-            if(value != null)
+            switch(method)
             {
-                switch(method)
+                case Method.ByteCount:
                 {
-                    case Method.ByteCount:
-                    {
-                        displayString = ValueFormatting.ByteCount((Int64)value, toStringParameter);
-                    }
-                    break;
+                    Int64 bytes = 0;
 
-                    case Method.AbbreviatedNumber:
+                    if(value != null)
                     {
-                        displayString = ValueFormatting.AbbreviateInteger((int)value, toStringParameter);
+                        bytes = (Int64)value;
                     }
-                    break;
 
-                    case Method.DateTime:
+                    displayString = ValueFormatting.ByteCount(bytes, toStringParameter);
+                }
+                break;
+
+                case Method.AbbreviatedNumber:
+                {
+                    int number = 0;
+
+                    if(value != null)
+                    {
+                        number = (int)value;
+                    }
+
+                    displayString = ValueFormatting.AbbreviateInteger(number, toStringParameter);
+                }
+                break;
+
+                case Method.DateTime:
+                {
+                    if(value == null)
+                    {
+                        displayString = "--";
+                    }
+                    else
                     {
                         displayString = ServerTimeStamp.ToLocalDateTime((int)value).ToString(toStringParameter);
                     }
-                    break;
-                    case Method.Percentage:
+
+                }
+                break;
+
+                case Method.Percentage:
+                {
+                    if(value == null)
+                    {
+                        displayString = "--%";
+                    }
+                    else
                     {
                         displayString = ((float)value * 100.0f).ToString(toStringParameter) + "%";
                     }
-                    break;
+                }
+                break;
 
-                    default:
+                default:
+                {
+                    displayString = null;
+
+                    if(value != null
+                       && !string.IsNullOrEmpty(toStringParameter))
                     {
-                        displayString = null;
-
-                        if(!string.IsNullOrEmpty(toStringParameter))
+                        if(value is float)
                         {
-                            if(value is float)
-                            {
-                                displayString = ((float)value).ToString(toStringParameter);
-                            }
-                            else if(value is int)
-                            {
-                                displayString = ((int)value).ToString(toStringParameter);
-                            }
-                            else if(value is Int64)
-                            {
-                                displayString = ((Int64)value).ToString(toStringParameter);
-                            }
+                            displayString = ((float)value).ToString(toStringParameter);
                         }
+                        else if(value is int)
+                        {
+                            displayString = ((int)value).ToString(toStringParameter);
+                        }
+                        else if(value is Int64)
+                        {
+                            displayString = ((Int64)value).ToString(toStringParameter);
+                        }
+                    }
 
-                        if(displayString == null)
+                    if(displayString == null)
+                    {
+                        if(value != null)
                         {
                             displayString = value.ToString();
                         }
+                        else
+                        {
+                            displayString = string.Empty;
+                        }
                     }
-                    break;
                 }
+                break;
             }
-
             return displayString;
         }
 
