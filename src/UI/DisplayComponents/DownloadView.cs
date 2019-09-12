@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Represents the status of a mod binary download visually.</summary>
-    public class ModBinaryDownloadDisplay : MonoBehaviour, IModViewElement
+    public class DownloadView : MonoBehaviour, IModViewElement
     {
         // ---------[ CONSTANTS ]---------
         /// <summary>Interval between download speed updates.</summary>
@@ -160,7 +160,7 @@ namespace ModIO.UI
                   && !this.m_downloadInfo.isDone)
             {
                 float now = Time.unscaledTime;
-                if(now - lastSpeedUpdate >= ModBinaryDownloadDisplay.DOWNLOAD_SPEED_UPDATE_INTERVAL)
+                if(now - lastSpeedUpdate >= DownloadView.DOWNLOAD_SPEED_UPDATE_INTERVAL)
                 {
                     DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
                     lastSpeedUpdate = now;
