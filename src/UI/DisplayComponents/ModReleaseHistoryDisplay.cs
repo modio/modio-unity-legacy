@@ -11,10 +11,6 @@ namespace ModIO.UI
         [Tooltip("Enabling this will display the modfiles in reverse chronological order.")]
         public bool reverseChronological = true;
 
-        /// <summary>Maximum mumber of modfiles to display.</summary>
-        [Tooltip("Maximum mumber of modfiles to display.")]
-        public int modfileLimit = 10;
-
         /// <summary>Parent ModView.</summary>
         private ModView m_view = null;
 
@@ -24,23 +20,14 @@ namespace ModIO.UI
         /// <summary>Id of the mod release history currently being requested.</summary>
         private int m_requestedModId = ModProfile.NULL_ID;
 
-        // ---------[ INITIALIZATION ]---------
-        protected virtual void Awake()
+        // --- Accessors ---
+        /// <summary>Accessor for the modfile container.</summary>
+        public ModfileContainer container
         {
-            if(this.modfileLimit < 0)
-            {
-                this.modfileLimit = 0;
-            }
-            else if(this.modfileLimit > APIPaginationParameters.LIMIT_MAX)
-            {
-                Debug.Log("[mod.io] ModReleaseHistoryView cannot display more modfiles"
-                          + " than the APIPaginationParameters.LIMIT_MAX value. Modfile Limit"
-                          + " will be reduced accoringly.");
-
-                this.modfileLimit = APIPaginationParameters.LIMIT_MAX;
-            }
+            get { return this.gameObject.GetComponent<ModfileContainer>(); }
         }
 
+        // ---------[ INITIALIZATION ]---------
         protected virtual void OnEnable()
         {
             this.RequestReleaseHistory(this.m_modId);
@@ -95,14 +82,22 @@ namespace ModIO.UI
             if(this.isActiveAndEnabled
                && modId != this.m_requestedModId)
             {
-                this.gameObject.GetComponent<ModfileContainer>().DisplayModfiles(null);
                 this.m_requestedModId = modId;
+
+                // set item count
+                int itemCount = this.container.itemLimit;
+                if(itemCount < 0)
+                {
+                    itemCount = APIPaginationParameters.LIMIT_MAX;
+                }
+
+                container.DisplayModfiles(null);
 
                 // pagination
                 var pagination = new APIPaginationParameters()
                 {
                     offset = 0,
-                    limit = this.modfileLimit,
+                    limit = itemCount,
                 };
 
                 // filter
@@ -119,7 +114,7 @@ namespace ModIO.UI
                                             if(this != null
                                                && modId == this.m_modId)
                                             {
-                                                this.gameObject.GetComponent<ModfileContainer>().DisplayModfiles(r.items);
+                                                this.container.DisplayModfiles(r.items);
                                             }
                                          },
                                          WebRequestError.LogAsWarning);

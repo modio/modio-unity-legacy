@@ -6931,6 +6931,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   containerTemplate: {fileID: 224646400734138654}
   hideIfEmpty: 0
+  m_itemLimit: 10
 --- !u!114 &114045551710005804
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -12047,7 +12048,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   reverseChronological: 1
-  modfileLimit: 10
 --- !u!114 &114340034487254316
 MonoBehaviour:
   m_ObjectHideFlags: 1
