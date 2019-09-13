@@ -159,8 +159,15 @@ namespace ModIO.UI
             // display
             if(this.m_itemTemplate != null)
             {
+                // set instance count
+                int itemCount = this.m_modfiles.Length;;
+                if(this.m_itemLimit >= 0
+                   && this.m_itemLimit < itemCount)
+                {
+                    itemCount = this.m_itemLimit;
+                }
+
                 // set view count
-                int itemCount = this.m_modfiles.Length;
                 UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
                                              "Modfile View", itemCount,
                                              ref this.m_views);
