@@ -49,7 +49,6 @@ namespace ModIO.UI
             this.DisplayModfile(this.m_modfile);
         }
 
-        // --- IModfileViewElement Interface ---
         /// <summary>IModfileViewElement interface.</summary>
         public void SetModfileView(ModfileView view)
         {

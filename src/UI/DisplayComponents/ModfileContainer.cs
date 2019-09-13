@@ -128,7 +128,7 @@ namespace ModIO.UI
                 // set view count
                 int itemCount = this.m_modfiles.Length;
                 UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
-                                             "Mod View", itemCount,
+                                             "Modfile View", itemCount,
                                              ref this.m_views);
 
                 // display data
