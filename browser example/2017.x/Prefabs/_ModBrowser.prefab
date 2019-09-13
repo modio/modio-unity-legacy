@@ -20598,7 +20598,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14568a9e068e3425c960c98ed1f0665c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  template: {fileID: 224569136260205818}
+  containerTemplate: {fileID: 224569136260205818}
   hideIfEmpty: 1
 --- !u!114 &114829139269224216
 MonoBehaviour:
