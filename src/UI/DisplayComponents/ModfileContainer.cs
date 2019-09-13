@@ -14,6 +14,13 @@ namespace ModIO.UI
         /// <summary>Should the template be disabled if empty?</summary>
         public bool hideIfEmpty = false;
 
+        /// <summary>Limit of mod views that can be displayed in this container.</summary>
+        [SerializeField]
+        private int m_itemLimit = -1;
+
+        /// <summary>Event triggered when the item limit is changed.</summary>
+        public event System.Action<int> onItemLimitChanged = null;
+
         // --- Run-Time Data ---
         /// <summary>Instance of the template clone.</summary>
         private GameObject m_templateClone = null;
@@ -29,6 +36,33 @@ namespace ModIO.UI
 
         /// <summary>Display objects.</summary>
         private ModfileView[] m_views = new ModfileView[0];
+
+        // --- Accessors ---
+        /// <summary>Limit of mod views that can be displayed in this container.</summary>
+        public int itemLimit
+        {
+            get { return this.m_itemLimit; }
+            set
+            {
+                if(this.m_itemLimit != value)
+                {
+                    this.m_itemLimit = value;
+
+                    this.DisplayModfiles(this.m_modfiles);
+
+                    if(this.onItemLimitChanged != null)
+                    {
+                        this.onItemLimitChanged.Invoke(this.m_itemLimit);
+                    }
+                }
+            }
+        }
+
+        /// <summary>Profiles currently being displayed.</summary>
+        public Modfile[] modfiles
+        {
+            get { return this.m_modfiles; }
+        }
 
         // ---------[ INITIALIZATION ]---------
         protected virtual void Awake()
