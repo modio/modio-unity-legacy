@@ -141,6 +141,8 @@ namespace ModIO.UI
 
                 this.m_templateClone.SetActive(true);
             }
+
+            this.DisplayMods(this.m_modProfiles, this.m_modStatistics);
         }
 
         /// <summary>Ensure the display is current.</summary>

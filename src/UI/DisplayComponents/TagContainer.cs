@@ -97,6 +97,8 @@ namespace ModIO.UI
 
                 this.m_templateClone.SetActive(true);
             }
+
+            this.DisplayTags(this.m_tags);
         }
 
         /// <summary>Ensure the displays are accurate.</summary>
