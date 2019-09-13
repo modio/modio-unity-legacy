@@ -168,7 +168,7 @@ namespace ModIO.UI
             }
 
             // display
-            if(this.isActiveAndEnabled)
+            if(this.m_itemTemplate != null)
             {
                 int tagCount = this.m_tags.Length;
                 UIUtilities.SetInstanceCount(this.m_container, this.m_itemTemplate,
