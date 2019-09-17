@@ -166,20 +166,15 @@ namespace ModIO.UI
             if(this.m_view != null && !this.m_isUpdating)
             {
                 string tagName = tagItem.tagName.text;
-                bool isSelected = false;
+                StateToggleDisplay toggleComponent = tagItem.GetComponentInChildren<StateToggleDisplay>(true);
 
-                for(int i = 0; i < this.m_selectedTags.Length && !isSelected; ++i)
+                if(toggleComponent.isOn)
                 {
-                    isSelected = (this.m_selectedTags[i] == tagName);
-                }
-
-                if(isSelected)
-                {
-                    this.m_view.RemoveTagFromFilter(tagName);
+                    this.m_view.AddTagToFilter(tagName);
                 }
                 else
                 {
-                    this.m_view.AddTagToFilter(tagName);
+                    this.m_view.RemoveTagFromFilter(tagName);
                 }
             }
         }
