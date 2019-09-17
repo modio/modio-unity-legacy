@@ -90,7 +90,7 @@ namespace ModIO.UI
                 foreach(IRequestFieldFilter fieldFilter in filters)
                 {
                     if(fieldFilter != null
-                       && fieldFilter.filterMethod == FieldFilterMethod.InCollection)
+                       && fieldFilter.filterMethod == FieldFilterMethod.EquivalentCollection)
                     {
                         this.UpdateSelectedTagsDisplay(fieldFilter.filterValue as IEnumerable<string>);
                         return;
