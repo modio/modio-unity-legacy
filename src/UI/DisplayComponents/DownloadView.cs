@@ -101,6 +101,15 @@ namespace ModIO.UI
             }
         }
 
+        protected virtual void OnDisable()
+        {
+            if(this.m_updateCoroutine != null)
+            {
+                this.StopCoroutine(this.m_updateCoroutine);
+                this.m_updateCoroutine = null;
+            }
+        }
+
         // --- IMODVIEWELEMENT INTERFACE ---
         /// <summary>IModViewElement interface.</summary>
         public void SetModView(ModView view)
@@ -223,8 +232,7 @@ namespace ModIO.UI
                     this.gameObject.SetActive(true);
                 }
 
-                if(this.isActiveAndEnabled
-                   && this.m_updateCoroutine == null)
+                if(this.isActiveAndEnabled && this.m_updateCoroutine == null)
                 {
                     this.m_updateCoroutine = this.StartCoroutine(this.UpdateCoroutine());
                 }
