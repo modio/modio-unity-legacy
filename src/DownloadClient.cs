@@ -31,6 +31,9 @@ namespace ModIO
             public DownloadProgressMarkerCollection() : this(0) {}
         }
 
+        private class DownloadMonitorBehaviour : MonoBehaviour {}
+        private static DownloadMonitorBehaviour monitorBehaviour = null;
+
         // ---------[ CONSTANTS ]---------
         /// <summary>Marker count used for smoothing download speed average.</summary>
         public const int DOWNLOAD_SPEED_MARKER_COUNT = 10;
@@ -350,6 +353,16 @@ namespace ModIO
 
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
 
+            // begin speed monitor process
+            if(DownloadClient.monitorBehaviour == null)
+            {
+                GameObject go = new GameObject("[mod.io] Download Monitor");
+                DownloadClient.monitorBehaviour = go.AddComponent<DownloadMonitorBehaviour>();
+                GameObject.DontDestroyOnLoad(go);
+            }
+            DownloadClient.monitorBehaviour.StartCoroutine(SpeedMonitorCoroutine(idPair));
+
+            // notify download started
             if(DownloadClient.modfileDownloadStarted != null)
             {
                 DownloadClient.modfileDownloadStarted(idPair, downloadInfo);
@@ -517,6 +530,11 @@ namespace ModIO
 
             modfileDownloadMap.Remove(idPair);
             DownloadClient.modfileProgressMarkers.Remove(idPair);
+        }
+
+        private static System.Collections.IEnumerator SpeedMonitorCoroutine(ModfileIdPair idPair)
+        {
+            yield return null;
         }
 
         public static void UpdateDownloadSpeed(int modId, int modfileId)
