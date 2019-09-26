@@ -168,8 +168,9 @@ namespace ModIO.UI
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {
-                if(this == null) { return; }
+                if(this == null || Application.isPlaying) { return; }
 
+                // sync dropdown
                 Dropdown d = this.dropdown;
                 if(d == null) { return; }
 
@@ -181,6 +182,25 @@ namespace ModIO.UI
                     displayTextList.Add(option.displayText);
                 }
                 d.AddOptions(displayTextList);
+
+                // set explorer view default sort
+                ExplorerView view = this.GetComponentInParent<ExplorerView>();
+                if(view != null)
+                {
+                    bool defaultAscending = false;
+                    string defaultField = ModIO.API.GetAllModsFilterFields.dateLive;
+
+                    if(this.options != null && this.options.Length > 0)
+                    {
+                        defaultAscending = this.options[0].isAscending;
+                        defaultField = this.options[0].fieldName;
+                    }
+
+                    var so = new UnityEditor.SerializedObject(view);
+                    so.FindProperty("defaultSortMethod.ascending").boolValue = defaultAscending;
+                    so.FindProperty("defaultSortMethod.fieldName").stringValue = defaultField;
+                    so.ApplyModifiedProperties();
+                }
             };
         }
         #endif
