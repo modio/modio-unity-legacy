@@ -399,27 +399,17 @@ namespace ModIO.UI
             if(oldFilterValue.ToUpper() != nameFilter.ToUpper())
             {
                 // set
-                if(String.IsNullOrEmpty(nameFilter))
+                EqualToFilter<string> newFieldFilter = null;
+                if(!string.IsNullOrEmpty(nameFilter))
                 {
-                    this.nameFieldFilter = null;
-                }
-                else
-                {
-                    EqualToFilter<string> newFieldFilter = new EqualToFilter<string>()
+                    newFieldFilter = new EqualToFilter<string>()
                     {
                         filterValue = nameFilter,
                     };
-                    this.nameFieldFilter = newFieldFilter;
                 }
 
-                // refresh
-                if(this.isActiveAndEnabled) { this.Refresh(); }
-
-                // notify
-                if(this.onRequestFilterChanged != null)
-                {
-                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
-                }
+                this.SetFieldFilters(ModIO.API.GetAllModsFilterFields.fullTextSearch,
+                                     newFieldFilter);
             }
         }
 
@@ -521,27 +511,17 @@ namespace ModIO.UI
             if(!isSame)
             {
                 // set
-                if(newFilterValue.Length == 0)
+                MatchesArrayFilter<string> fieldFilter = null;
+                if(newFilterValue.Length > 0)
                 {
-                    this.tagMatchFieldFilter = null;
-                }
-                else
-                {
-                    MatchesArrayFilter<string> newFilter = new MatchesArrayFilter<string>()
+                    fieldFilter = new MatchesArrayFilter<string>()
                     {
                         filterArray = newFilterValue,
                     };
-                    this.tagMatchFieldFilter = newFilter;
                 }
 
-                // refresh
-                if(this.isActiveAndEnabled) { this.Refresh(); }
-
-                // notify
-                if(this.onRequestFilterChanged != null)
-                {
-                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
-                }
+                this.SetFieldFilters(ModIO.API.GetAllModsFilterFields.tags,
+                                     fieldFilter);
             }
         }
 
@@ -570,25 +550,16 @@ namespace ModIO.UI
                 tagFilter.filterValue = new string[0];
             }
 
-            List<string> tagFilterValues = new List<string>();
-            tagFilterValues.AddRange(tagFilter.filterArray);
-
             // add
+            List<string> tagFilterValues = new List<string>(tagFilter.filterArray);
             if(!tagFilterValues.Contains(tagName))
             {
                 tagFilterValues.Add(tagName);
                 tagFilter.filterArray = tagFilterValues.ToArray();
 
-                this.tagMatchFieldFilter = tagFilter;
-
-                // refresh
-                if(this.isActiveAndEnabled) { this.Refresh(); }
-
-                // notify
-                if(this.onRequestFilterChanged != null)
-                {
-                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
-                }
+                // set
+                this.SetFieldFilters(ModIO.API.GetAllModsFilterFields.tags,
+                                     tagFilter);
             }
         }
 
@@ -605,30 +576,24 @@ namespace ModIO.UI
                 return;
             }
 
-            // create list
+            // remove
             List<string> tagFilterValues = new List<string>(tagFilter.filterArray);
-
             if(tagFilterValues.Contains(tagName))
             {
                 tagFilterValues.Remove(tagName);
 
                 if(tagFilterValues.Count == 0)
                 {
-                    this.tagMatchFieldFilter = null;
+                    tagFilter = null;
                 }
                 else
                 {
                     tagFilter.filterArray = tagFilterValues.ToArray();
                 }
 
-                // refresh
-                if(this.isActiveAndEnabled) { this.Refresh(); }
-
-                // notify
-                if(this.onRequestFilterChanged != null)
-                {
-                    this.onRequestFilterChanged.Invoke(this.m_requestFilter);
-                }
+                // set
+                this.SetFieldFilters(ModIO.API.GetAllModsFilterFields.tags,
+                                     tagFilter);
             }
         }
 
