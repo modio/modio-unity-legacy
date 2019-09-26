@@ -632,6 +632,32 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Sets the filters for a given field.</summary>
+        public void SetFieldFilters(string fieldName, params IRequestFieldFilter[] filters)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(fieldName));
+
+            // set
+            if(filters.Length == 0
+               || (filters.Length == 1 && filters[0] == null))
+            {
+                this.m_requestFilter.fieldFilterMap.Remove(fieldName);
+            }
+            else
+            {
+                this.m_requestFilter.fieldFilterMap[fieldName] = new List<IRequestFieldFilter>(filters);
+            }
+
+            // refresh
+            if(this.isActiveAndEnabled) { this.Refresh(); }
+
+            // notify
+            if(this.onRequestFilterChanged != null)
+            {
+                this.onRequestFilterChanged.Invoke(this.m_requestFilter);
+            }
+        }
+
         // ---------[ PAGE DISPLAY ]---------
         public void UpdateModPageDisplay()
         {
