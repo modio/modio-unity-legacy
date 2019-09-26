@@ -185,6 +185,16 @@ namespace ModIO.UI
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
 
         // ---------[ INITIALIZATION ]---------
+        /// <summary>Initializes private members.</summary>
+        protected virtual void Awake()
+        {
+            this.m_requestFilter = new RequestFilter()
+            {
+                sortFieldName = this.defaultSortMethod.fieldName,
+                isSortAscending = this.defaultSortMethod.ascending,
+            };
+        }
+
         /// <summary>Asserts values and initializes templates.</summary>
         protected virtual void Start()
         {
