@@ -15397,7 +15397,7 @@ MonoBehaviour:
     m_memberPath: ratingPositivePercentage
   formatting:
     method: 4
-    toStringParameter: 
+    toStringParameter: 0
 --- !u!114 &114541416924025594
 MonoBehaviour:
   m_ObjectHideFlags: 1
