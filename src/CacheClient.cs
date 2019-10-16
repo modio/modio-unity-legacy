@@ -22,7 +22,7 @@ namespace ModIO
         static CacheClient()
         {
             PluginSettings.Data settings = PluginSettings.data;
-            CacheClient.cacheDirectory = settings.cacheDirectory;
+            CacheClient.cacheDirectory = settings.CacheDirectory;
         }
 
         // ---------[ GAME PROFILE ]---------

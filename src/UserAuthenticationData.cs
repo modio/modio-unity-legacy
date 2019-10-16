@@ -21,7 +21,7 @@ namespace ModIO
         };
 
         /// <summary>Location of the settings file.</summary>
-        public static readonly string FILE_LOCATION = IOUtilities.CombinePath(PluginSettings.data.cacheDirectory,
+        public static readonly string FILE_LOCATION = IOUtilities.CombinePath(PluginSettings.data.CacheDirectory,
                                                                               "user.data");
 
         // ---------[ FIELDS ]---------

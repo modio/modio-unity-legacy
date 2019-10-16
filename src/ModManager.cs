@@ -51,8 +51,8 @@ namespace ModIO
         static ModManager()
         {
             PluginSettings.Data settings = PluginSettings.data;
-            ModManager.installationDirectory = settings.installationDirectory;
-            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
+            ModManager.installationDirectory = settings.InstallationDirectory;
+            ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.CacheDirectory, PERSISTENTDATA_FILENAME);
 
             if(!IOUtilities.TryReadJsonObjectFile(PERSISTENTDATA_FILEPATH, out ModManager.m_data))
             {
