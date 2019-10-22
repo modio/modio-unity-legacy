@@ -1179,6 +1179,36 @@ namespace ModIO
                                                          onError);
         }
 
+        /// <summary>Fetches all mod events after the given event id.</summary>
+        public static void FetchModEventsAfterId(int eventId,
+                                                 IEnumerable<int> modIdFilter,
+                                                 Action<List<ModEvent>> onSuccess,
+                                                 Action<WebRequestError> onError)
+        {
+            // - Filter -
+            RequestFilter modEventFilter = new RequestFilter();
+            modEventFilter.sortFieldName = GetAllModEventsFilterFields.id;
+
+            modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.id, new MinimumFilter<int>()
+            {
+                minimum = eventId,
+                isInclusive = false,
+            });
+
+            if(modIdFilter != null)
+            {
+                modEventFilter.AddFieldFilter(GetAllModEventsFilterFields.modId, new InArrayFilter<int>()
+                {
+                    filterArray = modIdFilter.ToArray(),
+                });
+            }
+
+            // - Get All Events -
+            ModManager.FetchAllResultsForQuery<ModEvent>((p,s,e) => APIClient.GetAllModEvents(modEventFilter, p, s, e),
+                                                         onSuccess,
+                                                         onError);
+        }
+
         /// <summary>Fetches all user events for the authenticated user.</summary>
         public static void FetchAllUserEvents(int fromTimeStamp,
                                               int untilTimeStamp,
@@ -1198,6 +1228,32 @@ namespace ModIO
             {
                 maximum = untilTimeStamp,
                 isInclusive = true,
+            });
+
+            userEventFilter.AddFieldFilter(GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
+            {
+                filterValue = PluginSettings.data.gameId,
+            });
+
+            // - Get All Events -
+            ModManager.FetchAllResultsForQuery<UserEvent>((p,s,e) => APIClient.GetUserEvents(userEventFilter, p, s, e),
+                                                          onSuccess,
+                                                          onError);
+        }
+
+        /// <summary>Fetches all user events for the authenticated user.</summary>
+        public static void FetchAllUserEventsAfterId(int eventId,
+                                                     Action<List<UserEvent>> onSuccess,
+                                                     Action<WebRequestError> onError)
+        {
+            // - Filter -
+            RequestFilter userEventFilter = new RequestFilter();
+            userEventFilter.sortFieldName = GetUserEventsFilterFields.id;
+
+            userEventFilter.AddFieldFilter(GetUserEventsFilterFields.id, new MinimumFilter<int>()
+            {
+                minimum = eventId,
+                isInclusive = false,
             });
 
             userEventFilter.AddFieldFilter(GetUserEventsFilterFields.gameId, new EqualToFilter<int>()
