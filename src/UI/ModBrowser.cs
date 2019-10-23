@@ -1311,19 +1311,19 @@ namespace ModIO.UI
                    && subbedMods.Count > 0)
                 {
                     List<ModEvent> modEventResponse = null;
-                    ModManager.FetchModEvents(ModManager.GetSubscribedModIds(),
-                                              this.lastCacheUpdate,
-                                              updateStartTimeStamp,
-                                              (me) =>
-                                              {
-                                                modEventResponse = me;
-                                                isRequestDone = true;
-                                              },
-                                              (e) =>
-                                              {
-                                                requestError = e;
-                                                isRequestDone = true;
-                                              });
+
+                    ModManager.FetchModEventsAfterId(this.m_lastModEventId,
+                                                     ModManager.GetSubscribedModIds(),
+                                                     (me) =>
+                                                     {
+                                                        modEventResponse = me;
+                                                        isRequestDone = true;
+                                                     },
+                                                     (e) =>
+                                                     {
+                                                        requestError = e;
+                                                        isRequestDone = true;
+                                                     });
 
                     while(!isRequestDone) { yield return null; }
 
@@ -1350,9 +1350,11 @@ namespace ModIO.UI
                     }
                     else
                     {
-                        this.lastCacheUpdate = updateStartTimeStamp;
-                        WriteManifest();
-                        yield return StartCoroutine(ProcessModUpdates(modEventResponse));
+                        if(modEventResponse.Count > 0)
+                        {
+                            this.m_lastModEventId = modEventResponse[modEventResponse.Count-1].id;
+                            yield return StartCoroutine(ProcessModUpdates(modEventResponse));
+                        }
                     }
                 }
 
