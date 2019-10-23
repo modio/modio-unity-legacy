@@ -61,6 +61,7 @@ namespace ModIO.UI
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
         private int m_lastModEventId = -1;
+        private int m_lastUserEventId = -1;
 
         // --- ACCESSORS ---
         public GameProfile gameProfile
@@ -1354,6 +1355,67 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator PollForUserEventsCoroutine()
         {
+            bool isRequestDone = false;
+            WebRequestError requestError = null;
+            bool cancelUpdates = false;
+
+            // fetch initial id
+            RequestFilter idFetchFilter = new RequestFilter()
+            {
+                sortFieldName = API.GetUserEventsFilterFields.id,
+                isSortAscending = false,
+            };
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                offset = 0,
+                limit = 1,
+            };
+
+            while(!isRequestDone)
+            {
+                APIClient.GetAllModEvents(idFetchFilter, pagination,
+                (r) =>
+                {
+                    if(r.items.Length > 0)
+                    {
+                        this.m_lastUserEventId = r.items[0].id;
+                    }
+
+                    isRequestDone = true;
+                },
+                (e) =>
+                {
+                    requestError = e;
+                    isRequestDone = true;
+                });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(requestError != null)
+                {
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
+
+                        UserAccountManagement.MarkAuthTokenRejected();
+                    }
+                    else if(requestError.isRequestUnresolvable
+                            || reattemptDelay < 0)
+                    {
+                        cancelUpdates = true;
+                    }
+                    else
+                    {
+                        isRequestDone = false;
+
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
+                    }
+                }
+            }
+
             yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
 
             while(this != null
@@ -1361,8 +1423,8 @@ namespace ModIO.UI
             {
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
-                bool isRequestDone = false;
-                WebRequestError requestError = null;
+                isRequestDone = false;
+                requestError = null;
 
                 if(UserAuthenticationData.instance.IsTokenValid)
                 {
