@@ -39,7 +39,6 @@ namespace ModIO.UI
         [Serializable]
         private class ManifestData
         {
-            public int lastCacheUpdate;
             public int lastSubscriptionSync;
             public List<int> queuedUnsubscribes;
             public List<int> queuedSubscribes;
@@ -59,7 +58,6 @@ namespace ModIO.UI
         private GameProfile m_gameProfile = new GameProfile();
         private Dictionary<int, ModRatingValue> m_userRatings = new Dictionary<int, ModRatingValue>();
         private int lastSubscriptionSync = -1;
-        private int lastCacheUpdate = -1;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
         private int m_lastModEventId = -1;
@@ -204,14 +202,12 @@ namespace ModIO.UI
             ManifestData manifest = IOUtilities.ReadJsonObjectFile<ManifestData>(manifestFilePath);
             if(manifest != null)
             {
-                this.lastCacheUpdate = manifest.lastCacheUpdate;
                 this.lastSubscriptionSync = manifest.lastSubscriptionSync;
                 this.m_queuedSubscribes = manifest.queuedSubscribes;
                 this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
             }
             else
             {
-                this.lastCacheUpdate = 0;
                 this.lastSubscriptionSync = 0;
                 this.m_queuedSubscribes = new List<int>();
                 this.m_queuedUnsubscribes = new List<int>();
@@ -847,7 +843,6 @@ namespace ModIO.UI
                 }
 
                 this.lastSubscriptionSync = updateStartTimeStamp;
-                this.lastCacheUpdate = updateStartTimeStamp;
             }
 
             // display message
@@ -869,7 +864,6 @@ namespace ModIO.UI
             if(subscribedModIds.Count == 0)
             {
                 this.lastSubscriptionSync = updateStartTimeStamp;
-                this.lastCacheUpdate = updateStartTimeStamp;
                 yield break;
             }
 
@@ -977,7 +971,6 @@ namespace ModIO.UI
                 }
 
                 this.lastSubscriptionSync = updateStartTimeStamp;
-                this.lastCacheUpdate = updateStartTimeStamp;
             }
         }
 
@@ -1190,7 +1183,6 @@ namespace ModIO.UI
         {
             ManifestData manifest = new ManifestData()
             {
-                lastCacheUpdate = this.lastCacheUpdate,
                 lastSubscriptionSync = this.lastSubscriptionSync,
                 queuedUnsubscribes = this.m_queuedUnsubscribes,
                 queuedSubscribes = this.m_queuedSubscribes,
@@ -1302,8 +1294,6 @@ namespace ModIO.UI
             {
                 isRequestDone = false;
                 requestError = null;
-
-                int updateStartTimeStamp = ServerTimeStamp.Now;
 
                 // --- MOD EVENTS ---
                 var subbedMods = ModManager.GetSubscribedModIds();
