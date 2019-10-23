@@ -62,6 +62,7 @@ namespace ModIO.UI
         private int lastCacheUpdate = -1;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
+        private int m_lastModEventId = -1;
 
         // --- ACCESSORS ---
         public GameProfile gameProfile
@@ -1230,18 +1231,79 @@ namespace ModIO.UI
         // ---------[ UPDATES ]---------
         private System.Collections.IEnumerator PollForSubscribedModEventsCoroutine()
         {
-            yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
-
+            bool isRequestDone = false;
+            WebRequestError requestError = null;
             bool cancelUpdates = false;
 
+            // fetch initial id
+            RequestFilter idFetchFilter = new RequestFilter()
+            {
+                sortFieldName = API.GetAllModEventsFilterFields.id,
+                isSortAscending = false,
+            };
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                offset = 0,
+                limit = 1,
+            };
+
+            while(!isRequestDone)
+            {
+                APIClient.GetAllModEvents(idFetchFilter, pagination,
+                (r) =>
+                {
+                    if(r.items.Length > 0)
+                    {
+                        this.m_lastModEventId = r.items[0].id;
+                    }
+
+                    isRequestDone = true;
+                },
+                (e) =>
+                {
+                    requestError = e;
+                    isRequestDone = true;
+                });
+
+                while(!isRequestDone) { yield return null; }
+
+                if(requestError != null)
+                {
+                    int reattemptDelay = CalculateReattemptDelay(requestError);
+                    if(requestError.isAuthenticationInvalid)
+                    {
+                        MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                                   requestError.displayMessage);
+
+                        UserAccountManagement.MarkAuthTokenRejected();
+                    }
+                    else if(requestError.isRequestUnresolvable
+                            || reattemptDelay < 0)
+                    {
+                        cancelUpdates = true;
+                    }
+                    else
+                    {
+                        isRequestDone = false;
+
+                        yield return new WaitForSecondsRealtime(reattemptDelay);
+                    }
+                }
+            }
+
+            // initial delay
+            yield return new WaitForSecondsRealtime(MOD_EVENT_POLLING_PERIOD);
+
+            // start loop
             while(this != null
                   && this.isActiveAndEnabled
                   && !cancelUpdates)
             {
-                int updateStartTimeStamp = ServerTimeStamp.Now;
+                isRequestDone = false;
+                requestError = null;
 
-                bool isRequestDone = false;
-                WebRequestError requestError = null;
+                int updateStartTimeStamp = ServerTimeStamp.Now;
 
                 // --- MOD EVENTS ---
                 var subbedMods = ModManager.GetSubscribedModIds();
