@@ -39,7 +39,6 @@ namespace ModIO.UI
         [Serializable]
         private class ManifestData
         {
-            public int lastSubscriptionSync;
             public List<int> queuedUnsubscribes;
             public List<int> queuedSubscribes;
         }
@@ -57,7 +56,6 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = new GameProfile();
         private Dictionary<int, ModRatingValue> m_userRatings = new Dictionary<int, ModRatingValue>();
-        private int lastSubscriptionSync = -1;
         private List<int> m_queuedUnsubscribes = new List<int>();
         private List<int> m_queuedSubscribes = new List<int>();
         private int m_lastModEventId = -1;
@@ -203,13 +201,11 @@ namespace ModIO.UI
             ManifestData manifest = IOUtilities.ReadJsonObjectFile<ManifestData>(manifestFilePath);
             if(manifest != null)
             {
-                this.lastSubscriptionSync = manifest.lastSubscriptionSync;
                 this.m_queuedSubscribes = manifest.queuedSubscribes;
                 this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
             }
             else
             {
-                this.lastSubscriptionSync = 0;
                 this.m_queuedSubscribes = new List<int>();
                 this.m_queuedUnsubscribes = new List<int>();
                 WriteManifest();
@@ -843,7 +839,6 @@ namespace ModIO.UI
                     updateCount += unmatchedSubscriptions.Count;
                 }
 
-                this.lastSubscriptionSync = updateStartTimeStamp;
             }
 
             // display message
@@ -864,7 +859,6 @@ namespace ModIO.UI
             // early out
             if(subscribedModIds.Count == 0)
             {
-                this.lastSubscriptionSync = updateStartTimeStamp;
                 yield break;
             }
 
@@ -971,7 +965,6 @@ namespace ModIO.UI
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
                 }
 
-                this.lastSubscriptionSync = updateStartTimeStamp;
             }
         }
 
@@ -1184,7 +1177,6 @@ namespace ModIO.UI
         {
             ManifestData manifest = new ManifestData()
             {
-                lastSubscriptionSync = this.lastSubscriptionSync,
                 queuedUnsubscribes = this.m_queuedUnsubscribes,
                 queuedSubscribes = this.m_queuedSubscribes,
             };
@@ -1488,9 +1480,6 @@ namespace ModIO.UI
 
                         yield return this.StartCoroutine(this.PushQueuedSubscribes(null));
                         yield return this.StartCoroutine(this.PushQueuedUnsubscribes(null));
-
-                        this.lastSubscriptionSync = updateStartTimeStamp;
-                        WriteManifest();
 
                         StartCoroutine(FetchUserRatings());
                     }
