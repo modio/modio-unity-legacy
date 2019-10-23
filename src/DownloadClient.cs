@@ -31,12 +31,18 @@ namespace ModIO
             public DownloadProgressMarkerCollection() : this(0) {}
         }
 
-        private class DownloadMonitorBehaviour : MonoBehaviour {}
+        private class DownloadMonitorBehaviour : MonoBehaviour
+        {
+            public Coroutine coroutine = null;
+        }
         private static DownloadMonitorBehaviour monitorBehaviour = null;
 
         // ---------[ CONSTANTS ]---------
         /// <summary>Marker count used for smoothing download speed average.</summary>
         public const int DOWNLOAD_SPEED_MARKER_COUNT = 10;
+
+        /// <summary>Interval between download speed updates.</summary>
+        public const float DOWNLOAD_SPEED_UPDATE_INTERVAL = 0.5f;
 
         // ---------[ IMAGE DOWNLOADS ]---------
         public static ImageRequest DownloadModLogo(ModProfile profile, LogoSize size)
@@ -353,14 +359,7 @@ namespace ModIO
 
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
 
-            // begin speed monitor process
-            if(DownloadClient.monitorBehaviour == null)
-            {
-                GameObject go = new GameObject("[mod.io] Download Monitor");
-                DownloadClient.monitorBehaviour = go.AddComponent<DownloadMonitorBehaviour>();
-                GameObject.DontDestroyOnLoad(go);
-            }
-            DownloadClient.monitorBehaviour.StartCoroutine(SpeedMonitorCoroutine(idPair));
+            DownloadClient.StartMonitoringSpeed();
 
             // notify download started
             if(DownloadClient.modfileDownloadStarted != null)
@@ -532,9 +531,67 @@ namespace ModIO
             DownloadClient.modfileProgressMarkers.Remove(idPair);
         }
 
-        private static System.Collections.IEnumerator SpeedMonitorCoroutine(ModfileIdPair idPair)
+        private static void StartMonitoringSpeed()
         {
-            yield return null;
+            if(DownloadClient.monitorBehaviour == null)
+            {
+                GameObject go = new GameObject("[mod.io] Download Speed Monitor");
+                DownloadClient.monitorBehaviour = go.AddComponent<DownloadMonitorBehaviour>();
+                GameObject.DontDestroyOnLoad(go);
+            }
+
+            if(DownloadClient.monitorBehaviour.coroutine == null)
+            {
+                DownloadClient.monitorBehaviour.coroutine
+                 = DownloadClient.monitorBehaviour.StartCoroutine(SpeedMonitorCoroutine());
+            }
+        }
+
+        private static System.Collections.IEnumerator SpeedMonitorCoroutine()
+        {
+            while(DownloadClient.modfileDownloadMap.Count > 0)
+            {
+                int downloadCount = DownloadClient.modfileDownloadMap.Count;
+                int monitoredDownloadCount = 0;
+                FileDownloadInfo[] infos
+                    = new FileDownloadInfo[downloadCount];
+                DownloadProgressMarkerCollection[] markerCollections
+                    = new DownloadProgressMarkerCollection[downloadCount];
+
+                // collect downloads to update
+                foreach(var kvp in DownloadClient.modfileDownloadMap)
+                {
+                    DownloadProgressMarkerCollection markers = null;
+
+                    if(!kvp.Value.isDone
+                       && DownloadClient.modfileProgressMarkers.TryGetValue(kvp.Key, out markers))
+                    {
+                        infos[monitoredDownloadCount] = kvp.Value;
+                        markerCollections[monitoredDownloadCount] = markers;
+
+                        ++monitoredDownloadCount;
+                    }
+                }
+
+                // update progress
+                for(int i = 0;
+                    i < monitoredDownloadCount;
+                    ++i)
+                {
+                    FileDownloadInfo downloadInfo = infos[i];
+                    DownloadProgressMarkerCollection markers = markerCollections[i];
+
+                    Int64 bytesReceived = (downloadInfo.request == null ? 0
+                                           : (Int64)downloadInfo.request.downloadedBytes);
+
+                    DownloadClient.AddDownloadProgressMarker(markers, bytesReceived);
+                    downloadInfo.bytesPerSecond = DownloadClient.CalculateAverageDownloadSpeed(markers);
+                }
+
+                yield return new WaitForSecondsRealtime(DownloadClient.DOWNLOAD_SPEED_UPDATE_INTERVAL);
+            }
+
+            DownloadClient.monitorBehaviour.coroutine = null;
         }
 
         public static void UpdateDownloadSpeed(int modId, int modfileId)
