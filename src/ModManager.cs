@@ -1242,9 +1242,9 @@ namespace ModIO
         }
 
         /// <summary>Fetches all user events for the authenticated user.</summary>
-        public static void FetchAllUserEventsAfterId(int eventId,
-                                                     Action<List<UserEvent>> onSuccess,
-                                                     Action<WebRequestError> onError)
+        public static void FetchUserEventsAfterId(int eventId,
+                                                  Action<List<UserEvent>> onSuccess,
+                                                  Action<WebRequestError> onError)
         {
             // - Filter -
             RequestFilter userEventFilter = new RequestFilter();

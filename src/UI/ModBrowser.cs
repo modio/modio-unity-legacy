@@ -1419,7 +1419,8 @@ namespace ModIO.UI
             yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
 
             while(this != null
-                  && this.isActiveAndEnabled)
+                  && this.isActiveAndEnabled
+                  && !cancelUpdates)
             {
                 int updateStartTimeStamp = ServerTimeStamp.Now;
 
@@ -1430,18 +1431,18 @@ namespace ModIO.UI
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
-                    ModManager.FetchAllUserEvents(lastSubscriptionSync,
-                                                  updateStartTimeStamp,
-                                                  (ue) =>
-                                                  {
-                                                    userEventReponse = ue;
-                                                    isRequestDone = true;
-                                                  },
-                                                  (e) =>
-                                                  {
-                                                     requestError = e;
-                                                     isRequestDone = true;
-                                                  });
+
+                    ModManager.FetchUserEventsAfterId(this.m_lastUserEventId,
+                    (ue) =>
+                    {
+                        userEventReponse = ue;
+                        isRequestDone = true;
+                    },
+                    (e) =>
+                    {
+                        requestError = e;
+                        isRequestDone = true;
+                    });
 
                     while(!isRequestDone) { yield return null; }
 
@@ -1460,6 +1461,8 @@ namespace ModIO.UI
                         {
                             Debug.LogWarning("[mod.io] Polling for user updates failed."
                                              + requestError.ToUnityDebugString());
+
+                            cancelUpdates = true;
                         }
                         else
                         {
@@ -1477,7 +1480,11 @@ namespace ModIO.UI
                     // This may have changed during the request execution
                     else if(UserAuthenticationData.instance.IsTokenValid)
                     {
-                        ProcessUserUpdates(userEventReponse);
+                        if(userEventReponse.Count > 0)
+                        {
+                            this.m_lastUserEventId = userEventReponse[userEventReponse.Count-1].id;
+                            ProcessUserUpdates(userEventReponse);
+                        }
 
                         yield return this.StartCoroutine(this.PushQueuedSubscribes(null));
                         yield return this.StartCoroutine(this.PushQueuedUnsubscribes(null));
