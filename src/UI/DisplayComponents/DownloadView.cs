@@ -37,9 +37,6 @@ namespace ModIO.UI
         /// <summary>ModId of the mod currently being monitored.</summary>
         private int m_modId = ModProfile.NULL_ID;
 
-        /// <summary>ModfileId of the mod currently being monitored.</summary>
-        private int m_modfileId = Modfile.NULL_ID;
-
         /// <summary>The currently running update coroutine.</summary>
         private Coroutine m_updateCoroutine = null;
 
@@ -188,7 +185,6 @@ namespace ModIO.UI
 
             // set initial speed marker
             float lastSpeedUpdate = Time.unscaledTime;
-            DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
 
             // loop while downloading
             while(this != null
@@ -199,7 +195,6 @@ namespace ModIO.UI
                 float now = Time.unscaledTime;
                 if(now - lastSpeedUpdate >= DownloadView.DOWNLOAD_SPEED_UPDATE_INTERVAL)
                 {
-                    DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
                     lastSpeedUpdate = now;
                 }
 
@@ -208,7 +203,6 @@ namespace ModIO.UI
                 yield return null;
             }
 
-            DownloadClient.UpdateDownloadSpeed(this.m_modId, this.m_modfileId);
             this.onDownloadInfoUpdated.Invoke(this.m_downloadInfo);
 
             if(this.hideIfInactive)
@@ -224,7 +218,6 @@ namespace ModIO.UI
         {
             if(this.m_modId == idPair.modId)
             {
-                this.m_modfileId = idPair.modfileId;
                 this.m_downloadInfo = downloadInfo;
 
                 if(!this.isActiveAndEnabled && this.hideIfInactive)

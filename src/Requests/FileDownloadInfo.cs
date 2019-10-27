@@ -12,8 +12,6 @@ namespace ModIO
         public bool wasAborted;
 
         /// <summary>Number of bytes being downloaded per-second.</summary>
-        /// <remarks>This value is *UNRELIABLE* as it currently only being
-        /// updated by UI components. This will be fixed in the next release.</remarks>
         public System.Int64 bytesPerSecond;
     }
 }

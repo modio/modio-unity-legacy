@@ -423,6 +423,7 @@ namespace ModIO
             UnityWebRequest request = downloadInfo.request;
             bool succeeded = false;
             downloadInfo.isDone = true;
+            downloadInfo.bytesPerSecond = 0;
 
             if(request.isNetworkError || request.isHttpError)
             {
@@ -592,28 +593,6 @@ namespace ModIO
             }
 
             DownloadClient.monitorBehaviour.coroutine = null;
-        }
-
-        public static void UpdateDownloadSpeed(int modId, int modfileId)
-        {
-            DownloadClient.UpdateDownloadSpeed(new ModfileIdPair(modId, modfileId));
-        }
-
-        public static void UpdateDownloadSpeed(ModfileIdPair idPair)
-        {
-            FileDownloadInfo downloadInfo = null;
-            DownloadProgressMarkerCollection markers = null;
-
-            if(DownloadClient.modfileDownloadMap.TryGetValue(idPair, out downloadInfo)
-               && DownloadClient.modfileProgressMarkers.TryGetValue(idPair, out markers)
-               && !downloadInfo.isDone)
-            {
-                Int64 bytesReceived = (downloadInfo.request == null ? 0
-                                       : (Int64)downloadInfo.request.downloadedBytes);
-
-                DownloadClient.AddDownloadProgressMarker(markers, bytesReceived);
-                downloadInfo.bytesPerSecond = DownloadClient.CalculateAverageDownloadSpeed(markers);
-            }
         }
 
         private static Int64 CalculateAverageDownloadSpeed(DownloadProgressMarkerCollection markers)
