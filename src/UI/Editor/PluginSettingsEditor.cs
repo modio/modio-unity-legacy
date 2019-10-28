@@ -8,10 +8,12 @@ namespace ModIO.UI.EditorCode
     public class PluginSettingsEditor : Editor
     {
         SerializedProperty apiURLProperty;
+        SerializedProperty gameIdProperty;
 
         private void OnEnable()
         {
             apiURLProperty = serializedObject.FindProperty("m_data.apiURL");
+            gameIdProperty = serializedObject.FindProperty("m_data.gameId");
         }
 
         public override void OnInspectorGUI()
@@ -22,7 +24,13 @@ namespace ModIO.UI.EditorCode
 
             while(propEnum.MoveNext())
             {
-                EditorGUILayout.PropertyField(propEnum.Current as SerializedProperty);
+                SerializedProperty displayProp = propEnum.Current as SerializedProperty;
+                EditorGUILayout.PropertyField(displayProp);
+
+                if(displayProp.name.Contains("Directory"))
+                {
+                    DisplayProcessedDirectory(displayProp.stringValue);
+                }
             }
 
             EditorGUILayout.Space();
@@ -64,6 +72,61 @@ namespace ModIO.UI.EditorCode
                     Application.OpenURL(httpPrefix + @"mod.io/apikey");
                 }
             }
+        }
+
+        private void DisplayProcessedDirectory(string directoryValue)
+        {
+            string processedDir = PluginSettings.ReplaceDirectoryVariables(directoryValue,
+                                                                           gameIdProperty.intValue,
+                                                                           apiURLProperty.stringValue.StartsWith("https://api.test.mod.io"));
+
+            EditorGUILayout.BeginHorizontal();
+                using(new EditorGUI.DisabledScope(true))
+                {
+                    EditorGUILayout.LabelField(new GUIContent(processedDir, processedDir));
+                }
+
+                bool directoryIsValid = false;
+
+                try
+                {
+                    string testDir = processedDir;
+
+                    while(!directoryIsValid
+                          && !string.IsNullOrEmpty(testDir))
+                    {
+                        testDir = System.IO.Path.GetDirectoryName(testDir);
+                        directoryIsValid = System.IO.Directory.Exists(testDir);
+                    }
+                }
+                catch
+                {
+                    directoryIsValid = false;
+                }
+
+                using(new EditorGUI.DisabledScope(!directoryIsValid))
+                {
+                    string toolTip = null;
+                    if(directoryIsValid)
+                    {
+                        toolTip = "Locate directory";
+                    }
+                    else
+                    {
+                        toolTip = "Invalid directory";
+                    }
+
+                    if(GUILayout.Button(new GUIContent("...", toolTip), GUILayout.Width(21), GUILayout.Height(14)))
+                    {
+                        if(!System.IO.Directory.Exists(processedDir))
+                        {
+                            IOUtilities.CreateDirectory(processedDir);
+                        }
+
+                        EditorUtility.RevealInFinder(processedDir);
+                    }
+                }
+            EditorGUILayout.EndHorizontal();
         }
     }
 }

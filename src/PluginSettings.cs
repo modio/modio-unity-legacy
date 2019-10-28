@@ -149,7 +149,7 @@ namespace ModIO
             #if UNITY_EDITOR
             if(!Application.isPlaying && testEnd < 0)
             {
-                return "Warning: Directory contains an unclosed test string.";
+                return "Missing \'$\': Directory contains an unclosed test string.";
             }
             #endif
 
