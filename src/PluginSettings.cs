@@ -81,36 +81,15 @@ namespace ModIO
                 // cachedir
                 if(settings.cacheDirectory != null)
                 {
-                    string[] cacheDirParts = settings.cacheDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
-                                                                           System.IO.Path.DirectorySeparatorChar);
-                    for(int i = 0; i < cacheDirParts.Length; ++i)
-                    {
-                        if(cacheDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                        {
-                            cacheDirParts[i] = Application.persistentDataPath;
-                        }
-
-                        cacheDirParts[i] = cacheDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
-                    }
-                    settings.cacheDirectory = IOUtilities.CombinePath(cacheDirParts);
+                    settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
+                                                                        settings.gameId);
                 }
 
                 // installdir
                 if(settings.installationDirectory != null)
                 {
-                    string[] installDirParts = settings.installationDirectory.Split(System.IO.Path.AltDirectorySeparatorChar,
-                                                                                    System.IO.Path.DirectorySeparatorChar);
-                    for(int i = 0; i < installDirParts.Length; ++i)
-                    {
-                        if(installDirParts[i].ToUpper().Equals("$PERSISTENT_DATA_PATH$"))
-                        {
-                            installDirParts[i] = Application.persistentDataPath;
-                        }
-
-                        installDirParts[i] = installDirParts[i].Replace("$GAME_ID$", settings.gameId.ToString());
-                    }
-
-                    settings.installationDirectory = IOUtilities.CombinePath(installDirParts);
+                    settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
+                                                                               settings.gameId);
                 }
 
                 // apply to data instance
@@ -120,6 +99,25 @@ namespace ModIO
             PluginSettings._loaded = true;
         }
 
+        /// <summary>Replaces variables in the directory values.</summary>
+        public static string ReplaceDirectoryVariables(string directory, int gameId)
+        {
+            // straight replaces
+            directory = (directory
+                         .Replace("$PERSISTENT_DATA_PATH$", Application.persistentDataPath)
+                         .Replace("$DATA_PATH$", Application.dataPath)
+                         .Replace("$BUILD_GUID$", Application.buildGUID)
+                         .Replace("$COMPANY_NAME$", Application.companyName)
+                         .Replace("$PRODUCT_NAME$", Application.productName)
+                         .Replace("$TEMPORARY_CACHE_PATH$", Application.temporaryCachePath)
+                         .Replace("$APPLICATION_IDENTIFIER", Application.identifier)
+                         .Replace("$GAME_ID$", gameId.ToString())
+                         );
+
+            return directory;
+        }
+
+        // ---------[ EDITOR CODE ]---------
         #if UNITY_EDITOR
         /// <summary>Locates the PluginSettings asset used by the plugin.</summary>
         [UnityEditor.MenuItem("Tools/mod.io/Edit Settings", false)]
