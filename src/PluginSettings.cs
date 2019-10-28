@@ -76,20 +76,23 @@ namespace ModIO
             else
             {
                 Data settings = wrapper.m_data;
+                bool isTestServer = settings.apiURL.Contains("api.test.mod.io");
 
                 // - Path variable replacement -
                 // cachedir
                 if(settings.cacheDirectory != null)
                 {
                     settings.cacheDirectory = ReplaceDirectoryVariables(settings.cacheDirectory,
-                                                                        settings.gameId);
+                                                                        settings.gameId,
+                                                                        isTestServer);
                 }
 
                 // installdir
                 if(settings.installationDirectory != null)
                 {
                     settings.installationDirectory = ReplaceDirectoryVariables(settings.installationDirectory,
-                                                                               settings.gameId);
+                                                                               settings.gameId,
+                                                                               isTestServer);
                 }
 
                 // apply to data instance
@@ -100,7 +103,7 @@ namespace ModIO
         }
 
         /// <summary>Replaces variables in the directory values.</summary>
-        public static string ReplaceDirectoryVariables(string directory, int gameId)
+        public static string ReplaceDirectoryVariables(string directory, int gameId, bool isTestServer)
         {
             // straight replaces
             directory = (directory
@@ -114,7 +117,76 @@ namespace ModIO
                          .Replace("$GAME_ID$", gameId.ToString())
                          );
 
+            // boolean replacements
+            string testString = null;
+            int testStringIndex = -1;
+
+            testString = "$IS_TEST_SERVER?";
+            testStringIndex = directory.IndexOf(testString);
+            if(testStringIndex >= 0)
+            {
+                directory = ReplaceTestValueString(directory, testStringIndex, isTestServer);
+            }
+
             return directory;
+        }
+
+        /// <summary>Processes a test variable string.</summary>
+        private static string ReplaceTestValueString(string directory,
+                                                     int testStringIndex,
+                                                     bool testValue)
+        {
+            // get vars
+            int trueStart = -1;
+            int trueEnd = -1;
+            int falseStart = -1;
+            int testEnd = -1;
+
+            trueStart = directory.IndexOf('?', testStringIndex+1) + 1;
+
+            testEnd = directory.IndexOf('$', testStringIndex+1);
+
+            #if UNITY_EDITOR
+            if(!Application.isPlaying && testEnd < 0)
+            {
+                return "Warning: Directory contains an unclosed test string.";
+            }
+            #endif
+
+            Debug.Assert(testEnd > 0, ("[mod.io] Unclosed test string \'"
+                                       + directory.Substring(testStringIndex, trueStart-testStringIndex)
+                                       + "\' in Plugin Settings directory. A closing \'$\' is required."));
+
+            ++testEnd;
+
+            falseStart = directory.IndexOf(':', trueStart);
+            if(falseStart > testEnd
+               || falseStart == -1)
+            {
+                falseStart = -1;
+                trueEnd = testEnd-1;
+            }
+            else
+            {
+                trueEnd = falseStart;
+                ++falseStart;
+            }
+
+            // replace
+            string insertString = string.Empty;
+
+            if(testValue)
+            {
+                insertString = directory.Substring(trueStart, trueEnd-trueStart);
+            }
+            else if(falseStart > -1)
+            {
+                insertString = directory.Substring(falseStart, testEnd-1-falseStart);
+            }
+
+            return directory
+                .Remove(testStringIndex, testEnd-testStringIndex)
+                .Insert(testStringIndex, insertString);
         }
 
         // ---------[ EDITOR CODE ]---------
