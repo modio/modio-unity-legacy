@@ -16,17 +16,6 @@ namespace ModIO.EditorCode
             new MenuItem("Tools/mod.io/Tools/", false, 1);
         }
 
-        [MenuItem("Tools/mod.io/Debugging/Locate Cache...", false)]
-        public static void LocateCache()
-        {
-            if(!System.IO.Directory.Exists(CacheClient.cacheDirectory))
-            {
-                IOUtilities.CreateDirectory(CacheClient.cacheDirectory);
-            }
-
-            EditorUtility.RevealInFinder(CacheClient.cacheDirectory);
-        }
-
         [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
         public static void ClearCache()
         {
