@@ -609,6 +609,20 @@ namespace ModIO
                                                       Action<string> successCallback,
                                                       Action<WebRequestError> errorCallback)
         {
+            if(string.IsNullOrEmpty(base64EncodedTicket))
+            {
+                Debug.LogWarning("[mod.io] Encoded Steam Ticket is invalid."
+                    + " Ensure that the base64EncodedTicket is not null or empty.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("Encoded Steam Ticket is invalid."
+                        + " Ensure that the base64EncodedTicket is not null or empty."));
+                }
+
+                return;
+            }
+
             // create vars
             string endpointURL = PluginSettings.data.apiURL + @"/external/steamauth";
 
@@ -668,22 +682,22 @@ namespace ModIO
         }
 
         /// <summary>Request an OAuthToken using a GOG Galaxy App ticket.</summary>
-        public static void RequestGOGAuthentication(string encryptedAppTicket,
+        public static void RequestGOGAuthentication(string base64EncodedTicket,
                                                     Action<string> successCallback,
                                                     Action<WebRequestError> errorCallback)
         {
-            if(encryptedAppTicket == null
-               || encryptedAppTicket.Length == 0
-               || encryptedAppTicket.Length > 1024)
+            if(string.IsNullOrEmpty(base64EncodedTicket))
             {
-                Debug.LogWarning("[mod.io] GOG Galaxy Ticket is invalid. Ensure that the"
-                                 + " encryptedAppTicket is not null, and is less than 1024 bytes.");
+                Debug.LogWarning("[mod.io] Encoded GOG Galaxy Ticket is invalid."
+                    + " Ensure that the base64EncodedTicket is not null or empty.");
 
                 if(errorCallback != null)
                 {
-                    errorCallback(WebRequestError.GenerateLocal("GOG Galaxy Ticket is invalid. Ensure"
-                        + " that the encryptedAppTicket is not null, and is less than 1024 bytes."));
+                    errorCallback(WebRequestError.GenerateLocal("Encoded GOG Galaxy Ticket is invalid."
+                        + " Ensure that the base64EncodedTicket is not null or empty."));
                 }
+
+                return;
             }
 
             // create vars
@@ -691,7 +705,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
                                                                                  "appdata",
-                                                                                 encryptedAppTicket);
+                                                                                 base64EncodedTicket);
 
             // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
