@@ -445,7 +445,7 @@ namespace ModIO
                 // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
                 //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
                 //  Spiderling Studios (http://spiderlinggames.co.uk/)
-                #if PLATFORM_PS4
+                #if UNITY_PS4
                 else if (downloadInfo.error.responseCode == 302) // Redirect limit exceeded
                 {
                     string headerLocation = string.Empty;
