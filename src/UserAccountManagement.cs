@@ -1,8 +1,10 @@
-// #define ENABLE_STEAM_AUTHENTICATION
+// #define ENABLE_STEAMWORKS_FACEPUNCH
+// #define ENABLE_STEAMWORKS_NET
+// #define ENABLE_STEAM_OTHER
 // #define ENABLE_GOG_AUTHENTICATION
 
 /*** NOTE:
- * If building to a platform other than Mac, Windows (exe), or Linux
+ * If building to a platform other than Mac, Windows (exe), or Linux,
  * the Unity #define directives as specified at [https://docs.unity3d.com/Manual/PlatformDependentCompilation.html]
  * act to enable those specific authentication methods and thus do not require manual activation.
  ***/
@@ -19,12 +21,12 @@ namespace ModIO
     public static class UserAccountManagement
     {
         // ---------[ CONSTANTS ]---------
-        #if ENABLE_STEAM_AUTHENTICATION
-        public static readonly string PROFILE_URL_POSTFIX = "?ref=steam";
+        #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
+            public static readonly string PROFILE_URL_POSTFIX = "?ref=steam";
         #elif ENABLE_GOG_AUTHENTICATION
-        public static readonly string PROFILE_URL_POSTFIX = "?ref=gog";
+            public static readonly string PROFILE_URL_POSTFIX = "?ref=gog";
         #else
-        public static readonly string PROFILE_URL_POSTFIX = string.Empty;
+            public static readonly string PROFILE_URL_POSTFIX = string.Empty;
         #endif
 
         // ---------[ DATA ]---------
@@ -33,7 +35,7 @@ namespace ModIO
         {
             modioUserId = ModProfile.NULL_ID,
             localUserId = null,
-            enabledModIds = new int[0]
+            enabledModIds = new int[0],
         };
 
         // ---------[ UTILITY ]---------
@@ -113,7 +115,7 @@ namespace ModIO
 
             Action<string, Action<string>, Action<WebRequestError>> authAction = null;
 
-            #if ENABLE_STEAM_AUTHENTICATION
+            #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
                 authAction = APIClient.RequestSteamAuthentication;
             #elif ENABLE_GOG_AUTHENTICATION
                 authAction = APIClient.RequestGOGAuthentication;
@@ -162,7 +164,7 @@ namespace ModIO
         }
 
         // ---------[ STEAM AUTHENTICATION ]---------
-        #if ENABLE_STEAM_AUTHENTICATION
+        #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         /// <remarks>This version is designed to match the Steamworks.NET implementation by
         /// @rlabrecque at https://github.com/rlabrecque/Steamworks.NET</remarks>
