@@ -3,6 +3,8 @@
 
 using System;
 
+using Debug = UnityEngine.Debug;
+
 namespace ModIO
 {
     /// <summary>A collection of user management functions provided for convenience.</summary>
@@ -146,6 +148,44 @@ namespace ModIO
                 {
                     onSuccess(p);
                 }
+            },
+            onError);
+        }
+
+        /// <summary>Attempts to reauthenticate using the enabled service.</summary>
+        public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
+                                                               Action<WebRequestError> onError)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(UserAuthenticationData.instance.externalAuthToken));
+
+            Action<string, Action<string>, Action<WebRequestError>> authAction = null;
+
+            #if ENABLE_STEAM_AUTH
+                authAction = APIClient.RequestSteamAuthentication;
+            #elif ENABLE_GOG_AUTH
+                authAction = APIClient.RequestGOGAuthentication;
+            #endif
+
+            #if DEBUG
+                if(authAction == null)
+                {
+                    Debug.LogError("[mod.io] Cannot reauthenticate without enabling an external"
+                                   + " authentication service. Please refer to this file"
+                                   + " (UserAccountManagement.cs) and uncomment the #define for the"
+                                   + " desired service at the beginning of the file.");
+                }
+            #endif
+
+            authAction.Invoke(UserAuthenticationData.instance.externalAuthToken, (t) =>
+            {
+                UserAuthenticationData authData = new UserAuthenticationData()
+                {
+                    token = t,
+                    wasTokenRejected = false,
+                };
+
+                UserAuthenticationData.instance = authData;
+                UserAccountManagement.FetchUserProfile(onSuccess, onError);
             },
             onError);
         }
