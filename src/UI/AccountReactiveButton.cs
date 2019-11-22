@@ -30,9 +30,7 @@ namespace ModIO.UI
         {
             UserAuthenticationData userData = UserAuthenticationData.instance;
             bool loggedIn = !(userData.Equals(UserAuthenticationData.NONE));
-            bool isExternallyAuthenticated = (loggedIn
-                                              && !(string.IsNullOrEmpty(userData.steamTicket)
-                                                   && string.IsNullOrEmpty(userData.gogTicket)));
+            bool isExternallyAuthenticated = (loggedIn && !string.IsNullOrEmpty(userData.externalAuthToken));
 
             if(!loggedIn)
             {
