@@ -32,8 +32,8 @@ namespace ModIO
                 {
                     token = t,
                     wasTokenRejected = false,
-                    steamTicket = null,
-                    gogTicket = null,
+                    externalAuthToken = null,
+                    externalAuthId = null,
                 };
 
                 UserAuthenticationData.instance = authData;
@@ -78,8 +78,8 @@ namespace ModIO
                 {
                     token = t,
                     wasTokenRejected = false,
-                    steamTicket = encodedTicket,
-                    gogTicket = null,
+                    externalAuthToken = encodedTicket,
+                    externalAuthId = null,
                 };
 
                 UserAuthenticationData.instance = authData;
@@ -110,8 +110,8 @@ namespace ModIO
                 {
                     token = t,
                     wasTokenRejected = false,
-                    gogTicket = encodedTicket,
-                    steamTicket = null,
+                    externalAuthToken = encodedTicket,
+                    externalAuthId = null,
                 };
 
                 UserAuthenticationData.instance = authData;
