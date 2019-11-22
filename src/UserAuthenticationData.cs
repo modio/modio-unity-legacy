@@ -16,8 +16,8 @@ namespace ModIO
             userId = UserProfile.NULL_ID,
             token = null,
             wasTokenRejected = false,
-            steamTicket = null,
-            gogTicket = null,
+            externalAuthToken = null,
+            externalAuthId = null,
         };
 
         /// <summary>Location of the settings file.</summary>
@@ -34,11 +34,11 @@ namespace ModIO
         /// <summary>A flag to indicate that the auth token has been rejected.</summary>
         public bool wasTokenRejected;
 
-        /// <summary>Steam ticket (if applicable).</summary>
-        public string steamTicket;
+        /// <summary>External authentication service token.</summary>
+        public string externalAuthToken;
 
-        /// <summary>GOG ticket (if applicable).</summary>
-        public string gogTicket;
+        /// <summary>External authentication service user id.</summary>
+        public string externalAuthId;
 
         // --- ACCESSORS ---
         [JsonIgnore]
@@ -103,6 +103,23 @@ namespace ModIO
         {
             UserAuthenticationData.m_instance = UserAuthenticationData.NONE;
             IOUtilities.DeleteFile(UserAuthenticationData.FILE_LOCATION);
+        }
+
+        // ---------[ OBSOLETE ]---------
+        /// <summary>[Obsolete] Steam ticket (if applicable).</summary>
+        [System.Obsolete("Use externalAuthToken instead.")]
+        public string steamTicket
+        {
+            get { return this.externalAuthToken; }
+            set { this.externalAuthToken = value; }
+        }
+
+        /// <summary>[Obsolete] GOG ticket (if applicable).</summary>
+        [System.Obsolete("Use externalAuthToken instead.")]
+        public string gogTicket
+        {
+            get { return this.externalAuthToken; }
+            set { this.externalAuthToken = value; }
         }
     }
 }
