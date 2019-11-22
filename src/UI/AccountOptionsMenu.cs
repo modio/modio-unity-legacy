@@ -82,12 +82,7 @@ namespace ModIO.UI
                        && p != null
                        && userData.userId == p.id)
                     {
-                        string profileURL = p.profileURL + @"/edit";
-                        if(!string.IsNullOrEmpty(userData.steamTicket))
-                        {
-                            profileURL += "?ref=steam";
-                        }
-
+                        string profileURL = p.profileURL + @"/edit" + UserAccountManagement.PROFILE_URL_POSTFIX;
                         Application.OpenURL(profileURL);
                         this.viewProfileButton.interactable = true;
                     }

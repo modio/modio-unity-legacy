@@ -1,3 +1,6 @@
+// #define ENABLE_STEAM_AUTH
+// #define ENABLE_GOG_AUTH
+
 using System;
 
 namespace ModIO
@@ -5,6 +8,15 @@ namespace ModIO
     /// <summary>A collection of user management functions provided for convenience.</summary>
     public static class UserAccountManagement
     {
+        // ---------[ CONSTANTS ]---------
+        #if ENABLE_STEAM_AUTH
+        public static readonly string PROFILE_URL_POSTFIX = "?ref=steam";
+        #elif ENABLE_GOG_AUTH
+        public static readonly string PROFILE_URL_POSTFIX = "?ref=gog";
+        #else
+        public static readonly string PROFILE_URL_POSTFIX = string.Empty;
+        #endif
+
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Requests a login code be sent to an email address.</summary>
         public static void RequestSecurityCode(string emailAddress,
