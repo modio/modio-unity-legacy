@@ -1,5 +1,11 @@
-// #define ENABLE_STEAM_AUTH
-// #define ENABLE_GOG_AUTH
+// #define ENABLE_STEAM_AUTHENTICATION
+// #define ENABLE_GOG_AUTHENTICATION
+
+/*** NOTE:
+ * If building to a platform other than Mac, Windows (exe), or Linux
+ * the Unity #define directives as specified at [https://docs.unity3d.com/Manual/PlatformDependentCompilation.html]
+ * act to enable those specific authentication methods and thus do not require manual activation.
+ ***/
 
 using System;
 
@@ -11,13 +17,22 @@ namespace ModIO
     public static class UserAccountManagement
     {
         // ---------[ CONSTANTS ]---------
-        #if ENABLE_STEAM_AUTH
+        #if ENABLE_STEAM_AUTHENTICATION
         public static readonly string PROFILE_URL_POSTFIX = "?ref=steam";
-        #elif ENABLE_GOG_AUTH
+        #elif ENABLE_GOG_AUTHENTICATION
         public static readonly string PROFILE_URL_POSTFIX = "?ref=gog";
         #else
         public static readonly string PROFILE_URL_POSTFIX = string.Empty;
         #endif
+
+        // ---------[ UTILITY ]---------
+        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
+        public static void MarkAuthTokenRejected()
+        {
+            UserAuthenticationData data = UserAuthenticationData.instance;
+            data.wasTokenRejected = true;
+            UserAuthenticationData.instance = data;
+        }
 
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Requests a login code be sent to an email address.</summary>
@@ -56,6 +71,64 @@ namespace ModIO
             onError);
         }
 
+        /// <summary>Attempts to reauthenticate using the enabled service.</summary>
+        public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
+                                                               Action<WebRequestError> onError)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(UserAuthenticationData.instance.externalAuthToken));
+
+            Action<string, Action<string>, Action<WebRequestError>> authAction = null;
+
+            #if ENABLE_STEAM_AUTHENTICATION
+                authAction = APIClient.RequestSteamAuthentication;
+            #elif ENABLE_GOG_AUTHENTICATION
+                authAction = APIClient.RequestGOGAuthentication;
+            #endif
+
+            #if DEBUG
+                if(authAction == null)
+                {
+                    Debug.LogError("[mod.io] Cannot reauthenticate without enabling an external"
+                                   + " authentication service. Please refer to this file"
+                                   + " (UserAccountManagement.cs) and uncomment the #define for the"
+                                   + " desired service at the beginning of the file.");
+                }
+            #endif
+
+            authAction.Invoke(UserAuthenticationData.instance.externalAuthToken, (t) =>
+            {
+                UserAuthenticationData authData = new UserAuthenticationData()
+                {
+                    token = t,
+                    wasTokenRejected = false,
+                };
+
+                UserAuthenticationData.instance = authData;
+                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+            },
+            onError);
+        }
+
+        /// <summary>Stores the oAuthToken and steamTicket and fetches the UserProfile.</summary>
+        private static void FetchUserProfile(Action<UserProfile> onSuccess,
+                                             Action<WebRequestError> onError)
+        {
+            APIClient.GetAuthenticatedUser((p) =>
+            {
+                UserAuthenticationData data = UserAuthenticationData.instance;
+                data.userId = p.id;
+                UserAuthenticationData.instance = data;
+
+                if(onSuccess != null)
+                {
+                    onSuccess(p);
+                }
+            },
+            onError);
+        }
+
+        // ---------[ STEAM AUTHENTICATION ]---------
+        #if ENABLE_STEAM_AUTHENTICATION
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         /// <remarks>This version is designed to match the Steamworks.NET implementation by
         /// @rlabrecque at https://github.com/rlabrecque/Steamworks.NET</remarks>
@@ -100,9 +173,11 @@ namespace ModIO
                 UserAccountManagement.FetchUserProfile(onSuccess, onError);
             },
             onError);
-
         }
+        #endif
 
+        // ---------[ GOG AUTHENTICATION ]---------
+        #if ENABLE_GOG_AUTHENTICATION
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
         public static void AuthenticateWithGOGEncryptedAppTicket(byte[] data, uint dataSize,
                                                                  Action<UserProfile> onSuccess,
@@ -133,70 +208,6 @@ namespace ModIO
             },
             onError);
         }
-
-        /// <summary>Stores the oAuthToken and steamTicket and fetches the UserProfile.</summary>
-        private static void FetchUserProfile(Action<UserProfile> onSuccess,
-                                             Action<WebRequestError> onError)
-        {
-            APIClient.GetAuthenticatedUser((p) =>
-            {
-                UserAuthenticationData data = UserAuthenticationData.instance;
-                data.userId = p.id;
-                UserAuthenticationData.instance = data;
-
-                if(onSuccess != null)
-                {
-                    onSuccess(p);
-                }
-            },
-            onError);
-        }
-
-        /// <summary>Attempts to reauthenticate using the enabled service.</summary>
-        public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
-                                                               Action<WebRequestError> onError)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(UserAuthenticationData.instance.externalAuthToken));
-
-            Action<string, Action<string>, Action<WebRequestError>> authAction = null;
-
-            #if ENABLE_STEAM_AUTH
-                authAction = APIClient.RequestSteamAuthentication;
-            #elif ENABLE_GOG_AUTH
-                authAction = APIClient.RequestGOGAuthentication;
-            #endif
-
-            #if DEBUG
-                if(authAction == null)
-                {
-                    Debug.LogError("[mod.io] Cannot reauthenticate without enabling an external"
-                                   + " authentication service. Please refer to this file"
-                                   + " (UserAccountManagement.cs) and uncomment the #define for the"
-                                   + " desired service at the beginning of the file.");
-                }
-            #endif
-
-            authAction.Invoke(UserAuthenticationData.instance.externalAuthToken, (t) =>
-            {
-                UserAuthenticationData authData = new UserAuthenticationData()
-                {
-                    token = t,
-                    wasTokenRejected = false,
-                };
-
-                UserAuthenticationData.instance = authData;
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
-            },
-            onError);
-        }
-
-        // ---------[ UTILITY ]---------
-        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
-        public static void MarkAuthTokenRejected()
-        {
-            UserAuthenticationData data = UserAuthenticationData.instance;
-            data.wasTokenRejected = true;
-            UserAuthenticationData.instance = data;
-        }
+        #endif
     }
 }
