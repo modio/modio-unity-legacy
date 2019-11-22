@@ -230,11 +230,11 @@ namespace ModIO.UI
             {
                 bool isAttemptingReauth = false;
 
-                if(!string.IsNullOrEmpty(UserAuthenticationData.instance.steamTicket))
+                if(!string.IsNullOrEmpty(UserAuthenticationData.instance.externalAuthToken))
                 {
                     isAttemptingReauth = true;
 
-                    UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(UserAuthenticationData.instance.steamTicket,
+                    UserAccountManagement.ReauthenticateWithExternalAuthToken(
                     (u) =>
                     {
                         CacheClient.SaveUserProfile(u);
@@ -249,32 +249,7 @@ namespace ModIO.UI
                     },
                     (e) =>
                     {
-                        Debug.Log("[mod.io] Failed to collect new OAuthToken for stored Steam user ticket.\n"
-                                  + e.errorMessage);
-
-                        isAttemptingReauth = false;
-                    });
-                }
-                else if(!string.IsNullOrEmpty(UserAuthenticationData.instance.gogTicket))
-                {
-                    isAttemptingReauth = true;
-
-                    UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(UserAuthenticationData.instance.gogTicket,
-                    (u) =>
-                    {
-                        CacheClient.SaveUserProfile(u);
-
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-                        foreach(var receiver in updateReceivers)
-                        {
-                            receiver.OnUserProfileUpdated(u);
-                        }
-
-                        isAttemptingReauth = false;
-                    },
-                    (e) =>
-                    {
-                        Debug.Log("[mod.io] Failed to collect new OAuthToken for stored GOG user ticket.\n"
+                        Debug.Log("[mod.io] Failed to reauthenticate using stored external authentication data.\n"
                                   + e.errorMessage);
 
                         isAttemptingReauth = false;
