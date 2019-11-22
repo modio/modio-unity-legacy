@@ -29,6 +29,74 @@ namespace ModIO
             public static readonly string PROFILE_URL_POSTFIX = string.Empty;
         #endif
 
+        /// <summary>Load user data file.</summary>
+        private static byte[] LoadUserDataFile()
+        {
+            byte[] data;
+
+            #if UNITY_EDITOR
+                // NOTE(@jackson): ".modio" is banned on Mac
+                string filePath = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                          "modio~",
+                                                          "user.data");
+
+                data = IOUtilities.LoadBinaryFile(filePath);
+
+            #elif ENABLE_STEAMWORKS_FACEPUNCH
+                string filePath = "modio_user.data";
+
+                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
+                {
+                    data = Steamworks.SteamRemoteStorage.FileRead(filePath);
+                }
+
+            #elif ENABLE_STEAMWORKS_NET
+                string filePath = "modio_user.data";
+
+                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
+                {
+                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(filePath);
+
+                    if(fileSize > 0)
+                    {
+                        if(fileSize > 1024) { fileSize = 1024; }
+
+                        data = new byte[fileSize];
+                        Steamworks.SteamRemoteStorage.FileRead(filePath, data, fileSize);
+                    }
+                }
+
+            #elif UNITY_STANDALONE_WIN
+                string filePath = IOUtilities.Combine("%APPDATA%",
+                                                      "modio",
+                                                      "game-" + PluginSettings.data.gameId,
+                                                      "user.data");
+
+                data = IOUtilities.LoadBinaryFile(filePath);
+
+            #elif UNITY_STANDALONE_OSX
+                string filePath = ("~/Library/Application Support/mod.io/"
+                                   + "game-" + PluginSettings.data.gameId
+                                   + "/user.data");
+
+                data = IOUtilities.LoadBinaryFile(filePath);
+
+            #elif UNITY_STANDALONE_LINUX
+                string filePath = ("~/.config/mod.io/"
+                                   + "game-" + PluginSettings.data.gameId
+                                   + "/user.data");
+
+                data = IOUtilities.LoadBinaryFile(filePath);
+
+            #else
+                throw new System.NotImplementedException("[mod.io] The loading of user data for this"
+                                                         + " build definition has not been implemented.");
+
+            #endif
+
+            return data;
+        }
+
         // ---------[ DATA ]---------
         /// <summary>User data for the currently active user.</summary>
         private static LocalUserData m_activeUserData = new LocalUserData()
