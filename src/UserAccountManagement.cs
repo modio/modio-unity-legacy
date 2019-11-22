@@ -8,6 +8,8 @@
  ***/
 
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 using Debug = UnityEngine.Debug;
 
@@ -25,6 +27,15 @@ namespace ModIO
         public static readonly string PROFILE_URL_POSTFIX = string.Empty;
         #endif
 
+        // ---------[ DATA ]---------
+        /// <summary>User data for the currently active user.</summary>
+        private static LocalUserData m_activeUserData = new LocalUserData()
+        {
+            modioUserId = ModProfile.NULL_ID,
+            localUserId = null,
+            enabledModIds = new int[0]
+        };
+
         // ---------[ UTILITY ]---------
         /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
         public static void MarkAuthTokenRejected()
@@ -32,6 +43,29 @@ namespace ModIO
             UserAuthenticationData data = UserAuthenticationData.instance;
             data.wasTokenRejected = true;
             UserAuthenticationData.instance = data;
+        }
+
+        /// <summary>Returns the enabled mods for the active user.</summary>
+        public static List<int> GetEnabledModIds()
+        {
+            return new List<int>(UserAccountManagement.m_activeUserData.enabledModIds);
+        }
+
+        /// <summary>Sets the enabled mods for the active user.</summary>
+        public static void SetEnabledModIds(IEnumerable<int> modIds)
+        {
+            int[] modIdArray;
+
+            if(modIds == null)
+            {
+                modIdArray = new int[0];
+            }
+            else
+            {
+                modIdArray = modIds.ToArray();
+            }
+
+            UserAccountManagement.m_activeUserData.enabledModIds = modIdArray;
         }
 
         // ---------[ AUTHENTICATION ]---------
