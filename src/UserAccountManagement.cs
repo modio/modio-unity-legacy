@@ -23,6 +23,14 @@ namespace ModIO
     /// <summary>A collection of user management functions provided for convenience.</summary>
     public static class UserAccountManagement
     {
+        // ---------[ NESTED DATA-TYPES ]---------
+        /// <summary>Data structure for the user data file.</summary>
+        [System.Serializable]
+        private class StoredUserData
+        {
+            public LocalUserData[] userData = new LocalUserData[0];
+        }
+
         // ---------[ CONSTANTS ]---------
         #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
             public static readonly string PROFILE_URL_POSTFIX = "?ref=steam";
@@ -45,12 +53,12 @@ namespace ModIO
         static UserAccountManagement()
         {
             byte[] userFileData = UserAccountManagement.ReadUserDataFile();
-            LocalUserData[] cachedData = UserAccountManagement.ParseUserFileData(userFileData);
+            StoredUserData storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
 
             int userDataCount = 0;
-            if(cachedData != null)
+            if(storedUserData != null)
             {
-                userDataCount = cachedData.Length;
+                userDataCount = storedUserData.userData.Length;
             }
 
             Debug.Log("Loaded Cached User Data: "
@@ -193,7 +201,7 @@ namespace ModIO
         }
 
         /// <summary>Parses user data file.</summary>
-        private static LocalUserData[] ParseUserFileData(byte[] data)
+        private static StoredUserData ParseStoredUserData(byte[] data)
         {
             // early out
             if(data == null || data.Length == 0)
@@ -202,11 +210,11 @@ namespace ModIO
             }
 
             // attempt to parse data
-            LocalUserData[] userArray = null;
+            StoredUserData storedUserData = null;
             try
             {
                 string dataString = Encoding.UTF8.GetString(data);
-                userArray = JsonConvert.DeserializeObject<LocalUserData[]>(dataString);
+                storedUserData = JsonConvert.DeserializeObject<StoredUserData>(dataString);
             }
             catch(Exception e)
             {
@@ -215,18 +223,18 @@ namespace ModIO
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
 
-                userArray = new LocalUserData[0];
+                storedUserData = null;
             }
 
-            return userArray;
+            return storedUserData;
         }
 
         /// <summary>Generates user data file.</summary>
-        private static byte[] GenerateUserFileData(LocalUserData[] userData)
+        private static byte[] GenerateUserFileData(StoredUserData storedUserData)
         {
-            if(userData == null)
+            if(storedUserData == null)
             {
-                userData = new LocalUserData[0];
+                storedUserData = new StoredUserData();
             }
 
             // create json data bytes
@@ -234,7 +242,7 @@ namespace ModIO
 
             try
             {
-                string dataString = JsonConvert.SerializeObject(userData);
+                string dataString = JsonConvert.SerializeObject(storedUserData);
                 data = Encoding.UTF8.GetBytes(dataString);
             }
             catch(Exception e)
