@@ -28,6 +28,7 @@ namespace ModIO
         [System.Serializable]
         private class StoredUserData
         {
+            public int activeUserIndex = -1;
             public LocalUserData[] userData = new LocalUserData[0];
         }
 
@@ -41,30 +42,31 @@ namespace ModIO
         #endif
 
         // ---------[ DATA ]---------
+        /// <summary>Currently loaded user data.</summary>
+        private static StoredUserData m_storedUserData;
+
         /// <summary>User data for the currently active user.</summary>
-        private static LocalUserData m_activeUserData = new LocalUserData()
-        {
-            modioUserId = ModProfile.NULL_ID,
-            localUserId = null,
-            enabledModIds = new int[0],
-        };
+        private static LocalUserData m_activeUserData;
 
         // ---------[ DATA LOADING ]---------
         static UserAccountManagement()
         {
             byte[] userFileData = UserAccountManagement.ReadUserDataFile();
-            StoredUserData storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
+            UserAccountManagement.m_storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
 
-            int userDataCount = 0;
-            if(storedUserData != null)
+            // set initial values if no data
+            if(UserAccountManagement.m_storedUserData == null)
             {
-                userDataCount = storedUserData.userData.Length;
-            }
+                UserAccountManagement.m_storedUserData = new StoredUserData();
+                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
 
-            Debug.Log("Loaded Cached User Data: "
-                      + userDataCount.ToString()
-                      + " users found in "
-                      + ValueFormatting.ByteCount(userFileData == null ? 0 : userFileData.Length, "0"));
+                UserAccountManagement.m_activeUserData = new LocalUserData()
+                {
+                    modioUserId = ModProfile.NULL_ID,
+                    localUserId = null,
+                    enabledModIds = new int[0],
+                };
+            }
 
         }
 
@@ -258,15 +260,36 @@ namespace ModIO
             return data;
         }
 
-        // ---------[ UTILITY ]---------
-        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
-        public static void MarkAuthTokenRejected()
+        /// <summary>Takes any changes in m_activeUserData and writes them to disk.</summary>
+        private static void WriteActiveUserData()
         {
-            UserAuthenticationData data = UserAuthenticationData.instance;
-            data.wasTokenRejected = true;
-            UserAuthenticationData.instance = data;
+            // check if exists
+            if(UserAccountManagement.m_storedUserData.activeUserIndex < 0)
+            {
+                UserAccountManagement.m_storedUserData.activeUserIndex
+                = UserAccountManagement.m_storedUserData.userData.Length;
+            }
+
+            // update array size
+            if(UserAccountManagement.m_storedUserData.activeUserIndex >
+               UserAccountManagement.m_storedUserData.userData.Length-1)
+            {
+                LocalUserData[] newUserData = new LocalUserData[UserAccountManagement.m_storedUserData.activeUserIndex+1];
+                Array.Copy(UserAccountManagement.m_storedUserData.userData, newUserData,
+                           UserAccountManagement.m_storedUserData.userData.Length);
+
+                newUserData[UserAccountManagement.m_storedUserData.activeUserIndex]
+                = UserAccountManagement.m_activeUserData;
+
+                UserAccountManagement.m_storedUserData.userData = newUserData;
+            }
+
+            // write file
+            byte[] fileData = UserAccountManagement.GenerateUserFileData(UserAccountManagement.m_storedUserData);
+            UserAccountManagement.TryWriteUserDataFile(fileData);
         }
 
+        // ---------[ USER ACTIONS ]---------
         /// <summary>Returns the enabled mods for the active user.</summary>
         public static List<int> GetEnabledModIds()
         {
@@ -288,6 +311,15 @@ namespace ModIO
             }
 
             UserAccountManagement.m_activeUserData.enabledModIds = modIdArray;
+        }
+
+        // ---------[ UTILITY ]---------
+        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
+        public static void MarkAuthTokenRejected()
+        {
+            UserAuthenticationData data = UserAuthenticationData.instance;
+            data.wasTokenRejected = true;
+            UserAuthenticationData.instance = data;
         }
 
         // ---------[ AUTHENTICATION ]---------
