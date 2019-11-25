@@ -1,6 +1,6 @@
 using Int64 = System.Int64;
 
-namespace ModIO.UI
+namespace ModIO
 {
     /// <summary>Formatting a field value for UI display.</summary>
     [System.Serializable]
