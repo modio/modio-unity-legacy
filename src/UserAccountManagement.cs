@@ -59,6 +59,15 @@ namespace ModIO
             {
                 UserAccountManagement.m_storedUserData = new StoredUserData();
                 UserAccountManagement.m_storedUserData.activeUserIndex = -1;
+            }
+
+            // load user data
+            LocalUserData[] userDataArray = UserAccountManagement.m_storedUserData.userData;
+
+            if(UserAccountManagement.m_storedUserData.activeUserIndex < 0
+               || UserAccountManagement.m_storedUserData.activeUserIndex > userDataArray.Length - 1)
+            {
+                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
 
                 UserAccountManagement.m_activeUserData = new LocalUserData()
                 {
@@ -67,7 +76,10 @@ namespace ModIO
                     enabledModIds = new int[0],
                 };
             }
-
+            else
+            {
+                UserAccountManagement.m_activeUserData = userDataArray[UserAccountManagement.m_storedUserData.activeUserIndex];
+            }
         }
 
         /// <summary>Load user data file.</summary>
@@ -263,26 +275,27 @@ namespace ModIO
         /// <summary>Takes any changes in m_activeUserData and writes them to disk.</summary>
         private static void WriteActiveUserData()
         {
+            int activeUserIndex = UserAccountManagement.m_storedUserData.activeUserIndex;
+
             // check if exists
-            if(UserAccountManagement.m_storedUserData.activeUserIndex < 0)
+            if(activeUserIndex < 0)
             {
-                UserAccountManagement.m_storedUserData.activeUserIndex
-                = UserAccountManagement.m_storedUserData.userData.Length;
+                activeUserIndex = UserAccountManagement.m_storedUserData.userData.Length;
             }
 
             // update array size
-            if(UserAccountManagement.m_storedUserData.activeUserIndex >
-               UserAccountManagement.m_storedUserData.userData.Length-1)
+            if(activeUserIndex > UserAccountManagement.m_storedUserData.userData.Length-1)
             {
-                LocalUserData[] newUserData = new LocalUserData[UserAccountManagement.m_storedUserData.activeUserIndex+1];
+                LocalUserData[] newUserData = new LocalUserData[activeUserIndex+1];
                 Array.Copy(UserAccountManagement.m_storedUserData.userData, newUserData,
                            UserAccountManagement.m_storedUserData.userData.Length);
 
-                newUserData[UserAccountManagement.m_storedUserData.activeUserIndex]
-                = UserAccountManagement.m_activeUserData;
-
                 UserAccountManagement.m_storedUserData.userData = newUserData;
             }
+
+            // Update stored data
+            UserAccountManagement.m_storedUserData.activeUserIndex = activeUserIndex;
+            UserAccountManagement.m_storedUserData.userData[activeUserIndex] = UserAccountManagement.m_activeUserData;
 
             // write file
             byte[] fileData = UserAccountManagement.GenerateUserFileData(UserAccountManagement.m_storedUserData);
