@@ -42,6 +42,17 @@ namespace ModIO
         };
 
         // ---------[ DATA LOADING ]---------
+        static UserAccountManagement()
+        {
+            byte[] userFileData = UserAccountManagement.ReadUserDataFile();
+            LocalUserData[] cachedData = UserAccountManagement.ParseUserFileData(userFileData);
+
+            Debug.Log("Loaded Cached User Data: "
+                      + cachedData.Length.ToString()
+                      + " users found in "
+                      + ValueFormatting.ByteCount(userFileData.Length, "0"));
+        }
+
         /// <summary>Load user data file.</summary>
         private static byte[] ReadUserDataFile()
         {
@@ -175,7 +186,7 @@ namespace ModIO
         }
 
         /// <summary>Parses user data file.</summary>
-        private static LocalUserData[] ParseUserDataFile(byte[] data)
+        private static LocalUserData[] ParseUserFileData(byte[] data)
         {
             // early out
             if(data == null || data.Length == 0)
@@ -204,7 +215,7 @@ namespace ModIO
         }
 
         /// <summary>Generates user data file.</summary>
-        private static byte[] GenerateUserDataFile(LocalUserData[] userData)
+        private static byte[] GenerateUserFileData(LocalUserData[] userData)
         {
             if(userData == null)
             {
