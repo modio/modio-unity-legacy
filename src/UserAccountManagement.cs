@@ -47,10 +47,17 @@ namespace ModIO
             byte[] userFileData = UserAccountManagement.ReadUserDataFile();
             LocalUserData[] cachedData = UserAccountManagement.ParseUserFileData(userFileData);
 
+            int userDataCount = 0;
+            if(cachedData != null)
+            {
+                userDataCount = cachedData.Length;
+            }
+
             Debug.Log("Loaded Cached User Data: "
-                      + cachedData.Length.ToString()
+                      + userDataCount.ToString()
                       + " users found in "
-                      + ValueFormatting.ByteCount(userFileData.Length, "0"));
+                      + ValueFormatting.ByteCount(userFileData == null ? 0 : userFileData.Length, "0"));
+
         }
 
         /// <summary>Load user data file.</summary>
@@ -59,9 +66,9 @@ namespace ModIO
             byte[] data;
 
             #if UNITY_EDITOR
-                // NOTE(@jackson): ".modio" is banned on Mac
                 string filePath = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                          "modio~",
+                                                          "Editor Default Resources",
+                                                          "modio",
                                                           "user.data");
 
                 data = IOUtilities.LoadBinaryFile(filePath);
@@ -133,9 +140,9 @@ namespace ModIO
             }
 
             #if UNITY_EDITOR
-                // NOTE(@jackson): ".modio" is banned on Mac
                 string filePath = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                          "modio~",
+                                                          "Editor Default Resources",
+                                                          "modio",
                                                           "user.data");
 
                 success = IOUtilities.WriteBinaryFile(filePath, data);
@@ -191,7 +198,7 @@ namespace ModIO
             // early out
             if(data == null || data.Length == 0)
             {
-                return new LocalUserData[0];
+                return null;
             }
 
             // attempt to parse data
