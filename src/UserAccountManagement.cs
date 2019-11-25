@@ -12,6 +12,9 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
+
+using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
 
@@ -37,6 +40,7 @@ namespace ModIO
             localUserId = null,
             enabledModIds = new int[0],
         };
+
         // ---------[ DATA LOADING ]---------
         /// <summary>Load user data file.</summary>
         private static byte[] ReadUserDataFile()
@@ -162,6 +166,35 @@ namespace ModIO
             #endif
 
             return success;
+        }
+
+        /// <summary>Parses user data file.</summary>
+        private static LocalUserData[] ParseUserDataFile(byte[] data)
+        {
+            // early out
+            if(data == null || data.Length == 0)
+            {
+                return new LocalUserData[0];
+            }
+
+            // attempt to parse data
+            LocalUserData[] userArray = null;
+            try
+            {
+                string dataString = Encoding.UTF8.GetString(data);
+                userArray = JsonConvert.DeserializeObject<LocalUserData[]>(dataString);
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to parse user data from file.");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+
+                userArray = new LocalUserData[0];
+            }
+
+            return userArray;
         }
 
         // ---------[ UTILITY ]---------
