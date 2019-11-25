@@ -115,6 +115,12 @@ namespace ModIO
         {
             bool success = false;
 
+            if(data == null)
+            {
+                Debug.LogWarning("[mod.io] Attempted to write null-data file.");
+                data = new byte[0];
+            }
+
             #if UNITY_EDITOR
                 // NOTE(@jackson): ".modio" is banned on Mac
                 string filePath = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
@@ -195,6 +201,35 @@ namespace ModIO
             }
 
             return userArray;
+        }
+
+        /// <summary>Generates user data file.</summary>
+        private static byte[] GenerateUserDataFile(LocalUserData[] userData)
+        {
+            if(userData == null)
+            {
+                userData = new LocalUserData[0];
+            }
+
+            // create json data bytes
+            byte[] data = null;
+
+            try
+            {
+                string dataString = JsonConvert.SerializeObject(userData);
+                data = Encoding.UTF8.GetBytes(dataString);
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to generate user file data.");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+
+                data = new byte[0];
+            }
+
+            return data;
         }
 
         // ---------[ UTILITY ]---------
