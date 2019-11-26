@@ -1,3 +1,4 @@
+// #define DISABLE_EDITOR
 // #define ENABLE_STEAMWORKS_FACEPUNCH
 // #define ENABLE_STEAMWORKS_NET
 // #define ENABLE_STEAM_OTHER
@@ -420,15 +421,8 @@ namespace ModIO
         }
         #endif
 
-        // ---------[ PLATFORM SPECIFIC FUNCTIONS ]---------
-        #if UNITY_EDITOR
-
-            /// <summary>Directory for the user data.</summary>
-            public static readonly string USERDATA_DIRECTORY
-            = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                      "Editor Default Resources",
-                                      "modio",
-                                      "users");
+        // ---------[ PLATFORM SPECIFIC I/O ]---------
+        #if UNITY_EDITOR && !DISABLE_EDITOR
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
             private static PlatformFunctions GetPlatformFunctions()
@@ -453,7 +447,10 @@ namespace ModIO
                     fileIdentifier = IOUtilities.ReplaceInvalidPathCharacters(fileIdentifier, "_");
                 }
 
-                string filePath = IOUtilities.CombinePath(UserAccountManagement.USERDATA_DIRECTORY,
+                string filePath = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                          "Editor Default Resources",
+                                                          "modio",
+                                                          "users",
                                                           fileIdentifier + ".user");
                 return filePath;
             }
@@ -602,32 +599,53 @@ namespace ModIO
 
         #elif UNITY_STANDALONE_OSX
 
-            /// <summary>Filename for the user data file.</summary>
-            public static readonly string USERDATA_FILEPATH
-            = ("~/Library/Application Support/mod.io/"
-               + "game-" + PluginSettings.data.gameId
-               + "/user.data");
-
-            /// <summary>Loads the Read/Write functions. (Mac Application)</summary>
-            private static void LoadFileIOFunctions()
+            /// <summary>Returns the platform specific functions. (Mac Application)</summary>
+            private static PlatformFunctions GetPlatformFunctions()
             {
-                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_MacOS;
-                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_MacOS;
+                return new PlatformFunctions()
+                {
+                    GenerateUserDataFilePath = GenerateUserDataFilePath_MacOS,
+                    ReadUserDataFile = ReadUserDataFile_MacOS,
+                    WriteUserDataFile = WriteUserDataFile_MacOS,
+                };
+            }
+
+            /// <summary>Generates the file path for the given file identifier. (Mac Application)</summary>
+            private static string GenerateUserDataFilePath_MacOS(string fileIdentifier)
+            {
+                if(string.IsNullOrEmpty(fileIdentifier))
+                {
+                    fileIdentifier = "default";
+                }
+                else
+                {
+                    fileIdentifier = IOUtilities.ReplaceInvalidPathCharacters(fileIdentifier, "_");
+                }
+
+                string filePath = ("~/Library/Application Support/mod.io/game-"
+                                   + PluginSettings.data.gameId
+                                   + "/users/"
+                                   + fileIdentifier + ".user");
+                return filePath;
             }
 
             /// <summary>Loads the user data file. (Mac Application)</summary>
-            public static byte[] ReadUserDataFile_MacOS()
+            public static byte[] ReadUserDataFile_MacOS(string filePath)
             {
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
+
                 byte[] data = null;
-                data = IOUtilities.LoadBinaryFile(UserAccountManagement.USERDATA_FILEPATH);
+                data = IOUtilities.LoadBinaryFile(filePath);
                 return data;
             }
 
             /// <summary>Writes the user data file. (Mac Application)</summary>
-            public static bool WriteUserDataFile_MacOS(byte[] data)
+            public static bool WriteUserDataFile_MacOS(string filePath, byte[] data)
             {
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
+
                 bool success = false;
-                success = IOUtilities.WriteBinaryFile(UserAccountManagement.USERDATA_FILEPATH, data);
+                success = IOUtilities.WriteBinaryFile(filePath, data);
                 return success;
             }
 
