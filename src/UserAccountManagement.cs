@@ -29,7 +29,7 @@ namespace ModIO
         private class StoredUserData
         {
             public int activeUserIndex = -1;
-            public LocalUserData[] userData = new LocalUserData[0];
+            public LocalUserData[] userData = null;
         }
 
         // ---------[ CONSTANTS ]---------
@@ -67,6 +67,7 @@ namespace ModIO
             {
                 UserAccountManagement.m_storedUserData = new StoredUserData();
                 UserAccountManagement.m_storedUserData.activeUserIndex = -1;
+                UserAccountManagement.m_storedUserData.userData = new LocalUserData[0];
             }
 
             // load user data
@@ -80,7 +81,6 @@ namespace ModIO
                 UserAccountManagement.m_activeUserData = new LocalUserData()
                 {
                     modioUserId = ModProfile.NULL_ID,
-                    localUserId = null,
                     enabledModIds = new int[0],
                 };
             }
