@@ -48,9 +48,17 @@ namespace ModIO
         /// <summary>User data for the currently active user.</summary>
         private static LocalUserData m_activeUserData;
 
+        /// <summary>Function used to read the user data.</summary>
+        public static Func<byte[]> ReadUserDataFile = null;
+
+        /// <summary>Function used to read the user data.</summary>
+        public static Func<byte[], bool> WriteUserDataFile = null;
+
         // ---------[ DATA LOADING ]---------
         static UserAccountManagement()
         {
+            UserAccountManagement.LoadFileIOFunctions();
+
             byte[] userFileData = UserAccountManagement.ReadUserDataFile();
             UserAccountManagement.m_storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
 
@@ -80,138 +88,6 @@ namespace ModIO
             {
                 UserAccountManagement.m_activeUserData = userDataArray[UserAccountManagement.m_storedUserData.activeUserIndex];
             }
-        }
-
-        /// <summary>Load user data file.</summary>
-        private static byte[] ReadUserDataFile()
-        {
-            byte[] data;
-
-            #if UNITY_EDITOR
-                string filePath = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                          "Editor Default Resources",
-                                                          "modio",
-                                                          "user.data");
-
-                data = IOUtilities.LoadBinaryFile(filePath);
-
-            #elif ENABLE_STEAMWORKS_FACEPUNCH
-                string filePath = "modio_user.data";
-
-                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
-                {
-                    data = Steamworks.SteamRemoteStorage.FileRead(filePath);
-                }
-
-            #elif ENABLE_STEAMWORKS_NET
-                string filePath = "modio_user.data";
-
-                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
-                {
-                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(filePath);
-
-                    if(fileSize > 0)
-                    {
-                        if(fileSize > 1024) { fileSize = 1024; }
-
-                        data = new byte[fileSize];
-                        Steamworks.SteamRemoteStorage.FileRead(filePath, data, fileSize);
-                    }
-                }
-
-            #elif UNITY_STANDALONE_WIN
-                string filePath = IOUtilities.Combine("%APPDATA%",
-                                                      "modio",
-                                                      "game-" + PluginSettings.data.gameId,
-                                                      "user.data");
-
-                data = IOUtilities.LoadBinaryFile(filePath);
-
-            #elif UNITY_STANDALONE_OSX
-                string filePath = ("~/Library/Application Support/mod.io/"
-                                   + "game-" + PluginSettings.data.gameId
-                                   + "/user.data");
-
-                data = IOUtilities.LoadBinaryFile(filePath);
-
-            #elif UNITY_STANDALONE_LINUX
-                string filePath = ("~/.config/mod.io/"
-                                   + "game-" + PluginSettings.data.gameId
-                                   + "/user.data");
-
-                data = IOUtilities.LoadBinaryFile(filePath);
-
-            #else
-                throw new System.NotImplementedException("[mod.io] The loading of user data for this"
-                                                         + " build definition has not been implemented.");
-
-            #endif
-
-            return data;
-        }
-
-        /// <summary>Writes data to the user data file.</summary>
-        private static bool TryWriteUserDataFile(byte[] data)
-        {
-            bool success = false;
-
-            if(data == null)
-            {
-                Debug.LogWarning("[mod.io] Attempted to write null-data file.");
-                data = new byte[0];
-            }
-
-            #if UNITY_EDITOR
-                string filePath = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                          "Editor Default Resources",
-                                                          "modio",
-                                                          "user.data");
-
-                success = IOUtilities.WriteBinaryFile(filePath, data);
-
-            #elif ENABLE_STEAMWORKS_FACEPUNCH
-                string filePath = "modio_user.data";
-
-                success = Steamworks.SteamRemoteStorage.FileWrite(filePath, data);
-
-            #elif ENABLE_STEAMWORKS_NET
-                string filePath = "modio_user.data";
-                int fileSize = data.Length;
-
-                // TODO(@jackson): Verify a good max size!
-                if(fileSize > 1024) { fileSize = 1024; }
-
-                success = Steamworks.SteamRemoteStorage.FileRead(filePath, data, fileSize);
-
-            #elif UNITY_STANDALONE_WIN
-                string filePath = IOUtilities.Combine("%APPDATA%",
-                                                      "modio",
-                                                      "game-" + PluginSettings.data.gameId,
-                                                      "user.data");
-
-                success = IOUtilities.WriteBinaryFile(filePath, data);
-
-            #elif UNITY_STANDALONE_OSX
-                string filePath = ("~/Library/Application Support/mod.io/"
-                                   + "game-" + PluginSettings.data.gameId
-                                   + "/user.data");
-
-                success = IOUtilities.WriteBinaryFile(filePath, data);
-
-            #elif UNITY_STANDALONE_LINUX
-                string filePath = ("~/.config/mod.io/"
-                                   + "game-" + PluginSettings.data.gameId
-                                   + "/user.data");
-
-                success = IOUtilities.WriteBinaryFile(filePath, data);
-
-            #else
-                throw new System.NotImplementedException("[mod.io] The loading of user data for this"
-                                                         + " build definition has not been implemented.");
-
-            #endif
-
-            return success;
         }
 
         /// <summary>Parses user data file.</summary>
@@ -299,7 +175,7 @@ namespace ModIO
 
             // write file
             byte[] fileData = UserAccountManagement.GenerateUserFileData(UserAccountManagement.m_storedUserData);
-            UserAccountManagement.TryWriteUserDataFile(fileData);
+            UserAccountManagement.WriteUserDataFile(fileData);
         }
 
         // ---------[ USER ACTIONS ]---------
@@ -509,6 +385,226 @@ namespace ModIO
             },
             onError);
         }
+        #endif
+
+        // ---------[ PLATFORM SPECIFIC FUNCTIONS ]---------
+        #if UNITY_EDITOR
+
+            /// <summary>Filename for the user data file.</summary>
+            public static readonly string USERDATA_FILEPATH
+            = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                      "Editor Default Resources",
+                                      "modio",
+                                      "user.data");
+
+            /// <summary>Loads the Read/Write functions. (Unity Editor)</summary>
+            private static void LoadFileIOFunctions()
+            {
+                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_Editor;
+                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_Editor;
+            }
+
+            /// <summary>Loads the user data file. (Unity Editor)</summary>
+            public static byte[] ReadUserDataFile_Editor()
+            {
+                byte[] data = null;
+                data = IOUtilities.LoadBinaryFile(UserAccountManagement.USERDATA_FILEPATH);
+                return data;
+            }
+
+            /// <summary>Writes the user data file. (Unity Editor)</summary>
+            public static bool WriteUserDataFile_Editor(byte[] data)
+            {
+                bool success = false;
+                success = IOUtilities.WriteBinaryFile(UserAccountManagement.USERDATA_FILEPATH, data);
+                return success;
+            }
+
+
+        #elif ENABLE_STEAMWORKS_FACEPUNCH
+
+            /// <summary>Filename for the user data file.</summary>
+            public static readonly string USERDATA_FILEPATH = "modio_user.data";
+
+            /// <summary>Loads the Read/Write functions. (Facepunch.Steamworks)</summary>
+            private static void LoadFileIOFunctions()
+            {
+                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_Facepunch;
+                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_Facepunch;
+            }
+
+            /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
+            public static byte[] ReadUserDataFile_Facepunch()
+            {
+                byte[] data = null;
+
+                if(Steamworks.SteamRemoteStorage.FileExists(UserAccountManagement.USERDATA_FILEPATH))
+                {
+                    data = Steamworks.SteamRemoteStorage.FileRead(UserAccountManagement.USERDATA_FILEPATH);
+                }
+
+                return data;
+            }
+
+            /// <summary>Writes the user data file. (Facepunch.Steamworks)</summary>
+            public static bool WriteUserDataFile_Facepunch(byte[] data)
+            {
+                bool success = false;
+                success = Steamworks.SteamRemoteStorage.FileWrite(UserAccountManagement.USERDATA_FILEPATH, data);
+                return success;
+            }
+
+        #elif ENABLE_STEAMWORKS_NET
+
+            /// <summary>Filename for the user data file.</summary>
+            public static readonly string USERDATA_FILEPATH = "modio_user.data";
+
+            /// <summary>Filesize limitation for the user data file.</summary>
+            public readonly int USERDATA_MAXSIZE = 1024;
+
+            /// <summary>Loads the Read/Write functions. (Steamworks.NET)</summary>
+            private static void LoadFileIOFunctions()
+            {
+                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_SteamworksNET;
+                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_SteamworksNET;
+            }
+
+            /// <summary>Loads the user data file. (Steamworks.NET)</summary>
+            public static byte[] ReadUserDataFile_SteamworksNET()
+            {
+                byte[] data = null;
+
+                if(Steamworks.SteamRemoteStorage.FileExists(UserAccountManagement.USERDATA_FILEPATH))
+                {
+                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(UserAccountManagement.USERDATA_FILEPATH);
+
+                    if(fileSize > 0)
+                    {
+                        if(fileSize > UserAccountManagement.USERDATA_MAXSIZE)
+                        {
+                            fileSize = UserAccountManagement.USERDATA_MAXSIZE;
+                        }
+
+                        data = new byte[fileSize];
+                        Steamworks.SteamRemoteStorage.FileRead(UserAccountManagement.USERDATA_FILEPATH,
+                                                               data, fileSize);
+                    }
+                }
+
+                return data;
+            }
+
+            /// <summary>Writes the user data file. (Steamworks.NET)</summary>
+            public static bool WriteUserDataFile_SteamworksNET(byte[] data)
+            {
+                bool success = false;
+
+                int fileSize = data.Length;
+
+                if(fileSize > UserAccountManagement.USERDATA_MAXSIZE)
+                {
+                    fileSize = UserAccountManagement.USERDATA_MAXSIZE;
+                }
+
+                success = Steamworks.SteamRemoteStorage.FileRead(UserAccountManagement.USERDATA_FILEPATH, data, fileSize);
+
+                return success;
+            }
+
+        #elif UNITY_STANDALONE_WIN
+
+            /// <summary>Filename for the user data file.</summary>
+            public static readonly string USERDATA_FILEPATH
+            = IOUtilities.Combine("%APPDATA%",
+                                  "modio",
+                                  "game-" + PluginSettings.data.gameId,
+                                  "user.data");
+
+            /// <summary>Loads the Read/Write functions. (Windows Executable)</summary>
+            private static void LoadFileIOFunctions()
+            {
+                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_Windows;
+                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_Windows;
+            }
+
+            /// <summary>Loads the user data file. (Windows Executable)</summary>
+            public static byte[] ReadUserDataFile_Windows()
+            {
+                byte[] data = null;
+                data = IOUtilities.LoadBinaryFile(UserAccountManagement.USERDATA_FILEPATH);
+                return data;
+            }
+
+            /// <summary>Writes the user data file. (Windows Executable)</summary>
+            public static bool WriteUserDataFile_Windows(byte[] data)
+            {
+                bool success = false;
+                success = IOUtilities.WriteBinaryFile(UserAccountManagement.USERDATA_FILEPATH, data);
+                return success;
+            }
+
+        #elif UNITY_STANDALONE_OSX
+
+            /// <summary>Filename for the user data file.</summary>
+            public static readonly string USERDATA_FILEPATH
+            = ("~/Library/Application Support/mod.io/"
+               + "game-" + PluginSettings.data.gameId
+               + "/user.data");
+
+            /// <summary>Loads the Read/Write functions. (Mac Application)</summary>
+            private static void LoadFileIOFunctions()
+            {
+                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_MacOS;
+                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_MacOS;
+            }
+
+            /// <summary>Loads the user data file. (Mac Application)</summary>
+            public static byte[] ReadUserDataFile_MacOS()
+            {
+                byte[] data = null;
+                data = IOUtilities.LoadBinaryFile(UserAccountManagement.USERDATA_FILEPATH);
+                return data;
+            }
+
+            /// <summary>Writes the user data file. (Mac Application)</summary>
+            public static bool WriteUserDataFile_MacOS(byte[] data)
+            {
+                bool success = false;
+                success = IOUtilities.WriteBinaryFile(UserAccountManagement.USERDATA_FILEPATH, data);
+                return success;
+            }
+
+        #elif UNITY_STANDALONE_LINUX
+
+            /// <summary>Filename for the user data file.</summary>
+            public static readonly string USERDATA_FILEPATH
+            = ("~/.config/mod.io/"
+               + "game-" + PluginSettings.data.gameId
+               + "/user.data");
+
+            /// <summary>Loads the Read/Write functions. (Linux Standalone)</summary>
+            private static void LoadFileIOFunctions()
+            {
+                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_Linux;
+                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_Linux;
+            }
+
+            /// <summary>Loads the user data file. (Linux Standalone)</summary>
+            public static byte[] ReadUserDataFile_Linux()
+            {
+                byte[] data = null;
+                data = IOUtilities.LoadBinaryFile(UserAccountManagement.USERDATA_FILEPATH);
+                return data;
+            }
+
+            /// <summary>Writes the user data file. (Linux Standalone)</summary>
+            public static bool WriteUserDataFile_Linux(byte[] data)
+            {
+                bool success = false;
+                success = IOUtilities.WriteBinaryFile(UserAccountManagement.USERDATA_FILEPATH, data);
+                return success;
+            }
+
         #endif
     }
 }
