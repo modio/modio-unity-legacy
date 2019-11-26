@@ -64,39 +64,7 @@ namespace ModIO
         static UserAccountManagement()
         {
             UserAccountManagement.LoadFileIOFunctions();
-
-            string filePath = UserAccountManagement._GenerateUserDataFilePath(null);
-            UserAccountManagement.m_activeUserDataFilePath = filePath;
-
-            byte[] userFileData = UserAccountManagement.ReadUserDataFile(filePath);
-            UserAccountManagement.m_storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
-
-            // set initial values if no data
-            if(UserAccountManagement.m_storedUserData == null)
-            {
-                UserAccountManagement.m_storedUserData = new StoredUserData();
-                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
-                UserAccountManagement.m_storedUserData.userData = new LocalUserData[0];
-            }
-
-            // load user data
-            LocalUserData[] userDataArray = UserAccountManagement.m_storedUserData.userData;
-
-            if(UserAccountManagement.m_storedUserData.activeUserIndex < 0
-               || UserAccountManagement.m_storedUserData.activeUserIndex > userDataArray.Length - 1)
-            {
-                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
-
-                UserAccountManagement.m_activeUserData = new LocalUserData()
-                {
-                    modioUserId = ModProfile.NULL_ID,
-                    enabledModIds = new int[0],
-                };
-            }
-            else
-            {
-                UserAccountManagement.m_activeUserData = userDataArray[UserAccountManagement.m_storedUserData.activeUserIndex];
-            }
+            UserAccountManagement.SetLocalUserAsActive(null);
         }
 
         /// <summary>Parses user data file.</summary>
@@ -185,6 +153,50 @@ namespace ModIO
             // write file
             byte[] fileData = UserAccountManagement.GenerateUserFileData(UserAccountManagement.m_storedUserData);
             UserAccountManagement.WriteUserDataFile(UserAccountManagement.m_activeUserDataFilePath, fileData);
+        }
+
+        /// <summary>Loads the user data for the local user with the given identifier.</summary>
+        public static void SetLocalUserAsActive(string localUserId)
+        {
+            // generate file path
+            string filePath = UserAccountManagement._GenerateUserDataFilePath(localUserId);
+            if(filePath == UserAccountManagement.m_activeUserDataFilePath)
+            {
+                return;
+            }
+
+            UserAccountManagement.m_activeUserDataFilePath = filePath;
+
+            // load data
+            byte[] userFileData = UserAccountManagement.ReadUserDataFile(filePath);
+            UserAccountManagement.m_storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
+
+            // set initial values if no data
+            if(UserAccountManagement.m_storedUserData == null)
+            {
+                UserAccountManagement.m_storedUserData = new StoredUserData();
+                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
+                UserAccountManagement.m_storedUserData.userData = new LocalUserData[0];
+            }
+
+            // load user data
+            LocalUserData[] userDataArray = UserAccountManagement.m_storedUserData.userData;
+
+            if(UserAccountManagement.m_storedUserData.activeUserIndex < 0
+               || UserAccountManagement.m_storedUserData.activeUserIndex > userDataArray.Length - 1)
+            {
+                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
+
+                UserAccountManagement.m_activeUserData = new LocalUserData()
+                {
+                    modioUserId = ModProfile.NULL_ID,
+                    enabledModIds = new int[0],
+                };
+            }
+            else
+            {
+                UserAccountManagement.m_activeUserData = userDataArray[UserAccountManagement.m_storedUserData.activeUserIndex];
+            }
         }
 
         // ---------[ USER ACTIONS ]---------
