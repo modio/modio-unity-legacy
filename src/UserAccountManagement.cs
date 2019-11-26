@@ -32,6 +32,14 @@ namespace ModIO
             public LocalUserData[] userData = null;
         }
 
+        /// <summary>The collection of platform specific functions.</summary>
+        private struct PlatformFunctions
+        {
+            public Func<string, string> GenerateUserDataFilePath;
+            public Func<string, byte[]> ReadUserDataFile;
+            public Func<string, byte[], bool> WriteUserDataFile;
+        }
+
         // ---------[ CONSTANTS ]---------
         #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
             public static readonly string PROFILE_URL_POSTFIX = "?ref=steam";
@@ -52,18 +60,22 @@ namespace ModIO
         private static string m_activeUserDataFilePath;
 
         /// <summary>Function used to the file path for the user data.</summary>
-        private static Func<string, string> _GenerateUserDataFilePath = null;
+        private readonly static Func<string, string> _GenerateUserDataFilePath = null;
 
         /// <summary>Function used to read the user data.</summary>
-        public static Func<string, byte[]> ReadUserDataFile = null;
+        public readonly static Func<string, byte[]> ReadUserDataFile = null;
 
         /// <summary>Function used to read the user data.</summary>
-        public static Func<string, byte[], bool> WriteUserDataFile = null;
+        public readonly static Func<string, byte[], bool> WriteUserDataFile = null;
 
         // ---------[ DATA LOADING ]---------
         static UserAccountManagement()
         {
-            UserAccountManagement.LoadFileIOFunctions();
+            PlatformFunctions functions = UserAccountManagement.GetPlatformFunctions();
+            UserAccountManagement._GenerateUserDataFilePath = functions.GenerateUserDataFilePath;
+            UserAccountManagement.ReadUserDataFile = functions.ReadUserDataFile;
+            UserAccountManagement.WriteUserDataFile = functions.WriteUserDataFile;
+
             UserAccountManagement.SetLocalUserAsActive(null);
         }
 
@@ -418,12 +430,15 @@ namespace ModIO
                                       "modio",
                                       "users");
 
-            /// <summary>Loads the Read/Write functions. (Unity Editor)</summary>
-            private static void LoadFileIOFunctions()
+            /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
+            private static PlatformFunctions GetPlatformFunctions()
             {
-                UserAccountManagement._GenerateUserDataFilePath = GenerateUserDataFilePath_Editor;
-                UserAccountManagement.ReadUserDataFile = ReadUserDataFile_Editor;
-                UserAccountManagement.WriteUserDataFile = WriteUserDataFile_Editor;
+                return new PlatformFunctions()
+                {
+                    GenerateUserDataFilePath = GenerateUserDataFilePath_Editor,
+                    ReadUserDataFile = ReadUserDataFile_Editor,
+                    WriteUserDataFile = WriteUserDataFile_Editor,
+                };
             }
 
             /// <summary>Generates the file path for the given file identifier. (Unity Editor)</summary>
