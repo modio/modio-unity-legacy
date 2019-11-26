@@ -48,18 +48,27 @@ namespace ModIO
         /// <summary>User data for the currently active user.</summary>
         private static LocalUserData m_activeUserData;
 
-        /// <summary>Function used to read the user data.</summary>
-        public static Func<byte[]> ReadUserDataFile = null;
+        /// <summary>File path to the active user data file.</summary>
+        private static string m_activeUserDataFilePath;
+
+        /// <summary>Function used to the file path for the user data.</summary>
+        private static Func<string, string> _GenerateUserDataFilePath = null;
 
         /// <summary>Function used to read the user data.</summary>
-        public static Func<byte[], bool> WriteUserDataFile = null;
+        public static Func<string, byte[]> ReadUserDataFile = null;
+
+        /// <summary>Function used to read the user data.</summary>
+        public static Func<string, byte[], bool> WriteUserDataFile = null;
 
         // ---------[ DATA LOADING ]---------
         static UserAccountManagement()
         {
             UserAccountManagement.LoadFileIOFunctions();
 
-            byte[] userFileData = UserAccountManagement.ReadUserDataFile();
+            string filePath = UserAccountManagement._GenerateUserDataFilePath(null);
+            UserAccountManagement.m_activeUserDataFilePath = filePath;
+
+            byte[] userFileData = UserAccountManagement.ReadUserDataFile(filePath);
             UserAccountManagement.m_storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
 
             // set initial values if no data
@@ -175,7 +184,7 @@ namespace ModIO
 
             // write file
             byte[] fileData = UserAccountManagement.GenerateUserFileData(UserAccountManagement.m_storedUserData);
-            UserAccountManagement.WriteUserDataFile(fileData);
+            UserAccountManagement.WriteUserDataFile(UserAccountManagement.m_activeUserDataFilePath, fileData);
         }
 
         // ---------[ USER ACTIONS ]---------
@@ -390,36 +399,57 @@ namespace ModIO
         // ---------[ PLATFORM SPECIFIC FUNCTIONS ]---------
         #if UNITY_EDITOR
 
-            /// <summary>Filename for the user data file.</summary>
-            public static readonly string USERDATA_FILEPATH
+            /// <summary>Directory for the user data.</summary>
+            public static readonly string USERDATA_DIRECTORY
             = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                       "Editor Default Resources",
                                       "modio",
-                                      "user.data");
+                                      "users");
 
             /// <summary>Loads the Read/Write functions. (Unity Editor)</summary>
             private static void LoadFileIOFunctions()
             {
+                UserAccountManagement._GenerateUserDataFilePath = GenerateUserDataFilePath_Editor;
                 UserAccountManagement.ReadUserDataFile = ReadUserDataFile_Editor;
                 UserAccountManagement.WriteUserDataFile = WriteUserDataFile_Editor;
             }
 
-            /// <summary>Loads the user data file. (Unity Editor)</summary>
-            public static byte[] ReadUserDataFile_Editor()
+            /// <summary>Generates the file path for the given file identifier. (Unity Editor)</summary>
+            private static string GenerateUserDataFilePath_Editor(string fileIdentifier)
             {
+                if(string.IsNullOrEmpty(fileIdentifier))
+                {
+                    fileIdentifier = "default";
+                }
+                else
+                {
+                    fileIdentifier = IOUtilities.ReplaceInvalidPathCharacters(fileIdentifier, "_");
+                }
+
+                string filePath = IOUtilities.CombinePath(UserAccountManagement.USERDATA_DIRECTORY,
+                                                          fileIdentifier + ".user");
+                return filePath;
+            }
+
+            /// <summary>Loads the user data file. (Unity Editor)</summary>
+            public static byte[] ReadUserDataFile_Editor(string filePath)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
+
                 byte[] data = null;
-                data = IOUtilities.LoadBinaryFile(UserAccountManagement.USERDATA_FILEPATH);
+                data = IOUtilities.LoadBinaryFile(filePath);
                 return data;
             }
 
             /// <summary>Writes the user data file. (Unity Editor)</summary>
-            public static bool WriteUserDataFile_Editor(byte[] data)
+            public static bool WriteUserDataFile_Editor(string filePath, byte[] data)
             {
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
+
                 bool success = false;
-                success = IOUtilities.WriteBinaryFile(UserAccountManagement.USERDATA_FILEPATH, data);
+                success = IOUtilities.WriteBinaryFile(filePath, data);
                 return success;
             }
-
 
         #elif ENABLE_STEAMWORKS_FACEPUNCH
 
