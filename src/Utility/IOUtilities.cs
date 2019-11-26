@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
-using UnityEngine;
+using System.Text.RegularExpressions;
+
 using Newtonsoft.Json;
 
-using Exception = System.Exception;
+using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
@@ -342,6 +344,17 @@ namespace ModIO
             }
 
             return folderName;
+        }
+
+        /// <summary>Replaces invalid file path characters.</summary>
+        public static string ReplaceInvalidPathCharacters(string filePath, string replacementString)
+        {
+            Debug.Assert(filePath != null);
+            Debug.Assert(replacementString != null);
+
+            string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            Regex r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
+            return r.Replace(filePath, replacementString);
         }
     }
 }
