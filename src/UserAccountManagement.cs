@@ -30,6 +30,7 @@ namespace ModIO
         private class StoredUserData
         {
             public int activeUserIndex = -1;
+            public UserProfile activeUserProfile = null;
             public LocalUserData[] userData = null;
         }
 
@@ -50,7 +51,10 @@ namespace ModIO
             public static readonly string PROFILE_URL_POSTFIX = string.Empty;
         #endif
 
-        // ---------[ DATA ]---------
+        // ---------[ FIELDS ]---------
+        /// <summary>User Profile for the currently active user.</summary>
+        public static UserProfile activeUserProfile;
+
         /// <summary>Currently loaded user data.</summary>
         private static StoredUserData m_storedUserData;
 
@@ -60,6 +64,7 @@ namespace ModIO
         /// <summary>File path to the active user data file.</summary>
         private static string m_activeUserDataFilePath;
 
+        // ---------[ DATA LOADING ]---------
         /// <summary>Function used to the file path for the user data.</summary>
         private readonly static Func<string, string> _GenerateUserDataFilePath = null;
 
@@ -69,7 +74,7 @@ namespace ModIO
         /// <summary>Function used to read the user data.</summary>
         public readonly static Func<string, byte[], bool> WriteUserDataFile = null;
 
-        // ---------[ DATA LOADING ]---------
+        /// <summary>Loads the platform-specific functionality and stored user data.</summary>
         static UserAccountManagement()
         {
             PlatformFunctions functions = UserAccountManagement.GetPlatformFunctions();
@@ -177,28 +182,29 @@ namespace ModIO
             {
                 return;
             }
-
             UserAccountManagement.m_activeUserDataFilePath = filePath;
 
             // load data
             byte[] userFileData = UserAccountManagement.ReadUserDataFile(filePath);
-            UserAccountManagement.m_storedUserData = UserAccountManagement.ParseStoredUserData(userFileData);
+            StoredUserData storedData = UserAccountManagement.ParseStoredUserData(userFileData);
 
             // set initial values if no data
-            if(UserAccountManagement.m_storedUserData == null)
+            if(storedData == null)
             {
-                UserAccountManagement.m_storedUserData = new StoredUserData();
-                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
-                UserAccountManagement.m_storedUserData.userData = new LocalUserData[0];
+                storedData = new StoredUserData();
+                storedData.activeUserIndex = -1;
+                storedData.activeUserProfile = null;
+                storedData.userData = new LocalUserData[0];
             }
+            Debug.Assert(storedData.userData != null);
 
             // load user data
-            LocalUserData[] userDataArray = UserAccountManagement.m_storedUserData.userData;
+            LocalUserData[] userDataArray = storedData.userData;
 
-            if(UserAccountManagement.m_storedUserData.activeUserIndex < 0
-               || UserAccountManagement.m_storedUserData.activeUserIndex > userDataArray.Length - 1)
+            if(storedData.activeUserIndex < 0
+               || storedData.activeUserIndex > userDataArray.Length - 1)
             {
-                UserAccountManagement.m_storedUserData.activeUserIndex = -1;
+                storedData.activeUserIndex = -1;
 
                 UserAccountManagement.m_activeUserData = new LocalUserData()
                 {
@@ -208,8 +214,22 @@ namespace ModIO
             }
             else
             {
-                UserAccountManagement.m_activeUserData = userDataArray[UserAccountManagement.m_storedUserData.activeUserIndex];
+                UserAccountManagement.m_activeUserData = userDataArray[storedData.activeUserIndex];
             }
+
+            if(storedData.activeUserProfile != null
+               && storedData.activeUserProfile.id == UserAccountManagement.m_activeUserData.modioUserId)
+            {
+                UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
+            }
+            else
+            {
+                storedData.activeUserProfile = null;
+                UserAccountManagement.activeUserProfile = null;
+            }
+
+            // set
+            UserAccountManagement.m_storedUserData = storedData;
         }
 
         // ---------[ USER ACTIONS ]---------
