@@ -40,18 +40,12 @@ namespace ModIO
             public Func<string, byte[], bool> WriteUserDataFile;
         }
 
-        // ---------[ CONSTANTS ]---------
-        #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
-            public static readonly string PROFILE_URL_POSTFIX = "?ref=steam";
-        #elif ENABLE_GOG_AUTHENTICATION
-            public static readonly string PROFILE_URL_POSTFIX = "?ref=gog";
-        #else
-            public static readonly string PROFILE_URL_POSTFIX = string.Empty;
-        #endif
-
         // ---------[ FIELDS ]---------
         /// <summary>User Profile for the currently active user.</summary>
-        public static UserProfile activeUserProfile;
+        public static UserProfile activeUserProfile = null;
+
+        /// <summary>URL Postfix for the authentication method.</summary>
+        public static string authMethodURLPostfix = string.Empty;
 
         /// <summary>Currently loaded user data.</summary>
         private static StoredUserData m_storedUserData;

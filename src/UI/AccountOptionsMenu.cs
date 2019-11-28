@@ -82,7 +82,7 @@ namespace ModIO.UI
                        && p != null
                        && userData.userId == p.id)
                     {
-                        string profileURL = p.profileURL + @"/edit" + UserAccountManagement.PROFILE_URL_POSTFIX;
+                        string profileURL = p.profileURL + @"/edit" + UserAccountManagement.authMethodURLPostfix;
                         Application.OpenURL(profileURL);
                         this.viewProfileButton.interactable = true;
                     }
