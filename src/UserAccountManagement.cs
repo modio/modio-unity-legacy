@@ -27,7 +27,6 @@ namespace ModIO
         [System.Serializable]
         private class StoredUserData
         {
-            public int activeUserIndex = -1;
             public UserProfile activeUserProfile = null;
             public LocalUserData[] userData = null;
         }
@@ -135,38 +134,54 @@ namespace ModIO
             return data;
         }
 
-        /// <summary>Takes any changes in m_activeUserData and writes them to disk.</summary>
-        private static void WriteActiveUserData()
+        /// <summary>Writes the active user data to disk.</summary>
+        public static void WriteActiveUserData()
         {
-            int activeUserIndex = UserAccountManagement.m_storedUserData.activeUserIndex;
+            StoredUserData storedData = UserAccountManagement.m_storedUserData;
+            int activeUserIndex = -1;
+            int activeUserId = ModProfile.NULL_ID;
 
-            // check if exists
-            if(activeUserIndex < 0)
+            if(UserAccountManagement.activeUserProfile != null)
             {
-                activeUserIndex = UserAccountManagement.m_storedUserData.userData.Length;
+                activeUserId = UserAccountManagement.activeUserProfile.id;
             }
 
-            // update array size
-            if(activeUserIndex > UserAccountManagement.m_storedUserData.userData.Length-1)
+            // get active user index
+            for(int i = 0;
+                i < storedData.userData.Length
+                && activeUserIndex == -1;
+                ++i)
             {
-                LocalUserData[] newUserData = new LocalUserData[activeUserIndex+1];
-                Array.Copy(UserAccountManagement.m_storedUserData.userData, newUserData,
-                           UserAccountManagement.m_storedUserData.userData.Length);
+                if(storedData.userData[i].modioUserId == activeUserId)
+                {
+                    activeUserIndex = i;
+                }
+            }
 
-                UserAccountManagement.m_storedUserData.userData = newUserData;
+            // create new data entry if necessary
+            if(activeUserIndex < 0)
+            {
+                LocalUserData[] newUserData = new LocalUserData[storedData.userData.Length];
+                Array.Copy(storedData.userData, newUserData, storedData.userData.Length);
+                storedData.userData = newUserData;
+
+                activeUserIndex = storedData.userData.Length;
             }
 
             // Update stored data
-            UserAccountManagement.m_storedUserData.activeUserIndex = activeUserIndex;
-            UserAccountManagement.m_storedUserData.userData[activeUserIndex] = UserAccountManagement.m_activeUserData;
+            storedData.activeUserProfile = UserAccountManagement.activeUserProfile;
+            storedData.userData[activeUserIndex] = UserAccountManagement.m_activeUserData;
 
             // write file
-            byte[] fileData = UserAccountManagement.GenerateUserFileData(UserAccountManagement.m_storedUserData);
+            byte[] fileData = UserAccountManagement.GenerateUserFileData(storedData);
             UserAccountManagement.WriteUserDataFile(UserAccountManagement.m_activeUserDataFilePath, fileData);
+
+            // set
+            UserAccountManagement.m_storedUserData = storedData;
         }
 
         /// <summary>Loads the user data for the local user with the given identifier.</summary>
-        public static void SetLocalUserAsActive(string localUserId = null)
+        public static void SetLocalUserAsActive(string localUserId)
         {
             // generate file path
             string filePath = UserAccountManagement._GenerateUserDataFilePath(localUserId);
@@ -174,53 +189,58 @@ namespace ModIO
             {
                 return;
             }
-            UserAccountManagement.m_activeUserDataFilePath = filePath;
 
             // load data
             byte[] userFileData = UserAccountManagement.ReadUserDataFile(filePath);
             StoredUserData storedData = UserAccountManagement.ParseStoredUserData(userFileData);
+            LocalUserData activeUserData;
 
-            // set initial values if no data
+            // create stored data if unavailable
             if(storedData == null)
             {
                 storedData = new StoredUserData();
-                storedData.activeUserIndex = -1;
                 storedData.activeUserProfile = null;
                 storedData.userData = new LocalUserData[0];
             }
             Debug.Assert(storedData.userData != null);
 
-            // load user data
-            LocalUserData[] userDataArray = storedData.userData;
+            // - load active user -
+            int activeUserIndex = -1;
+            int activeUserId = ModProfile.NULL_ID;
 
-            if(storedData.activeUserIndex < 0
-               || storedData.activeUserIndex > userDataArray.Length - 1)
+            if(storedData.activeUserProfile != null)
             {
-                storedData.activeUserIndex = -1;
+                activeUserId = storedData.activeUserProfile.id;
+            }
 
-                UserAccountManagement.m_activeUserData = new LocalUserData()
+            for(int i = 0;
+                i < storedData.userData.Length
+                && activeUserIndex == -1;
+                ++i)
+            {
+                if(storedData.userData[i].modioUserId == activeUserId)
                 {
-                    modioUserId = ModProfile.NULL_ID,
+                    activeUserIndex = i;
+                }
+            }
+
+            if(activeUserIndex == -1)
+            {
+                activeUserData = new LocalUserData()
+                {
+                    modioUserId = activeUserId,
                     enabledModIds = new int[0],
                 };
             }
             else
             {
-                UserAccountManagement.m_activeUserData = userDataArray[storedData.activeUserIndex];
-            }
-
-            if(storedData.activeUserProfile != null
-               && storedData.activeUserProfile.id == UserAccountManagement.m_activeUserData.modioUserId)
-            {
-                UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
-            }
-            else
-            {
-                storedData.activeUserProfile = null;
-                UserAccountManagement.activeUserProfile = null;
+                activeUserData = storedData.userData[activeUserIndex];
             }
 
             // set
+            UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
+            UserAccountManagement.m_activeUserData = activeUserData;
+            UserAccountManagement.m_activeUserDataFilePath = filePath;
             UserAccountManagement.m_storedUserData = storedData;
         }
 
