@@ -289,6 +289,29 @@ namespace ModIO
             return -1;
         }
 
+        /// <summary>Fetches and stores the UserProfile for the active user.</summary>
+        private static void FetchActiveUserProfile(Action<UserProfile> onSuccess,
+                                                   Action<WebRequestError> onError)
+        {
+            APIClient.GetAuthenticatedUser((p) =>
+            {
+                UserAuthenticationData data = UserAuthenticationData.instance;
+                data.userId = p.id;
+                UserAuthenticationData.instance = data;
+
+
+                UserAccountManagement.activeUserProfile = p;
+                UserAccountManagement.WriteActiveUserData();
+
+
+                if(onSuccess != null)
+                {
+                    onSuccess(p);
+                }
+            },
+            onError);
+        }
+
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Requests a login code be sent to an email address.</summary>
         public static void RequestSecurityCode(string emailAddress,
@@ -321,7 +344,12 @@ namespace ModIO
                 };
 
                 UserAuthenticationData.instance = authData;
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+
+                UserAccountManagement.activeOAuthToken = t;
+                UserAccountManagement.activeUserProfile = null;
+                UserAccountManagement.WriteActiveUserData();
+
+                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
             },
             onError);
         }
@@ -359,25 +387,7 @@ namespace ModIO
                 };
 
                 UserAuthenticationData.instance = authData;
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
-            },
-            onError);
-        }
-
-        /// <summary>Stores the oAuthToken and steamTicket and fetches the UserProfile.</summary>
-        private static void FetchUserProfile(Action<UserProfile> onSuccess,
-                                             Action<WebRequestError> onError)
-        {
-            APIClient.GetAuthenticatedUser((p) =>
-            {
-                UserAuthenticationData data = UserAuthenticationData.instance;
-                data.userId = p.id;
-                UserAuthenticationData.instance = data;
-
-                if(onSuccess != null)
-                {
-                    onSuccess(p);
-                }
+                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
             },
             onError);
         }
@@ -424,7 +434,12 @@ namespace ModIO
                 };
 
                 UserAuthenticationData.instance = authData;
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+
+                UserAccountManagement.activeOAuthToken = t;
+                UserAccountManagement.activeUserProfile = null;
+                UserAccountManagement.WriteActiveUserData();
+
+                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
             },
             onError);
         }
@@ -456,7 +471,12 @@ namespace ModIO
                 };
 
                 UserAuthenticationData.instance = authData;
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+
+                UserAccountManagement.activeOAuthToken = t;
+                UserAccountManagement.activeUserProfile = null;
+                UserAccountManagement.WriteActiveUserData();
+
+                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
             },
             onError);
         }
