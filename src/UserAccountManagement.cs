@@ -1,4 +1,4 @@
-// #define DISABLE_EDITOR
+// #define DISABLE_EDITOR_DIRECTORY
 // #define ENABLE_STEAMWORKS_FACEPUNCH
 // #define ENABLE_STEAMWORKS_NET
 // #define ENABLE_STEAM_OTHER
@@ -174,7 +174,7 @@ namespace ModIO
         }
 
         /// <summary>Loads the user data for the local user with the given identifier.</summary>
-        public static void SetLocalUserAsActive(string localUserId)
+        public static void SetLocalUserAsActive(string localUserId = null)
         {
             // generate file path
             string filePath = UserAccountManagement._GenerateUserDataFilePath(localUserId);
@@ -442,7 +442,7 @@ namespace ModIO
         #endif
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
-        #if UNITY_EDITOR && !DISABLE_EDITOR
+        #if UNITY_EDITOR && !DISABLE_EDITOR_DIRECTORY
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
             private static PlatformFunctions GetPlatformFunctions()
