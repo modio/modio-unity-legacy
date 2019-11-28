@@ -1,8 +1,6 @@
-// #define DISABLE_EDITOR_DIRECTORY
-// #define ENABLE_STEAMWORKS_FACEPUNCH
-// #define ENABLE_STEAMWORKS_NET
-// #define ENABLE_STEAM_OTHER
-// #define ENABLE_GOG_AUTHENTICATION
+// #define DISABLE_EDITOR_USERDATA
+// #define ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+// #define ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
 
 /*** NOTE:
  * If building to a platform other than Mac, Windows (exe), or Linux,
@@ -442,7 +440,7 @@ namespace ModIO
         #endif
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
-        #if UNITY_EDITOR && !DISABLE_EDITOR_DIRECTORY
+        #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
             private static PlatformFunctions GetPlatformFunctions()
@@ -495,7 +493,7 @@ namespace ModIO
                 return success;
             }
 
-        #elif ENABLE_STEAMWORKS_FACEPUNCH
+        #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
 
             /// <summary>Filename for the user data file.</summary>
             public static readonly string USERDATA_FILEPATH = "modio_user.data";
@@ -528,7 +526,7 @@ namespace ModIO
                 return success;
             }
 
-        #elif ENABLE_STEAMWORKS_NET
+        #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
 
             /// <summary>Filename for the user data file.</summary>
             public static readonly string USERDATA_FILEPATH = "modio_user.data";
