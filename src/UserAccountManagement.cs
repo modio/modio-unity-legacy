@@ -73,11 +73,15 @@ namespace ModIO
         static UserAccountManagement()
         {
             PlatformFunctions functions = UserAccountManagement.GetPlatformFunctions();
+            Debug.Assert(functions.GenerateUserDataFilePath != null);
+            Debug.Assert(functions.ReadUserDataFile != null);
+            Debug.Assert(functions.WriteUserDataFile != null);
+
             UserAccountManagement._GenerateUserDataFilePath = functions.GenerateUserDataFilePath;
             UserAccountManagement.ReadUserDataFile = functions.ReadUserDataFile;
             UserAccountManagement.WriteUserDataFile = functions.WriteUserDataFile;
 
-            UserAccountManagement.SetLocalUserAsActive(null);
+            UserAccountManagement.LoadLocalUser(null);
         }
 
         /// <summary>Parses user data file.</summary>
@@ -186,7 +190,7 @@ namespace ModIO
         }
 
         /// <summary>Loads the user data for the local user with the given identifier.</summary>
-        public static void SetLocalUserAsActive(string localUserId)
+        public static void LoadLocalUser(string localUserId)
         {
             // generate file path
             string filePath = UserAccountManagement._GenerateUserDataFilePath(localUserId);
