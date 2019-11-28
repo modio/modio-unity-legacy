@@ -146,25 +146,14 @@ namespace ModIO
         public static void WriteActiveUserData()
         {
             StoredUserData storedData = UserAccountManagement.m_storedUserData;
-            int activeUserIndex = -1;
             int activeUserId = ModProfile.NULL_ID;
-
             if(UserAccountManagement.activeUserProfile != null)
             {
                 activeUserId = UserAccountManagement.activeUserProfile.id;
             }
 
             // get active user index
-            for(int i = 0;
-                i < storedData.userData.Length
-                && activeUserIndex == -1;
-                ++i)
-            {
-                if(storedData.userData[i].modioUserId == activeUserId)
-                {
-                    activeUserIndex = i;
-                }
-            }
+            int activeUserIndex = UserAccountManagement.FindUserData(storedData, activeUserId);
 
             // create new data entry if necessary
             if(activeUserIndex < 0)
@@ -225,9 +214,19 @@ namespace ModIO
                 activeUserId = storedData.activeUserProfile.id;
             }
 
-            int activeUserIndex = -1;
-            activeUserData = UserAccountManagement.FindUserData(storedData, activeUserId,
-                                                                out activeUserIndex);
+            int activeUserIndex = UserAccountManagement.FindUserData(storedData, activeUserId);
+            if(activeUserIndex < 0)
+            {
+                activeUserData = new LocalUserData()
+                {
+                    modioUserId = activeUserId,
+                    enabledModIds = new int[0],
+                };
+            }
+            else
+            {
+                activeUserData = storedData.userData[activeUserIndex];
+            }
 
             // set
             UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
@@ -270,37 +269,24 @@ namespace ModIO
             UserAuthenticationData.instance = data;
         }
 
-        /// <summary>Finds the user data from the stored data and its index within the array.</summary>
-        private static LocalUserData FindUserData(StoredUserData storedData,
-                                                  int modioUserId,
-                                                  out int arrayIndex)
+        /// <summary>Finds the index of the modioUserId within the stored data array.</summary>
+        private static int FindUserData(StoredUserData storedData, int modioUserId)
         {
             Debug.Assert(storedData != null);
             Debug.Assert(storedData.userData != null);
 
-            arrayIndex = -1;
-
             // find
             for(int i = 0;
-                i < storedData.userData.Length
-                && arrayIndex == -1;
+                i < storedData.userData.Length;
                 ++i)
             {
                 if(storedData.userData[i].modioUserId == modioUserId)
                 {
-                    arrayIndex = i;
-                    return storedData.userData[i];
+                    return i;
                 }
             }
 
-            // if not found
-            LocalUserData newData = new LocalUserData()
-            {
-                modioUserId = modioUserId,
-                enabledModIds = new int[0],
-            };
-
-            return newData;
+            return -1;
         }
 
         // ---------[ AUTHENTICATION ]---------
