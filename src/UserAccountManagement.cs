@@ -288,6 +288,39 @@ namespace ModIO
             UserAuthenticationData.instance = data;
         }
 
+        /// <summary>Finds the user data from the stored data and its index within the array.</summary>
+        private static LocalUserData FindUserData(StoredUserData storedData,
+                                                  int modioUserId,
+                                                  out int arrayIndex)
+        {
+            Debug.Assert(storedData != null);
+            Debug.Assert(storedData.userData != null);
+
+            arrayIndex = -1;
+
+            // find
+            for(int i = 0;
+                i < storedData.userData.Length
+                && arrayIndex == -1;
+                ++i)
+            {
+                if(storedData.userData[i].modioUserId == modioUserId)
+                {
+                    arrayIndex = i;
+                    return storedData.userData[i];
+                }
+            }
+
+            // if not found
+            LocalUserData newData = new LocalUserData()
+            {
+                modioUserId = modioUserId,
+                enabledModIds = new int[0],
+            };
+
+            return newData;
+        }
+
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Requests a login code be sent to an email address.</summary>
         public static void RequestSecurityCode(string emailAddress,
