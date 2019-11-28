@@ -28,6 +28,7 @@ namespace ModIO
         private class StoredUserData
         {
             public UserProfile activeUserProfile = null;
+            public string activeOAuthToken = null;
             public LocalUserData[] userData = null;
         }
 
@@ -42,6 +43,9 @@ namespace ModIO
         // ---------[ FIELDS ]---------
         /// <summary>User Profile for the currently active user.</summary>
         public static UserProfile activeUserProfile = null;
+
+        /// <summary>OAuthToken for the currently active user.</summary>
+        public static string activeOAuthToken = null;
 
         /// <summary>URL Postfix for the authentication method.</summary>
         public static string authMethodURLPostfix = string.Empty;
@@ -170,6 +174,7 @@ namespace ModIO
 
             // Update stored data
             storedData.activeUserProfile = UserAccountManagement.activeUserProfile;
+            storedData.activeOAuthToken = UserAccountManagement.activeOAuthToken;
             storedData.userData[activeUserIndex] = UserAccountManagement.m_activeUserData;
 
             // write file
@@ -200,6 +205,7 @@ namespace ModIO
             {
                 storedData = new StoredUserData();
                 storedData.activeUserProfile = null;
+                storedData.activeOAuthToken = null;
                 storedData.userData = new LocalUserData[0];
             }
             Debug.Assert(storedData.userData != null);
@@ -239,6 +245,7 @@ namespace ModIO
 
             // set
             UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
+            UserAccountManagement.activeOAuthToken = storedData.activeOAuthToken;
             UserAccountManagement.m_activeUserData = activeUserData;
             UserAccountManagement.m_activeUserDataFilePath = filePath;
             UserAccountManagement.m_storedUserData = storedData;
