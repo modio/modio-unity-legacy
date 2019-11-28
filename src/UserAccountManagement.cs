@@ -57,7 +57,7 @@ namespace ModIO
         private static LocalUserData m_activeUserData;
 
         /// <summary>File path to the active user data file.</summary>
-        private static string m_activeUserDataFilePath;
+        private static string m_localUserFilePath;
 
         // ---------[ DATA LOADING ]---------
         /// <summary>Function used to the file path for the user data.</summary>
@@ -172,7 +172,7 @@ namespace ModIO
 
             // write file
             byte[] fileData = UserAccountManagement.GenerateUserFileData(storedData);
-            UserAccountManagement.WriteUserDataFile(UserAccountManagement.m_activeUserDataFilePath, fileData);
+            UserAccountManagement.WriteUserDataFile(UserAccountManagement.m_localUserFilePath, fileData);
 
             // set
             UserAccountManagement.m_storedUserData = storedData;
@@ -183,7 +183,7 @@ namespace ModIO
         {
             // generate file path
             string filePath = UserAccountManagement._GenerateUserDataFilePath(localUserId);
-            if(filePath == UserAccountManagement.m_activeUserDataFilePath)
+            if(filePath == UserAccountManagement.m_localUserFilePath)
             {
                 return;
             }
@@ -232,7 +232,7 @@ namespace ModIO
             UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
             UserAccountManagement.activeOAuthToken = storedData.activeOAuthToken;
             UserAccountManagement.m_activeUserData = activeUserData;
-            UserAccountManagement.m_activeUserDataFilePath = filePath;
+            UserAccountManagement.m_localUserFilePath = filePath;
             UserAccountManagement.m_storedUserData = storedData;
         }
 
