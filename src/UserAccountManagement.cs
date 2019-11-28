@@ -382,7 +382,6 @@ namespace ModIO
         }
 
         // ---------[ STEAM AUTHENTICATION ]---------
-        #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         /// <remarks>This version is designed to match the Steamworks.NET implementation by
         /// @rlabrecque at https://github.com/rlabrecque/Steamworks.NET</remarks>
@@ -428,10 +427,8 @@ namespace ModIO
             },
             onError);
         }
-        #endif
 
         // ---------[ GOG AUTHENTICATION ]---------
-        #if ENABLE_GOG_AUTHENTICATION
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
         public static void AuthenticateWithGOGEncryptedAppTicket(byte[] data, uint dataSize,
                                                                  Action<UserProfile> onSuccess,
@@ -462,7 +459,6 @@ namespace ModIO
             },
             onError);
         }
-        #endif
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
