@@ -190,7 +190,7 @@ namespace ModIO
         }
 
         /// <summary>Loads the user data for the local user with the given identifier.</summary>
-        public static void LoadLocalUser(string localUserId)
+        public static void LoadLocalUser(string localUserId = null)
         {
             // generate file path
             string filePath = UserAccountManagement._GenerateUserDataFilePath(localUserId);
@@ -210,42 +210,24 @@ namespace ModIO
                 storedData = new StoredUserData();
                 storedData.activeUserProfile = null;
                 storedData.activeOAuthToken = null;
+                storedData.userData = null;
+            }
+
+            if(storedData.userData == null)
+            {
                 storedData.userData = new LocalUserData[0];
             }
-            Debug.Assert(storedData.userData != null);
 
-            // - load active user -
-            int activeUserIndex = -1;
+            // load active user
             int activeUserId = ModProfile.NULL_ID;
-
             if(storedData.activeUserProfile != null)
             {
                 activeUserId = storedData.activeUserProfile.id;
             }
 
-            for(int i = 0;
-                i < storedData.userData.Length
-                && activeUserIndex == -1;
-                ++i)
-            {
-                if(storedData.userData[i].modioUserId == activeUserId)
-                {
-                    activeUserIndex = i;
-                }
-            }
-
-            if(activeUserIndex == -1)
-            {
-                activeUserData = new LocalUserData()
-                {
-                    modioUserId = activeUserId,
-                    enabledModIds = new int[0],
-                };
-            }
-            else
-            {
-                activeUserData = storedData.userData[activeUserIndex];
-            }
+            int activeUserIndex = -1;
+            activeUserData = UserAccountManagement.FindUserData(storedData, activeUserId,
+                                                                out activeUserIndex);
 
             // set
             UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
