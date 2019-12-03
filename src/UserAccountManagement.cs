@@ -22,16 +22,6 @@ namespace ModIO
     /// <summary>A collection of user management functions provided for convenience.</summary>
     public static class UserAccountManagement
     {
-        // ---------[ NESTED DATA-TYPES ]---------
-        /// <summary>Data structure for the user data file.</summary>
-        [System.Serializable]
-        private class StoredUserData
-        {
-            public UserProfile activeUserProfile = null;
-            public string activeOAuthToken = null;
-            public LocalUserData[] userData = null;
-        }
-
         // ---------[ FIELDS ]---------
         /// <summary>User Profile for the currently active user.</summary>
         public static UserProfile activeUserProfile = null;
@@ -41,9 +31,6 @@ namespace ModIO
 
         /// <summary>URL Postfix for the authentication method.</summary>
         public static string authMethodURLPostfix = string.Empty;
-
-        /// <summary>Currently loaded user data.</summary>
-        private static StoredUserData m_storedUserData;
 
         /// <summary>User data for the currently active user.</summary>
         private static LocalUserData m_activeUserData;
@@ -74,49 +61,23 @@ namespace ModIO
             }
 
             // load data
-            StoredUserData storedData = null;
-
-            if(!UserDataStorage.TryReadJSONFile("users/" + fileName, out storedData))
-            {
-                storedData = new StoredUserData();
-                storedData.activeUserProfile = null;
-                storedData.activeOAuthToken = null;
-                storedData.userData = null;
-            }
-
-            // load active user
             LocalUserData activeUserData;
-            int activeUserId = ModProfile.NULL_ID;
-            if(storedData.activeUserProfile != null)
-            {
-                activeUserId = storedData.activeUserProfile.id;
-            }
 
-            int activeUserIndex = UserAccountManagement.FindUserData(storedData, activeUserId);
-            if(activeUserIndex < 0)
+            if(!UserDataStorage.TryReadJSONFile("users/" + fileName, out activeUserData))
             {
-                activeUserData = new LocalUserData()
-                {
-                    modioUserId = activeUserId,
-                    enabledModIds = new int[0],
-                };
-            }
-            else
-            {
-                activeUserData = storedData.userData[activeUserIndex];
+                activeUserData = new LocalUserData();
             }
 
             // set
-            UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
-            UserAccountManagement.activeOAuthToken = storedData.activeOAuthToken;
+            UserAccountManagement.activeUserProfile = null;
+            UserAccountManagement.activeOAuthToken = null;
             UserAccountManagement.m_activeUserData = activeUserData;
-            UserAccountManagement.m_storedUserData = storedData;
         }
 
         /// <summary>Saves the active user data.</summary>
         public static void SaveUserData()
         {
-            UserDataStorage.WriteJSONFile(null, m_storedUserData);
+            UserDataStorage.WriteJSONFile(null, UserAccountManagement.m_activeUserData);
         }
 
         // ---------[ USER ACTIONS ]---------
@@ -150,26 +111,6 @@ namespace ModIO
             UserAuthenticationData data = UserAuthenticationData.instance;
             data.wasTokenRejected = true;
             UserAuthenticationData.instance = data;
-        }
-
-        /// <summary>Finds the index of the modioUserId within the stored data array.</summary>
-        private static int FindUserData(StoredUserData storedData, int modioUserId)
-        {
-            Debug.Assert(storedData != null);
-            Debug.Assert(storedData.userData != null);
-
-            // find
-            for(int i = 0;
-                i < storedData.userData.Length;
-                ++i)
-            {
-                if(storedData.userData[i].modioUserId == modioUserId)
-                {
-                    return i;
-                }
-            }
-
-            return -1;
         }
 
         /// <summary>Fetches and stores the UserProfile for the active user.</summary>
