@@ -17,7 +17,6 @@ namespace ModIO
             token = null,
             wasTokenRejected = false,
             externalAuthToken = null,
-            externalAuthId = null,
         };
 
         /// <summary>Location of the settings file.</summary>
@@ -36,9 +35,6 @@ namespace ModIO
 
         /// <summary>External authentication service token.</summary>
         public string externalAuthToken;
-
-        /// <summary>External authentication service user id.</summary>
-        public string externalAuthId;
 
         // --- ACCESSORS ---
         [JsonIgnore]
