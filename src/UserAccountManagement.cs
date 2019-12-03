@@ -19,9 +19,6 @@ namespace ModIO
         /// <summary>File path to the active user data file.</summary>
         private static string m_activeUserFileName;
 
-        /// <summary>OAuthToken for the currently active user.</summary>
-        public static string activeOAuthToken = null;
-
         /// <summary>URL Postfix for the authentication method.</summary>
         public static string authMethodURLPostfix = string.Empty;
 
@@ -30,6 +27,12 @@ namespace ModIO
         public static UserProfile ActiveUserProfile
         {
             get { return UserAccountManagement.m_activeUserData.profile; }
+        }
+
+        /// <summary>OAuthToken for the currently active user.</summary>
+        public static string ActiveUserToken
+        {
+            get { return UserAccountManagement.m_activeUserData.oAuthToken; }
         }
 
         // ---------[ DATA LOADING ]---------
@@ -63,7 +66,7 @@ namespace ModIO
             }
 
             // set
-            UserAccountManagement.activeOAuthToken = null;
+            UserAccountManagement.m_activeUserData.oAuthToken = null;
             UserAccountManagement.m_activeUserData = activeUserData;
         }
 
@@ -162,7 +165,7 @@ namespace ModIO
 
                 UserAuthenticationData.instance = authData;
 
-                UserAccountManagement.activeOAuthToken = t;
+                UserAccountManagement.m_activeUserData.oAuthToken = t;
                 UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
@@ -250,7 +253,7 @@ namespace ModIO
 
                 UserAuthenticationData.instance = authData;
 
-                UserAccountManagement.activeOAuthToken = t;
+                UserAccountManagement.m_activeUserData.oAuthToken = t;
                 UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
@@ -286,7 +289,7 @@ namespace ModIO
 
                 UserAuthenticationData.instance = authData;
 
-                UserAccountManagement.activeOAuthToken = t;
+                UserAccountManagement.m_activeUserData.oAuthToken = t;
                 UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
