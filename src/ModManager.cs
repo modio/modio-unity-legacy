@@ -18,8 +18,6 @@ namespace ModIO
         private struct PersistentData
         {
             public SimpleVersion lastRunVersion;
-            public int[] subscribedModIds;
-            public int[] enabledModIds;
         }
 
         // ---------[ EVENTS ]---------
@@ -31,7 +29,7 @@ namespace ModIO
 
         // ---------[ CONSTANTS ]---------
         /// <summary>Current version of the ModManager/Plugin.</summary>
-        public static readonly SimpleVersion VERSION = new SimpleVersion(2, 0);
+        public static readonly SimpleVersion VERSION = new SimpleVersion(2, 1);
 
         /// <summary>File name used to store the persistent data.</summary>
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
@@ -59,8 +57,6 @@ namespace ModIO
                 ModManager.m_data = new PersistentData()
                 {
                     lastRunVersion = ModManager.VERSION,
-                    subscribedModIds = new int[0],
-                    enabledModIds = new int[0],
                 };
             }
 
