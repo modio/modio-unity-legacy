@@ -52,132 +52,31 @@ namespace ModIO
         private static string m_localUserFilePath;
 
         // ---------[ DATA LOADING ]---------
-        /// <summary>Function used to the file path for the user data.</summary>
-        private readonly static Func<string, string> _GenerateUserDataFilePath = null;
-
-        /// <summary>Function used to read the user data.</summary>
-        public readonly static Func<string, byte[]> ReadUserDataFile = null;
-
-        /// <summary>Function used to read the user data.</summary>
-        public readonly static Func<string, byte[], bool> WriteUserDataFile = null;
-
         /// <summary>Loads the platform-specific functionality and stored user data.</summary>
         static UserAccountManagement()
         {
             UserAccountManagement.LoadLocalUser(null);
         }
 
-        /// <summary>Parses user data file.</summary>
-        private static StoredUserData ParseStoredUserData(byte[] data)
-        {
-            // early out
-            if(data == null || data.Length == 0)
-            {
-                return null;
-            }
-
-            // attempt to parse data
-            StoredUserData storedUserData = null;
-            try
-            {
-                string dataString = Encoding.UTF8.GetString(data);
-                storedUserData = JsonConvert.DeserializeObject<StoredUserData>(dataString);
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to parse user data from file.");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                storedUserData = null;
-            }
-
-            return storedUserData;
-        }
-
-        /// <summary>Generates user data file.</summary>
-        private static byte[] GenerateUserFileData(StoredUserData storedUserData)
-        {
-            if(storedUserData == null)
-            {
-                storedUserData = new StoredUserData();
-            }
-
-            // create json data bytes
-            byte[] data = null;
-
-            try
-            {
-                string dataString = JsonConvert.SerializeObject(storedUserData);
-                data = Encoding.UTF8.GetBytes(dataString);
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to generate user file data.");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                data = new byte[0];
-            }
-
-            return data;
-        }
-
-        /// <summary>Writes the active user data to disk.</summary>
-        public static void WriteActiveUserData()
-        {
-            StoredUserData storedData = UserAccountManagement.m_storedUserData;
-            int activeUserId = ModProfile.NULL_ID;
-            if(UserAccountManagement.activeUserProfile != null)
-            {
-                activeUserId = UserAccountManagement.activeUserProfile.id;
-            }
-
-            // get active user index
-            int activeUserIndex = UserAccountManagement.FindUserData(storedData, activeUserId);
-
-            // create new data entry if necessary
-            if(activeUserIndex < 0)
-            {
-                LocalUserData[] newUserData = new LocalUserData[storedData.userData.Length];
-                Array.Copy(storedData.userData, newUserData, storedData.userData.Length);
-                storedData.userData = newUserData;
-
-                activeUserIndex = storedData.userData.Length;
-            }
-
-            // Update stored data
-            storedData.activeUserProfile = UserAccountManagement.activeUserProfile;
-            storedData.activeOAuthToken = UserAccountManagement.activeOAuthToken;
-            storedData.userData[activeUserIndex] = UserAccountManagement.m_activeUserData;
-
-            // write file
-            byte[] fileData = UserAccountManagement.GenerateUserFileData(storedData);
-            UserAccountManagement.WriteUserDataFile(UserAccountManagement.m_localUserFilePath, fileData);
-
-            // set
-            UserAccountManagement.m_storedUserData = storedData;
-        }
-
         /// <summary>Loads the user data for the local user with the given identifier.</summary>
         public static void LoadLocalUser(string localUserId = null)
         {
-            // generate file path
-            string filePath = UserAccountManagement._GenerateUserDataFilePath(localUserId);
-            if(filePath == UserAccountManagement.m_localUserFilePath)
+            string fileName;
+
+            // null-check
+            if(string.IsNullOrEmpty(localUserId))
             {
-                return;
+                fileName = "default.user";
+            }
+            else
+            {
+                fileName = IOUtilities.MakeValidFileName(localUserId, ".user");
             }
 
             // load data
-            byte[] userFileData = UserAccountManagement.ReadUserDataFile(filePath);
-            StoredUserData storedData = UserAccountManagement.ParseStoredUserData(userFileData);
-            LocalUserData activeUserData;
+            StoredUserData storedData = null;
 
-            // create stored data if unavailable
-            if(storedData == null)
+            if(!UserDataStorage.TryReadJSONFile("users/" + fileName, out storedData))
             {
                 storedData = new StoredUserData();
                 storedData.activeUserProfile = null;
@@ -185,12 +84,8 @@ namespace ModIO
                 storedData.userData = null;
             }
 
-            if(storedData.userData == null)
-            {
-                storedData.userData = new LocalUserData[0];
-            }
-
             // load active user
+            LocalUserData activeUserData;
             int activeUserId = ModProfile.NULL_ID;
             if(storedData.activeUserProfile != null)
             {
@@ -215,8 +110,13 @@ namespace ModIO
             UserAccountManagement.activeUserProfile = storedData.activeUserProfile;
             UserAccountManagement.activeOAuthToken = storedData.activeOAuthToken;
             UserAccountManagement.m_activeUserData = activeUserData;
-            UserAccountManagement.m_localUserFilePath = filePath;
             UserAccountManagement.m_storedUserData = storedData;
+        }
+
+        /// <summary>Saves the active user data.</summary>
+        public static void SaveUserData()
+        {
+            UserDataStorage.WriteJSONFile(null, m_storedUserData);
         }
 
         // ---------[ USER ACTIONS ]---------
@@ -284,7 +184,7 @@ namespace ModIO
 
 
                 UserAccountManagement.activeUserProfile = p;
-                UserAccountManagement.WriteActiveUserData();
+                UserAccountManagement.SaveUserData();
 
 
                 if(onSuccess != null)
@@ -330,7 +230,7 @@ namespace ModIO
 
                 UserAccountManagement.activeOAuthToken = t;
                 UserAccountManagement.activeUserProfile = null;
-                UserAccountManagement.WriteActiveUserData();
+                UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
             },
@@ -419,7 +319,7 @@ namespace ModIO
 
                 UserAccountManagement.activeOAuthToken = t;
                 UserAccountManagement.activeUserProfile = null;
-                UserAccountManagement.WriteActiveUserData();
+                UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
             },
@@ -456,7 +356,7 @@ namespace ModIO
 
                 UserAccountManagement.activeOAuthToken = t;
                 UserAccountManagement.activeUserProfile = null;
-                UserAccountManagement.WriteActiveUserData();
+                UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
             },

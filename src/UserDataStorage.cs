@@ -30,23 +30,23 @@ namespace ModIO
 
         // ---------[ IO FUNCTIONS ]---------
         /// <summary>Function used to read a user data file.</summary>
-        public static bool TryReadUserJSONFile<T>(string filePathRelative, out T jsonObject)
+        public static bool TryReadJSONFile<T>(string filePathRelative, out T jsonObject)
         {
             byte[] fileData = UserDataStorage._PlatformReadFile(filePathRelative);
-            return UserDataStorage.TryParseUserJSONFile(fileData, out jsonObject);;
+            return UserDataStorage.TryParseJSONFile(fileData, out jsonObject);;
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static bool WriteUserJSONFile<T>(string filePathRelative, T jsonObject)
+        public static bool WriteJSONFile<T>(string filePathRelative, T jsonObject)
         {
             byte[] fileData;
 
-            return(UserDataStorage.TryGenerateUserJSONFile(jsonObject, out fileData)
+            return(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData)
                    && UserDataStorage._PlatformWriteFile(filePathRelative, fileData));
         }
 
         /// <summary>Generates user data file.</summary>
-        public static bool TryGenerateUserJSONFile<T>(T jsonObject, out byte[] fileData)
+        public static bool TryGenerateJSONFile<T>(T jsonObject, out byte[] fileData)
         {
             // create json data bytes
             try
@@ -68,7 +68,7 @@ namespace ModIO
         }
 
         /// <summary>Parses user data file.</summary>
-        public static bool TryParseUserJSONFile<T>(byte[] fileData, out T jsonObject)
+        public static bool TryParseJSONFile<T>(byte[] fileData, out T jsonObject)
         {
             // early out
             if(fileData == null || fileData.Length == 0)
