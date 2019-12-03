@@ -1853,7 +1853,7 @@ namespace ModIO.UI
         public void OnSubscriptionsChanged(IList<int> addedSubscriptions,
                                            IList<int> removedSubscriptions)
         {
-            var enabledMods = ModManager.GetEnabledModIds();
+            var enabledMods = UserAccountManagement.GetEnabledMods();
 
             // handle new subscriptions
             if(addedSubscriptions != null
@@ -1924,7 +1924,7 @@ namespace ModIO.UI
                 }
             }
 
-            ModManager.SetEnabledModIds(enabledMods);
+            UserAccountManagement.SetEnabledMods(enabledMods);
             UpdateSubscriptionReceivers(addedSubscriptions, removedSubscriptions);
         }
 
@@ -1944,11 +1944,11 @@ namespace ModIO.UI
 
         public void EnableMod(int modId)
         {
-            IList<int> mods = ModManager.GetEnabledModIds();
+            IList<int> mods = UserAccountManagement.GetEnabledMods();
             if(!mods.Contains(modId))
             {
                 mods.Add(modId);
-                ModManager.SetEnabledModIds(mods);
+                UserAccountManagement.SetEnabledMods(mods);
             }
 
             IEnumerable<IModEnabledReceiver> updateReceivers = GetComponentsInChildren<IModEnabledReceiver>(true);
@@ -1960,11 +1960,11 @@ namespace ModIO.UI
 
         public void DisableMod(int modId)
         {
-            IList<int> mods = ModManager.GetEnabledModIds();
+            IList<int> mods = UserAccountManagement.GetEnabledMods();
             if(mods.Contains(modId))
             {
                 mods.Remove(modId);
-                ModManager.SetEnabledModIds(mods);
+                UserAccountManagement.SetEnabledMods(mods);
             }
 
             IEnumerable<IModDisabledReceiver> updateReceivers = GetComponentsInChildren<IModDisabledReceiver>(true);

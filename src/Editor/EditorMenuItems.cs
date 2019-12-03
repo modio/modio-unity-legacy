@@ -30,7 +30,7 @@ namespace ModIO.EditorCode
         {
             UserAuthenticationData.instance = UserAuthenticationData.NONE;
             ModManager.SetSubscribedModIds(new int[0]);
-            ModManager.SetEnabledModIds(new int[0]);
+            UserAccountManagement.SetEnabledMods(new int[0]);
 
             Debug.Log("[mod.io] Cached User Data Deleted.");
         }
