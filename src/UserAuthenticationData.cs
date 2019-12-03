@@ -50,18 +50,17 @@ namespace ModIO
         {
             get
             {
-                #if UNITY_EDITOR
-                if(!Application.isPlaying)
-                {
-                    LoadInstance();
-                }
-                #endif
+                UserProfile p = UserAccountManagement.ActiveUserProfile;
 
-                if(m_instance.Equals(default(UserAuthenticationData)))
+                UserAuthenticationData data = new UserAuthenticationData()
                 {
-                    LoadInstance();
-                }
-                return m_instance;
+                    userId = (p == null ? UserProfile.NULL_ID : p.id),
+                    token = UserAccountManagement.ActiveUserToken,
+                    wasTokenRejected = UserAccountManagement.WasTokenRejected,
+                    externalAuthToken = UserAccountManagement.ExternalAuthTicket,
+                };
+
+                return data;
             }
             set
             {
