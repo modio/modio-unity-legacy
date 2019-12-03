@@ -16,8 +16,8 @@ namespace ModIO
         /// <summary>External authentication service token.</summary>
         public string externalAuthToken;
 
-        /// <summary>External authentication service user id.</summary>
-        public string externalAuthId;
+        /// <summary>External authentication service provider.</summary>
+        public ExternalAuthenticationProvider externalAuthProvider;
 
         /// <summary>Mods the user has enabled on this device.</summary>
         public int[] enabledModIds;
