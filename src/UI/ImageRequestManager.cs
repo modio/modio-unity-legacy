@@ -99,7 +99,7 @@ namespace ModIO.UI
             {
                 saveToDisk = (t) =>
                 {
-                    if(ModManager.GetSubscribedModIds().Contains(modId))
+                    if(UserAccountManagement.GetSubscribedMods().Contains(modId))
                     {
                         CacheClient.SaveModLogo(modId, locator.GetFileName(), size, t);
                     }
@@ -130,7 +130,7 @@ namespace ModIO.UI
             {
                 saveToDisk = (t) =>
                 {
-                    if(ModManager.GetSubscribedModIds().Contains(modId))
+                    if(UserAccountManagement.GetSubscribedMods().Contains(modId))
                     {
                         CacheClient.SaveModGalleryImage(modId, locator.GetFileName(), size, t);
                     }
@@ -183,7 +183,7 @@ namespace ModIO.UI
             {
                 saveToDisk = (t) =>
                 {
-                    if(ModManager.GetSubscribedModIds().Contains(modId))
+                    if(UserAccountManagement.GetSubscribedMods().Contains(modId))
                     {
                         CacheClient.SaveModYouTubeThumbnail(modId, youTubeId, t);
                     }
@@ -551,7 +551,7 @@ namespace ModIO.UI
                 {
                     if(this == null || !this.isActiveAndEnabled || modProfiles == null) { return; }
 
-                    IList<int> subbedIds = ModManager.GetSubscribedModIds();
+                    IList<int> subbedIds = UserAccountManagement.GetSubscribedMods();
 
                     foreach(ModProfile profile in modProfiles)
                     {
@@ -663,7 +663,7 @@ namespace ModIO.UI
                     {
                         saveToDisk = (t) =>
                         {
-                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            if(UserAccountManagement.GetSubscribedMods().Contains(data.ownerId))
                             {
                                 CacheClient.SaveModLogo(data.ownerId, data.imageId, size, t);
                             }
@@ -683,7 +683,7 @@ namespace ModIO.UI
                     {
                         saveToDisk = (t) =>
                         {
-                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            if(UserAccountManagement.GetSubscribedMods().Contains(data.ownerId))
                             {
                                 CacheClient.SaveModGalleryImage(data.ownerId, data.imageId, size, t);
                             }
@@ -699,7 +699,7 @@ namespace ModIO.UI
                     {
                         saveToDisk = (t) =>
                         {
-                            if(ModManager.GetSubscribedModIds().Contains(data.ownerId))
+                            if(UserAccountManagement.GetSubscribedMods().Contains(data.ownerId))
                             {
                                 CacheClient.SaveModYouTubeThumbnail(data.ownerId, data.imageId, t);
                             }

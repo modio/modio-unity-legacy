@@ -29,7 +29,7 @@ namespace ModIO.EditorCode
         public static void ClearCachedAuthenticatedUserData()
         {
             UserAuthenticationData.instance = UserAuthenticationData.NONE;
-            ModManager.SetSubscribedModIds(new int[0]);
+            UserAccountManagement.SetSubscribedMods(new int[0]);
             UserAccountManagement.SetEnabledMods(new int[0]);
 
             Debug.Log("[mod.io] Cached User Data Deleted.");

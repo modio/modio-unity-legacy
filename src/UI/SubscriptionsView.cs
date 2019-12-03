@@ -149,7 +149,7 @@ namespace ModIO.UI
                 this.noResultsDisplay.gameObject.SetActive(false);
             }
 
-            IList<int> subscribedModIds = ModManager.GetSubscribedModIds();
+            IList<int> subscribedModIds = UserAccountManagement.GetSubscribedMods();
 
             ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
             (profiles) => Refresh_OnGetModProfiles(profiles, this.m_nameFieldFilter, this.m_sortDelegate),
