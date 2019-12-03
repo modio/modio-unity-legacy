@@ -72,29 +72,6 @@ namespace ModIO
 
 
         // ---------[ MOD MANAGEMENT ]---------
-        /// <summary>Returns the subscribed mods.</summary>
-        public static List<int> GetSubscribedModIds()
-        {
-            return new List<int>(m_data.subscribedModIds);
-        }
-        /// <summary>Sets the subscribed mods and writes the data to disk.</summary>
-        public static void SetSubscribedModIds(IEnumerable<int> modIds)
-        {
-            int[] modIdArray;
-
-            if(modIds == null)
-            {
-                modIdArray = new int[0];
-            }
-            else
-            {
-                modIdArray = modIds.ToArray();
-            }
-
-            ModManager.m_data.subscribedModIds = modIdArray;
-            IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
-        }
-
         /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
@@ -1982,6 +1959,19 @@ namespace ModIO
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
             UserAccountManagement.SetEnabledMods(modIds);
+        }
+
+        /// <summary>[Obsolete]Returns the subscribed mods.</summary>
+        [Obsolete("User UserAccountManagement.GetSubscribedMods() instead.")]
+        public static List<int> GetSubscribedModIds()
+        {
+            return UserAccountManagement.GetSubscribedMods();
+        }
+        /// <summary>[Obsolete]Sets the subscribed mods and writes the data to disk.</summary>
+        [Obsolete("User UserAccountManagement.SetSubscribedMods() instead.")]
+        public static void SetSubscribedModIds(IEnumerable<int> modIds)
+        {
+            UserAccountManagement.SetSubscribedMods(modIds);
         }
     }
 }

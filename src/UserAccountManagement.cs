@@ -67,6 +67,30 @@ namespace ModIO
             SaveActiveUser();
         }
 
+        /// <summary>Returns the subscribed mods for the active user.</summary>
+        public static List<int> GetSubscribedMods()
+        {
+            return new List<int>(UserAccountManagement._activeUser.subscribedModIds);
+        }
+
+        /// <summary>Sets the subscribed mods for the active user.</summary>
+        public static void SetSubscribedMods(IEnumerable<int> modIds)
+        {
+            int[] modIdArray;
+
+            if(modIds == null)
+            {
+                modIdArray = new int[0];
+            }
+            else
+            {
+                modIdArray = modIds.ToArray();
+            }
+
+            UserAccountManagement._activeUser.subscribedModIds = modIdArray;
+            SaveActiveUser();
+        }
+
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Pulls any changes to the User Profile from the mod.io servers.</summary>
         public static void FetchUserProfile(Action<UserProfile> onSuccess,
