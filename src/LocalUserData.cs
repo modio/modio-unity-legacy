@@ -21,5 +21,8 @@ namespace ModIO
 
         /// <summary>Mods the user has enabled on this device.</summary>
         public int[] enabledModIds;
+
+        /// <summary>Mods the user is subscribed to.</summary>
+        public int[] subscribedModIds;
     }
 }
