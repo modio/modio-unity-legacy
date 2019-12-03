@@ -1,13 +1,3 @@
-// #define DISABLE_EDITOR_USERDATA
-// #define ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
-// #define ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
-
-/*** NOTE:
- * If building to a platform other than Mac, Windows (exe), or Linux,
- * the Unity #define directives as specified at [https://docs.unity3d.com/Manual/PlatformDependentCompilation.html]
- * act to enable those specific authentication methods and thus do not require manual activation.
- ***/
-
 using System;
 using System.Linq;
 using System.Collections.Generic;
