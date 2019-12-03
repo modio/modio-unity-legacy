@@ -346,15 +346,102 @@ namespace ModIO
             return folderName;
         }
 
-        /// <summary>Replaces invalid file path characters.</summary>
-        public static string ReplaceInvalidPathCharacters(string filePath, string replacementString)
-        {
-            Debug.Assert(filePath != null);
-            Debug.Assert(replacementString != null);
 
-            string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            Regex r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
-            return r.Replace(filePath, replacementString);
+        /// <summary>Collection of invalid Windows file names.</summary>
+        public static readonly string[] INVALID_FILENAMES_WIN = new string[]
+        {
+            "AUX",
+            "COM1",
+            "COM2",
+            "COM3",
+            "COM4",
+            "COM5",
+            "COM6",
+            "COM7",
+            "COM8",
+            "COM9",
+            "CON",
+            "LPT1",
+            "LPT2",
+            "LPT3",
+            "LPT4",
+            "LPT5",
+            "LPT6",
+            "LPT7",
+            "LPT8",
+            "LPT9",
+            "NUL",
+            "PRN",
+        };
+
+        /// <summary>Max file name length.</summary>
+        public const int MAX_FILENAME_LENGTH = 255;
+
+        /// <summary>Illegal character regex.</summary>
+        public static readonly string ILLEGAL_CHAR_REGEX = string.Format("[{0}]", Regex.Escape("\\/?\"<>|:*%.\0" + new string(Path.GetInvalidFileNameChars())));
+
+        /// <summary>Replaces any illegal filename characters to create an OS safe file name.</summary>
+        public static string MakeValidFileName(string input, string extension = null)
+        {
+            Debug.Assert(input != null);
+            Debug.Assert(extension == null || extension.Length < IOUtilities.MAX_FILENAME_LENGTH - 2);
+
+            // format extension
+            if(extension == null)
+            {
+                int periodIndex = input.LastIndexOf(".");
+                if(periodIndex >= 0)
+                {
+                    extension = input.Substring(periodIndex);
+                    input = input.Substring(0, periodIndex);
+                }
+                else
+                {
+                    extension = string.Empty;
+                }
+            }
+            else if(extension.Length > 0
+                    && extension[0] != '.')
+            {
+                extension = "." + extension;
+            }
+
+            // check illegal filenames
+            if(input.Length == 0)
+            {
+                input = "_unknown";
+            }
+            else
+            {
+                bool wasFixed = false;
+
+                string inputUpper = input.ToUpper();
+                foreach(string illegalName in IOUtilities.INVALID_FILENAMES_WIN)
+                {
+                    if(inputUpper == illegalName)
+                    {
+                        input = "_" + input + "_";
+                        wasFixed = true;
+                        break;
+                    }
+                }
+
+                if(!wasFixed)
+                {
+                    Regex r = new Regex("\\s");
+                    input = r.Replace(input, "");
+                    r = new Regex(ILLEGAL_CHAR_REGEX);
+                    input = r.Replace(input, "_");
+                }
+            }
+
+            // check length
+            if(input.Length + extension.Length > IOUtilities.MAX_FILENAME_LENGTH)
+            {
+                input = input.Substring(0, IOUtilities.MAX_FILENAME_LENGTH);
+            }
+
+            return input + extension;
         }
     }
 }
