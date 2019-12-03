@@ -95,30 +95,6 @@ namespace ModIO
             IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
-        /// <summary>Returns the enabled mods.</summary>
-        public static List<int> GetEnabledModIds()
-        {
-            return new List<int>(m_data.enabledModIds);
-        }
-        /// <summary>Sets the enabled mods and writes the data to disk.</summary>
-        public static void SetEnabledModIds(IEnumerable<int> modIds)
-        {
-            int[] modIdArray;
-
-            if(modIds == null)
-            {
-                modIdArray = new int[0];
-            }
-            else
-            {
-                modIdArray = modIds.ToArray();
-            }
-
-            ModManager.m_data.enabledModIds = modIdArray;
-            string dataPath = IOUtilities.CombinePath(CacheClient.cacheDirectory, PERSISTENTDATA_FILENAME);
-            IOUtilities.WriteJsonObjectFile(dataPath, ModManager.m_data);
-        }
-
         /// <summary>Generates the path for a given modfile install directory.</summary>
         public static string GetModInstallDirectory(int modId, int modfileId)
         {
@@ -310,7 +286,7 @@ namespace ModIO
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
-                modIdFilter = new List<int>(ModManager.GetEnabledModIds());
+                modIdFilter = new List<int>(UserAccountManagement.GetEnabledMods());
                 // Include drop-ins
                 modIdFilter.Add(ModProfile.NULL_ID);
             }
@@ -331,7 +307,7 @@ namespace ModIO
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
-                modIdFilter = new List<int>(ModManager.GetEnabledModIds());
+                modIdFilter = new List<int>(UserAccountManagement.GetEnabledMods());
             }
 
             List<ModfileIdPair> versions = new List<ModfileIdPair>();
@@ -1993,6 +1969,19 @@ namespace ModIO
             {
                 onError(WebRequestError.GenerateLocal("Non-authenticated user profiles can no-longer be fetched."));
             }
+        }
+
+        /// <summary>[Obsolete] Returns the enabled mods.</summary>
+        [Obsolete("Use UserAccountManagement.GetEnabledMods() instead.")]
+        public static List<int> GetEnabledModIds()
+        {
+            return UserAccountManagement.GetEnabledMods();
+        }
+        /// <summary>[Obsolete] Sets the enabled mods and writes the data to disk.</summary>
+        [Obsolete("Use UserAccountManagement.SetEnabledMods() instead.")]
+        public static void SetEnabledModIds(IEnumerable<int> modIds)
+        {
+            UserAccountManagement.SetEnabledMods(modIds);
         }
     }
 }
