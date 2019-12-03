@@ -23,8 +23,11 @@ namespace ModIO
     public static class UserAccountManagement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>User Profile for the currently active user.</summary>
-        public static UserProfile activeUserProfile = null;
+        /// <summary>User data for the currently active user.</summary>
+        private static LocalUserData m_activeUserData;
+
+        /// <summary>File path to the active user data file.</summary>
+        private static string m_activeUserFileName;
 
         /// <summary>OAuthToken for the currently active user.</summary>
         public static string activeOAuthToken = null;
@@ -32,11 +35,12 @@ namespace ModIO
         /// <summary>URL Postfix for the authentication method.</summary>
         public static string authMethodURLPostfix = string.Empty;
 
-        /// <summary>User data for the currently active user.</summary>
-        private static LocalUserData m_activeUserData;
-
-        /// <summary>File path to the active user data file.</summary>
-        private static string m_localUserFilePath;
+        // --- Accessors ---
+        /// <summary>User Profile for the currently active user.</summary>
+        public static UserProfile ActiveUserProfile
+        {
+            get { return UserAccountManagement.m_activeUserData.profile; }
+        }
 
         // ---------[ DATA LOADING ]---------
         /// <summary>Loads the platform-specific functionality and stored user data.</summary>
@@ -69,7 +73,6 @@ namespace ModIO
             }
 
             // set
-            UserAccountManagement.activeUserProfile = null;
             UserAccountManagement.activeOAuthToken = null;
             UserAccountManagement.m_activeUserData = activeUserData;
         }
@@ -124,7 +127,7 @@ namespace ModIO
                 UserAuthenticationData.instance = data;
 
 
-                UserAccountManagement.activeUserProfile = p;
+                UserAccountManagement.m_activeUserData.profile = p;
                 UserAccountManagement.SaveUserData();
 
 
@@ -170,7 +173,6 @@ namespace ModIO
                 UserAuthenticationData.instance = authData;
 
                 UserAccountManagement.activeOAuthToken = t;
-                UserAccountManagement.activeUserProfile = null;
                 UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
@@ -259,7 +261,6 @@ namespace ModIO
                 UserAuthenticationData.instance = authData;
 
                 UserAccountManagement.activeOAuthToken = t;
-                UserAccountManagement.activeUserProfile = null;
                 UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
@@ -296,7 +297,6 @@ namespace ModIO
                 UserAuthenticationData.instance = authData;
 
                 UserAccountManagement.activeOAuthToken = t;
-                UserAccountManagement.activeUserProfile = null;
                 UserAccountManagement.SaveUserData();
 
                 UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
