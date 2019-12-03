@@ -1,7 +1,7 @@
 namespace ModIO
 {
     /// <summary>Structure for storing data about a user specific to this device.</summary>
-    public struct LocalUserData
+    public struct LocalUser
     {
         // ---------[ FIELDS ]---------
         /// <summary>mod.io User Profile.</summary>

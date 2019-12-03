@@ -6,12 +6,12 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    /// <summary>Main functional wrapper for the LocalUserData structure.</summary>
+    /// <summary>Main functional wrapper for the LocalUser structure.</summary>
     public static class UserAccountManagement
     {
         // ---------[ FIELDS ]---------
         /// <summary>Data instance.</summary>
-        private static LocalUserData _activeUser;
+        private static LocalUser _activeUser;
 
         /// <summary>User data file path for the active user.</summary>
         private static string _activeUserDataFilePath;
@@ -234,10 +234,10 @@ namespace ModIO
             UserAccountManagement._activeUserDataFilePath = "users/" + fileName;
 
             // read file
-            LocalUserData userData;
+            LocalUser userData;
             if(!UserDataStorage.TryReadJSONFile(UserAccountManagement._activeUserDataFilePath, out userData))
             {
-                userData = new LocalUserData()
+                userData = new LocalUser()
                 {
                     enabledModIds = new int[0],
                     subscribedModIds = new int[0],
