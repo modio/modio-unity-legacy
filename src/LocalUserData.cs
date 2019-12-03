@@ -13,8 +13,8 @@ namespace ModIO
         /// <summary>A flag to indicate that the auth token has been rejected.</summary>
         public bool wasTokenRejected;
 
-        /// <summary>External authentication service token.</summary>
-        public string externalAuthToken;
+        /// <summary>External authentication service ticket.</summary>
+        public string externalAuthTicket;
 
         /// <summary>External authentication service provider.</summary>
         public ExternalAuthenticationProvider externalAuthProvider;

@@ -37,7 +37,7 @@ namespace ModIO
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static bool WriteJSONFile<T>(string filePathRelative, T jsonObject)
+        public static bool TryWriteJSONFile<T>(string filePathRelative, T jsonObject)
         {
             byte[] fileData;
 

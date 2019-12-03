@@ -1,90 +1,56 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
-
-using Newtonsoft.Json;
+using System.Linq;
 
 using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    /// <summary>A collection of user management functions provided for convenience.</summary>
+    /// <summary>Main functional wrapper for the LocalUserData structure.</summary>
     public static class UserAccountManagement
     {
         // ---------[ FIELDS ]---------
-        /// <summary>User data for the currently active user.</summary>
-        private static LocalUserData m_activeUserData;
+        /// <summary>Data instance.</summary>
+        private static LocalUserData _activeUser;
 
-        /// <summary>File path to the active user data file.</summary>
-        private static string m_activeUserFileName;
-
-        /// <summary>URL Postfix for the authentication method.</summary>
-        public static string authMethodURLPostfix = string.Empty;
+        /// <summary>User data file path for the active user.</summary>
+        private static string _activeUserDataFilePath;
 
         // --- Accessors ---
         /// <summary>User Profile for the currently active user.</summary>
         public static UserProfile ActiveUserProfile
         {
-            get { return UserAccountManagement.m_activeUserData.profile; }
+            get { return UserAccountManagement._activeUser.profile; }
         }
 
         /// <summary>OAuthToken for the currently active user.</summary>
         public static string ActiveUserToken
         {
-            get { return UserAccountManagement.m_activeUserData.oAuthToken; }
+            get { return UserAccountManagement._activeUser.oAuthToken; }
         }
 
-        // ---------[ DATA LOADING ]---------
-        /// <summary>Loads the platform-specific functionality and stored user data.</summary>
+        /// <summary>URL Postfix for the authentication method.</summary>
+        public static string authMethodURLPostfix
+        {
+            get { throw new System.NotImplementedException(); }
+        }
+
+        // ---------[ INITIALIZATION ]---------
+        /// <summary>Loads the default local user.</summary>
         static UserAccountManagement()
         {
             UserAccountManagement.LoadLocalUser(null);
         }
 
-        /// <summary>Loads the user data for the local user with the given identifier.</summary>
-        public static void LoadLocalUser(string localUserId = null)
-        {
-            string fileName;
-
-            // null-check
-            if(string.IsNullOrEmpty(localUserId))
-            {
-                fileName = "default.user";
-            }
-            else
-            {
-                fileName = IOUtilities.MakeValidFileName(localUserId, ".user");
-            }
-
-            // load data
-            LocalUserData activeUserData;
-
-            if(!UserDataStorage.TryReadJSONFile("users/" + fileName, out activeUserData))
-            {
-                activeUserData = new LocalUserData();
-            }
-
-            // set
-            UserAccountManagement.m_activeUserData.oAuthToken = null;
-            UserAccountManagement.m_activeUserData = activeUserData;
-        }
-
-        /// <summary>Saves the active user data.</summary>
-        public static void SaveUserData()
-        {
-            UserDataStorage.WriteJSONFile(null, UserAccountManagement.m_activeUserData);
-        }
-
-        // ---------[ USER ACTIONS ]---------
+        // ---------[ MOD COLLECTION MANAGEMENT ]---------
         /// <summary>Returns the enabled mods for the active user.</summary>
-        public static List<int> GetEnabledModIds()
+        public static List<int> GetEnabledMods()
         {
-            return new List<int>(UserAccountManagement.m_activeUserData.enabledModIds);
+            return new List<int>(UserAccountManagement._activeUser.enabledModIds);
         }
 
         /// <summary>Sets the enabled mods for the active user.</summary>
-        public static void SetEnabledModIds(IEnumerable<int> modIds)
+        public static void SetEnabledMods(IEnumerable<int> modIds)
         {
             int[] modIdArray;
 
@@ -97,32 +63,19 @@ namespace ModIO
                 modIdArray = modIds.ToArray();
             }
 
-            UserAccountManagement.m_activeUserData.enabledModIds = modIdArray;
+            UserAccountManagement._activeUser.enabledModIds = modIdArray;
+            SaveActiveUser();
         }
 
-        // ---------[ UTILITY ]---------
-        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
-        public static void MarkAuthTokenRejected()
-        {
-            UserAuthenticationData data = UserAuthenticationData.instance;
-            data.wasTokenRejected = true;
-            UserAuthenticationData.instance = data;
-        }
-
-        /// <summary>Fetches and stores the UserProfile for the active user.</summary>
-        private static void FetchActiveUserProfile(Action<UserProfile> onSuccess,
-                                                   Action<WebRequestError> onError)
+        // ---------[ AUTHENTICATION ]---------
+        /// <summary>Pulls any changes to the User Profile from the mod.io servers.</summary>
+        public static void FetchUserProfile(Action<UserProfile> onSuccess,
+                                            Action<WebRequestError> onError)
         {
             APIClient.GetAuthenticatedUser((p) =>
             {
-                UserAuthenticationData data = UserAuthenticationData.instance;
-                data.userId = p.id;
-                UserAuthenticationData.instance = data;
-
-
-                UserAccountManagement.m_activeUserData.profile = p;
-                UserAccountManagement.SaveUserData();
-
+                UserAccountManagement._activeUser.profile = p;
+                UserAccountManagement.SaveActiveUser();
 
                 if(onSuccess != null)
                 {
@@ -132,86 +85,28 @@ namespace ModIO
             onError);
         }
 
-        // ---------[ AUTHENTICATION ]---------
-        /// <summary>Requests a login code be sent to an email address.</summary>
-        public static void RequestSecurityCode(string emailAddress,
-                                               Action onSuccess,
-                                               Action<WebRequestError> onError)
+        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
+        public static void MarkAuthTokenRejected()
         {
-            if(onSuccess == null)
-            {
-                APIClient.SendSecurityCode(emailAddress, null, onError);
-            }
-            else
-            {
-                APIClient.SendSecurityCode(emailAddress, (m) => onSuccess(), onError);
-            }
+            UserAccountManagement._activeUser.wasTokenRejected = true;
+            SaveActiveUser();
         }
 
-        /// <summary>Attempts to authenticate a user using an emailed security code.</summary>
+
+        /// <summary>Begins the authentication process using a mod.io Security Code.</summary>
         public static void AuthenticateWithSecurityCode(string securityCode,
                                                         Action<UserProfile> onSuccess,
                                                         Action<WebRequestError> onError)
         {
             APIClient.GetOAuthToken(securityCode, (t) =>
             {
-                UserAuthenticationData authData = new UserAuthenticationData()
-                {
-                    token = t,
-                    wasTokenRejected = false,
-                    externalAuthToken = null,
-                    externalAuthId = null,
-                };
-
-                UserAuthenticationData.instance = authData;
-
-                UserAccountManagement.m_activeUserData.oAuthToken = t;
-                UserAccountManagement.SaveUserData();
-
-                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
+                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.SaveActiveUser();
+                UserAccountManagement.FetchUserProfile(onSuccess, onError);
             },
             onError);
         }
 
-        /// <summary>Attempts to reauthenticate using the enabled service.</summary>
-        public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
-                                                               Action<WebRequestError> onError)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(UserAuthenticationData.instance.externalAuthToken));
-
-            Action<string, Action<string>, Action<WebRequestError>> authAction = null;
-
-            #if ENABLE_STEAMWORKS_FACEPUNCH || ENABLE_STEAMWORKS_NET || ENABLE_STEAM_OTHER
-                authAction = APIClient.RequestSteamAuthentication;
-            #elif ENABLE_GOG_AUTHENTICATION
-                authAction = APIClient.RequestGOGAuthentication;
-            #endif
-
-            #if DEBUG
-                if(authAction == null)
-                {
-                    Debug.LogError("[mod.io] Cannot reauthenticate without enabling an external"
-                                   + " authentication service. Please refer to this file"
-                                   + " (UserAccountManagement.cs) and uncomment the #define for the"
-                                   + " desired service at the beginning of the file.");
-                }
-            #endif
-
-            authAction.Invoke(UserAuthenticationData.instance.externalAuthToken, (t) =>
-            {
-                UserAuthenticationData authData = new UserAuthenticationData()
-                {
-                    token = t,
-                    wasTokenRejected = false,
-                };
-
-                UserAuthenticationData.instance = authData;
-                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
-            },
-            onError);
-        }
-
-        // ---------[ STEAM AUTHENTICATION ]---------
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         /// <remarks>This version is designed to match the Steamworks.NET implementation by
         /// @rlabrecque at https://github.com/rlabrecque/Steamworks.NET</remarks>
@@ -220,8 +115,7 @@ namespace ModIO
                                                                    Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeEncryptedAppTicket(pTicket, pcbTicket);
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
-                                                                          onSuccess, onError);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
@@ -232,44 +126,35 @@ namespace ModIO
                                                                    Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeEncryptedAppTicket(authTicketData, (uint)authTicketData.Length);
-            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket,
-                                                                          onSuccess, onError);
+            UserAccountManagement.AuthenticateWithSteamEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
+
 
         /// <summary>Attempts to authenticate a user using a Steam Encrypted App Ticket.</summary>
         public static void AuthenticateWithSteamEncryptedAppTicket(string encodedTicket,
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
+            UserAccountManagement._activeUser.externalAuthTicket = encodedTicket;
+            UserAccountManagement._activeUser.externalAuthProvider = ExternalAuthenticationProvider.Steam;
+
             APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
             {
-                UserAuthenticationData authData = new UserAuthenticationData()
-                {
-                    token = t,
-                    wasTokenRejected = false,
-                    externalAuthToken = encodedTicket,
-                    externalAuthId = null,
-                };
+                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.SaveActiveUser();
 
-                UserAuthenticationData.instance = authData;
-
-                UserAccountManagement.m_activeUserData.oAuthToken = t;
-                UserAccountManagement.SaveUserData();
-
-                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
+                UserAccountManagement.FetchUserProfile(onSuccess, onError);
             },
             onError);
         }
 
-        // ---------[ GOG AUTHENTICATION ]---------
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
         public static void AuthenticateWithGOGEncryptedAppTicket(byte[] data, uint dataSize,
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
             string encodedTicket = Utility.EncodeEncryptedAppTicket(data, dataSize);
-            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket,
-                                                                        onSuccess, onError);
+            UserAccountManagement.AuthenticateWithGOGEncryptedAppTicket(encodedTicket, onSuccess, onError);
         }
 
         /// <summary>Attempts to authenticate a user using a GOG Encrypted App Ticket.</summary>
@@ -277,24 +162,132 @@ namespace ModIO
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
+            UserAccountManagement._activeUser.externalAuthTicket = encodedTicket;
+            UserAccountManagement._activeUser.externalAuthProvider = ExternalAuthenticationProvider.Steam;
+
             APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
             {
-                UserAuthenticationData authData = new UserAuthenticationData()
-                {
-                    token = t,
-                    wasTokenRejected = false,
-                    externalAuthToken = encodedTicket,
-                    externalAuthId = null,
-                };
+                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.SaveActiveUser();
 
-                UserAuthenticationData.instance = authData;
-
-                UserAccountManagement.m_activeUserData.oAuthToken = t;
-                UserAccountManagement.SaveUserData();
-
-                UserAccountManagement.FetchActiveUserProfile(onSuccess, onError);
+                UserAccountManagement.FetchUserProfile(onSuccess, onError);
             },
             onError);
+        }
+
+        /// <summary>Attempts to reauthenticate using the stored external auth ticket.</summary>
+        public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
+                                                               Action<WebRequestError> onError)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(UserAccountManagement._activeUser.externalAuthTicket));
+            Debug.Assert(UserAccountManagement._activeUser.externalAuthProvider != ExternalAuthenticationProvider.None);
+
+            Action<string, Action<string>, Action<WebRequestError>> authAction = null;
+
+            switch(UserAccountManagement._activeUser.externalAuthProvider)
+            {
+                case ExternalAuthenticationProvider.Steam:
+                {
+                    authAction = APIClient.RequestSteamAuthentication;
+                }
+                break;
+
+                case ExternalAuthenticationProvider.GOG:
+                {
+                    authAction = APIClient.RequestGOGAuthentication;
+                }
+                break;
+
+                default:
+                {
+                    throw new System.NotImplementedException();
+                }
+            }
+
+            authAction.Invoke(UserAuthenticationData.instance.externalAuthToken, (t) =>
+            {
+                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.SaveActiveUser();
+
+                if(onSuccess != null)
+                {
+                    UserAccountManagement.FetchUserProfile(onSuccess, onError);
+                }
+            },
+            onError);
+        }
+
+        // ---------[ USER MANAGEMENT ]---------
+        /// <summary>Loads the user data for the local user with the given identifier.</summary>
+        public static void LoadLocalUser(string localUserIdentifier = null)
+        {
+            // generate file path
+            string fileName;
+            if(string.IsNullOrEmpty(localUserIdentifier))
+            {
+                fileName = "default.user";
+            }
+            else
+            {
+                fileName = IOUtilities.MakeValidFileName(localUserIdentifier, ".user");
+            }
+            UserAccountManagement._activeUserDataFilePath = "users/" + fileName;
+
+            // read file
+            LocalUserData userData;
+            if(!UserDataStorage.TryReadJSONFile(UserAccountManagement._activeUserDataFilePath, out userData))
+            {
+                userData = new LocalUserData()
+                {
+                    enabledModIds = new int[0],
+                    subscribedModIds = new int[0],
+                };
+            }
+            else
+            {
+                if(userData.enabledModIds == null)
+                {
+                    userData.enabledModIds = new int[0];
+                }
+                if(userData.subscribedModIds == null)
+                {
+                    userData.subscribedModIds = new int[0];
+                }
+            }
+
+            // set
+            UserAccountManagement._activeUser = userData;
+        }
+
+        /// <summary>Changes the local user identifier.</summary>
+        public static void SetLocalUserIdentifier(string localUserIdentifier)
+        {
+            string oldFilePath = UserAccountManagement._activeUserDataFilePath;
+
+            // generate file path
+            string newFileName;
+            if(string.IsNullOrEmpty(localUserIdentifier))
+            {
+                newFileName = "default.user";
+            }
+            else
+            {
+                newFileName = IOUtilities.MakeValidFileName(localUserIdentifier, ".user");
+            }
+            UserAccountManagement._activeUserDataFilePath = "users/" + newFileName;
+
+            // set
+            UserAccountManagement.SaveActiveUser();
+
+            // delete old
+            UserDataStorage.DeleteFile(oldFilePath);
+        }
+
+        /// <summary>Writes the active user data to disk.</summary>
+        public static void SaveActiveUser()
+        {
+            UserDataStorage.TryWriteJSONFile(UserAccountManagement._activeUserDataFilePath,
+                                             UserAccountManagement._activeUser);
         }
     }
 }
