@@ -14,10 +14,7 @@ namespace ModIO
         public bool wasTokenRejected;
 
         /// <summary>External authentication service ticket.</summary>
-        public string externalAuthTicket;
-
-        /// <summary>External authentication service provider.</summary>
-        public ExternalAuthenticationProvider externalAuthProvider;
+        public ExternalAuthenticationTicket externalAuthTicket;
 
         /// <summary>Mods the user has enabled on this device.</summary>
         public int[] enabledModIds;

@@ -29,6 +29,26 @@ namespace ModIO
             get { return UserAccountManagement._activeUser.oAuthToken; }
         }
 
+        /// <summary>Is the ActiveUserToken valid?</summary>
+        public static bool WasTokenRejected
+        {
+            get { return UserAccountManagement._activeUser.wasTokenRejected; }
+        }
+
+        /// <summary>External Authentication Ticket for the active user.</summary>
+        public static string ExternalAuthTicket
+        {
+            get { return UserAccountManagement._activeUser.externalAuthTicket.value; }
+            private set { UserAccountManagement._activeUser.externalAuthTicket.value = value; }
+        }
+
+        /// <summary>Provider of the ExternalAuthTicket.</summary>
+        public static ExternalAuthenticationProvider ExternalAuthProvider
+        {
+            get { return UserAccountManagement._activeUser.externalAuthTicket.provider; }
+            private set { UserAccountManagement._activeUser.externalAuthTicket.provider = value; }
+        }
+
         /// <summary>URL Postfix for the authentication method.</summary>
         public static string authMethodURLPostfix
         {
@@ -159,8 +179,8 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            UserAccountManagement._activeUser.externalAuthTicket = encodedTicket;
-            UserAccountManagement._activeUser.externalAuthProvider = ExternalAuthenticationProvider.Steam;
+            UserAccountManagement.ExternalAuthTicket = encodedTicket;
+            UserAccountManagement.ExternalAuthProvider = ExternalAuthenticationProvider.Steam;
 
             APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
             {
@@ -186,8 +206,8 @@ namespace ModIO
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
-            UserAccountManagement._activeUser.externalAuthTicket = encodedTicket;
-            UserAccountManagement._activeUser.externalAuthProvider = ExternalAuthenticationProvider.Steam;
+            UserAccountManagement.ExternalAuthTicket = encodedTicket;
+            UserAccountManagement.ExternalAuthProvider = ExternalAuthenticationProvider.Steam;
 
             APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
             {
@@ -203,12 +223,12 @@ namespace ModIO
         public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
                                                                Action<WebRequestError> onError)
         {
-            Debug.Assert(!string.IsNullOrEmpty(UserAccountManagement._activeUser.externalAuthTicket));
-            Debug.Assert(UserAccountManagement._activeUser.externalAuthProvider != ExternalAuthenticationProvider.None);
+            Debug.Assert(!string.IsNullOrEmpty(UserAccountManagement.ExternalAuthTicket));
+            Debug.Assert(UserAccountManagement.ExternalAuthProvider != ExternalAuthenticationProvider.None);
 
             Action<string, Action<string>, Action<WebRequestError>> authAction = null;
 
-            switch(UserAccountManagement._activeUser.externalAuthProvider)
+            switch(UserAccountManagement.ExternalAuthProvider)
             {
                 case ExternalAuthenticationProvider.Steam:
                 {
@@ -228,7 +248,7 @@ namespace ModIO
                 }
             }
 
-            authAction.Invoke(UserAuthenticationData.instance.externalAuthToken, (t) =>
+            authAction.Invoke(UserAccountManagement.ExternalAuthTicket, (t) =>
             {
                 UserAccountManagement._activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
