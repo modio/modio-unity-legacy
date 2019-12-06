@@ -7,7 +7,8 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    /// <summary>A singleton struct that is referenced by multiple classes for user authentication.</summary>
+    /// <summary>[Obsolete] A singleton struct that is referenced by multiple classes for user authentication.</summary>
+    [System.Obsolete("Functionality can now be found in UserAccountManagement.")]
     [System.Serializable]
     public struct UserAuthenticationData
     {
