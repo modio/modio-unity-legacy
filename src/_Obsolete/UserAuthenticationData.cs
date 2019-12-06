@@ -95,10 +95,17 @@ namespace ModIO
                 if(profile == null
                    || profile.id != value.userId)
                 {
-                    profile = new UserProfile()
+                    if(value.userId == UserProfile.NULL_ID)
                     {
-                        id = value.userId,
-                    };
+                        profile = null;
+                    }
+                    else
+                    {
+                        profile = new UserProfile()
+                        {
+                            id = value.userId,
+                        };
+                    }
                 }
 
                 // externalAuthTicket data
