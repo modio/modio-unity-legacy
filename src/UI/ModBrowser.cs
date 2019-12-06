@@ -1740,7 +1740,8 @@ namespace ModIO.UI
             WriteManifest();
 
             // - clear current user -
-            UserAuthenticationData.Clear();
+            UserAccountManagement.SetLocalUserData(new LocalUser());
+            UserAccountManagement.SaveActiveUser();
 
             // - notify receivers -
             IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
