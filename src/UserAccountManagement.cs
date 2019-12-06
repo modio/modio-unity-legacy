@@ -333,5 +333,11 @@ namespace ModIO
             UserDataStorage.TryWriteJSONFile(UserAccountManagement._activeUserDataFilePath,
                                              UserAccountManagement._activeUser);
         }
+
+        /// <summary>Sets the local user data directly.</summary>
+        public static void SetLocalUserData(LocalUser locaUserData)
+        {
+            UserAccountManagement._activeUser = locaUserData;
+        }
     }
 }
