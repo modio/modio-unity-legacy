@@ -35,8 +35,7 @@ namespace ModIO.UI
         /// <summary>Shows the menu.</summary>
         public void ShowMenu()
         {
-            UserAuthenticationData userData = UserAuthenticationData.instance;
-            bool loggedIn = !(userData.Equals(UserAuthenticationData.NONE));
+            bool loggedIn = UserAccountManagement.IsTokenValid;
 
             this.loggedUser.gameObject.SetActive(loggedIn);
             this.logoutButton.gameObject.SetActive(loggedIn);
@@ -70,27 +69,32 @@ namespace ModIO.UI
         /// <summary>Opens the user's menu profile in a web browser.</summary>
         public void OpenProfileInBrowser()
         {
-            UserAuthenticationData userData = UserAuthenticationData.instance;
-            if(userData.userId != UserProfile.NULL_ID)
+            UserProfile profile = UserAccountManagement.ActiveUserProfile;
+            if(profile != null)
             {
                 this.viewProfileButton.interactable = false;
 
-                ModManager.GetAuthenticatedUserProfile(
-                (p) =>
+                string urlLoginPostfix = string.Empty;
+
+                switch(UserAccountManagement.ExternalAuthProvider)
                 {
-                    if(this != null
-                       && p != null
-                       && userData.userId == p.id)
+                    case ExternalAuthenticationProvider.Steam:
                     {
-                        string profileURL = p.profileURL + @"/edit" + UserAccountManagement.authMethodURLPostfix;
-                        Application.OpenURL(profileURL);
-                        this.viewProfileButton.interactable = true;
+                        urlLoginPostfix = "?ref=steam";
                     }
-                },
-                (e) =>
-                {
-                    this.viewProfileButton.interactable = true;
-                });
+                    break;
+
+                    case ExternalAuthenticationProvider.GOG:
+                    {
+                        urlLoginPostfix = "?ref=gog";
+                    }
+                    break;
+                }
+
+                string profileURL = profile.profileURL + @"/edit" + urlLoginPostfix;
+                Application.OpenURL(profileURL);
+
+                this.viewProfileButton.interactable = true;
             }
         }
     }
