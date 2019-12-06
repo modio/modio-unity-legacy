@@ -230,7 +230,7 @@ namespace ModIO.UI
             {
                 bool isAttemptingReauth = false;
 
-                if(!string.IsNullOrEmpty(UserAuthenticationData.instance.externalAuthToken))
+                if(!string.IsNullOrEmpty(UserAccountManagement.ExternalAuthTicket))
                 {
                     isAttemptingReauth = true;
 
