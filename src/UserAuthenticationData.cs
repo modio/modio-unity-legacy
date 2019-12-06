@@ -104,26 +104,6 @@ namespace ModIO
         }
 
         // ---------[ SAVE/LOAD ]---------
-        /// <summary>Writes the UserAuthenticationData to disk.</summary>
-        private static void SaveInstance()
-        {
-            IOUtilities.WriteJsonObjectFile(FILE_LOCATION, UserAuthenticationData.m_instance);
-        }
-
-        /// <summary>Loads the UserAuthenticationData from disk.</summary>
-        private static void LoadInstance()
-        {
-            UserAuthenticationData cachedData;
-            if(IOUtilities.TryReadJsonObjectFile(FILE_LOCATION, out cachedData))
-            {
-                UserAuthenticationData.m_instance = cachedData;
-            }
-            else
-            {
-                UserAuthenticationData.m_instance = UserAuthenticationData.NONE;
-            }
-        }
-
         /// <summary>Clears the instance and deletes the data on disk.</summary>
         public static void Clear()
         {
