@@ -45,9 +45,6 @@ namespace ModIO
 
         // ---------[ SINGLETON ]---------
         /// <summary>Singleton instance to be used as the current/active data.</summary>
-        private static UserAuthenticationData m_instance;
-
-        /// <summary>Singleton instance to be used as the current/active data.</summary>
         public static UserAuthenticationData instance
         {
             get
@@ -107,8 +104,7 @@ namespace ModIO
         /// <summary>Clears the instance and deletes the data on disk.</summary>
         public static void Clear()
         {
-            UserAuthenticationData.m_instance = UserAuthenticationData.NONE;
-            IOUtilities.DeleteFile(UserAuthenticationData.FILE_LOCATION);
+            UserAuthenticationData.instance = UserAuthenticationData.NONE;
         }
 
         // ---------[ OBSOLETE ]---------
