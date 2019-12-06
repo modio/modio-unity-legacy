@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 
 using Debug = UnityEngine.Debug;
 
+#pragma warning disable 0618
 namespace ModIO
 {
     /// <summary>Performs the operations necessary to update data from older versions of the plugin.</summary>
@@ -122,3 +123,4 @@ namespace ModIO
         }
     }
 }
+#pragma warning restore 0618
