@@ -28,9 +28,7 @@ namespace ModIO.UI
         // ---------[ EVENTS ]---------
         private void OnButtonClick()
         {
-            UserAuthenticationData userData = UserAuthenticationData.instance;
-            bool loggedIn = !(userData.Equals(UserAuthenticationData.NONE));
-            bool isExternallyAuthenticated = (loggedIn && !string.IsNullOrEmpty(UserAccountManagement.ExternalAuthTicket));
+            bool loggedIn = !string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken);
 
             if(!loggedIn)
             {
@@ -39,7 +37,7 @@ namespace ModIO.UI
                     onLoggedOutClick.Invoke();
                 }
             }
-            else if(!isExternallyAuthenticated)
+            else if(UserAccountManagement.ExternalAuthProvider == ExternalAuthenticationProvider.None)
             {
                 if(onModioAccountClick != null)
                 {
