@@ -54,15 +54,15 @@ namespace ModIO
 
             if(!IOUtilities.TryReadJsonObjectFile(PERSISTENTDATA_FILEPATH, out ModManager.m_data))
             {
-                ModManager.m_data = new PersistentData()
-                {
-                    lastRunVersion = ModManager.VERSION,
-                };
+                ModManager.m_data = new PersistentData();
+            }
+            else if(ModManager.m_data.lastRunVersion < ModManager.VERSION)
+            {
+                DataUpdater.UpdateFromVersion(m_data.lastRunVersion);
             }
 
-            VersionUpdater.Run(m_data.lastRunVersion);
+            ModManager.m_data.lastRunVersion = ModManager.VERSION;
 
-            m_data.lastRunVersion = VERSION;
             IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
