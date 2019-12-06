@@ -96,7 +96,7 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            if(UserAuthenticationData.instance.IsTokenValid)
+            if(UserAccountManagement.IsTokenValid)
             {
                 // attempt pushing of subs/unsubs
                 foreach(int modId in this.m_queuedSubscribes)
@@ -222,7 +222,7 @@ namespace ModIO.UI
                 yield break;
             }
 
-            if(UserAuthenticationData.instance.IsTokenValid)
+            if(UserAccountManagement.IsTokenValid)
             {
                 this.StartCoroutine(FetchUserProfile());
             }
@@ -261,7 +261,7 @@ namespace ModIO.UI
 
             this.StartCoroutine(FetchGameProfile());
 
-            if(UserAuthenticationData.instance.IsTokenValid)
+            if(UserAccountManagement.IsTokenValid)
             {
                 yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
@@ -361,7 +361,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserProfile()
         {
-            Debug.Assert(UserAuthenticationData.instance.IsTokenValid);
+            Debug.Assert(UserAccountManagement.IsTokenValid);
 
             bool succeeded = false;
             string fetchToken = UserAuthenticationData.instance.token;
@@ -450,7 +450,7 @@ namespace ModIO.UI
         private System.Collections.IEnumerator PushQueuedSubscribes(Action<List<ModProfile>> onCompleted)
         {
             // early out if not authenticated or no queued subs
-            if(!UserAuthenticationData.instance.IsTokenValid
+            if(!UserAccountManagement.IsTokenValid
                || this.m_queuedSubscribes.Count == 0)
             {
                 if(onCompleted != null) { onCompleted(new List<ModProfile>()); }
@@ -511,7 +511,7 @@ namespace ModIO.UI
                         --responsesPending;
                         if(e.isAuthenticationInvalid)
                         {
-                            if(UserAuthenticationData.instance.IsTokenValid)
+                            if(UserAccountManagement.IsTokenValid)
                             {
                                 UserAccountManagement.MarkAuthTokenRejected();
                                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
@@ -572,7 +572,7 @@ namespace ModIO.UI
         private System.Collections.IEnumerator PushQueuedUnsubscribes(Action<List<int>> onCompleted)
         {
             // early out if not authenticated or no queued actions
-            if(!UserAuthenticationData.instance.IsTokenValid
+            if(!UserAccountManagement.IsTokenValid
                || this.m_queuedUnsubscribes.Count == 0)
             {
                 if(onCompleted != null) { onCompleted(new List<int>(0)); }
@@ -611,7 +611,7 @@ namespace ModIO.UI
                         --responsesPending;
                         if(e.isAuthenticationInvalid)
                         {
-                            if(UserAuthenticationData.instance.IsTokenValid)
+                            if(UserAccountManagement.IsTokenValid)
                             {
                                 UserAccountManagement.MarkAuthTokenRejected();
 
@@ -653,7 +653,7 @@ namespace ModIO.UI
                                                                         Action<WebRequestError> onFailed)
         {
             // early out if not authenticated
-            if(!UserAuthenticationData.instance.IsTokenValid)
+            if(!UserAccountManagement.IsTokenValid)
             {
                 if(onCompleted != null) { onCompleted(); }
                 yield break;
@@ -711,7 +711,7 @@ namespace ModIO.UI
                     }
                     else
                     {
-                        if(UserAuthenticationData.instance.IsTokenValid)
+                        if(UserAccountManagement.IsTokenValid)
                         {
                             UserAccountManagement.MarkAuthTokenRejected();
 
@@ -737,7 +737,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
         {
-            if(!UserAuthenticationData.instance.IsTokenValid) { yield break; }
+            if(!UserAccountManagement.IsTokenValid) { yield break; }
 
             // push local actions
             yield return this.StartCoroutine(PushQueuedSubscribes(null));
@@ -953,7 +953,7 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(UserAuthenticationData.instance.IsTokenValid
+            while(UserAccountManagement.IsTokenValid
                   && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
@@ -1394,7 +1394,7 @@ namespace ModIO.UI
                 isRequestDone = false;
                 requestError = null;
 
-                if(UserAuthenticationData.instance.IsTokenValid)
+                if(UserAccountManagement.IsTokenValid)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -1445,7 +1445,7 @@ namespace ModIO.UI
                         }
                     }
                     // This may have changed during the request execution
-                    else if(UserAuthenticationData.instance.IsTokenValid)
+                    else if(UserAccountManagement.IsTokenValid)
                     {
                         if(userEventReponse.Count > 0)
                         {
@@ -1468,7 +1468,7 @@ namespace ModIO.UI
         {
             if(this == null
                || !this.isActiveAndEnabled
-               || !UserAuthenticationData.instance.IsTokenValid)
+               || !UserAccountManagement.IsTokenValid)
             {
                 return;
             }
@@ -1716,7 +1716,7 @@ namespace ModIO.UI
 
             yield return this.StartCoroutine(FetchUserProfile());
 
-            if(UserAuthenticationData.instance.IsTokenValid)
+            if(UserAccountManagement.IsTokenValid)
             {
                 yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
