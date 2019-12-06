@@ -18,7 +18,8 @@ namespace ModIO
             userId = UserProfile.NULL_ID,
             token = null,
             wasTokenRejected = false,
-            externalAuthToken = null,
+            steamTicket = null,
+            gogTicket = null,
         };
 
         /// <summary>Location of the settings file.</summary>
@@ -35,8 +36,11 @@ namespace ModIO
         /// <summary>A flag to indicate that the auth token has been rejected.</summary>
         public bool wasTokenRejected;
 
-        /// <summary>External authentication service token.</summary>
-        public string externalAuthToken;
+        /// <summary>Steam ticket (if applicable).</summary>
+        public string steamTicket;
+
+        /// <summary>GOG ticket (if applicable).</summary>
+        public string gogTicket;
 
         // --- ACCESSORS ---
         [JsonIgnore]
@@ -50,13 +54,31 @@ namespace ModIO
             get
             {
                 UserProfile p = UserAccountManagement.ActiveUserProfile;
+                string steamTicket = null;
+                string gogTicket = null;
+
+                switch(UserAccountManagement.ExternalAuthProvider)
+                {
+                    case ExternalAuthenticationProvider.Steam:
+                    {
+                        steamTicket = UserAccountManagement.ExternalAuthTicket;
+                    }
+                    break;
+
+                    case ExternalAuthenticationProvider.GOG:
+                    {
+                        gogTicket = UserAccountManagement.ExternalAuthTicket;
+                    }
+                    break;
+                }
 
                 UserAuthenticationData data = new UserAuthenticationData()
                 {
                     userId = (p == null ? UserProfile.NULL_ID : p.id),
                     token = UserAccountManagement.ActiveUserToken,
                     wasTokenRejected = UserAccountManagement.WasTokenRejected,
-                    externalAuthToken = UserAccountManagement.ExternalAuthTicket,
+                    steamTicket = steamTicket,
+                    gogTicket = gogTicket,
                 };
 
                 return data;
@@ -67,6 +89,7 @@ namespace ModIO
                 List<int> enabled = UserAccountManagement.GetEnabledMods();
                 List<int> subscribed = UserAccountManagement.GetSubscribedMods();
 
+                // profile data
                 UserProfile profile = UserAccountManagement.ActiveUserProfile;
                 if(profile == null
                    || profile.id != value.userId)
@@ -77,19 +100,31 @@ namespace ModIO
                     };
                 }
 
+                // externalAuthTicket data
+                var ticket = new ExternalAuthenticationTicket()
+                {
+                    value = null,
+                    provider = ExternalAuthenticationProvider.None,
+                };
+
+                if(!string.IsNullOrEmpty(value.steamTicket))
+                {
+                    ticket.value = value.steamTicket;
+                    ticket.provider = ExternalAuthenticationProvider.Steam;
+                }
+                else if(!string.IsNullOrEmpty(value.gogTicket))
+                {
+                    ticket.value = value.gogTicket;
+                    ticket.provider = ExternalAuthenticationProvider.GOG;
+                }
+
                 // create data
                 LocalUser userData = new LocalUser()
                 {
                     profile = profile,
                     oAuthToken = value.token,
                     wasTokenRejected = value.wasTokenRejected,
-
-                    externalAuthTicket = new ExternalAuthenticationTicket()
-                    {
-                        value = value.externalAuthToken,
-                        provider = ExternalAuthenticationProvider.None,
-                    },
-
+                    externalAuthTicket = ticket,
                     enabledModIds = enabled.ToArray(),
                     subscribedModIds = subscribed.ToArray(),
                 };
@@ -105,23 +140,6 @@ namespace ModIO
         public static void Clear()
         {
             UserAuthenticationData.instance = UserAuthenticationData.NONE;
-        }
-
-        // ---------[ OBSOLETE ]---------
-        /// <summary>[Obsolete] Steam ticket (if applicable).</summary>
-        [System.Obsolete("Use externalAuthToken instead.")]
-        public string steamTicket
-        {
-            get { return this.externalAuthToken; }
-            set { this.externalAuthToken = value; }
-        }
-
-        /// <summary>[Obsolete] GOG ticket (if applicable).</summary>
-        [System.Obsolete("Use externalAuthToken instead.")]
-        public string gogTicket
-        {
-            get { return this.externalAuthToken; }
-            set { this.externalAuthToken = value; }
         }
     }
 }
