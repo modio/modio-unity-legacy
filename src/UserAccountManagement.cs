@@ -35,6 +35,16 @@ namespace ModIO
             get { return UserAccountManagement._activeUser.wasTokenRejected; }
         }
 
+        /// <summary>Indicates whether the OAuthToken exists and has not been marked aas rejected.</summary>
+        public static bool IsTokenValid
+        {
+            get
+            {
+                return (!string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken)
+                        && !UserAccountManagement.WasTokenRejected);
+            }
+        }
+
         /// <summary>External Authentication Ticket for the active user.</summary>
         public static string ExternalAuthTicket
         {
