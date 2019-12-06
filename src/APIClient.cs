@@ -96,18 +96,18 @@ namespace ModIO
 
             if(isUserTokenRequired)
             {
-                if(String.IsNullOrEmpty(UserAuthenticationData.instance.token))
+                if(String.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))
                 {
                     Debug.LogError("[mod.io] API request to modification or User-specific"
                                    + " endpoints cannot be made without first setting the"
                                    + " User Authorization Data instance with a valid token.");
                     return false;
                 }
-                else if(UserAuthenticationData.instance.wasTokenRejected)
+                else if(UserAccountManagement.WasTokenRejected)
                 {
                     Debug.LogWarning("[mod.io] An API request is being made with a UserAuthenticationData"
                                      + " token that has been flagged as previously rejected."
-                                     + " A check on UserAuthenticationData.instance.IsTokenValid"
+                                     + " A check on UserAccountManagement.IsTokenValid"
                                      + " should be made prior to making user-authrization calls.");
                 }
             }
@@ -217,9 +217,9 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
 
-            if(UserAuthenticationData.instance.IsTokenValid)
+            if(UserAccountManagement.IsTokenValid)
             {
-                webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
+                webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
             }
             else
             {
@@ -254,7 +254,7 @@ namespace ModIO
                                      + paginationString);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             return webRequest;
@@ -277,7 +277,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -321,7 +321,7 @@ namespace ModIO
 
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -358,7 +358,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAuthenticationData.instance.token);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
