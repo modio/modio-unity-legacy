@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using Newtonsoft.Json;
 
 using Application = UnityEngine.Application;
@@ -64,11 +66,40 @@ namespace ModIO
             }
             set
             {
-                if(!UserAuthenticationData.m_instance.Equals(value))
+                // get existing values
+                List<int> enabled = UserAccountManagement.GetEnabledMods();
+                List<int> subscribed = UserAccountManagement.GetSubscribedMods();
+
+                UserProfile profile = UserAccountManagement.ActiveUserProfile;
+                if(profile == null
+                   || profile.id != value.userId)
                 {
-                    m_instance = value;
-                    SaveInstance();
+                    profile = new UserProfile()
+                    {
+                        id = value.userId,
+                    };
                 }
+
+                // create data
+                LocalUser userData = new LocalUser()
+                {
+                    profile = profile,
+                    oAuthToken = value.token,
+                    wasTokenRejected = value.wasTokenRejected,
+
+                    externalAuthTicket = new ExternalAuthenticationTicket()
+                    {
+                        value = value.externalAuthToken,
+                        provider = ExternalAuthenticationProvider.None,
+                    },
+
+                    enabledModIds = enabled.ToArray(),
+                    subscribedModIds = subscribed.ToArray(),
+                };
+
+                // set
+                UserAccountManagement.SetLocalUserData(userData);
+                UserAccountManagement.SaveActiveUser();
             }
         }
 
