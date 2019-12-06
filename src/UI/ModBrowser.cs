@@ -312,7 +312,7 @@ namespace ModIO.UI
                     int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        if(string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+                        if(string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))
                         {
                             Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
                                              + " servers. Please check you Game Id and APIKey in the"
@@ -364,7 +364,7 @@ namespace ModIO.UI
             Debug.Assert(UserAccountManagement.IsTokenValid);
 
             bool succeeded = false;
-            string fetchToken = UserAuthenticationData.instance.token;
+            string fetchToken = UserAccountManagement.ActiveUserToken;
 
             // get user profile
             while(!succeeded)
@@ -1769,7 +1769,7 @@ namespace ModIO.UI
             OnSubscribedToMod(modId);
 
             // push sub
-            if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            if(!string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))
             {
                 if(!m_queuedSubscribes.Contains(modId))
                 {
@@ -1793,7 +1793,7 @@ namespace ModIO.UI
             OnUnsubscribedFromMod(modId);
 
             // push unsub
-            if(!string.IsNullOrEmpty(UserAuthenticationData.instance.token))
+            if(!string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))
             {
                 if(!m_queuedUnsubscribes.Contains(modId))
                 {
@@ -1983,8 +1983,7 @@ namespace ModIO.UI
                 return;
             }
 
-            bool loggedIn = !(UserAuthenticationData.instance.Equals(UserAuthenticationData.NONE));
-            if(loggedIn)
+            if(!string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))
             {
                 ModRatingValue oldRating = this.GetModRating(modId);
 
