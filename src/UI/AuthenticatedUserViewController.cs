@@ -49,63 +49,20 @@ namespace ModIO.UI
             // set view profile
             this.view.profile = this.m_unauthenticatedUser.profile;
 
-            if(UserAuthenticationData.instance.userId != UserProfile.NULL_ID)
+            ModManager.GetAuthenticatedUserProfile(
+            (p) =>
             {
-                StartCoroutine(FetchUserProfile());
-            }
-        }
-
-        private IEnumerator FetchUserProfile()
-        {
-            bool isUnresolvable = false;
-            UserProfile profile = null;
-
-            float nextRetrySeconds = 0;
-            string errorMessage = null;
-
-            while(!isUnresolvable
-                  && profile == null
-                  && this != null)
-            {
-                WebRequestError error = null;
-                bool isDone = false;
-
-                ModManager.GetAuthenticatedUserProfile((p) => { isDone = true; profile = p; },
-                                                       (e) => { isDone = true; error = e; } );
-
-                while(!isDone) { yield return null; }
-
-                if(error != null)
+                if(this != null)
                 {
-                    isUnresolvable = error.isRequestUnresolvable;
-
-                    if(isUnresolvable)
-                    {
-                        errorMessage = ("Unable to get your profile from the mod.io servers.\n"
-                                        + error.displayMessage);
-                    }
-                    else
-                    {
-                        yield return new WaitForSecondsRealtime(nextRetrySeconds);
-                        nextRetrySeconds += 5f;
-                    }
+                    this.view.profile = p;
                 }
-                else if(profile == null)
-                {
-                    errorMessage = ("Unable to get your profile from the mod.io servers.\n"
-                                    + "An unknown error has occurred.");
-                    isUnresolvable = true;
-                }
-            }
-
-            if(isUnresolvable)
+            },
+            (e) =>
             {
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Error, errorMessage);
-            }
-            else if(this != null)
-            {
-                this.view.profile = profile;
-            }
+                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
+                                           "Unable to fetch your profile from the mod.io servers.\n"
+                                           + e.displayMessage);
+            });
         }
 
         // ---------[ EVENTS ]---------
