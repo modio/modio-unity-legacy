@@ -373,22 +373,13 @@ namespace ModIO.UI
                 WebRequestError requestError = null;
 
                 // requests
-                APIClient.GetAuthenticatedUser(
+                UserAccountManagement.FetchUserProfile(
                 (u) =>
                 {
-                    CacheClient.SaveUserProfile(u);
-
-                    UserAuthenticationData data = UserAuthenticationData.instance;
-                    if(data.token == fetchToken)
+                    IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
+                    foreach(var receiver in updateReceivers)
                     {
-                        data.userId = u.id;
-                        UserAuthenticationData.instance = data;
-
-                        IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
-                        foreach(var receiver in updateReceivers)
-                        {
-                            receiver.OnUserProfileUpdated(u);
-                        }
+                        receiver.OnUserProfileUpdated(u);
                     }
 
                     succeeded = true;
