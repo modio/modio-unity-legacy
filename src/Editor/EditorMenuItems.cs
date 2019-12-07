@@ -28,9 +28,8 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear User Data", false)]
         public static void ClearCachedAuthenticatedUserData()
         {
-            UserAuthenticationData.instance = UserAuthenticationData.NONE;
-            UserAccountManagement.SetSubscribedMods(new int[0]);
-            UserAccountManagement.SetEnabledMods(new int[0]);
+            UserAccountManagement.SetLocalUserData(new LocalUser());
+            UserAccountManagement.SaveActiveUser();
 
             Debug.Log("[mod.io] Cached User Data Deleted.");
         }
