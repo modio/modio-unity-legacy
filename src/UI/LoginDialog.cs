@@ -81,9 +81,9 @@ namespace ModIO.UI
             }
             else if(Utility.IsSecurityCode(trimmedInput))
             {
-                APIClient.GetOAuthToken(trimmedInput.ToUpper(),
-                                        OnUserOAuthTokenReceived,
-                                        (e) => ProcessWebRequestError(e, true));
+                UserAccountManagement.AuthenticateWithSecurityCode(trimmedInput.ToUpper(),
+                                                                   OnAuthenticated,
+                                                                   (e) => ProcessWebRequestError(e, true));
             }
             else
             {
@@ -103,7 +103,7 @@ namespace ModIO.UI
                                        apiMessage.message);
         }
 
-        private void OnUserOAuthTokenReceived(string token)
+        private void OnAuthenticated(UserProfile u)
         {
             inputField.text = string.Empty;
             inputField.interactable = true;
@@ -113,7 +113,7 @@ namespace ModIO.UI
 
             this.gameObject.SetActive(false);
 
-            ModBrowser.instance.LogUserIn(token);
+            ModBrowser.instance.OnUserLogin();
         }
 
         private void ProcessWebRequestError(WebRequestError e, bool isSecurityCode)
