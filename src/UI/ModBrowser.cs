@@ -235,8 +235,6 @@ namespace ModIO.UI
                     UserAccountManagement.ReauthenticateWithExternalAuthToken(
                     (u) =>
                     {
-                        CacheClient.SaveUserProfile(u);
-
                         IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
                         foreach(var receiver in updateReceivers)
                         {
