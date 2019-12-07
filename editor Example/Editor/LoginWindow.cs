@@ -99,17 +99,10 @@ namespace ModIO.EditorCode
                         }
                         else
                         {
-                            Action<UserProfile, string> onGetUserProfile = (userProfile, token) =>
+                            UserAccountManagement.AuthenticateWithSecurityCode(securityCodeInput,
+                            (u) =>
                             {
-                                UserAuthenticationData userData = new UserAuthenticationData()
-                                {
-                                    userId = userProfile.id,
-                                    token = token,
-                                    wasTokenRejected = false,
-                                };
-                                UserAuthenticationData.instance = userData;
-
-                                helpMessage = ("Welcome " + userProfile.username
+                                helpMessage = ("Welcome " + u.username
                                                + "! You have successfully logged in."
                                                + " Feel free to close this window.");
                                 isLoggedIn = true;
@@ -119,30 +112,14 @@ namespace ModIO.EditorCode
 
                                 if(userLoggedIn != null)
                                 {
-                                    userLoggedIn(userProfile);
+                                    userLoggedIn(u);
                                 }
-                            };
-
-                            Action<string> onTokenReceived = (token) =>
+                            },
+                            (e) =>
                             {
-                                UserAuthenticationData.instance = new UserAuthenticationData()
-                                {
-                                    userId = UserProfile.NULL_ID,
-                                    token = token,
-                                    wasTokenRejected = false,
-                                };
-
-                                APIClient.GetAuthenticatedUser((u) => onGetUserProfile(u, token),
-                                                               e =>
-                                                               {
-                                                                UserAuthenticationData.instance = UserAuthenticationData.NONE;
-                                                                endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error);
-                                                               });
-                            };
-
-                            APIClient.GetOAuthToken(securityCodeInput,
-                                                    onTokenReceived,
-                                                    e => endRequestSendingAndInputCode(ConvertErrorToHelpString(e), MessageType.Error));
+                                endRequestSendingAndInputCode(ConvertErrorToHelpString(e),
+                                                              MessageType.Error);
+                            });
                         }
                     }
                 }
