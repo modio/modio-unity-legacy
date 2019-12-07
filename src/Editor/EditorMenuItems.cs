@@ -28,8 +28,17 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear User Data", false)]
         public static void ClearCachedAuthenticatedUserData()
         {
+            string userDir = Path.GetDirectoryName(UserAccountManagement.UserDataFilePath);
+            if(Directory.Exists(userDir))
+            {
+                IOUtilities.DeleteDirectory(userDir);
+            }
+            else
+            {
+                UserDataStorage.DeleteFile(UserAccountManagement.UserDataFilePath);
+            }
+
             UserAccountManagement.SetLocalUserData(new LocalUser());
-            UserAccountManagement.SaveActiveUser();
 
             Debug.Log("[mod.io] Cached User Data Deleted.");
         }
