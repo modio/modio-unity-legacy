@@ -59,6 +59,12 @@ namespace ModIO
             private set { UserAccountManagement._activeUser.externalAuthTicket.provider = value; }
         }
 
+        /// <summary>File path for the active user data.</summary>
+        public static string UserDataFilePath
+        {
+            get { return UserAccountManagement._activeUserDataFilePath; }
+        }
+
         /// <summary>URL Postfix for the authentication method.</summary>
         public static string authMethodURLPostfix
         {
