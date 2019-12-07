@@ -1685,28 +1685,6 @@ namespace ModIO.UI
         }
 
         // ---------[ USER CONTROL ]---------
-        public void LogUserIn(string oAuthToken)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(oAuthToken),
-                         "[mod.io] ModBrowser.LogUserIn requires a valid oAuthToken");
-
-            StartCoroutine(UserLoginCoroutine(oAuthToken));
-        }
-
-        private IEnumerator UserLoginCoroutine(string oAuthToken)
-        {
-            UserAuthenticationData.instance = new UserAuthenticationData()
-            {
-                userId = UserProfile.NULL_ID,
-                token = oAuthToken,
-                wasTokenRejected = false,
-            };
-
-            yield return this.StartCoroutine(FetchUserProfile());
-
-            OnUserLogin();
-        }
-
         public void OnUserLogin()
         {
             m_queuedSubscribes.AddRange(UserAccountManagement.GetSubscribedMods());
