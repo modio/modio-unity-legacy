@@ -562,15 +562,6 @@ namespace ModIO
 
         // ---------[ USERS ]---------
         /// <summary>Generates the file path for a user's profile.</summary>
-        public static string GenerateUserProfileFilePath(int userId)
-        {
-            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
-                                           "users",
-                                           userId.ToString(),
-                                           "profile.data");
-        }
-
-        /// <summary>Generates the file path for a user's profile.</summary>
         public static string GenerateUserAvatarDirectoryPath(int userId)
         {
             return IOUtilities.CombinePath(CacheClient.cacheDirectory,
@@ -583,64 +574,6 @@ namespace ModIO
         {
             return IOUtilities.CombinePath(CacheClient.GenerateUserAvatarDirectoryPath(userId),
                                            size.ToString() + ".png");
-        }
-
-        /// <summary>Stores a user's profile in the cache.</summary>
-        public static bool SaveUserProfile(UserProfile userProfile)
-        {
-            Debug.Assert(userProfile != null);
-
-            string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
-            return IOUtilities.WriteJsonObjectFile(filePath, userProfile);
-        }
-
-        /// <summary>Retrieves a user's profile from the cache.</summary>
-        public static UserProfile LoadUserProfile(int userId)
-        {
-            string filePath = CacheClient.GenerateUserProfileFilePath(userId);
-            var userProfile = IOUtilities.ReadJsonObjectFile<UserProfile>(filePath);
-            return(userProfile);
-        }
-
-        /// <summary>Deletes a user's profile from the cache.</summary>
-        public static bool DeleteUserProfile(int userId)
-        {
-            return IOUtilities.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
-        }
-
-        /// <summary>Iterates through all the user profiles in the cache.</summary>
-        public static IEnumerable<UserProfile> IterateAllUserProfiles()
-        {
-            string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory,
-                                                              "users");
-
-            if(Directory.Exists(profileDirectory))
-            {
-                string[] userFiles;
-                try
-                {
-                    userFiles = Directory.GetFiles(profileDirectory);
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read user profile directory."
-                                          + "\nDirectory: " + profileDirectory + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-
-                    userFiles = new string[0];
-                }
-
-                foreach(string profileFilePath in userFiles)
-                {
-                    var profile = IOUtilities.ReadJsonObjectFile<UserProfile>(profileFilePath);
-                    if(profile != null)
-                    {
-                        yield return profile;
-                    }
-                }
-            }
         }
 
         /// <summary>Stores a user's avatar in the cache.</summary>
@@ -673,6 +606,78 @@ namespace ModIO
         public static Dictionary<LogoSize, string> LoadModLogoFilePaths(int modId)
         {
             return CacheClient.GetModLogoVersionFileNames(modId);
+        }
+
+        /// <summary>[Obsolete] Generates the file path for a user's profile.</summary>
+        [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
+        public static string GenerateUserProfileFilePath(int userId)
+        {
+            return IOUtilities.CombinePath(CacheClient.cacheDirectory,
+                                           "users",
+                                           userId.ToString(),
+                                           "profile.data");
+        }
+
+        /// <summary>[Obsolete] Stores a user's profile in the cache.</summary>
+        [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
+        public static bool SaveUserProfile(UserProfile userProfile)
+        {
+            Debug.Assert(userProfile != null);
+
+            string filePath = CacheClient.GenerateUserProfileFilePath(userProfile.id);
+            return IOUtilities.WriteJsonObjectFile(filePath, userProfile);
+        }
+
+        /// <summary>[Obsolete] Retrieves a user's profile from the cache.</summary>
+        [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
+        public static UserProfile LoadUserProfile(int userId)
+        {
+            string filePath = CacheClient.GenerateUserProfileFilePath(userId);
+            var userProfile = IOUtilities.ReadJsonObjectFile<UserProfile>(filePath);
+            return(userProfile);
+        }
+
+        /// <summary>[Obsolete] Deletes a user's profile from the cache.</summary>
+        [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
+        public static bool DeleteUserProfile(int userId)
+        {
+            return IOUtilities.DeleteFile(CacheClient.GenerateUserProfileFilePath(userId));
+        }
+
+        /// <summary>[Obsolete] Iterates through all the user profiles in the cache.</summary>
+        [Obsolete("User Profiles are no longer accessible via the mod.io API.")]
+        public static IEnumerable<UserProfile> IterateAllUserProfiles()
+        {
+            string profileDirectory = IOUtilities.CombinePath(CacheClient.cacheDirectory,
+                                                              "users");
+
+            if(Directory.Exists(profileDirectory))
+            {
+                string[] userFiles;
+                try
+                {
+                    userFiles = Directory.GetFiles(profileDirectory);
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to read user profile directory."
+                                          + "\nDirectory: " + profileDirectory + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+
+                    userFiles = new string[0];
+                }
+
+                foreach(string profileFilePath in userFiles)
+                {
+                    var profile = IOUtilities.ReadJsonObjectFile<UserProfile>(profileFilePath);
+                    if(profile != null)
+                    {
+                        yield return profile;
+                    }
+                }
+            }
         }
     }
 }
