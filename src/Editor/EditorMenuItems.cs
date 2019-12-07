@@ -28,8 +28,8 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear User Data", false)]
         public static void ClearCachedAuthenticatedUserData()
         {
-            string userDir = Path.GetDirectoryName(UserAccountManagement.UserDataFilePath);
-            if(Directory.Exists(userDir))
+            string userDir = System.IO.Path.GetDirectoryName(UserAccountManagement.UserDataFilePath);
+            if(System.IO.Directory.Exists(userDir))
             {
                 IOUtilities.DeleteDirectory(userDir);
             }
