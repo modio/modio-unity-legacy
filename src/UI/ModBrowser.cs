@@ -8,8 +8,6 @@ using System.Linq;
 
 using Directory = System.IO.Directory;
 
-// TODO(@jackson): Use ModManager.USERID_GUEST
-// TODO(@jackson): Error handling on log in
 namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour
