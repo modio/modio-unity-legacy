@@ -48,8 +48,7 @@ namespace ModIO
             string filePath = null;
 
             // - copy enabled/subbed -
-            filePath = IOUtilities.CombinePath(PluginSettings.data.cacheDirectory,
-                                               ModManager.PERSISTENTDATA_FILENAME);
+            filePath = ModManager.PERSISTENTDATA_FILEPATH;
 
             if(IOUtilities.TryReadJsonObjectFile(filePath, out dataWrapper))
             {
