@@ -1702,14 +1702,19 @@ namespace ModIO.UI
                 wasTokenRejected = false,
             };
 
+            yield return this.StartCoroutine(FetchUserProfile());
+
+            OnUserLogin();
+        }
+
+        public void OnUserLogin()
+        {
             m_queuedSubscribes.AddRange(UserAccountManagement.GetSubscribedMods());
             WriteManifest();
 
-            yield return this.StartCoroutine(FetchUserProfile());
-
             if(UserAccountManagement.IsTokenValid)
             {
-                yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
+                this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
         }
 
