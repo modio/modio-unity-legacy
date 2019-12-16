@@ -209,6 +209,67 @@ namespace ModIO
                 return success;
             }
 
+        #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+
+            /// <summary>Returns the platform specific functions. (Steamworks.NET)</summary>
+            private static PlatformFunctions GetPlatformFunctions()
+            {
+                Debug.Log("[mod.io] User Data I/O being handled by Steamworks.NET");
+
+                return new PlatformFunctions()
+                {
+                    ReadFile = ReadFile_SteamworksNET,
+                    WriteFile = WriteFile_SteamworksNET,
+                    DeleteFile = DeleteFile_SteamworksNET,
+                };
+            }
+
+            /// <summary>Reads a user data file. (Steamworks.NET)</summary>
+            private static byte[] ReadFile_SteamworksNET(string filePathRelative)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+
+                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+
+                byte[] data = null;
+                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                {
+                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(filePathRelative);
+
+                    if(fileSize > 0)
+                    {
+                        data = new byte[fileSize];
+                        Steamworks.SteamRemoteStorage.FileRead(filePathRelative, data, fileSize);
+                    }
+                }
+
+                return data;
+            }
+
+            /// <summary>Writes a user data file. (Steamworks.NET)</summary>
+            public static bool WriteFile_SteamworksNET(string filePathRelative, byte[] data)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(data != null);
+
+                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+
+                return Steamworks.SteamRemoteStorage.FileWrite(filePathRelative, data, data.Length);
+            }
+
+            /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
+            private static bool DeleteFile_SteamworksNET(string filePathRelative)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+
+                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+
+                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                {
+                    return Steamworks.SteamRemoteStorage.FileDelete(filePathRelative);
+                }
+                return true;
+            }
 
         #elif UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
 
@@ -229,7 +290,7 @@ namespace ModIO
                 };
             }
 
-            /// <summary>Loads the user data file. (Standalone Application)</summary>
+            /// <summary>Reads a user data file. (Standalone Application)</summary>
             private static byte[] ReadFile_Standalone(string filePathRelative)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -254,7 +315,7 @@ namespace ModIO
                 return success;
             }
 
-            /// <summary>Delete a user file. (Standalone Application)</summary>
+            /// <summary>Deletes a user data file. (Standalone Application)</summary>
             private static bool DeleteFile_Standalone(string filePathRelative)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
