@@ -209,6 +209,62 @@ namespace ModIO
                 return success;
             }
 
+        #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+
+            /// <summary>Returns the platform specific functions. (Facepunch.Steamworks)</summary>
+            private static PlatformFunctions GetPlatformFunctions()
+            {
+                Debug.Log("[mod.io] User Data I/O being handled by Facepunch.Steamworks");
+
+                return new PlatformFunctions()
+                {
+                    ReadFile = ReadFile_Facepunch,
+                    WriteFile = WriteFile_Facepunch,
+                    DeleteFile = DeleteFile_Facepunch,
+                };
+            }
+
+            /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
+            public static byte[] ReadFile_Facepunch(string filePathRelative)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+
+                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+
+                byte[] data = null;
+                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                {
+                    data = Steamworks.SteamRemoteStorage.FileRead(filePathRelative);
+                }
+
+                return data;
+            }
+
+            /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
+            public static bool WriteFile_Facepunch(string filePathRelative, byte[] data)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(data != null);
+
+                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+
+                return Steamworks.SteamRemoteStorage.FileWrite(filePathRelative, data);
+            }
+
+            /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
+            private static bool DeleteFile_Facepunch(string filePathRelative)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+
+                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+
+                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                {
+                    return Steamworks.SteamRemoteStorage.FileDelete(filePathRelative);
+                }
+                return true;
+            }
+
         #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
 
             /// <summary>Returns the platform specific functions. (Steamworks.NET)</summary>
