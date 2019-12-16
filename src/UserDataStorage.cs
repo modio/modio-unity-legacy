@@ -210,60 +210,61 @@ namespace ModIO
             }
 
 
-        #elif UNITY_STANDALONE_OSX
+        #elif UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
 
-            /// <summary>Returns the platform specific functions. (MacOS Application)</summary>
+            /// <summary>Defines the base directory for the user-specific data.</summary>
+            private static readonly string USER_DIRECTORY
+            = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio-" + PluginSettings.data.gameId);
+
+            /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
             private static PlatformFunctions GetPlatformFunctions()
             {
+                Debug.Log("[mod.io] User Data Directory set: " + USER_DIRECTORY);
+
                 return new PlatformFunctions()
                 {
-                    ReadFile = ReadFile_MacOS,
-                    WriteFile = WriteFile_MacOS,
-                    DeleteFile = DeleteFile_MacOS,
+                    ReadFile = ReadFile_Standalone,
+                    WriteFile = WriteFile_Standalone,
+                    DeleteFile = DeleteFile_Standalone,
                 };
             }
 
-            /// <summary>Defines the base directory for the user-specific data. (MacOS Application)</summary>
-            private static readonly string USER_DIRECTORY_MACOS
-            = ("~/Library/Application Support/mod.io/game-" + PluginSettings.data.gameId);
-
-            /// <summary>Loads the user data file. (Mac Application)</summary>
-            private static byte[] ReadFile_MacOS(string filePathRelative)
+            /// <summary>Loads the user data file. (Standalone Application)</summary>
+            private static byte[] ReadFile_Standalone(string filePathRelative)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
                 byte[] data = null;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY_MACOS,
+                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY,
                                                              filePathRelative);
                 data = IOUtilities.LoadBinaryFile(filePathAbs);
                 return data;
             }
 
-            /// <summary>Writes a user data file. (MacOS Application)</summary>
-            private static bool WriteFile_MacOS(string filePathRelative, byte[] data)
+            /// <summary>Writes a user data file. (Standalone Application)</summary>
+            private static bool WriteFile_Standalone(string filePathRelative, byte[] data)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
                 Debug.Assert(data != null);
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY_MACOS,
+                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY,
                                                              filePathRelative);
                 success = IOUtilities.WriteBinaryFile(filePathAbs, data);
                 return success;
             }
 
-            /// <summary>Delete a user file. (MacOS Application)</summary>
-            private static bool DeleteFile_MacOS(string filePathRelative)
+            /// <summary>Delete a user file. (Standalone Application)</summary>
+            private static bool DeleteFile_Standalone(string filePathRelative)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY_MACOS,
+                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY,
                                                              filePathRelative);
                 success = IOUtilities.DeleteFile(filePathAbs);
                 return success;
             }
-
 
         #endif
     }
