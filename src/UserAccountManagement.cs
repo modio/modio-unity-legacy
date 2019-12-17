@@ -351,9 +351,12 @@ namespace ModIO
         }
 
         /// <summary>Sets the local user data directly.</summary>
-        public static void SetLocalUserData(LocalUser locaUserData)
+        public static void SetLocalUserData(LocalUser localUserData)
         {
-            UserAccountManagement._activeUser = locaUserData;
+            Debug.Assert(localUserData.enabledModIds != null);
+            Debug.Assert(localUserData.subscribedModIds != null);
+
+            UserAccountManagement._activeUser = localUserData;
         }
     }
 }
