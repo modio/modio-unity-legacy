@@ -65,12 +65,6 @@ namespace ModIO
             get { return UserAccountManagement._activeUserDataFilePath; }
         }
 
-        /// <summary>URL Postfix for the authentication method.</summary>
-        public static string authMethodURLPostfix
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the default local user.</summary>
         static UserAccountManagement()
