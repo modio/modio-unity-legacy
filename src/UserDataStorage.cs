@@ -14,6 +14,10 @@ namespace ModIO
     /// <summary>Functions for user-specific data I/O.</summary>
     public static class UserDataStorage
     {
+        // ---------[ FIELDS ]---------
+        /// <summary>Defines the base directory for the user-specific data.</summary>
+        private static readonly string _USER_DIRECTORY_BASE;
+
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()
@@ -22,10 +26,12 @@ namespace ModIO
             Debug.Assert(platform.ReadFile != null);
             Debug.Assert(platform.WriteFile != null);
             Debug.Assert(platform.DeleteFile != null);
+            Debug.Assert(!string.IsNullOrEmpty(platform.UserDirectoryBase));
 
             UserDataStorage._PlatformReadFile   = platform.ReadFile;
             UserDataStorage._PlatformWriteFile  = platform.WriteFile;
             UserDataStorage._PlatformDeleteFile = platform.DeleteFile;
+            UserDataStorage._USER_DIRECTORY_BASE= platform.UserDirectoryBase;
         }
 
         // ---------[ IO FUNCTIONS ]---------
@@ -146,15 +152,16 @@ namespace ModIO
         /// <summary>Function for deleting a user-specific file.</summary>
         private readonly static DeleteFileDelegate _PlatformDeleteFile = null;
 
+        // ------ Platform Specific Functionality ------
         /// <summary>The collection of platform specific functions.</summary>
         private struct PlatformFunctions
         {
             public ReadFileDelegate ReadFile;
             public WriteFileDelegate WriteFile;
             public DeleteFileDelegate DeleteFile;
+            public string UserDirectoryBase;
         }
 
-        // ------ Platform Specific Functionality ------
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
