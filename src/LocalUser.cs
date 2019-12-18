@@ -21,5 +21,26 @@ namespace ModIO
 
         /// <summary>Mods the user is subscribed to.</summary>
         public int[] subscribedModIds;
+
+        // ---------[ ACCESSORS ]---------
+        /// <summary>Returns the summarised authentication state.</summary>
+        public AuthenticationState GetAuthenticationState
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(this.oAuthToken))
+                {
+                    return AuthenticationState.NoToken;
+                }
+                else if(this.wasTokenRejected)
+                {
+                    return AuthenticationState.RejectedToken;
+                }
+                else
+                {
+                    return AuthenticationState.ValidToken;
+                }
+            }
+        }
     }
 }
