@@ -167,17 +167,16 @@ namespace ModIO
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
             private static PlatformFunctions GetPlatformFunctions()
             {
+                string userDir = IOUtilities.CombinePath(UnityEngine.Application.dataPath, "Editor Default Resources", "modio");
+
                 return new PlatformFunctions()
                 {
                     ReadFile = ReadFile_Editor,
                     WriteFile = WriteFile_Editor,
                     DeleteFile = DeleteFile_Editor,
+                    UserDirectoryBase = userDir,
                 };
             }
-
-            /// <summary>Defines the base directory for the user-specific data.</summary>
-            private static readonly string USER_DIRECTORY_EDITOR
-            = IOUtilities.CombinePath(UnityEngine.Application.dataPath, "Editor Default Resources", "modio");
 
             /// <summary>Read a user file. (Unity Editor)</summary>
             private static byte[] ReadFile_Editor(string filePathRelative)
@@ -185,7 +184,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
                 byte[] data = null;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY_EDITOR,
+                string filePathAbs = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE,
                                                              filePathRelative);
                 data = IOUtilities.LoadBinaryFile(filePathAbs);
                 return data;
@@ -198,7 +197,7 @@ namespace ModIO
                 Debug.Assert(data != null);
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY_EDITOR,
+                string filePathAbs = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE,
                                                              filePathRelative);
                 success = IOUtilities.WriteBinaryFile(filePathAbs, data);
                 return success;
@@ -210,7 +209,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY_EDITOR,
+                string filePathAbs = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE,
                                                              filePathRelative);
                 success = IOUtilities.DeleteFile(filePathAbs);
                 return success;
