@@ -1730,50 +1730,14 @@ namespace ModIO.UI
         // ---------[ ENABLE/SUBSCRIBE MODS ]---------
         public void SubscribeToMod(int modId)
         {
-            IList<int> subscribedModIds = UserAccountManagement.GetSubscribedMods();
-
-            // early out
-            if(subscribedModIds.Contains(modId)) { return; }
-
-            // update collection
-            subscribedModIds.Add(modId);
-            UserAccountManagement.SetSubscribedMods(subscribedModIds);
+            UserAccountManagement.SubscribeToMod(modId);
             OnSubscribedToMod(modId);
-
-            // push sub
-            if(!string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
-            {
-                if(!m_queuedSubscribes.Contains(modId))
-                {
-                    m_queuedSubscribes.Add(modId);
-                }
-                m_queuedUnsubscribes.Remove(modId);
-                WriteManifest();
-            }
         }
 
         public void UnsubscribeFromMod(int modId)
         {
-            IList<int> subscribedModIds = UserAccountManagement.GetSubscribedMods();
-
-            // early out
-            if(!subscribedModIds.Contains(modId)) { return; }
-
-            // update collection
-            subscribedModIds.Remove(modId);
-            UserAccountManagement.SetSubscribedMods(subscribedModIds);
+            UserAccountManagement.UnsubscribeFromMod(modId);
             OnUnsubscribedFromMod(modId);
-
-            // push unsub
-            if(!string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
-            {
-                if(!m_queuedUnsubscribes.Contains(modId))
-                {
-                    m_queuedUnsubscribes.Add(modId);
-                }
-                m_queuedSubscribes.Remove(modId);
-                WriteManifest();
-            }
         }
 
         public void OnSubscribedToMod(int modId)
