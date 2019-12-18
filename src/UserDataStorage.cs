@@ -38,7 +38,10 @@ namespace ModIO
         /// <summary>Function used to read a user data file.</summary>
         public static bool TryReadJSONFile<T>(string filePathRelative, out T jsonObject)
         {
-            byte[] fileData = UserDataStorage._PlatformReadFile(filePathRelative);
+            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+
+            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            byte[] fileData = UserDataStorage._PlatformReadFile(filePath);
             return UserDataStorage.TryParseJSONFile(fileData, out jsonObject);;
         }
 
@@ -106,7 +109,9 @@ namespace ModIO
         public static byte[] ReadBinaryFile(string filePathRelative)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
-            return UserDataStorage._PlatformReadFile(filePathRelative);
+
+            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            return UserDataStorage._PlatformReadFile(filePath);
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
@@ -135,7 +140,7 @@ namespace ModIO
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
         /// <summary>Delegate for reading a file.</summary>
-        private delegate byte[] ReadFileDelegate(string relativeFilePath);
+        private delegate byte[] ReadFileDelegate(string filePath);
 
         /// <summary>Delegate for writing a file.</summary>
         private delegate bool WriteFileDelegate(string relativeFilePath, byte[] fileData);
@@ -179,14 +184,12 @@ namespace ModIO
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
-            private static byte[] ReadFile_Editor(string filePathRelative)
+            private static byte[] ReadFile_Editor(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 byte[] data = null;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE,
-                                                             filePathRelative);
-                data = IOUtilities.LoadBinaryFile(filePathAbs);
+                data = IOUtilities.LoadBinaryFile(filePath);
                 return data;
             }
 
