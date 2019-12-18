@@ -1781,7 +1781,7 @@ namespace ModIO
             UserProfile profile = UserAccountManagement.activeUser.profile;
 
             if(profile == null
-               && !string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))
+               && !string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
             {
                 UserAccountManagement.FetchUserProfile(onSuccess, onError);
             }

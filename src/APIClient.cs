@@ -96,7 +96,7 @@ namespace ModIO
 
             if(isUserTokenRequired)
             {
-                if(String.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))
+                if(String.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
                 {
                     Debug.LogError("[mod.io] API request to modification or User-specific"
                                    + " endpoints cannot be made without first setting the"
@@ -219,7 +219,7 @@ namespace ModIO
 
             if(UserAccountManagement.IsTokenValid)
             {
-                webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
+                webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.activeUser.oAuthToken);
             }
             else
             {
@@ -254,7 +254,7 @@ namespace ModIO
                                      + paginationString);
 
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.activeUser.oAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             return webRequest;
@@ -277,7 +277,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.activeUser.oAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -321,7 +321,7 @@ namespace ModIO
 
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.activeUser.oAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG
@@ -358,7 +358,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
-            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.ActiveUserToken);
+            webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.activeUser.oAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
 
             #if DEBUG

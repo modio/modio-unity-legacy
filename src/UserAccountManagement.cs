@@ -17,12 +17,6 @@ namespace ModIO
         private static string _activeUserDataFilePath;
 
         // --- Accessors ---
-        /// <summary>OAuthToken for the currently active user.</summary>
-        public static string ActiveUserToken
-        {
-            get { return UserAccountManagement.activeUser.oAuthToken; }
-        }
-
         /// <summary>Is the ActiveUserToken valid?</summary>
         public static bool WasTokenRejected
         {
@@ -34,7 +28,7 @@ namespace ModIO
         {
             get
             {
-                return (!string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken)
+                return (!string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken)
                         && !UserAccountManagement.WasTokenRejected);
             }
         }

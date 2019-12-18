@@ -76,7 +76,7 @@ namespace ModIO
                 UserAuthenticationData data = new UserAuthenticationData()
                 {
                     userId = (p == null ? UserProfile.NULL_ID : p.id),
-                    token = UserAccountManagement.ActiveUserToken,
+                    token = UserAccountManagement.activeUser.oAuthToken,
                     wasTokenRejected = UserAccountManagement.WasTokenRejected,
                     steamTicket = steamTicket,
                     gogTicket = gogTicket,
