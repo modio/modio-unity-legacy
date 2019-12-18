@@ -103,7 +103,7 @@ namespace ModIO
                                    + " User Authorization Data instance with a valid token.");
                     return false;
                 }
-                else if(UserAccountManagement.WasTokenRejected)
+                else if(UserAccountManagement.activeUser.wasTokenRejected)
                 {
                     Debug.LogWarning("[mod.io] An API request is being made with a UserAuthenticationData"
                                      + " token that has been flagged as previously rejected."

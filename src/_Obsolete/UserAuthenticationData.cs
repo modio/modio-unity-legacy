@@ -54,21 +54,22 @@ namespace ModIO
         {
             get
             {
-                UserProfile p = UserAccountManagement.activeUser.profile;
+                LocalUser userData = UserAccountManagement.activeUser;
+                UserProfile p = userData.profile;
                 string steamTicket = null;
                 string gogTicket = null;
 
-                switch(UserAccountManagement.ExternalAuthProvider)
+                switch(userData.externalAuthTicket.provider)
                 {
                     case ExternalAuthenticationProvider.Steam:
                     {
-                        steamTicket = UserAccountManagement.ExternalAuthTicket;
+                        steamTicket = userData.externalAuthTicket.value;
                     }
                     break;
 
                     case ExternalAuthenticationProvider.GOG:
                     {
-                        gogTicket = UserAccountManagement.ExternalAuthTicket;
+                        gogTicket = userData.externalAuthTicket.value;
                     }
                     break;
                 }
@@ -76,8 +77,8 @@ namespace ModIO
                 UserAuthenticationData data = new UserAuthenticationData()
                 {
                     userId = (p == null ? UserProfile.NULL_ID : p.id),
-                    token = UserAccountManagement.activeUser.oAuthToken,
-                    wasTokenRejected = UserAccountManagement.WasTokenRejected,
+                    token = userData.oAuthToken,
+                    wasTokenRejected = userData.wasTokenRejected,
                     steamTicket = steamTicket,
                     gogTicket = gogTicket,
                 };

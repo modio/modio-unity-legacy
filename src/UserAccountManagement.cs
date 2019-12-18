@@ -17,19 +17,13 @@ namespace ModIO
         private static string _activeUserDataFilePath;
 
         // --- Accessors ---
-        /// <summary>Is the ActiveUserToken valid?</summary>
-        public static bool WasTokenRejected
-        {
-            get { return UserAccountManagement.activeUser.wasTokenRejected; }
-        }
-
         /// <summary>Indicates whether the OAuthToken exists and has not been marked aas rejected.</summary>
         public static bool IsTokenValid
         {
             get
             {
                 return (!string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken)
-                        && !UserAccountManagement.WasTokenRejected);
+                        && !UserAccountManagement.activeUser.wasTokenRejected);
             }
         }
 
