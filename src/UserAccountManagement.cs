@@ -17,7 +17,6 @@ namespace ModIO
         /// <summary>Data instance.</summary>
         public static LocalUser activeUser;
 
-        // --- Accessors ---
         /// <summary>External authentication data for the session.</summary>
         public static ExternalAuthenticationData externalAuthentication;
 
