@@ -37,6 +37,9 @@ namespace ModIO
             get { return UserAccountManagement._activeUserDataFilePath; }
         }
 
+        /// <summary>External authentication data for the session.</summary>
+        public static ExternalAuthenticationData externalAuthentication;
+
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the default local user.</summary>
         static UserAccountManagement()
@@ -168,8 +171,11 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            UserAccountManagement.ExternalAuthTicket = encodedTicket;
-            UserAccountManagement.ExternalAuthProvider = ExternalAuthenticationProvider.Steam;
+            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            {
+                ticket = encodedTicket,
+                provider = ExternalAuthenticationProvider.Steam,
+            };
 
             APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
             {
@@ -195,8 +201,11 @@ namespace ModIO
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
-            UserAccountManagement.ExternalAuthTicket = encodedTicket;
-            UserAccountManagement.ExternalAuthProvider = ExternalAuthenticationProvider.Steam;
+            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            {
+                ticket = encodedTicket,
+                provider = ExternalAuthenticationProvider.Steam,
+            };
 
             APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
             {
@@ -212,12 +221,12 @@ namespace ModIO
         public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
                                                                Action<WebRequestError> onError)
         {
-            Debug.Assert(!string.IsNullOrEmpty(UserAccountManagement.ExternalAuthTicket));
-            Debug.Assert(UserAccountManagement.ExternalAuthProvider != ExternalAuthenticationProvider.None);
+            Debug.Assert(!string.IsNullOrEmpty(UserAccountManagement.externalAuthentication.ticket));
+            Debug.Assert(UserAccountManagement.externalAuthentication.provider != ExternalAuthenticationProvider.None);
 
             Action<string, Action<string>, Action<WebRequestError>> authAction = null;
 
-            switch(UserAccountManagement.ExternalAuthProvider)
+            switch(UserAccountManagement.externalAuthentication.provider)
             {
                 case ExternalAuthenticationProvider.Steam:
                 {
@@ -237,7 +246,7 @@ namespace ModIO
                 }
             }
 
-            authAction.Invoke(UserAccountManagement.ExternalAuthTicket, (t) =>
+            authAction.Invoke(UserAccountManagement.externalAuthentication.ticket, (t) =>
             {
                 UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
