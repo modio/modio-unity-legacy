@@ -13,9 +13,6 @@ namespace ModIO
         /// <summary>A flag to indicate that the auth token has been rejected.</summary>
         public bool wasTokenRejected;
 
-        /// <summary>External authentication service ticket.</summary>
-        public ExternalAuthenticationData externalAuthTicket;
-
         /// <summary>Mods the user has enabled on this device.</summary>
         public int[] enabledModIds;
 

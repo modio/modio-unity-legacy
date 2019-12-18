@@ -59,17 +59,17 @@ namespace ModIO
                 string steamTicket = null;
                 string gogTicket = null;
 
-                switch(userData.externalAuthTicket.provider)
+                switch(UserAccountManagement.externalAuthentication.provider)
                 {
                     case ExternalAuthenticationProvider.Steam:
                     {
-                        steamTicket = userData.externalAuthTicket.ticket;
+                        steamTicket = UserAccountManagement.externalAuthentication.ticket;
                     }
                     break;
 
                     case ExternalAuthenticationProvider.GOG:
                     {
-                        gogTicket = userData.externalAuthTicket.ticket;
+                        gogTicket = UserAccountManagement.externalAuthentication.ticket;
                     }
                     break;
                 }
@@ -109,6 +109,16 @@ namespace ModIO
                     }
                 }
 
+                // create data
+                LocalUser userData = new LocalUser()
+                {
+                    profile = profile,
+                    oAuthToken = value.token,
+                    wasTokenRejected = value.wasTokenRejected,
+                    enabledModIds = enabled.ToArray(),
+                    subscribedModIds = subscribed.ToArray(),
+                };
+
                 // externalAuthTicket data
                 var externalAuth = new ExternalAuthenticationData()
                 {
@@ -127,18 +137,8 @@ namespace ModIO
                     externalAuth.provider = ExternalAuthenticationProvider.GOG;
                 }
 
-                // create data
-                LocalUser userData = new LocalUser()
-                {
-                    profile = profile,
-                    oAuthToken = value.token,
-                    wasTokenRejected = value.wasTokenRejected,
-                    externalAuthTicket = externalAuth,
-                    enabledModIds = enabled.ToArray(),
-                    subscribedModIds = subscribed.ToArray(),
-                };
-
                 // set
+                UserAccountManagement.externalAuthentication = externalAuth;
                 UserAccountManagement.SetLocalUserData(userData);
                 UserAccountManagement.SaveActiveUser();
             }
