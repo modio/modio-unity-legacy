@@ -63,13 +63,13 @@ namespace ModIO
                 {
                     case ExternalAuthenticationProvider.Steam:
                     {
-                        steamTicket = userData.externalAuthTicket.value;
+                        steamTicket = userData.externalAuthTicket.ticket;
                     }
                     break;
 
                     case ExternalAuthenticationProvider.GOG:
                     {
-                        gogTicket = userData.externalAuthTicket.value;
+                        gogTicket = userData.externalAuthTicket.ticket;
                     }
                     break;
                 }
@@ -110,21 +110,21 @@ namespace ModIO
                 }
 
                 // externalAuthTicket data
-                var ticket = new ExternalAuthenticationTicket()
+                var externalAuth = new ExternalAuthenticationData()
                 {
-                    value = null,
+                    ticket = null,
                     provider = ExternalAuthenticationProvider.None,
                 };
 
                 if(!string.IsNullOrEmpty(value.steamTicket))
                 {
-                    ticket.value = value.steamTicket;
-                    ticket.provider = ExternalAuthenticationProvider.Steam;
+                    externalAuth.ticket = value.steamTicket;
+                    externalAuth.provider = ExternalAuthenticationProvider.Steam;
                 }
                 else if(!string.IsNullOrEmpty(value.gogTicket))
                 {
-                    ticket.value = value.gogTicket;
-                    ticket.provider = ExternalAuthenticationProvider.GOG;
+                    externalAuth.ticket = value.gogTicket;
+                    externalAuth.provider = ExternalAuthenticationProvider.GOG;
                 }
 
                 // create data
@@ -133,7 +133,7 @@ namespace ModIO
                     profile = profile,
                     oAuthToken = value.token,
                     wasTokenRejected = value.wasTokenRejected,
-                    externalAuthTicket = ticket,
+                    externalAuthTicket = externalAuth,
                     enabledModIds = enabled.ToArray(),
                     subscribedModIds = subscribed.ToArray(),
                 };

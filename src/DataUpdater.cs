@@ -102,12 +102,12 @@ namespace ModIO
                 // external auth data
                 if(dataWrapper.data.ContainsKey("steamTicket"))
                 {
-                    userData.externalAuthTicket.value = (string)dataWrapper.data["steamTicket"];
+                    userData.externalAuthTicket.ticket = (string)dataWrapper.data["steamTicket"];
                     userData.externalAuthTicket.provider = ExternalAuthenticationProvider.Steam;
                 }
                 if(dataWrapper.data.ContainsKey("gogTicket"))
                 {
-                    userData.externalAuthTicket.value = (string)dataWrapper.data["gogTicket"];
+                    userData.externalAuthTicket.ticket = (string)dataWrapper.data["gogTicket"];
                     userData.externalAuthTicket.provider = ExternalAuthenticationProvider.GOG;
                 }
 

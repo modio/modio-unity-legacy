@@ -20,8 +20,8 @@ namespace ModIO
         /// <summary>External Authentication Ticket for the active user.</summary>
         public static string ExternalAuthTicket
         {
-            get { return UserAccountManagement.activeUser.externalAuthTicket.value; }
-            private set { UserAccountManagement.activeUser.externalAuthTicket.value = value; }
+            get { return UserAccountManagement.activeUser.externalAuthTicket.ticket; }
+            private set { UserAccountManagement.activeUser.externalAuthTicket.ticket = value; }
         }
 
         /// <summary>Provider of the ExternalAuthTicket.</summary>
