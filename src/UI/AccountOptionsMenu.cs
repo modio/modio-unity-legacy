@@ -69,7 +69,7 @@ namespace ModIO.UI
         /// <summary>Opens the user's menu profile in a web browser.</summary>
         public void OpenProfileInBrowser()
         {
-            UserProfile profile = UserAccountManagement.ActiveUserProfile;
+            UserProfile profile = UserAccountManagement.activeUser.profile;
             if(profile != null)
             {
                 this.viewProfileButton.interactable = false;

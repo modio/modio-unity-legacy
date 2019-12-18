@@ -72,7 +72,7 @@ namespace ModIO.EditorCode
         protected virtual void Update()
         {
             if(this.user != null
-               && this.user.id != UserAccountManagement.ActiveUserProfile.id)
+               && this.user.id != UserAccountManagement.activeUser.profile.id)
             {
                 this.user = null;
                 Repaint();

@@ -17,12 +17,6 @@ namespace ModIO
         private static string _activeUserDataFilePath;
 
         // --- Accessors ---
-        /// <summary>User Profile for the currently active user.</summary>
-        public static UserProfile ActiveUserProfile
-        {
-            get { return UserAccountManagement.activeUser.profile; }
-        }
-
         /// <summary>OAuthToken for the currently active user.</summary>
         public static string ActiveUserToken
         {

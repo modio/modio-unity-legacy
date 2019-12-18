@@ -1778,7 +1778,7 @@ namespace ModIO
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserProfile profile = UserAccountManagement.ActiveUserProfile;
+            UserProfile profile = UserAccountManagement.activeUser.profile;
 
             if(profile == null
                && !string.IsNullOrEmpty(UserAccountManagement.ActiveUserToken))

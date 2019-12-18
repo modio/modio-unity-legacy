@@ -54,7 +54,7 @@ namespace ModIO
         {
             get
             {
-                UserProfile p = UserAccountManagement.ActiveUserProfile;
+                UserProfile p = UserAccountManagement.activeUser.profile;
                 string steamTicket = null;
                 string gogTicket = null;
 
@@ -91,7 +91,7 @@ namespace ModIO
                 List<int> subscribed = UserAccountManagement.GetSubscribedMods();
 
                 // profile data
-                UserProfile profile = UserAccountManagement.ActiveUserProfile;
+                UserProfile profile = UserAccountManagement.activeUser.profile;
                 if(profile == null
                    || profile.id != value.userId)
                 {
