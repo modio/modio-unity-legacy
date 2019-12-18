@@ -344,7 +344,7 @@ namespace ModIO
                 {
                     if(filePath.StartsWith(UserDataStorage._USER_DIRECTORY_ROOT))
                     {
-                        Steamworks.SteamRemoteStorage.FileDelete(UserDataStorage._USER_DIRECTORY_ROOT);
+                        Steamworks.SteamRemoteStorage.FileDelete(filePath);
                     }
                 }
             }
