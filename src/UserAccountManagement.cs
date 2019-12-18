@@ -9,6 +9,10 @@ namespace ModIO
     /// <summary>Main functional wrapper for the LocalUser structure.</summary>
     public static class UserAccountManagement
     {
+        // ---------[ CONSTANTS ]---------
+        /// <summary>File that this class uses to store user data.</summary>
+        public static readonly string USER_DATA_FILENAME = "user.data";
+
         // ---------[ FIELDS ]---------
         /// <summary>Data instance.</summary>
         public static LocalUser activeUser;
@@ -30,7 +34,7 @@ namespace ModIO
         /// <summary>Loads the default local user.</summary>
         static UserAccountManagement()
         {
-            UserAccountManagement.LoadLocalUser(null);
+            UserAccountManagement.LoadActiveUser();
         }
 
         // ---------[ MOD COLLECTION MANAGEMENT ]---------
@@ -247,23 +251,11 @@ namespace ModIO
 
         // ---------[ USER MANAGEMENT ]---------
         /// <summary>Loads the user data for the local user with the given identifier.</summary>
-        public static void LoadLocalUser(string localUserIdentifier = null)
+        public static void LoadActiveUser()
         {
-            // generate file path
-            string fileName;
-            if(string.IsNullOrEmpty(localUserIdentifier))
-            {
-                fileName = "default.user";
-            }
-            else
-            {
-                fileName = IOUtilities.MakeValidFileName(localUserIdentifier, ".user");
-            }
-            UserAccountManagement._activeUserDataFilePath = "users/" + fileName;
-
             // read file
             LocalUser userData;
-            if(!UserDataStorage.TryReadJSONFile(UserAccountManagement._activeUserDataFilePath, out userData))
+            if(!UserDataStorage.TryReadJSONFile(UserAccountManagement.USER_DATA_FILENAME, out userData))
             {
                 userData = new LocalUser()
                 {
