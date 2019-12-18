@@ -30,11 +30,13 @@ namespace ModIO
             Debug.Assert(platform.WriteFile != null);
             Debug.Assert(platform.DeleteFile != null);
             Debug.Assert(!string.IsNullOrEmpty(platform.UserDirectoryRoot));
+            Debug.Assert(platform.ClearAllData != null);
 
-            UserDataStorage._PlatformReadFile   = platform.ReadFile;
-            UserDataStorage._PlatformWriteFile  = platform.WriteFile;
-            UserDataStorage._PlatformDeleteFile = platform.DeleteFile;
-            UserDataStorage._USER_DIRECTORY_ROOT= platform.UserDirectoryRoot;
+            UserDataStorage._PlatformReadFile       = platform.ReadFile;
+            UserDataStorage._PlatformWriteFile      = platform.WriteFile;
+            UserDataStorage._PlatformDeleteFile     = platform.DeleteFile;
+            UserDataStorage._PlatformClearAllData   = platform.ClearAllData;
+            UserDataStorage._USER_DIRECTORY_ROOT    = platform.UserDirectoryRoot;
 
             UserDataStorage.SetActiveUserDirectory(null);
         }
@@ -163,6 +165,12 @@ namespace ModIO
             return UserDataStorage._PlatformDeleteFile(filePath);
         }
 
+        /// <summary>Function for clearing all user data.</summary>
+        public static void ClearAllData()
+        {
+            UserDataStorage._PlatformClearAllData();
+        }
+
         // ---------[ PLATFORM SPECIFIC I/O ]---------
         /// <summary>Delegate for reading a file.</summary>
         private delegate byte[] ReadFileDelegate(string filePath);
@@ -173,6 +181,9 @@ namespace ModIO
         /// <summary>Delegate for deleting a file.</summary>
         private delegate bool DeleteFileDelegate(string filePath);
 
+        /// <summary>Delegate for clearing all data.</summary>
+        private delegate void ClearAllDataDelegate();
+
         /// <summary>Function for reading a user-specific file.</summary>
         private readonly static ReadFileDelegate _PlatformReadFile = null;
 
@@ -182,6 +193,9 @@ namespace ModIO
         /// <summary>Function for deleting a user-specific file.</summary>
         private readonly static DeleteFileDelegate _PlatformDeleteFile = null;
 
+        /// <summary>Function for clearing all user data.</summary>
+        private readonly static ClearAllDataDelegate _PlatformClearAllData = null;
+
         // ------ Platform Specific Functionality ------
         /// <summary>The collection of platform specific functions.</summary>
         private struct PlatformFunctions
@@ -189,6 +203,7 @@ namespace ModIO
             public ReadFileDelegate ReadFile;
             public WriteFileDelegate WriteFile;
             public DeleteFileDelegate DeleteFile;
+            public ClearAllDataDelegate ClearAllData;
             public string UserDirectoryRoot;
         }
 
