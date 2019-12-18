@@ -219,6 +219,7 @@ namespace ModIO
                     ReadFile = ReadFile_Editor,
                     WriteFile = WriteFile_Editor,
                     DeleteFile = DeleteFile_Editor,
+                    ClearAllData = ClearAllData_Editor,
                     UserDirectoryRoot = userDir,
                 };
             }
@@ -252,6 +253,12 @@ namespace ModIO
                 bool success = false;
                 success = IOUtilities.DeleteFile(filePath);
                 return success;
+            }
+
+            /// <summary>Clears all user data. (Unity Editor)</summary>
+            private static void ClearAllData_Editor()
+            {
+                IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
             }
 
         #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
