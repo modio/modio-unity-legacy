@@ -250,7 +250,7 @@ namespace ModIO
         }
 
         // ---------[ USER MANAGEMENT ]---------
-        /// <summary>Loads the user data for the local user with the given identifier.</summary>
+        /// <summary>Loads the active user data from disk.</summary>
         public static void LoadActiveUser()
         {
             // read file
@@ -282,7 +282,7 @@ namespace ModIO
         /// <summary>Writes the active user data to disk.</summary>
         public static void SaveActiveUser()
         {
-            UserDataStorage.TryWriteJSONFile(UserAccountManagement._activeUserDataFilePath,
+            UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
                                              UserAccountManagement.activeUser);
         }
 
