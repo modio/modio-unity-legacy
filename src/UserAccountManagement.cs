@@ -51,29 +51,6 @@ namespace ModIO
             SaveActiveUser();
         }
 
-        /// <summary>Returns the subscribed mods for the active user.</summary>
-        public static List<int> GetSubscribedMods()
-        {
-            return new List<int>(UserAccountManagement.activeUser.subscribedModIds);
-        }
-
-        /// <summary>Sets the subscribed mods for the active user.</summary>
-        public static void SetSubscribedMods(IEnumerable<int> modIds)
-        {
-            List<int> modList = null;
-            if(modIds == null)
-            {
-                modList = new List<int>();
-            }
-            else
-            {
-                modList = new List<int>(modIds);
-            }
-
-            UserAccountManagement.activeUser.subscribedModIds = modList;
-            SaveActiveUser();
-        }
-
         /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
         public static void SubscribeToMod(int modId)
         {
