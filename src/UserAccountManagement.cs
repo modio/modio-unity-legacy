@@ -11,7 +11,7 @@ namespace ModIO
     {
         // ---------[ FIELDS ]---------
         /// <summary>Data instance.</summary>
-        private static LocalUser _activeUser;
+        public static LocalUser activeUser;
 
         /// <summary>User data file path for the active user.</summary>
         private static string _activeUserDataFilePath;
@@ -20,19 +20,19 @@ namespace ModIO
         /// <summary>User Profile for the currently active user.</summary>
         public static UserProfile ActiveUserProfile
         {
-            get { return UserAccountManagement._activeUser.profile; }
+            get { return UserAccountManagement.activeUser.profile; }
         }
 
         /// <summary>OAuthToken for the currently active user.</summary>
         public static string ActiveUserToken
         {
-            get { return UserAccountManagement._activeUser.oAuthToken; }
+            get { return UserAccountManagement.activeUser.oAuthToken; }
         }
 
         /// <summary>Is the ActiveUserToken valid?</summary>
         public static bool WasTokenRejected
         {
-            get { return UserAccountManagement._activeUser.wasTokenRejected; }
+            get { return UserAccountManagement.activeUser.wasTokenRejected; }
         }
 
         /// <summary>Indicates whether the OAuthToken exists and has not been marked aas rejected.</summary>
@@ -48,15 +48,15 @@ namespace ModIO
         /// <summary>External Authentication Ticket for the active user.</summary>
         public static string ExternalAuthTicket
         {
-            get { return UserAccountManagement._activeUser.externalAuthTicket.value; }
-            private set { UserAccountManagement._activeUser.externalAuthTicket.value = value; }
+            get { return UserAccountManagement.activeUser.externalAuthTicket.value; }
+            private set { UserAccountManagement.activeUser.externalAuthTicket.value = value; }
         }
 
         /// <summary>Provider of the ExternalAuthTicket.</summary>
         public static ExternalAuthenticationProvider ExternalAuthProvider
         {
-            get { return UserAccountManagement._activeUser.externalAuthTicket.provider; }
-            private set { UserAccountManagement._activeUser.externalAuthTicket.provider = value; }
+            get { return UserAccountManagement.activeUser.externalAuthTicket.provider; }
+            private set { UserAccountManagement.activeUser.externalAuthTicket.provider = value; }
         }
 
         /// <summary>File path for the active user data.</summary>
@@ -76,7 +76,7 @@ namespace ModIO
         /// <summary>Returns the enabled mods for the active user.</summary>
         public static List<int> GetEnabledMods()
         {
-            return new List<int>(UserAccountManagement._activeUser.enabledModIds);
+            return new List<int>(UserAccountManagement.activeUser.enabledModIds);
         }
 
         /// <summary>Sets the enabled mods for the active user.</summary>
@@ -93,14 +93,14 @@ namespace ModIO
                 modIdArray = modIds.ToArray();
             }
 
-            UserAccountManagement._activeUser.enabledModIds = modIdArray;
+            UserAccountManagement.activeUser.enabledModIds = modIdArray;
             SaveActiveUser();
         }
 
         /// <summary>Returns the subscribed mods for the active user.</summary>
         public static List<int> GetSubscribedMods()
         {
-            return new List<int>(UserAccountManagement._activeUser.subscribedModIds);
+            return new List<int>(UserAccountManagement.activeUser.subscribedModIds);
         }
 
         /// <summary>Sets the subscribed mods for the active user.</summary>
@@ -117,7 +117,7 @@ namespace ModIO
                 modIdArray = modIds.ToArray();
             }
 
-            UserAccountManagement._activeUser.subscribedModIds = modIdArray;
+            UserAccountManagement.activeUser.subscribedModIds = modIdArray;
             SaveActiveUser();
         }
 
@@ -128,7 +128,7 @@ namespace ModIO
         {
             APIClient.GetAuthenticatedUser((p) =>
             {
-                UserAccountManagement._activeUser.profile = p;
+                UserAccountManagement.activeUser.profile = p;
                 UserAccountManagement.SaveActiveUser();
 
                 if(onSuccess != null)
@@ -142,7 +142,7 @@ namespace ModIO
         /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
         public static void MarkAuthTokenRejected()
         {
-            UserAccountManagement._activeUser.wasTokenRejected = true;
+            UserAccountManagement.activeUser.wasTokenRejected = true;
             SaveActiveUser();
         }
 
@@ -154,7 +154,7 @@ namespace ModIO
         {
             APIClient.GetOAuthToken(securityCode, (t) =>
             {
-                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
                 UserAccountManagement.FetchUserProfile(onSuccess, onError);
             },
@@ -194,7 +194,7 @@ namespace ModIO
 
             APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
             {
-                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.FetchUserProfile(onSuccess, onError);
@@ -221,7 +221,7 @@ namespace ModIO
 
             APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
             {
-                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.FetchUserProfile(onSuccess, onError);
@@ -260,7 +260,7 @@ namespace ModIO
 
             authAction.Invoke(UserAccountManagement.ExternalAuthTicket, (t) =>
             {
-                UserAccountManagement._activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
 
                 if(onSuccess != null)
@@ -310,7 +310,7 @@ namespace ModIO
             }
 
             // set
-            UserAccountManagement._activeUser = userData;
+            UserAccountManagement.activeUser = userData;
         }
 
         /// <summary>Changes the local user identifier.</summary>
@@ -341,7 +341,7 @@ namespace ModIO
         public static void SaveActiveUser()
         {
             UserDataStorage.TryWriteJSONFile(UserAccountManagement._activeUserDataFilePath,
-                                             UserAccountManagement._activeUser);
+                                             UserAccountManagement.activeUser);
         }
 
         /// <summary>Sets the local user data directly.</summary>
@@ -350,7 +350,7 @@ namespace ModIO
             Debug.Assert(localUserData.enabledModIds != null);
             Debug.Assert(localUserData.subscribedModIds != null);
 
-            UserAccountManagement._activeUser = localUserData;
+            UserAccountManagement.activeUser = localUserData;
         }
     }
 }
