@@ -17,16 +17,7 @@ namespace ModIO
         /// <summary>Data instance.</summary>
         public static LocalUser activeUser;
 
-        /// <summary>User data file path for the active user.</summary>
-        private static string _activeUserDataFilePath;
-
         // --- Accessors ---
-        /// <summary>File path for the active user data.</summary>
-        public static string UserDataFilePath
-        {
-            get { return UserAccountManagement._activeUserDataFilePath; }
-        }
-
         /// <summary>External authentication data for the session.</summary>
         public static ExternalAuthenticationData externalAuthentication;
 
