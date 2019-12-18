@@ -24,7 +24,7 @@ namespace ModIO
 
         // ---------[ ACCESSORS ]---------
         /// <summary>Returns the summarised authentication state.</summary>
-        public AuthenticationState GetAuthenticationState
+        public AuthenticationState AuthenticationState
         {
             get
             {

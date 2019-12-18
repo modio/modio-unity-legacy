@@ -94,7 +94,7 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            if(UserAccountManagement.IsTokenValid)
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 // attempt pushing of subs/unsubs
                 foreach(int modId in this.m_queuedSubscribes)
@@ -220,7 +220,7 @@ namespace ModIO.UI
                 yield break;
             }
 
-            if(UserAccountManagement.IsTokenValid)
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(FetchUserProfile());
             }
@@ -257,7 +257,7 @@ namespace ModIO.UI
 
             this.StartCoroutine(FetchGameProfile());
 
-            if(UserAccountManagement.IsTokenValid)
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }
@@ -357,7 +357,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserProfile()
         {
-            Debug.Assert(UserAccountManagement.IsTokenValid);
+            Debug.Assert(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken);
 
             bool succeeded = false;
 
@@ -436,7 +436,7 @@ namespace ModIO.UI
         private System.Collections.IEnumerator PushQueuedSubscribes(Action<List<ModProfile>> onCompleted)
         {
             // early out if not authenticated or no queued subs
-            if(!UserAccountManagement.IsTokenValid
+            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken
                || this.m_queuedSubscribes.Count == 0)
             {
                 if(onCompleted != null) { onCompleted(new List<ModProfile>()); }
@@ -497,7 +497,7 @@ namespace ModIO.UI
                         --responsesPending;
                         if(e.isAuthenticationInvalid)
                         {
-                            if(UserAccountManagement.IsTokenValid)
+                            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
                             {
                                 UserAccountManagement.MarkAuthTokenRejected();
                                 MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
@@ -558,7 +558,7 @@ namespace ModIO.UI
         private System.Collections.IEnumerator PushQueuedUnsubscribes(Action<List<int>> onCompleted)
         {
             // early out if not authenticated or no queued actions
-            if(!UserAccountManagement.IsTokenValid
+            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken
                || this.m_queuedUnsubscribes.Count == 0)
             {
                 if(onCompleted != null) { onCompleted(new List<int>(0)); }
@@ -597,7 +597,7 @@ namespace ModIO.UI
                         --responsesPending;
                         if(e.isAuthenticationInvalid)
                         {
-                            if(UserAccountManagement.IsTokenValid)
+                            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
                             {
                                 UserAccountManagement.MarkAuthTokenRejected();
 
@@ -639,7 +639,7 @@ namespace ModIO.UI
                                                                         Action<WebRequestError> onFailed)
         {
             // early out if not authenticated
-            if(!UserAccountManagement.IsTokenValid)
+            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken)
             {
                 if(onCompleted != null) { onCompleted(); }
                 yield break;
@@ -697,7 +697,7 @@ namespace ModIO.UI
                     }
                     else
                     {
-                        if(UserAccountManagement.IsTokenValid)
+                        if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
                         {
                             UserAccountManagement.MarkAuthTokenRejected();
 
@@ -723,7 +723,10 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
         {
-            if(!UserAccountManagement.IsTokenValid) { yield break; }
+            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken)
+            {
+                yield break;
+            }
 
             // push local actions
             yield return this.StartCoroutine(PushQueuedSubscribes(null));
@@ -939,7 +942,7 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(UserAccountManagement.IsTokenValid
+            while(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken
                   && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
@@ -1380,7 +1383,7 @@ namespace ModIO.UI
                 isRequestDone = false;
                 requestError = null;
 
-                if(UserAccountManagement.IsTokenValid)
+                if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -1431,7 +1434,7 @@ namespace ModIO.UI
                         }
                     }
                     // This may have changed during the request execution
-                    else if(UserAccountManagement.IsTokenValid)
+                    else if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
                     {
                         if(userEventReponse.Count > 0)
                         {
@@ -1454,7 +1457,7 @@ namespace ModIO.UI
         {
             if(this == null
                || !this.isActiveAndEnabled
-               || !UserAccountManagement.IsTokenValid)
+               || UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken)
             {
                 return;
             }
@@ -1685,7 +1688,7 @@ namespace ModIO.UI
             m_queuedSubscribes.AddRange(UserAccountManagement.GetSubscribedMods());
             WriteManifest();
 
-            if(UserAccountManagement.IsTokenValid)
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(SynchronizeSubscriptionsWithServer());
             }

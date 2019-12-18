@@ -71,7 +71,7 @@ namespace ModIO.EditorCode
             {
                 this.profile = null;
 
-                if(UserAccountManagement.IsTokenValid)
+                if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
                 {
                     this.isModListLoading = true;
                     this.modOptions = new string[]{ "Loading..." };

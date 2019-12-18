@@ -17,16 +17,6 @@ namespace ModIO
         private static string _activeUserDataFilePath;
 
         // --- Accessors ---
-        /// <summary>Indicates whether the OAuthToken exists and has not been marked aas rejected.</summary>
-        public static bool IsTokenValid
-        {
-            get
-            {
-                return (!string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken)
-                        && !UserAccountManagement.activeUser.wasTokenRejected);
-            }
-        }
-
         /// <summary>External Authentication Ticket for the active user.</summary>
         public static string ExternalAuthTicket
         {
