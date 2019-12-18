@@ -54,6 +54,8 @@ namespace ModIO
             }
 
             UserDataStorage._activeUserDirectory = userDir;
+
+            Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
         }
 
         // ---------[ IO FUNCTIONS ]---------
@@ -401,58 +403,58 @@ namespace ModIO
 
         #elif UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
 
-            /// <summary>Defines the base directory for the user-specific data.</summary>
-            private static readonly string USER_DIRECTORY
-            = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath, "modio-" + PluginSettings.data.gameId);
-
             /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
             private static PlatformFunctions GetPlatformFunctions()
             {
-                Debug.Log("[mod.io] User Data Directory set: " + USER_DIRECTORY);
+                string userDir = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
+                                                         "modio-" + PluginSettings.data.gameId,
+                                                         "users");
 
                 return new PlatformFunctions()
                 {
                     ReadFile = ReadFile_Standalone,
                     WriteFile = WriteFile_Standalone,
                     DeleteFile = DeleteFile_Standalone,
+                    ClearAllData = ClearAllData_Standalone,
+                    UserDirectoryRoot = userDir,
                 };
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
-            private static byte[] ReadFile_Standalone(string filePathRelative)
+            private static byte[] ReadFile_Standalone(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 byte[] data = null;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY,
-                                                             filePathRelative);
-                data = IOUtilities.LoadBinaryFile(filePathAbs);
+                data = IOUtilities.LoadBinaryFile(filePath);
                 return data;
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
-            private static bool WriteFile_Standalone(string filePathRelative, byte[] data)
+            private static bool WriteFile_Standalone(string filePath, byte[] data)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY,
-                                                             filePathRelative);
-                success = IOUtilities.WriteBinaryFile(filePathAbs, data);
+                success = IOUtilities.WriteBinaryFile(filePath, data);
                 return success;
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
-            private static bool DeleteFile_Standalone(string filePathRelative)
+            private static bool DeleteFile_Standalone(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage.USER_DIRECTORY,
-                                                             filePathRelative);
-                success = IOUtilities.DeleteFile(filePathAbs);
+                success = IOUtilities.DeleteFile(filePath);
                 return success;
+            }
+
+            /// <summary>Clears all user data. (Standalone Application)</summary>
+            private static void ClearAllData_Standalone()
+            {
+                IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
             }
 
         #endif
