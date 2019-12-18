@@ -1783,7 +1783,7 @@ namespace ModIO
             if(profile == null
                && !string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
             {
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             }
             else if(onSuccess != null)
             {

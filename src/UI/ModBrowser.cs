@@ -368,7 +368,7 @@ namespace ModIO.UI
                 WebRequestError requestError = null;
 
                 // requests
-                UserAccountManagement.FetchUserProfile(
+                UserAccountManagement.UpdateUserProfile(
                 (u) =>
                 {
                     IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);

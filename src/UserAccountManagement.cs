@@ -95,20 +95,27 @@ namespace ModIO
 
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Pulls any changes to the User Profile from the mod.io servers.</summary>
-        public static void FetchUserProfile(Action<UserProfile> onSuccess,
-                                            Action<WebRequestError> onError)
+        public static void UpdateUserProfile(Action<UserProfile> onSuccess,
+                                             Action<WebRequestError> onError)
         {
-            APIClient.GetAuthenticatedUser((p) =>
+            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.NoToken)
             {
-                UserAccountManagement.activeUser.profile = p;
-                UserAccountManagement.SaveActiveUser();
-
-                if(onSuccess != null)
+                APIClient.GetAuthenticatedUser((p) =>
                 {
-                    onSuccess(p);
-                }
-            },
-            onError);
+                    UserAccountManagement.activeUser.profile = p;
+                    UserAccountManagement.SaveActiveUser();
+
+                    if(onSuccess != null)
+                    {
+                        onSuccess(p);
+                    }
+                },
+                onError);
+            }
+            else if(onSuccess != null)
+            {
+                onSuccess(null);
+            }
         }
 
         /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
@@ -128,7 +135,7 @@ namespace ModIO
             {
                 UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
             onError);
         }
@@ -169,7 +176,7 @@ namespace ModIO
                 UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
 
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
             onError);
         }
@@ -196,7 +203,7 @@ namespace ModIO
                 UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.SaveActiveUser();
 
-                UserAccountManagement.FetchUserProfile(onSuccess, onError);
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
             onError);
         }
@@ -237,7 +244,7 @@ namespace ModIO
 
                 if(onSuccess != null)
                 {
-                    UserAccountManagement.FetchUserProfile(onSuccess, onError);
+                    UserAccountManagement.UpdateUserProfile(onSuccess, onError);
                 }
             },
             onError);
