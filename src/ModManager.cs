@@ -1951,16 +1951,22 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete]Returns the subscribed mods.</summary>
-        [Obsolete("User UserAccountManagement.GetSubscribedMods() instead.")]
+        [Obsolete("Use UseAccountManagement.activeUser.subscribedModIds instead.")]
         public static List<int> GetSubscribedModIds()
         {
-            return UserAccountManagement.GetSubscribedMods();
+            return UserAccountManagement.activeUser.subscribedModIds;
         }
         /// <summary>[Obsolete]Sets the subscribed mods and writes the data to disk.</summary>
-        [Obsolete("User UserAccountManagement.SetSubscribedMods() instead.")]
+        [Obsolete("Use UserAccountManagement.SubscribeToMod() instead.")]
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
-            UserAccountManagement.SetSubscribedMods(modIds);
+            if(modIds == null)
+            {
+                modIds = new int[0];
+            }
+
+            UserAccountManagement.activeUser.subscribedModIds = new List<int>(modIds);
+            UserAccountManagement.SaveActiveUser();
         }
     }
 }
