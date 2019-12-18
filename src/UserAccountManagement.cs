@@ -17,20 +17,6 @@ namespace ModIO
         private static string _activeUserDataFilePath;
 
         // --- Accessors ---
-        /// <summary>External Authentication Ticket for the active user.</summary>
-        public static string ExternalAuthTicket
-        {
-            get { return UserAccountManagement.activeUser.externalAuthTicket.ticket; }
-            private set { UserAccountManagement.activeUser.externalAuthTicket.ticket = value; }
-        }
-
-        /// <summary>Provider of the ExternalAuthTicket.</summary>
-        public static ExternalAuthenticationProvider ExternalAuthProvider
-        {
-            get { return UserAccountManagement.activeUser.externalAuthTicket.provider; }
-            private set { UserAccountManagement.activeUser.externalAuthTicket.provider = value; }
-        }
-
         /// <summary>File path for the active user data.</summary>
         public static string UserDataFilePath
         {

@@ -76,7 +76,7 @@ namespace ModIO.UI
 
                 string urlLoginPostfix = string.Empty;
 
-                switch(UserAccountManagement.ExternalAuthProvider)
+                switch(UserAccountManagement.externalAuthentication.provider)
                 {
                     case ExternalAuthenticationProvider.Steam:
                     {

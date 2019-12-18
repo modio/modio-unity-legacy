@@ -228,7 +228,7 @@ namespace ModIO.UI
             {
                 bool isAttemptingReauth = false;
 
-                if(!string.IsNullOrEmpty(UserAccountManagement.ExternalAuthTicket))
+                if(!string.IsNullOrEmpty(UserAccountManagement.externalAuthentication.ticket))
                 {
                     isAttemptingReauth = true;
 
