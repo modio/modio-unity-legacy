@@ -115,8 +115,8 @@ namespace ModIO
                     profile = profile,
                     oAuthToken = value.token,
                     wasTokenRejected = value.wasTokenRejected,
-                    enabledModIds = enabled.ToArray(),
-                    subscribedModIds = subscribed.ToArray(),
+                    enabledModIds = enabled,
+                    subscribedModIds = subscribed,
                 };
 
                 // externalAuthTicket data

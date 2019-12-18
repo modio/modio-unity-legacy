@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ModIO
 {
     /// <summary>Structure for storing data about a user specific to this device.</summary>
@@ -14,10 +16,10 @@ namespace ModIO
         public bool wasTokenRejected;
 
         /// <summary>Mods the user has enabled on this device.</summary>
-        public int[] enabledModIds;
+        public List<int> enabledModIds;
 
         /// <summary>Mods the user is subscribed to.</summary>
-        public int[] subscribedModIds;
+        public List<int> subscribedModIds;
 
         // ---------[ ACCESSORS ]---------
         /// <summary>Returns the summarised authentication state.</summary>

@@ -37,18 +37,17 @@ namespace ModIO
         /// <summary>Sets the enabled mods for the active user.</summary>
         public static void SetEnabledMods(IEnumerable<int> modIds)
         {
-            int[] modIdArray;
-
+            List<int> modList = null;
             if(modIds == null)
             {
-                modIdArray = new int[0];
+                modList = new List<int>();
             }
             else
             {
-                modIdArray = modIds.ToArray();
+                modList = new List<int>(modIds);
             }
 
-            UserAccountManagement.activeUser.enabledModIds = modIdArray;
+            UserAccountManagement.activeUser.enabledModIds = modList;
             SaveActiveUser();
         }
 
@@ -61,18 +60,17 @@ namespace ModIO
         /// <summary>Sets the subscribed mods for the active user.</summary>
         public static void SetSubscribedMods(IEnumerable<int> modIds)
         {
-            int[] modIdArray;
-
+            List<int> modList = null;
             if(modIds == null)
             {
-                modIdArray = new int[0];
+                modList = new List<int>();
             }
             else
             {
-                modIdArray = modIds.ToArray();
+                modList = new List<int>(modIds);
             }
 
-            UserAccountManagement.activeUser.subscribedModIds = modIdArray;
+            UserAccountManagement.activeUser.subscribedModIds = modList;
             SaveActiveUser();
         }
 
@@ -254,19 +252,19 @@ namespace ModIO
             {
                 userData = new LocalUser()
                 {
-                    enabledModIds = new int[0],
-                    subscribedModIds = new int[0],
+                    enabledModIds = new List<int>(),
+                    subscribedModIds = new List<int>(),
                 };
             }
             else
             {
                 if(userData.enabledModIds == null)
                 {
-                    userData.enabledModIds = new int[0];
+                    userData.enabledModIds = new List<int>();
                 }
                 if(userData.subscribedModIds == null)
                 {
-                    userData.subscribedModIds = new int[0];
+                    userData.subscribedModIds = new List<int>();
                 }
             }
 

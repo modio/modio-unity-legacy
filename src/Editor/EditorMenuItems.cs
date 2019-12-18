@@ -31,8 +31,8 @@ namespace ModIO.EditorCode
             UserDataStorage.ClearAllData();
             UserAccountManagement.activeUser = new LocalUser()
             {
-                enabledModIds = new int[0],
-                subscribedModIds = new int[0],
+                enabledModIds = new List<int>(),
+                subscribedModIds = new List<int>(),
             };
 
             Debug.Log("[mod.io] User Data Cleared.");

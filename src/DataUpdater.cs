@@ -57,7 +57,11 @@ namespace ModIO
                     JArray array = dataWrapper.data["subscribedModIds"] as JArray;
                     if(array != null)
                     {
-                        userData.subscribedModIds = array.ToObject<int[]>();
+                        int[] modIds = array.ToObject<int[]>();
+                        if(modIds != null)
+                        {
+                            userData.subscribedModIds = new List<int>(modIds);
+                        }
                     }
                 }
 
@@ -66,7 +70,11 @@ namespace ModIO
                     JArray array = dataWrapper.data["enabledModIds"] as JArray;
                     if(array != null)
                     {
-                        userData.enabledModIds = array.ToObject<int[]>();
+                        int[] modIds = array.ToObject<int[]>();
+                        if(modIds != null)
+                        {
+                            userData.enabledModIds = new List<int>(modIds);
+                        }
                     }
                 }
             }
