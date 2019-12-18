@@ -139,7 +139,8 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            return UserDataStorage._PlatformDeleteFile(filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            return UserDataStorage._PlatformDeleteFile(filePath);
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
@@ -150,7 +151,7 @@ namespace ModIO
         private delegate bool WriteFileDelegate(string filePath, byte[] fileData);
 
         /// <summary>Delegate for deleting a file.</summary>
-        private delegate bool DeleteFileDelegate(string relativeFilePath);
+        private delegate bool DeleteFileDelegate(string filePath);
 
         /// <summary>Function for reading a user-specific file.</summary>
         private readonly static ReadFileDelegate _PlatformReadFile = null;
@@ -209,14 +210,12 @@ namespace ModIO
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
-            private static bool DeleteFile_Editor(string filePathRelative)
+            private static bool DeleteFile_Editor(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE,
-                                                             filePathRelative);
-                success = IOUtilities.DeleteFile(filePathAbs);
+                success = IOUtilities.DeleteFile(filePath);
                 return success;
             }
 
