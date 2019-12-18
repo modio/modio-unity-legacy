@@ -16,7 +16,10 @@ namespace ModIO
     {
         // ---------[ FIELDS ]---------
         /// <summary>Defines the base directory for the user-specific data.</summary>
-        private static readonly string _USER_DIRECTORY_BASE;
+        private static readonly string _USER_DIRECTORY_ROOT;
+
+        /// <summary>Defines the active user directory</summary>
+        private static string _activeUserDirectory;
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
@@ -26,12 +29,29 @@ namespace ModIO
             Debug.Assert(platform.ReadFile != null);
             Debug.Assert(platform.WriteFile != null);
             Debug.Assert(platform.DeleteFile != null);
-            Debug.Assert(!string.IsNullOrEmpty(platform.UserDirectoryBase));
+            Debug.Assert(!string.IsNullOrEmpty(platform.UserDirectoryRoot));
 
             UserDataStorage._PlatformReadFile   = platform.ReadFile;
             UserDataStorage._PlatformWriteFile  = platform.WriteFile;
             UserDataStorage._PlatformDeleteFile = platform.DeleteFile;
-            UserDataStorage._USER_DIRECTORY_BASE= platform.UserDirectoryBase;
+            UserDataStorage._USER_DIRECTORY_ROOT= platform.UserDirectoryRoot;
+
+            UserDataStorage.SetActiveUserDirectory(null);
+        }
+
+        /// <summary>Sets the user directory to store into based on a given user identifier.</summary>
+        public static void SetActiveUserDirectory(string localUserIdentifier = null)
+        {
+            string userDir = UserDataStorage._USER_DIRECTORY_ROOT;
+
+            if(!string.IsNullOrEmpty(localUserIdentifier))
+            {
+                string folderName = IOUtilities.MakeValidFileName(localUserIdentifier);
+                userDir = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_ROOT,
+                                                  folderName);
+            }
+
+            UserDataStorage._activeUserDirectory = userDir;
         }
 
         // ---------[ IO FUNCTIONS ]---------
@@ -40,7 +60,7 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
             byte[] fileData = UserDataStorage._PlatformReadFile(filePath);
             return UserDataStorage.TryParseJSONFile(fileData, out jsonObject);;
         }
@@ -51,7 +71,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             byte[] fileData = null;
-            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
 
             return(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData)
                    && UserDataStorage._PlatformWriteFile(filePath, fileData));
@@ -113,7 +133,7 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
             return UserDataStorage._PlatformReadFile(filePath);
         }
 
@@ -130,7 +150,7 @@ namespace ModIO
             }
             #endif // DEBUG
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
             return UserDataStorage._PlatformWriteFile(filePath, fileData);
         }
 
@@ -139,7 +159,7 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
             return UserDataStorage._PlatformDeleteFile(filePath);
         }
 
@@ -169,7 +189,7 @@ namespace ModIO
             public ReadFileDelegate ReadFile;
             public WriteFileDelegate WriteFile;
             public DeleteFileDelegate DeleteFile;
-            public string UserDirectoryBase;
+            public string UserDirectoryRoot;
         }
 
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
@@ -184,7 +204,7 @@ namespace ModIO
                     ReadFile = ReadFile_Editor,
                     WriteFile = WriteFile_Editor,
                     DeleteFile = DeleteFile_Editor,
-                    UserDirectoryBase = userDir,
+                    UserDirectoryRoot = userDir,
                 };
             }
 
