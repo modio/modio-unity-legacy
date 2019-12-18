@@ -113,7 +113,7 @@ namespace ModIO.EditorCode
                                 {
                                     this.user = null;
 
-                                    UserAccountManagement.SetLocalUserData(new LocalUser());
+                                    UserAccountManagement.activeUser = new LocalUser();
                                     UserAccountManagement.SaveActiveUser();
 
                                     isAwaitingServerResponse = false;

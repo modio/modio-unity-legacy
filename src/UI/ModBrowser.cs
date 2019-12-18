@@ -1712,7 +1712,7 @@ namespace ModIO.UI
             WriteManifest();
 
             // - clear current user -
-            UserAccountManagement.SetLocalUserData(new LocalUser());
+            UserAccountManagement.activeUser = new LocalUser();
             UserAccountManagement.SaveActiveUser();
 
             // - notify receivers -

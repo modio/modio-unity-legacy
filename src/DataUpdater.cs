@@ -105,7 +105,7 @@ namespace ModIO
             }
 
             // - set and save -
-            UserAccountManagement.SetLocalUserData(userData);
+            UserAccountManagement.activeUser = userData;
             UserAccountManagement.SaveActiveUser();
 
             Debug.Log("[mod.io] UserData updated completed.");

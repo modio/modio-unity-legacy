@@ -276,14 +276,5 @@ namespace ModIO
             UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
                                              UserAccountManagement.activeUser);
         }
-
-        /// <summary>Sets the local user data directly.</summary>
-        public static void SetLocalUserData(LocalUser localUserData)
-        {
-            Debug.Assert(localUserData.enabledModIds != null);
-            Debug.Assert(localUserData.subscribedModIds != null);
-
-            UserAccountManagement.activeUser = localUserData;
-        }
     }
 }

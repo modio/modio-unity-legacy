@@ -139,7 +139,7 @@ namespace ModIO
 
                 // set
                 UserAccountManagement.externalAuthentication = externalAuth;
-                UserAccountManagement.SetLocalUserData(userData);
+                UserAccountManagement.activeUser = userData;
                 UserAccountManagement.SaveActiveUser();
             }
         }
