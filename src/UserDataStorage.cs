@@ -48,10 +48,13 @@ namespace ModIO
         /// <summary>Function used to read a user data file.</summary>
         public static bool TryWriteJSONFile<T>(string filePathRelative, T jsonObject)
         {
-            byte[] fileData;
+            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+
+            byte[] fileData = null;
+            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
 
             return(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData)
-                   && UserDataStorage._PlatformWriteFile(filePathRelative, fileData));
+                   && UserDataStorage._PlatformWriteFile(filePath, fileData));
         }
 
         /// <summary>Generates user data file.</summary>
@@ -127,7 +130,8 @@ namespace ModIO
             }
             #endif // DEBUG
 
-            return UserDataStorage._PlatformWriteFile(filePathRelative, fileData);
+            string filePath = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE, filePathRelative);
+            return UserDataStorage._PlatformWriteFile(filePath, fileData);
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
@@ -143,7 +147,7 @@ namespace ModIO
         private delegate byte[] ReadFileDelegate(string filePath);
 
         /// <summary>Delegate for writing a file.</summary>
-        private delegate bool WriteFileDelegate(string relativeFilePath, byte[] fileData);
+        private delegate bool WriteFileDelegate(string filePath, byte[] fileData);
 
         /// <summary>Delegate for deleting a file.</summary>
         private delegate bool DeleteFileDelegate(string relativeFilePath);
@@ -194,15 +198,13 @@ namespace ModIO
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
-            private static bool WriteFile_Editor(string filePathRelative, byte[] data)
+            private static bool WriteFile_Editor(string filePath, byte[] data)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
                 bool success = false;
-                string filePathAbs = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_BASE,
-                                                             filePathRelative);
-                success = IOUtilities.WriteBinaryFile(filePathAbs, data);
+                success = IOUtilities.WriteBinaryFile(filePath, data);
                 return success;
             }
 
