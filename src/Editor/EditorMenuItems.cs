@@ -25,22 +25,17 @@ namespace ModIO.EditorCode
             }
         }
 
-        [MenuItem("Tools/mod.io/Debugging/Clear User Data", false)]
-        public static void ClearCachedAuthenticatedUserData()
+        [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
+        public static void ClearAllUserData()
         {
-            string userDir = System.IO.Path.GetDirectoryName(UserAccountManagement.UserDataFilePath);
-            if(System.IO.Directory.Exists(userDir))
+            UserDataStorage.ClearAllData();
+            UserAccountManagement.activeUser = new LocalUser()
             {
-                IOUtilities.DeleteDirectory(userDir);
-            }
-            else
-            {
-                UserDataStorage.DeleteFile(UserAccountManagement.UserDataFilePath);
-            }
+                enabledModIds = new int[0],
+                subscribedModIds = new int[0],
+            };
 
-            UserAccountManagement.SetLocalUserData(new LocalUser());
-
-            Debug.Log("[mod.io] Cached User Data Deleted.");
+            Debug.Log("[mod.io] User Data Cleared.");
         }
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
@@ -57,15 +52,6 @@ namespace ModIO.EditorCode
             if(IOUtilities.DeleteDirectory(modDir))
             {
                 Debug.Log("[mod.io] Cached Mod Data Deleted.");
-            }
-        }
-        [MenuItem("Tools/mod.io/Debugging/Clear User Profiles", false)]
-        public static void ClearCachedUserProfiles()
-        {
-            string usersDir = IOUtilities.CombinePath(CacheClient.cacheDirectory, "users");
-            if(IOUtilities.DeleteDirectory(usersDir))
-            {
-                Debug.Log("[mod.io] Cached User Profiles Deleted.");
             }
         }
 
