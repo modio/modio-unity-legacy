@@ -62,7 +62,7 @@ namespace ModIO.UI
             this.m_modId = modId;
 
             // display
-            bool isSubscribed = UserAccountManagement.GetSubscribedMods().Contains(modId);
+            bool isSubscribed = UserAccountManagement.activeUser.subscribedModIds.Contains(modId);
 
             this.gameObject.GetComponent<StateToggleDisplay>().isOn = isSubscribed;
         }

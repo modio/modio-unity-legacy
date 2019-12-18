@@ -297,7 +297,7 @@ namespace ModIO.UI
             // store
             if(this.storeIfSubscribed)
             {
-                IList<int> subMods = UserAccountManagement.GetSubscribedMods();
+                IList<int> subMods = UserAccountManagement.activeUser.subscribedModIds;
                 foreach(ModProfile profile in page.items)
                 {
                     if(subMods.Contains(profile.id))
@@ -336,7 +336,7 @@ namespace ModIO.UI
                     profileCache[p.id] = p;
 
                     if(this.storeIfSubscribed
-                       && UserAccountManagement.GetSubscribedMods().Contains(p.id))
+                       && UserAccountManagement.activeUser.subscribedModIds.Contains(p.id))
                     {
                         CacheClient.SaveModProfile(p);
                     }
@@ -405,7 +405,7 @@ namespace ModIO.UI
 
                     if(this.storeIfSubscribed)
                     {
-                        IList<int> subMods = UserAccountManagement.GetSubscribedMods();
+                        IList<int> subMods = UserAccountManagement.activeUser.subscribedModIds;
                         foreach(ModProfile profile in modProfiles)
                         {
                             if(subMods.Contains(profile.id))
