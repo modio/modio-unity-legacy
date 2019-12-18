@@ -361,25 +361,25 @@ namespace ModIO
                     ReadFile = ReadFile_SteamworksNET,
                     WriteFile = WriteFile_SteamworksNET,
                     DeleteFile = DeleteFile_SteamworksNET,
+                    ClearAllData = ClearAllData_SteamworksNET,
+                    UserDirectoryRoot = IOUtilities.CombinePath("modio", "users"),
                 };
             }
 
             /// <summary>Reads a user data file. (Steamworks.NET)</summary>
-            private static byte[] ReadFile_SteamworksNET(string filePathRelative)
+            private static byte[] ReadFile_SteamworksNET(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
-
-                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 byte[] data = null;
-                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(filePathRelative);
+                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(filePath);
 
                     if(fileSize > 0)
                     {
                         data = new byte[fileSize];
-                        Steamworks.SteamRemoteStorage.FileRead(filePathRelative, data, fileSize);
+                        Steamworks.SteamRemoteStorage.FileRead(filePath, data, fileSize);
                     }
                 }
 
@@ -387,28 +387,43 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
-            public static bool WriteFile_SteamworksNET(string filePathRelative, byte[] data)
+            public static bool WriteFile_SteamworksNET(string filePath, byte[] data)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
-                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
-
-                return Steamworks.SteamRemoteStorage.FileWrite(filePathRelative, data, data.Length);
+                return Steamworks.SteamRemoteStorage.FileWrite(filePath, data, data.Length);
             }
 
             /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
-            private static bool DeleteFile_SteamworksNET(string filePathRelative)
+            private static bool DeleteFile_SteamworksNET(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
-                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
-
-                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    return Steamworks.SteamRemoteStorage.FileDelete(filePathRelative);
+                    return Steamworks.SteamRemoteStorage.FileDelete(filePath);
                 }
                 return true;
+            }
+
+            /// <summary>Clears all user data. (Steamworks.NET)</summary>
+            private static void ClearAllData_SteamworksNET()
+            {
+                int fileCount = Steamworks.SteamRemoteStorage.GetFileCount();
+
+                for(int i = 0; i < fileCount; ++i)
+                {
+                    string filePath;
+                    int fileSize;
+
+                    filePath = Steamworks.SteamRemoteStorage.GetFileNameAndSize(i, out fileSize);
+
+                    if(filePath.StartsWith(UserDataStorage._USER_DIRECTORY_ROOT))
+                    {
+                        UserDataStorage.DeleteFile_SteamworksNET(filePath);
+                    }
+                }
             }
 
         #elif UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
