@@ -88,38 +88,30 @@ namespace ModIO
             set
             {
                 // get existing values
-                List<int> enabled = UserAccountManagement.GetEnabledMods();
-                List<int> subscribed = UserAccountManagement.GetSubscribedMods();
+                LocalUser userData = UserAccountManagement.activeUser;
 
                 // profile data
-                UserProfile profile = UserAccountManagement.activeUser.profile;
-                if(profile == null
-                   || profile.id != value.userId)
+                if(userData.profile == null
+                   || userData.profile.id != value.userId)
                 {
                     if(value.userId == UserProfile.NULL_ID)
                     {
-                        profile = null;
+                        userData.profile = null;
                     }
                     else
                     {
-                        profile = new UserProfile()
+                        userData.profile = new UserProfile()
                         {
                             id = value.userId,
                         };
                     }
                 }
 
-                // create data
-                LocalUser userData = new LocalUser()
-                {
-                    profile = profile,
-                    oAuthToken = value.token,
-                    wasTokenRejected = value.wasTokenRejected,
-                    enabledModIds = enabled,
-                    subscribedModIds = subscribed,
-                };
+                // copy auth data
+                userData.oAuthToken = value.token;
+                userData.wasTokenRejected = value.wasTokenRejected;
 
-                // externalAuthTicket data
+                // externalAuthData
                 var externalAuth = new ExternalAuthenticationData()
                 {
                     ticket = null,
