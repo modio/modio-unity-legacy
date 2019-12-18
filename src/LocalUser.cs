@@ -21,6 +21,7 @@ namespace ModIO
 
         // ---------[ ACCESSORS ]---------
         /// <summary>Returns the summarised authentication state.</summary>
+        [Newtonsoft.Json.JsonIgnore]
         public AuthenticationState AuthenticationState
         {
             get

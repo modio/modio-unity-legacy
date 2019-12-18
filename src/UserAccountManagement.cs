@@ -117,7 +117,9 @@ namespace ModIO
             APIClient.GetOAuthToken(securityCode, (t) =>
             {
                 UserAccountManagement.activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.wasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
+
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
             onError);
@@ -160,6 +162,7 @@ namespace ModIO
             APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
             {
                 UserAccountManagement.activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.wasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -190,6 +193,7 @@ namespace ModIO
             APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
             {
                 UserAccountManagement.activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.wasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -229,6 +233,7 @@ namespace ModIO
             authAction.Invoke(UserAccountManagement.externalAuthentication.ticket, (t) =>
             {
                 UserAccountManagement.activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.wasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 if(onSuccess != null)
