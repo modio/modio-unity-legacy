@@ -29,8 +29,8 @@ namespace ModIO
             Debug.Assert(platform.ReadFile != null);
             Debug.Assert(platform.WriteFile != null);
             Debug.Assert(platform.DeleteFile != null);
-            Debug.Assert(!string.IsNullOrEmpty(platform.UserDirectoryRoot));
             Debug.Assert(platform.ClearAllData != null);
+            Debug.Assert(platform.UserDirectoryRoot != null);
 
             UserDataStorage._PlatformReadFile       = platform.ReadFile;
             UserDataStorage._PlatformWriteFile      = platform.WriteFile;
@@ -240,8 +240,16 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
+                bool fileExisted = System.IO.File.Exists(filePath);
                 bool success = false;
+
                 success = IOUtilities.WriteBinaryFile(filePath, data);
+
+                if(success && !fileExisted)
+                {
+                    UnityEditor.AssetDatabase.Refresh();
+                }
+
                 return success;
             }
 
@@ -250,8 +258,19 @@ namespace ModIO
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
-                bool success = false;
-                success = IOUtilities.DeleteFile(filePath);
+                bool fileExisted = System.IO.File.Exists(filePath);
+                bool success = true;
+
+                if(fileExisted)
+                {
+                    success = IOUtilities.DeleteFile(filePath);
+
+                    if(success)
+                    {
+                        UnityEditor.AssetDatabase.Refresh();
+                    }
+                }
+
                 return success;
             }
 
@@ -259,6 +278,7 @@ namespace ModIO
             private static void ClearAllData_Editor()
             {
                 IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
+                UnityEditor.AssetDatabase.Refresh();
             }
 
         #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
