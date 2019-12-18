@@ -287,30 +287,6 @@ namespace ModIO
             UserAccountManagement.activeUser = userData;
         }
 
-        /// <summary>Changes the local user identifier.</summary>
-        public static void SetLocalUserIdentifier(string localUserIdentifier)
-        {
-            string oldFilePath = UserAccountManagement._activeUserDataFilePath;
-
-            // generate file path
-            string newFileName;
-            if(string.IsNullOrEmpty(localUserIdentifier))
-            {
-                newFileName = "default.user";
-            }
-            else
-            {
-                newFileName = IOUtilities.MakeValidFileName(localUserIdentifier, ".user");
-            }
-            UserAccountManagement._activeUserDataFilePath = "users/" + newFileName;
-
-            // set
-            UserAccountManagement.SaveActiveUser();
-
-            // delete old
-            UserDataStorage.DeleteFile(oldFilePath);
-        }
-
         /// <summary>Writes the active user data to disk.</summary>
         public static void SaveActiveUser()
         {
