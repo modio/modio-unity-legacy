@@ -21,6 +21,12 @@ namespace ModIO
         /// <summary>Mods the user is subscribed to.</summary>
         public List<int> subscribedModIds;
 
+        /// <summary>Queued subscribe actions.</summary>
+        public List<int> queuedSubscribes;
+
+        /// <summary>Queued unsubscribe actions</summary>
+        public List<int> queuedUnsubscribes;
+
         // ---------[ ACCESSORS ]---------
         /// <summary>Returns the summarised authentication state.</summary>
         [Newtonsoft.Json.JsonIgnore]

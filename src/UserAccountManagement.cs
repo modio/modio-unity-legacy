@@ -74,6 +74,48 @@ namespace ModIO
             SaveActiveUser();
         }
 
+        /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
+        public static void SubscribeToMod(int modId)
+        {
+            LocalUser userData = UserAccountManagement.activeUser;
+            if(userData.subscribedModIds == null)
+            {
+                userData.subscribedModIds = new List<int>();
+            }
+
+            // add sub to list
+            if(!userData.subscribedModIds.Contains(modId))
+            {
+                userData.subscribedModIds.Add(modId);
+            }
+
+            // check queues
+            bool unsubQueued = (userData.queuedUnsubscribes != null
+                                && userData.queuedUnsubscribes.Contains(modId));
+
+            bool subQueued = (userData.queuedSubscribes != null
+                              && userData.queuedSubscribes.Contains(modId));
+
+            // add to/remove from queues
+            if(unsubQueued)
+            {
+                userData.queuedUnsubscribes.Remove(modId);
+            }
+            else if(!subQueued)
+            {
+                if(userData.queuedSubscribes == null)
+                {
+                    userData.queuedSubscribes = new List<int>();
+                }
+
+                userData.queuedSubscribes.Add(modId);
+            }
+
+            // save
+            UserAccountManagement.activeUser = userData;
+            UserAccountManagement.SaveActiveUser();
+        }
+
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Pulls any changes to the User Profile from the mod.io servers.</summary>
         public static void UpdateUserProfile(Action<UserProfile> onSuccess,
