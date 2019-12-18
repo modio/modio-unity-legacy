@@ -295,48 +295,58 @@ namespace ModIO
                     ReadFile = ReadFile_Facepunch,
                     WriteFile = WriteFile_Facepunch,
                     DeleteFile = DeleteFile_Facepunch,
+                    ClearAllData = ClearAllData_Facepunch,
+                    UserDirectoryRoot = IOUtilities.CombinePath("modio", "users"),
                 };
             }
 
             /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
-            public static byte[] ReadFile_Facepunch(string filePathRelative)
+            public static byte[] ReadFile_Facepunch(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
-
-                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 byte[] data = null;
-                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    data = Steamworks.SteamRemoteStorage.FileRead(filePathRelative);
+                    data = Steamworks.SteamRemoteStorage.FileRead(filePath);
                 }
 
                 return data;
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
-            public static bool WriteFile_Facepunch(string filePathRelative, byte[] data)
+            public static bool WriteFile_Facepunch(string filePath, byte[] data)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
-                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
-
-                return Steamworks.SteamRemoteStorage.FileWrite(filePathRelative, data);
+                return Steamworks.SteamRemoteStorage.FileWrite(filePath, data);
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            private static bool DeleteFile_Facepunch(string filePathRelative)
+            private static bool DeleteFile_Facepunch(string filePath)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
 
-                filePathRelative = IOUtilities.CombinePath("modio", filePathRelative);
-
-                if(Steamworks.SteamRemoteStorage.FileExists(filePathRelative))
+                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    return Steamworks.SteamRemoteStorage.FileDelete(filePathRelative);
+                    return Steamworks.SteamRemoteStorage.FileDelete(filePath);
                 }
                 return true;
+            }
+
+            /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
+            private static void ClearAllData_Facepunch()
+            {
+                var steamFiles = Steamworks.SteamRemoteStorage.Files;
+
+                foreach(string filePath in steamFiles)
+                {
+                    if(filePath.StartsWith(UserDataStorage._USER_DIRECTORY_ROOT))
+                    {
+                        Steamworks.SteamRemoteStorage.FileDelete(UserDataStorage._USER_DIRECTORY_ROOT);
+                    }
+                }
             }
 
         #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
