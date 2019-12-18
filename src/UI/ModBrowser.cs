@@ -529,12 +529,12 @@ namespace ModIO.UI
             if(unavailableMods.Count > 0)
             {
                 // update local data
-                List<int> subscriptions = UserAccountManagement.GetSubscribedMods();
+                List<int> subscriptions = UserAccountManagement.activeUser.subscribedModIds;
                 foreach(int modId in unavailableMods)
                 {
                     subscriptions.Remove(modId);
                 }
-                UserAccountManagement.SetSubscribedMods(subscriptions);
+                UserAccountManagement.activeUser.subscribedModIds = subscriptions;
 
                 // inform and act
                 OnSubscriptionsChanged(null, unavailableMods);
@@ -734,7 +734,7 @@ namespace ModIO.UI
 
             // confirm all subscriptions with remote
             int updateStartTimeStamp = ServerTimeStamp.Now;
-            List<int> unmatchedSubscriptions = new List<int>(UserAccountManagement.GetSubscribedMods());
+            List<int> unmatchedSubscriptions = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
             bool completedSuccessfully = false;
             int updateCount = 0;
 
@@ -768,9 +768,9 @@ namespace ModIO.UI
                 // add new subs
                 if(newSubs.Count > 0)
                 {
-                    var subscribedModIds = UserAccountManagement.GetSubscribedMods();
+                    var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
                     subscribedModIds.AddRange(newSubs);
-                    UserAccountManagement.SetSubscribedMods(subscribedModIds);
+                    UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
                     OnSubscriptionsChanged(newSubs, null);
                 }
 
@@ -785,7 +785,7 @@ namespace ModIO.UI
                 if(unmatchedSubscriptions.Count > 0)
                 {
                     var remoteUnsubs = new List<int>(unmatchedSubscriptions);
-                    var subscribedModIds = UserAccountManagement.GetSubscribedMods();
+                    var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
                     foreach(int modId in unmatchedSubscriptions)
                     {
                         if(m_queuedSubscribes.Contains(modId))
@@ -797,7 +797,7 @@ namespace ModIO.UI
                             subscribedModIds.Remove(modId);
                         }
                     }
-                    UserAccountManagement.SetSubscribedMods(subscribedModIds);
+                    UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
                     OnSubscriptionsChanged(null, remoteUnsubs);
 
                     updateCount += unmatchedSubscriptions.Count;
@@ -818,7 +818,7 @@ namespace ModIO.UI
         private System.Collections.IEnumerator UpdateAllSubscribedModProfiles()
         {
             int updateStartTimeStamp = ServerTimeStamp.Now;
-            List<int> subscribedModIds = UserAccountManagement.GetSubscribedMods();
+            List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
 
             // early out
             if(subscribedModIds.Count == 0)
@@ -912,12 +912,12 @@ namespace ModIO.UI
                 {
                     List<int> removedModIds = subscribedModIds;
 
-                    subscribedModIds = UserAccountManagement.GetSubscribedMods();
+                    subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
                     foreach(int modId in removedModIds)
                     {
                         subscribedModIds.Remove(modId);
                     }
-                    UserAccountManagement.SetSubscribedMods(subscribedModIds);
+                    UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
 
                     OnSubscriptionsChanged(null, removedModIds);
 
@@ -1002,7 +1002,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator VerifySubscriptionInstallations()
         {
-            var subscribedModIds = UserAccountManagement.GetSubscribedMods();
+            var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
             IList<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
             Dictionary<int, List<int>> groupedIds = new Dictionary<int, List<int>>();
 
@@ -1032,7 +1032,7 @@ namespace ModIO.UI
             ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
             (modProfiles) =>
             {
-                subscribedModIds = UserAccountManagement.GetSubscribedMods();
+                subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
 
                 foreach(ModProfile profile in modProfiles)
                 {
@@ -1253,14 +1253,14 @@ namespace ModIO.UI
                 requestError = null;
 
                 // --- MOD EVENTS ---
-                var subbedMods = UserAccountManagement.GetSubscribedMods();
+                var subbedMods = UserAccountManagement.activeUser.subscribedModIds;
                 if(subbedMods != null
                    && subbedMods.Count > 0)
                 {
                     List<ModEvent> modEventResponse = null;
 
                     ModManager.FetchModEventsAfterId(this.m_lastModEventId,
-                                                     UserAccountManagement.GetSubscribedMods(),
+                                                     UserAccountManagement.activeUser.subscribedModIds,
                                                      (me) =>
                                                      {
                                                         modEventResponse = me;
@@ -1469,7 +1469,7 @@ namespace ModIO.UI
 
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
         {
-            IList<int> subscribedModIds = UserAccountManagement.GetSubscribedMods();
+            List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
             List<int> addedSubscriptions = new List<int>(userEvents.Count / 2);
             List<int> removedSubscriptions = new List<int>(userEvents.Count / 2);
 
@@ -1505,7 +1505,7 @@ namespace ModIO.UI
 
             if(addedSubscriptions.Count > 0 || removedSubscriptions.Count > 0)
             {
-                UserAccountManagement.SetSubscribedMods(subscribedModIds);
+                UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
 
                 OnSubscriptionsChanged(addedSubscriptions, removedSubscriptions);
 
@@ -1549,7 +1549,7 @@ namespace ModIO.UI
                 // remove subs for deletedmods
                 if(deletedMods.Count > 0)
                 {
-                    var subscribedModIds = UserAccountManagement.GetSubscribedMods();
+                    var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
 
                     foreach(int modId in deletedMods)
                     {
@@ -1665,7 +1665,7 @@ namespace ModIO.UI
                         CacheClient.SaveModProfiles(response.items);
 
                         List<Modfile> latestBuilds = new List<Modfile>(response.items.Length);
-                        List<int> subscribedModIds = UserAccountManagement.GetSubscribedMods();
+                        List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
                         foreach(ModProfile profile in response.items)
                         {
                             if(profile != null
@@ -1685,7 +1685,7 @@ namespace ModIO.UI
         // ---------[ USER CONTROL ]---------
         public void OnUserLogin()
         {
-            m_queuedSubscribes.AddRange(UserAccountManagement.GetSubscribedMods());
+            m_queuedSubscribes.AddRange(UserAccountManagement.activeUser.subscribedModIds);
             WriteManifest();
 
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
@@ -1750,7 +1750,7 @@ namespace ModIO.UI
             {
                 if(this != null && this.isActiveAndEnabled
                    && p != null && p.currentBuild != null
-                   && UserAccountManagement.GetSubscribedMods().Contains(p.id))
+                   && UserAccountManagement.activeUser.subscribedModIds.Contains(p.id))
                 {
                     this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(new Modfile[] { p.currentBuild }));
                 }
@@ -1811,7 +1811,7 @@ namespace ModIO.UI
                 {
                     if(this != null && this.isActiveAndEnabled)
                     {
-                        var subbedMods = UserAccountManagement.GetSubscribedMods();
+                        var subbedMods = UserAccountManagement.activeUser.subscribedModIds;
 
                         List<Modfile> modfiles = new List<Modfile>(modProfiles.Length);
 
