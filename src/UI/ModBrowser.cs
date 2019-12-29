@@ -54,8 +54,6 @@ namespace ModIO.UI
         // --- RUNTIME DATA ---
         private GameProfile m_gameProfile = new GameProfile();
         private Dictionary<int, ModRatingValue> m_userRatings = new Dictionary<int, ModRatingValue>();
-        private List<int> m_queuedUnsubscribes = new List<int>();
-        private List<int> m_queuedSubscribes = new List<int>();
         private int m_lastModEventId = -1;
         private int m_lastUserEventId = -1;
 
@@ -63,6 +61,19 @@ namespace ModIO.UI
         public GameProfile gameProfile
         {
             get { return this.m_gameProfile; }
+        }
+
+        // --- Temp ---
+        private List<int> m_queuedUnsubscribes
+        {
+            get { return UserAccountManagement.activeUser.queuedUnsubscribes; }
+            set { UserAccountManagement.activeUser.queuedUnsubscribes = value; }
+        }
+
+        private List<int> m_queuedSubscribes
+        {
+            get { return UserAccountManagement.activeUser.queuedSubscribes; }
+            set { UserAccountManagement.activeUser.queuedSubscribes = value; }
         }
 
         // ---------[ INITIALIZATION ]---------
