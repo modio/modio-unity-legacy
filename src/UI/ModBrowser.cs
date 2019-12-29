@@ -1652,18 +1652,7 @@ namespace ModIO.UI
         public void LogUserOut()
         {
             // push queued subs/unsubs
-            foreach(int modId in m_queuedSubscribes)
-            {
-                APIClient.SubscribeToMod(modId, null,
-                                         WebRequestError.LogAsWarning);
-            }
-            foreach(int modId in m_queuedUnsubscribes)
-            {
-                APIClient.UnsubscribeFromMod(modId, null,
-                                             WebRequestError.LogAsWarning);
-            }
-            m_queuedSubscribes.Clear();
-            m_queuedUnsubscribes.Clear();
+            UserAccountManagement.PushQueuedSubscriptionChanges();
 
             // - clear current user -
             UserAccountManagement.activeUser = new LocalUser();
