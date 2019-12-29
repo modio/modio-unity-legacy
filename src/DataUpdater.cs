@@ -52,30 +52,20 @@ namespace ModIO
 
             if(IOUtilities.TryReadJsonObjectFile(filePath, out dataWrapper))
             {
-                if(dataWrapper.data.ContainsKey("subscribedModIds"))
+                int[] modIds = null;
+
+                if(DataUpdater.TryGetArrayField(dataWrapper,
+                                                "subscribedModIds",
+                                                out modIds))
                 {
-                    JArray array = dataWrapper.data["subscribedModIds"] as JArray;
-                    if(array != null)
-                    {
-                        int[] modIds = array.ToObject<int[]>();
-                        if(modIds != null)
-                        {
-                            userData.subscribedModIds = new List<int>(modIds);
-                        }
-                    }
+                    userData.subscribedModIds = new List<int>(modIds);
                 }
 
-                if(dataWrapper.data.ContainsKey("enabledModIds"))
+                if(DataUpdater.TryGetArrayField(dataWrapper,
+                                                "enabledModIds",
+                                                out modIds))
                 {
-                    JArray array = dataWrapper.data["enabledModIds"] as JArray;
-                    if(array != null)
-                    {
-                        int[] modIds = array.ToObject<int[]>();
-                        if(modIds != null)
-                        {
-                            userData.enabledModIds = new List<int>(modIds);
-                        }
-                    }
+                    userData.enabledModIds = new List<int>(modIds);
                 }
             }
 
@@ -117,6 +107,26 @@ namespace ModIO
             UserAccountManagement.SaveActiveUser();
 
             Debug.Log("[mod.io] UserData updated completed.");
+        }
+
+        // ---------[ UTILITY ]---------
+        /// <summary>Attempts to fetch an array-type field from the data-wrapper object.</summary>
+        private static bool TryGetArrayField<T>(GenericJSONObject jsonObject,
+                                                string fieldName,
+                                                out T fieldData)
+        {
+            fieldData = default(T);
+
+            JArray jArray;
+
+            if(jsonObject.data.ContainsKey(fieldName)
+               && (jArray = jsonObject.data[fieldName] as JArray) != null)
+            {
+                fieldData = jArray.ToObject<T>();
+                return true;
+            }
+
+            return false;
         }
     }
 }
