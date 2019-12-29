@@ -33,14 +33,6 @@ namespace ModIO.UI
             }
         }
 
-        // ---------[ NESTED CLASSES ]---------
-        [Serializable]
-        private class ManifestData
-        {
-            public List<int> queuedUnsubscribes;
-            public List<int> queuedSubscribes;
-        }
-
         // ---------[ CONST & STATIC ]---------
         /// <summary>File name used to store the browser manifest.</summary>
         public const string MANIFEST_FILENAME = "browser_manifest.data";
@@ -202,22 +194,6 @@ namespace ModIO.UI
             foreach(var receiver in updateReceivers)
             {
                 receiver.OnGameProfileUpdated(m_gameProfile);
-            }
-
-            // - Manifest -
-            string manifestFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,
-                                                              ModBrowser.MANIFEST_FILENAME);
-            ManifestData manifest = IOUtilities.ReadJsonObjectFile<ManifestData>(manifestFilePath);
-            if(manifest != null)
-            {
-                this.m_queuedSubscribes = manifest.queuedSubscribes;
-                this.m_queuedUnsubscribes = manifest.queuedUnsubscribes;
-            }
-            else
-            {
-                this.m_queuedSubscribes = new List<int>();
-                this.m_queuedUnsubscribes = new List<int>();
-                WriteManifest();
             }
         }
 
@@ -534,7 +510,6 @@ namespace ModIO.UI
             {
                 this.m_queuedSubscribes.Remove(profile.id);
             }
-            WriteManifest();
 
             // check unavailableMods
             if(unavailableMods.Count > 0)
@@ -635,7 +610,6 @@ namespace ModIO.UI
             {
                 this.m_queuedUnsubscribes.Remove(modId);
             }
-            WriteManifest();
 
             // done!
             if(onCompleted != null)
@@ -1145,20 +1119,6 @@ namespace ModIO.UI
             {
                 onSuccess(modProfiles);
             }
-        }
-
-        // ----------[ MANIFEST ]---------
-        protected void WriteManifest()
-        {
-            ManifestData manifest = new ManifestData()
-            {
-                queuedUnsubscribes = this.m_queuedUnsubscribes,
-                queuedSubscribes = this.m_queuedSubscribes,
-            };
-
-            string manifestFilePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,
-                                                              ModBrowser.MANIFEST_FILENAME);
-            IOUtilities.WriteJsonObjectFile(manifestFilePath, manifest);
         }
 
         // ---------[ REQUESTS ]---------
@@ -1697,7 +1657,6 @@ namespace ModIO.UI
         public void OnUserLogin()
         {
             m_queuedSubscribes.AddRange(UserAccountManagement.activeUser.subscribedModIds);
-            WriteManifest();
 
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
             {
@@ -1720,7 +1679,6 @@ namespace ModIO.UI
             }
             m_queuedSubscribes.Clear();
             m_queuedUnsubscribes.Clear();
-            WriteManifest();
 
             // - clear current user -
             UserAccountManagement.activeUser = new LocalUser();
