@@ -132,6 +132,26 @@ namespace ModIO
             UserAccountManagement.SaveActiveUser();
         }
 
+        /// <summary>Pushes queued subscribe actions to the server.</summary>
+        public static void PushQueuedSubscriptionChanges()
+        {
+            // early out
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
+            {
+                return;
+            }
+
+            // push
+            foreach(int modId in UserAccountManagement.activeUser.queuedSubscribes)
+            {
+                APIClient.SubscribeToMod(modId, null, null);
+            }
+            foreach(int modId in UserAccountManagement.activeUser.queuedUnsubscribes)
+            {
+                APIClient.UnsubscribeFromMod(modId, null, null);
+            }
+        }
+
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Pulls any changes to the User Profile from the mod.io servers.</summary>
         public static void UpdateUserProfile(Action<UserProfile> onSuccess,

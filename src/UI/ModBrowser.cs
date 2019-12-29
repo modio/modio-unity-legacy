@@ -94,19 +94,7 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
-            {
-                // attempt pushing of subs/unsubs
-                foreach(int modId in this.m_queuedSubscribes)
-                {
-                    APIClient.SubscribeToMod(modId, null, null);
-                }
-                foreach(int modId in this.m_queuedUnsubscribes)
-                {
-                    APIClient.UnsubscribeFromMod(modId, null, null);
-                }
-            }
-
+            UserAccountManagement.PushQueuedSubscriptionChanges();
             ModManager.onModBinaryInstalled -= this.OnModInstalled;
             DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
