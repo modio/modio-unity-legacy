@@ -34,9 +34,6 @@ namespace ModIO.UI
         }
 
         // ---------[ CONST & STATIC ]---------
-        /// <summary>File name used to store the browser manifest.</summary>
-        public const string MANIFEST_FILENAME = "browser_manifest.data";
-
         /// <summary>Number of seconds between mod event polls.</summary>
         private const float MOD_EVENT_POLLING_PERIOD = 120f;
 
@@ -1982,6 +1979,9 @@ namespace ModIO.UI
         }
 
         // ---------[ OBSOLETE ]---------
+        [Obsolete("No longer used.")]
+        public const string MANIFEST_FILENAME = "browser_manifest.data";
+
         [Obsolete("Use PluginSettings.data.logAllRequests instead")]
         public bool debugAllAPIRequests
         {
