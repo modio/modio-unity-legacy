@@ -69,6 +69,29 @@ namespace ModIO
                 }
             }
 
+            // - copy queued subs/unsubs -
+            filePath = IOUtilities.CombinePath(CacheClient.cacheDirectory,
+                                               ModIO.UI.ModBrowser.MANIFEST_FILENAME);
+
+            if(IOUtilities.TryReadJsonObjectFile(filePath, out dataWrapper))
+            {
+                List<int> modIds = null;
+
+                if(DataUpdater.TryGetArrayField(dataWrapper,
+                                                "queuedSubscribes",
+                                                out modIds))
+                {
+                    userData.queuedSubscribes = new List<int>(modIds);
+                }
+
+                if(DataUpdater.TryGetArrayField(dataWrapper,
+                                                "queuedUnsubscribes",
+                                                out modIds))
+                {
+                    userData.queuedUnsubscribes = new List<int>(modIds);
+                }
+            }
+
             // - copy UAD -
             filePath = UserAuthenticationData.FILE_LOCATION;
 
