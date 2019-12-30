@@ -247,7 +247,8 @@ namespace ModIO
         }
 
         /// <summary>Pulls the subscriptions from the server and stores the changes.</summary>
-        public static void PullSubscriptionChanges(Action onCompleted)
+        public static void PullSubscriptionChanges(Action<List<ModProfile>> onSuccess,
+                                                   Action<WebRequestError> onError)
         {
             // early out
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
@@ -295,17 +296,17 @@ namespace ModIO
                     {
                         onAllPagesReceived();
 
-                        if(onCompleted != null)
+                        if(onSuccess != null)
                         {
-                            onCompleted();
+                            onSuccess(remoteOnlySubscriptions);
                         }
                     }
                 },
                 (e) =>
                 {
-                    if(onCompleted != null)
+                    if(onError != null)
                     {
-                        onCompleted();
+                        onError(e);
                     }
                 });
             };
