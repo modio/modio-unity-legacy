@@ -94,7 +94,7 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            UserAccountManagement.PushQueuedSubscriptionChanges();
+            UserAccountManagement.PushQueuedSubscriptionChanges(null);
             ModManager.onModBinaryInstalled -= this.OnModInstalled;
             DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
@@ -1652,7 +1652,7 @@ namespace ModIO.UI
         public void LogUserOut()
         {
             // push queued subs/unsubs
-            UserAccountManagement.PushQueuedSubscriptionChanges();
+            UserAccountManagement.PushQueuedSubscriptionChanges(null);
 
             // - clear current user -
             UserAccountManagement.activeUser = new LocalUser();

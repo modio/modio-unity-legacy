@@ -133,7 +133,7 @@ namespace ModIO
         }
 
         /// <summary>Pushes queued subscribe actions to the server.</summary>
-        public static void PushQueuedSubscriptionChanges()
+        public static void PushQueuedSubscriptionChanges(Action onCompleted)
         {
             // early outs
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
@@ -154,7 +154,7 @@ namespace ModIO
             List<int> unsubscribesPushed
                 = new List<int>(UserAccountManagement.activeUser.queuedUnsubscribes.Count);
 
-            Action onCompleted = () =>
+            Action onRequestCompleted = () =>
             {
                 if(responsesPending <= 0)
                 {
@@ -168,6 +168,11 @@ namespace ModIO
                     }
 
                     UserAccountManagement.SaveActiveUser();
+
+                    if(onCompleted != null)
+                    {
+                        onCompleted();
+                    }
                 }
             };
 
@@ -181,7 +186,7 @@ namespace ModIO
                     subscribesPushed.Add(modId);
 
                     --responsesPending;
-                    onCompleted();
+                    onRequestCompleted();
                 },
                 (e) =>
                 {
@@ -197,7 +202,7 @@ namespace ModIO
                     }
 
                     --responsesPending;
-                    onCompleted();
+                    onRequestCompleted();
                 });
             }
             foreach(int modId in UserAccountManagement.activeUser.queuedUnsubscribes)
@@ -208,7 +213,7 @@ namespace ModIO
                     --responsesPending;
                     unsubscribesPushed.Remove(modId);
 
-                    onCompleted();
+                    onRequestCompleted();
                 },
                 (e) =>
                 {
@@ -225,7 +230,7 @@ namespace ModIO
                         unsubscribesPushed.Remove(modId);
                     }
 
-                    onCompleted();
+                    onRequestCompleted();
                 });
             }
 
