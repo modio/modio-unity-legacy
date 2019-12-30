@@ -505,87 +505,24 @@ namespace ModIO.UI
 
             while(!isPushDone) { yield return null; }
 
-            // confirm all subscriptions with remote
-            int updateStartTimeStamp = ServerTimeStamp.Now;
-            List<int> unmatchedSubscriptions = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
-            bool completedSuccessfully = false;
-            int updateCount = 0;
-
-            yield return this.StartCoroutine(FetchRemoteSubscriptions(
-            (requestPage) =>
+            // pull remote subs
+            bool isPullDone = false;
+            UserAccountManagement.PullSubscriptionChanges((profiles) =>
             {
-                // check which profiles are new
-                List<int> newSubs = new List<int>();
-                foreach(ModProfile profile in requestPage.items)
+                // display message
+                if(profiles != null
+                   && profiles.Count > 0)
                 {
-                    if(!unmatchedSubscriptions.Contains(profile.id)
-                       && !m_queuedUnsubscribes.Contains(profile.id)
-                       && !m_queuedSubscribes.Contains(profile.id))
-                    {
-                        newSubs.Add(profile.id);
-                    }
-
-                    unmatchedSubscriptions.Remove(profile.id);
+                    string message = (profiles.Count.ToString() + " subscription"
+                                      + (profiles.Count > 1 ? "s" : "")
+                                      + " retrieved from the server");
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
                 }
-
-                // add to cache
-                if(ModProfileRequestManager.instance.isCachingPermitted)
-                {
-                    foreach(ModProfile profile in requestPage.items)
-                    {
-                        ModProfileRequestManager.instance.profileCache[profile.id] = profile;
-                    }
-                }
-                CacheClient.SaveModProfiles(requestPage.items);
-
-                // add new subs
-                if(newSubs.Count > 0)
-                {
-                    var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
-                    subscribedModIds.AddRange(newSubs);
-                    UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
-                    OnSubscriptionsChanged(newSubs, null);
-                }
-
-                updateCount += newSubs.Count;
+                isPullDone = true;
             },
-            ( ) => completedSuccessfully = true,
-            null));
+            (e) => isPullDone = true);
 
-            // handle removed ids
-            if(completedSuccessfully)
-            {
-                if(unmatchedSubscriptions.Count > 0)
-                {
-                    var remoteUnsubs = new List<int>(unmatchedSubscriptions);
-                    var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
-                    foreach(int modId in unmatchedSubscriptions)
-                    {
-                        if(m_queuedSubscribes.Contains(modId))
-                        {
-                            remoteUnsubs.Remove(modId);
-                        }
-                        else
-                        {
-                            subscribedModIds.Remove(modId);
-                        }
-                    }
-                    UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
-                    OnSubscriptionsChanged(null, remoteUnsubs);
-
-                    updateCount += unmatchedSubscriptions.Count;
-                }
-
-            }
-
-            // display message
-            if(updateCount > 0)
-            {
-                string message = (updateCount.ToString() + " subscription"
-                                  + (updateCount > 1 ? "s" : "")
-                                  + " synchronized with the server");
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
-            }
+            while(!isPullDone) { yield return null; }
         }
 
         private System.Collections.IEnumerator UpdateAllSubscribedModProfiles()
