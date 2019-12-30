@@ -404,205 +404,6 @@ namespace ModIO.UI
             StartCoroutine(FetchUserRatings());
         }
 
-        /// <summary>Pushes the queued subscribe actions to the server and returns the associated profiles.</summary>
-        private System.Collections.IEnumerator PushQueuedSubscribes(Action<List<ModProfile>> onCompleted)
-        {
-            // early out if not authenticated or no queued subs
-            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken
-               || this.m_queuedSubscribes.Count == 0)
-            {
-                if(onCompleted != null) { onCompleted(new List<ModProfile>()); }
-                yield break;
-            }
-
-            // init
-            int responsesPending = this.m_queuedSubscribes.Count;
-            List<ModProfile> subProfiles = new List<ModProfile>();
-            List<int> unavailableMods = new List<int>();
-
-            // push all subs
-            foreach(int modId in this.m_queuedSubscribes)
-            {
-                APIClient.SubscribeToMod(modId,
-                (p) =>
-                {
-                   --responsesPending;
-                   subProfiles.Add(p);
-                },
-                (e) =>
-                {
-                    // Error for "Mod is already subscribed"
-                    if(e.webRequest.responseCode == 400)
-                    {
-                        APIClient.GetMod(modId,
-                        (p) =>
-                        {
-                            --responsesPending;
-                            subProfiles.Add(p);
-                        },
-                        (gmp_e) =>
-                        {
-                            --responsesPending;
-
-                            Debug.Log("[mod.io] Failed to collect mod profile for subscription (modId:"
-                                      + modId.ToString() + ")."
-                                      + "\nError Code: " + e.webRequest.responseCode.ToString()
-                                      + "\n" + e.displayMessage);
-
-                            this.m_queuedSubscribes.Remove(modId);
-                        });
-                    }
-                    // Error for "Mod is unavailable"
-                    else if(e.webRequest.responseCode == 404)
-                    {
-                        --responsesPending;
-
-                        this.m_queuedSubscribes.Remove(modId);
-
-                        Debug.Log("[mod.io] Mod has become unavailable since and cannot be"
-                                  + " subscribed to. (modId:" + modId.ToString() + ")");
-
-                        unavailableMods.Add(modId);
-                    }
-                    else
-                    {
-                        --responsesPending;
-                        if(e.isAuthenticationInvalid)
-                        {
-                            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
-                            {
-                                UserAccountManagement.MarkAuthTokenRejected();
-                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                           e.displayMessage);
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogWarning("[mod.io] Failed to push queued subscribe action for modId:"
-                                             + modId.ToString() + "."
-                                             + "\nError Code: " + e.webRequest.responseCode.ToString()
-                                             + "\n" + e.displayMessage);
-                        }
-                    }
-                });
-            }
-
-            // wait for responses
-            while(responsesPending > 0) { yield return null; }
-
-            // remove from queue
-            foreach(ModProfile profile in subProfiles)
-            {
-                this.m_queuedSubscribes.Remove(profile.id);
-            }
-
-            // check unavailableMods
-            if(unavailableMods.Count > 0)
-            {
-                // update local data
-                List<int> subscriptions = UserAccountManagement.activeUser.subscribedModIds;
-                foreach(int modId in unavailableMods)
-                {
-                    subscriptions.Remove(modId);
-                }
-                UserAccountManagement.activeUser.subscribedModIds = subscriptions;
-
-                // inform and act
-                OnSubscriptionsChanged(null, unavailableMods);
-
-                // message
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
-                                           unavailableMods.Count + " mod"
-                                           + (unavailableMods.Count > 1 ? "s have" : " has")
-                                           + " become unavailable and will be removed from your"
-                                           + " subscriptions.");
-            }
-
-            // done!
-            if(onCompleted != null)
-            {
-                onCompleted(subProfiles);
-            }
-        }
-
-        /// <summary>Pushes the queued unsubscribe actions to the server and returns the successful unsubscribes.</summary>
-        private System.Collections.IEnumerator PushQueuedUnsubscribes(Action<List<int>> onCompleted)
-        {
-            // early out if not authenticated or no queued actions
-            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken
-               || this.m_queuedUnsubscribes.Count == 0)
-            {
-                if(onCompleted != null) { onCompleted(new List<int>(0)); }
-                yield break;
-            }
-
-            // init
-            int responsesPending = this.m_queuedUnsubscribes.Count;
-            List<int> successfulUnsubs = new List<int>(this.m_queuedUnsubscribes.Count);
-
-            // push all unsubs
-            foreach(int modId in this.m_queuedUnsubscribes)
-            {
-                APIClient.UnsubscribeFromMod(modId,
-                () =>
-                {
-                   --responsesPending;
-                   successfulUnsubs.Add(modId);
-                },
-                (e) =>
-                {
-                    // Error for "Mod is already subscribed"
-                    if(e.webRequest.responseCode == 400)
-                    {
-                        --responsesPending;
-                        successfulUnsubs.Add(modId);
-                    }
-                    // Error for "Mod is unavailable"
-                    else if(e.webRequest.responseCode == 404)
-                    {
-                        --responsesPending;
-                        successfulUnsubs.Add(modId);
-                    }
-                    else
-                    {
-                        --responsesPending;
-                        if(e.isAuthenticationInvalid)
-                        {
-                            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
-                            {
-                                UserAccountManagement.MarkAuthTokenRejected();
-
-                                MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                           e.displayMessage);
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogWarning("[mod.io] Failed to push queued unsubscribe action for modId:"
-                                             + modId.ToString() + "."
-                                             + "\nError Code: " + e.webRequest.responseCode.ToString()
-                                             + "\n" + e.displayMessage);
-                        }
-                    }
-                });
-            }
-
-            // wait for responses
-            while(responsesPending > 0) { yield return null; }
-
-            // remove from queue
-            foreach(int modId in successfulUnsubs)
-            {
-                this.m_queuedUnsubscribes.Remove(modId);
-            }
-
-            // done!
-            if(onCompleted != null)
-            {
-                onCompleted(successfulUnsubs);
-            }
-        }
-
         /// <summary>Recursively fetches all of the remotely subscribed profiles.</summary>
         private System.Collections.IEnumerator FetchRemoteSubscriptions(Action<RequestPage<ModProfile>> onPageReceived,
                                                                         Action onCompleted,
@@ -699,8 +500,10 @@ namespace ModIO.UI
             }
 
             // push local actions
-            yield return this.StartCoroutine(PushQueuedSubscribes(null));
-            yield return this.StartCoroutine(PushQueuedUnsubscribes(null));
+            bool isPushDone = false;
+            UserAccountManagement.PushQueuedSubscriptionChanges(() => isPushDone = true);
+
+            while(!isPushDone) { yield return null; }
 
             // confirm all subscriptions with remote
             int updateStartTimeStamp = ServerTimeStamp.Now;
@@ -1398,8 +1201,11 @@ namespace ModIO.UI
                             ProcessUserUpdates(userEventReponse);
                         }
 
-                        yield return this.StartCoroutine(this.PushQueuedSubscribes(null));
-                        yield return this.StartCoroutine(this.PushQueuedUnsubscribes(null));
+                        bool isPushDone = false;
+
+                        UserAccountManagement.PushQueuedSubscriptionChanges(() => isPushDone = true);
+
+                        while(!isPushDone) { yield return null; }
 
                         StartCoroutine(FetchUserRatings());
                     }
@@ -1407,20 +1213,6 @@ namespace ModIO.UI
 
                 yield return new WaitForSecondsRealtime(USER_EVENT_POLLING_PERIOD);
             }
-        }
-
-        private void PushSubscriptionChanges()
-        {
-            if(this == null
-               || !this.isActiveAndEnabled
-               || UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken)
-            {
-                return;
-            }
-
-            // push subs/unsubs
-            this.StartCoroutine(PushQueuedSubscribes(null));
-            this.StartCoroutine(PushQueuedUnsubscribes(null));
         }
 
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
