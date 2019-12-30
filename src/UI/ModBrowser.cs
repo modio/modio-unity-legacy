@@ -52,19 +52,6 @@ namespace ModIO.UI
             get { return this.m_gameProfile; }
         }
 
-        // --- Temp ---
-        private List<int> m_queuedUnsubscribes
-        {
-            get { return UserAccountManagement.activeUser.queuedUnsubscribes; }
-            set { UserAccountManagement.activeUser.queuedUnsubscribes = value; }
-        }
-
-        private List<int> m_queuedSubscribes
-        {
-            get { return UserAccountManagement.activeUser.queuedSubscribes; }
-            set { UserAccountManagement.activeUser.queuedSubscribes = value; }
-        }
-
         // ---------[ INITIALIZATION ]---------
         private void Awake()
         {
