@@ -54,11 +54,9 @@ namespace ModIO
         /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
         public static void SubscribeToMod(int modId)
         {
+            UserAccountManagement.AssertActiveUserListsNotNull();
+
             LocalUser userData = UserAccountManagement.activeUser;
-            if(userData.subscribedModIds == null)
-            {
-                userData.subscribedModIds = new List<int>();
-            }
 
             // add sub to list
             if(!userData.subscribedModIds.Contains(modId))
@@ -67,11 +65,8 @@ namespace ModIO
             }
 
             // check queues
-            bool unsubQueued = (userData.queuedUnsubscribes != null
-                                && userData.queuedUnsubscribes.Contains(modId));
-
-            bool subQueued = (userData.queuedSubscribes != null
-                              && userData.queuedSubscribes.Contains(modId));
+            bool unsubQueued = userData.queuedUnsubscribes.Contains(modId);
+            bool subQueued = userData.queuedSubscribes.Contains(modId);
 
             // add to/remove from queues
             if(unsubQueued)
@@ -80,11 +75,6 @@ namespace ModIO
             }
             else if(!subQueued)
             {
-                if(userData.queuedSubscribes == null)
-                {
-                    userData.queuedSubscribes = new List<int>();
-                }
-
                 userData.queuedSubscribes.Add(modId);
             }
 
@@ -96,21 +86,16 @@ namespace ModIO
         /// <summary>Removes a mod from the subscribed list and modifies the queued actions accordingly.</summary>
         public static void UnsubscribeFromMod(int modId)
         {
+            UserAccountManagement.AssertActiveUserListsNotNull();
+
             LocalUser userData = UserAccountManagement.activeUser;
-            if(userData.subscribedModIds == null)
-            {
-                userData.subscribedModIds = new List<int>();
-            }
 
             // remove sub from list
             userData.subscribedModIds.Remove(modId);
 
             // check queues
-            bool unsubQueued = (userData.queuedUnsubscribes != null
-                                && userData.queuedUnsubscribes.Contains(modId));
-
-            bool subQueued = (userData.queuedSubscribes != null
-                              && userData.queuedSubscribes.Contains(modId));
+            bool unsubQueued = userData.queuedUnsubscribes.Contains(modId);
+            bool subQueued = userData.queuedSubscribes.Contains(modId);
 
             // add to/remove from queues
             if(subQueued)
@@ -119,11 +104,6 @@ namespace ModIO
             }
             else if(!unsubQueued)
             {
-                if(userData.queuedUnsubscribes == null)
-                {
-                    userData.queuedUnsubscribes = new List<int>();
-                }
-
                 userData.queuedUnsubscribes.Add(modId);
             }
 
@@ -135,6 +115,8 @@ namespace ModIO
         /// <summary>Pushes queued subscribe actions to the server.</summary>
         public static void PushSubscriptionChanges(Action<WebRequestError> onCompleted)
         {
+            UserAccountManagement.AssertActiveUserListsNotNull();
+
             int responsesPending = (UserAccountManagement.activeUser.queuedSubscribes.Count
                                     + UserAccountManagement.activeUser.queuedUnsubscribes.Count);
 
@@ -158,6 +140,7 @@ namespace ModIO
             List<int> unsubscribesPushed
                 = new List<int>(UserAccountManagement.activeUser.queuedUnsubscribes.Count);
 
+            // callback
             Action onRequestCompleted = () =>
             {
                 if(responsesPending <= 0)
@@ -180,8 +163,7 @@ namespace ModIO
                 }
             };
 
-
-            // push
+            // - push -
             foreach(int modId in UserAccountManagement.activeUser.queuedSubscribes)
             {
                 APIClient.SubscribeToMod(modId,
@@ -262,6 +244,8 @@ namespace ModIO
                 }
                 return;
             }
+
+            UserAccountManagement.AssertActiveUserListsNotNull();
 
             // holding vars
             List<ModProfile> remoteOnlySubscriptions = new List<ModProfile>();
@@ -580,13 +564,30 @@ namespace ModIO
             LocalUser userData;
             if(!UserDataStorage.TryReadJSONFile(UserAccountManagement.USER_DATA_FILENAME, out userData))
             {
-                userData = new LocalUser()
-                {
-                    enabledModIds = new List<int>(),
-                    subscribedModIds = new List<int>(),
-                };
+                userData = new LocalUser();
             }
-            else
+
+            // set
+            UserAccountManagement.activeUser = userData;
+            UserAccountManagement.AssertActiveUserListsNotNull();
+        }
+
+        /// <summary>Writes the active user data to disk.</summary>
+        public static void SaveActiveUser()
+        {
+            UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
+                                             UserAccountManagement.activeUser);
+        }
+
+        // ---------[ UTILITY ]---------
+        /// <summary>Ensures that the user data list fields are non-null values.</summary>
+        public static void AssertActiveUserListsNotNull()
+        {
+            LocalUser userData = UserAccountManagement.activeUser;
+            if(userData.enabledModIds == null
+               || userData.subscribedModIds == null
+               || userData.queuedSubscribes == null
+               || userData.queuedUnsubscribes == null)
             {
                 if(userData.enabledModIds == null)
                 {
@@ -596,17 +597,15 @@ namespace ModIO
                 {
                     userData.subscribedModIds = new List<int>();
                 }
+                if(userData.queuedSubscribes == null)
+                {
+                    userData.queuedSubscribes = new List<int>();
+                }
+                if(userData.queuedUnsubscribes == null)
+                {
+                    userData.queuedUnsubscribes = new List<int>();
+                }
             }
-
-            // set
-            UserAccountManagement.activeUser = userData;
-        }
-
-        /// <summary>Writes the active user data to disk.</summary>
-        public static void SaveActiveUser()
-        {
-            UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
-                                             UserAccountManagement.activeUser);
         }
     }
 }
