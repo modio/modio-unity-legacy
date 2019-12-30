@@ -235,6 +235,126 @@ namespace ModIO
             }
         }
 
+        /// <summary>Pulls the subscriptions from the server and stores the changes.</summary>
+        public static void PullSubscriptionChanges(Action onCompleted)
+        {
+            // early out
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
+            {
+                return;
+            }
+
+            // holding vars
+            List<int> remoteSubscriptions = new List<int>();
+
+            // set filter and initial pagination
+            RequestFilter subscriptionFilter = new RequestFilter();
+            subscriptionFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+                                              new EqualToFilter<int>(PluginSettings.data.gameId));
+
+            APIPaginationParameters pagination = new APIPaginationParameters()
+            {
+                limit = APIPaginationParameters.LIMIT_MAX,
+                offset = 0,
+            };
+
+            // define actions
+            Action getNextPage = null;
+            Action<RequestPage<ModProfile>> onPageReceived = null;
+            Action onAllPagesReceived = null;
+
+            getNextPage = () =>
+            {
+                APIClient.GetUserSubscriptions(subscriptionFilter, pagination,
+                (response) =>
+                {
+                    onPageReceived(response);
+
+                    // check if all pages received
+                    if(response != null
+                       && response.items != null
+                       && response.items.Length > 0
+                       && response.resultTotal > response.size + response.resultOffset)
+                    {
+                        pagination.offset = response.resultOffset + response.size;
+
+                        getNextPage();
+                    }
+                    else
+                    {
+                        onAllPagesReceived();
+
+                        if(onCompleted != null)
+                        {
+                            onCompleted();
+                        }
+                    }
+                },
+                (e) =>
+                {
+                    if(onCompleted != null)
+                    {
+                        onCompleted();
+                    }
+                });
+            };
+
+
+            onPageReceived = (r) =>
+            {
+                foreach(ModProfile profile in r.items)
+                {
+                    if(profile != null)
+                    {
+                        remoteSubscriptions.Add(profile.id);
+                    }
+                }
+            };
+
+            onAllPagesReceived = () =>
+            {
+                List<int> localOnlySubs
+                = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
+
+                List<int> newSubs = new List<int>();
+
+                // build new subs list
+                foreach(int modId in remoteSubscriptions)
+                {
+                    // if already subbed locally
+                    if(localOnlySubs.Contains(modId))
+                    {
+                        localOnlySubs.Remove(modId);
+                    }
+                    // if not locally subbed
+                    // and if not in unsub queue
+                    else if(!UserAccountManagement.activeUser.queuedUnsubscribes.Contains(modId))
+                    {
+                        newSubs.Add(modId);
+                    }
+                }
+
+                // -- update locally --
+                // remove new unsubs
+                foreach(int modId in localOnlySubs)
+                {
+                    // if not in sub queue
+                    if(!UserAccountManagement.activeUser.queuedSubscribes.Contains(modId))
+                    {
+                        UserAccountManagement.activeUser.subscribedModIds.Remove(modId);
+                    }
+                }
+
+                UserAccountManagement.activeUser.subscribedModIds.AddRange(newSubs);
+
+                // save
+                UserAccountManagement.SaveActiveUser();
+            };
+
+            // get pages
+            getNextPage();
+        }
+
         // ---------[ AUTHENTICATION ]---------
         /// <summary>Pulls any changes to the User Profile from the mod.io servers.</summary>
         public static void UpdateUserProfile(Action<UserProfile> onSuccess,
