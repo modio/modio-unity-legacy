@@ -94,7 +94,7 @@ namespace ModIO.UI
 
         private void OnDisable()
         {
-            UserAccountManagement.PushQueuedSubscriptionChanges(null);
+            UserAccountManagement.PushSubscriptionChanges(null);
             ModManager.onModBinaryInstalled -= this.OnModInstalled;
             DownloadClient.modfileDownloadFailed += this.OnModfileDownloadFailed;
         }
@@ -501,7 +501,7 @@ namespace ModIO.UI
 
             // push local actions
             bool isPushDone = false;
-            UserAccountManagement.PushQueuedSubscriptionChanges(() => isPushDone = true);
+            UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true);
 
             while(!isPushDone) { yield return null; }
 
@@ -1203,7 +1203,7 @@ namespace ModIO.UI
 
                         bool isPushDone = false;
 
-                        UserAccountManagement.PushQueuedSubscriptionChanges(() => isPushDone = true);
+                        UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true);
 
                         while(!isPushDone) { yield return null; }
 
@@ -1444,7 +1444,7 @@ namespace ModIO.UI
         public void LogUserOut()
         {
             // push queued subs/unsubs
-            UserAccountManagement.PushQueuedSubscriptionChanges(null);
+            UserAccountManagement.PushSubscriptionChanges(null);
 
             // - clear current user -
             UserAccountManagement.activeUser = new LocalUser();

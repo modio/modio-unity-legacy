@@ -133,7 +133,7 @@ namespace ModIO
         }
 
         /// <summary>Pushes queued subscribe actions to the server.</summary>
-        public static void PushQueuedSubscriptionChanges(Action onCompleted)
+        public static void PushSubscriptionChanges(Action onCompleted)
         {
             // early outs
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
@@ -233,7 +233,6 @@ namespace ModIO
                     onRequestCompleted();
                 });
             }
-
         }
 
         // ---------[ AUTHENTICATION ]---------
