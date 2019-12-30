@@ -256,7 +256,7 @@ namespace ModIO
             }
 
             // holding vars
-            List<int> remoteSubscriptions = new List<int>();
+            List<ModProfile> remoteOnlySubscriptions = new List<ModProfile>();
 
             // set filter and initial pagination
             RequestFilter subscriptionFilter = new RequestFilter();
@@ -317,7 +317,7 @@ namespace ModIO
                 {
                     if(profile != null)
                     {
-                        remoteSubscriptions.Add(profile.id);
+                        remoteOnlySubscriptions.Add(profile);
                     }
                 }
             };
@@ -327,21 +327,51 @@ namespace ModIO
                 List<int> localOnlySubs
                 = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
 
+                // NOTE(@jackson): Unsub actions *should not* be found in activeUser.subscribedModIds
+                foreach(int modId in UserAccountManagement.activeUser.queuedUnsubscribes)
+                {
+                    #if DEBUG
+                    if(localOnlySubs.Contains(modId))
+                    {
+                        Debug.LogWarning("[mod.io] A locally subscribed mod was found in the"
+                                         + " queuedUnsubscribes. This should not occur - please"
+                                         + " ensure that any mod ids added to"
+                                         + " activeUser.queuedUnsubscribes are removed from"
+                                         + " activeUser.subscribedModIds or use"
+                                         + " UserAccountManagement.UnsubscribeFromMod() to handle"
+                                         + " this automatically.");
+                    }
+                    #endif
+
+                    localOnlySubs.Remove(modId);
+                }
+
                 List<int> newSubs = new List<int>();
 
                 // build new subs list
-                foreach(int modId in remoteSubscriptions)
+                for(int i = 0; i < remoteOnlySubscriptions.Count; ++i)
                 {
-                    // if already subbed locally
-                    if(localOnlySubs.Contains(modId))
+                    ModProfile profile = remoteOnlySubscriptions[i];
+
+                    // remove if in queued subs
+                    UserAccountManagement.activeUser.queuedSubscribes.Remove(profile.id);
+
+                    // if in unsub queue
+                    if(UserAccountManagement.activeUser.queuedUnsubscribes.Contains(profile.id))
                     {
-                        localOnlySubs.Remove(modId);
+                        remoteOnlySubscriptions.RemoveAt(i);
+                        --i;
                     }
-                    // if not locally subbed
-                    // and if not in unsub queue
-                    else if(!UserAccountManagement.activeUser.queuedUnsubscribes.Contains(modId))
+                    // if locally subbed
+                    else if(localOnlySubs.Remove(profile.id))
                     {
-                        newSubs.Add(modId);
+                        remoteOnlySubscriptions.RemoveAt(i);
+                        --i;
+                    }
+                    // if not locally subbed && if not in unsub queue
+                    else
+                    {
+                        newSubs.Add(profile.id);
                     }
                 }
 
