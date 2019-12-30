@@ -1067,8 +1067,11 @@ namespace ModIO.UI
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
         {
             List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
-            List<int> addedSubscriptions = new List<int>(userEvents.Count / 2);
-            List<int> removedSubscriptions = new List<int>(userEvents.Count / 2);
+            List<int> queuedSubscribes = UserAccountManagement.activeUser.queuedSubscribes;
+            List<int> queuedUnsubscribes = UserAccountManagement.activeUser.queuedUnsubscribes;
+
+            List<int> newSubs = new List<int>();
+            List<int> newUnsubs = new List<int>();
 
             foreach(UserEvent ue in userEvents)
             {
@@ -1076,39 +1079,45 @@ namespace ModIO.UI
                 {
                     case UserEventType.ModSubscribed:
                     {
+                        queuedSubscribes.Remove(ue.modId);
+
                         if(!subscribedModIds.Contains(ue.modId)
-                           && !m_queuedSubscribes.Contains(ue.modId)
-                           && !m_queuedUnsubscribes.Contains(ue.modId))
+                           && !queuedUnsubscribes.Contains(ue.modId))
                         {
-                            addedSubscriptions.Add(ue.modId);
                             subscribedModIds.Add(ue.modId);
+                            newSubs.Add(ue.modId);
                         }
                     }
                     break;
 
                     case UserEventType.ModUnsubscribed:
                     {
+                        queuedUnsubscribes.Remove(ue.modId);
+
                         if(subscribedModIds.Contains(ue.modId)
-                           && !m_queuedSubscribes.Contains(ue.modId)
-                           && !m_queuedUnsubscribes.Contains(ue.modId))
+                           && !queuedSubscribes.Contains(ue.modId))
                         {
-                            removedSubscriptions.Add(ue.modId);
                             subscribedModIds.Remove(ue.modId);
+                            newUnsubs.Add(ue.modId);
                         }
                     }
                     break;
                 }
             }
 
-            if(addedSubscriptions.Count > 0 || removedSubscriptions.Count > 0)
+            UserAccountManagement.SaveActiveUser();
+
+            if(newSubs.Count > 0 || newUnsubs.Count > 0)
             {
-                UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
+                OnSubscriptionsChanged(newSubs, newUnsubs);
 
-                OnSubscriptionsChanged(addedSubscriptions, removedSubscriptions);
-
-                int subscriptionUpdateCount = (addedSubscriptions.Count + removedSubscriptions.Count);
-                string message = subscriptionUpdateCount.ToString() + " subscription(s) synchronized with the server";
-                MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+                if(newSubs.Count > 0)
+                {
+                    string message = (newSubs.Count.ToString() + " subscription"
+                                      + (newSubs.Count > 1 ? "s" : "")
+                                      + " retrieved from the server");
+                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+                }
             }
         }
 
@@ -1282,8 +1291,6 @@ namespace ModIO.UI
         // ---------[ USER CONTROL ]---------
         public void OnUserLogin()
         {
-            m_queuedSubscribes.AddRange(UserAccountManagement.activeUser.subscribedModIds);
-
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(SynchronizeSubscriptionsWithServer());
