@@ -501,7 +501,7 @@ namespace ModIO.UI
 
             // push local actions
             bool isPushDone = false;
-            UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true);
+            UserAccountManagement.PushSubscriptionChanges((e) => isPushDone = true);
 
             while(!isPushDone) { yield return null; }
 
@@ -1203,7 +1203,7 @@ namespace ModIO.UI
 
                         bool isPushDone = false;
 
-                        UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true);
+                        UserAccountManagement.PushSubscriptionChanges((e) => isPushDone = true);
 
                         while(!isPushDone) { yield return null; }
 
@@ -1444,7 +1444,7 @@ namespace ModIO.UI
         public void LogUserOut()
         {
             // push queued subs/unsubs
-            UserAccountManagement.PushSubscriptionChanges(null);
+            UserAccountManagement.PushSubscriptionChanges((e) => WebRequestError.LogAsWarning(e));
 
             // - clear current user -
             UserAccountManagement.activeUser = new LocalUser();

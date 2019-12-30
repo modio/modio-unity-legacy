@@ -133,15 +133,16 @@ namespace ModIO
         }
 
         /// <summary>Pushes queued subscribe actions to the server.</summary>
-        public static void PushSubscriptionChanges(Action onCompleted)
+        public static void PushSubscriptionChanges(Action<WebRequestError> onCompleted)
         {
             // early outs
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
+            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken)
             {
                 return;
             }
 
             // set up vars
+            WebRequestError lastError = null;
             int responsesPending = (UserAccountManagement.activeUser.queuedSubscribes.Count
                                     + UserAccountManagement.activeUser.queuedUnsubscribes.Count);
             if(responsesPending == 0)
@@ -171,7 +172,7 @@ namespace ModIO
 
                     if(onCompleted != null)
                     {
-                        onCompleted();
+                        onCompleted(lastError);
                     }
                 }
             };
@@ -200,6 +201,11 @@ namespace ModIO
                     {
                         subscribesPushed.Add(modId);
                     }
+                    // Error for real
+                    else
+                    {
+                        lastError = e;
+                    }
 
                     --responsesPending;
                     onRequestCompleted();
@@ -217,7 +223,6 @@ namespace ModIO
                 },
                 (e) =>
                 {
-                    --responsesPending;
 
                     // Error for "Mod is already subscribed"
                     if(e.webRequest.responseCode == 400)
@@ -229,7 +234,13 @@ namespace ModIO
                     {
                         unsubscribesPushed.Remove(modId);
                     }
+                    // Error for real
+                    else
+                    {
+                        lastError = e;
+                    }
 
+                    --responsesPending;
                     onRequestCompleted();
                 });
             }
