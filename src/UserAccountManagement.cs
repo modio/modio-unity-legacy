@@ -133,6 +133,7 @@ namespace ModIO
             }
 
             // set up vars
+            string userToken = UserAccountManagement.activeUser.oAuthToken;
             WebRequestError lastError = null;
 
             List<int> subscribesPushed
@@ -145,16 +146,19 @@ namespace ModIO
             {
                 if(responsesPending <= 0)
                 {
-                    foreach(int modId in subscribesPushed)
+                    if(userToken == UserAccountManagement.activeUser.oAuthToken)
                     {
-                        UserAccountManagement.activeUser.queuedSubscribes.Remove(modId);
-                    }
-                    foreach(int modId in unsubscribesPushed)
-                    {
-                        UserAccountManagement.activeUser.queuedUnsubscribes.Remove(modId);
-                    }
+                        foreach(int modId in subscribesPushed)
+                        {
+                            UserAccountManagement.activeUser.queuedSubscribes.Remove(modId);
+                        }
+                        foreach(int modId in unsubscribesPushed)
+                        {
+                            UserAccountManagement.activeUser.queuedUnsubscribes.Remove(modId);
+                        }
 
-                    UserAccountManagement.SaveActiveUser();
+                        UserAccountManagement.SaveActiveUser();
+                    }
 
                     if(onCompleted != null)
                     {
@@ -248,6 +252,7 @@ namespace ModIO
             UserAccountManagement.AssertActiveUserListsNotNull();
 
             // holding vars
+            string userToken = UserAccountManagement.activeUser.oAuthToken;
             List<ModProfile> remoteOnlySubscriptions = new List<ModProfile>();
 
             // set filter and initial pagination
@@ -316,6 +321,11 @@ namespace ModIO
 
             onAllPagesReceived = () =>
             {
+                if(userToken != UserAccountManagement.activeUser.oAuthToken)
+                {
+                    return;
+                }
+
                 List<int> localOnlySubs
                 = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
 
