@@ -135,21 +135,100 @@ namespace ModIO
         /// <summary>Pushes queued subscribe actions to the server.</summary>
         public static void PushQueuedSubscriptionChanges()
         {
-            // early out
+            // early outs
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
             {
                 return;
             }
 
+            // set up vars
+            int responsesPending = (UserAccountManagement.activeUser.queuedSubscribes.Count
+                                    + UserAccountManagement.activeUser.queuedUnsubscribes.Count);
+            if(responsesPending == 0)
+            {
+                return;
+            }
+
+            List<int> subscribesPushed
+                = new List<int>(UserAccountManagement.activeUser.queuedSubscribes.Count);
+            List<int> unsubscribesPushed
+                = new List<int>(UserAccountManagement.activeUser.queuedUnsubscribes.Count);
+
+            Action onCompleted = () =>
+            {
+                if(responsesPending <= 0)
+                {
+                    foreach(int modId in subscribesPushed)
+                    {
+                        UserAccountManagement.activeUser.queuedSubscribes.Remove(modId);
+                    }
+                    foreach(int modId in unsubscribesPushed)
+                    {
+                        UserAccountManagement.activeUser.queuedUnsubscribes.Remove(modId);
+                    }
+
+                    UserAccountManagement.SaveActiveUser();
+                }
+            };
+
+
             // push
             foreach(int modId in UserAccountManagement.activeUser.queuedSubscribes)
             {
-                APIClient.SubscribeToMod(modId, null, null);
+                APIClient.SubscribeToMod(modId,
+                (p) =>
+                {
+                    subscribesPushed.Add(modId);
+
+                    --responsesPending;
+                    onCompleted();
+                },
+                (e) =>
+                {
+                    // Error for "Mod is already subscribed"
+                    if(e.webRequest.responseCode == 400)
+                    {
+                        subscribesPushed.Add(modId);
+                    }
+                    // Error for "Mod is unavailable"
+                    else if(e.webRequest.responseCode == 404)
+                    {
+                        subscribesPushed.Add(modId);
+                    }
+
+                    --responsesPending;
+                    onCompleted();
+                });
             }
             foreach(int modId in UserAccountManagement.activeUser.queuedUnsubscribes)
             {
-                APIClient.UnsubscribeFromMod(modId, null, null);
+                APIClient.UnsubscribeFromMod(modId,
+                () =>
+                {
+                    --responsesPending;
+                    unsubscribesPushed.Remove(modId);
+
+                    onCompleted();
+                },
+                (e) =>
+                {
+                    --responsesPending;
+
+                    // Error for "Mod is already subscribed"
+                    if(e.webRequest.responseCode == 400)
+                    {
+                        unsubscribesPushed.Remove(modId);
+                    }
+                    // Error for "Mod is unavailable"
+                    else if(e.webRequest.responseCode == 404)
+                    {
+                        unsubscribesPushed.Remove(modId);
+                    }
+
+                    onCompleted();
+                });
             }
+
         }
 
         // ---------[ AUTHENTICATION ]---------
