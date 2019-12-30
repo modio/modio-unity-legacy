@@ -135,20 +135,23 @@ namespace ModIO
         /// <summary>Pushes queued subscribe actions to the server.</summary>
         public static void PushSubscriptionChanges(Action<WebRequestError> onCompleted)
         {
+            int responsesPending = (UserAccountManagement.activeUser.queuedSubscribes.Count
+                                    + UserAccountManagement.activeUser.queuedUnsubscribes.Count);
+
             // early outs
-            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken)
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken
+               || responsesPending == 0)
             {
+                if(onCompleted != null)
+                {
+                    onCompleted(null);
+                }
+
                 return;
             }
 
             // set up vars
             WebRequestError lastError = null;
-            int responsesPending = (UserAccountManagement.activeUser.queuedSubscribes.Count
-                                    + UserAccountManagement.activeUser.queuedUnsubscribes.Count);
-            if(responsesPending == 0)
-            {
-                return;
-            }
 
             List<int> subscribesPushed
                 = new List<int>(UserAccountManagement.activeUser.queuedSubscribes.Count);
@@ -253,6 +256,10 @@ namespace ModIO
             // early out
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
             {
+                if(onSuccess != null)
+                {
+                    onSuccess(new List<ModProfile>(0));
+                }
                 return;
             }
 
