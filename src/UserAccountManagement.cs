@@ -576,35 +576,15 @@ namespace ModIO
         }
 
         /// <summary>Attempts to reauthenticate using the stored external auth ticket.</summary>
-        public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
-                                                               Action<WebRequestError> onError)
+        public static void ReauthenticateWithStoredExternalAuthData(Action<UserProfile> onSuccess,
+                                                                    Action<WebRequestError> onError)
         {
-            Debug.Assert(!string.IsNullOrEmpty(UserAccountManagement.externalAuthentication.ticket));
-            Debug.Assert(UserAccountManagement.externalAuthentication.provider != ExternalAuthenticationProvider.None);
+            ExternalAuthenticationData authData = UserAccountManagement.externalAuthentication;
 
-            Action<string, Action<string>, Action<WebRequestError>> authAction = null;
+            Debug.Assert(!string.IsNullOrEmpty(authData.ticket));
+            Debug.Assert(authData.provider != ExternalAuthenticationProvider.None);
 
-            switch(UserAccountManagement.externalAuthentication.provider)
-            {
-                case ExternalAuthenticationProvider.Steam:
-                {
-                    authAction = APIClient.RequestSteamAuthentication;
-                }
-                break;
-
-                case ExternalAuthenticationProvider.GOG:
-                {
-                    authAction = APIClient.RequestGOGAuthentication;
-                }
-                break;
-
-                default:
-                {
-                    throw new System.NotImplementedException();
-                }
-            }
-
-            authAction.Invoke(UserAccountManagement.externalAuthentication.ticket, (t) =>
+            Action<string> onSuccessWrapper = (t) =>
             {
                 UserAccountManagement.activeUser.oAuthToken = t;
                 UserAccountManagement.activeUser.wasTokenRejected = false;
@@ -614,8 +594,31 @@ namespace ModIO
                 {
                     UserAccountManagement.UpdateUserProfile(onSuccess, onError);
                 }
-            },
-            onError);
+            };
+
+            switch(UserAccountManagement.externalAuthentication.provider)
+            {
+                case ExternalAuthenticationProvider.Steam:
+                {
+                    APIClient.RequestSteamAuthentication(authData.ticket,
+                                                         onSuccessWrapper,
+                                                         onError);
+                }
+                break;
+
+                case ExternalAuthenticationProvider.GOG:
+                {
+                    APIClient.RequestGOGAuthentication(authData.ticket,
+                                                       onSuccessWrapper,
+                                                       onError);
+                }
+                break;
+
+                default:
+                {
+                    throw new System.NotImplementedException();
+                }
+            }
         }
 
         // ---------[ USER MANAGEMENT ]---------

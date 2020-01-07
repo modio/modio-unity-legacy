@@ -191,7 +191,7 @@ namespace ModIO.UI
                 {
                     isAttemptingReauth = true;
 
-                    UserAccountManagement.ReauthenticateWithExternalAuthToken(
+                    UserAccountManagement.ReauthenticateWithStoredExternalAuthData(
                     (u) =>
                     {
                         IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
