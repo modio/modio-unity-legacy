@@ -502,33 +502,10 @@ namespace ModIO
                                                                     string authenticationKey,
                                                                     string authenticationValue)
         {
-            APIClient.AssertAuthorizationDetails(false);
+            KeyValuePair<string, string> authData
+                = new KeyValuePair<string, string>(authenticationKey, authenticationValue);
 
-            WWWForm form = new WWWForm();
-            form.AddField("api_key", PluginSettings.data.gameAPIKey);
-            form.AddField(authenticationKey, authenticationValue);
-
-            UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
-            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
-
-            #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                // Setup form data logging
-                DebugFormData formData = new DebugFormData()
-                {
-                    strings = new StringValueParameter[]
-                    {
-                        StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey),
-                        StringValueParameter.Create(authenticationKey, authenticationValue),
-                    },
-                    binaryData = null,
-                };
-                webRequestFormData.Add(webRequest, formData);
-            }
-            #endif
-
-            return webRequest;
+            return APIClient.GenerateAuthenticationRequest(endpointURL, authData);
         }
 
         /// <summary>Generates the web request for a mod.io Authentication request.</summary>
