@@ -113,7 +113,8 @@ namespace ModIO
         }
 
         /// <summary>Pushes queued subscribe actions to the server.</summary>
-        public static void PushSubscriptionChanges(Action<WebRequestError> onCompleted)
+        public static void PushSubscriptionChanges(Action onCompletedNoErrors,
+                                                   Action<List<WebRequestError>> onCompletedWithErrors)
         {
             UserAccountManagement.AssertActiveUserListsNotNull();
 
@@ -124,9 +125,9 @@ namespace ModIO
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken
                || responsesPending == 0)
             {
-                if(onCompleted != null)
+                if(onCompletedNoErrors != null)
                 {
-                    onCompleted(null);
+                    onCompletedNoErrors();
                 }
 
                 return;
@@ -134,7 +135,7 @@ namespace ModIO
 
             // set up vars
             string userToken = UserAccountManagement.activeUser.oAuthToken;
-            WebRequestError lastError = null;
+            List<WebRequestError> errors = new List<WebRequestError>();
 
             List<int> subscribesPushed
                 = new List<int>(UserAccountManagement.activeUser.queuedSubscribes.Count);
@@ -160,9 +161,15 @@ namespace ModIO
                         UserAccountManagement.SaveActiveUser();
                     }
 
-                    if(onCompleted != null)
+                    if(errors.Count == 0
+                       && onCompletedNoErrors != null)
                     {
-                        onCompleted(lastError);
+                        onCompletedNoErrors();
+                    }
+                    else if(errors.Count > 0
+                            && onCompletedWithErrors != null)
+                    {
+                        onCompletedWithErrors(errors);
                     }
                 }
             };
@@ -193,7 +200,7 @@ namespace ModIO
                     // Error for real
                     else
                     {
-                        lastError = e;
+                        errors.Add(e);
                     }
 
                     --responsesPending;
@@ -226,7 +233,7 @@ namespace ModIO
                     // Error for real
                     else
                     {
-                        lastError = e;
+                        errors.Add(e);
                     }
 
                     --responsesPending;
