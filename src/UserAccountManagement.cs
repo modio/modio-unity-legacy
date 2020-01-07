@@ -545,6 +545,36 @@ namespace ModIO
             onError);
         }
 
+        /// <summary>Attempts to authenticate a user using Oculus Rift user data.</summary>
+        public static void AuthenticateWithOculusRiftUserData(string oculusUserNonce,
+                                                              int oculusUserId,
+                                                              string oculusUserAccessToken,
+                                                              Action<UserProfile> onSuccess,
+                                                              Action<WebRequestError> onError)
+        {
+            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            {
+                provider = ExternalAuthenticationProvider.OculusRift,
+                ticket = oculusUserAccessToken,
+                additionalData = new Dictionary<string, string>()
+                {
+                    { "oculusRiftNonce", oculusUserNonce },
+                    { "oculusRiftId", oculusUserId.ToString() },
+                },
+            };
+
+            APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken,
+            (t) =>
+            {
+                UserAccountManagement.activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.wasTokenRejected = false;
+                UserAccountManagement.SaveActiveUser();
+
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
+            },
+            onError);
+        }
+
         /// <summary>Attempts to reauthenticate using the stored external auth ticket.</summary>
         public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
                                                                Action<WebRequestError> onError)

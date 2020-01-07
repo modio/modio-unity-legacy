@@ -7,6 +7,6 @@ namespace ModIO
         Steam,
         GOG,
         ItchIO,
-        Oculus,
+        OculusRift,
     }
 }
