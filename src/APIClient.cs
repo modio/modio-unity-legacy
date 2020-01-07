@@ -718,9 +718,9 @@ namespace ModIO
         }
 
         /// <summary>Request an OAuthToken using an itch.io JWT token.</summary>
-        public static void RequestItchAuthentication(string jwtToken,
-                                                     Action<string> successCallback,
-                                                     Action<WebRequestError> errorCallback)
+        public static void RequestItchIOAuthentication(string jwtToken,
+                                                       Action<string> successCallback,
+                                                       Action<WebRequestError> errorCallback)
         {
             if(string.IsNullOrEmpty(jwtToken))
             {

@@ -523,6 +523,28 @@ namespace ModIO
             onError);
         }
 
+        /// <summary>Attempts to authenticate a user using an itch.io JWT Token.</summary>
+        public static void AuthenticateWithItchIOToken(string jwtToken,
+                                                       Action<UserProfile> onSuccess,
+                                                       Action<WebRequestError> onError)
+        {
+            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            {
+                ticket = jwtToken,
+                provider = ExternalAuthenticationProvider.ItchIO,
+            };
+
+            APIClient.RequestItchIOAuthentication(jwtToken, (t) =>
+            {
+                UserAccountManagement.activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.wasTokenRejected = false;
+                UserAccountManagement.SaveActiveUser();
+
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
+            },
+            onError);
+        }
+
         /// <summary>Attempts to reauthenticate using the stored external auth ticket.</summary>
         public static void ReauthenticateWithExternalAuthToken(Action<UserProfile> onSuccess,
                                                                Action<WebRequestError> onError)
