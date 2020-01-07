@@ -510,14 +510,15 @@ namespace ModIO
 
         /// <summary>Generates the web request for a mod.io Authentication request.</summary>
         public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
-                                                                    params KeyValuePair<string, string>[] formData)
+                                                                    params KeyValuePair<string, string>[] authData)
         {
             APIClient.AssertAuthorizationDetails(false);
+            Debug.Assert(authData.Length > 0, "[mod.io] Authentication data was empty.");
 
             WWWForm form = new WWWForm();
             form.AddField("api_key", PluginSettings.data.gameAPIKey);
 
-            foreach(var kvp in formData)
+            foreach(var kvp in authData)
             {
                 form.AddField(kvp.Key, kvp.Value);
             }
@@ -528,12 +529,12 @@ namespace ModIO
             #if DEBUG
             if(PluginSettings.data.logAllRequests)
             {
-                StringValueParameter[] stringValueParams = new StringValueParameter[formData.Length+1];
+                StringValueParameter[] stringValueParams = new StringValueParameter[authData.Length+1];
                 stringValueParams[0] = StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey);
 
-                for(int i = 0; i < formData.Length; ++i)
+                for(int i = 0; i < authData.Length; ++i)
                 {
-                    var kvp = formData[i];
+                    var kvp = authData[i];
                     stringValueParams[i+1] = StringValueParameter.Create(kvp.Key, kvp.Value);
                 }
 
@@ -761,6 +762,61 @@ namespace ModIO
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
                                                                                  "itchio_token",
                                                                                  jwtToken);
+
+            // send request
+            Action<AccessTokenObject> onSuccessWrapper = (result) =>
+            {
+                successCallback(result.access_token);
+            };
+
+            APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
+        }
+
+        /// <summary>Request an OAuthToken using an Oculus Rift data.</summary>
+        public static void RequestOculusRiftAuthentication(string oculusUserNonce,
+                                                           int oculusUserId,
+                                                           string oculusUserAccessToken,
+                                                           Action<string> successCallback,
+                                                           Action<WebRequestError> errorCallback)
+        {
+            if(string.IsNullOrEmpty(oculusUserNonce))
+            {
+                Debug.LogWarning("[mod.io] Oculus Rift user nonce is invalid."
+                    + " Ensure that the oculusUserNonce is not null or empty.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("Oculus Rift user nonce is invalid."
+                        + " Ensure that the oculusUserNonce is not null or empty."));
+                }
+
+                return;
+            }
+
+            if(string.IsNullOrEmpty(oculusUserAccessToken))
+            {
+                Debug.LogWarning("[mod.io] Oculus Rift user access token is invalid."
+                    + " Ensure that the oculusUserAccessToken is not null or empty.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("Oculus Rift user access token is invalid."
+                        + " Ensure that the oculusUserAccessToken is not null or empty."));
+                }
+
+                return;
+            }
+
+            // create vars
+            string endpointURL = PluginSettings.data.apiURL + @"/external/oculusauth";
+            KeyValuePair<string, string>[] authData = new KeyValuePair<string, string>[3]
+            {
+                new KeyValuePair<string, string>("nonce",       oculusUserNonce),
+                new KeyValuePair<string, string>("user_id",     oculusUserId.ToString()),
+                new KeyValuePair<string, string>("access_token",oculusUserAccessToken),
+            };
+
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL, authData);
 
             // send request
             Action<AccessTokenObject> onSuccessWrapper = (result) =>
