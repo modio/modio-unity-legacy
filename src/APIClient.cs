@@ -497,7 +497,7 @@ namespace ModIO
         private struct AccessTokenObject { public string access_token; }
         #pragma warning restore 0649
 
-        /// <summary>Generates the object for a mod.io Authentication request.</summary>
+        /// <summary>Generates the web request for a mod.io Authentication request.</summary>
         public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
                                                                     string authenticationKey,
                                                                     string authenticationValue)
@@ -525,6 +525,48 @@ namespace ModIO
                     binaryData = null,
                 };
                 webRequestFormData.Add(webRequest, formData);
+            }
+            #endif
+
+            return webRequest;
+        }
+
+        /// <summary>Generates the web request for a mod.io Authentication request.</summary>
+        public static UnityWebRequest GenerateAuthenticationRequest(string endpointURL,
+                                                                    params KeyValuePair<string, string>[] formData)
+        {
+            APIClient.AssertAuthorizationDetails(false);
+
+            WWWForm form = new WWWForm();
+            form.AddField("api_key", PluginSettings.data.gameAPIKey);
+
+            foreach(var kvp in formData)
+            {
+                form.AddField(kvp.Key, kvp.Value);
+            }
+
+            UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
+            webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+
+            #if DEBUG
+            if(PluginSettings.data.logAllRequests)
+            {
+                StringValueParameter[] stringValueParams = new StringValueParameter[formData.Length+1];
+                stringValueParams[0] = StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey);
+
+                for(int i = 0; i < formData.Length; ++i)
+                {
+                    var kvp = formData[i];
+                    stringValueParams[i+1] = StringValueParameter.Create(kvp.Key, kvp.Value);
+                }
+
+                // Setup form data logging
+                DebugFormData debugFormData = new DebugFormData()
+                {
+                    strings = stringValueParams,
+                    binaryData = null,
+                };
+                webRequestFormData.Add(webRequest, debugFormData);
             }
             #endif
 
