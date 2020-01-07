@@ -740,7 +740,7 @@ namespace ModIO
             string endpointURL = PluginSettings.data.apiURL + @"/external/itchioauth";
 
             UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
-                                                                                 "appdata",
+                                                                                 "itchio_token",
                                                                                  jwtToken);
 
             // send request
