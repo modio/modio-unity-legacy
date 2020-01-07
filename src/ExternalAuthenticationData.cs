@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ModIO
 {
     /// <summary>Data for an external authentication ticket.</summary>
@@ -8,5 +10,8 @@ namespace ModIO
 
         /// <summary>Base64 encoded ticket value.</summary>
         public string ticket;
+
+        /// <summary>Additional data.</summary>
+        public Dictionary<string, string> additionalData;
     }
 }
