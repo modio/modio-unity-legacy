@@ -717,6 +717,41 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
         }
 
+        /// <summary>Request an OAuthToken using an itch.io JWT token.</summary>
+        public static void RequestItchAuthentication(string jwtToken,
+                                                     Action<string> successCallback,
+                                                     Action<WebRequestError> errorCallback)
+        {
+            if(string.IsNullOrEmpty(jwtToken))
+            {
+                Debug.LogWarning("[mod.io] itch.io JWT Token is invalid."
+                    + " Ensure that the jwtToken is not null or empty.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("itch.io JWT Token is invalid."
+                        + " Ensure that the jwtToken is not null or empty."));
+                }
+
+                return;
+            }
+
+            // create vars
+            string endpointURL = PluginSettings.data.apiURL + @"/external/itchioauth";
+
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 "appdata",
+                                                                                 jwtToken);
+
+            // send request
+            Action<AccessTokenObject> onSuccessWrapper = (result) =>
+            {
+                successCallback(result.access_token);
+            };
+
+            APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
+        }
+
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>Fetches all the game profiles from the mod.io servers.</summary>
         public static void GetAllGames(RequestFilter filter, APIPaginationParameters pagination,
