@@ -614,6 +614,84 @@ namespace ModIO
                 }
                 break;
 
+                case ExternalAuthenticationProvider.ItchIO:
+                {
+                    APIClient.RequestItchIOAuthentication(authData.ticket,
+                                                          onSuccessWrapper,
+                                                          onError);
+                }
+                break;
+
+                case ExternalAuthenticationProvider.OculusRift:
+                {
+                    string token = authData.ticket;
+                    string nonce;
+                    string userIdString;
+                    int userId;
+
+                    if(authData.additionalData == null)
+                    {
+                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
+                                                                  + " The user id and nonce are missing.");
+                        WebRequestError.LogAsWarning(error);
+
+                        if(onError != null)
+                        {
+                            onError(error);
+                        }
+
+                        return;
+                    }
+                    else if(!authData.additionalData.TryGetValue(ExternalAuthenticationData.OculusRiftKeys.NONCE, out nonce)
+                            || string.IsNullOrEmpty(nonce))
+                    {
+                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
+                                                                  + " The nonce is missing.");
+                        WebRequestError.LogAsWarning(error);
+
+                        if(onError != null)
+                        {
+                            onError(error);
+                        }
+
+                        return;
+                    }
+                    else if(!authData.additionalData.TryGetValue(ExternalAuthenticationData.OculusRiftKeys.USER_ID, out userIdString)
+                            || string.IsNullOrEmpty(userIdString))
+                    {
+                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
+                                                                  + " The user id is missing.");
+                        WebRequestError.LogAsWarning(error);
+
+                        if(onError != null)
+                        {
+                            onError(error);
+                        }
+
+                        return;
+                    }
+                    else if(!int.TryParse(userIdString, out userId))
+                    {
+                        var error = WebRequestError.GenerateLocal("Unable to authenticate using stored Oculus Rift user data."
+                                                                  + " The user id is not parseable as an integer.");
+                        WebRequestError.LogAsWarning(error);
+
+                        if(onError != null)
+                        {
+                            onError(error);
+                        }
+
+                        return;
+                    }
+                    else
+                    {
+                        APIClient.RequestOculusRiftAuthentication(nonce, userId, token,
+                                                                  onSuccessWrapper,
+                                                                  onError);
+                    }
+                }
+                break;
+
                 default:
                 {
                     throw new System.NotImplementedException();
