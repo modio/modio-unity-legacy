@@ -755,6 +755,8 @@ namespace ModIO
                 {
                     userData.queuedUnsubscribes = new List<int>();
                 }
+
+                UserAccountManagement.activeUser = userData;
             }
         }
     }
