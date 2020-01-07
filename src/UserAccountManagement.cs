@@ -558,8 +558,8 @@ namespace ModIO
                 ticket = oculusUserAccessToken,
                 additionalData = new Dictionary<string, string>()
                 {
-                    { "oculusRiftNonce", oculusUserNonce },
-                    { "oculusRiftId", oculusUserId.ToString() },
+                    { ExternalAuthenticationData.OculusRiftKeys.NONCE, oculusUserNonce },
+                    { ExternalAuthenticationData.OculusRiftKeys.USER_ID, oculusUserId.ToString() },
                 },
             };
 
