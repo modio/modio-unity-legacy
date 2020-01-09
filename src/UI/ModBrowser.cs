@@ -216,14 +216,7 @@ namespace ModIO.UI
 
             this.StartCoroutine(FetchGameProfile());
 
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
-            {
-                yield return this.StartCoroutine(SynchronizeSubscriptionsWithServer());
-            }
-            else
-            {
-                yield return this.StartCoroutine(UpdateAllSubscribedModProfiles());
-            }
+            yield return this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
 
             this.StartCoroutine(VerifySubscriptionInstallations());
             this.StartCoroutine(PollForSubscribedModEventsCoroutine());
@@ -391,53 +384,75 @@ namespace ModIO.UI
             StartCoroutine(FetchUserRatings());
         }
 
-        private System.Collections.IEnumerator SynchronizeSubscriptionsWithServer()
+        private System.Collections.IEnumerator SynchronizeSubscriptionsAndUpdateModProfiles()
         {
-            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.ValidToken)
+            // ensure changes only effect the profile this call started with
+            int userId = UserProfile.NULL_ID;
+            if(UserAccountManagement.activeUser.profile != null)
             {
-                yield break;
+                userId = UserAccountManagement.activeUser.profile.id;
             }
 
-            // push local actions
-            bool isPushDone = false;
-            UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true,
-                                                          (e) => isPushDone = true);
-
-            while(!isPushDone) { yield return null; }
-
-            // pull remote subs
-            bool isPullDone = false;
-            UserAccountManagement.PullSubscriptionChanges((profiles) =>
+            Func<bool> hasUserChanged = () =>
             {
-                // display message
-                if(profiles != null
-                   && profiles.Count > 0)
+                return ((UserAccountManagement.activeUser.profile == null && userId != UserProfile.NULL_ID)
+                        || (UserAccountManagement.activeUser.profile != null && userId != UserAccountManagement.activeUser.profile.id));
+            };
+
+            // - push any changes -
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            {
+                // push local actions
+                bool isPushDone = false;
+                UserAccountManagement.PushSubscriptionChanges(() => isPushDone = true,
+                                                              (e) => isPushDone = true);
+
+                while(!isPushDone) { yield return null; }
+            }
+
+            if(hasUserChanged()) { yield break; }
+
+            // - configure request detail -
+            Action<APIPaginationParameters> requestDelegate = null;
+            bool request_isDone = false;
+            RequestPage<ModProfile> request_page = null;
+            WebRequestError request_error = null;
+
+            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            {
+                RequestFilter userSubFilter = new RequestFilter();
+                userSubFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
+                                          new EqualToFilter<int>(PluginSettings.data.gameId));
+
+                requestDelegate
+                    = (p) => APIClient.GetUserSubscriptions(userSubFilter, p,
+                                                            (r) => { request_isDone = true; request_page = r; },
+                                                            (e) => { request_isDone = true; request_error = e; });
+            }
+            else
+            {
+                int[] modIdArray = UserAccountManagement.activeUser.subscribedModIds.ToArray();
+
+                // early out
+                if(modIdArray.Length == 0)
                 {
-                    string message = (profiles.Count.ToString() + " subscription"
-                                      + (profiles.Count > 1 ? "s" : "")
-                                      + " retrieved from the server");
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+                    yield break;
                 }
-                isPullDone = true;
-            },
-            (e) => isPullDone = true);
 
-            while(!isPullDone) { yield return null; }
-        }
+                RequestFilter modFilter = new RequestFilter();
+                modFilter.AddFieldFilter(ModIO.API.GetAllModsFilterFields.id,
+                                         new InArrayFilter<int>(modIdArray));
 
-        private System.Collections.IEnumerator UpdateAllSubscribedModProfiles()
-        {
-            int updateStartTimeStamp = ServerTimeStamp.Now;
-            List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
-
-            // early out
-            if(subscribedModIds.Count == 0)
-            {
-                yield break;
+                requestDelegate = (p) => APIClient.GetAllMods(modFilter, p,
+                                                              (r) => { request_isDone = true; request_page = r; },
+                                                              (e) => { request_isDone = true; request_error = e; });
             }
 
-            // set up initial vars
-            bool allPagesReceived = false;
+            // - set up fetch loop data -
+            List<ModProfile> subProfiles = new List<ModProfile>();
+            List<int> localOnlySubscriptions = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
+            List<int> queuedUnsubscribes = UserAccountManagement.activeUser.queuedUnsubscribes;
+            List<int> subsAdded = new List<int>();
 
             APIPaginationParameters pagination = new APIPaginationParameters()
             {
@@ -445,48 +460,42 @@ namespace ModIO.UI
                 offset = 0,
             };
 
-            RequestFilter modFilter = new RequestFilter();
-            modFilter.AddFieldFilter(ModIO.API.GetAllModsFilterFields.id,
-                                     new InArrayFilter<int>() { filterArray = subscribedModIds.ToArray(), });
-
-            // loop until done or broken
-            while(!allPagesReceived)
+            bool allPagesReceived = false;
+            while(!allPagesReceived && !hasUserChanged())
             {
-                bool isRequestDone = false;
-                WebRequestError requestError = null;
-                RequestPage<ModProfile> requestPage = null;
+                request_isDone = false;
+                request_page = null;
+                request_error = null;
 
-                APIClient.GetAllMods(modFilter, pagination,
-                                     (r) => { isRequestDone = true; requestPage = r; },
-                                     (e) => { isRequestDone = true; requestError = e; });
+                requestDelegate(pagination);
 
-                while(!isRequestDone) { yield return null; }
+                while(!request_isDone) { yield return null; }
 
-                if(requestError != null)
+                if(request_error != null)
                 {
-                    int reattemptDelay = CalculateReattemptDelay(requestError);
-                    if(requestError.isAuthenticationInvalid)
+                    int reattemptDelay = CalculateReattemptDelay(request_error);
+                    if(request_error.isAuthenticationInvalid)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
-                                                   requestError.displayMessage);
+                                                   request_error.displayMessage);
 
                         UserAccountManagement.MarkAuthTokenRejected();
 
                         yield break;
                     }
-                    else if(requestError.isRequestUnresolvable
+                    else if(request_error.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to retrieve subscription data from mod.io servers.\n"
-                                                   + requestError.displayMessage);
+                                                   + request_error.displayMessage);
                         yield break;
                     }
                     else
                     {
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to retrieve subscription data from mod.io servers.\n"
-                                                   + requestError.displayMessage
+                                                   + request_error.displayMessage
                                                    + "\nRetrying in "
                                                    + reattemptDelay.ToString()
                                                    + " seconds");
@@ -497,17 +506,22 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    // add new subs
-                    CacheClient.SaveModProfiles(requestPage.items);
-
-                    // remove from the list (for the purpose of determining missing/deleted mods)
-                    foreach(ModProfile profile in requestPage.items)
+                    // update tracking lists
+                    foreach(ModProfile profile in request_page.items)
                     {
-                        while(subscribedModIds.Remove(profile.id)) {}
+                        if(!queuedUnsubscribes.Contains(profile.id))
+                        {
+                            subProfiles.Add(profile);
+
+                            if(!localOnlySubscriptions.Remove(profile.id))
+                            {
+                                subsAdded.Add(profile.id);
+                            }
+                        }
                     }
 
                     // check pages
-                    allPagesReceived = (requestPage.items.Length < requestPage.size);
+                    allPagesReceived = (request_page.items.Length < request_page.size);
                     if(!allPagesReceived)
                     {
                         pagination.offset += pagination.limit;
@@ -515,31 +529,31 @@ namespace ModIO.UI
                 }
             }
 
+            if(hasUserChanged() || !allPagesReceived) { yield break; }
+
             // handle removed ids
-            if(allPagesReceived)
+            List<int> queuedSubscribes = UserAccountManagement.activeUser.queuedSubscribes;
+            List<int> subsRemoved = new List<int>();
+
+            foreach(int modId in localOnlySubscriptions)
             {
-                if(subscribedModIds.Count > 0)
+                // check if added during fetch
+                if(!queuedSubscribes.Contains(modId))
                 {
-                    List<int> removedModIds = subscribedModIds;
-
-                    subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
-                    foreach(int modId in removedModIds)
-                    {
-                        subscribedModIds.Remove(modId);
-                    }
-                    UserAccountManagement.activeUser.subscribedModIds = subscribedModIds;
-
-                    OnSubscriptionsChanged(null, removedModIds);
-
-                    int deletedModCount = removedModIds.Count;
-                    string message = (deletedModCount.ToString()
-                                      + (deletedModCount > 1
-                                         ? " subscribed mods have become unavailable and have been removed from your subscriptions."
-                                         : " subscribed mod is now unavailable and was removed from your subscriptions."));
-                    MessageSystem.QueueMessage(MessageDisplayData.Type.Info, message);
+                    subsRemoved.Add(modId);
+                    UserAccountManagement.activeUser.subscribedModIds.Remove(modId);
                 }
-
             }
+
+            // append added sub modids
+            UserAccountManagement.activeUser.subscribedModIds.AddRange(subsAdded);
+            UserAccountManagement.SaveActiveUser();
+
+            // cache profiles
+            CacheClient.SaveModProfiles(subProfiles);
+
+            // handle changes
+            OnSubscriptionsChanged(subsAdded, subsRemoved);
         }
 
         private System.Collections.IEnumerator FetchUserRatings()
@@ -974,7 +988,6 @@ namespace ModIO.UI
                   && this.isActiveAndEnabled
                   && !cancelUpdates)
             {
-                int updateStartTimeStamp = ServerTimeStamp.Now;
 
                 isRequestDone = false;
                 requestError = null;
@@ -1282,7 +1295,7 @@ namespace ModIO.UI
         {
             if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
             {
-                this.StartCoroutine(SynchronizeSubscriptionsWithServer());
+                this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
             }
         }
 
