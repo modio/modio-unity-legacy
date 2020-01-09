@@ -737,6 +737,12 @@ namespace ModIO
                 // go!
                 foreach(Modfile modfile in unmatchedModfiles)
                 {
+                    // check if already downloading
+                    if(DownloadClient.GetActiveModBinaryDownload(modfile.modId, modfile.id) != null)
+                    {
+                        continue;
+                    }
+
                     downloadingModfile = modfile;
                     startNextDownload = false;
 
