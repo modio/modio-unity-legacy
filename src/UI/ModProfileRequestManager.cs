@@ -255,6 +255,37 @@ namespace ModIO.UI
             }, onError);
         }
 
+        /// <summary>Updates the cache - both on disk and in this object.</summary>
+        public virtual void CacheModProfiles(IEnumerable<ModProfile> modProfiles)
+        {
+            if(!this.isCachingPermitted || modProfiles == null) { return; }
+
+            Debug.Log("Caching ModProfiles");
+
+            // cache profiles
+            foreach(ModProfile profile in modProfiles)
+            {
+                if(profile != null)
+                {
+                    this.profileCache[profile.id] = profile;
+                }
+            }
+
+            // store
+            if(this.storeIfSubscribed)
+            {
+                IList<int> subMods = UserAccountManagement.activeUser.subscribedModIds;
+                foreach(ModProfile profile in modProfiles)
+                {
+                    if(profile != null
+                       && subMods.Contains(profile.id))
+                    {
+                        CacheClient.SaveModProfile(profile);
+                    }
+                }
+            }
+        }
+
         /// <summary>Append the response page to the cached data.</summary>
         public virtual void CacheRequestPage(RequestFilter filter, RequestPage<ModProfile> page)
         {
@@ -289,23 +320,7 @@ namespace ModIO.UI
             }
 
             // cache profiles
-            foreach(ModProfile profile in page.items)
-            {
-                this.profileCache[profile.id] = profile;
-            }
-
-            // store
-            if(this.storeIfSubscribed)
-            {
-                IList<int> subMods = UserAccountManagement.activeUser.subscribedModIds;
-                foreach(ModProfile profile in page.items)
-                {
-                    if(subMods.Contains(profile.id))
-                    {
-                        CacheClient.SaveModProfile(profile);
-                    }
-                }
-            }
+            this.CacheModProfiles(page.items);
         }
 
         /// <summary>Requests an individual ModProfile by id.</summary>
@@ -398,22 +413,7 @@ namespace ModIO.UI
             {
                 if(this != null)
                 {
-                    foreach(ModProfile profile in modProfiles)
-                    {
-                        this.profileCache[profile.id] = profile;
-                    }
-
-                    if(this.storeIfSubscribed)
-                    {
-                        IList<int> subMods = UserAccountManagement.activeUser.subscribedModIds;
-                        foreach(ModProfile profile in modProfiles)
-                        {
-                            if(subMods.Contains(profile.id))
-                            {
-                                CacheClient.SaveModProfile(profile);
-                            }
-                        }
-                    }
+                    this.CacheModProfiles(modProfiles);
                 }
 
                 foreach(ModProfile profile in modProfiles)
