@@ -550,7 +550,7 @@ namespace ModIO.UI
             UserAccountManagement.SaveActiveUser();
 
             // cache profiles
-            CacheClient.SaveModProfiles(subProfiles);
+            ModProfileRequestManager.instance.CacheModProfiles(subProfiles);
 
             // handle changes
             OnSubscriptionsChanged(subsAdded, subsRemoved);
@@ -1208,7 +1208,7 @@ namespace ModIO.UI
                     APIClient.GetAllMods(modFilter, pagination,
                     (r) =>
                     {
-                        CacheClient.SaveModProfiles(r.items);
+                        ModProfileRequestManager.instance.CacheModProfiles(r.items);
                     },
                     WebRequestError.LogAsWarning);
                 }
@@ -1270,7 +1270,7 @@ namespace ModIO.UI
                     else
                     {
                         // installs
-                        CacheClient.SaveModProfiles(response.items);
+                        ModProfileRequestManager.instance.CacheModProfiles(response.items);
 
                         List<Modfile> latestBuilds = new List<Modfile>(response.items.Length);
                         List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
