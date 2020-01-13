@@ -1306,7 +1306,13 @@ namespace ModIO.UI
                                                           (e) => WebRequestError.LogAsWarning(e[0]));
 
             // - clear current user -
-            UserAccountManagement.activeUser = new LocalUser();
+            LocalUser oldUser = UserAccountManagement.activeUser;
+
+            UserAccountManagement.activeUser = new LocalUser()
+            {
+                subscribedModIds = oldUser.subscribedModIds,
+                enabledModIds = oldUser.enabledModIds,
+            };
             UserAccountManagement.SaveActiveUser();
 
             // - notify receivers -
