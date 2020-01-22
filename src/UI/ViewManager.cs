@@ -123,6 +123,11 @@ namespace ModIO.UI
             }
             else
             {
+                if(this.m_inspectorView != null)
+                {
+                    this.m_inspectorView.gameObject.SetActive(false);
+                }
+
                 this.m_loginDialog.gameObject.SetActive(true);
             }
         }
