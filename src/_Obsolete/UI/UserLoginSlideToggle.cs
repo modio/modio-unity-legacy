@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("No longer supported.")]
     [RequireComponent(typeof(UserView))]
     [RequireComponent(typeof(SlideToggle))]
     public class UserLoginSlideToggle : MonoBehaviour

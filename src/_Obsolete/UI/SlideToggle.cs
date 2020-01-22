@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
+    [System.Obsolete("Use ModIO.UI.SlidingToggle instead.")]
     public class SlideToggle : StateToggleDisplay, UnityEngine.EventSystems.IPointerExitHandler
     {
         public enum SlideAxis
