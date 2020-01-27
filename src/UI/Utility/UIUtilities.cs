@@ -295,7 +295,7 @@ namespace ModIO.UI
                 }
 
                 // up
-                if(rowCount > 0)
+                if(rowCount > 1)
                 {
                     lastNav.selectOnUp = selectables[getGridIndex(col, row-1)];
                 }
