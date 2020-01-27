@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +16,9 @@ namespace ModIO.UI
 
         /// <summary>Should the navigation wrap horizontally?</summary>
         public bool wrapHorizontally = false;
+
+        /// <summary>How many children deep are the selectables found?</summary>
+        public int selectableDepth = 1;
 
         // ---------[ Functionality ]---------
         /// <summary>Initializes the nav data.</summary>
@@ -35,12 +41,51 @@ namespace ModIO.UI
             LayoutGroup lg = this.GetComponent<LayoutGroup>();
             if(lg == null) { return; }
 
-            Selectable[] selectables = this.gameObject.GetComponentsInChildren<Selectable>();
             int columnCount = 1;
+            List<Selectable> selectables = null;
+
+            if(this.selectableDepth < 0)
+            {
+                selectables = new List<Selectable>(this.gameObject.GetComponentsInChildren<Selectable>());
+            }
+            else
+            {
+                selectables = new List<Selectable>();
+
+                Action<Transform, int> appendChildSelectables = null;
+                appendChildSelectables = (t, depth) =>
+                {
+                    foreach(var ignorer in t.gameObject.GetComponents<ILayoutIgnorer>())
+                    {
+                        if(ignorer.ignoreLayout)
+                        {
+                            return;
+                        }
+                    }
+
+                    if(depth == selectableDepth)
+                    {
+                        Selectable s = t.gameObject.GetComponent<Selectable>();
+                        if(s != null)
+                        {
+                            selectables.Add(s);
+                        }
+                    }
+                    else
+                    {
+                        foreach(Transform child in t)
+                        {
+                            appendChildSelectables(child, depth+1);
+                        }
+                    }
+                };
+
+                appendChildSelectables(this.transform, 0);
+            }
 
             if(lg is HorizontalLayoutGroup)
             {
-                columnCount = selectables.Length;
+                columnCount = selectables.Count;
             }
             else if(lg is GridLayoutGroup)
             {
