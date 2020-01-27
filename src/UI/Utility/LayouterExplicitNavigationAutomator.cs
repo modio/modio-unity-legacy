@@ -26,17 +26,17 @@ namespace ModIO.UI
         {
             base.Start();
 
-            this.SetNavigationForChildren();
+            this.UpdateNavigationForChildren();
         }
 
         /// <summary>Catches the OnTransformChildrenChanged event to reapply settings.</summary>
         private void OnTransformChildrenChanged()
         {
-            this.SetNavigationForChildren();
+            this.UpdateNavigationForChildren();
         }
 
         /// <summary>Applies the navigation settings to the child objects.</summary>
-        public void SetNavigationForChildren()
+        public void UpdateNavigationForChildren()
         {
             LayoutGroup lg = this.GetComponent<LayoutGroup>();
             if(lg == null) { return; }
@@ -62,6 +62,8 @@ namespace ModIO.UI
                             return;
                         }
                     }
+
+                    if(!t.gameObject.activeSelf) { return; }
 
                     if(depth == selectableDepth)
                     {
