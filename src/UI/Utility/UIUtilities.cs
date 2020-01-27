@@ -73,6 +73,34 @@ namespace ModIO.UI
             return rowCount * columnCount;
         }
 
+        /// <summary>Calculates the number of grid columns within the transform.</summary>
+        public static int CalculateGridColumnCount(GridLayoutGroup gridLayout)
+        {
+            float width = ((RectTransform)gridLayout.transform).rect.size.x;
+
+            int cellCountX = 1;
+
+            if (gridLayout.cellSize.x + gridLayout.spacing.x <= 0)
+            {
+                cellCountX = int.MaxValue;
+            }
+            else
+            {
+                float gridWidth = width - gridLayout.padding.horizontal + 0.001f;
+                float colWidth = gridLayout.cellSize.x + gridLayout.spacing.x;
+
+                cellCountX = Mathf.Max(1, Mathf.FloorToInt((gridWidth+gridLayout.spacing.x) / colWidth));
+            }
+
+            if (gridLayout.constraint == GridLayoutGroup.Constraint.FixedColumnCount
+                && cellCountX > gridLayout.constraintCount)
+            {
+                cellCountX = gridLayout.constraintCount;
+            }
+
+            return cellCountX;
+        }
+
         /// <summary>Finds the first instance of a component in any loaded scenes.</summary>
         public static T FindComponentInAllScenes<T>(bool includeInactive)
         where T : Behaviour
