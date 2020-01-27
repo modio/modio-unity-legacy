@@ -50,7 +50,7 @@ namespace ModIO.UI
         {
             if(this.m_lastDimensions != this.rectTransform.rect)
             {
-                int newCount = UIUtilities.CountVisibleGridCells(this.grid);
+                int newCount = UIUtilities.CalculateGridCellCount(this.grid);
                 if(newCount != this.m_lastCellCount
                    && this.onCellCountChanged != null)
                 {

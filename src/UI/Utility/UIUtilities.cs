@@ -23,7 +23,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Counts the cells that will fit in within the RectTransform of the given grid</summary>
-        public static int CountVisibleGridCells(GridLayoutGroup gridLayout)
+        public static int CalculateGridCellCount(GridLayoutGroup gridLayout)
         {
             Debug.Assert(gridLayout != null);
 
@@ -516,5 +516,11 @@ namespace ModIO.UI
             return retVal;
         }
 
+        /// <summary>Counts the cells that will fit in within the RectTransform of the given grid.</summary>
+        [Obsolete("Renamed to CalculateGridCellCount.")]
+        public static int CountVisibleGridCells(GridLayoutGroup gridLayout)
+        {
+            return CalculateGridCellCount(gridLayout);
+        }
     }
 }
