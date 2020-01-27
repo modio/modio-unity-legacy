@@ -827,6 +827,39 @@ namespace ModIO
             APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
         }
 
+        /// <summary>Requests an OAuthToken using an Xbox signed token.</summary>
+        public static void RequestXboxLiveAuthentication(string xboxLiveUserToken,
+                                                         Action<string> successCallback,
+                                                         Action<WebRequestError> errorCallback)
+        {
+            if(string.IsNullOrEmpty(xboxLiveUserToken))
+            {
+                Debug.LogWarning("[mod.io] Xbox Live token is invalid."
+                    + " Ensure that the xboxLiveUserToken is not null or empty.");
+
+                if(errorCallback != null)
+                {
+                    errorCallback(WebRequestError.GenerateLocal("Xbox Live token is invalid."
+                        + " Ensure that the xboxLiveUserToken is not null or empty."));
+                }
+            }
+
+            // create vars
+            string endpointURL = PluginSettings.data.apiURL + @"/external/xboxauth";
+
+            UnityWebRequest webRequest = APIClient.GenerateAuthenticationRequest(endpointURL,
+                                                                                 "xbox_token",
+                                                                                 xboxLiveUserToken);
+
+            // send request
+            Action<AccessTokenObject> onSuccessWrapper = (result) =>
+            {
+                successCallback(result.access_token);
+            };
+
+            APIClient.SendRequest(webRequest, onSuccessWrapper, errorCallback);
+        }
+
         // ---------[ GAME ENDPOINTS ]---------
         /// <summary>Fetches all the game profiles from the mod.io servers.</summary>
         public static void GetAllGames(RequestFilter filter, APIPaginationParameters pagination,
