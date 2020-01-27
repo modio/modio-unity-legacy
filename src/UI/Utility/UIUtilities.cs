@@ -134,6 +134,236 @@ namespace ModIO.UI
             return sceneComponents;
         }
 
+        // NOTE(@jackson): Currently implemented with H-inc/decrement, V-align
+        /// <summary>Explicitly links a collection of selectable components as a grid (or list).</summary>
+        public static void SetExplicitGridNavigation(IList<Selectable> selectables, int columnCount,
+                                                     bool wrapHorizontally, bool wrapVertically)
+        {
+            Debug.Assert(selectables != null);
+
+            if(selectables == null || selectables.Count == 0) { return; }
+
+            // check for single item
+            if(selectables.Count == 1)
+            {
+                if(selectables[0] == null) { return; }
+
+                Selectable s = selectables[0];
+                Selectable hLink = (wrapHorizontally ? s : null);
+                Selectable vLink = (wrapVertically ? s : null);
+
+                Navigation nav = new Navigation()
+                {
+                    mode = Navigation.Mode.Explicit,
+                    selectOnLeft = hLink,
+                    selectOnRight = hLink,
+                    selectOnUp = vLink,
+                    selectOnDown = vLink,
+                };
+
+                s.navigation = nav;
+
+                return;
+            }
+
+            // assert valid columnCount
+            if(columnCount < 1) { columnCount = 1; }
+            if(columnCount > selectables.Count) { columnCount = selectables.Count; }
+
+            // as int-division rounds toward zero, this ensures rounding-up.
+            int rowCount = (selectables.Count + columnCount -1) / columnCount;
+
+            // set grid index formula
+            Func<int, int> getCol = (gridIndex) => gridIndex % columnCount;
+            Func<int, int> getRow = (gridIndex) => gridIndex / columnCount;
+            Func<int, int, int> getGridIndex = (col, row) => row * columnCount + col;
+
+            // -- set the nav on the first and last items --
+            Selectable firstItem = selectables[0];
+            Selectable lastItem = selectables[selectables.Count-1];
+
+            if(firstItem != null)
+            {
+                Navigation firstNav = new Navigation()
+                {
+                    mode = Navigation.Mode.Explicit,
+                };
+
+                // left
+                if(wrapHorizontally)
+                {
+                    firstNav.selectOnLeft = lastItem;
+                }
+                else
+                {
+                    firstNav.selectOnLeft = null;
+                }
+
+                // right
+                if(columnCount > 1 || wrapHorizontally)
+                {
+                    firstNav.selectOnRight = selectables[1];
+                }
+                else
+                {
+                    firstNav.selectOnRight = null;
+                }
+
+                // up
+                if(wrapVertically)
+                {
+                    firstNav.selectOnUp = selectables[getGridIndex(0, rowCount-1)];
+                }
+                else
+                {
+                    firstNav.selectOnUp = null;
+                }
+
+                // down
+                if(rowCount > 1)
+                {
+                    firstNav.selectOnDown = selectables[getGridIndex(0, 1)];
+                }
+                else if(wrapVertically)
+                {
+                    firstNav.selectOnDown = firstItem;
+                }
+                else
+                {
+                    firstNav.selectOnDown = null;
+                }
+
+                firstItem.navigation = firstNav;
+            }
+
+            if(lastItem != null)
+            {
+                int col = getCol(selectables.Count-1);
+                int row = rowCount-1;
+
+                Navigation lastNav = new Navigation()
+                {
+                    mode = Navigation.Mode.Explicit,
+                };
+
+                // left
+                if(columnCount > 1 || wrapHorizontally)
+                {
+                    lastNav.selectOnLeft = selectables[selectables.Count-2];
+                }
+                else
+                {
+                    lastNav.selectOnLeft = null;
+                }
+
+                // right
+                if(wrapHorizontally)
+                {
+                    lastNav.selectOnRight = firstItem;
+                }
+                else
+                {
+                    lastNav.selectOnRight = null;
+                }
+
+                // up
+                if(rowCount > 0)
+                {
+                    lastNav.selectOnUp = selectables[getGridIndex(col, row-1)];
+                }
+                else if(wrapVertically)
+                {
+                    lastNav.selectOnUp = lastItem;
+                }
+                else
+                {
+                    lastNav.selectOnUp = null;
+                }
+
+                // down
+                if(wrapVertically)
+                {
+                    lastNav.selectOnDown = selectables[getGridIndex(col, 0)];
+                }
+                else
+                {
+                    lastNav.selectOnDown = null;
+                }
+
+                lastItem.navigation = lastNav;
+            }
+
+            // do linkage
+            for(int gridIndex = 1; gridIndex < selectables.Count-1; ++gridIndex)
+            {
+                Selectable currentItem = selectables[gridIndex];
+                Navigation nav = new Navigation()
+                {
+                    mode = Navigation.Mode.Explicit,
+                };
+
+                int col = getCol(gridIndex);
+                int row = getRow(gridIndex);
+
+                // left
+                if(col > 0 || wrapHorizontally)
+                {
+                    nav.selectOnLeft = selectables[gridIndex-1];
+                }
+                else
+                {
+                    nav.selectOnLeft = null;
+                }
+
+                // right
+                if(col < columnCount-1 || wrapHorizontally)
+                {
+                    nav.selectOnRight = selectables[gridIndex+1];
+                }
+                else
+                {
+                    nav.selectOnRight = null;
+                }
+
+                // up
+                if(row > 0)
+                {
+                    nav.selectOnUp = selectables[getGridIndex(col, row-1)];
+                }
+                else if(wrapVertically)
+                {
+                    int rowIndex = rowCount-1;
+                    while(getGridIndex(col, rowIndex) >= selectables.Count)
+                    {
+                        --rowIndex;
+                    }
+
+                    nav.selectOnUp = selectables[getGridIndex(col, rowIndex)];
+                }
+                else
+                {
+                    nav.selectOnUp = null;
+                }
+
+                // down
+                if(row < rowCount-1
+                   && getGridIndex(col, row+1) < selectables.Count)
+                {
+                    nav.selectOnDown = selectables[getGridIndex(col, row+1)];
+                }
+                else if(wrapVertically)
+                {
+                    nav.selectOnDown = selectables[getGridIndex(col, 0)];
+                }
+                else
+                {
+                    nav.selectOnDown = null;
+                }
+
+                currentItem.navigation = nav;
+            }
+        }
+
         // ---------[ OBSOLETE ]---------
         /// <summary>[Obsolete] Finds the first instance of a component in the active scene.</summary>
         [Obsolete("Use UIUtilities.FindComponentInAllScenes() instead.")]
