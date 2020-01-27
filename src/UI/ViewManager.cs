@@ -35,6 +35,28 @@ namespace ModIO.UI
         private LoginDialog m_loginDialog = null;
         private bool m_viewsFound = false;
 
+        // --- Accessors ---
+        /// <summary>Explorer View in the UI.</summary>
+        public ExplorerView explorerView
+        {
+            get { return this.m_explorerView; }
+        }
+        /// <summary>Subscriptions View in the UI.</summary>
+        public SubscriptionsView subscriptionsView
+        {
+            get { return this.m_subscriptionsView; }
+        }
+        /// <summary>Inspector View in the UI.</summary>
+        public InspectorView inspectorView
+        {
+            get { return this.m_inspectorView; }
+        }
+        /// <summary>Login View in the UI</summary>
+        public LoginDialog loginDialog
+        {
+            get { return this.m_loginDialog; }
+        }
+
         // ---------[ INITIALIZATION ]---------
         private void Start()
         {
