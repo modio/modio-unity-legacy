@@ -392,6 +392,67 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Creates/Destroys a number of GameObject instances as necessary.</summary>
+        public static void SetInstanceCount<T>(Transform container, T template,
+                                               string instanceName, int instanceCount,
+                                               ref T[] instanceArray, bool reactivateAll = false)
+        where T : MonoBehaviour
+        {
+            if(instanceArray == null)
+            {
+                instanceArray = new T[0];
+            }
+
+            int difference = instanceCount - instanceArray.Length;
+
+            if(difference != 0)
+            {
+                T[] newInstanceArray = new T[instanceCount];
+
+                // copy existing
+                for(int i = 0;
+                    i < instanceArray.Length && i < instanceCount;
+                    ++i)
+                {
+                    newInstanceArray[i] = instanceArray[i];
+                }
+
+                // create new
+                for(int i = instanceArray.Length;
+                    i < instanceCount;
+                    ++i)
+                {
+                    GameObject displayGO = GameObject.Instantiate(template.gameObject);
+                    displayGO.name = instanceName + " [" + i.ToString("00") + "]";
+                    displayGO.transform.SetParent(container, false);
+                    displayGO.SetActive(true);
+
+                    newInstanceArray[i] = displayGO.GetComponent<T>();
+                }
+
+                // destroy excess
+                for(int i = instanceCount;
+                    i < instanceArray.Length;
+                    ++i)
+                {
+                    GameObject.Destroy(instanceArray[i].gameObject);
+                }
+
+                // assign
+                instanceArray = newInstanceArray;
+            }
+
+            // reactivate
+            if(reactivateAll)
+            {
+                foreach(T instance in instanceArray)
+                {
+                    instance.gameObject.SetActive(false);
+                    instance.gameObject.SetActive(true);
+                }
+            }
+        }
+
         // ---------[ OBSOLETE ]---------
         /// <summary>[Obsolete] Finds the first instance of a component in the active scene.</summary>
         [Obsolete("Use UIUtilities.FindComponentInAllScenes() instead.")]
@@ -455,65 +516,5 @@ namespace ModIO.UI
             return retVal;
         }
 
-        /// <summary>Creates/Destroys a number of GameObject instances as necessary.</summary>
-        public static void SetInstanceCount<T>(Transform container, T template,
-                                               string instanceName, int instanceCount,
-                                               ref T[] instanceArray, bool reactivateAll = false)
-        where T : MonoBehaviour
-        {
-            if(instanceArray == null)
-            {
-                instanceArray = new T[0];
-            }
-
-            int difference = instanceCount - instanceArray.Length;
-
-            if(difference != 0)
-            {
-                T[] newInstanceArray = new T[instanceCount];
-
-                // copy existing
-                for(int i = 0;
-                    i < instanceArray.Length && i < instanceCount;
-                    ++i)
-                {
-                    newInstanceArray[i] = instanceArray[i];
-                }
-
-                // create new
-                for(int i = instanceArray.Length;
-                    i < instanceCount;
-                    ++i)
-                {
-                    GameObject displayGO = GameObject.Instantiate(template.gameObject);
-                    displayGO.name = instanceName + " [" + i.ToString("00") + "]";
-                    displayGO.transform.SetParent(container, false);
-                    displayGO.SetActive(true);
-
-                    newInstanceArray[i] = displayGO.GetComponent<T>();
-                }
-
-                // destroy excess
-                for(int i = instanceCount;
-                    i < instanceArray.Length;
-                    ++i)
-                {
-                    GameObject.Destroy(instanceArray[i].gameObject);
-                }
-
-                // assign
-                instanceArray = newInstanceArray;
-            }
-
-            // reactivate
-            if(reactivateAll)
-            {
-                foreach(T instance in instanceArray)
-                {
-                    instance.gameObject.SetActive(false);
-                    instance.gameObject.SetActive(true);
-                }
-            }
-        }
     }
 }
