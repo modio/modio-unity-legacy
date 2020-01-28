@@ -40,6 +40,9 @@ namespace ModIO.UI
         private LoginDialog m_loginDialog = null;
         private bool m_viewsFound = false;
 
+        /// <summary>Main view currently open.</summary>
+        private IBrowserView m_currentMainView = null;
+
         /// <summary>The currently focused view.</summary>
         private IBrowserView m_focusedView = null;
 
@@ -109,6 +112,7 @@ namespace ModIO.UI
             if(this.explorerView != null
                && this.explorerView.isActiveAndEnabled)
             {
+                this.m_currentMainView = this.explorerView;
                 initFocus = this.explorerView;
             }
 
@@ -120,7 +124,34 @@ namespace ModIO.UI
                     this.explorerView.gameObject.SetActive(false);
                 }
 
+                this.m_currentMainView = this.subscriptionsView;
                 initFocus = this.subscriptionsView;
+            }
+
+            if(this.m_currentMainView == null)
+            {
+                if(this.explorerView != null)
+                {
+                    this.m_currentMainView = this.explorerView;
+                    initFocus = this.explorerView;
+
+                    this.explorerView.gameObject.SetActive(true);
+                }
+                else if(this.subscriptionsView != null)
+                {
+                    this.subscriptionsView.gameObject.SetActive(true);
+                    initFocus = this.subscriptionsView;
+
+                    this.m_currentMainView = this.subscriptionsView;
+                }
+                #if DEBUG
+                    else
+                    {
+                        Debug.Log("[mod.io] No main view found in the scene."
+                                  + " Please consider adding either an ExplorerView or"
+                                  + " a SubscriptionsView to the scene.", this);
+                    }
+                #endif
             }
 
             if(this.inspectorView != null
@@ -148,8 +179,11 @@ namespace ModIO.UI
         {
             yield return null;
 
-            this.m_focusedView = view;
-            this.onAfterFocusView.Invoke(view);
+            if(this != null && view != null)
+            {
+                this.m_focusedView = view;
+                this.onAfterFocusView.Invoke(view);
+            }
         }
 
         private void FindViews()
