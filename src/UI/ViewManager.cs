@@ -207,9 +207,16 @@ namespace ModIO.UI
                 }
             #endif
 
-            if(this.m_inspectorView == null) { return; }
+            if(this.m_inspectorView == null)
+            {
+                return;
+            }
 
             this.m_inspectorView.modId = modId;
+
+            if(this.m_focusedView == (IBrowserView)this.m_inspectorView) { return; }
+
+            this.HideAndDefocusView(this.m_loginDialog);
             this.ShowAndFocusView(this.m_inspectorView);
         }
 
@@ -222,7 +229,7 @@ namespace ModIO.UI
                 }
             #endif
 
-            this.HideView(this.m_subscriptionsView);
+            this.HideAndDefocusView(this.m_subscriptionsView);
             this.ShowAndFocusView(this.m_explorerView);
         }
 
@@ -236,45 +243,85 @@ namespace ModIO.UI
             #endif
 
 
-            this.HideView(this.m_explorerView);
+            this.HideAndDefocusView(this.m_explorerView);
             this.ShowAndFocusView(this.m_subscriptionsView);
         }
 
         public void ShowLoginDialog()
         {
             #if DEBUG
-            if(this.m_loginDialog == null)
-            {
-                Debug.Log("[mod.io] Login Dialog not found.");
-            }
+                if(this.m_loginDialog == null)
+                {
+                    Debug.Log("[mod.io] Login Dialog not found.");
+                }
             #endif
-            else
 
-            this.HideView(this.m_inspectorView);
+            if(this.m_loginDialog == null
+               || this.m_focusedView == (IBrowserView)this.m_loginDialog)
+            {
+                return;
+            }
+
+            this.HideAndDefocusView(this.m_inspectorView);
             this.ShowAndFocusView(this.m_loginDialog);
         }
 
-        /// <summary>Hides a given view.</summary>
-        public void HideView(IBrowserView view)
+        /// <summary>Hides a given view and refocusses the current main view.</summary>
+        public void HideViewAndFocusMain(IBrowserView view)
         {
-            if(view == null) { return; }
+            if(view == null || view == this.m_currentMainView) { return; }
 
-            this.onBeforeHideView.Invoke(view);
-            view.gameObject.SetActive(false);
+            if(this.m_currentMainView == null)
+            {
+                Debug.LogError("[mod.io] Cannot focus main view as it is currently unassigned.",
+                               this);
+
+                return;
+            }
+
+            this.HideAndDefocusView(view);
+
+            // Focus main view
+            this.m_focusedView = this.m_currentMainView;
+            this.onAfterFocusView.Invoke(this.m_currentMainView);
         }
 
         /// <summary>Shows a given view and sets it as the focus.</summary>
         public void ShowAndFocusView(IBrowserView view)
         {
-            if(view == null) { return; }
+            if(view == null || view == this.m_focusedView) { return; }
 
-            this.onBeforeDefocusView.Invoke(this.m_focusedView);
+            if(this.m_focusedView != null)
+            {
+                this.onBeforeDefocusView.Invoke(this.m_focusedView);
+            }
 
-            this.onBeforeShowView.Invoke(view);
-            view.gameObject.SetActive(true);
+            if(!view.gameObject.activeSelf)
+            {
+                this.onBeforeShowView.Invoke(view);
+                view.gameObject.SetActive(true);
+            }
 
             this.m_focusedView = view;
             this.onAfterFocusView.Invoke(view);
+        }
+
+        /// <summary>Executes the functionality for hiding a view.</summary>
+        private void HideAndDefocusView(IBrowserView view)
+        {
+            if(view == null) { return; }
+
+            if(this.m_focusedView == view)
+            {
+                this.onBeforeDefocusView.Invoke(view);
+                this.m_focusedView = null;
+            }
+
+            if(view.gameObject.activeSelf)
+            {
+                this.onBeforeHideView.Invoke(view);
+                view.gameObject.SetActive(false);
+            }
         }
     }
 }
