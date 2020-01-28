@@ -65,8 +65,10 @@ namespace ModIO.UI
         /// <summary>Catches and resets the selection if currently unavailable.</summary>
         private void Update()
         {
+            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+
             if((Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
-                && EventSystem.current.currentSelectedGameObject == null)
+                && (currentSelection == null || !currentSelection.activeInHierarchy))
             {
                 IBrowserView view = ViewManager.instance.currentFocus;
                 if(view != null)
