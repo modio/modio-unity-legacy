@@ -426,7 +426,7 @@ namespace ModIO
                 }
             }
 
-        #elif UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
+        #else
 
             /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
             private static PlatformFunctions GetPlatformFunctions()
