@@ -727,6 +727,7 @@ namespace ModIO
                                                             onSuccessWrapper,
                                                             onError);
                 }
+                break;
 
                 default:
                 {
