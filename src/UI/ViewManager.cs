@@ -118,53 +118,43 @@ namespace ModIO.UI
 
         public void ActivateExplorerView()
         {
-            if(this.m_explorerView == null)
-            {
-                Debug.Log("[mod.io] Explorer View not found.");
-            }
-            else
-            {
-                this.m_explorerView.gameObject.SetActive(true);
-
-                if(this.m_subscriptionsView.gameObject != null)
+            #if DEBUG
+                if(this.m_explorerView == null)
                 {
-                    this.m_subscriptionsView.gameObject.SetActive(false);
+                    Debug.Log("[mod.io] Explorer View not found.");
                 }
-            }
+            #endif
+
+            this.HideView(this.m_subscriptionsView);
+            this.ShowView(this.m_explorerView);
         }
 
         public void ActivateSubscriptionsView()
         {
-            if(this.m_subscriptionsView == null)
-            {
-                Debug.Log("[mod.io] Subscriptions View not found.");
-            }
-            else
-            {
-                this.m_subscriptionsView.gameObject.SetActive(true);
-
-                if(this.m_explorerView.gameObject != null)
+            #if DEBUG
+                if(this.m_subscriptionsView == null)
                 {
-                    this.m_explorerView.gameObject.SetActive(false);
+                    Debug.Log("[mod.io] Subscriptions View not found.");
                 }
-            }
+            #endif
+
+
+            this.HideView(this.m_explorerView);
+            this.ShowView(this.m_subscriptionsView);
         }
 
         public void ShowLoginDialog()
         {
+            #if DEBUG
             if(this.m_loginDialog == null)
             {
                 Debug.Log("[mod.io] Login Dialog not found.");
             }
+            #endif
             else
-            {
-                if(this.m_inspectorView != null)
-                {
-                    this.m_inspectorView.gameObject.SetActive(false);
-                }
 
-                this.m_loginDialog.gameObject.SetActive(true);
-            }
+            this.HideView(this.m_inspectorView);
+            this.ShowView(this.m_loginDialog);
         }
 
         /// <summary>Hides a given view.</summary>
