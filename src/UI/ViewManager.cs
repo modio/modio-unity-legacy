@@ -185,6 +185,12 @@ namespace ModIO.UI
             if(this != null && view != null)
             {
                 this.m_focusedView = view;
+
+                if(this.m_currentMainView != this.m_focusedView)
+                {
+                    this.onBeforeDefocusView.Invoke(this.m_currentMainView);
+                }
+
                 this.onAfterFocusView.Invoke(view);
             }
         }
