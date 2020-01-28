@@ -238,8 +238,12 @@ namespace ModIO.UI
                 }
             #endif
 
+            if(this.m_explorerView == null) { return; }
+
             this.HideAndDefocusView(this.m_subscriptionsView);
             this.ShowAndFocusView(this.m_explorerView);
+
+            this.m_currentMainView = this.m_explorerView;
         }
 
         public void ActivateSubscriptionsView()
@@ -251,9 +255,12 @@ namespace ModIO.UI
                 }
             #endif
 
+            if(this.m_subscriptionsView == null) { return; }
 
             this.HideAndDefocusView(this.m_explorerView);
             this.ShowAndFocusView(this.m_subscriptionsView);
+
+            this.m_currentMainView = this.m_subscriptionsView;
         }
 
         public void ShowLoginDialog()
