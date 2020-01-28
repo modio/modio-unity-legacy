@@ -84,6 +84,13 @@ namespace ModIO.UI
         /// <summary>Reset selection on hide.</summary>
         bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
+        // ---------[ UI Functionality ]---------
+        /// <summary>Passes a hide request to the ViewManager.</summary>
+        public void Hide()
+        {
+            ViewManager.instance.HideViewAndFocusMain(this);
+        }
+
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use InspectorView.highlightedImage instead.")][HideInInspector]
         public ImageDisplay selectedMediaPreview;
