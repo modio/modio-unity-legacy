@@ -40,11 +40,20 @@ namespace ModIO.UI
         private LoginDialog m_loginDialog = null;
         private bool m_viewsFound = false;
 
+        /// <summary>The currently focused view.</summary>
+        private IBrowserView m_focusedView = null;
+
         /// <summary>Event callback for when a view is hidden.</summary>
         public ViewChangeEvent onBeforeHideView = new ViewChangeEvent();
 
         /// <summary>Event callback for when a view is shown.</summary>
         public ViewChangeEvent onBeforeShowView = new ViewChangeEvent();
+
+        /// <summary>Event callback for when a view is defocused.</summary>
+        public ViewChangeEvent onBeforeDefocusView = new ViewChangeEvent();
+
+        /// <summary>Event callback for when a view is focused.</summary>
+        public ViewChangeEvent onAfterFocusView = new ViewChangeEvent();
 
         // --- Accessors ---
         /// <summary>Explorer View in the UI.</summary>
@@ -92,6 +101,55 @@ namespace ModIO.UI
         private void Start()
         {
             this.FindViews();
+
+            this.m_focusedView = null;
+
+            IBrowserView initFocus = null;
+
+            if(this.explorerView != null
+               && this.explorerView.isActiveAndEnabled)
+            {
+                initFocus = this.explorerView;
+            }
+
+            if(this.subscriptionsView != null
+               && this.subscriptionsView.isActiveAndEnabled)
+            {
+                if(initFocus == this.explorerView as IBrowserView)
+                {
+                    this.explorerView.gameObject.SetActive(false);
+                }
+
+                initFocus = this.subscriptionsView;
+            }
+
+            if(this.inspectorView != null
+               && this.inspectorView.isActiveAndEnabled)
+            {
+                initFocus = this.inspectorView;
+            }
+
+            if(this.loginDialog != null
+               && this.loginDialog.isActiveAndEnabled)
+            {
+                if(initFocus == this.inspectorView as IBrowserView)
+                {
+                    initFocus.gameObject.SetActive(false);
+                }
+
+                initFocus = this.loginDialog;
+            }
+
+            this.StartCoroutine(DelayedViewFocusOnStart(initFocus));
+        }
+
+        /// <summary>Sends events at the end of the frame.</summary>
+        private System.Collections.IEnumerator DelayedViewFocusOnStart(IBrowserView view)
+        {
+            yield return null;
+
+            this.m_focusedView = view;
+            this.onAfterFocusView.Invoke(view);
         }
 
         private void FindViews()
@@ -118,7 +176,7 @@ namespace ModIO.UI
             if(this.m_inspectorView == null) { return; }
 
             this.m_inspectorView.modId = modId;
-            this.ShowView(this.m_inspectorView);
+            this.ShowAndFocusView(this.m_inspectorView);
         }
 
         public void ActivateExplorerView()
@@ -131,7 +189,7 @@ namespace ModIO.UI
             #endif
 
             this.HideView(this.m_subscriptionsView);
-            this.ShowView(this.m_explorerView);
+            this.ShowAndFocusView(this.m_explorerView);
         }
 
         public void ActivateSubscriptionsView()
@@ -145,7 +203,7 @@ namespace ModIO.UI
 
 
             this.HideView(this.m_explorerView);
-            this.ShowView(this.m_subscriptionsView);
+            this.ShowAndFocusView(this.m_subscriptionsView);
         }
 
         public void ShowLoginDialog()
@@ -159,7 +217,7 @@ namespace ModIO.UI
             else
 
             this.HideView(this.m_inspectorView);
-            this.ShowView(this.m_loginDialog);
+            this.ShowAndFocusView(this.m_loginDialog);
         }
 
         /// <summary>Hides a given view.</summary>
@@ -168,18 +226,21 @@ namespace ModIO.UI
             if(view == null) { return; }
 
             this.onBeforeHideView.Invoke(view);
-
             view.gameObject.SetActive(false);
         }
 
-        /// <summary>Shows a given view.</summary>
-        public void ShowView(IBrowserView view)
+        /// <summary>Shows a given view and sets it as the focus.</summary>
+        public void ShowAndFocusView(IBrowserView view)
         {
             if(view == null) { return; }
 
-            this.onBeforeShowView.Invoke(view);
+            this.onBeforeDefocusView.Invoke(this.m_focusedView);
 
+            this.onBeforeShowView.Invoke(view);
             view.gameObject.SetActive(true);
+
+            this.m_focusedView = view;
+            this.onAfterFocusView.Invoke(view);
         }
     }
 }
