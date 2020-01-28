@@ -13,7 +13,7 @@ namespace ModIO.UI
         FromRight,
     }
 
-    public class ExplorerView : MonoBehaviour
+    public class ExplorerView : MonoBehaviour, IBrowserView
     {
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
@@ -33,6 +33,9 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("UI Components")]
+        /// <summary>Initial selection item.</summary>
+        public GameObject primarySelection = null;
+
         /// <summary>Container used to display mods.</summary>
         public ModContainer pageTemplate = null;
 
@@ -183,6 +186,17 @@ namespace ModIO.UI
 
         /// <summary>Accessor for the ModProfileRequestManager instance.</summary>
         private ModProfileRequestManager profileManager { get { return ModProfileRequestManager.instance; } }
+
+        // --- IBrowserView Implementation ---
+        /// <summary>Canvas Group.</summary>
+        public CanvasGroup canvasGroup
+        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+
+        /// <summary>Initial selection item.</summary>
+        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
+
+        /// <summary>Reset selection on hide.</summary>
+        bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initializes private members.</summary>
