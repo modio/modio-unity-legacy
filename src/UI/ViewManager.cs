@@ -1,10 +1,15 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace ModIO.UI
 {
     /// <summary>Component responsible for management of the various views.</summary>
     public class ViewManager : MonoBehaviour
     {
+        // ---------[ Nested Data-Types ]---------
+        /// <summary>Event for views changing.</summary>
+        public class ViewChangeEvent : UnityEvent<IBrowserView> {}
+
         // ---------[ SINGLETON ]---------
         private static ViewManager _instance = null;
         public static ViewManager instance
@@ -34,6 +39,12 @@ namespace ModIO.UI
         private InspectorView m_inspectorView = null;
         private LoginDialog m_loginDialog = null;
         private bool m_viewsFound = false;
+
+        /// <summary>Event callback for when a view is hidden.</summary>
+        public ViewChangeEvent onBeforeHideView = new ViewChangeEvent();
+
+        /// <summary>Event callback for when a view is shown.</summary>
+        public ViewChangeEvent onBeforeShowView = new ViewChangeEvent();
 
         // --- Accessors ---
         /// <summary>Explorer View in the UI.</summary>
@@ -92,15 +103,17 @@ namespace ModIO.UI
         // ---------[ VIEW MANAGEMENT ]---------
         public void InspectMod(int modId)
         {
-            if(this.m_inspectorView == null)
-            {
-                Debug.Log("[mod.io] Inspector View not found.");
-            }
-            else
-            {
-                this.m_inspectorView.modId = modId;
-                this.m_inspectorView.gameObject.SetActive(true);
-            }
+            #if DEBUG
+                if(this.m_inspectorView == null)
+                {
+                    Debug.Log("[mod.io] Inspector View not found.");
+                }
+            #endif
+
+            if(this.m_inspectorView == null) { return; }
+
+            this.m_inspectorView.modId = modId;
+            this.ShowView(this.m_inspectorView);
         }
 
         public void ActivateExplorerView()
@@ -152,6 +165,26 @@ namespace ModIO.UI
 
                 this.m_loginDialog.gameObject.SetActive(true);
             }
+        }
+
+        /// <summary>Hides a given view.</summary>
+        public void HideView(IBrowserView view)
+        {
+            if(view == null) { return; }
+
+            this.onBeforeHideView.Invoke(view);
+
+            view.gameObject.SetActive(false);
+        }
+
+        /// <summary>Shows a given view.</summary>
+        public void ShowView(IBrowserView view)
+        {
+            if(view == null) { return; }
+
+            this.onBeforeShowView.Invoke(view);
+
+            view.gameObject.SetActive(true);
         }
     }
 }
