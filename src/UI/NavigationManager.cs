@@ -52,8 +52,22 @@ namespace ModIO.UI
         /// <summary>Links with View Manager.</summary>
         private void Start()
         {
-            ViewManager.instance.onBeforeHideView.AddListener((v) => Debug.Log("Hiding " + v.gameObject.name, v.gameObject));
-            ViewManager.instance.onBeforeShowView.AddListener((v) => Debug.Log("Showing " + v.gameObject.name, v.gameObject));
+            ViewManager.instance.onBeforeDefocusView.AddListener(this.OnDefocusView);
+            ViewManager.instance.onAfterFocusView.AddListener(this.OnFocusView);
+        }
+
+        // ---------[ Event Handlers ]---------
+        /// <summary>Stores the selection and makes the view uninteractable.</summary>
+        public void OnDefocusView(IBrowserView view)
+        {
+            view.canvasGroup.interactable = false;
+        }
+
+        /// <summary>Set the selection for a change in focus.</summary>
+        public void OnFocusView(IBrowserView view)
+        {
+            view.canvasGroup.interactable = true;
+            EventSystem.current.SetSelectedGameObject(view.primarySelection);
         }
     }
 }
