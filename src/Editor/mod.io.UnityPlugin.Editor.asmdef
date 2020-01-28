@@ -1,0 +1,10 @@
+{
+    "name": "mod.io.UnityPlugin.Editor",
+    "references": [
+        "mod.io.UnityPlugin"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}
