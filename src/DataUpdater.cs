@@ -24,8 +24,12 @@ namespace ModIO
         [System.Serializable]
         private struct GenericJSONObject
         {
+            #pragma warning disable 0649
+
             [JsonExtensionData]
             public IDictionary<string, JToken> data;
+
+            #pragma warning restore 0649
         }
 
         // ---------[ 2019 ]---------
