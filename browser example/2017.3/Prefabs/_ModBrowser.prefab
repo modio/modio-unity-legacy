@@ -2116,6 +2116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224136599808759094}
   - component: {fileID: 114569032160011946}
+  - component: {fileID: 114612175170514586}
   m_Layer: 5
   m_Name: Scrollbar Vertical
   m_TagString: Untagged
@@ -16189,9 +16190,9 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.29803923, g: 0.44313726, b: 0.8509804, a: 1}
+    m_PressedColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -17231,6 +17232,19 @@ MonoBehaviour:
   m_Text: 'Popularity:
 
 '
+--- !u!114 &114612175170514586
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1299750378966306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e2fe69da5214ca7af052240f436245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  innerElements: []
+  scheme: {fileID: 11400000, guid: 551f759c169e240b8a003a052db7c434, type: 2}
 --- !u!114 &114614078509162196
 MonoBehaviour:
   m_ObjectHideFlags: 1
