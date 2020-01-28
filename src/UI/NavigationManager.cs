@@ -29,6 +29,10 @@ namespace ModIO.UI
             }
         }
 
+        // ---------[ Fields ]---------
+        /// <summary>The menu bar that is always shown.</summary>
+        public CanvasGroup menuBar = null;
+
         // ---------[ Initialization ]---------
         /// <summary>Sets singleton instance.</summary>
         private void Awake()
@@ -68,6 +72,8 @@ namespace ModIO.UI
         {
             view.canvasGroup.interactable = true;
             EventSystem.current.SetSelectedGameObject(view.primarySelection);
+
+            this.menuBar.interactable = (view is ExplorerView || view is SubscriptionsView);
         }
     }
 }
