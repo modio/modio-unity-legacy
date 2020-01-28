@@ -3498,6 +3498,7 @@ GameObject:
   - component: {fileID: 114096586656559952}
   - component: {fileID: 114596191255328722}
   - component: {fileID: 114340573229307950}
+  - component: {fileID: 114090835340757240}
   m_Layer: 5
   m_Name: Tag Template
   m_TagString: Untagged
@@ -6439,6 +6440,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
+--- !u!114 &114090835340757240
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1633470455318246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb443cb33bec847fcbd4439e3d215ee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1286236198299260}
+  onMove: 0
+  onPointerDown: 0
+  onPointerUp: 0
+  onPointerEnter: 0
+  onPointerExit: 0
+  onPointerClick: 0
+  onSubmit: 0
+  onCancel: 1
 --- !u!114 &114096586656559952
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10429,6 +10450,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d3990fdda0f6430fb2fb1041efeeb99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  popup: {fileID: 1835460431533158}
 --- !u!114 &114354122898954028
 MonoBehaviour:
   m_ObjectHideFlags: 1

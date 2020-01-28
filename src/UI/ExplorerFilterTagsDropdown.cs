@@ -1,14 +1,19 @@
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ModIO.UI
 {
     /// <summary>Displays and allows selection of the tags being filtered on in the ExplorerView.</summary>
+    [RequireComponent(typeof(Button))]
     [RequireComponent(typeof(GameTagCategoryDisplay))]
-    public class ExplorerFilterTagsDropdown : MonoBehaviour, IExplorerViewElement
+    public class ExplorerFilterTagsDropdown : MonoBehaviour, IExplorerViewElement, UnityEngine.EventSystems.ICancelHandler
     {
         // ---------[ FIELDS ]---------
+        /// <summary>Popup view element</summary>
+        public GameObject popup = null;
+
         // --- Run-Time Data ---
         /// <summary>ExplorerView to set the tagFilter on.</summary>
         private ExplorerView m_view = null;
@@ -210,6 +215,16 @@ namespace ModIO.UI
             }
 
             return isValid;
+        }
+
+        /// <summary>Closes the popup element.</summary>
+        public void OnCancel(UnityEngine.EventSystems.BaseEventData eventData)
+        {
+            if(popup != null && popup.activeInHierarchy)
+            {
+                popup.SetActive(false);
+                this.gameObject.GetComponent<Selectable>().Select();
+            }
         }
     }
 }
