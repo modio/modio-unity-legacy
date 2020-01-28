@@ -11353,6 +11353,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d58100d13f6904c10aba706fdab48f03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  primarySelection: {fileID: 0}
   modContainer: {fileID: 114162723348600364}
   noSubscriptionsDisplay: {fileID: 1996345605320860}
   noResultsDisplay: {fileID: 1817592628229666}
@@ -14677,6 +14678,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cb07255079aa4069a3b4d94327d4cda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  primarySelection: {fileID: 0}
   pageTemplate: {fileID: 114458701118459994}
   prevPageButton: {fileID: 114740552099389838}
   nextPageButton: {fileID: 114453430868874650}
@@ -16900,6 +16902,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba8bd60ae11cf41c49f701402058f564, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  primarySelection: {fileID: 0}
   invalidSubmissionMessage: Input needs to be either a valid email address or the
     5-Digit authentication code.
   emailRefusedMessage: 'The email address was rejected by the mod.io server.
@@ -19013,6 +19016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06e07e876f4384c249d64c2f61ca6048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  primarySelection: {fileID: 0}
   selectedMediaPreview: {fileID: 0}
   loadingDisplay: {fileID: 0}
   versionHistoryItemPrefab: {fileID: 0}
@@ -22876,9 +22880,9 @@ MonoBehaviour:
   clickedOff:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1363299595747704}
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 114743124172958564}
+        m_MethodName: Hide
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
