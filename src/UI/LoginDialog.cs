@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class LoginDialog : MonoBehaviour
+    public class LoginDialog : MonoBehaviour, IBrowserView
     {
         // ---------[ FIELDS ]---------
         [Serializable]
@@ -16,6 +16,9 @@ namespace ModIO.UI
         }
 
         [Header("Settings")]
+        /// <summary>Initial selection item.</summary>
+        public GameObject primarySelection = null;
+
         [Tooltip("Invalid Submission Message")]
         public string invalidSubmissionMessage = "Input needs to be either a valid email address or the 5-Digit authentication code.";
         [Tooltip("Email Refused Message")]
@@ -27,6 +30,16 @@ namespace ModIO.UI
         public InputStateDisplays displayForInputState;
         public InputField inputField;
 
+        // --- IBrowserView Implementation ---
+        /// <summary>Canvas Group.</summary>
+        public CanvasGroup canvasGroup
+        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+
+        /// <summary>Initial selection item.</summary>
+        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
+
+        /// <summary>Reset selection on hide.</summary>
+        bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
         // --------[ INITIALIZATION ]---------
         private void OnEnable()

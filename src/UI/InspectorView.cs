@@ -9,9 +9,12 @@ namespace ModIO.UI
 {
     /// <summary>ViewController for displaying a single mod using a mod id.</summary>
     [RequireComponent(typeof(ModView))]
-    public class InspectorView : MonoBehaviour
+    public class InspectorView : MonoBehaviour, IBrowserView
     {
         // ---------[ FIELDS ]---------
+        /// <summary>Initial selection item.</summary>
+        public GameObject primarySelection = null;
+
         /// <summary>Id of the currently displayed mod.</summary>
         private int m_modId = ModProfile.NULL_ID;
 
@@ -69,6 +72,17 @@ namespace ModIO.UI
         {
             get { return this.gameObject.GetComponent<ModView>(); }
         }
+
+        // --- IBrowserView Implementation ---
+        /// <summary>Canvas Group.</summary>
+        public CanvasGroup canvasGroup
+        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+
+        /// <summary>Initial selection item.</summary>
+        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
+
+        /// <summary>Reset selection on hide.</summary>
+        bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
         // ---------[ OBSOLETE ]---------
         [Obsolete("Use InspectorView.highlightedImage instead.")][HideInInspector]

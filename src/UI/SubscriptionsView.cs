@@ -10,7 +10,7 @@ namespace ModIO.UI
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
     // to be displayed is low enough that it does not cause memory issues. Safeguards against this
     // will be made in a future update, but is currently not a priority.
-    public class SubscriptionsView : MonoBehaviour, IModSubscriptionsUpdateReceiver
+    public class SubscriptionsView : MonoBehaviour, IModSubscriptionsUpdateReceiver, IBrowserView
     {
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
@@ -27,6 +27,9 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("UI Components")]
+        /// <summary>Initial selection item.</summary>
+        public GameObject primarySelection = null;
+
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
 
@@ -79,6 +82,17 @@ namespace ModIO.UI
         {
             get { return this.m_sortDelegate; }
         }
+
+        // --- IBrowserView Implementation ---
+        /// <summary>Canvas Group.</summary>
+        public CanvasGroup canvasGroup
+        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+
+        /// <summary>Initial selection item.</summary>
+        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
+
+        /// <summary>Reset selection on hide.</summary>
+        bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Collects and sets view on ISubscriptionsViewElements.</summary>
