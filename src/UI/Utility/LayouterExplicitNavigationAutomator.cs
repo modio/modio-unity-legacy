@@ -95,8 +95,8 @@ namespace ModIO.UI
             }
 
             UIUtilities.SetExplicitGridNavigation(selectables, columnCount,
-                                                  this.wrapVertically,
-                                                  this.wrapHorizontally);
+                                                  this.wrapHorizontally,
+                                                  this.wrapVertically);
         }
     }
 }
