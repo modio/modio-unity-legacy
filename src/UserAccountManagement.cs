@@ -582,6 +582,28 @@ namespace ModIO
             onError);
         }
 
+        /// <summary>Attempts to authenticate a user using Xbox Live credentials.</summary>
+        public static void AuthenticateWithXboxLiveToken(string xboxLiveUserToken,
+                                                         Action<UserProfile> onSuccess,
+                                                         Action<WebRequestError> onError)
+        {
+            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            {
+                ticket = xboxLiveUserToken,
+                provider = ExternalAuthenticationProvider.XboxLive,
+            };
+
+            APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, (t) =>
+            {
+                UserAccountManagement.activeUser.oAuthToken = t;
+                UserAccountManagement.activeUser.wasTokenRejected = false;
+                UserAccountManagement.SaveActiveUser();
+
+                UserAccountManagement.UpdateUserProfile(onSuccess, onError);
+            },
+            onError);
+        }
+
         /// <summary>Attempts to reauthenticate using the stored external auth ticket.</summary>
         public static void ReauthenticateWithStoredExternalAuthData(Action<UserProfile> onSuccess,
                                                                     Action<WebRequestError> onError)
@@ -698,6 +720,13 @@ namespace ModIO
                     }
                 }
                 break;
+
+                case ExternalAuthenticationProvider.XboxLive:
+                {
+                    APIClient.RequestXboxLiveAuthentication(authData.ticket,
+                                                            onSuccessWrapper,
+                                                            onError);
+                }
 
                 default:
                 {
