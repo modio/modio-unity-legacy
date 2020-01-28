@@ -61,6 +61,21 @@ namespace ModIO.UI
             ViewManager.instance.onAfterFocusView.AddListener(this.OnFocusView);
         }
 
+        // ---------[ Update ]---------
+        /// <summary>Catches and resets the selection if currently unavailable.</summary>
+        private void Update()
+        {
+            if((Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
+                && EventSystem.current.currentSelectedGameObject == null)
+            {
+                IBrowserView view = ViewManager.instance.currentFocus;
+                if(view != null)
+                {
+                    EventSystem.current.SetSelectedGameObject(view.primarySelection);
+                }
+            }
+        }
+
         // ---------[ Event Handlers ]---------
         /// <summary>Stores the selection and makes the view uninteractable.</summary>
         public void OnDefocusView(IBrowserView view)

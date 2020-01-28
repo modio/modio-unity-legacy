@@ -80,6 +80,9 @@ namespace ModIO.UI
             get { return this.m_loginDialog; }
         }
 
+        /// <summary>Currently focused view.</summary>
+        public IBrowserView currentFocus { get { return this.m_focusedView; } }
+
         // ---------[ INITIALIZATION ]---------
         /// <summary>Sets singleton instance.</summary>
         private void Awake()
