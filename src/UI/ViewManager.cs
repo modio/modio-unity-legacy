@@ -69,7 +69,8 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        private void Start()
+        /// <summary>Sets singleton instance.</summary>
+        private void Awake()
         {
             if(ViewManager._instance == null)
             {
@@ -85,7 +86,11 @@ namespace ModIO.UI
                 this.enabled = false;
             }
             #endif
+        }
 
+        /// <summary>Gathers the views in the scene.</summary>
+        private void Start()
+        {
             this.FindViews();
         }
 
