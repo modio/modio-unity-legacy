@@ -6,7 +6,6 @@ using UnityEngine.UI;
 namespace ModIO.UI
 {
     /// <summary>Allows a Toggle component to present as a slide.</summary>
-    [RequireComponent(typeof(StateToggle))]
     public class SlidingToggle : Toggle
     {
         public enum SlideAxis
