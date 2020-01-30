@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -45,6 +47,9 @@ namespace ModIO.UI
 
         /// <summary>The currently focused view.</summary>
         private IBrowserView m_focusedView = null;
+
+        /// <summary>View stack for all the currently open views.</summary>
+        private List<IBrowserView> m_viewStack = new List<IBrowserView>();
 
         /// <summary>Event callback for when a view is hidden.</summary>
         public ViewChangeEvent onBeforeHideView = new ViewChangeEvent();
@@ -110,40 +115,47 @@ namespace ModIO.UI
 
             this.m_focusedView = null;
 
-            IBrowserView initFocus = null;
+            List<IBrowserView> initViewStack = new List<IBrowserView>();
 
             if(this.explorerView != null
                && this.explorerView.isActiveAndEnabled)
             {
+                initViewStack.Add(this.explorerView);
+
                 this.m_currentMainView = this.explorerView;
-                initFocus = this.explorerView;
             }
 
             if(this.subscriptionsView != null
                && this.subscriptionsView.isActiveAndEnabled)
             {
-                if(initFocus == this.explorerView as IBrowserView)
+                if(initViewStack.Count == 1)
                 {
+                    initViewStack[0] = this.subscriptionsView;
                     this.explorerView.gameObject.SetActive(false);
+                }
+                else
+                {
+                    initViewStack.Add(this.subscriptionsView);
                 }
 
                 this.m_currentMainView = this.subscriptionsView;
-                initFocus = this.subscriptionsView;
             }
 
-            if(this.m_currentMainView == null)
+            if(initViewStack.Count == 0)
             {
                 if(this.explorerView != null)
                 {
+                    initViewStack.Add(this.explorerView);
+
                     this.m_currentMainView = this.explorerView;
-                    initFocus = this.explorerView;
 
                     this.explorerView.gameObject.SetActive(true);
                 }
                 else if(this.subscriptionsView != null)
                 {
+                    initViewStack.Add(this.subscriptionsView);
+
                     this.subscriptionsView.gameObject.SetActive(true);
-                    initFocus = this.subscriptionsView;
 
                     this.m_currentMainView = this.subscriptionsView;
                 }
@@ -160,38 +172,35 @@ namespace ModIO.UI
             if(this.inspectorView != null
                && this.inspectorView.isActiveAndEnabled)
             {
-                initFocus = this.inspectorView;
+                initViewStack.Add(this.inspectorView);
             }
 
             if(this.loginDialog != null
                && this.loginDialog.isActiveAndEnabled)
             {
-                if(initFocus == this.inspectorView as IBrowserView)
-                {
-                    initFocus.gameObject.SetActive(false);
-                }
-
-                initFocus = this.loginDialog;
+                initViewStack.Add(this.loginDialog);
             }
 
-            this.StartCoroutine(DelayedViewFocusOnStart(initFocus));
+            this.StartCoroutine(DelayedViewFocusOnStart(initViewStack));
         }
 
         /// <summary>Sends events at the end of the frame.</summary>
-        private System.Collections.IEnumerator DelayedViewFocusOnStart(IBrowserView view)
+        private System.Collections.IEnumerator DelayedViewFocusOnStart(List<IBrowserView> viewStack)
         {
             yield return null;
 
-            if(this != null && view != null)
+            if(this != null && viewStack != null && viewStack.Count > 0)
             {
-                this.m_focusedView = view;
+                this.m_viewStack = viewStack;
 
-                if(this.m_currentMainView != this.m_focusedView)
+                for(int i = 0; i < viewStack.Count-1; ++i)
                 {
-                    this.onBeforeDefocusView.Invoke(this.m_currentMainView);
+                    this.onBeforeDefocusView.Invoke(viewStack[i]);
                 }
 
-                this.onAfterFocusView.Invoke(view);
+                this.m_currentMainView = viewStack[0];
+                this.m_focusedView = viewStack[viewStack.Count-1];
+                this.onAfterFocusView.Invoke(viewStack[viewStack.Count-1]);
             }
         }
 
