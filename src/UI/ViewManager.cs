@@ -342,6 +342,33 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Clears the view stack and sets the view as the only view on the stack.</summary>
+        private void FocusRootView(IBrowserView view)
+        {
+            if(view == null || view == this.currentFocus) { return; }
+
+            while(this.currentFocus != view
+                  && this.m_viewStack.Count > 0)
+            {
+                this.onBeforeDefocusView.Invoke(this.currentFocus);
+
+                this.onBeforeHideView.Invoke(this.currentFocus);
+                this.currentFocus.gameObject.SetActive(false);
+
+                this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
+            }
+
+            if(this.currentFocus != view)
+            {
+                this.onBeforeShowView.Invoke(view);
+                view.gameObject.SetActive(true);
+
+                this.m_viewStack.Add(view);
+            }
+
+            this.onAfterFocusView.Invoke(view);
+        }
+
         /// <summary>Either adds the view to the stack, or removes any views above it on the stack.</summary>
         private void FocusStackedView(IBrowserView view)
         {
