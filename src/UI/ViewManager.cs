@@ -235,10 +235,7 @@ namespace ModIO.UI
 
             this.m_inspectorView.modId = modId;
 
-            if(this.m_focusedView == (IBrowserView)this.m_inspectorView) { return; }
-
-            this.HideAndDefocusView(this.m_loginDialog);
-            this.ShowAndFocusView(this.m_inspectorView);
+            this.FocusStackedView(this.m_inspectorView);
         }
 
         public void ActivateExplorerView()
@@ -284,14 +281,7 @@ namespace ModIO.UI
                 }
             #endif
 
-            if(this.m_loginDialog == null
-               || this.m_focusedView == (IBrowserView)this.m_loginDialog)
-            {
-                return;
-            }
-
-            this.HideAndDefocusView(this.m_inspectorView);
-            this.ShowAndFocusView(this.m_loginDialog);
+            this.FocusStackedView(this.m_loginDialog);
         }
 
         /// <summary>Hides a given view and refocusses the current main view.</summary>
@@ -358,7 +348,7 @@ namespace ModIO.UI
             Debug.Assert(this.m_viewStack.Count > 0,
                          "[mod.io] Can only focus a stacked view if there is an existing view on the stack.");
 
-            if(view == this.currentFocus) { return; }
+            if(view == null || view == this.currentFocus) { return; }
 
             if(this.m_viewStack.Contains(view))
             {
