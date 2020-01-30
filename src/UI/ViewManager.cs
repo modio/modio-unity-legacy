@@ -343,34 +343,28 @@ namespace ModIO.UI
         }
 
         /// <summary>Clears the view stack and sets the view as the only view on the stack.</summary>
-        private void FocusRootView(IBrowserView view)
+        public void FocusRootView(IBrowserView view)
         {
             if(view == null || view == this.currentFocus) { return; }
 
             while(this.currentFocus != view
                   && this.m_viewStack.Count > 0)
             {
-                this.onBeforeDefocusView.Invoke(this.currentFocus);
-
-                this.onBeforeHideView.Invoke(this.currentFocus);
-                this.currentFocus.gameObject.SetActive(false);
-
-                this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
+                this.PopView();
             }
 
             if(this.currentFocus != view)
             {
-                this.onBeforeShowView.Invoke(view);
-                view.gameObject.SetActive(true);
-
-                this.m_viewStack.Add(view);
+                this.PushView(view);
             }
-
-            this.onAfterFocusView.Invoke(view);
+            else
+            {
+                this.onAfterFocusView.Invoke(view);
+            }
         }
 
         /// <summary>Either adds the view to the stack, or removes any views above it on the stack.</summary>
-        private void FocusStackedView(IBrowserView view)
+        public void FocusStackedView(IBrowserView view)
         {
             Debug.Assert(this.m_viewStack.Count > 0,
                          "[mod.io] Can only focus a stacked view if there is an existing view on the stack.");
@@ -381,12 +375,7 @@ namespace ModIO.UI
             {
                 while(this.currentFocus != view)
                 {
-                    this.onBeforeDefocusView.Invoke(this.currentFocus);
-
-                    this.onBeforeHideView.Invoke(this.currentFocus);
-                    this.currentFocus.gameObject.SetActive(false);
-
-                    this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
+                    this.PopView();
                 }
 
                 this.onAfterFocusView.Invoke(view);
@@ -395,12 +384,33 @@ namespace ModIO.UI
             {
                 this.onBeforeDefocusView.Invoke(this.currentFocus);
 
-                this.onBeforeShowView.Invoke(view);
-                view.gameObject.SetActive(true);
-
-                this.m_viewStack.Add(view);
-                this.onAfterFocusView.Invoke(view);
+                PushView(view);
             }
+        }
+
+        /// <summary>Pushes a view to the stack and fires the necessary events.</summary>
+        private void PushView(IBrowserView view)
+        {
+            Debug.Assert(!this.m_viewStack.Contains(view));
+
+            this.onBeforeShowView.Invoke(view);
+
+            view.gameObject.SetActive(true);
+            this.m_viewStack.Add(view);
+
+            this.onAfterFocusView.Invoke(view);
+        }
+
+        /// <summary>Pops a view from the stack and fires the necessary events.</summary>
+        private void PopView()
+        {
+            Debug.Assert(this.m_viewStack.Count > 0);
+
+            this.onBeforeDefocusView.Invoke(this.currentFocus);
+            this.onBeforeHideView.Invoke(this.currentFocus);
+
+            this.currentFocus.gameObject.SetActive(false);
+            this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
         }
     }
 }
