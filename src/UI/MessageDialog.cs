@@ -15,6 +15,9 @@ namespace ModIO.UI
         public GameObject primarySelection = null;
 
         /// <summary>Text field for displaying the message text.</summary>
+        public GenericTextComponent headerText = new GenericTextComponent();
+
+        /// <summary>Text field for displaying the message text.</summary>
         public GenericTextComponent messageText = new GenericTextComponent();
 
         /// <summary>Highlighted button.</summary>
