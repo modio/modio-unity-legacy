@@ -85,10 +85,10 @@ namespace ModIO.UI
         bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
         // ---------[ UI Functionality ]---------
-        /// <summary>Passes a hide request to the ViewManager.</summary>
-        public void Hide()
+        /// <summary>Closes this view.</summary>
+        public void Close()
         {
-            ViewManager.instance.HideViewAndFocusMain(this);
+            ViewManager.instance.CloseStackedView(this);
         }
 
         // ---------[ OBSOLETE ]---------

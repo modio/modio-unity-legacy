@@ -42,12 +42,6 @@ namespace ModIO.UI
         private LoginDialog m_loginDialog = null;
         private bool m_viewsFound = false;
 
-        /// <summary>Main view currently open.</summary>
-        private IBrowserView m_currentMainView = null;
-
-        /// <summary>The currently focused view.</summary>
-        private IBrowserView m_focusedView = null;
-
         /// <summary>View stack for all the currently open views.</summary>
         private List<IBrowserView> m_viewStack = new List<IBrowserView>();
 
@@ -116,16 +110,12 @@ namespace ModIO.UI
         {
             this.FindViews();
 
-            this.m_focusedView = null;
-
             List<IBrowserView> initViewStack = new List<IBrowserView>();
 
             if(this.explorerView != null
                && this.explorerView.isActiveAndEnabled)
             {
                 initViewStack.Add(this.explorerView);
-
-                this.m_currentMainView = this.explorerView;
             }
 
             if(this.subscriptionsView != null
@@ -140,8 +130,6 @@ namespace ModIO.UI
                 {
                     initViewStack.Add(this.subscriptionsView);
                 }
-
-                this.m_currentMainView = this.subscriptionsView;
             }
 
             if(initViewStack.Count == 0)
@@ -150,8 +138,6 @@ namespace ModIO.UI
                 {
                     initViewStack.Add(this.explorerView);
 
-                    this.m_currentMainView = this.explorerView;
-
                     this.explorerView.gameObject.SetActive(true);
                 }
                 else if(this.subscriptionsView != null)
@@ -159,8 +145,6 @@ namespace ModIO.UI
                     initViewStack.Add(this.subscriptionsView);
 
                     this.subscriptionsView.gameObject.SetActive(true);
-
-                    this.m_currentMainView = this.subscriptionsView;
                 }
                 #if DEBUG
                     else
@@ -201,8 +185,6 @@ namespace ModIO.UI
                     this.onBeforeDefocusView.Invoke(viewStack[i]);
                 }
 
-                this.m_currentMainView = viewStack[0];
-                this.m_focusedView = viewStack[viewStack.Count-1];
                 this.onAfterFocusView.Invoke(viewStack[viewStack.Count-1]);
             }
         }
@@ -249,10 +231,7 @@ namespace ModIO.UI
 
             if(this.m_explorerView == null) { return; }
 
-            this.HideAndDefocusView(this.m_subscriptionsView);
-            this.ShowAndFocusView(this.m_explorerView);
-
-            this.m_currentMainView = this.m_explorerView;
+            this.FocusRootView(this.m_explorerView);
         }
 
         public void ActivateSubscriptionsView()
@@ -266,10 +245,7 @@ namespace ModIO.UI
 
             if(this.m_subscriptionsView == null) { return; }
 
-            this.HideAndDefocusView(this.m_explorerView);
-            this.ShowAndFocusView(this.m_subscriptionsView);
-
-            this.m_currentMainView = this.m_subscriptionsView;
+            this.FocusRootView(this.m_subscriptionsView);
         }
 
         public void ShowLoginDialog()
@@ -282,64 +258,6 @@ namespace ModIO.UI
             #endif
 
             this.FocusStackedView(this.m_loginDialog);
-        }
-
-        /// <summary>Hides a given view and refocusses the current main view.</summary>
-        public void HideViewAndFocusMain(IBrowserView view)
-        {
-            if(view == null || view == this.m_currentMainView) { return; }
-
-            if(this.m_currentMainView == null)
-            {
-                Debug.LogError("[mod.io] Cannot focus main view as it is currently unassigned.",
-                               this);
-
-                return;
-            }
-
-            this.HideAndDefocusView(view);
-
-            // Focus main view
-            this.m_focusedView = this.m_currentMainView;
-            this.onAfterFocusView.Invoke(this.m_currentMainView);
-        }
-
-        /// <summary>Shows a given view and sets it as the focus.</summary>
-        public void ShowAndFocusView(IBrowserView view)
-        {
-            if(view == null || view == this.m_focusedView) { return; }
-
-            if(this.m_focusedView != null)
-            {
-                this.onBeforeDefocusView.Invoke(this.m_focusedView);
-            }
-
-            if(!view.gameObject.activeSelf)
-            {
-                this.onBeforeShowView.Invoke(view);
-                view.gameObject.SetActive(true);
-            }
-
-            this.m_focusedView = view;
-            this.onAfterFocusView.Invoke(view);
-        }
-
-        /// <summary>Executes the functionality for hiding a view.</summary>
-        private void HideAndDefocusView(IBrowserView view)
-        {
-            if(view == null) { return; }
-
-            if(this.m_focusedView == view)
-            {
-                this.onBeforeDefocusView.Invoke(view);
-                this.m_focusedView = null;
-            }
-
-            if(view.gameObject.activeSelf)
-            {
-                this.onBeforeHideView.Invoke(view);
-                view.gameObject.SetActive(false);
-            }
         }
 
         /// <summary>Clears the view stack and sets the view as the only view on the stack.</summary>
