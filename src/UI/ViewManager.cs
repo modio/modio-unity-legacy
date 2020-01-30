@@ -388,9 +388,27 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Closes and hides a view.</summary>
+        public void CloseStackedView(IBrowserView view)
+        {
+            if(view == null) { return; }
+
+            int viewIndex = this.m_viewStack.IndexOf(view);
+
+            if(viewIndex >= 0)
+            {
+                this.onBeforeDefocusView.Invoke(view);
+                this.onBeforeHideView.Invoke(view);
+
+                view.gameObject.SetActive(false);
+                this.m_viewStack.RemoveAt(viewIndex);
+            }
+        }
+
         /// <summary>Pushes a view to the stack and fires the necessary events.</summary>
         private void PushView(IBrowserView view)
         {
+            Debug.Assert(view != null);
             Debug.Assert(!this.m_viewStack.Contains(view));
 
             this.onBeforeShowView.Invoke(view);
