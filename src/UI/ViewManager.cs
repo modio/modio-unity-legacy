@@ -86,7 +86,10 @@ namespace ModIO.UI
         }
 
         /// <summary>Currently focused view.</summary>
-        public IBrowserView currentFocus { get { return this.m_focusedView; } }
+        public IBrowserView currentFocus
+        {
+            get { return this.m_viewStack[this.m_viewStack.Count-1]; }
+        }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Sets singleton instance.</summary>
@@ -346,6 +349,40 @@ namespace ModIO.UI
             {
                 this.onBeforeHideView.Invoke(view);
                 view.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>Either adds the view to the stack, or removes any views above it on the stack.</summary>
+        private void FocusStackedView(IBrowserView view)
+        {
+            Debug.Assert(this.m_viewStack.Count > 0,
+                         "[mod.io] Can only focus a stacked view if there is an existing view on the stack.");
+
+            if(view == this.currentFocus) { return; }
+
+            if(this.m_viewStack.Contains(view))
+            {
+                while(this.currentFocus != view)
+                {
+                    this.onBeforeDefocusView.Invoke(this.currentFocus);
+
+                    this.onBeforeHideView.Invoke(this.currentFocus);
+                    this.currentFocus.gameObject.SetActive(false);
+
+                    this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
+                }
+
+                this.onAfterFocusView.Invoke(view);
+            }
+            else
+            {
+                this.onBeforeDefocusView.Invoke(this.currentFocus);
+
+                this.onBeforeShowView.Invoke(view);
+                view.gameObject.SetActive(true);
+
+                this.m_viewStack.Add(view);
+                this.onAfterFocusView.Invoke(view);
             }
         }
     }
