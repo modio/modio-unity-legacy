@@ -260,8 +260,6 @@ namespace ModIO.UI
         {
             if(!this.isCachingPermitted || modProfiles == null) { return; }
 
-            Debug.Log("Caching ModProfiles");
-
             // cache profiles
             foreach(ModProfile profile in modProfiles)
             {
