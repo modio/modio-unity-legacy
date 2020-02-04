@@ -40,6 +40,7 @@ namespace ModIO.UI
         private SubscriptionsView m_subscriptionsView = null;
         private InspectorView m_inspectorView = null;
         private LoginDialog m_loginDialog = null;
+        private MessageDialog m_messageDialog = null;
         private bool m_viewsFound = false;
 
         /// <summary>View stack for all the currently open views.</summary>
@@ -77,6 +78,11 @@ namespace ModIO.UI
         public LoginDialog loginDialog
         {
             get { return this.m_loginDialog; }
+        }
+        /// <summary>Message View in the UI</summary>
+        public MessageDialog messageDialog
+        {
+            get { return this.m_messageDialog; }
         }
 
         /// <summary>Currently focused view.</summary>
@@ -197,6 +203,7 @@ namespace ModIO.UI
             this.m_subscriptionsView = GetComponentInChildren<SubscriptionsView>(true);
             this.m_inspectorView = GetComponentInChildren<InspectorView>(true);
             this.m_loginDialog = GetComponentInChildren<LoginDialog>(true);
+            this.m_messageDialog = GetComponentInChildren<MessageDialog>(true);
             this.m_viewsFound = true;
         }
 
@@ -258,6 +265,54 @@ namespace ModIO.UI
             #endif
 
             this.FocusStackedView(this.m_loginDialog);
+        }
+
+        /// <summary>Shows the message dialog using the given settings.</summary>
+        public void ShowMessageDialog(string header, string message,
+                                      string highlightButton = null,
+                                      string warningButton = null,
+                                      string standardButton = null)
+        {
+            if(this.m_messageDialog == null) { return; }
+
+            Debug.Assert(this.m_messageDialog.highlightedButton != null);
+            Debug.Assert(this.m_messageDialog.warningButton != null);
+            Debug.Assert(this.m_messageDialog.standardButton != null);
+
+            this.m_messageDialog.headerText.text = header;
+            this.m_messageDialog.messageText.text = message;
+
+            if(string.IsNullOrEmpty(highlightButton))
+            {
+                this.m_messageDialog.highlightedButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                this.m_messageDialog.highlightedButton.gameObject.SetActive(true);
+                this.m_messageDialog.highlightedButtonText.text = highlightButton;
+            }
+
+            if(string.IsNullOrEmpty(warningButton))
+            {
+                this.m_messageDialog.warningButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                this.m_messageDialog.warningButton.gameObject.SetActive(true);
+                this.m_messageDialog.warningButtonText.text = warningButton;
+            }
+
+            if(string.IsNullOrEmpty(standardButton))
+            {
+                this.m_messageDialog.standardButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                this.m_messageDialog.standardButton.gameObject.SetActive(true);
+                this.m_messageDialog.standardButtonText.text = standardButton;
+            }
+
+            this.FocusStackedView(this.m_messageDialog);
         }
 
         /// <summary>Clears the view stack and sets the view as the only view on the stack.</summary>
