@@ -61,8 +61,8 @@ namespace ModIO.UI
         /// <summary>All found IBrowserView components.</summary>
         private IBrowserView[] m_views = null;
 
-        /// <summary>Parent canvas sorting order.</summary>
-        private int m_baseSortingOrder = 0;
+        /// <summary>Sorting order for the root view.</summary>
+        private int m_rootViewSortOrder = 0;
 
         // --- Accessors ---
         /// <summary>Explorer View in the UI.</summary>
@@ -161,7 +161,7 @@ namespace ModIO.UI
             #endif
 
             // set the sorting order base
-            this.m_baseSortingOrder = parentCanvas.sortingOrder;
+            this.m_rootViewSortOrder = parentCanvas.sortingOrder + 1;
 
             // add canvas components to views
             foreach(IBrowserView view in this.m_views)
@@ -176,7 +176,7 @@ namespace ModIO.UI
                 }
 
                 viewCanvas.overrideSorting = true;
-                viewCanvas.sortingOrder = parentCanvas.sortingOrder;
+                viewCanvas.sortingOrder = this.m_rootViewSortOrder;
             }
 
 
@@ -256,13 +256,15 @@ namespace ModIO.UI
                 {
                     view = viewStack[i];
 
-                    view.gameObject.GetComponent<Canvas>().sortingOrder = this.m_baseSortingOrder+i+1;
+                    view.gameObject.GetComponent<Canvas>().sortingOrder
+                        = this.m_rootViewSortOrder + i;
                     this.onBeforeDefocusView.Invoke(view);
                 }
 
                 view = viewStack[viewStack.Count-1];
 
-                view.gameObject.GetComponent<Canvas>().sortingOrder = this.m_baseSortingOrder+viewStack.Count;
+                view.gameObject.GetComponent<Canvas>().sortingOrder
+                    = this.m_rootViewSortOrder + viewStack.Count - 1;
                 this.onAfterFocusView.Invoke(view);
             }
         }
@@ -460,7 +462,7 @@ namespace ModIO.UI
                     for(int i = viewIndex; i < this.m_viewStack.Count; ++i)
                     {
                         this.m_viewStack[i].gameObject.GetComponent<Canvas>().sortingOrder
-                            = this.m_baseSortingOrder+i+1;
+                            = this.m_rootViewSortOrder + i;
                     }
                 }
             }
@@ -475,7 +477,8 @@ namespace ModIO.UI
             this.onBeforeShowView.Invoke(view);
 
             this.m_viewStack.Add(view);
-            view.gameObject.GetComponent<Canvas>().sortingOrder = this.m_baseSortingOrder + this.m_viewStack.Count;
+            view.gameObject.GetComponent<Canvas>().sortingOrder
+                = this.m_rootViewSortOrder + this.m_viewStack.Count - 1;
             view.gameObject.SetActive(true);
 
             this.onAfterFocusView.Invoke(view);
