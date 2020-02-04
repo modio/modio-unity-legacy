@@ -36,12 +36,12 @@ namespace ModIO.UI
 
             /// <summary>Text to display on the standard button.</summary>
             public string standardButtonText;
+
+            /// <summary>Callback if dialog is closed.</summary>
+            public Action onClose;
         }
 
         // ---------[ Fields ]---------
-        /// <summary>Event fired if the view is attempted to be closed through a cancel button-press.</summary>
-        public event System.Action onCancelOut = null;
-
         /// <summary>Initial selection item.</summary>
         public GameObject primarySelection = null;
 
@@ -77,6 +77,9 @@ namespace ModIO.UI
 
         /// <summary>Standard-themed button callback.</summary>
         public Action standardButtonCallback = null;
+
+        /// <summary>Closing dialog callback.</summary>
+        public Action onClose = null;
 
         // --- Accessors ---
         /// <summary>Gets the canvas group attached to this gameObject.</summary>
@@ -127,6 +130,15 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Calls the onClose callback</summary>
+        private void OnDisable()
+        {
+            if(this.onClose != null)
+            {
+                this.onClose.Invoke();
+            }
+        }
+
         // ---------[ UI Control ]---------
         /// <summary>Applies the data to the message dialog.</summary>
         public void ApplyData(Data data)
@@ -166,15 +178,14 @@ namespace ModIO.UI
                 this.standardButtonCallback = data.standardButtonCallback;
                 this.standardButton.gameObject.SetActive(data.standardButtonCallback != null);
             }
+
+            this.onClose = data.onClose;
         }
 
         /// <summary>ICancelHandler interface to pass through to the cancel button.</summary>
         public void OnCancel(BaseEventData eventData)
         {
-            if(this.onCancelOut != null)
-            {
-                this.onCancelOut.Invoke();
-            }
+            Close();
         }
 
         /// <summary>Closes the dialog window.</summary>
