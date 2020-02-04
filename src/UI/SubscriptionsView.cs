@@ -94,6 +94,9 @@ namespace ModIO.UI
         /// <summary>Reset selection on hide.</summary>
         bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
+        /// <summary>Is the view a root view or window view?</summary>
+        bool IBrowserView.isRootView { get { return true; } }
+
         // ---------[ INITIALIZATION ]---------
         /// <summary>Collects and sets view on ISubscriptionsViewElements.</summary>
         protected virtual void Start()

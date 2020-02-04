@@ -16,5 +16,8 @@ namespace ModIO.UI
 
         /// <summary>Should the selection be reset when the view is hidden?</summary>
         bool resetSelectionOnHide { get; }
+
+        /// <summary>Is the view a root view or window view?</summary>
+        bool isRootView { get; }
     }
 }

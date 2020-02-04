@@ -48,6 +48,9 @@ namespace ModIO.UI
         /// <summary>Reset selection on hide.</summary>
         bool IBrowserView.resetSelectionOnHide { get { return true; } }
 
+        /// <summary>Is the view a root view or window view?</summary>
+        bool IBrowserView.isRootView { get { return false; } }
+
         /// ---------[ UI Control ]---------
         /// <summary>ICancelHandler interface to pass through to the cancel button.</summary>
         public void OnCancel(BaseEventData eventData)
