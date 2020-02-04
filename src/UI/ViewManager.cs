@@ -456,6 +456,12 @@ namespace ModIO.UI
                     view.gameObject.SetActive(false);
 
                     this.m_viewStack.RemoveAt(viewIndex);
+
+                    for(int i = viewIndex; i < this.m_viewStack.Count; ++i)
+                    {
+                        this.m_viewStack[i].gameObject.GetComponent<Canvas>().sortingOrder
+                            = this.m_baseSortingOrder+i+1;
+                    }
                 }
             }
         }
@@ -468,8 +474,9 @@ namespace ModIO.UI
 
             this.onBeforeShowView.Invoke(view);
 
-            view.gameObject.SetActive(true);
             this.m_viewStack.Add(view);
+            view.gameObject.GetComponent<Canvas>().sortingOrder = this.m_baseSortingOrder + this.m_viewStack.Count;
+            view.gameObject.SetActive(true);
 
             this.onAfterFocusView.Invoke(view);
         }
