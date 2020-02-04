@@ -146,6 +146,7 @@ namespace ModIO.UI
             if(this.highlightedButton != null)
             {
                 this.highlightedButtonCallback = data.highlightButtonCallback;
+                this.highlightedButton.gameObject.SetActive(data.highlightButtonCallback != null);
             }
             if(this.warningButtonText.displayComponent != null)
             {
@@ -154,6 +155,7 @@ namespace ModIO.UI
             if(this.warningButton != null)
             {
                 this.warningButtonCallback = data.warningButtonCallback;
+                this.warningButton.gameObject.SetActive(data.warningButtonCallback != null);
             }
             if(this.standardButtonText.displayComponent != null)
             {
@@ -162,6 +164,7 @@ namespace ModIO.UI
             if(this.standardButton != null)
             {
                 this.standardButtonCallback = data.standardButtonCallback;
+                this.standardButton.gameObject.SetActive(data.standardButtonCallback != null);
             }
         }
 
