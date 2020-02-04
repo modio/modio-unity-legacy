@@ -15,6 +15,7 @@ namespace ModIO.UI
 
         // ---------[ Nested Data-Types ]---------
         /// <summary>Event for views changing.</summary>
+        [System.Serializable]
         public class ViewChangeEvent : UnityEvent<IBrowserView> {}
 
         // ---------[ SINGLETON ]---------
