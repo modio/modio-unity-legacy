@@ -483,8 +483,8 @@ namespace ModIO.UI
             Debug.Assert(view != null);
             Debug.Assert(view.gameObject.GetComponent<Canvas>() != null);
             Debug.Assert(!this.m_viewStack.Contains(view));
-            Debug.Assert(!(defocusCurrentView && this.currentFocus == null),
-                         "[mod.io] Cannot defocus a null view.");
+            Debug.Assert(!(defocusCurrentView && this.m_viewStack.Count > 0),
+                         "[mod.io] Cannot if no views are on the stack.");
 
             if(defocusCurrentView)
             {
