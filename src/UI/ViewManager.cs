@@ -249,14 +249,21 @@ namespace ModIO.UI
 
             if(this != null && viewStack != null && viewStack.Count > 0)
             {
+                IBrowserView view = null;
                 this.m_viewStack = viewStack;
 
                 for(int i = 0; i < viewStack.Count-1; ++i)
                 {
-                    this.onBeforeDefocusView.Invoke(viewStack[i]);
+                    view = viewStack[i];
+
+                    view.gameObject.GetComponent<Canvas>().sortingOrder = this.m_baseSortingOrder+i+1;
+                    this.onBeforeDefocusView.Invoke(view);
                 }
 
-                this.onAfterFocusView.Invoke(viewStack[viewStack.Count-1]);
+                view = viewStack[viewStack.Count-1];
+
+                view.gameObject.GetComponent<Canvas>().sortingOrder = this.m_baseSortingOrder+viewStack.Count;
+                this.onAfterFocusView.Invoke(view);
             }
         }
 
