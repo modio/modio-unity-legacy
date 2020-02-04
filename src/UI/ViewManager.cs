@@ -224,7 +224,7 @@ namespace ModIO.UI
 
             this.m_inspectorView.modId = modId;
 
-            this.FocusStackedView(this.m_inspectorView);
+            this.FocusWindowedView(this.m_inspectorView);
         }
 
         public void ActivateExplorerView()
@@ -264,7 +264,7 @@ namespace ModIO.UI
                 }
             #endif
 
-            this.FocusStackedView(this.m_loginDialog);
+            this.FocusWindowedView(this.m_loginDialog);
         }
 
         /// <summary>Shows the message dialog using the given settings.</summary>
@@ -312,7 +312,7 @@ namespace ModIO.UI
                 this.m_messageDialog.standardButtonText.text = standardButton;
             }
 
-            this.FocusStackedView(this.m_messageDialog);
+            this.FocusWindowedView(this.m_messageDialog);
         }
 
         /// <summary>Clears the view stack and sets the view as the only view on the stack.</summary>
@@ -337,7 +337,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Either adds the view to the stack, or removes any views above it on the stack.</summary>
-        public void FocusStackedView(IBrowserView view)
+        public void FocusWindowedView(IBrowserView view)
         {
             Debug.Assert(this.m_viewStack.Count > 0,
                          "[mod.io] Can only focus a stacked view if there is an existing view on the stack.");
@@ -362,7 +362,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Closes and hides a view.</summary>
-        public void CloseStackedView(IBrowserView view)
+        public void CloseWindowedView(IBrowserView view)
         {
             if(view == null) { return; }
 

@@ -61,7 +61,7 @@ namespace ModIO.UI
         /// <summary>Closes the dialog window.</summary>
         public void Close()
         {
-            ViewManager.instance.CloseStackedView(this);
+            ViewManager.instance.CloseWindowedView(this);
         }
     }
 }

@@ -88,7 +88,7 @@ namespace ModIO.UI
         /// <summary>Closes this view.</summary>
         public void Close()
         {
-            ViewManager.instance.CloseStackedView(this);
+            ViewManager.instance.CloseWindowedView(this);
         }
 
         // ---------[ OBSOLETE ]---------
