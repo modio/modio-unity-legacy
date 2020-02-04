@@ -261,13 +261,11 @@ namespace ModIO.UI
             if(this != null && viewStack != null && viewStack.Count > 0)
             {
                 IBrowserView view = null;
-                Canvas viewCanvas = null;
                 this.m_viewStack = viewStack;
 
                 for(int i = 0; i < viewStack.Count-1; ++i)
                 {
                     view = viewStack[i];
-                    viewCanvas = view.gameObject.GetComponent<Canvas>();
 
                     this.SetSortOrder(view, i);
                     this.onBeforeDefocusView.Invoke(view);
@@ -451,7 +449,7 @@ namespace ModIO.UI
         /// <summary>Closes and hides a view.</summary>
         public void CloseWindowedView(IBrowserView view)
         {
-            if(view == null) { return; }
+            if(view == null || !view.gameObject.activeSelf) { return; }
 
             int viewIndex = this.m_viewStack.IndexOf(view);
 
@@ -481,9 +479,10 @@ namespace ModIO.UI
         {
             Debug.Assert(view != null);
             Debug.Assert(view.gameObject.GetComponent<Canvas>() != null);
-            Debug.Assert(!this.m_viewStack.Contains(view));
             Debug.Assert(!(defocusCurrentView && this.m_viewStack.Count == 0),
                          "[mod.io] Cannot defocus if no views are on the stack.");
+
+            if(this.m_viewStack.Contains(view)) { return; }
 
             if(defocusCurrentView)
             {
