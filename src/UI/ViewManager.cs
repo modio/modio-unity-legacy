@@ -61,6 +61,9 @@ namespace ModIO.UI
         /// <summary>All found IBrowserView components.</summary>
         private IBrowserView[] m_views = null;
 
+        /// <summary>Parent canvas sorting order.</summary>
+        private int m_baseSortingOrder = 0;
+
         // --- Accessors ---
         /// <summary>Explorer View in the UI.</summary>
         public ExplorerView explorerView
@@ -119,6 +122,65 @@ namespace ModIO.UI
         {
             this.FindViews();
 
+            // - get the parent canvas for the views -
+            IBrowserView firstView = this.m_views[0];
+            Debug.Assert(firstView != null,
+                         "[mod.io] No views found in the scene."
+                         + " Please ensure the scene contains at least one IBrowserView component"
+                         + " before using the ViewManager.", this);
+
+            Transform firstViewParent = firstView.gameObject.transform.parent;
+            Debug.Assert(firstViewParent != null,
+                         "[mod.io] The first found view in the scene appears to be a root object."
+                         + " ViewManager expects the views to be contained under a canvas object to"
+                         + " function correctly.", firstView.gameObject);
+
+            Canvas parentCanvas = firstViewParent.GetComponentInParent<Canvas>();
+            Debug.Assert(parentCanvas != null,
+                         "[mod.io] The first found view in the scene has no parent canvas component."
+                         + " ViewManager expects the views to be contained under a canvas object to"
+                         + " function correctly.", firstView.gameObject);
+
+            #if UNITY_EDITOR
+                if(this.m_views.Length > 1)
+                {
+                    foreach(IBrowserView view in this.m_views)
+                    {
+                        Transform parentTransform = view.gameObject.transform.parent;
+                        if(parentTransform == null
+                           || parentCanvas != parentTransform.GetComponentInParent<Canvas>())
+                        {
+                            Debug.LogError("[mod.io] All the views must have the same parent canvas"
+                                           + " in order for the ViewManager to function correctly.", this);
+
+                            this.enabled = false;
+                            return;
+                        }
+                    }
+                }
+            #endif
+
+            // set the sorting order base
+            this.m_baseSortingOrder = parentCanvas.sortingOrder;
+
+            // add canvas components to views
+            foreach(IBrowserView view in this.m_views)
+            {
+                Canvas viewCanvas = view.gameObject.GetComponent<Canvas>();
+
+                if(viewCanvas == null)
+                {
+                    viewCanvas = view.gameObject.AddComponent<Canvas>();
+                    viewCanvas.overridePixelPerfect = false;
+                    viewCanvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
+                }
+
+                viewCanvas.overrideSorting = true;
+                viewCanvas.sortingOrder = parentCanvas.sortingOrder;
+            }
+
+
+            // - create the initial view stack -
             List<IBrowserView> initViewStack = new List<IBrowserView>();
 
             if(this.explorerView != null
