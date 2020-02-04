@@ -462,9 +462,11 @@ namespace ModIO.UI
                 else
                 {
                     this.onBeforeHideView.Invoke(view);
-                    view.gameObject.SetActive(false);
 
+                    // NOTE(@jackson): The order here is important. Some views will check the view
+                    // stack OnDisable.
                     this.m_viewStack.RemoveAt(viewIndex);
+                    view.gameObject.SetActive(false);
 
                     for(int i = viewIndex; i < this.m_viewStack.Count; ++i)
                     {
@@ -491,6 +493,8 @@ namespace ModIO.UI
 
             this.onBeforeShowView.Invoke(view);
 
+            // NOTE(@jackson): The order here is important. Some views will check the view stack
+            // OnEnable, and the gameObject must be active for the SetSortOrder to function correctly
             this.m_viewStack.Add(view);
             view.gameObject.SetActive(true);
 
@@ -505,11 +509,14 @@ namespace ModIO.UI
             Debug.Assert(!(focusNextView && this.m_viewStack.Count == 1),
                          "[mod.io] Cannot focus the next view if there is only one view on the stack.");
 
-            this.onBeforeDefocusView.Invoke(this.currentFocus);
-            this.onBeforeHideView.Invoke(this.currentFocus);
+            IBrowserView view = this.currentFocus;
 
-            this.currentFocus.gameObject.SetActive(false);
+            this.onBeforeDefocusView.Invoke(view);
+            this.onBeforeHideView.Invoke(view);
+
+            // NOTE(@jackson): The order here is important. Some views will check the view stack OnDisable
             this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
+            view.gameObject.SetActive(false);
 
             if(focusNextView)
             {
