@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 
 namespace ModIO.UI
@@ -163,7 +164,7 @@ namespace ModIO.UI
             // set the sorting order base
             this.m_rootViewSortOrder = parentCanvas.sortingOrder + 1;
 
-            // add canvas components to views
+            // add canvas + raycaster components to views
             foreach(IBrowserView view in this.m_views)
             {
                 Canvas viewCanvas = view.gameObject.GetComponent<Canvas>();
@@ -174,9 +175,17 @@ namespace ModIO.UI
                     viewCanvas.overridePixelPerfect = false;
                     viewCanvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
                 }
-
                 viewCanvas.overrideSorting = true;
                 viewCanvas.sortingOrder = this.m_rootViewSortOrder;
+
+                GraphicRaycaster raycaster = view.gameObject.GetComponent<GraphicRaycaster>();
+
+                if(raycaster == null)
+                {
+                    raycaster = view.gameObject.AddComponent<GraphicRaycaster>();
+                    raycaster.ignoreReversedGraphics = true;
+                    raycaster.blockingObjects = GraphicRaycaster.BlockingObjects.None;
+                }
             }
 
 
