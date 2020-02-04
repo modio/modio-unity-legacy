@@ -370,11 +370,19 @@ namespace ModIO.UI
 
             if(viewIndex >= 0)
             {
-                this.onBeforeDefocusView.Invoke(view);
-                this.onBeforeHideView.Invoke(view);
+                if(this.currentFocus == view)
+                {
+                    this.PopView();
 
-                view.gameObject.SetActive(false);
-                this.m_viewStack.RemoveAt(viewIndex);
+                    this.onAfterFocusView.Invoke(this.currentFocus);
+                }
+                else
+                {
+                    this.onBeforeHideView.Invoke(view);
+                    view.gameObject.SetActive(false);
+
+                    this.m_viewStack.RemoveAt(viewIndex);
+                }
             }
         }
 
