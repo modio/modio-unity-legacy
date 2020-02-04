@@ -409,18 +409,20 @@ namespace ModIO.UI
         {
             if(view == null || view == this.currentFocus) { return; }
 
-            while(this.currentFocus != view
-                  && this.m_viewStack.Count > 0)
+            while(this.m_viewStack.Count > 0
+                  && this.currentFocus != view)
             {
                 this.PopView(focusNextView: false);
             }
 
-            if(this.currentFocus != view)
+            if(this.m_viewStack.Count == 0)
             {
                 this.PushView(view, defocusCurrentView: false);
             }
             else
             {
+                Debug.Assert(this.currentFocus == view);
+
                 this.onAfterFocusView.Invoke(view);
             }
         }
