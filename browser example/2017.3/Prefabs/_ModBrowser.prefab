@@ -1650,7 +1650,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224511087645984526}
-  - component: {fileID: 114605160104915778}
   - component: {fileID: 114198628058967524}
   - component: {fileID: 114601761646086966}
   m_Layer: 5
@@ -3168,7 +3167,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224659077499235682}
-  - component: {fileID: 114510809882788260}
   m_Layer: 5
   m_Name: Dialog
   m_TagString: Untagged
@@ -4091,7 +4089,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224387435983287974}
-  - component: {fileID: 114959173606589992}
   m_Layer: 5
   m_Name: Dialog
   m_TagString: Untagged
@@ -13109,34 +13106,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &114510809882788260
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1561448724796272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f6a529edf81e49989488a2a1f8b6251, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  constructOnEnable: 1
-  clickedOff:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1033382281759760}
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114512643672626426
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -15041,34 +15010,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   verticalPosition: 1
   horizontalPosition: 1
---- !u!114 &114605160104915778
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1295466900351528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f6a529edf81e49989488a2a1f8b6251, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  constructOnEnable: 1
-  clickedOff:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114691652308798824}
-        m_MethodName: Close
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114605450054932620
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -20027,34 +19968,6 @@ MonoBehaviour:
   formatting:
     method: 1
     toStringParameter: 0.0
---- !u!114 &114959173606589992
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1725836403225398}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f6a529edf81e49989488a2a1f8b6251, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  constructOnEnable: 1
-  clickedOff:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114743124172958564}
-        m_MethodName: Close
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114962976974369728
 MonoBehaviour:
   m_ObjectHideFlags: 1
