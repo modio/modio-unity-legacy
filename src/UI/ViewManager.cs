@@ -43,9 +43,6 @@ namespace ModIO.UI
         private MessageDialog m_messageDialog = null;
         private bool m_viewsFound = false;
 
-        /// <summary>View stack for all the currently open views.</summary>
-        private List<IBrowserView> m_viewStack = new List<IBrowserView>();
-
         /// <summary>Event callback for when a view is hidden.</summary>
         public ViewChangeEvent onBeforeHideView = new ViewChangeEvent();
 
@@ -57,6 +54,12 @@ namespace ModIO.UI
 
         /// <summary>Event callback for when a view is focused.</summary>
         public ViewChangeEvent onAfterFocusView = new ViewChangeEvent();
+
+        /// <summary>View stack for all the currently open views.</summary>
+        private List<IBrowserView> m_viewStack = new List<IBrowserView>();
+
+        /// <summary>All found IBrowserView components.</summary>
+        private IBrowserView[] m_views = null;
 
         // --- Accessors ---
         /// <summary>Explorer View in the UI.</summary>
@@ -205,6 +208,8 @@ namespace ModIO.UI
             this.m_loginDialog = GetComponentInChildren<LoginDialog>(true);
             this.m_messageDialog = GetComponentInChildren<MessageDialog>(true);
             this.m_viewsFound = true;
+
+            this.m_views = this.gameObject.GetComponentsInChildren<IBrowserView>(true);
         }
 
         // ---------[ VIEW MANAGEMENT ]---------
