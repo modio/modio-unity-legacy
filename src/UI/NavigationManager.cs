@@ -43,7 +43,7 @@ namespace ModIO.UI
         public bool isMouseMode = true;
 
         /// <summary>Selections to remember for when a view is refocused.</summary>
-        public Dictionary<IBrowserView, GameObject> m_selectionMap = new Dictionary<IBrowserView, GameObject>();
+        public Dictionary<IBrowserView, GameObject> m_lastViewSelection = new Dictionary<IBrowserView, GameObject>();
 
         // ---------[ Initialization ]---------
         /// <summary>Sets singleton instance.</summary>
@@ -90,19 +90,14 @@ namespace ModIO.UI
                 if(!NavigationManager.IsValidSelection(currentSelection))
                 {
                     IBrowserView view = ViewManager.instance.currentFocus;
-
-                    this.m_selectionMap.TryGetValue(view, out currentSelection);
-
-                    if(!NavigationManager.IsValidSelection(currentSelection))
-                    {
-                        currentSelection = NavigationManager.GetPrimarySelection(view);
-                    }
+                    currentSelection = this.ReacquireSelectionForView(view);
 
                     EventSystem.current.SetSelectedGameObject(currentSelection);
                 }
-                else
+
+                if(currentSelection != null)
                 {
-                    this.m_selectionMap[ViewManager.instance.currentFocus] = currentSelection;
+                    this.m_lastViewSelection[ViewManager.instance.currentFocus] = currentSelection;
                 }
             }
             //if mouse has moved clear selection
@@ -144,13 +139,7 @@ namespace ModIO.UI
             if(!this.isMouseMode
                && !NavigationManager.IsValidSelection(currentSelection))
             {
-                this.m_selectionMap.TryGetValue(view, out currentSelection);
-
-                if(!NavigationManager.IsValidSelection(currentSelection))
-                {
-                    currentSelection = NavigationManager.GetPrimarySelection(view);
-                }
-
+                currentSelection = this.ReacquireSelectionForView(view);
                 EventSystem.current.SetSelectedGameObject(currentSelection);
             }
 
@@ -158,8 +147,16 @@ namespace ModIO.UI
         }
 
         /// <summary>Gets the primary selection element for a given view.</summary>
-        public static GameObject GetPrimarySelection(IBrowserView view)
+        public GameObject ReacquireSelectionForView(IBrowserView view)
         {
+            GameObject selection = null;
+
+            if(this.m_lastViewSelection.TryGetValue(view, out selection)
+               && NavigationManager.IsValidSelection(selection))
+            {
+                return selection;
+            }
+
             int primaryPriority = -1;
             GameObject primarySelection = null;
 
