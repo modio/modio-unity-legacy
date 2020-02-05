@@ -127,6 +127,16 @@ namespace ModIO.UI
         /// <summary>Makes the view uninteractable.</summary>
         public void OnDefocusView(IBrowserView view)
         {
+            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+            if(currentSelection != null)
+            {
+                Selectable sel = currentSelection.GetComponent<Selectable>();
+                if(sel != null)
+                {
+                    sel.OnDeselect(null);
+                }
+            }
+
             view.canvasGroup.interactable = false;
         }
 
