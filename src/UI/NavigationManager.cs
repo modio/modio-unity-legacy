@@ -68,14 +68,22 @@ namespace ModIO.UI
         {
             GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
-            if((Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
-                && (currentSelection == null || !currentSelection.activeInHierarchy))
+            if(Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
             {
-                IBrowserView view = ViewManager.instance.currentFocus;
-                if(view != null)
+                // on controller/keyboard input reset selection
+                if(currentSelection == null || !currentSelection.activeInHierarchy)
                 {
-                    EventSystem.current.SetSelectedGameObject(NavigationManager.GetPrimarySelection(view));
+                    IBrowserView view = ViewManager.instance.currentFocus;
+                    if(view != null)
+                    {
+                        EventSystem.current.SetSelectedGameObject(NavigationManager.GetPrimarySelection(view));
+                    }
                 }
+            }
+            //if mouse has moved clear selection
+            else if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
             }
         }
 
