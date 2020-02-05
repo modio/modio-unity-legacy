@@ -100,7 +100,17 @@ namespace ModIO.UI
         /// <summary>Currently focused view.</summary>
         public IBrowserView currentFocus
         {
-            get { return this.m_viewStack[this.m_viewStack.Count-1]; }
+            get
+            {
+                if(this.m_viewStack == null || this.m_viewStack.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return this.m_viewStack[this.m_viewStack.Count-1];
+                }
+            }
         }
 
         // ---------[ INITIALIZATION ]---------
