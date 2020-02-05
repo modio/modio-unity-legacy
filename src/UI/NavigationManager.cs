@@ -85,7 +85,17 @@ namespace ModIO.UI
 
             if(Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
             {
-                this.isMouseMode = false;
+                if(this.isMouseMode)
+                {
+                    this.isMouseMode = false;
+
+                    if(this.m_currentHoverSelectable != null)
+                    {
+                        ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
+                                              new PointerEventData(EventSystem.current),
+                                              ExecuteEvents.pointerExitHandler);
+                    }
+                }
 
                 GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
@@ -108,8 +118,14 @@ namespace ModIO.UI
                 if(!this.isMouseMode)
                 {
                     this.isMouseMode = true;
-
                     EventSystem.current.SetSelectedGameObject(null);
+
+                    if(this.m_currentHoverSelectable)
+                    {
+                        ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
+                                              new PointerEventData(EventSystem.current),
+                                              ExecuteEvents.pointerEnterHandler);
+                    }
                 }
 
                 this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
