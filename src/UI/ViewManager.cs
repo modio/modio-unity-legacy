@@ -319,7 +319,7 @@ namespace ModIO.UI
 
             this.m_inspectorView.modId = modId;
 
-            this.FocusWindowedView(this.m_inspectorView);
+            this.FocusView(this.m_inspectorView);
         }
 
         public void ActivateExplorerView()
@@ -333,7 +333,7 @@ namespace ModIO.UI
 
             if(this.m_explorerView == null) { return; }
 
-            this.FocusRootView(this.m_explorerView);
+            this.FocusView(this.m_explorerView);
         }
 
         public void ActivateSubscriptionsView()
@@ -347,7 +347,7 @@ namespace ModIO.UI
 
             if(this.m_subscriptionsView == null) { return; }
 
-            this.FocusRootView(this.m_subscriptionsView);
+            this.FocusView(this.m_subscriptionsView);
         }
 
         public void ShowLoginDialog()
@@ -359,7 +359,7 @@ namespace ModIO.UI
                 }
             #endif
 
-            this.FocusWindowedView(this.m_loginDialog);
+            this.FocusView(this.m_loginDialog);
         }
 
         /// <summary>Shows the message dialog using the given settings.</summary>
@@ -369,65 +369,49 @@ namespace ModIO.UI
 
             this.m_messageDialog.ApplyData(messageData);
 
-            this.FocusWindowedView(this.m_messageDialog);
+            this.FocusView(this.m_messageDialog);
         }
 
-        /// <summary>Clears the view stack and sets the view as the only view on the stack.</summary>
-        public void FocusRootView(IBrowserView view)
+        /// <summary>Focuses the given view, showing and hiding views as necessary.</summary>
+        public void FocusView(IBrowserView view)
         {
             if(view == null || view == this.currentFocus) { return; }
 
-            this.onBeforeDefocusView.Invoke(this.currentFocus);
-
-            while(this.m_viewStack.Count > 0
-                  && this.currentFocus != view)
-            {
-                this.onBeforeHideView.Invoke(view);
-
-                // NOTE(@jackson): The order here is important. Some views may check the view stack OnDisable
-                this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
-                view.gameObject.SetActive(false);
-            }
-
-            if(this.m_viewStack.Count == 0)
-            {
-                this.PushView(view);
-            }
-            else
-            {
-                Debug.Assert(this.currentFocus == view);
-
-                this.onAfterFocusView.Invoke(view);
-            }
-        }
-
-        /// <summary>Either adds the view to the stack, or removes any views above it on the stack.</summary>
-        public void FocusWindowedView(IBrowserView view)
-        {
-            Debug.Assert(this.m_viewStack.Count > 0,
-                         "[mod.io] Can only focus a stacked view if there is an existing view on the stack.");
-
-            if(view == null || view == this.currentFocus) { return; }
-
-            if(this.m_viewStack.Contains(view))
+            if(this.currentFocus != null)
             {
                 this.onBeforeDefocusView.Invoke(this.currentFocus);
+            }
 
-                while(this.currentFocus != view)
+            // knock off views above the desired one
+            if(view.isRootView || this.m_viewStack.Contains(view))
+            {
+                while(this.m_viewStack.Count > 0
+                      && this.currentFocus != view)
                 {
-                    this.onBeforeHideView.Invoke(view);
+                    IBrowserView closingView = this.currentFocus;
+
+                    this.onBeforeHideView.Invoke(closingView);
 
                     // NOTE(@jackson): The order here is important. Some views may check the view stack OnDisable
                     this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
-                    view.gameObject.SetActive(false);
+                    closingView.gameObject.SetActive(false);
                 }
+            }
 
-                this.onAfterFocusView.Invoke(view);
-            }
-            else
+            // push the view if necessary
+            if(this.currentFocus != view)
             {
-                this.PushView(view);
+                this.onBeforeShowView.Invoke(view);
+
+                // NOTE(@jackson): The order here is important. Some views may check the view stack
+                // OnEnable, and the gameObject must be active for the SetSortOrder to function correctly
+                this.m_viewStack.Add(view);
+                view.gameObject.SetActive(true);
+
+                this.SetSortOrder(view, this.m_viewStack.Count-1);
             }
+
+            this.onAfterFocusView.Invoke(view);
         }
 
         /// <summary>Closes and hides a view.</summary>
