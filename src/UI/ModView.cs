@@ -135,7 +135,39 @@ namespace ModIO.UI
         {
             if(this.m_profile != null)
             {
-                ModBrowser.instance.UnsubscribeFromMod(this.m_profile.id);
+                Action doUnsub = () =>
+                {
+                    ModBrowser.instance.UnsubscribeFromMod(this.m_profile.id);
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                };
+
+                Action cancelUnsub = () =>
+                {
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                };
+
+                Action onClose = () =>
+                {
+                    bool isSubbed = UserAccountManagement.activeUser.subscribedModIds.Contains(this.m_profile.id);
+                    foreach(var subDisplay in this.gameObject.GetComponentsInChildren<ModSubscribedDisplay>())
+                    {
+                        subDisplay.gameObject.GetComponent<StateToggleDisplay>().isOn = isSubbed;
+                    }
+                };
+
+                var messageData = new MessageDialog.Data()
+                {
+                    header = "Unsubscribe Confirmation",
+                    message = ("Do you wish to unsubscribe from " + this.m_profile.name
+                               + " and uninstall it from your system?"),
+                    warningButtonText = "Unsubscribe",
+                    warningButtonCallback = doUnsub,
+                    standardButtonText = "Cancel",
+                    standardButtonCallback = cancelUnsub,
+                    onClose = onClose,
+                };
+
+                ViewManager.instance.ShowMessageDialog(messageData);
             }
         }
 

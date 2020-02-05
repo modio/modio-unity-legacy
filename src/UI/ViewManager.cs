@@ -353,49 +353,11 @@ namespace ModIO.UI
         }
 
         /// <summary>Shows the message dialog using the given settings.</summary>
-        public void ShowMessageDialog(string header, string message,
-                                      string highlightButton = null,
-                                      string warningButton = null,
-                                      string standardButton = null)
+        public void ShowMessageDialog(MessageDialog.Data messageData)
         {
             if(this.m_messageDialog == null) { return; }
 
-            Debug.Assert(this.m_messageDialog.highlightedButton != null);
-            Debug.Assert(this.m_messageDialog.warningButton != null);
-            Debug.Assert(this.m_messageDialog.standardButton != null);
-
-            this.m_messageDialog.headerText.text = header;
-            this.m_messageDialog.messageText.text = message;
-
-            if(string.IsNullOrEmpty(highlightButton))
-            {
-                this.m_messageDialog.highlightedButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                this.m_messageDialog.highlightedButton.gameObject.SetActive(true);
-                this.m_messageDialog.highlightedButtonText.text = highlightButton;
-            }
-
-            if(string.IsNullOrEmpty(warningButton))
-            {
-                this.m_messageDialog.warningButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                this.m_messageDialog.warningButton.gameObject.SetActive(true);
-                this.m_messageDialog.warningButtonText.text = warningButton;
-            }
-
-            if(string.IsNullOrEmpty(standardButton))
-            {
-                this.m_messageDialog.standardButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                this.m_messageDialog.standardButton.gameObject.SetActive(true);
-                this.m_messageDialog.standardButtonText.text = standardButton;
-            }
+            this.m_messageDialog.ApplyData(messageData);
 
             this.FocusWindowedView(this.m_messageDialog);
         }
