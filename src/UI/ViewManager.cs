@@ -377,15 +377,21 @@ namespace ModIO.UI
         {
             if(view == null || view == this.currentFocus) { return; }
 
+            this.onBeforeDefocusView.Invoke(this.currentFocus);
+
             while(this.m_viewStack.Count > 0
                   && this.currentFocus != view)
             {
-                this.PopView(focusNextView: false);
+                this.onBeforeHideView.Invoke(view);
+
+                // NOTE(@jackson): The order here is important. Some views may check the view stack OnDisable
+                this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
+                view.gameObject.SetActive(false);
             }
 
             if(this.m_viewStack.Count == 0)
             {
-                this.PushView(view, defocusCurrentView: false);
+                this.PushView(view);
             }
             else
             {
@@ -405,16 +411,22 @@ namespace ModIO.UI
 
             if(this.m_viewStack.Contains(view))
             {
+                this.onBeforeDefocusView.Invoke(this.currentFocus);
+
                 while(this.currentFocus != view)
                 {
-                    this.PopView(focusNextView: false);
+                    this.onBeforeHideView.Invoke(view);
+
+                    // NOTE(@jackson): The order here is important. Some views may check the view stack OnDisable
+                    this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
+                    view.gameObject.SetActive(false);
                 }
 
                 this.onAfterFocusView.Invoke(view);
             }
             else
             {
-                this.PushView(view, defocusCurrentView: true);
+                this.PushView(view);
             }
         }
 
@@ -429,13 +441,13 @@ namespace ModIO.UI
             {
                 if(this.currentFocus == view)
                 {
-                    this.PopView(focusNextView: true);
+                    this.PopView();
                 }
                 else
                 {
                     this.onBeforeHideView.Invoke(view);
 
-                    // NOTE(@jackson): The order here is important. Some views will check the view
+                    // NOTE(@jackson): The order here is important. Some views may check the view
                     // stack OnDisable.
                     this.m_viewStack.RemoveAt(viewIndex);
                     view.gameObject.SetActive(false);
@@ -449,23 +461,21 @@ namespace ModIO.UI
         }
 
         /// <summary>Pushes a view to the stack and fires the necessary events.</summary>
-        public void PushView(IBrowserView view, bool defocusCurrentView = true)
+        public void PushView(IBrowserView view)
         {
             Debug.Assert(view != null);
             Debug.Assert(view.gameObject.GetComponent<Canvas>() != null);
-            Debug.Assert(!(defocusCurrentView && this.m_viewStack.Count == 0),
-                         "[mod.io] Cannot defocus if no views are on the stack.");
 
             if(this.m_viewStack.Contains(view)) { return; }
 
-            if(defocusCurrentView)
+            if(this.currentFocus != null)
             {
                 this.onBeforeDefocusView.Invoke(this.currentFocus);
             }
 
             this.onBeforeShowView.Invoke(view);
 
-            // NOTE(@jackson): The order here is important. Some views will check the view stack
+            // NOTE(@jackson): The order here is important. Some views may check the view stack
             // OnEnable, and the gameObject must be active for the SetSortOrder to function correctly
             this.m_viewStack.Add(view);
             view.gameObject.SetActive(true);
@@ -475,22 +485,20 @@ namespace ModIO.UI
         }
 
         /// <summary>Pops a view from the stack and fires the necessary events.</summary>
-        public void PopView(bool focusNextView = true)
+        public void PopView()
         {
             Debug.Assert(this.m_viewStack.Count > 0);
-            Debug.Assert(!(focusNextView && this.m_viewStack.Count == 1),
-                         "[mod.io] Cannot focus the next view if there is only one view on the stack.");
 
             IBrowserView view = this.currentFocus;
 
             this.onBeforeDefocusView.Invoke(view);
             this.onBeforeHideView.Invoke(view);
 
-            // NOTE(@jackson): The order here is important. Some views will check the view stack OnDisable
+            // NOTE(@jackson): The order here is important. Some views may check the view stack OnDisable
             this.m_viewStack.RemoveAt(this.m_viewStack.Count-1);
             view.gameObject.SetActive(false);
 
-            if(focusNextView)
+            if(this.currentFocus != null)
             {
                 this.onAfterFocusView.Invoke(this.currentFocus);
             }
