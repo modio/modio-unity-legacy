@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -37,6 +39,9 @@ namespace ModIO.UI
         /// <summary>The menu bar that is always shown.</summary>
         public CanvasGroup menuBar = null;
 
+        /// <summary>Selections to remember for when a view is refocused.</summary>
+        public Dictionary<IBrowserView, GameObject> m_selectionMap = new Dictionary<IBrowserView, GameObject>();
+
         // ---------[ Initialization ]---------
         /// <summary>Sets singleton instance.</summary>
         private void Awake()
@@ -68,10 +73,12 @@ namespace ModIO.UI
         /// <summary>Catches and resets the selection if currently unavailable.</summary>
         private void Update()
         {
-            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+            if(ViewManager.instance.currentFocus == null) { return; }
 
             if(Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
             {
+                GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+
                 // on controller/keyboard input reset selection
                 if(currentSelection == null || !currentSelection.activeInHierarchy)
                 {
@@ -80,6 +87,10 @@ namespace ModIO.UI
                     {
                         EventSystem.current.SetSelectedGameObject(NavigationManager.GetPrimarySelection(view));
                     }
+                }
+                else
+                {
+                    this.m_selectionMap[ViewManager.instance.currentFocus] = currentSelection;
                 }
             }
             //if mouse has moved clear selection
