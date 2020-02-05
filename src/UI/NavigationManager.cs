@@ -83,10 +83,15 @@ namespace ModIO.UI
                 if(currentSelection == null || !currentSelection.activeInHierarchy)
                 {
                     IBrowserView view = ViewManager.instance.currentFocus;
-                    if(view != null)
+
+                    this.m_selectionMap.TryGetValue(view, out currentSelection);
+
+                    if(currentSelection == null || !currentSelection.activeInHierarchy)
                     {
-                        EventSystem.current.SetSelectedGameObject(NavigationManager.GetPrimarySelection(view));
+                        currentSelection = NavigationManager.GetPrimarySelection(view);
                     }
+
+                    EventSystem.current.SetSelectedGameObject(currentSelection);
                 }
                 else
                 {
@@ -101,7 +106,7 @@ namespace ModIO.UI
         }
 
         // ---------[ Event Handlers ]---------
-        /// <summary>Stores the selection and makes the view uninteractable.</summary>
+        /// <summary>Makes the view uninteractable.</summary>
         public void OnDefocusView(IBrowserView view)
         {
             view.canvasGroup.interactable = false;
