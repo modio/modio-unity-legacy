@@ -71,8 +71,6 @@ namespace ModIO.UI
         /// <summary>Links with View Manager.</summary>
         private void Start()
         {
-            this.isMouseMode = EventSystem.current.currentInputModule.input.mousePresent;
-
             ViewManager.instance.onBeforeDefocusView.AddListener(this.OnDefocusView);
             ViewManager.instance.onAfterFocusView.AddListener(this.OnFocusView);
         }
