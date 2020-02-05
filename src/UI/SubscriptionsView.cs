@@ -394,6 +394,8 @@ namespace ModIO.UI
         /// <summary>Provides a default sorting function for the subscription view.</summary>
         protected virtual int DefaultSortFunction(ModProfile a, ModProfile b)
         {
+            if(a == null) { return 1; }
+            if(b == null) { return -1; }
             return (a.id - b.id);
         }
 
