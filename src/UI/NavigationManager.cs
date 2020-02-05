@@ -43,7 +43,10 @@ namespace ModIO.UI
         public bool isMouseMode = true;
 
         /// <summary>Selections to remember for when a view is refocused.</summary>
-        public Dictionary<IBrowserView, GameObject> m_lastViewSelection = new Dictionary<IBrowserView, GameObject>();
+        private Dictionary<IBrowserView, GameObject> m_lastViewSelection = new Dictionary<IBrowserView, GameObject>();
+
+        /// <summary>Currently hovered selectable.</summary>
+        private Selectable m_currentHoverSelectable = null;
 
         // ---------[ Initialization ]---------
         /// <summary>Sets singleton instance.</summary>
@@ -80,6 +83,8 @@ namespace ModIO.UI
         {
             if(ViewManager.instance.currentFocus == null) { return; }
 
+            IBrowserView currentView = ViewManager.instance.currentFocus;
+
             if(Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
             {
                 this.isMouseMode = false;
@@ -89,8 +94,7 @@ namespace ModIO.UI
                 // on controller/keyboard input reset selection
                 if(!NavigationManager.IsValidSelection(currentSelection))
                 {
-                    IBrowserView view = ViewManager.instance.currentFocus;
-                    currentSelection = this.ReacquireSelectionForView(view);
+                    currentSelection = this.ReacquireSelectionForView(currentView);
 
                     EventSystem.current.SetSelectedGameObject(currentSelection);
                 }
@@ -108,6 +112,13 @@ namespace ModIO.UI
                     this.isMouseMode = true;
 
                     EventSystem.current.SetSelectedGameObject(null);
+                }
+
+                this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
+
+                if(this.m_currentHoverSelectable != null)
+                {
+                    this.m_lastViewSelection[currentView] = this.m_currentHoverSelectable.gameObject;
                 }
             }
         }
@@ -196,6 +207,40 @@ namespace ModIO.UI
                     && sel != null
                     && sel.interactable
                     && sel.IsActive());
+        }
+
+        // ---------[ Utility ]---------
+        /// <summary>Returns the object that mouse pointer is currently hovering over.</summary>
+        public static Selectable GetHoveredSelectable()
+        {
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                pointerId = 0,
+            };
+            pointerData.position = Input.mousePosition;
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach(var candidate in results)
+            {
+                if(candidate.gameObject == null) { continue; }
+
+                Transform t = candidate.gameObject.transform;
+
+                while(t != null)
+                {
+                    if(t.gameObject != null
+                       && t.gameObject.GetComponent<Selectable>() != null)
+                    {
+                        return t.gameObject.GetComponent<Selectable>();
+                    }
+
+                    t = t.parent;
+                }
+            }
+
+            return null;
         }
     }
 }
