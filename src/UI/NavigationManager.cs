@@ -1,3 +1,7 @@
+#if UNITY_XBOXONE || UNITY_PS4 || UNITY_WII
+    #define MOUSE_MODE_OFF
+#endif
+
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -39,6 +43,9 @@ namespace ModIO.UI
         /// <summary>The menu bar that is always shown.</summary>
         public CanvasGroup menuBar = null;
 
+        /// <summary>Is the player currently navigation the UI with the mouse?</summary>
+        public bool isMouseMode = true;
+
         /// <summary>Selections to remember for when a view is refocused.</summary>
         public Dictionary<IBrowserView, GameObject> m_selectionMap = new Dictionary<IBrowserView, GameObject>();
 
@@ -60,6 +67,10 @@ namespace ModIO.UI
                 this.enabled = false;
             }
             #endif
+
+            #if MOUSE_MODE_OFF
+                this.isMouseMode = false;
+            #endif
         }
 
         /// <summary>Links with View Manager.</summary>
@@ -77,6 +88,8 @@ namespace ModIO.UI
 
             if(Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
             {
+                this.isMouseMode = false;
+
                 GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
                 // on controller/keyboard input reset selection
@@ -101,7 +114,12 @@ namespace ModIO.UI
             //if mouse has moved clear selection
             else if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
             {
-                EventSystem.current.SetSelectedGameObject(null);
+                if(!this.isMouseMode)
+                {
+                    this.isMouseMode = true;
+
+                    EventSystem.current.SetSelectedGameObject(null);
+                }
             }
         }
 
