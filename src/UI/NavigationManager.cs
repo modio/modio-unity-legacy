@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 namespace ModIO.UI
@@ -89,9 +90,42 @@ namespace ModIO.UI
         public void OnFocusView(IBrowserView view)
         {
             view.canvasGroup.interactable = true;
-            EventSystem.current.SetSelectedGameObject(view.primarySelection);
+
+            EventSystem.current.SetSelectedGameObject(NavigationManager.GetPrimarySelection(view));
 
             this.menuBar.interactable = (view is ExplorerView || view is SubscriptionsView);
+        }
+
+        /// <summary>Gets the primary selection element for a given view.</summary>
+        public static GameObject GetPrimarySelection(IBrowserView view)
+        {
+            int primaryPriority = -1;
+            GameObject primarySelection = null;
+
+            foreach(var selectionPriority in view.gameObject.GetComponentsInChildren<SelectionFocusPriority>())
+            {
+                if(selectionPriority.gameObject.activeSelf
+                   && selectionPriority.priority > primaryPriority)
+                {
+                    primarySelection = selectionPriority.gameObject;
+                    primaryPriority = selectionPriority.priority;
+                }
+            }
+
+            if(primarySelection != null)
+            {
+                return primarySelection;
+            }
+
+            foreach(var sel in view.gameObject.GetComponentsInChildren<Selectable>())
+            {
+                if(sel.IsActive() && sel.interactable)
+                {
+                    return sel.gameObject;
+                }
+            }
+
+            return null;
         }
     }
 }
