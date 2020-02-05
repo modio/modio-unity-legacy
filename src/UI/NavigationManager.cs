@@ -93,13 +93,13 @@ namespace ModIO.UI
                 GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
                 // on controller/keyboard input reset selection
-                if(currentSelection == null || !currentSelection.activeInHierarchy)
+                if(!NavigationManager.IsValidSelection(currentSelection))
                 {
                     IBrowserView view = ViewManager.instance.currentFocus;
 
                     this.m_selectionMap.TryGetValue(view, out currentSelection);
 
-                    if(currentSelection == null || !currentSelection.activeInHierarchy)
+                    if(!NavigationManager.IsValidSelection(currentSelection))
                     {
                         currentSelection = NavigationManager.GetPrimarySelection(view);
                     }
@@ -145,9 +145,22 @@ namespace ModIO.UI
         {
             view.canvasGroup.interactable = true;
 
-            EventSystem.current.SetSelectedGameObject(NavigationManager.GetPrimarySelection(view));
+            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
-            this.menuBar.interactable = (view is ExplorerView || view is SubscriptionsView);
+            if(!this.isMouseMode
+               && !NavigationManager.IsValidSelection(currentSelection))
+            {
+                this.m_selectionMap.TryGetValue(view, out currentSelection);
+
+                if(!NavigationManager.IsValidSelection(currentSelection))
+                {
+                    currentSelection = NavigationManager.GetPrimarySelection(view);
+                }
+
+                EventSystem.current.SetSelectedGameObject(currentSelection);
+            }
+
+            this.menuBar.interactable = view.isRootView;
         }
 
         /// <summary>Gets the primary selection element for a given view.</summary>
@@ -180,6 +193,18 @@ namespace ModIO.UI
             }
 
             return null;
+        }
+
+        /// <summary>Checks if a selection object is valid.</summary>
+        private static bool IsValidSelection(GameObject selectionObject)
+        {
+            if(selectionObject == null) { return false; }
+
+            Selectable sel = selectionObject.GetComponent<Selectable>();
+            return (selectionObject.activeInHierarchy
+                    && sel != null
+                    && sel.interactable
+                    && sel.IsActive());
         }
     }
 }
