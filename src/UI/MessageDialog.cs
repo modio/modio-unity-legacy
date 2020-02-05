@@ -42,9 +42,6 @@ namespace ModIO.UI
         }
 
         // ---------[ Fields ]---------
-        /// <summary>Initial selection item.</summary>
-        public GameObject primarySelection = null;
-
         /// <summary>Text field for displaying the header text.</summary>
         public GenericTextComponent headerText = new GenericTextComponent();
 
@@ -84,9 +81,6 @@ namespace ModIO.UI
         // --- Accessors ---
         /// <summary>Gets the canvas group attached to this gameObject.</summary>
         CanvasGroup IBrowserView.canvasGroup { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
-
-        /// <summary>Initial selection item.</summary>
-        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
 
         /// <summary>Reset selection on hide.</summary>
         bool IBrowserView.resetSelectionOnHide { get { return true; } }

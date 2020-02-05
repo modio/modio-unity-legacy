@@ -11,9 +11,6 @@ namespace ModIO.UI
         /// <summary>CanvasGroup attached to the view.</summary>
         CanvasGroup canvasGroup { get; }
 
-        /// <summary>Primary selectable object for the view.</summary>
-        GameObject primarySelection { get; }
-
         /// <summary>Should the selection be reset when the view is hidden?</summary>
         bool resetSelectionOnHide { get; }
 

@@ -27,9 +27,6 @@ namespace ModIO.UI
 
         // ---------[ FIELDS ]---------
         [Header("UI Components")]
-        /// <summary>Initial selection item.</summary>
-        public GameObject primarySelection = null;
-
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
 
@@ -87,9 +84,6 @@ namespace ModIO.UI
         /// <summary>Canvas Group.</summary>
         public CanvasGroup canvasGroup
         { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
-
-        /// <summary>Initial selection item.</summary>
-        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
 
         /// <summary>Reset selection on hide.</summary>
         bool IBrowserView.resetSelectionOnHide { get { return true; } }

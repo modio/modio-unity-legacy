@@ -16,9 +16,6 @@ namespace ModIO.UI
         }
 
         [Header("Settings")]
-        /// <summary>Initial selection item.</summary>
-        public GameObject primarySelection = null;
-
         [Tooltip("Invalid Submission Message")]
         public string invalidSubmissionMessage = "Input needs to be either a valid email address or the 5-Digit authentication code.";
         [Tooltip("Email Refused Message")]
@@ -34,9 +31,6 @@ namespace ModIO.UI
         /// <summary>Canvas Group.</summary>
         public CanvasGroup canvasGroup
         { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
-
-        /// <summary>Initial selection item.</summary>
-        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
 
         /// <summary>Reset selection on hide.</summary>
         bool IBrowserView.resetSelectionOnHide { get { return true; } }

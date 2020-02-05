@@ -12,9 +12,6 @@ namespace ModIO.UI
     public class InspectorView : MonoBehaviour, IBrowserView
     {
         // ---------[ FIELDS ]---------
-        /// <summary>Initial selection item.</summary>
-        public GameObject primarySelection = null;
-
         /// <summary>Id of the currently displayed mod.</summary>
         private int m_modId = ModProfile.NULL_ID;
 
@@ -77,9 +74,6 @@ namespace ModIO.UI
         /// <summary>Canvas Group.</summary>
         public CanvasGroup canvasGroup
         { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
-
-        /// <summary>Initial selection item.</summary>
-        GameObject IBrowserView.primarySelection { get { return this.primarySelection; } }
 
         /// <summary>Reset selection on hide.</summary>
         bool IBrowserView.resetSelectionOnHide { get { return true; } }

@@ -74,7 +74,7 @@ namespace ModIO.UI
                 IBrowserView view = ViewManager.instance.currentFocus;
                 if(view != null)
                 {
-                    EventSystem.current.SetSelectedGameObject(view.primarySelection);
+                    EventSystem.current.SetSelectedGameObject(NavigationManager.GetPrimarySelection(view));
                 }
             }
         }
