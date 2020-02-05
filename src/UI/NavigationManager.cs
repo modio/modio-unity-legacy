@@ -1,7 +1,3 @@
-#if UNITY_XBOXONE || UNITY_PS4 || UNITY_WII
-    #define MOUSE_MODE_OFF
-#endif
-
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -67,15 +63,13 @@ namespace ModIO.UI
                 this.enabled = false;
             }
             #endif
-
-            #if MOUSE_MODE_OFF
-                this.isMouseMode = false;
-            #endif
         }
 
         /// <summary>Links with View Manager.</summary>
         private void Start()
         {
+            this.isMouseMode = EventSystem.current.currentInputModule.input.mousePresent;
+
             ViewManager.instance.onBeforeDefocusView.AddListener(this.OnDefocusView);
             ViewManager.instance.onAfterFocusView.AddListener(this.OnFocusView);
         }
