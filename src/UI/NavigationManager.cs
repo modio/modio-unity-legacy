@@ -93,7 +93,6 @@ namespace ModIO.UI
                                || Input.GetMouseButton(1)
                                || Input.GetMouseButton(2));
 
-
             // controllerMode needs to be set
             if(controllerInput && this.isMouseMode)
             {
@@ -138,7 +137,9 @@ namespace ModIO.UI
             {
                 this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
 
-                if(this.m_currentHoverSelectable != null)
+                if(this.m_currentHoverSelectable != null
+                   && NavigationManager.IsValidSelection(this.m_currentHoverSelectable.gameObject)
+                   && this.m_currentHoverSelectable.navigation.mode != Navigation.Mode.None)
                 {
                     currentSelection = this.m_currentHoverSelectable.gameObject;
                 }
