@@ -258,10 +258,12 @@ namespace ModIO.UI
 
                 while(t != null)
                 {
-                    if(t.gameObject != null
-                       && t.gameObject.GetComponent<Selectable>() != null)
+                    Selectable s = t.GetComponent<Selectable>();
+                    if(s != null
+                       && s.interactable
+                       && s.IsActive())
                     {
-                        return t.gameObject.GetComponent<Selectable>();
+                        return s;
                     }
 
                     t = t.parent;
