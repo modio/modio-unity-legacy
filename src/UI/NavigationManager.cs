@@ -163,29 +163,19 @@ namespace ModIO.UI
         }
 
         // ---------[ Event Handlers ]---------
-        /// <summary>Makes the view uninteractable and deselects/highlights objects.</summary>
+        /// <summary>Makes the view uninteractable and deselects/dehighlights objects.</summary>
         public void OnDefocusView(IBrowserView view)
         {
-            if(this.isMouseMode)
+            if(EventSystem.current.currentSelectedGameObject != null)
             {
-                if(this.m_currentHoverSelectable != null)
-                {
-                    ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
-                                          new PointerEventData(EventSystem.current),
-                                          ExecuteEvents.pointerExitHandler);
-                }
+                EventSystem.current.SetSelectedGameObject(null);
             }
-            else
+
+            if(this.isMouseMode && this.m_currentHoverSelectable != null)
             {
-                GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
-                if(currentSelection != null)
-                {
-                    Selectable sel = currentSelection.GetComponent<Selectable>();
-                    if(sel != null)
-                    {
-                        sel.OnDeselect(new BaseEventData(EventSystem.current));
-                    }
-                }
+                ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
+                                      new PointerEventData(EventSystem.current),
+                                      ExecuteEvents.pointerExitHandler);
             }
 
             view.canvasGroup.interactable = false;
