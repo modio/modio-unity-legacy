@@ -76,34 +76,69 @@ namespace ModIO.UI
         }
 
         // ---------[ Updates ]---------
+        /// <summary>Checks whether the input method needs to be switched.</summary>
+        private void Update()
+        {
+            IBrowserView currentView = ViewManager.instance.currentFocus;
+            if(currentView == null) { return; }
+
+            bool controllerInput = (Input.GetAxis("Horizontal") != 0f
+                                    || Input.GetAxis("Vertical") != 0f
+                                    || Input.GetButton("Submit")
+                                    || Input.GetButton("Cancel"));
+
+            bool mouseInput = (Input.GetAxis("Mouse X") != 0
+                               || Input.GetAxis("Mouse Y") != 0
+                               || Input.GetMouseButton(0)
+                               || Input.GetMouseButton(1)
+                               || Input.GetMouseButton(2));
+
+
+            // controllerMode needs to be set
+            if(controllerInput && this.isMouseMode)
+            {
+                this.isMouseMode = false;
+                EventSystem.current.SetSelectedGameObject(this.ReacquireSelectionForView(currentView));
+
+                if(this.m_currentHoverSelectable != null)
+                {
+                    ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
+                                          new PointerEventData(EventSystem.current),
+                                          ExecuteEvents.pointerExitHandler);
+
+                    this.m_currentHoverSelectable = null;
+                }
+            }
+            // mouseMode needs to be set
+            else if(!this.isMouseMode && mouseInput && !controllerInput)
+            {
+                this.isMouseMode = true;
+                EventSystem.current.SetSelectedGameObject(null);
+
+                this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
+                if(this.m_currentHoverSelectable != null)
+                {
+                    ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
+                                          new PointerEventData(EventSystem.current),
+                                          ExecuteEvents.pointerEnterHandler);
+                }
+            }
+        }
+
         /// <summary>Catches and resets the selection if currently unavailable.</summary>
         private void LateUpdate()
         {
-            if(ViewManager.instance.currentFocus == null) { return; }
-
             IBrowserView currentView = ViewManager.instance.currentFocus;
+            if(currentView == null) { return; }
 
-            if(Input.GetAxis("Horizontal") != 0f || Input.GetAxis("Vertical") != 0f)
+            if(!this.isMouseMode)
             {
-                if(this.isMouseMode)
-                {
-                    this.isMouseMode = false;
-
-                    if(this.m_currentHoverSelectable != null)
-                    {
-                        ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
-                                              new PointerEventData(EventSystem.current),
-                                              ExecuteEvents.pointerExitHandler);
-                    }
-                }
-
                 GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
                 // on controller/keyboard input reset selection
                 if(!NavigationManager.IsValidSelection(currentSelection))
                 {
                     currentSelection = this.ReacquireSelectionForView(currentView);
-
                     EventSystem.current.SetSelectedGameObject(currentSelection);
                 }
 
@@ -113,21 +148,8 @@ namespace ModIO.UI
                 }
             }
             //if mouse has moved clear selection
-            else if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+            else
             {
-                if(!this.isMouseMode)
-                {
-                    this.isMouseMode = true;
-                    EventSystem.current.SetSelectedGameObject(null);
-
-                    if(this.m_currentHoverSelectable)
-                    {
-                        ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
-                                              new PointerEventData(EventSystem.current),
-                                              ExecuteEvents.pointerEnterHandler);
-                    }
-                }
-
                 this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
 
                 if(this.m_currentHoverSelectable != null)
@@ -211,18 +233,6 @@ namespace ModIO.UI
             return null;
         }
 
-        /// <summary>Checks if a selection object is valid.</summary>
-        private static bool IsValidSelection(GameObject selectionObject)
-        {
-            if(selectionObject == null) { return false; }
-
-            Selectable sel = selectionObject.GetComponent<Selectable>();
-            return (selectionObject.activeInHierarchy
-                    && sel != null
-                    && sel.interactable
-                    && sel.IsActive());
-        }
-
         // ---------[ Utility ]---------
         /// <summary>Returns the object that mouse pointer is currently hovering over.</summary>
         public static Selectable GetHoveredSelectable()
@@ -255,6 +265,18 @@ namespace ModIO.UI
             }
 
             return null;
+        }
+
+        /// <summary>Checks if a selection object is valid.</summary>
+        private static bool IsValidSelection(GameObject selectionObject)
+        {
+            if(selectionObject == null) { return false; }
+
+            Selectable sel = selectionObject.GetComponent<Selectable>();
+            return (selectionObject.activeInHierarchy
+                    && sel != null
+                    && sel.interactable
+                    && sel.IsActive());
         }
     }
 }
