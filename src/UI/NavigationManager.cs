@@ -272,17 +272,25 @@ namespace ModIO.UI
             List<RaycastResult> results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
 
+            GameObject hoveredObject = null;
+
             foreach(var candidate in results)
             {
-                if(candidate.gameObject == null) { continue; }
+                if(candidate.gameObject != null)
+                {
+                    hoveredObject = candidate.gameObject;
+                    break;
+                }
+            }
 
-                Transform t = candidate.gameObject.transform;
-
+            if(hoveredObject != null)
+            {
+                Transform t = hoveredObject.transform;
                 while(t != null)
                 {
                     Selectable s = t.GetComponent<Selectable>();
+
                     if(s != null
-                       && s.interactable
                        && s.IsActive())
                     {
                         return s;
