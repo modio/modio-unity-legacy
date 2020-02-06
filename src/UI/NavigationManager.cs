@@ -184,13 +184,14 @@ namespace ModIO.UI
         {
             view.canvasGroup.interactable = true;
 
-            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
-
-            if(!this.isMouseMode
-               && !NavigationManager.IsValidSelection(currentSelection))
+            if(!this.isMouseMode)
             {
-                currentSelection = this.ReacquireSelectionForView(view);
-                EventSystem.current.SetSelectedGameObject(currentSelection);
+                GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+                if(!NavigationManager.IsValidSelection(currentSelection))
+                {
+                    currentSelection = this.ReacquireSelectionForView(view);
+                    EventSystem.current.SetSelectedGameObject(currentSelection);
+                }
             }
 
             this.menuBar.interactable = view.isRootView;
