@@ -5462,6 +5462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuBar: {fileID: 225358437047671838}
+  isMouseMode: 1
 --- !u!114 &114002603349709040
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10142,7 +10143,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d58100d13f6904c10aba706fdab48f03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primarySelection: {fileID: 1323089637292356}
   modContainer: {fileID: 114162723348600364}
   noSubscriptionsDisplay: {fileID: 1996345605320860}
   noResultsDisplay: {fileID: 1817592628229666}
@@ -12962,7 +12962,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cb07255079aa4069a3b4d94327d4cda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primarySelection: {fileID: 1023396820977200}
   pageTemplate: {fileID: 114458701118459994}
   prevPageButton: {fileID: 114740552099389838}
   nextPageButton: {fileID: 114453430868874650}
@@ -14884,7 +14883,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba8bd60ae11cf41c49f701402058f564, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primarySelection: {fileID: 1419084996537130}
   invalidSubmissionMessage: Input needs to be either a valid email address or the
     5-Digit authentication code.
   emailRefusedMessage: 'The email address was rejected by the mod.io server.
@@ -15987,7 +15985,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e9c8b527d9ec418394b9115b308debc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primarySelection: {fileID: 1539663915803000}
   headerText:
     m_textDisplayComponent: {fileID: 114887163626669236}
   messageText:
@@ -16652,7 +16649,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06e07e876f4384c249d64c2f61ca6048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primarySelection: {fileID: 1741972433096664}
   selectedMediaPreview: {fileID: 0}
   loadingDisplay: {fileID: 0}
   versionHistoryItemPrefab: {fileID: 0}
