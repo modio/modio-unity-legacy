@@ -163,16 +163,28 @@ namespace ModIO.UI
         }
 
         // ---------[ Event Handlers ]---------
-        /// <summary>Makes the view uninteractable.</summary>
+        /// <summary>Makes the view uninteractable and deselects/highlights objects.</summary>
         public void OnDefocusView(IBrowserView view)
         {
-            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
-            if(currentSelection != null)
+            if(this.isMouseMode)
             {
-                Selectable sel = currentSelection.GetComponent<Selectable>();
-                if(sel != null)
+                if(this.m_currentHoverSelectable != null)
                 {
-                    sel.OnDeselect(null);
+                    ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
+                                          new PointerEventData(EventSystem.current),
+                                          ExecuteEvents.pointerExitHandler);
+                }
+            }
+            else
+            {
+                GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+                if(currentSelection != null)
+                {
+                    Selectable sel = currentSelection.GetComponent<Selectable>();
+                    if(sel != null)
+                    {
+                        sel.OnDeselect(new BaseEventData(EventSystem.current));
+                    }
                 }
             }
 
@@ -184,7 +196,17 @@ namespace ModIO.UI
         {
             view.canvasGroup.interactable = true;
 
-            if(!this.isMouseMode)
+            if(this.isMouseMode)
+            {
+                this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
+                if(this.m_currentHoverSelectable != null)
+                {
+                    ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
+                                          new PointerEventData(EventSystem.current),
+                                          ExecuteEvents.pointerEnterHandler);
+                }
+            }
+            else
             {
                 GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
                 if(!NavigationManager.IsValidSelection(currentSelection))
