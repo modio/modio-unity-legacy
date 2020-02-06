@@ -7,8 +7,8 @@ using UnityEngine.EventSystems;
 namespace ModIO.UI
 {
     /// <summary>Component responsible for managing the navigation of the UI.</summary>
-    /// <remarks>This component needs to be Updated after the EventSystem/InputModule has Updated
-    /// to ensure that the selection storage functions as expected.</remarks>
+    /// <remarks>This component needs to be Updated **before** the EventSystem/InputModule has
+    /// Updated to ensure that the selection storage functions as expected.</remarks>
     public class NavigationManager : MonoBehaviour
     {
         // ---------[ Singleton ]---------
@@ -75,9 +75,9 @@ namespace ModIO.UI
             ViewManager.instance.onAfterFocusView.AddListener(this.OnFocusView);
         }
 
-        // ---------[ Update ]---------
+        // ---------[ Updates ]---------
         /// <summary>Catches and resets the selection if currently unavailable.</summary>
-        private void Update()
+        private void LateUpdate()
         {
             if(ViewManager.instance.currentFocus == null) { return; }
 
