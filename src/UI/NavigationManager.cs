@@ -125,37 +125,39 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>Catches and resets the selection if currently unavailable.</summary>
+        /// <summary>Handles any necessary selection corrections and storage.</summary>
         private void LateUpdate()
         {
             IBrowserView currentView = ViewManager.instance.currentFocus;
             if(currentView == null) { return; }
 
-            if(!this.isMouseMode)
-            {
-                GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
 
+            // mouse mode
+            if(this.isMouseMode)
+            {
+                this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
+
+                if(this.m_currentHoverSelectable != null)
+                {
+                    currentSelection = this.m_currentHoverSelectable.gameObject;
+                }
+            }
+            // controller/keyboard mode
+            else
+            {
                 // on controller/keyboard input reset selection
                 if(!NavigationManager.IsValidSelection(currentSelection))
                 {
                     currentSelection = this.ReacquireSelectionForView(currentView);
                     EventSystem.current.SetSelectedGameObject(currentSelection);
                 }
-
-                if(currentSelection != null)
-                {
-                    this.m_lastViewSelection[ViewManager.instance.currentFocus] = currentSelection;
-                }
             }
-            //if mouse has moved clear selection
-            else
-            {
-                this.m_currentHoverSelectable = NavigationManager.GetHoveredSelectable();
 
-                if(this.m_currentHoverSelectable != null)
-                {
-                    this.m_lastViewSelection[currentView] = this.m_currentHoverSelectable.gameObject;
-                }
+            // store
+            if(currentSelection != null)
+            {
+                this.m_lastViewSelection[ViewManager.instance.currentFocus] = currentSelection;
             }
         }
 
