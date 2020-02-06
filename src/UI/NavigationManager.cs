@@ -185,6 +185,9 @@ namespace ModIO.UI
         public void OnFocusView(IBrowserView view)
         {
             view.canvasGroup.interactable = true;
+            this.menuBar.interactable = view.isRootView;
+
+            GameObject newSelection = EventSystem.current.currentSelectedGameObject;
 
             if(this.isMouseMode)
             {
@@ -195,18 +198,21 @@ namespace ModIO.UI
                                           new PointerEventData(EventSystem.current),
                                           ExecuteEvents.pointerEnterHandler);
                 }
+
+                newSelection = null;
             }
             else
             {
-                GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
-                if(!NavigationManager.IsValidSelection(currentSelection))
+                if(!NavigationManager.IsValidSelection(newSelection))
                 {
-                    currentSelection = this.ReacquireSelectionForView(view);
-                    EventSystem.current.SetSelectedGameObject(currentSelection);
+                    newSelection = this.ReacquireSelectionForView(view);
                 }
             }
 
-            this.menuBar.interactable = view.isRootView;
+            if(newSelection != EventSystem.current.currentSelectedGameObject)
+            {
+                EventSystem.current.SetSelectedGameObject(newSelection);
+            }
         }
 
         /// <summary>Gets the primary selection element for a given view.</summary>
