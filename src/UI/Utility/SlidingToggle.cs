@@ -34,6 +34,9 @@ namespace ModIO.UI
         /// <summary>Coroutine playing the slide animation.</summary>
         private Coroutine m_animation = null;
 
+        /// <summary>Was on? (Required because we can't rely on notifications.)</summary>
+        private bool m_wasOn = false;
+
         /// <summary>Is this component currently clickable?</summary>
         private bool IsClickable
         {
@@ -60,10 +63,9 @@ namespace ModIO.UI
         }
 
         // ---------[ INITIALIZATION ]---------
-        protected override void Awake()
+        protected override void Start()
         {
-            // add listener to event
-            this.onValueChanged.AddListener((b) => this.UpdateContentPosition(true));
+            this.m_wasOn = this.isOn;
         }
 
         protected override void OnEnable()
@@ -75,6 +77,17 @@ namespace ModIO.UI
         {
             yield return null;
             UpdateContentPosition(false);
+        }
+
+        // ---------[ Updates ]---------
+        /// <summary>Checks the current state of the Toggle component.</summary>
+        private void Update()
+        {
+            if(this.m_wasOn != this.isOn)
+            {
+                this.UpdateContentPosition(true);
+                this.m_wasOn = this.isOn;
+            }
         }
 
         // ---------[ UI FUNCTIONALITY ]---------
