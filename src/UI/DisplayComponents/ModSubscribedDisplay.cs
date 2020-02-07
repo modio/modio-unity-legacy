@@ -64,7 +64,10 @@ namespace ModIO.UI
             // display
             bool isSubscribed = UserAccountManagement.activeUser.subscribedModIds.Contains(modId);
 
-            this.gameObject.GetComponent<StateToggleDisplay>().isOn = isSubscribed;
+            foreach(StateToggleDisplay display in this.gameObject.GetComponents<StateToggleDisplay>())
+            {
+                display.isOn = isSubscribed;
+            }
         }
 
         // ---------[ EVENTS ]---------
