@@ -59,10 +59,14 @@ namespace ModIO.UI
         /// <summary>Displays the subscribed state of a mod.</summary>
         public void DisplayModSubscribed(int modId)
         {
-            this.m_modId = modId;
-
-            // display
             bool isSubscribed = UserAccountManagement.activeUser.subscribedModIds.Contains(modId);
+            this.DisplayModSubscribed(modId, isSubscribed);
+        }
+
+        /// <summary>Displays the given subscribed state of a mod.</summary>
+        public void DisplayModSubscribed(int modId, bool isSubscribed)
+        {
+            this.m_modId = modId;
 
             foreach(StateToggleDisplay display in this.gameObject.GetComponents<StateToggleDisplay>())
             {
