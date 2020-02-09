@@ -151,7 +151,7 @@ namespace ModIO.UI
                     bool isSubbed = UserAccountManagement.activeUser.subscribedModIds.Contains(this.m_profile.id);
                     foreach(var subDisplay in this.gameObject.GetComponentsInChildren<ModSubscribedDisplay>())
                     {
-                        subDisplay.gameObject.GetComponent<StateToggleDisplay>().isOn = isSubbed;
+                        subDisplay.DisplayModSubscribed(this.m_profile.id, isSubbed);
                     }
                 };
 
