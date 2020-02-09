@@ -8,7 +8,7 @@ namespace ModIO.UI
 {
     /// <summary>Automates the navigation network for the selectable elements of a layouter.</summary>
     [RequireComponent(typeof(LayoutGroup))]
-    public class LayouterExplicitNavigationAutomator : UnityEngine.EventSystems.UIBehaviour
+    public class LayouterNavigationAutomator : UnityEngine.EventSystems.UIBehaviour
     {
         // ---------[ Fields ]---------
         /// <summary>Horizontal navigation style.</summary>
