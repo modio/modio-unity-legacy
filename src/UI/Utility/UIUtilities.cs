@@ -164,10 +164,8 @@ namespace ModIO.UI
 
         /// <summary>Explicitly links a collection of selectable components as a grid (or list).</summary>
         public static void SetExplicitGridNavigation(IList<Selectable> selectables, int columnCount,
-                                                     bool wrapHorizontally,
-                                                     bool wrapVertically,
-                                                     EdgeCellNavigationMode horizontalNavigationStyle = EdgeCellNavigationMode.Stop,
-                                                     EdgeCellNavigationMode verticalNavigationStyle = EdgeCellNavigationMode.Stop)
+                                                     EdgeCellNavigationMode horizontalNavigationStyle,
+                                                     EdgeCellNavigationMode verticalNavigationStyle)
         {
             Debug.Assert(selectables != null);
 

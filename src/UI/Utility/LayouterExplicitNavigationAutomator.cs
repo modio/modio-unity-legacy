@@ -11,11 +11,11 @@ namespace ModIO.UI
     public class LayouterExplicitNavigationAutomator : UnityEngine.EventSystems.UIBehaviour
     {
         // ---------[ Fields ]---------
-        /// <summary>Should the navigation wrap vertically?</summary>
-        public bool wrapVertically = false;
+        /// <summary>Horizontal navigation style.</summary>
+        public EdgeCellNavigationMode horizontalNavigation = EdgeCellNavigationMode.Stop;
 
-        /// <summary>Should the navigation wrap horizontally?</summary>
-        public bool wrapHorizontally = false;
+        /// <summary>Vertical navigation style.</summary>
+        public EdgeCellNavigationMode verticalNavigation = EdgeCellNavigationMode.Stop;
 
         /// <summary>How many children deep are the selectables found?</summary>
         public int selectableDepth = 1;
@@ -95,8 +95,8 @@ namespace ModIO.UI
             }
 
             UIUtilities.SetExplicitGridNavigation(selectables, columnCount,
-                                                  this.wrapHorizontally,
-                                                  this.wrapVertically);
+                                                  this.horizontalNavigation,
+                                                  this.verticalNavigation);
         }
     }
 }
