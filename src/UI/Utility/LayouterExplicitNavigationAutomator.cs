@@ -12,10 +12,10 @@ namespace ModIO.UI
     {
         // ---------[ Fields ]---------
         /// <summary>Horizontal navigation style.</summary>
-        public EdgeCellNavigationMode horizontalNavigation = EdgeCellNavigationMode.Stop;
+        public EdgeCellNavigationMode horizontalNavigation = EdgeCellNavigationMode.DontWrap;
 
         /// <summary>Vertical navigation style.</summary>
-        public EdgeCellNavigationMode verticalNavigation = EdgeCellNavigationMode.Stop;
+        public EdgeCellNavigationMode verticalNavigation = EdgeCellNavigationMode.DontWrap;
 
         /// <summary>How many children deep are the selectables found?</summary>
         public int selectableDepth = 1;
