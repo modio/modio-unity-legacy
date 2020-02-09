@@ -173,33 +173,6 @@ namespace ModIO.UI
 
             if(selectables == null || selectables.Count == 0) { return; }
 
-            // check for single item
-            if(selectables.Count == 1)
-            {
-                if(selectables[0] == null) { return; }
-
-                Selectable s = selectables[0];
-                Selectable hLink = (horizontalNavigationStyle == EdgeCellNavigationMode.Stop
-                                    ? null
-                                    : s);
-                Selectable vLink = (verticalNavigationStyle == EdgeCellNavigationMode.Stop
-                                    ? null
-                                    : s);
-
-                Navigation nav = new Navigation()
-                {
-                    mode = Navigation.Mode.Explicit,
-                    selectOnLeft = hLink,
-                    selectOnRight = hLink,
-                    selectOnUp = vLink,
-                    selectOnDown = vLink,
-                };
-
-                s.navigation = nav;
-
-                return;
-            }
-
             // assert valid columnCount
             if(columnCount < 1) { columnCount = 1; }
             if(columnCount > selectables.Count) { columnCount = selectables.Count; }
