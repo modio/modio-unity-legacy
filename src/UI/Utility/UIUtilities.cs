@@ -162,7 +162,6 @@ namespace ModIO.UI
             return sceneComponents;
         }
 
-        // NOTE(@jackson): Currently implemented with H-inc/decrement, V-align
         /// <summary>Explicitly links a collection of selectable components as a grid (or list).</summary>
         public static void SetExplicitGridNavigation(IList<Selectable> selectables, int columnCount,
                                                      bool wrapHorizontally,
@@ -180,8 +179,10 @@ namespace ModIO.UI
                 if(selectables[0] == null) { return; }
 
                 Selectable s = selectables[0];
-                Selectable vLink = (wrapVertically ? s : null);
                 Selectable hLink = (horizontalNavigationStyle == EdgeCellNavigationMode.Stop
+                                    ? null
+                                    : s);
+                Selectable vLink = (verticalNavigationStyle == EdgeCellNavigationMode.Stop
                                     ? null
                                     : s);
 
@@ -214,6 +215,8 @@ namespace ModIO.UI
             // create wrap-link delegates
             Func<int, Selectable> getWrapLeftCell = (gridIndex) => null;
             Func<int, Selectable> getWrapRightCell = (gridIndex) => null;
+            Func<int, Selectable> getWrapUpCell = (gridIndex) => null;
+            Func<int, Selectable> getWrapDownCell = (gridIndex) => null;
 
             switch(horizontalNavigationStyle)
             {
@@ -222,7 +225,7 @@ namespace ModIO.UI
                     getWrapLeftCell = (gridIndex) =>
                     {
                         int row = getRow(gridIndex);
-                        int targetCellCol = columnCount;
+                        int targetCellCol = columnCount-1;
 
                         while(getGridIndex(targetCellCol, row) > selectables.Count)
                         {
@@ -253,9 +256,9 @@ namespace ModIO.UI
                     getWrapLeftCell = (gridIndex) =>
                     {
                         int row = getRow(gridIndex) - 1;
-                        if(row < 0) { row += rowCount; }
+                        if(row < 0) { row = rowCount-1; }
 
-                        int targetCellCol = columnCount;
+                        int targetCellCol = columnCount-1;
 
                         while(getGridIndex(targetCellCol, row) > selectables.Count)
                         {
@@ -276,9 +279,78 @@ namespace ModIO.UI
                     getWrapRightCell = (gridIndex) =>
                     {
                         int row = getRow(gridIndex) + 1;
-                        if(row >= rowCount) { row -= rowCount; }
+                        if(row >= rowCount) { row = 0; }
 
                         return selectables[getGridIndex(0, row)];
+                    };
+                }
+                break;
+            }
+
+            switch(verticalNavigationStyle)
+            {
+                case EdgeCellNavigationMode.Wrap:
+                {
+                    getWrapUpCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex);
+                        int targetRow = rowCount-1;
+
+                        while(getGridIndex(col, targetRow) > selectables.Count)
+                        {
+                            #if DEBUG
+                                if(targetRow < 0)
+                                {
+                                    Debug.LogError("[mod.io] Something went wrong while calculating"
+                                                   + " grid navigation. targetRow < 0.");
+                                    return null;
+                                }
+                            #endif
+                            --targetRow;
+                        }
+
+                        return selectables[getGridIndex(col, targetRow)];
+                    };
+
+                    getWrapDownCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex);
+                        return selectables[getGridIndex(col, 0)];
+                    };
+                }
+                break;
+
+                case EdgeCellNavigationMode.WrapAndIncrement:
+                {
+                    getWrapUpCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex)-1;
+                        if(col < 0) { col = columnCount-1; }
+
+                        int targetRow = rowCount-1;
+
+                        while(getGridIndex(col, targetRow) > selectables.Count)
+                        {
+                            #if DEBUG
+                                if(targetRow < 0)
+                                {
+                                    Debug.LogError("[mod.io] Something went wrong while calculating"
+                                                   + " grid navigation. targetRow < 0.");
+                                    return null;
+                                }
+                            #endif
+                            --targetRow;
+                        }
+
+                        return selectables[getGridIndex(col, targetRow)];
+                    };
+
+                    getWrapDownCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex)+1;
+                        if(col >= columnCount) { col = 0; }
+
+                        return selectables[getGridIndex(col, 0)];
                     };
                 }
                 break;
@@ -322,34 +394,19 @@ namespace ModIO.UI
                 {
                     nav.selectOnUp = selectables[getGridIndex(col, row-1)];
                 }
-                else if(wrapVertically)
-                {
-                    int rowIndex = rowCount-1;
-                    while(getGridIndex(col, rowIndex) >= selectables.Count)
-                    {
-                        --rowIndex;
-                    }
-
-                    nav.selectOnUp = selectables[getGridIndex(col, rowIndex)];
-                }
                 else
                 {
-                    nav.selectOnUp = null;
+                    nav.selectOnUp = getWrapUpCell(gridIndex);
                 }
 
                 // down
-                if(row < rowCount-1
-                   && getGridIndex(col, row+1) < selectables.Count)
+                if(row < rowCount-1)
                 {
                     nav.selectOnDown = selectables[getGridIndex(col, row+1)];
                 }
-                else if(wrapVertically)
-                {
-                    nav.selectOnDown = selectables[getGridIndex(col, 0)];
-                }
                 else
                 {
-                    nav.selectOnDown = null;
+                    nav.selectOnDown = getWrapDownCell(gridIndex);
                 }
 
                 currentItem.navigation = nav;
