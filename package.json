@@ -3,5 +3,17 @@
     "description": "The mod.io Unity Plugin allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the mod.io API.",
     "version": "2.1.0",
     "unity": "2017.1",
-    "displayName": "mod.io Unity Plugin"
+    "displayName": "mod.io Unity Plugin",
+    "samples": [
+        {
+            "displayName": "Browser Example",
+            "description": "Example for browser usage",
+            "path": "Samples~/BrowserExample"
+        },
+        {
+            "displayName": "Editor Example",
+            "description": "Example for editor usage",
+            "path": "Samples~/EditorExample"
+        }
+    ]
 }
