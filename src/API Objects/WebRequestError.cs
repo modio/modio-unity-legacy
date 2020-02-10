@@ -227,7 +227,8 @@ namespace ModIO
                 {
                     if(string.IsNullOrEmpty(this.errorMessage))
                     {
-                        this.displayMessage = ("Error synchronizing with the mod.io servers.");
+                        this.displayMessage = ("Error synchronizing with the mod.io servers. [Error Code: "
+                                               + this.webRequest.responseCode + "]");
                     }
 
                     this.isRequestUnresolvable = true;
@@ -386,7 +387,8 @@ namespace ModIO
                     }
                     else
                     {
-                        this.displayMessage = ("Error synchronizing with the mod.io servers.");
+                        this.displayMessage = ("Error synchronizing with the mod.io servers. [Error Code: "
+                                               + this.webRequest.responseCode + "]");
 
                         this.isRequestUnresolvable = true;
 
