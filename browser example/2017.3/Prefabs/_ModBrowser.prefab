@@ -1975,6 +1975,7 @@ GameObject:
   - component: {fileID: 114144640254290642}
   - component: {fileID: 114793513437385258}
   - component: {fileID: 114818872396741490}
+  - component: {fileID: 114639072681271358}
   m_Layer: 5
   m_Name: Standard Button
   m_TagString: Untagged
@@ -2967,6 +2968,7 @@ GameObject:
   - component: {fileID: 114971587577675588}
   - component: {fileID: 114982197520704216}
   - component: {fileID: 114760979070047402}
+  - component: {fileID: 114708038390131190}
   m_Layer: 5
   m_Name: Highlighted Button
   m_TagString: Untagged
@@ -5115,6 +5117,7 @@ GameObject:
   - component: {fileID: 114636193111320370}
   - component: {fileID: 114176297868055278}
   - component: {fileID: 114443807216675444}
+  - component: {fileID: 114665725415803464}
   m_Layer: 5
   m_Name: Warning Button
   m_TagString: Untagged
@@ -15324,6 +15327,26 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114639072681271358
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1334622441765268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb443cb33bec847fcbd4439e3d215ee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1679033390067440}
+  onMove: 0
+  onPointerDown: 0
+  onPointerUp: 0
+  onPointerEnter: 0
+  onPointerExit: 0
+  onPointerClick: 0
+  onSubmit: 0
+  onCancel: 1
 --- !u!114 &114639845606566044
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -15577,6 +15600,26 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Scrollbar+ScrollEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114665725415803464
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1956065102606620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb443cb33bec847fcbd4439e3d215ee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1679033390067440}
+  onMove: 0
+  onPointerDown: 0
+  onPointerUp: 0
+  onPointerEnter: 0
+  onPointerExit: 0
+  onPointerClick: 0
+  onSubmit: 0
+  onCancel: 1
 --- !u!114 &114670176054886722
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16012,6 +16055,26 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114708038390131190
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1539663915803000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb443cb33bec847fcbd4439e3d215ee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1679033390067440}
+  onMove: 0
+  onPointerDown: 0
+  onPointerUp: 0
+  onPointerEnter: 0
+  onPointerExit: 0
+  onPointerClick: 0
+  onSubmit: 0
+  onCancel: 1
 --- !u!114 &114708899747933096
 MonoBehaviour:
   m_ObjectHideFlags: 1
