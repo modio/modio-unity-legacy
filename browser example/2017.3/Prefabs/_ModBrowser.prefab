@@ -3653,6 +3653,7 @@ GameObject:
   - component: {fileID: 222079728432795372}
   - component: {fileID: 114975550537231818}
   - component: {fileID: 114514396135311712}
+  - component: {fileID: 114954039094872732}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -19543,6 +19544,20 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Logged in as: '
+--- !u!114 &114954039094872732
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1665420472858218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3410985118a844c7aee558ebdf53334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  horizontalNavigation: 2
+  verticalNavigation: 1
+  selectableDepth: 2
 --- !u!114 &114956206841943174
 MonoBehaviour:
   m_ObjectHideFlags: 1
