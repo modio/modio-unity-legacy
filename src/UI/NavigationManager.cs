@@ -1,3 +1,7 @@
+#if UNITY_XBOXONE || UNITY_PS4 || UNITY_WII
+    #define DISABLE_MOUSE_MODE
+#endif
+
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -65,6 +69,10 @@ namespace ModIO.UI
                                  + " component should be active at a time.");
                 this.enabled = false;
             }
+            #endif
+
+            #if DISABLE_MOUSE_MODE
+                this.isMouseMode = false;
             #endif
         }
 
