@@ -9,7 +9,7 @@ namespace ModIO.UI
 {
     /// <summary>ViewController for displaying a single mod using a mod id.</summary>
     [RequireComponent(typeof(ModView))]
-    public class InspectorView : MonoBehaviour, IBrowserView
+    public class InspectorView : MonoBehaviour, IBrowserView, UnityEngine.EventSystems.ICancelHandler
     {
         // ---------[ FIELDS ]---------
         /// <summary>Id of the currently displayed mod.</summary>
@@ -86,6 +86,12 @@ namespace ModIO.UI
         public void Close()
         {
             ViewManager.instance.CloseWindowedView(this);
+        }
+
+        /// <summary>Handles a cancel to close the view.</summary>
+        public void OnCancel(UnityEngine.EventSystems.BaseEventData eventData)
+        {
+            this.Close();
         }
 
         // ---------[ OBSOLETE ]---------
