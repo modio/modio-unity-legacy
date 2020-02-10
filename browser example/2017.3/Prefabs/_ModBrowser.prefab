@@ -9040,7 +9040,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Submitted By:'
+  m_Text: 'File Size:'
 --- !u!114 &114241065875048002
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -13851,7 +13851,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224132139959599020}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.6661732
+  m_Size: 0.6365655
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -22432,7 +22432,7 @@ RectTransform:
   m_Father: {fileID: 224486652145364312}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.33382678}
+  m_AnchorMin: {x: 0, y: 0.3634345}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
