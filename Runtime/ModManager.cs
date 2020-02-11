@@ -31,7 +31,7 @@ namespace ModIO
 
         // ---------[ CONSTANTS ]---------
         /// <summary>Current version of the ModManager/Plugin.</summary>
-        public static readonly SimpleVersion VERSION = new SimpleVersion(2, 0);
+        public static readonly SimpleVersion VERSION = new SimpleVersion(2, 1);
 
         /// <summary>File name used to store the persistent data.</summary>
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
