@@ -4,16 +4,4 @@
     "version": "2.1.1-preview",
     "unity": "2017.3",
     "displayName": "mod.io Unity Plugin",
-    "samples": [
-        {
-            "displayName": "Browser Example",
-            "description": "Example for browser usage",
-            "path": "Samples~/BrowserExample"
-        },
-        {
-            "displayName": "Editor Example",
-            "description": "Example for editor usage",
-            "path": "Samples~/EditorExample"
-        }
-    ]
 }
