@@ -46,8 +46,9 @@ ehthumbs.db
 Thumbs.db
 
 # Plugin Specific
-_nonRepo/
 Resources/modio_settings.asset*
+Editor Default Resources/mod.io/
+Editor Default Resources/mod.io.meta
 /*.meta
 *LICENSE*.meta
 *README*.meta
