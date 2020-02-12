@@ -17,6 +17,39 @@ Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to e
 * Players can activate / deactivate mods they are subscribed to
 * Customizable mod browsing UI
 
+## Installation
+Requires **Unity 2017.3** or later. Tested on Windows, and MacOS.
+
+There are several ways to install the mod.io Unity Plugin:
+
+### Package Manager
+The best way is to install this library as a [Git package](https://docs.unity3d.com/Manual/upm-git.html) using the Package Manager.
+First, make sure that you to have Git installed and available in your system's PATH.
+After that you need to add the following line to your project's `manifest.json`:
+```
+"com.modio.unityplugin": "https://github.com/modio/UnityPlugin.git",
+```
+
+It should look like this, notice the comma at the end of the line:
+```
+{
+  "dependencies": {
+    "com.modio.unityplugin": "https://github.com/modio/UnityPlugin.git",
+    "com.unity.package-manager-ui": "1.0.0",
+    "com.unity.modules.ai": "1.0.0",
+    "com.unity.modules.animation": "1.0.0",
+    ...
+  }
+}
+```
+
+If you don't want to use Git, you can download this library as an archive and install it as a [local package](https://docs.unity3d.com/Manual/upm-ui-local.html).
+
+### Asset Store or .unitypackage
+The other way is to import a package from the [Asset Store](https://assetstore.unity.com/packages/templates/systems/mod-browser-manager-138866)
+or the [Releases page](https://github.com/modio/UnityPlugin/releases).
+If you have any previous versions of the plugin installed, it is highly recommended to delete them before importing a newer version.
+
 ## Getting started
 If you are a game developer, first step is to add mod support to your Unity game. Once mod support is up and running, [create your games profile](https://mod.io/games/add) on mod.io, to get an API key and access to all [functionality mod.io offers](https://apps.mod.io/guides/getting-started).
 Next, download the latest [UnityPackage release from Github](https://github.com/modio/UnityPlugin/releases) or [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/138866) and unpack it into your project, then head over to the [GitHub Wiki](https://github.com/modio/UnityPlugin/wiki) and follow the guides to get it running within your game.
