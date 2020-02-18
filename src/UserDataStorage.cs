@@ -14,6 +14,13 @@ namespace ModIO
     /// <summary>Functions for user-specific data I/O.</summary>
     public static class UserDataStorage
     {
+        // ---------[ Nested Data-Types ]---------
+        /// <summary>Delegate for the read file callback.</summary>
+        public delegate void ReadFileCallback(byte[] data);
+
+        /// <summary>Delegate for write/delete file callbacks.</summary>
+        public delegate void WriteFileCallback(bool wasSuccess);
+
         // ---------[ FIELDS ]---------
         /// <summary>Defines the base directory for the user-specific data.</summary>
         private static readonly string _USER_DIRECTORY_ROOT;
@@ -65,8 +72,10 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            byte[] fileData = UserDataStorage._PlatformReadFile(filePath);
-            return UserDataStorage.TryParseJSONFile(fileData, out jsonObject);;
+            byte[] fileData = null;
+            UserDataStorage._PlatformReadFile(filePath, (d) => fileData = d);
+
+            return UserDataStorage.TryParseJSONFile(fileData, out jsonObject);
         }
 
         /// <summary>Function used to read a user data file.</summary>
@@ -77,8 +86,13 @@ namespace ModIO
             byte[] fileData = null;
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
 
-            return(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData)
-                   && UserDataStorage._PlatformWriteFile(filePath, fileData));
+            bool wasSuccess = false;
+            if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
+            {
+                UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => wasSuccess = s);
+            }
+
+            return wasSuccess;
         }
 
         /// <summary>Generates user data file.</summary>
@@ -138,7 +152,10 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            return UserDataStorage._PlatformReadFile(filePath);
+            byte[] fileData = null;
+            UserDataStorage._PlatformReadFile(filePath, (d) => fileData = d);
+
+            return fileData;
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
@@ -155,7 +172,10 @@ namespace ModIO
             #endif // DEBUG
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            return UserDataStorage._PlatformWriteFile(filePath, fileData);
+            bool wasSuccess = false;
+            UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => wasSuccess = s);
+
+            return wasSuccess;
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
@@ -164,27 +184,33 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            return UserDataStorage._PlatformDeleteFile(filePath);
+            bool wasSuccess = false;
+            UserDataStorage._PlatformDeleteFile(filePath, (s) => wasSuccess = s);
+
+            return wasSuccess;
         }
 
         /// <summary>Function for clearing all user data.</summary>
-        public static void ClearAllData()
+        public static bool ClearAllData()
         {
-            UserDataStorage._PlatformClearAllData();
+            bool wasSuccess = false;
+            UserDataStorage._PlatformClearAllData((s) => wasSuccess = s);
+
+            return wasSuccess;
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
         /// <summary>Delegate for reading a file.</summary>
-        private delegate byte[] ReadFileDelegate(string filePath);
+        private delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
 
         /// <summary>Delegate for writing a file.</summary>
-        private delegate bool WriteFileDelegate(string filePath, byte[] fileData);
+        private delegate void WriteFileDelegate(string filePath, byte[] fileData, WriteFileCallback callback);
 
         /// <summary>Delegate for deleting a file.</summary>
-        private delegate bool DeleteFileDelegate(string filePath);
+        private delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
 
         /// <summary>Delegate for clearing all data.</summary>
-        private delegate void ClearAllDataDelegate();
+        private delegate void ClearAllDataDelegate(WriteFileCallback callback);
 
         /// <summary>Function for reading a user-specific file.</summary>
         private readonly static ReadFileDelegate _PlatformReadFile = null;
