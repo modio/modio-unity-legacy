@@ -267,7 +267,7 @@ namespace ModIO
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
-            private static bool WriteFile_Editor(string filePath, byte[] data)
+            private static void WriteFile_Editor(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -282,7 +282,10 @@ namespace ModIO
                     UnityEditor.AssetDatabase.Refresh();
                 }
 
-                return success;
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
@@ -348,12 +351,17 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
-            public static bool WriteFile_Facepunch(string filePath, byte[] data)
+            public static void WriteFile_Facepunch(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
-                return Steamworks.SteamRemoteStorage.FileWrite(filePath, data);
+                bool success = Steamworks.SteamRemoteStorage.FileWrite(filePath, data);
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
@@ -423,12 +431,17 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
-            public static bool WriteFile_SteamworksNET(string filePath, byte[] data)
+            public static void WriteFile_SteamworksNET(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
-                return Steamworks.SteamRemoteStorage.FileWrite(filePath, data, data.Length);
+                bool success = Steamworks.SteamRemoteStorage.FileWrite(filePath, data, data.Length);
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
@@ -496,14 +509,18 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
-            private static bool WriteFile_Standalone(string filePath, byte[] data)
+            private static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
                 bool success = false;
                 success = IOUtilities.WriteBinaryFile(filePath, data);
-                return success;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
