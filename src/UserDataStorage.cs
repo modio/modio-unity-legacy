@@ -289,7 +289,7 @@ namespace ModIO
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
-            private static bool DeleteFile_Editor(string filePath)
+            private static void DeleteFile_Editor(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -306,7 +306,10 @@ namespace ModIO
                     }
                 }
 
-                return success;
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
@@ -365,15 +368,21 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            private static bool DeleteFile_Facepunch(string filePath)
+            private static void DeleteFile_Facepunch(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
+                bool success = true;
+
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    return Steamworks.SteamRemoteStorage.FileDelete(filePath);
+                    success = Steamworks.SteamRemoteStorage.FileDelete(filePath);
                 }
-                return true;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
@@ -445,15 +454,21 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
-            private static bool DeleteFile_SteamworksNET(string filePath)
+            private static void DeleteFile_SteamworksNET(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
+                bool success = true;
+
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    return Steamworks.SteamRemoteStorage.FileDelete(filePath);
+                    success = Steamworks.SteamRemoteStorage.FileDelete(filePath);
                 }
-                return true;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Steamworks.NET)</summary>
@@ -524,13 +539,17 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
-            private static bool DeleteFile_Standalone(string filePath)
+            private static void DeleteFile_Standalone(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 bool success = false;
                 success = IOUtilities.DeleteFile(filePath);
-                return success;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
