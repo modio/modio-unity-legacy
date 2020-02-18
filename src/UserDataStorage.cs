@@ -253,13 +253,17 @@ namespace ModIO
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
-            private static byte[] ReadFile_Editor(string filePath)
+            private static void ReadFile_Editor(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 byte[] data = null;
                 data = IOUtilities.LoadBinaryFile(filePath);
-                return data;
+
+                if(callback != null)
+                {
+                    callback.Invoke(data);
+                }
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
@@ -327,7 +331,7 @@ namespace ModIO
             }
 
             /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
-            public static byte[] ReadFile_Facepunch(string filePath)
+            public static void ReadFile_Facepunch(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -337,7 +341,10 @@ namespace ModIO
                     data = Steamworks.SteamRemoteStorage.FileRead(filePath);
                 }
 
-                return data;
+                if(callback != null)
+                {
+                    callback.Invoke(data);
+                }
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
@@ -393,7 +400,7 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Steamworks.NET)</summary>
-            private static byte[] ReadFile_SteamworksNET(string filePath)
+            private static void ReadFile_SteamworksNET(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -409,7 +416,10 @@ namespace ModIO
                     }
                 }
 
-                return data;
+                if(callback != null)
+                {
+                    callback.Invoke(data);
+                }
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
@@ -472,13 +482,17 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
-            private static byte[] ReadFile_Standalone(string filePath)
+            private static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 byte[] data = null;
                 data = IOUtilities.LoadBinaryFile(filePath);
-                return data;
+
+                if(callback != null)
+                {
+                    callback.Invoke(data);
+                }
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
