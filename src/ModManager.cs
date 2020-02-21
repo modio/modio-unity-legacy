@@ -256,7 +256,7 @@ namespace ModIO
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
-                modIdFilter = new List<int>(UserAccountManagement.GetEnabledMods());
+                modIdFilter = new List<int>(LocalUser.EnabledModIds);
                 // Include drop-ins
                 modIdFilter.Add(ModProfile.NULL_ID);
             }
@@ -277,7 +277,7 @@ namespace ModIO
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
-                modIdFilter = new List<int>(UserAccountManagement.GetEnabledMods());
+                modIdFilter = new List<int>(LocalUser.EnabledModIds);
             }
 
             List<ModfileIdPair> versions = new List<ModfileIdPair>();

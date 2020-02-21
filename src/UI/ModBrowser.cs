@@ -1152,7 +1152,7 @@ namespace ModIO.UI
                     }
                 }
 
-                // remove subs for deletedmods
+                // remove subs for deleted mods
                 if(deletedMods.Count > 0)
                 {
                     var subscribedModIds = LocalUser.SubscribedModIds;
@@ -1389,8 +1389,6 @@ namespace ModIO.UI
         public void OnSubscriptionsChanged(IList<int> addedSubscriptions,
                                            IList<int> removedSubscriptions)
         {
-            var enabledMods = UserAccountManagement.GetEnabledMods();
-
             // handle new subscriptions
             if(addedSubscriptions != null
                && addedSubscriptions.Count > 0)
@@ -1398,9 +1396,9 @@ namespace ModIO.UI
                 // enable mods
                 foreach(int modId in addedSubscriptions)
                 {
-                    if(!enabledMods.Contains(modId))
+                    if(!LocalUser.EnabledModIds.Contains(modId))
                     {
-                        enabledMods.Add(modId);
+                        LocalUser.EnabledModIds.Add(modId);
                     }
                 }
 
@@ -1456,11 +1454,12 @@ namespace ModIO.UI
                     ModManager.TryUninstallAllModVersions(modId);
 
                     // disable
-                    enabledMods.Remove(modId);
+                    LocalUser.EnabledModIds.Remove(modId);
                 }
             }
 
-            UserAccountManagement.SetEnabledMods(enabledMods);
+            LocalUser.Save();
+
             UpdateSubscriptionReceivers(addedSubscriptions, removedSubscriptions);
         }
 
@@ -1480,11 +1479,10 @@ namespace ModIO.UI
 
         public void EnableMod(int modId)
         {
-            IList<int> mods = UserAccountManagement.GetEnabledMods();
-            if(!mods.Contains(modId))
+            if(!LocalUser.EnabledModIds.Contains(modId))
             {
-                mods.Add(modId);
-                UserAccountManagement.SetEnabledMods(mods);
+                LocalUser.EnabledModIds.Add(modId);
+                LocalUser.Save();
             }
 
             IEnumerable<IModEnabledReceiver> updateReceivers = GetComponentsInChildren<IModEnabledReceiver>(true);
@@ -1496,11 +1494,10 @@ namespace ModIO.UI
 
         public void DisableMod(int modId)
         {
-            IList<int> mods = UserAccountManagement.GetEnabledMods();
-            if(mods.Contains(modId))
+            if(LocalUser.EnabledModIds.Contains(modId))
             {
-                mods.Remove(modId);
-                UserAccountManagement.SetEnabledMods(mods);
+                LocalUser.EnabledModIds.Remove(modId);
+                LocalUser.Save();
             }
 
             IEnumerable<IModDisabledReceiver> updateReceivers = GetComponentsInChildren<IModDisabledReceiver>(true);

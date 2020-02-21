@@ -17,29 +17,6 @@ namespace ModIO
         }
 
         // ---------[ MOD COLLECTION MANAGEMENT ]---------
-        /// <summary>Returns the enabled mods for the active user.</summary>
-        public static List<int> GetEnabledMods()
-        {
-            return new List<int>(LocalUser.EnabledModIds);
-        }
-
-        /// <summary>Sets the enabled mods for the active user.</summary>
-        public static void SetEnabledMods(IEnumerable<int> modIds)
-        {
-            List<int> modList = null;
-            if(modIds == null)
-            {
-                modList = new List<int>();
-            }
-            else
-            {
-                modList = new List<int>(modIds);
-            }
-
-            LocalUser.EnabledModIds = modList;
-            LocalUser.Save();
-        }
-
         /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
         public static void SubscribeToMod(int modId)
         {

@@ -122,8 +122,8 @@ namespace ModIO.UI
 
                     // compare
                     int compareResult = 0;
-                    compareResult += (UserAccountManagement.GetEnabledMods().Contains(a.id) ? -1 : 0);
-                    compareResult += (UserAccountManagement.GetEnabledMods().Contains(b.id) ? 1 : 0);
+                    compareResult += (LocalUser.EnabledModIds.Contains(a.id) ? -1 : 0);
+                    compareResult += (LocalUser.EnabledModIds.Contains(b.id) ? 1 : 0);
 
                     if(compareResult == 0)
                     {
