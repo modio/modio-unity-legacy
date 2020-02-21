@@ -17,7 +17,7 @@ namespace ModIO
         /// <summary>A structure used to store data on disk.</summary>
         private struct PersistentData
         {
-            public SimpleVersion lastRunVersion;
+            public ModIOVersion lastRunVersion;
         }
 
         // ---------[ EVENTS ]---------
@@ -28,9 +28,6 @@ namespace ModIO
         public static event Action<ModfileIdPair> onModBinaryUninstalled;
 
         // ---------[ CONSTANTS ]---------
-        /// <summary>Current version of the ModManager/Plugin.</summary>
-        public static readonly SimpleVersion VERSION = new SimpleVersion(2, 1);
-
         /// <summary>File name used to store the persistent data.</summary>
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
 
@@ -56,12 +53,12 @@ namespace ModIO
             {
                 ModManager.m_data = new PersistentData();
             }
-            else if(ModManager.m_data.lastRunVersion < ModManager.VERSION)
+            else if(ModManager.m_data.lastRunVersion < ModIOVersion.Current)
             {
                 DataUpdater.UpdateFromVersion(m_data.lastRunVersion);
             }
 
-            ModManager.m_data.lastRunVersion = ModManager.VERSION;
+            ModManager.m_data.lastRunVersion = ModIOVersion.Current;
 
             IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
