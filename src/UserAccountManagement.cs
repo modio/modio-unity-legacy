@@ -15,7 +15,11 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         /// <summary>Data instance.</summary>
-        public static LocalUser activeUser;
+        public static LocalUser activeUser
+        {
+            get { return LocalUser.instance; }
+            set { LocalUser.instance = value;}
+        }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the default local user.</summary>
