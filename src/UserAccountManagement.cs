@@ -9,13 +9,6 @@ namespace ModIO
     /// <summary>Main functional wrapper for the LocalUser structure.</summary>
     public static class UserAccountManagement
     {
-        // ---------[ INITIALIZATION ]---------
-        /// <summary>Loads the default local user.</summary>
-        static UserAccountManagement()
-        {
-            LocalUser.Load();
-        }
-
         // ---------[ MOD COLLECTION MANAGEMENT ]---------
         /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
         public static void SubscribeToMod(int modId)

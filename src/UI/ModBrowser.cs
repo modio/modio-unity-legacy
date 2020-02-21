@@ -179,6 +179,8 @@ namespace ModIO.UI
                 yield break;
             }
 
+            yield return this.StartCoroutine(LocalUser.Load());
+
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(FetchUserProfile());
