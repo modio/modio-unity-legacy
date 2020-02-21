@@ -31,7 +31,7 @@ namespace ModIO
         /// <summary>Returns the enabled mods for the active user.</summary>
         public static List<int> GetEnabledMods()
         {
-            return new List<int>(UserAccountManagement.activeUser.enabledModIds);
+            return new List<int>(LocalUser.EnabledModIds);
         }
 
         /// <summary>Sets the enabled mods for the active user.</summary>
@@ -47,7 +47,7 @@ namespace ModIO
                 modList = new List<int>(modIds);
             }
 
-            UserAccountManagement.activeUser.enabledModIds = modList;
+            LocalUser.EnabledModIds = modList;
             SaveActiveUser();
         }
 
@@ -118,11 +118,11 @@ namespace ModIO
         {
             UserAccountManagement.AssertActiveUserListsNotNull();
 
-            int responsesPending = (UserAccountManagement.activeUser.queuedSubscribes.Count
-                                    + UserAccountManagement.activeUser.queuedUnsubscribes.Count);
+            int responsesPending = (LocalUser.QueuedSubscribes.Count
+                                    + LocalUser.QueuedUnsubscribes.Count);
 
             // early outs
-            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.NoToken
+            if(LocalUser.AuthenticationState == AuthenticationState.NoToken
                || responsesPending == 0)
             {
                 if(onCompletedNoErrors != null)
@@ -134,28 +134,28 @@ namespace ModIO
             }
 
             // set up vars
-            string userToken = UserAccountManagement.activeUser.oAuthToken;
+            string userToken = LocalUser.OAuthToken;
             List<WebRequestError> errors = new List<WebRequestError>();
 
             List<int> subscribesPushed
-                = new List<int>(UserAccountManagement.activeUser.queuedSubscribes.Count);
+                = new List<int>(LocalUser.QueuedSubscribes.Count);
             List<int> unsubscribesPushed
-                = new List<int>(UserAccountManagement.activeUser.queuedUnsubscribes.Count);
+                = new List<int>(LocalUser.QueuedUnsubscribes.Count);
 
             // callback
             Action onRequestCompleted = () =>
             {
                 if(responsesPending <= 0)
                 {
-                    if(userToken == UserAccountManagement.activeUser.oAuthToken)
+                    if(userToken == LocalUser.OAuthToken)
                     {
                         foreach(int modId in subscribesPushed)
                         {
-                            UserAccountManagement.activeUser.queuedSubscribes.Remove(modId);
+                            LocalUser.QueuedSubscribes.Remove(modId);
                         }
                         foreach(int modId in unsubscribesPushed)
                         {
-                            UserAccountManagement.activeUser.queuedUnsubscribes.Remove(modId);
+                            LocalUser.QueuedUnsubscribes.Remove(modId);
                         }
 
                         UserAccountManagement.SaveActiveUser();
@@ -175,7 +175,7 @@ namespace ModIO
             };
 
             // - push -
-            foreach(int modId in UserAccountManagement.activeUser.queuedSubscribes)
+            foreach(int modId in LocalUser.QueuedSubscribes)
             {
                 APIClient.SubscribeToMod(modId,
                 (p) =>
@@ -207,7 +207,7 @@ namespace ModIO
                     onRequestCompleted();
                 });
             }
-            foreach(int modId in UserAccountManagement.activeUser.queuedUnsubscribes)
+            foreach(int modId in LocalUser.QueuedUnsubscribes)
             {
                 APIClient.UnsubscribeFromMod(modId,
                 () =>
@@ -247,7 +247,7 @@ namespace ModIO
                                                    Action<WebRequestError> onError)
         {
             // early out
-            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.NoToken)
+            if(LocalUser.AuthenticationState == AuthenticationState.NoToken)
             {
                 if(onSuccess != null)
                 {
@@ -259,7 +259,7 @@ namespace ModIO
             UserAccountManagement.AssertActiveUserListsNotNull();
 
             // holding vars
-            string userToken = UserAccountManagement.activeUser.oAuthToken;
+            string userToken = LocalUser.OAuthToken;
             List<ModProfile> remoteOnlySubscriptions = new List<ModProfile>();
 
             // set filter and initial pagination
@@ -328,16 +328,16 @@ namespace ModIO
 
             onAllPagesReceived = () =>
             {
-                if(userToken != UserAccountManagement.activeUser.oAuthToken)
+                if(userToken != LocalUser.OAuthToken)
                 {
                     return;
                 }
 
                 List<int> localOnlySubs
-                = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
+                = new List<int>(LocalUser.SubscribedModIds);
 
                 // NOTE(@jackson): Unsub actions *should not* be found in activeUser.subscribedModIds
-                foreach(int modId in UserAccountManagement.activeUser.queuedUnsubscribes)
+                foreach(int modId in LocalUser.QueuedUnsubscribes)
                 {
                     #if DEBUG
                     if(localOnlySubs.Contains(modId))
@@ -363,10 +363,10 @@ namespace ModIO
                     ModProfile profile = remoteOnlySubscriptions[i];
 
                     // remove if in queued subs
-                    UserAccountManagement.activeUser.queuedSubscribes.Remove(profile.id);
+                    LocalUser.QueuedSubscribes.Remove(profile.id);
 
                     // if in unsub queue
-                    if(UserAccountManagement.activeUser.queuedUnsubscribes.Contains(profile.id))
+                    if(LocalUser.QueuedUnsubscribes.Contains(profile.id))
                     {
                         remoteOnlySubscriptions.RemoveAt(i);
                         --i;
@@ -389,13 +389,13 @@ namespace ModIO
                 foreach(int modId in localOnlySubs)
                 {
                     // if not in sub queue
-                    if(!UserAccountManagement.activeUser.queuedSubscribes.Contains(modId))
+                    if(!LocalUser.QueuedSubscribes.Contains(modId))
                     {
-                        UserAccountManagement.activeUser.subscribedModIds.Remove(modId);
+                        LocalUser.SubscribedModIds.Remove(modId);
                     }
                 }
 
-                UserAccountManagement.activeUser.subscribedModIds.AddRange(newSubs);
+                LocalUser.SubscribedModIds.AddRange(newSubs);
 
                 // save
                 UserAccountManagement.SaveActiveUser();
@@ -410,11 +410,11 @@ namespace ModIO
         public static void UpdateUserProfile(Action<UserProfile> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            if(UserAccountManagement.activeUser.authenticationState != AuthenticationState.NoToken)
+            if(LocalUser.AuthenticationState != AuthenticationState.NoToken)
             {
                 APIClient.GetAuthenticatedUser((p) =>
                 {
-                    UserAccountManagement.activeUser.profile = p;
+                    LocalUser.Profile = p;
                     UserAccountManagement.SaveActiveUser();
 
                     if(onSuccess != null)
@@ -433,7 +433,7 @@ namespace ModIO
         /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
         public static void MarkAuthTokenRejected()
         {
-            UserAccountManagement.activeUser.wasTokenRejected = true;
+            LocalUser.WasTokenRejected = true;
             SaveActiveUser();
         }
 
@@ -445,8 +445,8 @@ namespace ModIO
         {
             APIClient.GetOAuthToken(securityCode, (t) =>
             {
-                UserAccountManagement.activeUser.oAuthToken = t;
-                UserAccountManagement.activeUser.wasTokenRejected = false;
+                LocalUser.OAuthToken = t;
+                LocalUser.WasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -490,8 +490,8 @@ namespace ModIO
 
             APIClient.RequestSteamAuthentication(encodedTicket, (t) =>
             {
-                UserAccountManagement.activeUser.oAuthToken = t;
-                UserAccountManagement.activeUser.wasTokenRejected = false;
+                LocalUser.OAuthToken = t;
+                LocalUser.WasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -521,8 +521,8 @@ namespace ModIO
 
             APIClient.RequestGOGAuthentication(encodedTicket, (t) =>
             {
-                UserAccountManagement.activeUser.oAuthToken = t;
-                UserAccountManagement.activeUser.wasTokenRejected = false;
+                LocalUser.OAuthToken = t;
+                LocalUser.WasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -543,8 +543,8 @@ namespace ModIO
 
             APIClient.RequestItchIOAuthentication(jwtToken, (t) =>
             {
-                UserAccountManagement.activeUser.oAuthToken = t;
-                UserAccountManagement.activeUser.wasTokenRejected = false;
+                LocalUser.OAuthToken = t;
+                LocalUser.WasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -573,8 +573,8 @@ namespace ModIO
             APIClient.RequestOculusRiftAuthentication(oculusUserNonce, oculusUserId, oculusUserAccessToken,
             (t) =>
             {
-                UserAccountManagement.activeUser.oAuthToken = t;
-                UserAccountManagement.activeUser.wasTokenRejected = false;
+                LocalUser.OAuthToken = t;
+                LocalUser.WasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -595,8 +595,8 @@ namespace ModIO
 
             APIClient.RequestXboxLiveAuthentication(xboxLiveUserToken, (t) =>
             {
-                UserAccountManagement.activeUser.oAuthToken = t;
-                UserAccountManagement.activeUser.wasTokenRejected = false;
+                LocalUser.OAuthToken = t;
+                LocalUser.WasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
@@ -615,8 +615,8 @@ namespace ModIO
 
             Action<string> onSuccessWrapper = (t) =>
             {
-                UserAccountManagement.activeUser.oAuthToken = t;
-                UserAccountManagement.activeUser.wasTokenRejected = false;
+                LocalUser.OAuthToken = t;
+                LocalUser.WasTokenRejected = false;
                 UserAccountManagement.SaveActiveUser();
 
                 if(onSuccess != null)
