@@ -140,7 +140,7 @@ namespace ModIO
 
         // ---------[ Data I/O ]---------
         /// <summary>Loads the LocalUser instance.</summary>
-        public static System.Collections.IEnumerator Load(System.Action callback)
+        public static System.Collections.IEnumerator Load(System.Action callback = null)
         {
             bool isDone = false;
 
@@ -160,7 +160,7 @@ namespace ModIO
         }
 
         /// <summary>Saves the LocalUser instance.</summary>
-        public static System.Collections.IEnumerator Save(System.Action callback)
+        public static System.Collections.IEnumerator Save(System.Action callback = null)
         {
             UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
                                              UserAccountManagement.activeUser);
