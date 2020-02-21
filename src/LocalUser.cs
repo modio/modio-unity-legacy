@@ -69,7 +69,6 @@ namespace ModIO
 
         // --- Static Accessors ---
         /// <summary>[Singleton Instance Accessor] mod.io User Profile.</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static UserProfile Profile
         {
             get { return LocalUser.instance.profile; }
@@ -77,7 +76,6 @@ namespace ModIO
         }
 
         /// <summary>[Singleton Instance Accessor] User authentication token to send with API requests identifying the user.</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static string OAuthToken
         {
             get { return LocalUser.instance.oAuthToken; }
@@ -85,7 +83,6 @@ namespace ModIO
         }
 
         /// <summary>[Singleton Instance Accessor] A flag to indicate that the auth token has been rejected.</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static bool WasTokenRejected
         {
             get { return LocalUser.instance.wasTokenRejected; }
@@ -93,7 +90,6 @@ namespace ModIO
         }
 
         /// <summary>[Singleton Instance Accessor] Mods the user has enabled on this device.</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static List<int> EnabledModIds
         {
             get { return LocalUser.instance.enabledModIds; }
@@ -101,7 +97,6 @@ namespace ModIO
         }
 
         /// <summary>[Singleton Instance Accessor] Mods the user is subscribed to.</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static List<int> SubscribedModIds
         {
             get { return LocalUser.instance.subscribedModIds; }
@@ -109,7 +104,6 @@ namespace ModIO
         }
 
         /// <summary>[Singleton Instance Accessor] Queued subscribe actions.</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static List<int> QueuedSubscribes
         {
             get { return LocalUser.instance.queuedSubscribes; }
@@ -117,7 +111,6 @@ namespace ModIO
         }
 
         /// <summary>[Singleton Instance Accessor] Queued unsubscribe actions</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static List<int> QueuedUnsubscribes
         {
             get { return LocalUser.instance.queuedUnsubscribes; }
@@ -125,11 +118,16 @@ namespace ModIO
         }
 
         /// <summary>[Singleton Instance Accessor] External authentication data for the session.</summary>
-        [Newtonsoft.Json.JsonIgnore]
         public static ExternalAuthenticationData ExternalAuthentication
         {
             get { return LocalUser.instance.externalAuthentication; }
             set { LocalUser.instance.externalAuthentication = value; }
+        }
+
+        /// <summary>[Singleton Instance Accessor] Returns the summarised authentication state.</summary>
+        public static AuthenticationState AuthenticationState
+        {
+            get { return LocalUser.instance.authenticationState; }
         }
 
         // ---------[ Initialization ]---------
