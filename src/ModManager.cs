@@ -1781,16 +1781,14 @@ namespace ModIO
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserProfile profile = UserAccountManagement.activeUser.profile;
-
-            if(profile == null
-               && !string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
+            if(LocalUser.Profile == null
+               && !string.IsNullOrEmpty(LocalUser.OAuthToken))
             {
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             }
             else if(onSuccess != null)
             {
-                onSuccess(profile);
+                onSuccess(LocalUser.Profile);
             }
         }
 
@@ -1957,7 +1955,7 @@ namespace ModIO
         [Obsolete("Use UseAccountManagement.activeUser.subscribedModIds instead.")]
         public static List<int> GetSubscribedModIds()
         {
-            return UserAccountManagement.activeUser.subscribedModIds;
+            return LocalUser.SubscribedModIds;
         }
         /// <summary>[Obsolete]Sets the subscribed mods and writes the data to disk.</summary>
         [Obsolete("Use UserAccountManagement.SubscribeToMod() instead.")]
