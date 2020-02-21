@@ -547,7 +547,7 @@ namespace ModIO.UI
 
             // append added sub modids
             UserAccountManagement.activeUser.subscribedModIds.AddRange(subsAdded);
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
 
             // cache profiles
             ModProfileRequestManager.instance.CacheModProfiles(subProfiles);
@@ -1107,7 +1107,7 @@ namespace ModIO.UI
                 }
             }
 
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
 
             if(newSubs.Count > 0 || newUnsubs.Count > 0)
             {
@@ -1313,7 +1313,7 @@ namespace ModIO.UI
                 subscribedModIds = oldUser.subscribedModIds,
                 enabledModIds = oldUser.enabledModIds,
             };
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
 
             // - notify receivers -
             IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);

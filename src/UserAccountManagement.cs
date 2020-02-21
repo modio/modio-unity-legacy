@@ -45,7 +45,7 @@ namespace ModIO
             }
 
             LocalUser.EnabledModIds = modList;
-            SaveActiveUser();
+            LocalUser.Save();
         }
 
         /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
@@ -77,7 +77,7 @@ namespace ModIO
 
             // save
             UserAccountManagement.activeUser = userData;
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
         }
 
         /// <summary>Removes a mod from the subscribed list and modifies the queued actions accordingly.</summary>
@@ -106,7 +106,7 @@ namespace ModIO
 
             // save
             UserAccountManagement.activeUser = userData;
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
         }
 
         /// <summary>Pushes queued subscribe actions to the server.</summary>
@@ -155,7 +155,7 @@ namespace ModIO
                             LocalUser.QueuedUnsubscribes.Remove(modId);
                         }
 
-                        UserAccountManagement.SaveActiveUser();
+                        LocalUser.Save();
                     }
 
                     if(errors.Count == 0
@@ -395,7 +395,7 @@ namespace ModIO
                 LocalUser.SubscribedModIds.AddRange(newSubs);
 
                 // save
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
             };
 
             // get pages
@@ -412,7 +412,7 @@ namespace ModIO
                 APIClient.GetAuthenticatedUser((p) =>
                 {
                     LocalUser.Profile = p;
-                    UserAccountManagement.SaveActiveUser();
+                    LocalUser.Save();
 
                     if(onSuccess != null)
                     {
@@ -431,7 +431,7 @@ namespace ModIO
         public static void MarkAuthTokenRejected()
         {
             LocalUser.WasTokenRejected = true;
-            SaveActiveUser();
+            LocalUser.Save();
         }
 
 
@@ -444,7 +444,7 @@ namespace ModIO
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
@@ -489,7 +489,7 @@ namespace ModIO
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
@@ -520,7 +520,7 @@ namespace ModIO
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
@@ -542,7 +542,7 @@ namespace ModIO
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
@@ -572,7 +572,7 @@ namespace ModIO
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
@@ -594,7 +594,7 @@ namespace ModIO
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
 
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             },
@@ -614,7 +614,7 @@ namespace ModIO
             {
                 LocalUser.OAuthToken = t;
                 LocalUser.WasTokenRejected = false;
-                UserAccountManagement.SaveActiveUser();
+                LocalUser.Save();
 
                 if(onSuccess != null)
                 {
@@ -750,13 +750,6 @@ namespace ModIO
 
                 UserAccountManagement.AssertActiveUserListsNotNull();
             });
-        }
-
-        /// <summary>Writes the active user data to disk.</summary>
-        public static void SaveActiveUser()
-        {
-            UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
-                                             UserAccountManagement.activeUser);
         }
 
         // ---------[ UTILITY ]---------

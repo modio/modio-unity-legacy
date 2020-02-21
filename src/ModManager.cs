@@ -1969,7 +1969,7 @@ namespace ModIO
             }
 
             UserAccountManagement.activeUser.subscribedModIds = new List<int>(modIds);
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
         }
     }
 }

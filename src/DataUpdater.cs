@@ -139,7 +139,7 @@ namespace ModIO
 
             // - set and save -
             UserAccountManagement.activeUser = userData;
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
 
             Debug.Log("[mod.io] UserData updated completed.");
 
