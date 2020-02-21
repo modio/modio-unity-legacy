@@ -57,30 +57,27 @@ namespace ModIO
         {
             LocalUser.AssertListsNotNull(ref LocalUser.instance);
 
-            LocalUser userData = UserAccountManagement.activeUser;
-
             // add sub to list
-            if(!userData.subscribedModIds.Contains(modId))
+            if(!LocalUser.SubscribedModIds.Contains(modId))
             {
-                userData.subscribedModIds.Add(modId);
+                LocalUser.SubscribedModIds.Add(modId);
             }
 
             // check queues
-            bool unsubQueued = userData.queuedUnsubscribes.Contains(modId);
-            bool subQueued = userData.queuedSubscribes.Contains(modId);
+            bool unsubQueued =  LocalUser.QueuedUnsubscribes.Contains(modId);
+            bool subQueued =    LocalUser.QueuedSubscribes.Contains(modId);
 
             // add to/remove from queues
             if(unsubQueued)
             {
-                userData.queuedUnsubscribes.Remove(modId);
+                LocalUser.QueuedUnsubscribes.Remove(modId);
             }
             else if(!subQueued)
             {
-                userData.queuedSubscribes.Add(modId);
+                LocalUser.QueuedSubscribes.Add(modId);
             }
 
             // save
-            UserAccountManagement.activeUser = userData;
             LocalUser.Save();
         }
 
@@ -89,27 +86,24 @@ namespace ModIO
         {
             LocalUser.AssertListsNotNull(ref LocalUser.instance);
 
-            LocalUser userData = UserAccountManagement.activeUser;
-
             // remove sub from list
-            userData.subscribedModIds.Remove(modId);
+            LocalUser.SubscribedModIds.Remove(modId);
 
             // check queues
-            bool unsubQueued = userData.queuedUnsubscribes.Contains(modId);
-            bool subQueued = userData.queuedSubscribes.Contains(modId);
+            bool unsubQueued =  LocalUser.QueuedUnsubscribes.Contains(modId);
+            bool subQueued =    LocalUser.QueuedSubscribes.Contains(modId);
 
             // add to/remove from queues
             if(subQueued)
             {
-                userData.queuedSubscribes.Remove(modId);
+                LocalUser.QueuedSubscribes.Remove(modId);
             }
             else if(!unsubQueued)
             {
-                userData.queuedUnsubscribes.Add(modId);
+                LocalUser.QueuedUnsubscribes.Add(modId);
             }
 
             // save
-            UserAccountManagement.activeUser = userData;
             LocalUser.Save();
         }
 
