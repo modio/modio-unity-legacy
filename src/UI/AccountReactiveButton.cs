@@ -37,7 +37,7 @@ namespace ModIO.UI
                     onLoggedOutClick.Invoke();
                 }
             }
-            else if(UserAccountManagement.externalAuthentication.provider == ExternalAuthenticationProvider.None)
+            else if(LocalUser.ExternalAuthentication.provider == ExternalAuthenticationProvider.None)
             {
                 if(onModioAccountClick != null)
                 {

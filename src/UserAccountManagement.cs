@@ -17,9 +17,6 @@ namespace ModIO
         /// <summary>Data instance.</summary>
         public static LocalUser activeUser;
 
-        /// <summary>External authentication data for the session.</summary>
-        public static ExternalAuthenticationData externalAuthentication;
-
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the default local user.</summary>
         static UserAccountManagement()
@@ -482,7 +479,7 @@ namespace ModIO
                                                                    Action<UserProfile> onSuccess,
                                                                    Action<WebRequestError> onError)
         {
-            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = encodedTicket,
                 provider = ExternalAuthenticationProvider.Steam,
@@ -513,7 +510,7 @@ namespace ModIO
                                                                  Action<UserProfile> onSuccess,
                                                                  Action<WebRequestError> onError)
         {
-            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = encodedTicket,
                 provider = ExternalAuthenticationProvider.Steam,
@@ -535,7 +532,7 @@ namespace ModIO
                                                        Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = jwtToken,
                 provider = ExternalAuthenticationProvider.ItchIO,
@@ -559,7 +556,7 @@ namespace ModIO
                                                               Action<UserProfile> onSuccess,
                                                               Action<WebRequestError> onError)
         {
-            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 provider = ExternalAuthenticationProvider.OculusRift,
                 ticket = oculusUserAccessToken,
@@ -587,7 +584,7 @@ namespace ModIO
                                                          Action<UserProfile> onSuccess,
                                                          Action<WebRequestError> onError)
         {
-            UserAccountManagement.externalAuthentication = new ExternalAuthenticationData()
+            LocalUser.ExternalAuthentication = new ExternalAuthenticationData()
             {
                 ticket = xboxLiveUserToken,
                 provider = ExternalAuthenticationProvider.XboxLive,
@@ -608,7 +605,7 @@ namespace ModIO
         public static void ReauthenticateWithStoredExternalAuthData(Action<UserProfile> onSuccess,
                                                                     Action<WebRequestError> onError)
         {
-            ExternalAuthenticationData authData = UserAccountManagement.externalAuthentication;
+            ExternalAuthenticationData authData = LocalUser.ExternalAuthentication;
 
             Debug.Assert(!string.IsNullOrEmpty(authData.ticket));
             Debug.Assert(authData.provider != ExternalAuthenticationProvider.None);
@@ -625,7 +622,7 @@ namespace ModIO
                 }
             };
 
-            switch(UserAccountManagement.externalAuthentication.provider)
+            switch(LocalUser.ExternalAuthentication.provider)
             {
                 case ExternalAuthenticationProvider.Steam:
                 {

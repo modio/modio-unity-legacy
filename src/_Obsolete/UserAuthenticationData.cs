@@ -59,17 +59,17 @@ namespace ModIO
                 string steamTicket = null;
                 string gogTicket = null;
 
-                switch(UserAccountManagement.externalAuthentication.provider)
+                switch(LocalUser.ExternalAuthentication.provider)
                 {
                     case ExternalAuthenticationProvider.Steam:
                     {
-                        steamTicket = UserAccountManagement.externalAuthentication.ticket;
+                        steamTicket = LocalUser.ExternalAuthentication.ticket;
                     }
                     break;
 
                     case ExternalAuthenticationProvider.GOG:
                     {
-                        gogTicket = UserAccountManagement.externalAuthentication.ticket;
+                        gogTicket = LocalUser.ExternalAuthentication.ticket;
                     }
                     break;
                 }
@@ -130,7 +130,7 @@ namespace ModIO
                 }
 
                 // set
-                UserAccountManagement.externalAuthentication = externalAuth;
+                LocalUser.ExternalAuthentication = externalAuth;
                 UserAccountManagement.activeUser = userData;
                 UserAccountManagement.SaveActiveUser();
             }
