@@ -162,8 +162,7 @@ namespace ModIO
         /// <summary>Saves the LocalUser instance.</summary>
         public static System.Collections.IEnumerator Save(System.Action callback = null)
         {
-            UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
-                                             UserAccountManagement.activeUser);
+            UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser.instance);
 
             if(callback != null) { callback.Invoke(); }
 
