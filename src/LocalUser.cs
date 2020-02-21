@@ -45,10 +45,10 @@ namespace ModIO
         [Newtonsoft.Json.JsonIgnore]
         public ExternalAuthenticationData externalAuthentication;
 
-        // --- Accessor ---
+        // --- Accessors ---
         /// <summary>Returns the summarised authentication state.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public AuthenticationState AuthenticationState
+        public AuthenticationState authenticationState
         {
             get
             {
@@ -140,6 +140,7 @@ namespace ModIO
             LocalUser.instance = new LocalUser();
         }
 
+        // ---------[ Data I/O ]---------
         /// <summary>Loads the LocalUser instance.</summary>
         public static System.Collections.IEnumerator Load(System.Action callback)
         {
@@ -171,6 +172,7 @@ namespace ModIO
             yield return null;
         }
 
+        // ---------[ Utility ]---------
         /// <summary>Asserts that the list fields are not null.</summary>
         public static void AssertListsNotNull(ref LocalUser userData)
         {

@@ -35,7 +35,7 @@ namespace ModIO.UI
         /// <summary>Shows the menu.</summary>
         public void ShowMenu()
         {
-            bool loggedIn = (UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken);
+            bool loggedIn = (UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken);
 
             this.loggedUser.gameObject.SetActive(loggedIn);
             this.logoutButton.gameObject.SetActive(loggedIn);

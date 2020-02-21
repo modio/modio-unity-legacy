@@ -179,7 +179,7 @@ namespace ModIO.UI
                 yield break;
             }
 
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(FetchUserProfile());
             }
@@ -309,7 +309,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserProfile()
         {
-            Debug.Assert(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken);
+            Debug.Assert(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken);
 
             bool succeeded = false;
 
@@ -400,7 +400,7 @@ namespace ModIO.UI
             };
 
             // - push any changes -
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken)
             {
                 // push local actions
                 bool isPushDone = false;
@@ -418,7 +418,7 @@ namespace ModIO.UI
             RequestPage<ModProfile> request_page = null;
             WebRequestError request_error = null;
 
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken)
             {
                 RequestFilter userSubFilter = new RequestFilter();
                 userSubFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
@@ -566,7 +566,7 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken
+            while(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken
                   && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
@@ -992,7 +992,7 @@ namespace ModIO.UI
                 isRequestDone = false;
                 requestError = null;
 
-                if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+                if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -1043,7 +1043,7 @@ namespace ModIO.UI
                         }
                     }
                     // This may have changed during the request execution
-                    else if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+                    else if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken)
                     {
                         if(userEventReponse.Count > 0)
                         {
@@ -1293,7 +1293,7 @@ namespace ModIO.UI
         // ---------[ USER CONTROL ]---------
         public void OnUserLogin()
         {
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
             }

@@ -108,7 +108,7 @@ namespace ModIO
                     Debug.LogWarning("[mod.io] An API request is being made with a UserAuthenticationData"
                                      + " token that has been flagged as previously rejected."
                                      + " A check to ensure"
-                                     + " UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken"
+                                     + " UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken"
                                      + " should be made prior to making user-authorization calls.");
                 }
             }
@@ -218,7 +218,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Get(queryURL);
 
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.ValidToken)
             {
                 webRequest.SetRequestHeader("Authorization", "Bearer " + UserAccountManagement.activeUser.oAuthToken);
             }

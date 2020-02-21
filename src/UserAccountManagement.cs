@@ -122,7 +122,7 @@ namespace ModIO
                                     + UserAccountManagement.activeUser.queuedUnsubscribes.Count);
 
             // early outs
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken
+            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.NoToken
                || responsesPending == 0)
             {
                 if(onCompletedNoErrors != null)
@@ -247,7 +247,7 @@ namespace ModIO
                                                    Action<WebRequestError> onError)
         {
             // early out
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.NoToken)
+            if(UserAccountManagement.activeUser.authenticationState == AuthenticationState.NoToken)
             {
                 if(onSuccess != null)
                 {
@@ -410,7 +410,7 @@ namespace ModIO
         public static void UpdateUserProfile(Action<UserProfile> onSuccess,
                                              Action<WebRequestError> onError)
         {
-            if(UserAccountManagement.activeUser.AuthenticationState != AuthenticationState.NoToken)
+            if(UserAccountManagement.activeUser.authenticationState != AuthenticationState.NoToken)
             {
                 APIClient.GetAuthenticatedUser((p) =>
                 {
