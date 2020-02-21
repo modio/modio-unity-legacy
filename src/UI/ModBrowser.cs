@@ -275,7 +275,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
 
                         yield break;
@@ -348,7 +349,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -362,7 +364,8 @@ namespace ModIO.UI
                                                    "Failed to collect user profile data from mod.io.\n"
                                                    + requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -479,7 +482,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    request_error.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -594,7 +598,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -833,7 +838,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
@@ -890,7 +896,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
@@ -964,7 +971,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
@@ -1017,7 +1025,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
@@ -1255,7 +1264,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
                         else
                         {
@@ -1358,7 +1368,8 @@ namespace ModIO.UI
             {
                 if(requestError.isAuthenticationInvalid)
                 {
-                    UserAccountManagement.MarkAuthTokenRejected();
+                    LocalUser.WasTokenRejected = true;
+                    LocalUser.Save();
 
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                requestError.displayMessage);
@@ -1432,7 +1443,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
                     else
                     {

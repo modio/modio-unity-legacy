@@ -390,14 +390,6 @@ namespace ModIO
             }
         }
 
-        /// <summary>A wrapper function for setting the UserAuthenticationData.wasTokenRejected to false.</summary>
-        public static void MarkAuthTokenRejected()
-        {
-            LocalUser.WasTokenRejected = true;
-            LocalUser.Save();
-        }
-
-
         /// <summary>Begins the authentication process using a mod.io Security Code.</summary>
         public static void AuthenticateWithSecurityCode(string securityCode,
                                                         Action<UserProfile> onSuccess,
