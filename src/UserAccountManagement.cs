@@ -51,7 +51,7 @@ namespace ModIO
         /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
         public static void SubscribeToMod(int modId)
         {
-            UserAccountManagement.AssertActiveUserListsNotNull();
+            LocalUser.AssertListsNotNull(ref LocalUser.instance);
 
             LocalUser userData = UserAccountManagement.activeUser;
 
@@ -83,7 +83,7 @@ namespace ModIO
         /// <summary>Removes a mod from the subscribed list and modifies the queued actions accordingly.</summary>
         public static void UnsubscribeFromMod(int modId)
         {
-            UserAccountManagement.AssertActiveUserListsNotNull();
+            LocalUser.AssertListsNotNull(ref LocalUser.instance);
 
             LocalUser userData = UserAccountManagement.activeUser;
 
@@ -113,7 +113,7 @@ namespace ModIO
         public static void PushSubscriptionChanges(Action onCompletedNoErrors,
                                                    Action<List<WebRequestError>> onCompletedWithErrors)
         {
-            UserAccountManagement.AssertActiveUserListsNotNull();
+            LocalUser.AssertListsNotNull(ref LocalUser.instance);
 
             int responsesPending = (LocalUser.QueuedSubscribes.Count
                                     + LocalUser.QueuedUnsubscribes.Count);
@@ -253,7 +253,7 @@ namespace ModIO
                 return;
             }
 
-            UserAccountManagement.AssertActiveUserListsNotNull();
+            LocalUser.AssertListsNotNull(ref LocalUser.instance);
 
             // holding vars
             string userToken = LocalUser.OAuthToken;
@@ -730,37 +730,6 @@ namespace ModIO
                 {
                     throw new System.NotImplementedException();
                 }
-            }
-        }
-
-        // ---------[ UTILITY ]---------
-        /// <summary>Ensures that the user data list fields are non-null values.</summary>
-        public static void AssertActiveUserListsNotNull()
-        {
-            LocalUser userData = UserAccountManagement.activeUser;
-            if(userData.enabledModIds == null
-               || userData.subscribedModIds == null
-               || userData.queuedSubscribes == null
-               || userData.queuedUnsubscribes == null)
-            {
-                if(userData.enabledModIds == null)
-                {
-                    userData.enabledModIds = new List<int>();
-                }
-                if(userData.subscribedModIds == null)
-                {
-                    userData.subscribedModIds = new List<int>();
-                }
-                if(userData.queuedSubscribes == null)
-                {
-                    userData.queuedSubscribes = new List<int>();
-                }
-                if(userData.queuedUnsubscribes == null)
-                {
-                    userData.queuedUnsubscribes = new List<int>();
-                }
-
-                UserAccountManagement.activeUser = userData;
             }
         }
     }
