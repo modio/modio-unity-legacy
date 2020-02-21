@@ -740,16 +740,19 @@ namespace ModIO
         /// <summary>Loads the active user data from disk.</summary>
         public static void LoadActiveUser()
         {
-            // read file
-            LocalUser userData;
-            if(!UserDataStorage.TryReadJSONFile(UserAccountManagement.USER_DATA_FILENAME, out userData))
+            UserDataStorage.TryReadJSONFile<LocalUser>(UserAccountManagement.USER_DATA_FILENAME, (success, fileData) =>
             {
-                userData = new LocalUser();
-            }
+                if(success)
+                {
+                    UserAccountManagement.activeUser = fileData;
+                }
+                else
+                {
+                    UserAccountManagement.activeUser = new LocalUser();
+                }
 
-            // set
-            UserAccountManagement.activeUser = userData;
-            UserAccountManagement.AssertActiveUserListsNotNull();
+                UserAccountManagement.AssertActiveUserListsNotNull();
+            });
         }
 
         /// <summary>Writes the active user data to disk.</summary>
