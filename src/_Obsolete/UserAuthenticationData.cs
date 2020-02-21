@@ -8,7 +8,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>[Obsolete] A singleton struct that is referenced by multiple classes for user authentication.</summary>
-    [System.Obsolete("Functionality can now be found in UserAccountManagement.")]
+    [System.Obsolete("Replaced by LocalUser.")]
     [System.Serializable]
     public struct UserAuthenticationData
     {
@@ -54,7 +54,7 @@ namespace ModIO
         {
             get
             {
-                LocalUser userData = UserAccountManagement.activeUser;
+                LocalUser userData = LocalUser.instance;
                 UserProfile p = userData.profile;
                 string steamTicket = null;
                 string gogTicket = null;
@@ -88,7 +88,7 @@ namespace ModIO
             set
             {
                 // get existing values
-                LocalUser userData = UserAccountManagement.activeUser;
+                LocalUser userData = LocalUser.instance;
 
                 // profile data
                 if(userData.profile == null
@@ -131,7 +131,7 @@ namespace ModIO
 
                 // set
                 LocalUser.ExternalAuthentication = externalAuth;
-                UserAccountManagement.activeUser = userData;
+                LocalUser.instance = userData;
                 LocalUser.Save();
             }
         }
