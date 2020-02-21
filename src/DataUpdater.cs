@@ -139,6 +139,7 @@ namespace ModIO
 
             // - set and save -
             LocalUser.instance = userData;
+            LocalUser.isLoaded = true;
             LocalUser.Save();
 
             Debug.Log("[mod.io] UserData updated completed.");

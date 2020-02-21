@@ -130,9 +130,12 @@ namespace ModIO
                 }
 
                 // set
-                LocalUser.ExternalAuthentication = externalAuth;
+                LocalUser.AssertListsNotNull(ref userData);
                 LocalUser.instance = userData;
+                LocalUser.isLoaded = true;
                 LocalUser.Save();
+
+                LocalUser.ExternalAuthentication = externalAuth;
             }
         }
 

@@ -1322,6 +1322,8 @@ namespace ModIO.UI
                 enabledModIds = oldUser.enabledModIds,
             };
             LocalUser.AssertListsNotNull(ref LocalUser.instance);
+            LocalUser.isLoaded = true;
+
             LocalUser.Save();
 
             // - notify receivers -

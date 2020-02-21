@@ -134,8 +134,8 @@ namespace ModIO
         /// <summary>Sets the initial Singleton values.</summary>
         static LocalUser()
         {
-            LocalUser.isLoaded = false;
             LocalUser.instance = new LocalUser();
+            LocalUser.isLoaded = false;
         }
 
         // ---------[ Data I/O ]---------

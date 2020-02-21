@@ -35,6 +35,7 @@ namespace ModIO.EditorCode
                 subscribedModIds = new List<int>(),
             };
             LocalUser.AssertListsNotNull(ref LocalUser.instance);
+            LocalUser.isLoaded = true;
 
             Debug.Log("[mod.io] User Data Cleared.");
         }
