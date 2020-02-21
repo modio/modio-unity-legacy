@@ -28,7 +28,7 @@ namespace ModIO.UI
         // ---------[ EVENTS ]---------
         private void OnButtonClick()
         {
-            bool loggedIn = !string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken);
+            bool loggedIn = !string.IsNullOrEmpty(LocalUser.OAuthToken);
 
             if(!loggedIn)
             {

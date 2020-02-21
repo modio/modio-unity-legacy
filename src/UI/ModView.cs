@@ -148,7 +148,7 @@ namespace ModIO.UI
 
                 Action onClose = () =>
                 {
-                    bool isSubbed = UserAccountManagement.activeUser.subscribedModIds.Contains(this.m_profile.id);
+                    bool isSubbed = LocalUser.SubscribedModIds.Contains(this.m_profile.id);
                     foreach(var subDisplay in this.gameObject.GetComponentsInChildren<ModSubscribedDisplay>())
                     {
                         subDisplay.DisplayModSubscribed(this.m_profile.id, isSubbed);
