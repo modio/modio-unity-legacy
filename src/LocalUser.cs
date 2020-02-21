@@ -3,6 +3,7 @@ using System.Collections.Generic;
 namespace ModIO
 {
     /// <summary>Structure for storing data about a user specific to this device.</summary>
+    [System.Serializable]
     public struct LocalUser
     {
         // ---------[ Constants ]---------
@@ -40,6 +41,7 @@ namespace ModIO
         public List<int> queuedUnsubscribes;
 
         /// <summary>External authentication data for the session.</summary>
+        /// <remarks>This data is **not** stored between sessions.</remarks>
         [Newtonsoft.Json.JsonIgnore]
         public ExternalAuthenticationData externalAuthentication;
 
