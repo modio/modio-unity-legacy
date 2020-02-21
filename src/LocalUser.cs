@@ -70,60 +70,67 @@ namespace ModIO
         // --- Static Accessors ---
         /// <summary>[Singleton Instance Accessor] mod.io User Profile.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public UserProfile Profile
+        public static UserProfile Profile
         {
             get { return LocalUser.instance.profile; }
+            set { LocalUser.instance.profile = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] User authentication token to send with API requests identifying the user.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public string OAuthToken
+        public static string OAuthToken
         {
             get { return LocalUser.instance.oAuthToken; }
+            set { LocalUser.instance.oAuthToken = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] A flag to indicate that the auth token has been rejected.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public bool WasTokenRejected
+        public static bool WasTokenRejected
         {
             get { return LocalUser.instance.wasTokenRejected; }
+            set { LocalUser.instance.wasTokenRejected = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] Mods the user has enabled on this device.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public List<int> EnabledModIds
+        public static List<int> EnabledModIds
         {
             get { return LocalUser.instance.enabledModIds; }
+            set { LocalUser.instance.enabledModIds = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] Mods the user is subscribed to.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public List<int> SubscribedModIds
+        public static List<int> SubscribedModIds
         {
             get { return LocalUser.instance.subscribedModIds; }
+            set { LocalUser.instance.subscribedModIds = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] Queued subscribe actions.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public List<int> QueuedSubscribes
+        public static List<int> QueuedSubscribes
         {
             get { return LocalUser.instance.queuedSubscribes; }
+            set { LocalUser.instance.queuedSubscribes = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] Queued unsubscribe actions</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public List<int> QueuedUnsubscribes
+        public static List<int> QueuedUnsubscribes
         {
             get { return LocalUser.instance.queuedUnsubscribes; }
+            set { LocalUser.instance.queuedUnsubscribes = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] External authentication data for the session.</summary>
         [Newtonsoft.Json.JsonIgnore]
-        public ExternalAuthenticationData ExternalAuthentication
+        public static ExternalAuthenticationData ExternalAuthentication
         {
             get { return LocalUser.instance.externalAuthentication; }
+            set { LocalUser.instance.externalAuthentication = value; }
         }
-
 
         // ---------[ Initialization ]---------
         /// <summary>Sets the initial Singleton values.</summary>
