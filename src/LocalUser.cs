@@ -5,10 +5,15 @@ namespace ModIO
     /// <summary>Structure for storing data about a user specific to this device.</summary>
     public struct LocalUser
     {
+        // ---------[ Constants ]---------
+        /// <summary>File that this class uses to store user data.</summary>
+        public static readonly string FILENAME = "user.data";
+
         // ---------[ Singleton ]---------
         /// <summary>Singleton instance.</summary>
         public static LocalUser instance;
 
+        // ---------[ Static Fields ]---------
         /// <summary>Is the instance loaded?</summary>
         public static bool isLoaded;
 
@@ -122,7 +127,7 @@ namespace ModIO
 
             LocalUser.isLoaded = false;
 
-            UserDataStorage.TryReadJSONFile<LocalUser>(UserAccountManagement.USER_DATA_FILENAME, (success, fileData) =>
+            UserDataStorage.TryReadJSONFile<LocalUser>(LocalUser.FILENAME, (success, fileData) =>
             {
                 LocalUser.AssertListsNotNull(ref fileData);
 
