@@ -9,10 +9,6 @@ namespace ModIO
     /// <summary>Main functional wrapper for the LocalUser structure.</summary>
     public static class UserAccountManagement
     {
-        // ---------[ CONSTANTS ]---------
-        /// <summary>File that this class uses to store user data.</summary>
-        public static readonly string USER_DATA_FILENAME = "user.data";
-
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the default local user.</summary>
         static UserAccountManagement()
