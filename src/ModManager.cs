@@ -1939,33 +1939,31 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Returns the enabled mods.</summary>
-        [Obsolete("Use UserAccountManagement.GetEnabledMods() instead.")]
+        [Obsolete("Refer to LocalUser.EnabledModIds instead.")]
         public static List<int> GetEnabledModIds()
         {
-            return UserAccountManagement.GetEnabledMods();
+            return LocalUser.EnabledModIds;
         }
         /// <summary>[Obsolete] Sets the enabled mods and writes the data to disk.</summary>
-        [Obsolete("Use UserAccountManagement.SetEnabledMods() instead.")]
+        [Obsolete("Refer to LocalUser.EnabledModIds instead.")]
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
-            UserAccountManagement.SetEnabledMods(modIds);
+            if(modIds == null) { modIds = new int[0]; }
+            LocalUser.EnabledModIds = new List<int>(modIds);
+            LocalUser.Save();
         }
 
         /// <summary>[Obsolete]Returns the subscribed mods.</summary>
-        [Obsolete("Use UseAccountManagement.activeUser.subscribedModIds instead.")]
+        [Obsolete("Refer to LocalUser.SubscribedModIds instead.")]
         public static List<int> GetSubscribedModIds()
         {
             return LocalUser.SubscribedModIds;
         }
         /// <summary>[Obsolete]Sets the subscribed mods and writes the data to disk.</summary>
-        [Obsolete("Use UserAccountManagement.SubscribeToMod() instead.")]
+        [Obsolete("Refer to LocalUser.SubscribedModIds instead.")]
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
-            if(modIds == null)
-            {
-                modIds = new int[0];
-            }
-
+            if(modIds == null) { modIds = new int[0]; }
             LocalUser.SubscribedModIds = new List<int>(modIds);
             LocalUser.Save();
         }
