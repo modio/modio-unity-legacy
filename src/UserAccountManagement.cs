@@ -21,7 +21,7 @@ namespace ModIO
         /// <summary>Loads the default local user.</summary>
         static UserAccountManagement()
         {
-            UserAccountManagement.LoadActiveUser();
+            LocalUser.Load();
         }
 
         // ---------[ MOD COLLECTION MANAGEMENT ]---------
@@ -731,25 +731,6 @@ namespace ModIO
                     throw new System.NotImplementedException();
                 }
             }
-        }
-
-        // ---------[ USER MANAGEMENT ]---------
-        /// <summary>Loads the active user data from disk.</summary>
-        public static void LoadActiveUser()
-        {
-            UserDataStorage.TryReadJSONFile<LocalUser>(UserAccountManagement.USER_DATA_FILENAME, (success, fileData) =>
-            {
-                if(success)
-                {
-                    UserAccountManagement.activeUser = fileData;
-                }
-                else
-                {
-                    UserAccountManagement.activeUser = new LocalUser();
-                }
-
-                UserAccountManagement.AssertActiveUserListsNotNull();
-            });
         }
 
         // ---------[ UTILITY ]---------
