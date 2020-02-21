@@ -135,6 +135,7 @@ namespace ModIO
         static LocalUser()
         {
             LocalUser.instance = new LocalUser();
+            LocalUser.AssertListsNotNull(ref LocalUser.instance);
             LocalUser.isLoaded = false;
         }
 
