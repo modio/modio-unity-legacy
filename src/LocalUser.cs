@@ -160,6 +160,17 @@ namespace ModIO
             while(!isDone) { yield return null; }
         }
 
+        /// <summary>Saves the LocalUser instance.</summary>
+        public static System.Collections.IEnumerator Save(System.Action callback)
+        {
+            UserDataStorage.TryWriteJSONFile(UserAccountManagement.USER_DATA_FILENAME,
+                                             UserAccountManagement.activeUser);
+
+            if(callback != null) { callback.Invoke(); }
+
+            yield return null;
+        }
+
         /// <summary>Asserts that the list fields are not null.</summary>
         public static void AssertListsNotNull(ref LocalUser userData)
         {
