@@ -16,10 +16,13 @@ namespace ModIO
     {
         // ---------[ Nested Data-Types ]---------
         /// <summary>Delegate for the read file callback.</summary>
-        public delegate void ReadFileCallback(byte[] data);
+        public delegate void ReadFileCallback(bool success, byte[] data);
+
+        /// <summary>Delegate for the read json file callback.</summary>
+        public delegate void ReadJsonFileCallback<T>(bool success, T jsonObject);
 
         /// <summary>Delegate for write/delete file callbacks.</summary>
-        public delegate void WriteFileCallback(bool wasSuccess);
+        public delegate void WriteFileCallback(bool success);
 
         // ---------[ FIELDS ]---------
         /// <summary>Defines the base directory for the user-specific data.</summary>
@@ -67,15 +70,27 @@ namespace ModIO
 
         // ---------[ IO FUNCTIONS ]---------
         /// <summary>Function used to read a user data file.</summary>
-        public static bool TryReadJSONFile<T>(string filePathRelative, out T jsonObject)
+        public static void TryReadJSONFile<T>(string filePathRelative, ReadJsonFileCallback<T> callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+            Debug.Assert(callback != null);
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            byte[] fileData = null;
-            UserDataStorage._PlatformReadFile(filePath, (d) => fileData = d);
+            UserDataStorage.ReadBinaryFile(filePathRelative, (success, fileData) =>
+            {
 
-            return UserDataStorage.TryParseJSONFile(fileData, out jsonObject);
+                T jsonObject;
+
+                if(success)
+                {
+                    success = UserDataStorage.TryParseJSONFile(fileData, out jsonObject);
+                }
+                else
+                {
+                    jsonObject = default(T);
+                }
+
+                callback(success, jsonObject);
+            });
         }
 
         /// <summary>Function used to read a user data file.</summary>
@@ -86,13 +101,13 @@ namespace ModIO
             byte[] fileData = null;
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
 
-            bool wasSuccess = false;
+            bool success = false;
             if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
             {
-                UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => wasSuccess = s);
+                UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => success = s);
             }
 
-            return wasSuccess;
+            return success;
         }
 
         /// <summary>Generates user data file.</summary>
@@ -147,15 +162,12 @@ namespace ModIO
         }
 
         /// <summary>Function for reading a user-specific file.</summary>
-        public static byte[] ReadBinaryFile(string filePathRelative)
+        public static void ReadBinaryFile(string filePathRelative, ReadFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            byte[] fileData = null;
-            UserDataStorage._PlatformReadFile(filePath, (d) => fileData = d);
-
-            return fileData;
+            UserDataStorage._PlatformReadFile(filePath, callback);
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
@@ -172,10 +184,10 @@ namespace ModIO
             #endif // DEBUG
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            bool wasSuccess = false;
-            UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => wasSuccess = s);
+            bool success = false;
+            UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => success = s);
 
-            return wasSuccess;
+            return success;
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
@@ -184,19 +196,19 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            bool wasSuccess = false;
-            UserDataStorage._PlatformDeleteFile(filePath, (s) => wasSuccess = s);
+            bool success = false;
+            UserDataStorage._PlatformDeleteFile(filePath, (s) => success = s);
 
-            return wasSuccess;
+            return success;
         }
 
         /// <summary>Function for clearing all user data.</summary>
         public static bool ClearAllData()
         {
-            bool wasSuccess = false;
-            UserDataStorage._PlatformClearAllData((s) => wasSuccess = s);
+            bool success = false;
+            UserDataStorage._PlatformClearAllData();
 
-            return wasSuccess;
+            return success;
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
@@ -210,7 +222,7 @@ namespace ModIO
         private delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
 
         /// <summary>Delegate for clearing all data.</summary>
-        private delegate void ClearAllDataDelegate(WriteFileCallback callback);
+        private delegate void ClearAllDataDelegate();
 
         /// <summary>Function for reading a user-specific file.</summary>
         private readonly static ReadFileDelegate _PlatformReadFile = null;
@@ -256,14 +268,11 @@ namespace ModIO
             private static void ReadFile_Editor(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 data = IOUtilities.LoadBinaryFile(filePath);
-
-                if(callback != null)
-                {
-                    callback.Invoke(data);
-                }
+                callback.Invoke(true, data);
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
@@ -340,6 +349,7 @@ namespace ModIO
             public static void ReadFile_Facepunch(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
@@ -347,10 +357,7 @@ namespace ModIO
                     data = Steamworks.SteamRemoteStorage.FileRead(filePath);
                 }
 
-                if(callback != null)
-                {
-                    callback.Invoke(data);
-                }
+                callback.Invoke(true, data);
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
@@ -420,6 +427,7 @@ namespace ModIO
             private static void ReadFile_SteamworksNET(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
@@ -433,10 +441,7 @@ namespace ModIO
                     }
                 }
 
-                if(callback != null)
-                {
-                    callback.Invoke(data);
-                }
+                callback.Invoke(true, data);
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
@@ -513,14 +518,11 @@ namespace ModIO
             private static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 data = IOUtilities.LoadBinaryFile(filePath);
-
-                if(callback != null)
-                {
-                    callback.Invoke(data);
-                }
+                callback.Invoke(true, data);
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
