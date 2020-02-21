@@ -39,6 +39,10 @@ namespace ModIO
         /// <summary>Queued unsubscribe actions</summary>
         public List<int> queuedUnsubscribes;
 
+        /// <summary>External authentication data for the session.</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public ExternalAuthenticationData externalAuthentication;
+
         // --- Accessor ---
         /// <summary>Returns the summarised authentication state.</summary>
         [Newtonsoft.Json.JsonIgnore]
@@ -109,6 +113,13 @@ namespace ModIO
         public List<int> QueuedUnsubscribes
         {
             get { return LocalUser.instance.queuedUnsubscribes; }
+        }
+
+        /// <summary>[Singleton Instance Accessor] External authentication data for the session.</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public ExternalAuthenticationData ExternalAuthentication
+        {
+            get { return LocalUser.instance.externalAuthentication; }
         }
 
 
