@@ -59,7 +59,7 @@ namespace ModIO.UI
         /// <summary>Displays the subscribed state of a mod.</summary>
         public void DisplayModSubscribed(int modId)
         {
-            bool isSubscribed = UserAccountManagement.activeUser.subscribedModIds.Contains(modId);
+            bool isSubscribed = LocalUser.SubscribedModIds.Contains(modId);
             this.DisplayModSubscribed(modId, isSubscribed);
         }
 
