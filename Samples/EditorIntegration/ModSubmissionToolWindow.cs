@@ -44,7 +44,7 @@ namespace ModIO.EditorCode
             uploadSucceededMessage = null;
             uploadFailedMessage = null;
 
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 ModManager.GetAuthenticatedUserProfile((userProfile) =>
                 {
@@ -72,7 +72,7 @@ namespace ModIO.EditorCode
         protected virtual void Update()
         {
             if(this.user != null
-               && this.user.id != UserAccountManagement.activeUser.profile.id)
+               && this.user.id != LocalUser.Profile.id)
             {
                 this.user = null;
                 Repaint();
@@ -113,8 +113,8 @@ namespace ModIO.EditorCode
                                 {
                                     this.user = null;
 
-                                    UserAccountManagement.activeUser = new LocalUser();
-                                    UserAccountManagement.SaveActiveUser();
+                                    LocalUser.instance = new LocalUser();
+                                    LocalUser.Save();
 
                                     isAwaitingServerResponse = false;
 
