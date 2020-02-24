@@ -197,9 +197,9 @@ namespace ModIO
         }
 
         /// <summary>Function for clearing all user data.</summary>
-        public static void ClearAllData()
+        public static void ClearAllData(WriteFileCallback callback)
         {
-            UserDataStorage._PlatformClearAllData((s) => {});
+            UserDataStorage._PlatformClearAllData(callback);
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
