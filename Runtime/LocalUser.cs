@@ -183,7 +183,6 @@ namespace ModIO
         public static System.Collections.IEnumerator Load(System.Action callback = null)
         {
             bool isDone = false;
-
             LocalUser.isLoaded = false;
 
             UserDataStorage.TryReadJSONFile<LocalUser>(LocalUser.FILENAME, (success, fileData) =>
@@ -194,6 +193,8 @@ namespace ModIO
                 LocalUser.isLoaded = success;
 
                 if(callback != null) { callback.Invoke(); }
+
+                isDone = true;
             });
 
             while(!isDone) { yield return null; }
@@ -202,11 +203,16 @@ namespace ModIO
         /// <summary>Saves the LocalUser instance.</summary>
         public static System.Collections.IEnumerator Save(System.Action callback = null)
         {
-            UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser._instance);
+            bool isDone = false;
 
-            if(callback != null) { callback.Invoke(); }
+            UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser._instance, (success) =>
+            {
+                if(callback != null) { callback.Invoke(); }
 
-            yield return null;
+                isDone = true;
+            });
+
+            while(!isDone) { yield return null; }
         }
 
         // ---------[ Utility ]---------

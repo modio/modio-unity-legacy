@@ -94,20 +94,20 @@ namespace ModIO
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static bool TryWriteJSONFile<T>(string filePathRelative, T jsonObject)
+        public static void TryWriteJSONFile<T>(string filePathRelative, T jsonObject, WriteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            byte[] fileData = null;
-            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
 
-            bool success = false;
+            byte[] fileData = null;
             if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
             {
-                UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => success = s);
+                UserDataStorage.WriteBinaryFile(filePathRelative, fileData, callback);
             }
-
-            return success;
+            else if(callback != null)
+            {
+                callback.Invoke(false);
+            }
         }
 
         /// <summary>Generates user data file.</summary>
