@@ -2,7 +2,7 @@
     "name": "com.modio.unityplugin",
     "displayName": "mod.io Unity Plugin",
     "description": "The mod.io Unity Plugin allows game developers to easily control the browsing and installation of mod files in their games. It provides a C# interface built on the Unity Engine to connect to the mod.io API.",
-    "version": "2.1.1",
+    "version": "2.2.0-preview",
     "unity": "2017.3",
     "samples":
     [
