@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace ModIO.UI
 {
-    public class LoginDialog : MonoBehaviour
+    public class LoginDialog : MonoBehaviour, IBrowserView
     {
         // ---------[ FIELDS ]---------
         [Serializable]
@@ -27,6 +27,16 @@ namespace ModIO.UI
         public InputStateDisplays displayForInputState;
         public InputField inputField;
 
+        // --- IBrowserView Implementation ---
+        /// <summary>Canvas Group.</summary>
+        public CanvasGroup canvasGroup
+        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+
+        /// <summary>Reset selection on hide.</summary>
+        bool IBrowserView.resetSelectionOnHide { get { return true; } }
+
+        /// <summary>Is the view a root view or window view?</summary>
+        bool IBrowserView.isRootView { get { return false; } }
 
         // --------[ INITIALIZATION ]---------
         private void OnEnable()

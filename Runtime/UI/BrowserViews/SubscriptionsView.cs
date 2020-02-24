@@ -10,7 +10,7 @@ namespace ModIO.UI
     // NOTE(@jackson): The functionality of this view makes the assumption that the number of items
     // to be displayed is low enough that it does not cause memory issues. Safeguards against this
     // will be made in a future update, but is currently not a priority.
-    public class SubscriptionsView : MonoBehaviour, IModSubscriptionsUpdateReceiver
+    public class SubscriptionsView : MonoBehaviour, IModSubscriptionsUpdateReceiver, IBrowserView
     {
         // ---------[ NESTED DATA-TYPES ]---------
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
@@ -79,6 +79,17 @@ namespace ModIO.UI
         {
             get { return this.m_sortDelegate; }
         }
+
+        // --- IBrowserView Implementation ---
+        /// <summary>Canvas Group.</summary>
+        public CanvasGroup canvasGroup
+        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+
+        /// <summary>Reset selection on hide.</summary>
+        bool IBrowserView.resetSelectionOnHide { get { return true; } }
+
+        /// <summary>Is the view a root view or window view?</summary>
+        bool IBrowserView.isRootView { get { return true; } }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Collects and sets view on ISubscriptionsViewElements.</summary>
@@ -149,7 +160,7 @@ namespace ModIO.UI
                 this.noResultsDisplay.gameObject.SetActive(false);
             }
 
-            IList<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
+            IList<int> subscribedModIds = LocalUser.SubscribedModIds;
 
             ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
             (profiles) => Refresh_OnGetModProfiles(profiles, this.m_nameFieldFilter, this.m_sortDelegate),
@@ -377,6 +388,8 @@ namespace ModIO.UI
         /// <summary>Provides a default sorting function for the subscription view.</summary>
         protected virtual int DefaultSortFunction(ModProfile a, ModProfile b)
         {
+            if(a == null) { return 1; }
+            if(b == null) { return -1; }
             return (a.id - b.id);
         }
 

@@ -8,5 +8,6 @@ namespace ModIO
         GOG,
         ItchIO,
         OculusRift,
+        XboxLive,
     }
 }

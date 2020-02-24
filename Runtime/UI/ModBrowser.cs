@@ -179,7 +179,9 @@ namespace ModIO.UI
                 yield break;
             }
 
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            yield return this.StartCoroutine(LocalUser.Load());
+
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(FetchUserProfile());
             }
@@ -187,7 +189,7 @@ namespace ModIO.UI
             {
                 bool isAttemptingReauth = false;
 
-                if(!string.IsNullOrEmpty(UserAccountManagement.externalAuthentication.ticket))
+                if(!string.IsNullOrEmpty(LocalUser.ExternalAuthentication.ticket))
                 {
                     isAttemptingReauth = true;
 
@@ -260,7 +262,7 @@ namespace ModIO.UI
                     int reattemptDelay = CalculateReattemptDelay(requestError);
                     if(requestError.isAuthenticationInvalid)
                     {
-                        if(string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
+                        if(string.IsNullOrEmpty(LocalUser.OAuthToken))
                         {
                             Debug.LogWarning("[mod.io] Unable to retrieve the game profile from the mod.io"
                                              + " servers. Please check you Game Id and APIKey in the"
@@ -275,7 +277,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
 
                         yield break;
@@ -309,7 +312,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator FetchUserProfile()
         {
-            Debug.Assert(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken);
+            Debug.Assert(LocalUser.AuthenticationState == AuthenticationState.ValidToken);
 
             bool succeeded = false;
 
@@ -348,7 +351,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -362,7 +366,8 @@ namespace ModIO.UI
                                                    "Failed to collect user profile data from mod.io.\n"
                                                    + requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -388,19 +393,19 @@ namespace ModIO.UI
         {
             // ensure changes only effect the profile this call started with
             int userId = UserProfile.NULL_ID;
-            if(UserAccountManagement.activeUser.profile != null)
+            if(LocalUser.Profile != null)
             {
-                userId = UserAccountManagement.activeUser.profile.id;
+                userId = LocalUser.Profile.id;
             }
 
             Func<bool> hasUserChanged = () =>
             {
-                return ((UserAccountManagement.activeUser.profile == null && userId != UserProfile.NULL_ID)
-                        || (UserAccountManagement.activeUser.profile != null && userId != UserAccountManagement.activeUser.profile.id));
+                return ((LocalUser.Profile == null && userId != UserProfile.NULL_ID)
+                        || (LocalUser.Profile != null && userId != LocalUser.Profile.id));
             };
 
             // - push any changes -
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 // push local actions
                 bool isPushDone = false;
@@ -418,7 +423,7 @@ namespace ModIO.UI
             RequestPage<ModProfile> request_page = null;
             WebRequestError request_error = null;
 
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 RequestFilter userSubFilter = new RequestFilter();
                 userSubFilter.AddFieldFilter(ModIO.API.GetUserSubscriptionsFilterFields.gameId,
@@ -431,7 +436,7 @@ namespace ModIO.UI
             }
             else
             {
-                int[] modIdArray = UserAccountManagement.activeUser.subscribedModIds.ToArray();
+                int[] modIdArray = LocalUser.SubscribedModIds.ToArray();
 
                 // early out
                 if(modIdArray.Length == 0)
@@ -450,8 +455,8 @@ namespace ModIO.UI
 
             // - set up fetch loop data -
             List<ModProfile> subProfiles = new List<ModProfile>();
-            List<int> localOnlySubscriptions = new List<int>(UserAccountManagement.activeUser.subscribedModIds);
-            List<int> queuedUnsubscribes = UserAccountManagement.activeUser.queuedUnsubscribes;
+            List<int> localOnlySubscriptions = new List<int>(LocalUser.SubscribedModIds);
+            List<int> queuedUnsubscribes = LocalUser.QueuedUnsubscribes;
             List<int> subsAdded = new List<int>();
 
             APIPaginationParameters pagination = new APIPaginationParameters()
@@ -479,7 +484,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    request_error.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -532,7 +538,7 @@ namespace ModIO.UI
             if(hasUserChanged() || !allPagesReceived) { yield break; }
 
             // handle removed ids
-            List<int> queuedSubscribes = UserAccountManagement.activeUser.queuedSubscribes;
+            List<int> queuedSubscribes = LocalUser.QueuedSubscribes;
             List<int> subsRemoved = new List<int>();
 
             foreach(int modId in localOnlySubscriptions)
@@ -541,13 +547,13 @@ namespace ModIO.UI
                 if(!queuedSubscribes.Contains(modId))
                 {
                     subsRemoved.Add(modId);
-                    UserAccountManagement.activeUser.subscribedModIds.Remove(modId);
+                    LocalUser.SubscribedModIds.Remove(modId);
                 }
             }
 
             // append added sub modids
-            UserAccountManagement.activeUser.subscribedModIds.AddRange(subsAdded);
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.SubscribedModIds.AddRange(subsAdded);
+            LocalUser.Save();
 
             // cache profiles
             ModProfileRequestManager.instance.CacheModProfiles(subProfiles);
@@ -566,7 +572,7 @@ namespace ModIO.UI
             bool isRequestDone = false;
             List<ModRating> retrievedRatings = new List<ModRating>();
 
-            while(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken
+            while(LocalUser.AuthenticationState == AuthenticationState.ValidToken
                   && !isRequestDone)
             {
                 RequestPage<ModRating> response = null;
@@ -594,7 +600,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
 
                         yield break;
                     }
@@ -626,7 +633,7 @@ namespace ModIO.UI
 
         private System.Collections.IEnumerator VerifySubscriptionInstallations()
         {
-            var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
+            var subscribedModIds = LocalUser.SubscribedModIds;
             IList<ModfileIdPair> installedModVersions = ModManager.GetInstalledModVersions(false);
             Dictionary<int, List<int>> groupedIds = new Dictionary<int, List<int>>();
 
@@ -656,13 +663,11 @@ namespace ModIO.UI
             ModProfileRequestManager.instance.RequestModProfiles(subscribedModIds,
             (modProfiles) =>
             {
-                subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
-
                 foreach(ModProfile profile in modProfiles)
                 {
                     if(profile != null
                        && profile.currentBuild != null
-                       && subscribedModIds.Contains(profile.id))
+                       && LocalUser.SubscribedModIds.Contains(profile.id))
                     {
                         if(profile.currentBuild.modId != profile.id)
                         {
@@ -835,7 +840,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
@@ -863,14 +869,14 @@ namespace ModIO.UI
                 requestError = null;
 
                 // --- MOD EVENTS ---
-                var subbedMods = UserAccountManagement.activeUser.subscribedModIds;
+                var subbedMods = LocalUser.SubscribedModIds;
                 if(subbedMods != null
                    && subbedMods.Count > 0)
                 {
                     List<ModEvent> modEventResponse = null;
 
                     ModManager.FetchModEventsAfterId(this.m_lastModEventId,
-                                                     UserAccountManagement.activeUser.subscribedModIds,
+                                                     LocalUser.SubscribedModIds,
                                                      (me) =>
                                                      {
                                                         modEventResponse = me;
@@ -892,7 +898,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
@@ -966,7 +973,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
@@ -992,7 +1000,7 @@ namespace ModIO.UI
                 isRequestDone = false;
                 requestError = null;
 
-                if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+                if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
                 {
                     // fetch user events
                     List<UserEvent> userEventReponse = null;
@@ -1019,7 +1027,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
@@ -1043,7 +1052,7 @@ namespace ModIO.UI
                         }
                     }
                     // This may have changed during the request execution
-                    else if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+                    else if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
                     {
                         if(userEventReponse.Count > 0)
                         {
@@ -1068,9 +1077,9 @@ namespace ModIO.UI
 
         protected void ProcessUserUpdates(List<UserEvent> userEvents)
         {
-            List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
-            List<int> queuedSubscribes = UserAccountManagement.activeUser.queuedSubscribes;
-            List<int> queuedUnsubscribes = UserAccountManagement.activeUser.queuedUnsubscribes;
+            List<int> subscribedModIds = LocalUser.SubscribedModIds;
+            List<int> queuedSubscribes = LocalUser.QueuedSubscribes;
+            List<int> queuedUnsubscribes = LocalUser.QueuedUnsubscribes;
 
             List<int> newSubs = new List<int>();
             List<int> newUnsubs = new List<int>();
@@ -1107,7 +1116,7 @@ namespace ModIO.UI
                 }
             }
 
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.Save();
 
             if(newSubs.Count > 0 || newUnsubs.Count > 0)
             {
@@ -1154,10 +1163,10 @@ namespace ModIO.UI
                     }
                 }
 
-                // remove subs for deletedmods
+                // remove subs for deleted mods
                 if(deletedMods.Count > 0)
                 {
-                    var subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
+                    var subscribedModIds = LocalUser.SubscribedModIds;
 
                     foreach(int modId in deletedMods)
                     {
@@ -1257,7 +1266,8 @@ namespace ModIO.UI
                             MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                        requestError.displayMessage);
 
-                            UserAccountManagement.MarkAuthTokenRejected();
+                            LocalUser.WasTokenRejected = true;
+                            LocalUser.Save();
                         }
                         else
                         {
@@ -1273,7 +1283,7 @@ namespace ModIO.UI
                         ModProfileRequestManager.instance.CacheModProfiles(response.items);
 
                         List<Modfile> latestBuilds = new List<Modfile>(response.items.Length);
-                        List<int> subscribedModIds = UserAccountManagement.activeUser.subscribedModIds;
+                        List<int> subscribedModIds = LocalUser.SubscribedModIds;
                         foreach(ModProfile profile in response.items)
                         {
                             if(profile != null
@@ -1293,7 +1303,7 @@ namespace ModIO.UI
         // ---------[ USER CONTROL ]---------
         public void OnUserLogin()
         {
-            if(UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken)
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 this.StartCoroutine(SynchronizeSubscriptionsAndUpdateModProfiles());
             }
@@ -1306,14 +1316,17 @@ namespace ModIO.UI
                                                           (e) => WebRequestError.LogAsWarning(e[0]));
 
             // - clear current user -
-            LocalUser oldUser = UserAccountManagement.activeUser;
+            LocalUser oldUser = LocalUser.instance;
 
-            UserAccountManagement.activeUser = new LocalUser()
+            LocalUser.instance = new LocalUser()
             {
                 subscribedModIds = oldUser.subscribedModIds,
                 enabledModIds = oldUser.enabledModIds,
             };
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.AssertListsNotNull(ref LocalUser.instance);
+            LocalUser.isLoaded = true;
+
+            LocalUser.Save();
 
             // - notify receivers -
             IEnumerable<IAuthenticatedUserUpdateReceiver> updateReceivers = GetComponentsInChildren<IAuthenticatedUserUpdateReceiver>(true);
@@ -1350,7 +1363,7 @@ namespace ModIO.UI
             {
                 if(this != null && this.isActiveAndEnabled
                    && p != null && p.currentBuild != null
-                   && UserAccountManagement.activeUser.subscribedModIds.Contains(p.id))
+                   && LocalUser.SubscribedModIds.Contains(p.id))
                 {
                     this.StartCoroutine(ModManager.AssertDownloadedAndInstalled_Coroutine(new Modfile[] { p.currentBuild }));
                 }
@@ -1359,7 +1372,8 @@ namespace ModIO.UI
             {
                 if(requestError.isAuthenticationInvalid)
                 {
-                    UserAccountManagement.MarkAuthTokenRejected();
+                    LocalUser.WasTokenRejected = true;
+                    LocalUser.Save();
 
                     MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                requestError.displayMessage);
@@ -1390,8 +1404,6 @@ namespace ModIO.UI
         public void OnSubscriptionsChanged(IList<int> addedSubscriptions,
                                            IList<int> removedSubscriptions)
         {
-            var enabledMods = UserAccountManagement.GetEnabledMods();
-
             // handle new subscriptions
             if(addedSubscriptions != null
                && addedSubscriptions.Count > 0)
@@ -1399,9 +1411,9 @@ namespace ModIO.UI
                 // enable mods
                 foreach(int modId in addedSubscriptions)
                 {
-                    if(!enabledMods.Contains(modId))
+                    if(!LocalUser.EnabledModIds.Contains(modId))
                     {
-                        enabledMods.Add(modId);
+                        LocalUser.EnabledModIds.Add(modId);
                     }
                 }
 
@@ -1411,7 +1423,7 @@ namespace ModIO.UI
                 {
                     if(this != null && this.isActiveAndEnabled)
                     {
-                        var subbedMods = UserAccountManagement.activeUser.subscribedModIds;
+                        var subbedMods = LocalUser.SubscribedModIds;
 
                         List<Modfile> modfiles = new List<Modfile>(modProfiles.Length);
 
@@ -1435,7 +1447,8 @@ namespace ModIO.UI
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Error,
                                                    requestError.displayMessage);
 
-                        UserAccountManagement.MarkAuthTokenRejected();
+                        LocalUser.WasTokenRejected = true;
+                        LocalUser.Save();
                     }
                     else
                     {
@@ -1457,11 +1470,12 @@ namespace ModIO.UI
                     ModManager.TryUninstallAllModVersions(modId);
 
                     // disable
-                    enabledMods.Remove(modId);
+                    LocalUser.EnabledModIds.Remove(modId);
                 }
             }
 
-            UserAccountManagement.SetEnabledMods(enabledMods);
+            LocalUser.Save();
+
             UpdateSubscriptionReceivers(addedSubscriptions, removedSubscriptions);
         }
 
@@ -1481,11 +1495,10 @@ namespace ModIO.UI
 
         public void EnableMod(int modId)
         {
-            IList<int> mods = UserAccountManagement.GetEnabledMods();
-            if(!mods.Contains(modId))
+            if(!LocalUser.EnabledModIds.Contains(modId))
             {
-                mods.Add(modId);
-                UserAccountManagement.SetEnabledMods(mods);
+                LocalUser.EnabledModIds.Add(modId);
+                LocalUser.Save();
             }
 
             IEnumerable<IModEnabledReceiver> updateReceivers = GetComponentsInChildren<IModEnabledReceiver>(true);
@@ -1497,11 +1510,10 @@ namespace ModIO.UI
 
         public void DisableMod(int modId)
         {
-            IList<int> mods = UserAccountManagement.GetEnabledMods();
-            if(mods.Contains(modId))
+            if(LocalUser.EnabledModIds.Contains(modId))
             {
-                mods.Remove(modId);
-                UserAccountManagement.SetEnabledMods(mods);
+                LocalUser.EnabledModIds.Remove(modId);
+                LocalUser.Save();
             }
 
             IEnumerable<IModDisabledReceiver> updateReceivers = GetComponentsInChildren<IModDisabledReceiver>(true);
@@ -1519,7 +1531,7 @@ namespace ModIO.UI
                 return;
             }
 
-            if(!string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
+            if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
                 ModRatingValue oldRating = this.GetModRating(modId);
 

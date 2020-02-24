@@ -35,7 +35,7 @@ namespace ModIO.UI
         /// <summary>Shows the menu.</summary>
         public void ShowMenu()
         {
-            bool loggedIn = (UserAccountManagement.activeUser.AuthenticationState == AuthenticationState.ValidToken);
+            bool loggedIn = (LocalUser.AuthenticationState == AuthenticationState.ValidToken);
 
             this.loggedUser.gameObject.SetActive(loggedIn);
             this.logoutButton.gameObject.SetActive(loggedIn);
@@ -69,14 +69,14 @@ namespace ModIO.UI
         /// <summary>Opens the user's menu profile in a web browser.</summary>
         public void OpenProfileInBrowser()
         {
-            UserProfile profile = UserAccountManagement.activeUser.profile;
+            UserProfile profile = LocalUser.Profile;
             if(profile != null)
             {
                 this.viewProfileButton.interactable = false;
 
                 string urlLoginPostfix = string.Empty;
 
-                switch(UserAccountManagement.externalAuthentication.provider)
+                switch(LocalUser.ExternalAuthentication.provider)
                 {
                     case ExternalAuthenticationProvider.Steam:
                     {

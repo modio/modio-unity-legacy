@@ -11,7 +11,10 @@ namespace ModIO.UI
         public override bool isOn
         {
             get { return this.gameObject.GetComponent<Toggle>().isOn; }
-            set { this.gameObject.GetComponent<Toggle>().isOn = value; }
+            set
+            {
+                this.gameObject.GetComponent<Toggle>().SetIsOnWithoutNotify(value);
+            }
         }
     }
 }

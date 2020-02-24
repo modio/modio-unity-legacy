@@ -9,7 +9,7 @@ namespace ModIO.UI
 {
     /// <summary>ViewController for displaying a single mod using a mod id.</summary>
     [RequireComponent(typeof(ModView))]
-    public class InspectorView : MonoBehaviour
+    public class InspectorView : MonoBehaviour, IBrowserView, UnityEngine.EventSystems.ICancelHandler
     {
         // ---------[ FIELDS ]---------
         /// <summary>Id of the currently displayed mod.</summary>
@@ -68,6 +68,30 @@ namespace ModIO.UI
         public ModView modView
         {
             get { return this.gameObject.GetComponent<ModView>(); }
+        }
+
+        // --- IBrowserView Implementation ---
+        /// <summary>Canvas Group.</summary>
+        public CanvasGroup canvasGroup
+        { get { return this.gameObject.GetComponent<CanvasGroup>(); } }
+
+        /// <summary>Reset selection on hide.</summary>
+        bool IBrowserView.resetSelectionOnHide { get { return true; } }
+
+        /// <summary>Is the view a root view or window view?</summary>
+        bool IBrowserView.isRootView { get { return false; } }
+
+        // ---------[ UI Functionality ]---------
+        /// <summary>Closes this view.</summary>
+        public void Close()
+        {
+            ViewManager.instance.CloseWindowedView(this);
+        }
+
+        /// <summary>Handles a cancel to close the view.</summary>
+        public void OnCancel(UnityEngine.EventSystems.BaseEventData eventData)
+        {
+            this.Close();
         }
 
         // ---------[ OBSOLETE ]---------
