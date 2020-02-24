@@ -171,7 +171,7 @@ namespace ModIO
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
-        public static bool WriteBinaryFile(string filePathRelative, byte[] fileData)
+        public static void WriteBinaryFile(string filePathRelative, byte[] fileData, WriteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(fileData != null);
@@ -184,31 +184,22 @@ namespace ModIO
             #endif // DEBUG
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            bool success = false;
-            UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => success = s);
-
-            return success;
+            UserDataStorage._PlatformWriteFile(filePath, fileData, callback);
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
-        public static bool DeleteFile(string filePathRelative)
+        public static void DeleteFile(string filePathRelative, WriteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            bool success = false;
-            UserDataStorage._PlatformDeleteFile(filePath, (s) => success = s);
-
-            return success;
+            UserDataStorage._PlatformDeleteFile(filePath, callback);
         }
 
         /// <summary>Function for clearing all user data.</summary>
-        public static bool ClearAllData()
+        public static void ClearAllData()
         {
-            bool success = false;
             UserDataStorage._PlatformClearAllData();
-
-            return success;
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
