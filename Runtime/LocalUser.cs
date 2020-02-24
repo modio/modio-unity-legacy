@@ -12,7 +12,18 @@ namespace ModIO
 
         // ---------[ Singleton ]---------
         /// <summary>Singleton instance.</summary>
-        public static LocalUser instance;
+        private static LocalUser _instance;
+
+        /// <summary>Singleton instance accessor.</summary>
+        public static LocalUser instance
+        {
+            get { return LocalUser._instance; }
+            set
+            {
+                LocalUser._instance = value;
+                LocalUser.AssertListsNotNull(ref LocalUser._instance);
+            }
+        }
 
         // ---------[ Static Fields ]---------
         /// <summary>Is the instance loaded?</summary>
@@ -71,71 +82,99 @@ namespace ModIO
         /// <summary>[Singleton Instance Accessor] mod.io User Profile.</summary>
         public static UserProfile Profile
         {
-            get { return LocalUser.instance.profile; }
-            set { LocalUser.instance.profile = value; }
+            get { return LocalUser._instance.profile; }
+            set { LocalUser._instance.profile = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] User authentication token to send with API requests identifying the user.</summary>
         public static string OAuthToken
         {
-            get { return LocalUser.instance.oAuthToken; }
-            set { LocalUser.instance.oAuthToken = value; }
+            get { return LocalUser._instance.oAuthToken; }
+            set { LocalUser._instance.oAuthToken = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] A flag to indicate that the auth token has been rejected.</summary>
         public static bool WasTokenRejected
         {
-            get { return LocalUser.instance.wasTokenRejected; }
-            set { LocalUser.instance.wasTokenRejected = value; }
+            get { return LocalUser._instance.wasTokenRejected; }
+            set { LocalUser._instance.wasTokenRejected = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] Mods the user has enabled on this device.</summary>
         public static List<int> EnabledModIds
         {
-            get { return LocalUser.instance.enabledModIds; }
-            set { LocalUser.instance.enabledModIds = value; }
+            get { return LocalUser._instance.enabledModIds; }
+            set
+            {
+                if(value == null)
+                {
+                    value = new List<int>();
+                }
+                LocalUser._instance.enabledModIds = value;
+            }
         }
 
         /// <summary>[Singleton Instance Accessor] Mods the user is subscribed to.</summary>
         public static List<int> SubscribedModIds
         {
-            get { return LocalUser.instance.subscribedModIds; }
-            set { LocalUser.instance.subscribedModIds = value; }
+            get { return LocalUser._instance.subscribedModIds; }
+            set
+            {
+                if(value == null)
+                {
+                    value = new List<int>();
+                }
+                LocalUser._instance.subscribedModIds = value;
+            }
         }
 
         /// <summary>[Singleton Instance Accessor] Queued subscribe actions.</summary>
         public static List<int> QueuedSubscribes
         {
-            get { return LocalUser.instance.queuedSubscribes; }
-            set { LocalUser.instance.queuedSubscribes = value; }
+            get { return LocalUser._instance.queuedSubscribes; }
+            set
+            {
+                if(value == null)
+                {
+                    value = new List<int>();
+                }
+                LocalUser._instance.queuedSubscribes = value;
+            }
         }
 
         /// <summary>[Singleton Instance Accessor] Queued unsubscribe actions</summary>
         public static List<int> QueuedUnsubscribes
         {
-            get { return LocalUser.instance.queuedUnsubscribes; }
-            set { LocalUser.instance.queuedUnsubscribes = value; }
+            get { return LocalUser._instance.queuedUnsubscribes; }
+            set
+            {
+                if(value == null)
+                {
+                    value = new List<int>();
+                }
+                LocalUser._instance.queuedUnsubscribes = value;
+            }
         }
 
         /// <summary>[Singleton Instance Accessor] External authentication data for the session.</summary>
         public static ExternalAuthenticationData ExternalAuthentication
         {
-            get { return LocalUser.instance.externalAuthentication; }
-            set { LocalUser.instance.externalAuthentication = value; }
+            get { return LocalUser._instance.externalAuthentication; }
+            set { LocalUser._instance.externalAuthentication = value; }
         }
 
         /// <summary>[Singleton Instance Accessor] Returns the summarised authentication state.</summary>
         public static AuthenticationState AuthenticationState
         {
-            get { return LocalUser.instance.authenticationState; }
+            get { return LocalUser._instance.authenticationState; }
         }
 
         // ---------[ Initialization ]---------
         /// <summary>Sets the initial Singleton values.</summary>
         static LocalUser()
         {
-            LocalUser.instance = new LocalUser();
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
+            LocalUser._instance = new LocalUser();
+            LocalUser.AssertListsNotNull(ref LocalUser._instance);
             LocalUser.isLoaded = false;
         }
 
@@ -151,7 +190,7 @@ namespace ModIO
             {
                 LocalUser.AssertListsNotNull(ref fileData);
 
-                LocalUser.instance = fileData;
+                LocalUser._instance = fileData;
                 LocalUser.isLoaded = success;
 
                 if(callback != null) { callback.Invoke(); }
@@ -163,7 +202,7 @@ namespace ModIO
         /// <summary>Saves the LocalUser instance.</summary>
         public static System.Collections.IEnumerator Save(System.Action callback = null)
         {
-            UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser.instance);
+            UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser._instance);
 
             if(callback != null) { callback.Invoke(); }
 

@@ -29,12 +29,7 @@ namespace ModIO.EditorCode
         public static void ClearAllUserData()
         {
             UserDataStorage.ClearAllData();
-            LocalUser.instance = new LocalUser()
-            {
-                enabledModIds = new List<int>(),
-                subscribedModIds = new List<int>(),
-            };
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
+            LocalUser.instance = new LocalUser();
             LocalUser.isLoaded = true;
 
             Debug.Log("[mod.io] User Data Cleared.");

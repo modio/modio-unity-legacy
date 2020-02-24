@@ -1323,7 +1323,6 @@ namespace ModIO.UI
                 subscribedModIds = oldUser.subscribedModIds,
                 enabledModIds = oldUser.enabledModIds,
             };
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
             LocalUser.isLoaded = true;
 
             LocalUser.Save();
