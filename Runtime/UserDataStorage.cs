@@ -199,7 +199,7 @@ namespace ModIO
         /// <summary>Function for clearing all user data.</summary>
         public static void ClearAllData()
         {
-            UserDataStorage._PlatformClearAllData();
+            UserDataStorage._PlatformClearAllData((s) => {});
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
@@ -213,7 +213,7 @@ namespace ModIO
         private delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
 
         /// <summary>Delegate for clearing all data.</summary>
-        private delegate void ClearAllDataDelegate();
+        private delegate void ClearAllDataDelegate(WriteFileCallback callback);
 
         /// <summary>Function for reading a user-specific file.</summary>
         private readonly static ReadFileDelegate _PlatformReadFile = null;
@@ -313,10 +313,12 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
-            private static void ClearAllData_Editor()
+            private static void ClearAllData_Editor(WriteFileCallback callback)
             {
-                IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
+                bool success = IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
                 UnityEditor.AssetDatabase.Refresh();
+
+                if(callback != null) { callback.Invoke(success); }
             }
 
         #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
@@ -384,17 +386,20 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
-            private static void ClearAllData_Facepunch()
+            private static void ClearAllData_Facepunch(WriteFileCallback callback)
             {
                 var steamFiles = Steamworks.SteamRemoteStorage.Files;
+                bool success = true;
 
                 foreach(string filePath in steamFiles)
                 {
                     if(filePath.StartsWith(UserDataStorage._USER_DIRECTORY_ROOT))
                     {
-                        Steamworks.SteamRemoteStorage.FileDelete(filePath);
+                        success = Steamworks.SteamRemoteStorage.FileDelete(filePath) && success;
                     }
                 }
+
+                if(callback != null) { callback.Invoke(success); }
             }
 
         #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
@@ -468,9 +473,10 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Steamworks.NET)</summary>
-            private static void ClearAllData_SteamworksNET()
+            private static void ClearAllData_SteamworksNET(WriteFileCallback callback)
             {
                 int fileCount = Steamworks.SteamRemoteStorage.GetFileCount();
+                bool success = true;
 
                 for(int i = 0; i < fileCount; ++i)
                 {
@@ -481,9 +487,11 @@ namespace ModIO
 
                     if(filePath.StartsWith(UserDataStorage._USER_DIRECTORY_ROOT))
                     {
-                        UserDataStorage.DeleteFile_SteamworksNET(filePath);
+                        success = Steamworks.SteamRemoteStorage.FileDelete(filePath) && success;
                     }
                 }
+
+                if(callback != null) { callback.Invoke(success); }
             }
 
         #else
@@ -546,9 +554,11 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
-            private static void ClearAllData_Standalone()
+            private static void ClearAllData_Standalone(WriteFileCallback callback)
             {
-                IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
+                bool success = IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
+
+                if(callback != null) { callback.Invoke(success); }
             }
 
         #endif
