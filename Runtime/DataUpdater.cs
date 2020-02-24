@@ -5,16 +5,16 @@ using Newtonsoft.Json.Linq;
 
 using Debug = UnityEngine.Debug;
 
-#pragma warning disable 0618
+#pragma warning disable 0618 // Obsolete Detection
 namespace ModIO
 {
     /// <summary>Performs the operations necessary to update data from older versions of the plugin.</summary>
     public static class DataUpdater
     {
         /// <summary>Runs the update functionality depending on the lastRunVersion.</summary>
-        public static void UpdateFromVersion(SimpleVersion lastRunVersion)
+        public static void UpdateFromVersion(ModIOVersion lastRunVersion)
         {
-            if(lastRunVersion < new SimpleVersion(2, 1))
+            if(lastRunVersion < new ModIOVersion(2, 1))
             {
                 Update_2_0_to_2_1_UserData();
             }
@@ -24,8 +24,12 @@ namespace ModIO
         [System.Serializable]
         private struct GenericJSONObject
         {
+            #pragma warning disable 0649 // Never assigned to
+
             [JsonExtensionData]
             public IDictionary<string, JToken> data;
+
+            #pragma warning restore 0649 // Never assigned to
         }
 
         // ---------[ 2019 ]---------
@@ -34,8 +38,16 @@ namespace ModIO
         {
             Debug.Log("[mod.io] Attempting 2.0->2.1 UserData update.");
 
+            #if UNITY_XBOXONE
+                return;
+            #endif
+
+            #pragma warning disable 0162 // Unreachable Code Detected
+
             // check if the file already exists
-            byte[] fileData = UserDataStorage.ReadBinaryFile("users/default.user");
+            byte[] fileData = null;
+            UserDataStorage.ReadBinaryFile("users/default.user", (success, data) => fileData = data);
+
             if(fileData != null && fileData.Length > 0)
             {
                 Debug.Log("[mod.io] Aborting UserData update. FileExists: \'users/default.user\' ["
@@ -126,10 +138,13 @@ namespace ModIO
             }
 
             // - set and save -
-            UserAccountManagement.activeUser = userData;
-            UserAccountManagement.SaveActiveUser();
+            LocalUser.instance = userData;
+            LocalUser.isLoaded = true;
+            LocalUser.Save();
 
             Debug.Log("[mod.io] UserData updated completed.");
+
+            #pragma warning restore 0162 // Unreachable Code Detected
         }
 
         // ---------[ UTILITY ]---------
@@ -153,4 +168,4 @@ namespace ModIO
         }
     }
 }
-#pragma warning restore 0618
+#pragma warning restore 0618 // Obsolete Detection

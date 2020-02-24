@@ -17,7 +17,7 @@ namespace ModIO
         /// <summary>A structure used to store data on disk.</summary>
         private struct PersistentData
         {
-            public SimpleVersion lastRunVersion;
+            public ModIOVersion lastRunVersion;
         }
 
         // ---------[ EVENTS ]---------
@@ -28,9 +28,6 @@ namespace ModIO
         public static event Action<ModfileIdPair> onModBinaryUninstalled;
 
         // ---------[ CONSTANTS ]---------
-        /// <summary>Current version of the ModManager/Plugin.</summary>
-        public static readonly SimpleVersion VERSION = new SimpleVersion(2, 1);
-
         /// <summary>File name used to store the persistent data.</summary>
         public const string PERSISTENTDATA_FILENAME = "mod_manager.data";
 
@@ -56,12 +53,12 @@ namespace ModIO
             {
                 ModManager.m_data = new PersistentData();
             }
-            else if(ModManager.m_data.lastRunVersion < ModManager.VERSION)
+            else if(ModManager.m_data.lastRunVersion < ModIOVersion.Current)
             {
                 DataUpdater.UpdateFromVersion(m_data.lastRunVersion);
             }
 
-            ModManager.m_data.lastRunVersion = ModManager.VERSION;
+            ModManager.m_data.lastRunVersion = ModIOVersion.Current;
 
             IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
@@ -259,7 +256,7 @@ namespace ModIO
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
-                modIdFilter = new List<int>(UserAccountManagement.GetEnabledMods());
+                modIdFilter = new List<int>(LocalUser.EnabledModIds);
                 // Include drop-ins
                 modIdFilter.Add(ModProfile.NULL_ID);
             }
@@ -280,7 +277,7 @@ namespace ModIO
             List<int> modIdFilter = null;
             if(excludeDisabledMods)
             {
-                modIdFilter = new List<int>(UserAccountManagement.GetEnabledMods());
+                modIdFilter = new List<int>(LocalUser.EnabledModIds);
             }
 
             List<ModfileIdPair> versions = new List<ModfileIdPair>();
@@ -1784,16 +1781,14 @@ namespace ModIO
         public static void GetAuthenticatedUserProfile(Action<UserProfile> onSuccess,
                                                        Action<WebRequestError> onError)
         {
-            UserProfile profile = UserAccountManagement.activeUser.profile;
-
-            if(profile == null
-               && !string.IsNullOrEmpty(UserAccountManagement.activeUser.oAuthToken))
+            if(LocalUser.Profile == null
+               && !string.IsNullOrEmpty(LocalUser.OAuthToken))
             {
                 UserAccountManagement.UpdateUserProfile(onSuccess, onError);
             }
             else if(onSuccess != null)
             {
-                onSuccess(profile);
+                onSuccess(LocalUser.Profile);
             }
         }
 
@@ -1944,35 +1939,33 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Returns the enabled mods.</summary>
-        [Obsolete("Use UserAccountManagement.GetEnabledMods() instead.")]
+        [Obsolete("Refer to LocalUser.EnabledModIds instead.")]
         public static List<int> GetEnabledModIds()
         {
-            return UserAccountManagement.GetEnabledMods();
+            return LocalUser.EnabledModIds;
         }
         /// <summary>[Obsolete] Sets the enabled mods and writes the data to disk.</summary>
-        [Obsolete("Use UserAccountManagement.SetEnabledMods() instead.")]
+        [Obsolete("Refer to LocalUser.EnabledModIds instead.")]
         public static void SetEnabledModIds(IEnumerable<int> modIds)
         {
-            UserAccountManagement.SetEnabledMods(modIds);
+            if(modIds == null) { modIds = new int[0]; }
+            LocalUser.EnabledModIds = new List<int>(modIds);
+            LocalUser.Save();
         }
 
         /// <summary>[Obsolete]Returns the subscribed mods.</summary>
-        [Obsolete("Use UseAccountManagement.activeUser.subscribedModIds instead.")]
+        [Obsolete("Refer to LocalUser.SubscribedModIds instead.")]
         public static List<int> GetSubscribedModIds()
         {
-            return UserAccountManagement.activeUser.subscribedModIds;
+            return LocalUser.SubscribedModIds;
         }
         /// <summary>[Obsolete]Sets the subscribed mods and writes the data to disk.</summary>
-        [Obsolete("Use UserAccountManagement.SubscribeToMod() instead.")]
+        [Obsolete("Refer to LocalUser.SubscribedModIds instead.")]
         public static void SetSubscribedModIds(IEnumerable<int> modIds)
         {
-            if(modIds == null)
-            {
-                modIds = new int[0];
-            }
-
-            UserAccountManagement.activeUser.subscribedModIds = new List<int>(modIds);
-            UserAccountManagement.SaveActiveUser();
+            if(modIds == null) { modIds = new int[0]; }
+            LocalUser.SubscribedModIds = new List<int>(modIds);
+            LocalUser.Save();
         }
     }
 }

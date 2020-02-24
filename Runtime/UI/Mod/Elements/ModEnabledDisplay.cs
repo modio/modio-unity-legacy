@@ -60,7 +60,7 @@ namespace ModIO.UI
             this.m_modId = modId;
 
             // display
-            bool isEnabled = UserAccountManagement.GetEnabledMods().Contains(modId);
+            bool isEnabled = LocalUser.EnabledModIds.Contains(modId);
 
             this.gameObject.GetComponent<StateToggleDisplay>().isOn = isEnabled;
         }

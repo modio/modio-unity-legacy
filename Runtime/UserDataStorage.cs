@@ -14,6 +14,16 @@ namespace ModIO
     /// <summary>Functions for user-specific data I/O.</summary>
     public static class UserDataStorage
     {
+        // ---------[ Nested Data-Types ]---------
+        /// <summary>Delegate for the read file callback.</summary>
+        public delegate void ReadFileCallback(bool success, byte[] data);
+
+        /// <summary>Delegate for the read json file callback.</summary>
+        public delegate void ReadJsonFileCallback<T>(bool success, T jsonObject);
+
+        /// <summary>Delegate for write/delete file callbacks.</summary>
+        public delegate void WriteFileCallback(bool success);
+
         // ---------[ FIELDS ]---------
         /// <summary>Defines the base directory for the user-specific data.</summary>
         private static readonly string _USER_DIRECTORY_ROOT;
@@ -60,13 +70,27 @@ namespace ModIO
 
         // ---------[ IO FUNCTIONS ]---------
         /// <summary>Function used to read a user data file.</summary>
-        public static bool TryReadJSONFile<T>(string filePathRelative, out T jsonObject)
+        public static void TryReadJSONFile<T>(string filePathRelative, ReadJsonFileCallback<T> callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+            Debug.Assert(callback != null);
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            byte[] fileData = UserDataStorage._PlatformReadFile(filePath);
-            return UserDataStorage.TryParseJSONFile(fileData, out jsonObject);;
+            UserDataStorage.ReadBinaryFile(filePathRelative, (success, fileData) =>
+            {
+
+                T jsonObject;
+
+                if(success)
+                {
+                    success = UserDataStorage.TryParseJSONFile(fileData, out jsonObject);
+                }
+                else
+                {
+                    jsonObject = default(T);
+                }
+
+                callback(success, jsonObject);
+            });
         }
 
         /// <summary>Function used to read a user data file.</summary>
@@ -77,8 +101,13 @@ namespace ModIO
             byte[] fileData = null;
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
 
-            return(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData)
-                   && UserDataStorage._PlatformWriteFile(filePath, fileData));
+            bool success = false;
+            if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
+            {
+                UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => success = s);
+            }
+
+            return success;
         }
 
         /// <summary>Generates user data file.</summary>
@@ -133,12 +162,12 @@ namespace ModIO
         }
 
         /// <summary>Function for reading a user-specific file.</summary>
-        public static byte[] ReadBinaryFile(string filePathRelative)
+        public static void ReadBinaryFile(string filePathRelative, ReadFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            return UserDataStorage._PlatformReadFile(filePath);
+            UserDataStorage._PlatformReadFile(filePath, callback);
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
@@ -155,7 +184,10 @@ namespace ModIO
             #endif // DEBUG
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            return UserDataStorage._PlatformWriteFile(filePath, fileData);
+            bool success = false;
+            UserDataStorage._PlatformWriteFile(filePath, fileData, (s) => success = s);
+
+            return success;
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
@@ -164,24 +196,30 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
-            return UserDataStorage._PlatformDeleteFile(filePath);
+            bool success = false;
+            UserDataStorage._PlatformDeleteFile(filePath, (s) => success = s);
+
+            return success;
         }
 
         /// <summary>Function for clearing all user data.</summary>
-        public static void ClearAllData()
+        public static bool ClearAllData()
         {
+            bool success = false;
             UserDataStorage._PlatformClearAllData();
+
+            return success;
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
         /// <summary>Delegate for reading a file.</summary>
-        private delegate byte[] ReadFileDelegate(string filePath);
+        private delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
 
         /// <summary>Delegate for writing a file.</summary>
-        private delegate bool WriteFileDelegate(string filePath, byte[] fileData);
+        private delegate void WriteFileDelegate(string filePath, byte[] fileData, WriteFileCallback callback);
 
         /// <summary>Delegate for deleting a file.</summary>
-        private delegate bool DeleteFileDelegate(string filePath);
+        private delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
 
         /// <summary>Delegate for clearing all data.</summary>
         private delegate void ClearAllDataDelegate();
@@ -227,17 +265,18 @@ namespace ModIO
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
-            private static byte[] ReadFile_Editor(string filePath)
+            private static void ReadFile_Editor(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 data = IOUtilities.LoadBinaryFile(filePath);
-                return data;
+                callback.Invoke(true, data);
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
-            private static bool WriteFile_Editor(string filePath, byte[] data)
+            private static void WriteFile_Editor(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -252,11 +291,14 @@ namespace ModIO
                     UnityEditor.AssetDatabase.Refresh();
                 }
 
-                return success;
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
-            private static bool DeleteFile_Editor(string filePath)
+            private static void DeleteFile_Editor(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -273,7 +315,10 @@ namespace ModIO
                     }
                 }
 
-                return success;
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
@@ -301,9 +346,10 @@ namespace ModIO
             }
 
             /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
-            public static byte[] ReadFile_Facepunch(string filePath)
+            public static void ReadFile_Facepunch(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
@@ -311,28 +357,39 @@ namespace ModIO
                     data = Steamworks.SteamRemoteStorage.FileRead(filePath);
                 }
 
-                return data;
+                callback.Invoke(true, data);
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
-            public static bool WriteFile_Facepunch(string filePath, byte[] data)
+            public static void WriteFile_Facepunch(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
-                return Steamworks.SteamRemoteStorage.FileWrite(filePath, data);
+                bool success = Steamworks.SteamRemoteStorage.FileWrite(filePath, data);
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            private static bool DeleteFile_Facepunch(string filePath)
+            private static void DeleteFile_Facepunch(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
+                bool success = true;
+
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    return Steamworks.SteamRemoteStorage.FileDelete(filePath);
+                    success = Steamworks.SteamRemoteStorage.FileDelete(filePath);
                 }
-                return true;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
@@ -367,9 +424,10 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Steamworks.NET)</summary>
-            private static byte[] ReadFile_SteamworksNET(string filePath)
+            private static void ReadFile_SteamworksNET(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
@@ -383,28 +441,39 @@ namespace ModIO
                     }
                 }
 
-                return data;
+                callback.Invoke(true, data);
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
-            public static bool WriteFile_SteamworksNET(string filePath, byte[] data)
+            public static void WriteFile_SteamworksNET(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
-                return Steamworks.SteamRemoteStorage.FileWrite(filePath, data, data.Length);
+                bool success = Steamworks.SteamRemoteStorage.FileWrite(filePath, data, data.Length);
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
-            private static bool DeleteFile_SteamworksNET(string filePath)
+            private static void DeleteFile_SteamworksNET(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
+                bool success = true;
+
                 if(Steamworks.SteamRemoteStorage.FileExists(filePath))
                 {
-                    return Steamworks.SteamRemoteStorage.FileDelete(filePath);
+                    success = Steamworks.SteamRemoteStorage.FileDelete(filePath);
                 }
-                return true;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Steamworks.NET)</summary>
@@ -426,7 +495,7 @@ namespace ModIO
                 }
             }
 
-        #elif UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
+        #else
 
             /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
             private static PlatformFunctions GetPlatformFunctions()
@@ -446,34 +515,43 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
-            private static byte[] ReadFile_Standalone(string filePath)
+            private static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
 
                 byte[] data = null;
                 data = IOUtilities.LoadBinaryFile(filePath);
-                return data;
+                callback.Invoke(true, data);
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
-            private static bool WriteFile_Standalone(string filePath, byte[] data)
+            private static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
                 bool success = false;
                 success = IOUtilities.WriteBinaryFile(filePath, data);
-                return success;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
-            private static bool DeleteFile_Standalone(string filePath)
+            private static void DeleteFile_Standalone(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
                 bool success = false;
                 success = IOUtilities.DeleteFile(filePath);
-                return success;
+
+                if(callback != null)
+                {
+                    callback.Invoke(success);
+                }
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>

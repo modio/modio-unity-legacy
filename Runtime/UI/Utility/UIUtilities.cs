@@ -23,7 +23,7 @@ namespace ModIO.UI
         }
 
         /// <summary>Counts the cells that will fit in within the RectTransform of the given grid</summary>
-        public static int CountVisibleGridCells(GridLayoutGroup gridLayout)
+        public static int CalculateGridCellCount(GridLayoutGroup gridLayout)
         {
             Debug.Assert(gridLayout != null);
 
@@ -71,6 +71,34 @@ namespace ModIO.UI
             }
 
             return rowCount * columnCount;
+        }
+
+        /// <summary>Calculates the number of grid columns within the transform.</summary>
+        public static int CalculateGridColumnCount(GridLayoutGroup gridLayout)
+        {
+            float width = ((RectTransform)gridLayout.transform).rect.size.x;
+
+            int cellCountX = 1;
+
+            if (gridLayout.cellSize.x + gridLayout.spacing.x <= 0)
+            {
+                cellCountX = int.MaxValue;
+            }
+            else
+            {
+                float gridWidth = width - gridLayout.padding.horizontal + 0.001f;
+                float colWidth = gridLayout.cellSize.x + gridLayout.spacing.x;
+
+                cellCountX = Mathf.Max(1, Mathf.FloorToInt((gridWidth+gridLayout.spacing.x) / colWidth));
+            }
+
+            if (gridLayout.constraint == GridLayoutGroup.Constraint.FixedColumnCount
+                && cellCountX > gridLayout.constraintCount)
+            {
+                cellCountX = gridLayout.constraintCount;
+            }
+
+            return cellCountX;
         }
 
         /// <summary>Finds the first instance of a component in any loaded scenes.</summary>
@@ -132,6 +160,289 @@ namespace ModIO.UI
             }
 
             return sceneComponents;
+        }
+
+        /// <summary>Explicitly links a collection of selectable components as a grid (or list).</summary>
+        public static void SetExplicitGridNavigation(IList<Selectable> selectables, int columnCount,
+                                                     EdgeCellNavigationMode horizontalNavigationStyle,
+                                                     EdgeCellNavigationMode verticalNavigationStyle)
+        {
+            Debug.Assert(selectables != null);
+
+            if(selectables == null || selectables.Count == 0) { return; }
+
+            // assert valid columnCount
+            if(columnCount < 1) { columnCount = 1; }
+            if(columnCount > selectables.Count) { columnCount = selectables.Count; }
+
+            // as int-division rounds toward zero, this ensures rounding-up.
+            int rowCount = (selectables.Count + columnCount -1) / columnCount;
+
+            // set grid index formula
+            Func<int, int> getCol = (gridIndex) => gridIndex % columnCount;
+            Func<int, int> getRow = (gridIndex) => gridIndex / columnCount;
+            Func<int, int, int> getGridIndex = (col, row) => row * columnCount + col;
+
+            // create wrap-link delegates
+            Func<int, Selectable> getWrapLeftCell = (gridIndex) => null;
+            Func<int, Selectable> getWrapRightCell = (gridIndex) => null;
+            Func<int, Selectable> getWrapUpCell = (gridIndex) => null;
+            Func<int, Selectable> getWrapDownCell = (gridIndex) => null;
+
+            switch(horizontalNavigationStyle)
+            {
+                case EdgeCellNavigationMode.Wrap:
+                {
+                    getWrapLeftCell = (gridIndex) =>
+                    {
+                        int row = getRow(gridIndex);
+                        int targetCellCol = columnCount-1;
+
+                        while(getGridIndex(targetCellCol, row) > selectables.Count)
+                        {
+                            #if DEBUG
+                                if(targetCellCol < 0)
+                                {
+                                    Debug.LogError("[mod.io] Something went wrong while calculating"
+                                                   + " grid navigation. targetCellCol < 0.");
+                                    return null;
+                                }
+                            #endif
+                            --targetCellCol;
+                        }
+
+                        return selectables[getGridIndex(targetCellCol, row)];
+                    };
+
+                    getWrapRightCell = (gridIndex) =>
+                    {
+                        int row = getRow(gridIndex);
+                        return selectables[getGridIndex(0, row)];
+                    };
+                }
+                break;
+
+                case EdgeCellNavigationMode.WrapAndIncrement:
+                {
+                    getWrapLeftCell = (gridIndex) =>
+                    {
+                        int row = getRow(gridIndex) - 1;
+                        if(row < 0) { row = rowCount-1; }
+
+                        int targetCellCol = columnCount-1;
+
+                        while(getGridIndex(targetCellCol, row) > selectables.Count)
+                        {
+                            #if DEBUG
+                                if(targetCellCol < 0)
+                                {
+                                    Debug.LogError("[mod.io] Something went wrong while calculating"
+                                                   + " grid navigation. targetCellCol < 0.");
+                                    return null;
+                                }
+                            #endif
+                            --targetCellCol;
+                        }
+
+                        return selectables[getGridIndex(targetCellCol, row)];
+                    };
+
+                    getWrapRightCell = (gridIndex) =>
+                    {
+                        int row = getRow(gridIndex) + 1;
+                        if(row >= rowCount) { row = 0; }
+
+                        return selectables[getGridIndex(0, row)];
+                    };
+                }
+                break;
+            }
+
+            switch(verticalNavigationStyle)
+            {
+                case EdgeCellNavigationMode.Wrap:
+                {
+                    getWrapUpCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex);
+                        int targetRow = rowCount-1;
+
+                        while(getGridIndex(col, targetRow) > selectables.Count)
+                        {
+                            #if DEBUG
+                                if(targetRow < 0)
+                                {
+                                    Debug.LogError("[mod.io] Something went wrong while calculating"
+                                                   + " grid navigation. targetRow < 0.");
+                                    return null;
+                                }
+                            #endif
+                            --targetRow;
+                        }
+
+                        return selectables[getGridIndex(col, targetRow)];
+                    };
+
+                    getWrapDownCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex);
+                        return selectables[getGridIndex(col, 0)];
+                    };
+                }
+                break;
+
+                case EdgeCellNavigationMode.WrapAndIncrement:
+                {
+                    getWrapUpCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex)-1;
+                        if(col < 0) { col = columnCount-1; }
+
+                        int targetRow = rowCount-1;
+
+                        while(getGridIndex(col, targetRow) > selectables.Count)
+                        {
+                            #if DEBUG
+                                if(targetRow < 0)
+                                {
+                                    Debug.LogError("[mod.io] Something went wrong while calculating"
+                                                   + " grid navigation. targetRow < 0.");
+                                    return null;
+                                }
+                            #endif
+                            --targetRow;
+                        }
+
+                        return selectables[getGridIndex(col, targetRow)];
+                    };
+
+                    getWrapDownCell = (gridIndex) =>
+                    {
+                        int col = getCol(gridIndex)+1;
+                        if(col >= columnCount) { col = 0; }
+
+                        return selectables[getGridIndex(col, 0)];
+                    };
+                }
+                break;
+            }
+
+            // -- set the nav on the first and last items --
+            // do linkage
+            for(int gridIndex = 0; gridIndex < selectables.Count; ++gridIndex)
+            {
+                Selectable currentItem = selectables[gridIndex];
+                Navigation nav = new Navigation()
+                {
+                    mode = Navigation.Mode.Explicit,
+                };
+
+                int col = getCol(gridIndex);
+                int row = getRow(gridIndex);
+
+                // left
+                if(col > 0)
+                {
+                    nav.selectOnLeft = selectables[gridIndex-1];
+                }
+                else
+                {
+                    nav.selectOnLeft = getWrapLeftCell(gridIndex);
+                }
+
+                // right
+                if(col < columnCount-1 && gridIndex < selectables.Count-1)
+                {
+                    nav.selectOnRight = selectables[gridIndex+1];
+                }
+                else
+                {
+                    nav.selectOnRight = getWrapRightCell(gridIndex);
+                }
+
+                // up
+                if(row > 0)
+                {
+                    nav.selectOnUp = selectables[getGridIndex(col, row-1)];
+                }
+                else
+                {
+                    nav.selectOnUp = getWrapUpCell(gridIndex);
+                }
+
+                // down
+                if(row < rowCount-1)
+                {
+                    nav.selectOnDown = selectables[getGridIndex(col, row+1)];
+                }
+                else
+                {
+                    nav.selectOnDown = getWrapDownCell(gridIndex);
+                }
+
+                currentItem.navigation = nav;
+            }
+        }
+
+        /// <summary>Creates/Destroys a number of GameObject instances as necessary.</summary>
+        public static void SetInstanceCount<T>(Transform container, T template,
+                                               string instanceName, int instanceCount,
+                                               ref T[] instanceArray, bool reactivateAll = false)
+        where T : MonoBehaviour
+        {
+            if(instanceArray == null)
+            {
+                instanceArray = new T[0];
+            }
+
+            int difference = instanceCount - instanceArray.Length;
+
+            if(difference != 0)
+            {
+                T[] newInstanceArray = new T[instanceCount];
+
+                // copy existing
+                for(int i = 0;
+                    i < instanceArray.Length && i < instanceCount;
+                    ++i)
+                {
+                    newInstanceArray[i] = instanceArray[i];
+                }
+
+                // create new
+                for(int i = instanceArray.Length;
+                    i < instanceCount;
+                    ++i)
+                {
+                    GameObject displayGO = GameObject.Instantiate(template.gameObject);
+                    displayGO.name = instanceName + " [" + i.ToString("00") + "]";
+                    displayGO.transform.SetParent(container, false);
+                    displayGO.SetActive(true);
+
+                    newInstanceArray[i] = displayGO.GetComponent<T>();
+                }
+
+                // destroy excess
+                for(int i = instanceCount;
+                    i < instanceArray.Length;
+                    ++i)
+                {
+                    GameObject.Destroy(instanceArray[i].gameObject);
+                }
+
+                // assign
+                instanceArray = newInstanceArray;
+            }
+
+            // reactivate
+            if(reactivateAll)
+            {
+                foreach(T instance in instanceArray)
+                {
+                    instance.gameObject.SetActive(false);
+                    instance.gameObject.SetActive(true);
+                }
+            }
         }
 
         // ---------[ OBSOLETE ]---------
@@ -197,65 +508,11 @@ namespace ModIO.UI
             return retVal;
         }
 
-        /// <summary>Creates/Destroys a number of GameObject instances as necessary.</summary>
-        public static void SetInstanceCount<T>(Transform container, T template,
-                                               string instanceName, int instanceCount,
-                                               ref T[] instanceArray, bool reactivateAll = false)
-        where T : MonoBehaviour
+        /// <summary>Counts the cells that will fit in within the RectTransform of the given grid.</summary>
+        [Obsolete("Renamed to CalculateGridCellCount.")]
+        public static int CountVisibleGridCells(GridLayoutGroup gridLayout)
         {
-            if(instanceArray == null)
-            {
-                instanceArray = new T[0];
-            }
-
-            int difference = instanceCount - instanceArray.Length;
-
-            if(difference != 0)
-            {
-                T[] newInstanceArray = new T[instanceCount];
-
-                // copy existing
-                for(int i = 0;
-                    i < instanceArray.Length && i < instanceCount;
-                    ++i)
-                {
-                    newInstanceArray[i] = instanceArray[i];
-                }
-
-                // create new
-                for(int i = instanceArray.Length;
-                    i < instanceCount;
-                    ++i)
-                {
-                    GameObject displayGO = GameObject.Instantiate(template.gameObject);
-                    displayGO.name = instanceName + " [" + i.ToString("00") + "]";
-                    displayGO.transform.SetParent(container, false);
-                    displayGO.SetActive(true);
-
-                    newInstanceArray[i] = displayGO.GetComponent<T>();
-                }
-
-                // destroy excess
-                for(int i = instanceCount;
-                    i < instanceArray.Length;
-                    ++i)
-                {
-                    GameObject.Destroy(instanceArray[i].gameObject);
-                }
-
-                // assign
-                instanceArray = newInstanceArray;
-            }
-
-            // reactivate
-            if(reactivateAll)
-            {
-                foreach(T instance in instanceArray)
-                {
-                    instance.gameObject.SetActive(false);
-                    instance.gameObject.SetActive(true);
-                }
-            }
+            return CalculateGridCellCount(gridLayout);
         }
     }
 }
