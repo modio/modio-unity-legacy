@@ -48,11 +48,11 @@ namespace ModIO
             UserDataStorage._PlatformClearAllData   = platform.ClearAllData;
             UserDataStorage._USER_DIRECTORY_ROOT    = platform.UserDirectoryRoot;
 
-            UserDataStorage.SetActiveUserDirectory(null);
+            UserDataStorage.InitializeForUser(null);
         }
 
-        /// <summary>Sets the user directory to store into based on a given user identifier.</summary>
-        public static void SetActiveUserDirectory(string localUserIdentifier = null)
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        public static void InitializeForUser(string localUserIdentifier = null)
         {
             string userDir = UserDataStorage._USER_DIRECTORY_ROOT;
 
