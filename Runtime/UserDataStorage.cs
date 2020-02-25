@@ -42,32 +42,27 @@ namespace ModIO
             Debug.Assert(platform.ClearAllData != null);
             Debug.Assert(platform.UserDirectoryRoot != null);
 
-            UserDataStorage._PlatformReadFile           = platform.ReadFile;
-            UserDataStorage._PlatformWriteFile          = platform.WriteFile;
-            UserDataStorage._PlatformDeleteFile         = platform.DeleteFile;
-            UserDataStorage._PlatformClearAllData       = platform.ClearAllData;
-            UserDataStorage._PlatformInitializeInt      = platform.InitializeInt;
-            UserDataStorage._PlatformInitializeString   = platform.InitializeString;
-            UserDataStorage._USER_DIRECTORY_ROOT        = platform.UserDirectoryRoot;
+            UserDataStorage._PlatformReadFile               = platform.ReadFile;
+            UserDataStorage._PlatformWriteFile              = platform.WriteFile;
+            UserDataStorage._PlatformDeleteFile             = platform.DeleteFile;
+            UserDataStorage._PlatformClearAllData           = platform.ClearAllData;
+            UserDataStorage._PlatformInitializeWithInt      = platform.InitializeWithInt;
+            UserDataStorage._PlatformInitializeWithString   = platform.InitializeWithString;
+            UserDataStorage._USER_DIRECTORY_ROOT            = platform.UserDirectoryRoot;
 
             UserDataStorage.InitializeForUser(null);
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void InitializeForUser(string localUserIdentifier = null)
+        public static void InitializeForUser(string platformUserIdentifier = null)
         {
-            string userDir = UserDataStorage._USER_DIRECTORY_ROOT;
+            UserDataStorage._PlatformInitializeWithString(platformUserIdentifier);
+        }
 
-            if(!string.IsNullOrEmpty(localUserIdentifier))
-            {
-                string folderName = IOUtilities.MakeValidFileName(localUserIdentifier);
-                userDir = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_ROOT,
-                                                  folderName);
-            }
-
-            UserDataStorage._activeUserDirectory = userDir;
-
-            Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        public static void InitializeForUser(int platformUserIdentifier)
+        {
+            UserDataStorage._PlatformInitializeWithInt(platformUserIdentifier);
         }
 
         // ---------[ IO FUNCTIONS ]---------
@@ -224,10 +219,10 @@ namespace ModIO
         private delegate void ClearAllDataDelegate(WriteFileCallback callback);
 
         /// <summary>Function for initializing the storage system.</summary>
-        private readonly static InitializationStringDelegate _PlatformInitializeString = null;
+        private readonly static InitializationStringDelegate _PlatformInitializeWithString = null;
 
         /// <summary>Function for initializing the storage system.</summary>
-        private readonly static InitializationIntDelegate _PlatformInitializeInt = null;
+        private readonly static InitializationIntDelegate _PlatformInitializeWithInt = null;
 
         /// <summary>Function for reading a user-specific file.</summary>
         private readonly static ReadFileDelegate _PlatformReadFile = null;
@@ -245,8 +240,8 @@ namespace ModIO
         /// <summary>The collection of platform specific functions.</summary>
         private struct PlatformFunctions
         {
-            public InitializationIntDelegate InitializeInt;
-            public InitializationStringDelegate InitializeString;
+            public InitializationIntDelegate InitializeWithInt;
+            public InitializationStringDelegate InitializeWithString;
             public ReadFileDelegate ReadFile;
             public WriteFileDelegate WriteFile;
             public DeleteFileDelegate DeleteFile;
@@ -263,8 +258,8 @@ namespace ModIO
 
                 return new PlatformFunctions()
                 {
-                    InitializeInt = InitializeForUser_Editor,
-                    InitializeString = InitializeForUser_Editor,
+                    InitializeWithInt = InitializeForUser_Editor,
+                    InitializeWithString = InitializeForUser_Editor,
                     ReadFile = ReadFile_Editor,
                     WriteFile = WriteFile_Editor,
                     DeleteFile = DeleteFile_Editor,
