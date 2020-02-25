@@ -42,11 +42,13 @@ namespace ModIO
             Debug.Assert(platform.ClearAllData != null);
             Debug.Assert(platform.UserDirectoryRoot != null);
 
-            UserDataStorage._PlatformReadFile       = platform.ReadFile;
-            UserDataStorage._PlatformWriteFile      = platform.WriteFile;
-            UserDataStorage._PlatformDeleteFile     = platform.DeleteFile;
-            UserDataStorage._PlatformClearAllData   = platform.ClearAllData;
-            UserDataStorage._USER_DIRECTORY_ROOT    = platform.UserDirectoryRoot;
+            UserDataStorage._PlatformReadFile           = platform.ReadFile;
+            UserDataStorage._PlatformWriteFile          = platform.WriteFile;
+            UserDataStorage._PlatformDeleteFile         = platform.DeleteFile;
+            UserDataStorage._PlatformClearAllData       = platform.ClearAllData;
+            UserDataStorage._PlatformInitializeInt      = platform.InitializeInt;
+            UserDataStorage._PlatformInitializeString   = platform.InitializeString;
+            UserDataStorage._USER_DIRECTORY_ROOT        = platform.UserDirectoryRoot;
 
             UserDataStorage.InitializeForUser(null);
         }
@@ -203,6 +205,12 @@ namespace ModIO
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
+        /// <summary>Delegate for initializing the storage system.</summary>
+        private delegate void InitializationStringDelegate(string platformUserIdentifier);
+
+        /// <summary>Delegate for initializing the storage system.</summary>
+        private delegate void InitializationIntDelegate(int platformUserIdentifier);
+
         /// <summary>Delegate for reading a file.</summary>
         private delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
 
@@ -214,6 +222,12 @@ namespace ModIO
 
         /// <summary>Delegate for clearing all data.</summary>
         private delegate void ClearAllDataDelegate(WriteFileCallback callback);
+
+        /// <summary>Function for initializing the storage system.</summary>
+        private readonly static InitializationStringDelegate _PlatformInitializeString = null;
+
+        /// <summary>Function for initializing the storage system.</summary>
+        private readonly static InitializationIntDelegate _PlatformInitializeInt = null;
 
         /// <summary>Function for reading a user-specific file.</summary>
         private readonly static ReadFileDelegate _PlatformReadFile = null;
@@ -231,6 +245,8 @@ namespace ModIO
         /// <summary>The collection of platform specific functions.</summary>
         private struct PlatformFunctions
         {
+            public InitializationIntDelegate InitializeInt;
+            public InitializationStringDelegate InitializeString;
             public ReadFileDelegate ReadFile;
             public WriteFileDelegate WriteFile;
             public DeleteFileDelegate DeleteFile;
@@ -247,12 +263,37 @@ namespace ModIO
 
                 return new PlatformFunctions()
                 {
+                    InitializeInt = InitializeForUser_Editor,
+                    InitializeString = InitializeForUser_Editor,
                     ReadFile = ReadFile_Editor,
                     WriteFile = WriteFile_Editor,
                     DeleteFile = DeleteFile_Editor,
                     ClearAllData = ClearAllData_Editor,
                     UserDirectoryRoot = userDir,
                 };
+            }
+
+            /// <summary>Initializes the data storage system for a given user.</summary>
+            private static void InitializeForUser_Editor(string platformUserIdentifier)
+            {
+                string userDir = UserDataStorage._USER_DIRECTORY_ROOT;
+
+                if(!string.IsNullOrEmpty(platformUserIdentifier))
+                {
+                    string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
+                    userDir = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_ROOT,
+                                                      folderName);
+                }
+
+                UserDataStorage._activeUserDirectory = userDir;
+
+                Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
+            }
+
+            /// <summary>Initializes the data storage system for a given user.</summary>
+            private static void InitializeForUser_Editor(int platformUserIdentifier)
+            {
+                UserDataStorage.InitializeForUser_Editor(platformUserIdentifier.ToString("x8"));
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
