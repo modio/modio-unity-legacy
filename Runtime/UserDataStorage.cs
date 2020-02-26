@@ -85,13 +85,13 @@ namespace ModIO
         {
             // Select the platform appropriate functions
             #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Editor();
             #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Facepunch();
             #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_SteamworksNET();
             #else
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Standalone();
             #endif
 
             Debug.Assert(UserDataStorage.platformFunctions.ReadFile != null);
@@ -263,7 +263,7 @@ namespace ModIO
                                                                                       "modio");
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
-            private static PlatformFunctions GetPlatformFunctions()
+            private static PlatformFunctions GetPlatformFunctions_Editor()
             {
                 return new PlatformFunctions()
                 {
@@ -372,7 +372,7 @@ namespace ModIO
             private static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
 
             /// <summary>Returns the platform specific functions. (Facepunch.Steamworks)</summary>
-            private static PlatformFunctions GetPlatformFunctions()
+            private static PlatformFunctions GetPlatformFunctions_Facepunch()
             {
                 Debug.Log("[mod.io] User Data I/O being handled by Facepunch.Steamworks");
 
@@ -481,7 +481,7 @@ namespace ModIO
             private static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
 
             /// <summary>Returns the platform specific functions. (Steamworks.NET)</summary>
-            private static PlatformFunctions GetPlatformFunctions()
+            private static PlatformFunctions GetPlatformFunctions_SteamworksNET()
             {
                 Debug.Log("[mod.io] User Data I/O being handled by Steamworks.NET");
 
@@ -603,7 +603,7 @@ namespace ModIO
                                                                                   "users");
 
             /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
-            private static PlatformFunctions GetPlatformFunctions()
+            private static PlatformFunctions GetPlatformFunctions_Standalone()
             {
                 return new PlatformFunctions()
                 {
