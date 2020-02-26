@@ -29,15 +29,10 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         /// <summary>Has UserDataStorage been initialized?</summary>
-        private static bool _isInitialized = false;
+        public static bool isInitialized = false;
 
         /// <summary>Defines the active user directory</summary>
         public static string activeUserDirectory = string.Empty;
-
-        // --- Accessors ---
-        /// <summary>Has UserDataStorage been initialized?</summary>
-        public static bool IsInitialized
-        { get { return UserDataStorage._isInitialized; } }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
@@ -75,7 +70,7 @@ namespace ModIO
         /// <summary>Function used to read a user data file.</summary>
         public static void TryReadJSONFile<T>(string filePathRelative, ReadJsonFileCallback<T> callback)
         {
-            Debug.Assert(UserDataStorage._isInitialized);
+            Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(callback != null);
 
@@ -99,7 +94,7 @@ namespace ModIO
         /// <summary>Function used to read a user data file.</summary>
         public static void TryWriteJSONFile<T>(string filePathRelative, T jsonObject, WriteFileCallback callback)
         {
-            Debug.Assert(UserDataStorage._isInitialized);
+            Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             byte[] fileData = null;
@@ -167,7 +162,7 @@ namespace ModIO
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadBinaryFile(string filePathRelative, ReadFileCallback callback)
         {
-            Debug.Assert(UserDataStorage._isInitialized);
+            Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
@@ -177,7 +172,7 @@ namespace ModIO
         /// <summary>Function for writing a user-specific file.</summary>
         public static void WriteBinaryFile(string filePathRelative, byte[] fileData, WriteFileCallback callback)
         {
-            Debug.Assert(UserDataStorage._isInitialized);
+            Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(fileData != null);
 
@@ -195,7 +190,7 @@ namespace ModIO
         /// <summary>Function for deleting a user-specific file.</summary>
         public static void DeleteFile(string filePathRelative, WriteFileCallback callback)
         {
-            Debug.Assert(UserDataStorage._isInitialized);
+            Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
@@ -205,7 +200,7 @@ namespace ModIO
         /// <summary>Function for clearing all user data.</summary>
         public static void ClearAllData(WriteFileCallback callback)
         {
-            Debug.Assert(UserDataStorage._isInitialized);
+            Debug.Assert(UserDataStorage.isInitialized);
 
             UserDataStorage._PlatformClearAllData(callback);
         }
@@ -294,7 +289,7 @@ namespace ModIO
                 }
 
                 UserDataStorage.activeUserDirectory = userDir;
-                UserDataStorage._isInitialized = true;
+                UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
             }
@@ -443,7 +438,7 @@ namespace ModIO
 
                 foreach(string filePath in steamFiles)
                 {
-                    if(filePath.StartsWith(UserDataStorage._USER_DIRECTORY_ROOT))
+                    if(filePath.StartsWith(UserDataStorage.STEAM_USER_DIRECTORY))
                     {
                         success = Steamworks.SteamRemoteStorage.FileDelete(filePath) && success;
                     }
@@ -576,7 +571,7 @@ namespace ModIO
                 }
 
                 UserDataStorage.activeUserDirectory = userDir;
-                UserDataStorage._isInitialized = true;
+                UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
             }
