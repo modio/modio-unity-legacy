@@ -101,8 +101,6 @@ namespace ModIO
             Debug.Assert(UserDataStorage.PLATFORM.WriteFile != null);
             Debug.Assert(UserDataStorage.PLATFORM.DeleteFile != null);
             Debug.Assert(UserDataStorage.PLATFORM.ClearAllData != null);
-
-            UserDataStorage.InitializeForUser(null);
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
