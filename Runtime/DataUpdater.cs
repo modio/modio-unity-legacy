@@ -46,11 +46,12 @@ namespace ModIO
 
             // check if the file already exists
             byte[] fileData = null;
-            UserDataStorage.ReadFile("users/default.user", (success, data) => fileData = data);
+            UserDataStorage.ReadFile(LocalUser.FILENAME, (success, data) => fileData = data);
 
             if(fileData != null && fileData.Length > 0)
             {
-                Debug.Log("[mod.io] Aborting UserData update. FileExists: \'users/default.user\' ["
+                Debug.Log("[mod.io] Aborting UserData update. FileExists: \'"
+                          + LocalUser.FILENAME + "\' ["
                           + ValueFormatting.ByteCount(fileData.Length, null) + "]");
             }
 
