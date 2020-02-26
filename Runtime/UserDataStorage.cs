@@ -32,7 +32,7 @@ namespace ModIO
         private static bool _isInitialized = false;
 
         /// <summary>Defines the active user directory</summary>
-        private static string _activeUserDirectory = string.Empty;
+        public static string activeUserDirectory = string.Empty;
 
         // --- Accessors ---
         /// <summary>Has UserDataStorage been initialized?</summary>
@@ -170,7 +170,7 @@ namespace ModIO
             Debug.Assert(UserDataStorage._isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
             UserDataStorage._PlatformReadFile(filePath, callback);
         }
 
@@ -188,7 +188,7 @@ namespace ModIO
             }
             #endif // DEBUG
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
             UserDataStorage._PlatformWriteFile(filePath, fileData, callback);
         }
 
@@ -198,7 +198,7 @@ namespace ModIO
             Debug.Assert(UserDataStorage._isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
+            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
             UserDataStorage._PlatformDeleteFile(filePath, callback);
         }
 
@@ -293,10 +293,10 @@ namespace ModIO
                                                       folderName);
                 }
 
-                UserDataStorage._activeUserDirectory = userDir;
+                UserDataStorage.activeUserDirectory = userDir;
                 UserDataStorage._isInitialized = true;
 
-                Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
+                Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
@@ -575,10 +575,10 @@ namespace ModIO
                                                       folderName);
                 }
 
-                UserDataStorage._activeUserDirectory = userDir;
+                UserDataStorage.activeUserDirectory = userDir;
                 UserDataStorage._isInitialized = true;
 
-                Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
+                Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
             }
 
             /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
