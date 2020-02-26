@@ -369,7 +369,7 @@ namespace ModIO
         #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
-            private static readonly string STEAM_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
+            private static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
 
             /// <summary>Returns the platform specific functions. (Facepunch.Steamworks)</summary>
             private static PlatformFunctions GetPlatformFunctions()
@@ -390,12 +390,12 @@ namespace ModIO
             /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
             private static void InitializeForUser_Facepunch(string platformUserIdentifier, InitializationCallback callback)
             {
-                string userDir = UserDataStorage.STEAM_USER_DIRECTORY;
+                string userDir = UserDataStorage.FACEPUNCH_USER_DIRECTORY;
 
                 if(!string.IsNullOrEmpty(platformUserIdentifier))
                 {
                     string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
-                    userDir = IOUtilities.CombinePath(STEAM_USER_DIRECTORY,
+                    userDir = IOUtilities.CombinePath(FACEPUNCH_USER_DIRECTORY,
                                                       folderName);
                 }
 
@@ -466,7 +466,7 @@ namespace ModIO
 
                 foreach(string filePath in steamFiles)
                 {
-                    if(filePath.StartsWith(UserDataStorage.STEAM_USER_DIRECTORY))
+                    if(filePath.StartsWith(UserDataStorage.FACEPUNCH_USER_DIRECTORY))
                     {
                         success = Steamworks.SteamRemoteStorage.FileDelete(filePath) && success;
                     }
@@ -477,6 +477,9 @@ namespace ModIO
 
         #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
 
+            /// <summary>Defines the base directory for the user-specific data.</summary>
+            private static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
+
             /// <summary>Returns the platform specific functions. (Steamworks.NET)</summary>
             private static PlatformFunctions GetPlatformFunctions()
             {
@@ -484,12 +487,37 @@ namespace ModIO
 
                 return new PlatformFunctions()
                 {
+                    InitializeWithInt = InitializeForUser_SteamworksNET,
+                    InitializeWithString = InitializeForUser_SteamworksNET,
                     ReadFile = ReadFile_SteamworksNET,
                     WriteFile = WriteFile_SteamworksNET,
                     DeleteFile = DeleteFile_SteamworksNET,
                     ClearAllData = ClearAllData_SteamworksNET,
-                    UserDirectoryRoot = IOUtilities.CombinePath("modio", "users"),
                 };
+            }
+
+            /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
+            private static void InitializeForUser_SteamworksNET(string platformUserIdentifier, InitializationCallback callback)
+            {
+                string userDir = UserDataStorage.STEAMWORKSNET_USER_DIRECTORY;
+
+                if(!string.IsNullOrEmpty(platformUserIdentifier))
+                {
+                    string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
+                    userDir = IOUtilities.CombinePath(STEAMWORKSNET_USER_DIRECTORY,
+                                                      folderName);
+                }
+
+                UserDataStorage.activeUserDirectory = userDir;
+                UserDataStorage.isInitialized = true;
+
+                Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+            }
+
+            /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
+            private static void InitializeForUser_SteamworksNET(int platformUserIdentifier, InitializationCallback callback)
+            {
+                UserDataStorage.InitializeForUser_SteamworksNET(platformUserIdentifier.ToString("x8"), callback);
             }
 
             /// <summary>Reads a user data file. (Steamworks.NET)</summary>
@@ -558,7 +586,7 @@ namespace ModIO
 
                     filePath = Steamworks.SteamRemoteStorage.GetFileNameAndSize(i, out fileSize);
 
-                    if(filePath.StartsWith(UserDataStorage._USER_DIRECTORY_ROOT))
+                    if(filePath.StartsWith(UserDataStorage.STEAMWORKSNET_USER_DIRECTORY))
                     {
                         success = Steamworks.SteamRemoteStorage.FileDelete(filePath) && success;
                     }
