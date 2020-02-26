@@ -25,9 +25,6 @@ namespace ModIO
         public delegate void WriteFileCallback(bool success);
 
         // ---------[ FIELDS ]---------
-        /// <summary>Defines the base directory for the user-specific data.</summary>
-        private static readonly string _USER_DIRECTORY_ROOT;
-
         /// <summary>Defines the active user directory</summary>
         private static string _activeUserDirectory;
 
@@ -40,7 +37,6 @@ namespace ModIO
             Debug.Assert(platform.WriteFile != null);
             Debug.Assert(platform.DeleteFile != null);
             Debug.Assert(platform.ClearAllData != null);
-            Debug.Assert(platform.UserDirectoryRoot != null);
 
             UserDataStorage._PlatformReadFile               = platform.ReadFile;
             UserDataStorage._PlatformWriteFile              = platform.WriteFile;
@@ -48,7 +44,6 @@ namespace ModIO
             UserDataStorage._PlatformClearAllData           = platform.ClearAllData;
             UserDataStorage._PlatformInitializeWithInt      = platform.InitializeWithInt;
             UserDataStorage._PlatformInitializeWithString   = platform.InitializeWithString;
-            UserDataStorage._USER_DIRECTORY_ROOT            = platform.UserDirectoryRoot;
 
             UserDataStorage.InitializeForUser(null);
         }
@@ -251,11 +246,12 @@ namespace ModIO
 
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
 
+            /// <summary>Defines the base directory for the user-specific data.</summary>
+            private static readonly string RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath, "Editor Default Resources", "modio");
+
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
             private static PlatformFunctions GetPlatformFunctions()
             {
-                string userDir = IOUtilities.CombinePath(UnityEngine.Application.dataPath, "Editor Default Resources", "modio");
-
                 return new PlatformFunctions()
                 {
                     InitializeWithInt = InitializeForUser_Editor,
@@ -264,19 +260,18 @@ namespace ModIO
                     WriteFile = WriteFile_Editor,
                     DeleteFile = DeleteFile_Editor,
                     ClearAllData = ClearAllData_Editor,
-                    UserDirectoryRoot = userDir,
                 };
             }
 
             /// <summary>Initializes the data storage system for a given user.</summary>
             private static void InitializeForUser_Editor(string platformUserIdentifier)
             {
-                string userDir = UserDataStorage._USER_DIRECTORY_ROOT;
+                string userDir = UserDataStorage.RESOURCES_FOLDER;
 
                 if(!string.IsNullOrEmpty(platformUserIdentifier))
                 {
                     string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
-                    userDir = IOUtilities.CombinePath(UserDataStorage._USER_DIRECTORY_ROOT,
+                    userDir = IOUtilities.CombinePath(RESOURCES_FOLDER,
                                                       folderName);
                 }
 
@@ -351,7 +346,7 @@ namespace ModIO
             /// <summary>Clears all user data. (Unity Editor)</summary>
             private static void ClearAllData_Editor(WriteFileCallback callback)
             {
-                bool success = IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
+                bool success = IOUtilities.DeleteDirectory(UserDataStorage.RESOURCES_FOLDER);
                 UnityEditor.AssetDatabase.Refresh();
 
                 if(callback != null) { callback.Invoke(success); }
