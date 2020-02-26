@@ -46,7 +46,7 @@ namespace ModIO
 
             // check if the file already exists
             byte[] fileData = null;
-            UserDataStorage.ReadBinaryFile("users/default.user", (success, data) => fileData = data);
+            UserDataStorage.ReadFile("users/default.user", (success, data) => fileData = data);
 
             if(fileData != null && fileData.Length > 0)
             {

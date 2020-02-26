@@ -122,7 +122,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(callback != null);
 
-            UserDataStorage.ReadBinaryFile(filePathRelative, (success, fileData) =>
+            UserDataStorage.ReadFile(filePathRelative, (success, fileData) =>
             {
                 T jsonObject;
 
@@ -148,7 +148,7 @@ namespace ModIO
             byte[] fileData = null;
             if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
             {
-                UserDataStorage.WriteBinaryFile(filePathRelative, fileData, callback);
+                UserDataStorage.WriteFile(filePathRelative, fileData, callback);
             }
             else if(callback != null)
             {
@@ -208,7 +208,7 @@ namespace ModIO
         }
 
         /// <summary>Function for reading a user-specific file.</summary>
-        public static void ReadBinaryFile(string filePathRelative, ReadFileCallback callback)
+        public static void ReadFile(string filePathRelative, ReadFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -218,7 +218,7 @@ namespace ModIO
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
-        public static void WriteBinaryFile(string filePathRelative, byte[] fileData, WriteFileCallback callback)
+        public static void WriteFile(string filePathRelative, byte[] fileData, WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -307,7 +307,7 @@ namespace ModIO
                 Debug.Assert(callback != null);
 
                 byte[] data = null;
-                data = IOUtilities.LoadBinaryFile(filePath);
+                data = IOUtilities.LoadFile(filePath);
                 callback.Invoke(true, data);
             }
 
@@ -320,7 +320,7 @@ namespace ModIO
                 bool fileExisted = System.IO.File.Exists(filePath);
                 bool success = false;
 
-                success = IOUtilities.WriteBinaryFile(filePath, data);
+                success = IOUtilities.WriteFile(filePath, data);
 
                 if(success && !fileExisted)
                 {
