@@ -28,8 +28,16 @@ namespace ModIO
         public delegate void WriteFileCallback(bool success);
 
         // ---------[ FIELDS ]---------
+        /// <summary>Has UserDataStorage been initialized?</summary>
+        private static bool _isInitialized = false;
+
         /// <summary>Defines the active user directory</summary>
-        private static string _activeUserDirectory;
+        private static string _activeUserDirectory = string.Empty;
+
+        // --- Accessors ---
+        /// <summary>Has UserDataStorage been initialized?</summary>
+        public static bool IsInitialized
+        { get { return UserDataStorage._isInitialized; } }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
@@ -281,6 +289,7 @@ namespace ModIO
                 }
 
                 UserDataStorage._activeUserDirectory = userDir;
+                UserDataStorage._isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
             }
@@ -562,6 +571,7 @@ namespace ModIO
                 }
 
                 UserDataStorage._activeUserDirectory = userDir;
+                UserDataStorage._isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
             }
