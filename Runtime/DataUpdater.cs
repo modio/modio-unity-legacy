@@ -38,14 +38,10 @@ namespace ModIO
         {
             Debug.Log("[mod.io] Attempting 2.0->2.1 UserData update.");
 
-            #if UNITY_XBOXONE
-                return;
-            #endif
-
-            #pragma warning disable 0162 // Unreachable Code Detected
-
             // check if the file already exists
             byte[] fileData = null;
+
+            UserDataStorage.InitializeForUser(null, () => {});
             UserDataStorage.ReadFile(LocalUser.FILENAME, (success, data) => fileData = data);
 
             if(fileData != null && fileData.Length > 0)
@@ -144,8 +140,6 @@ namespace ModIO
             LocalUser.Save();
 
             Debug.Log("[mod.io] UserData updated completed.");
-
-            #pragma warning restore 0162 // Unreachable Code Detected
         }
 
         // ---------[ UTILITY ]---------
