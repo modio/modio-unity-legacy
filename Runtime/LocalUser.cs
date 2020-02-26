@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+using Debug = UnityEngine.Debug;
+
 namespace ModIO
 {
     /// <summary>Structure for storing data about a user specific to this device.</summary>
@@ -182,6 +184,11 @@ namespace ModIO
         /// <summary>Loads the LocalUser instance.</summary>
         public static System.Collections.IEnumerator Load(System.Action callback = null)
         {
+            Debug.Assert(UserDataStorage.isInitialized,
+                         "[mod.io] UserDataStorage is not yet intialized. Please call"
+                         + " UserDataStorage.InitializeForUser() before attempting to"
+                         + " load the LocalUser from disk.");
+
             bool isDone = false;
             LocalUser.isLoaded = false;
 
@@ -203,6 +210,11 @@ namespace ModIO
         /// <summary>Saves the LocalUser instance.</summary>
         public static System.Collections.IEnumerator Save(System.Action callback = null)
         {
+            Debug.Assert(UserDataStorage.isInitialized,
+                         "[mod.io] UserDataStorage is not yet intialized. Please call"
+                         + " UserDataStorage.InitializeForUser() before attempting to"
+                         + " save the LocalUser to disk.");
+
             bool isDone = false;
 
             UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser._instance, (success) =>
