@@ -83,18 +83,12 @@ namespace ModIO
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()
         {
-            PlatformFunctions platform = UserDataStorage.GetPlatformFunctions();
-            Debug.Assert(platform.ReadFile != null);
-            Debug.Assert(platform.WriteFile != null);
-            Debug.Assert(platform.DeleteFile != null);
-            Debug.Assert(platform.ClearAllData != null);
+            UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
 
-            UserDataStorage._PlatformReadFile               = platform.ReadFile;
-            UserDataStorage._PlatformWriteFile              = platform.WriteFile;
-            UserDataStorage._PlatformDeleteFile             = platform.DeleteFile;
-            UserDataStorage._PlatformClearAllData           = platform.ClearAllData;
-            UserDataStorage._PlatformInitializeWithInt      = platform.InitializeWithInt;
-            UserDataStorage._PlatformInitializeWithString   = platform.InitializeWithString;
+            Debug.Assert(UserDataStorage.platformFunctions.ReadFile != null);
+            Debug.Assert(UserDataStorage.platformFunctions.WriteFile != null);
+            Debug.Assert(UserDataStorage.platformFunctions.DeleteFile != null);
+            Debug.Assert(UserDataStorage.platformFunctions.ClearAllData != null);
 
             UserDataStorage.InitializeForUser(null);
         }
@@ -102,13 +96,13 @@ namespace ModIO
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void InitializeForUser(string platformUserIdentifier = null, InitializationCallback callback = null)
         {
-            UserDataStorage._PlatformInitializeWithString(platformUserIdentifier, callback);
+            UserDataStorage.platformFunctions.InitializeWithString(platformUserIdentifier, callback);
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void InitializeForUser(int platformUserIdentifier, InitializationCallback callback = null)
         {
-            UserDataStorage._PlatformInitializeWithInt(platformUserIdentifier, callback);
+            UserDataStorage.platformFunctions.InitializeWithInt(platformUserIdentifier, callback);
         }
 
         // ---------[ IO FUNCTIONS ]---------
@@ -211,7 +205,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage._PlatformReadFile(filePath, callback);
+            UserDataStorage.platformFunctions.ReadFile(filePath, callback);
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
@@ -229,7 +223,7 @@ namespace ModIO
             #endif // DEBUG
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage._PlatformWriteFile(filePath, fileData, callback);
+            UserDataStorage.platformFunctions.WriteFile(filePath, fileData, callback);
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
@@ -239,7 +233,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage._PlatformDeleteFile(filePath, callback);
+            UserDataStorage.platformFunctions.DeleteFile(filePath, callback);
         }
 
         /// <summary>Function for clearing all user data.</summary>
@@ -247,29 +241,10 @@ namespace ModIO
         {
             Debug.Assert(UserDataStorage.isInitialized);
 
-            UserDataStorage._PlatformClearAllData(callback);
+            UserDataStorage.platformFunctions.ClearAllData(callback);
         }
 
-        // ---------[ PLATFORM SPECIFIC I/O ]---------
-        /// <summary>Function for initializing the storage system.</summary>
-        private readonly static PlatformFunctions.InitializationStringDelegate _PlatformInitializeWithString = null;
-
-        /// <summary>Function for initializing the storage system.</summary>
-        private readonly static PlatformFunctions.InitializationIntDelegate _PlatformInitializeWithInt = null;
-
-        /// <summary>Function for reading a user-specific file.</summary>
-        private readonly static PlatformFunctions.ReadFileDelegate _PlatformReadFile = null;
-
-        /// <summary>Function for writing a user-specific file.</summary>
-        private readonly static PlatformFunctions.WriteFileDelegate _PlatformWriteFile = null;
-
-        /// <summary>Function for deleting a user-specific file.</summary>
-        private readonly static PlatformFunctions.DeleteFileDelegate _PlatformDeleteFile = null;
-
-        /// <summary>Function for clearing all user data.</summary>
-        private readonly static PlatformFunctions.ClearAllDataDelegate _PlatformClearAllData = null;
-
-        // ------ Platform Specific Functionality ------
+        // ---------[ Platform Specific Functionality ]---------
 
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
 
