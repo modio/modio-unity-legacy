@@ -368,6 +368,9 @@ namespace ModIO
 
         #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
 
+            /// <summary>Defines the base directory for the user-specific data.</summary>
+            private static readonly string STEAM_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
+
             /// <summary>Returns the platform specific functions. (Facepunch.Steamworks)</summary>
             private static PlatformFunctions GetPlatformFunctions()
             {
@@ -375,12 +378,37 @@ namespace ModIO
 
                 return new PlatformFunctions()
                 {
+                    InitializeWithInt = InitializeForUser_Facepunch,
+                    InitializeWithString = InitializeForUser_Facepunch,
                     ReadFile = ReadFile_Facepunch,
                     WriteFile = WriteFile_Facepunch,
                     DeleteFile = DeleteFile_Facepunch,
                     ClearAllData = ClearAllData_Facepunch,
-                    UserDirectoryRoot = IOUtilities.CombinePath("modio", "users"),
                 };
+            }
+
+            /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
+            private static void InitializeForUser_Facepunch(string platformUserIdentifier, InitializationCallback callback)
+            {
+                string userDir = UserDataStorage.STEAM_USER_DIRECTORY;
+
+                if(!string.IsNullOrEmpty(platformUserIdentifier))
+                {
+                    string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
+                    userDir = IOUtilities.CombinePath(STEAM_USER_DIRECTORY,
+                                                      folderName);
+                }
+
+                UserDataStorage.activeUserDirectory = userDir;
+                UserDataStorage.isInitialized = true;
+
+                Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+            }
+
+            /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
+            private static void InitializeForUser_Facepunch(int platformUserIdentifier, InitializationCallback callback)
+            {
+                UserDataStorage.InitializeForUser_Facepunch(platformUserIdentifier.ToString("x8"), callback);
             }
 
             /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
