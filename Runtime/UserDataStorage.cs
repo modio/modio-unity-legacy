@@ -1,7 +1,7 @@
 // #define DISABLE_EDITOR_USERDATA
 // #define EXCLUDE_STANDALONE_IO
-// #define ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
-// #define ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+// #define MODIO_FACEPUNCH_SUPPORT
+// #define MODIO_STEAMWORKSNET_SUPPORT
 
 using System;
 using System.Text;
@@ -87,9 +87,9 @@ namespace ModIO
             // Select the platform appropriate functions
             #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Editor();
-            #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+            #elif MODIO_FACEPUNCH_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Facepunch();
-            #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+            #elif MODIO_STEAMWORKSNET_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_SteamworksNET();
             #elif !EXCLUDE_STANDALONE_IO
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Standalone();
@@ -371,7 +371,7 @@ namespace ModIO
 
         #endif // UNITY_EDITOR
 
-        #if ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+        #if MODIO_FACEPUNCH_SUPPORT
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
@@ -480,9 +480,9 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #endif // ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+        #endif // MODIO_FACEPUNCH_SUPPORT
 
-        #if ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+        #if MODIO_STEAMWORKSNET_SUPPORT
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
@@ -602,7 +602,7 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #endif // ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+        #endif // MODIO_STEAMWORKSNET_SUPPORT
 
         #if !EXCLUDE_STANDALONE_IO
 
