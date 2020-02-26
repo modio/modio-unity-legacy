@@ -252,7 +252,6 @@ namespace ModIO
             public WriteFileDelegate WriteFile;
             public DeleteFileDelegate DeleteFile;
             public ClearAllDataDelegate ClearAllData;
-            public string UserDirectoryRoot;
         }
 
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
