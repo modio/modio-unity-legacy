@@ -95,6 +95,8 @@ namespace ModIO
                 UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Standalone();
             #endif
 
+            Debug.Assert(UserDataStorage.platformFunctions.InitializeWithInt != null);
+            Debug.Assert(UserDataStorage.platformFunctions.InitializeWithString != null);
             Debug.Assert(UserDataStorage.platformFunctions.ReadFile != null);
             Debug.Assert(UserDataStorage.platformFunctions.WriteFile != null);
             Debug.Assert(UserDataStorage.platformFunctions.DeleteFile != null);
