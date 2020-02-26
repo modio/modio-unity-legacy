@@ -72,7 +72,7 @@ namespace ModIO
 
         // ---------[ FIELDS ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
-        public static readonly PlatformFunctions platformFunctions;
+        public static readonly PlatformFunctions PLATFORM;
 
         /// <summary>Has UserDataStorage been initialized?</summary>
         public static bool isInitialized = false;
@@ -86,21 +86,21 @@ namespace ModIO
         {
             // Select the platform appropriate functions
             #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Editor();
+                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Editor();
             #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Facepunch();
+                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Facepunch();
             #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_SteamworksNET();
+                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_SteamworksNET();
             #elif !EXCLUDE_STANDALONE_IO
-                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Standalone();
+                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Standalone();
             #endif
 
-            Debug.Assert(UserDataStorage.platformFunctions.InitializeWithInt != null);
-            Debug.Assert(UserDataStorage.platformFunctions.InitializeWithString != null);
-            Debug.Assert(UserDataStorage.platformFunctions.ReadFile != null);
-            Debug.Assert(UserDataStorage.platformFunctions.WriteFile != null);
-            Debug.Assert(UserDataStorage.platformFunctions.DeleteFile != null);
-            Debug.Assert(UserDataStorage.platformFunctions.ClearAllData != null);
+            Debug.Assert(UserDataStorage.PLATFORM.InitializeWithInt != null);
+            Debug.Assert(UserDataStorage.PLATFORM.InitializeWithString != null);
+            Debug.Assert(UserDataStorage.PLATFORM.ReadFile != null);
+            Debug.Assert(UserDataStorage.PLATFORM.WriteFile != null);
+            Debug.Assert(UserDataStorage.PLATFORM.DeleteFile != null);
+            Debug.Assert(UserDataStorage.PLATFORM.ClearAllData != null);
 
             UserDataStorage.InitializeForUser(null);
         }
@@ -108,13 +108,13 @@ namespace ModIO
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void InitializeForUser(string platformUserIdentifier = null, InitializationCallback callback = null)
         {
-            UserDataStorage.platformFunctions.InitializeWithString(platformUserIdentifier, callback);
+            UserDataStorage.PLATFORM.InitializeWithString(platformUserIdentifier, callback);
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
         public static void InitializeForUser(int platformUserIdentifier, InitializationCallback callback = null)
         {
-            UserDataStorage.platformFunctions.InitializeWithInt(platformUserIdentifier, callback);
+            UserDataStorage.PLATFORM.InitializeWithInt(platformUserIdentifier, callback);
         }
 
         // ---------[ IO FUNCTIONS ]---------
@@ -217,7 +217,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.platformFunctions.ReadFile(filePath, callback);
+            UserDataStorage.PLATFORM.ReadFile(filePath, callback);
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
@@ -235,7 +235,7 @@ namespace ModIO
             #endif // DEBUG
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.platformFunctions.WriteFile(filePath, fileData, callback);
+            UserDataStorage.PLATFORM.WriteFile(filePath, fileData, callback);
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
@@ -245,7 +245,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.platformFunctions.DeleteFile(filePath, callback);
+            UserDataStorage.PLATFORM.DeleteFile(filePath, callback);
         }
 
         /// <summary>Function for clearing all user data.</summary>
@@ -253,7 +253,7 @@ namespace ModIO
         {
             Debug.Assert(UserDataStorage.isInitialized);
 
-            UserDataStorage.platformFunctions.ClearAllData(callback);
+            UserDataStorage.PLATFORM.ClearAllData(callback);
         }
 
         // ---------[ Platform Specific Functionality ]---------
