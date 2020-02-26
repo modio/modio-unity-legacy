@@ -1,4 +1,5 @@
 // #define DISABLE_EDITOR_USERDATA
+// #define EXCLUDE_STANDALONE_IO
 // #define ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
 // #define ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
 
@@ -90,7 +91,7 @@ namespace ModIO
                 UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Facepunch();
             #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
                 UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_SteamworksNET();
-            #else
+            #elif !EXCLUDE_STANDALONE_IO
                 UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions_Standalone();
             #endif
 
@@ -366,7 +367,9 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+        #endif // UNITY_EDITOR
+
+        #if ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
@@ -475,7 +478,9 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+        #endif // ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+
+        #if ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
@@ -595,7 +600,9 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #else
+        #endif // ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+
+        #if !EXCLUDE_STANDALONE_IO
 
             /// <summary>Root directory for the </summary>
             public static readonly string STANDALONE_USERS_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
@@ -686,6 +693,6 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #endif
+        #endif // !EXCLUDE_STANDALONE_IO
     }
 }
