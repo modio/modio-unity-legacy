@@ -75,12 +75,12 @@ namespace ModIO
         /// <summary>Function used to read a user data file.</summary>
         public static void TryReadJSONFile<T>(string filePathRelative, ReadJsonFileCallback<T> callback)
         {
+            Debug.Assert(UserDataStorage._isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(callback != null);
 
             UserDataStorage.ReadBinaryFile(filePathRelative, (success, fileData) =>
             {
-
                 T jsonObject;
 
                 if(success)
@@ -99,8 +99,8 @@ namespace ModIO
         /// <summary>Function used to read a user data file.</summary>
         public static void TryWriteJSONFile<T>(string filePathRelative, T jsonObject, WriteFileCallback callback)
         {
+            Debug.Assert(UserDataStorage._isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
-
 
             byte[] fileData = null;
             if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
@@ -167,6 +167,7 @@ namespace ModIO
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadBinaryFile(string filePathRelative, ReadFileCallback callback)
         {
+            Debug.Assert(UserDataStorage._isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
@@ -176,6 +177,7 @@ namespace ModIO
         /// <summary>Function for writing a user-specific file.</summary>
         public static void WriteBinaryFile(string filePathRelative, byte[] fileData, WriteFileCallback callback)
         {
+            Debug.Assert(UserDataStorage._isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(fileData != null);
 
@@ -193,6 +195,7 @@ namespace ModIO
         /// <summary>Function for deleting a user-specific file.</summary>
         public static void DeleteFile(string filePathRelative, WriteFileCallback callback)
         {
+            Debug.Assert(UserDataStorage._isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
             string filePath = IOUtilities.CombinePath(UserDataStorage._activeUserDirectory, filePathRelative);
@@ -202,6 +205,8 @@ namespace ModIO
         /// <summary>Function for clearing all user data.</summary>
         public static void ClearAllData(WriteFileCallback callback)
         {
+            Debug.Assert(UserDataStorage._isInitialized);
+
             UserDataStorage._PlatformClearAllData(callback);
         }
 
