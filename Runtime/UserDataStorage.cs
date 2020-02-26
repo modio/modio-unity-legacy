@@ -15,6 +15,9 @@ namespace ModIO
     public static class UserDataStorage
     {
         // ---------[ Nested Data-Types ]---------
+        /// <summary>Delegate for the initialization callback.</summary>
+        public delegate void InitializationCallback();
+
         /// <summary>Delegate for the read file callback.</summary>
         public delegate void ReadFileCallback(bool success, byte[] data);
 
@@ -49,15 +52,15 @@ namespace ModIO
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void InitializeForUser(string platformUserIdentifier = null)
+        public static void InitializeForUser(string platformUserIdentifier = null, InitializationCallback callback = null)
         {
-            UserDataStorage._PlatformInitializeWithString(platformUserIdentifier);
+            UserDataStorage._PlatformInitializeWithString(platformUserIdentifier, callback);
         }
 
         /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void InitializeForUser(int platformUserIdentifier)
+        public static void InitializeForUser(int platformUserIdentifier, InitializationCallback callback = null)
         {
-            UserDataStorage._PlatformInitializeWithInt(platformUserIdentifier);
+            UserDataStorage._PlatformInitializeWithInt(platformUserIdentifier, callback);
         }
 
         // ---------[ IO FUNCTIONS ]---------
@@ -196,10 +199,10 @@ namespace ModIO
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
         /// <summary>Delegate for initializing the storage system.</summary>
-        private delegate void InitializationStringDelegate(string platformUserIdentifier);
+        private delegate void InitializationStringDelegate(string platformUserIdentifier, InitializationCallback callback);
 
         /// <summary>Delegate for initializing the storage system.</summary>
-        private delegate void InitializationIntDelegate(int platformUserIdentifier);
+        private delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
 
         /// <summary>Delegate for reading a file.</summary>
         private delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
@@ -266,7 +269,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            private static void InitializeForUser_Editor(string platformUserIdentifier)
+            private static void InitializeForUser_Editor(string platformUserIdentifier, InitializationCallback callback)
             {
                 string userDir = UserDataStorage.RESOURCES_FOLDER;
 
@@ -283,7 +286,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            private static void InitializeForUser_Editor(int platformUserIdentifier)
+            private static void InitializeForUser_Editor(int platformUserIdentifier, InitializationCallback callback)
             {
                 UserDataStorage.InitializeForUser_Editor(platformUserIdentifier.ToString("x8"));
             }
@@ -547,7 +550,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
-            private static void InitializeForUser_Standalone(string platformUserIdentifier)
+            private static void InitializeForUser_Standalone(string platformUserIdentifier, InitializationCallback callback)
             {
                 string userDir = UserDataStorage.USERS_FOLDER;
 
@@ -564,9 +567,9 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
-            private static void InitializeForUser_Standalone(int platformUserIdentifier)
+            private static void InitializeForUser_Standalone(int platformUserIdentifier, InitializationCallback callback)
             {
-                UserDataStorage.InitializeForUser_Standalone(platformUserIdentifier.ToString("x8"));
+                UserDataStorage.InitializeForUser_Standalone(platformUserIdentifier.ToString("x8"), callback);
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
