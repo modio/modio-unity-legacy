@@ -258,12 +258,12 @@ namespace ModIO
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
-            private static readonly string RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                                                      "Editor Default Resources",
-                                                                                      "modio");
+            public static readonly string RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                                                     "Editor Default Resources",
+                                                                                     "modio");
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
-            private static PlatformFunctions GetPlatformFunctions_Editor()
+            public static PlatformFunctions GetPlatformFunctions_Editor()
             {
                 return new PlatformFunctions()
                 {
@@ -277,7 +277,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            private static void InitializeForUser_Editor(string platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_Editor(string platformUserIdentifier, InitializationCallback callback)
             {
                 string userDir = UserDataStorage.RESOURCES_FOLDER;
 
@@ -295,13 +295,13 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            private static void InitializeForUser_Editor(int platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_Editor(int platformUserIdentifier, InitializationCallback callback)
             {
                 UserDataStorage.InitializeForUser_Editor(platformUserIdentifier.ToString("x8"));
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
-            private static void ReadFile_Editor(string filePath, ReadFileCallback callback)
+            public static void ReadFile_Editor(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
@@ -312,7 +312,7 @@ namespace ModIO
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
-            private static void WriteFile_Editor(string filePath, byte[] data, WriteFileCallback callback)
+            public static void WriteFile_Editor(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -334,7 +334,7 @@ namespace ModIO
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
-            private static void DeleteFile_Editor(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_Editor(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -358,7 +358,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
-            private static void ClearAllData_Editor(WriteFileCallback callback)
+            public static void ClearAllData_Editor(WriteFileCallback callback)
             {
                 bool success = IOUtilities.DeleteDirectory(UserDataStorage.RESOURCES_FOLDER);
                 UnityEditor.AssetDatabase.Refresh();
@@ -369,10 +369,10 @@ namespace ModIO
         #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
-            private static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
+            public static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
 
             /// <summary>Returns the platform specific functions. (Facepunch.Steamworks)</summary>
-            private static PlatformFunctions GetPlatformFunctions_Facepunch()
+            public static PlatformFunctions GetPlatformFunctions_Facepunch()
             {
                 Debug.Log("[mod.io] User Data I/O being handled by Facepunch.Steamworks");
 
@@ -388,7 +388,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
-            private static void InitializeForUser_Facepunch(string platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_Facepunch(string platformUserIdentifier, InitializationCallback callback)
             {
                 string userDir = UserDataStorage.FACEPUNCH_USER_DIRECTORY;
 
@@ -406,7 +406,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
-            private static void InitializeForUser_Facepunch(int platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_Facepunch(int platformUserIdentifier, InitializationCallback callback)
             {
                 UserDataStorage.InitializeForUser_Facepunch(platformUserIdentifier.ToString("x8"), callback);
             }
@@ -441,7 +441,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            private static void DeleteFile_Facepunch(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_Facepunch(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -459,7 +459,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
-            private static void ClearAllData_Facepunch(WriteFileCallback callback)
+            public static void ClearAllData_Facepunch(WriteFileCallback callback)
             {
                 var steamFiles = Steamworks.SteamRemoteStorage.Files;
                 bool success = true;
@@ -478,10 +478,10 @@ namespace ModIO
         #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
-            private static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
+            public static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
 
             /// <summary>Returns the platform specific functions. (Steamworks.NET)</summary>
-            private static PlatformFunctions GetPlatformFunctions_SteamworksNET()
+            public static PlatformFunctions GetPlatformFunctions_SteamworksNET()
             {
                 Debug.Log("[mod.io] User Data I/O being handled by Steamworks.NET");
 
@@ -497,7 +497,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
-            private static void InitializeForUser_SteamworksNET(string platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_SteamworksNET(string platformUserIdentifier, InitializationCallback callback)
             {
                 string userDir = UserDataStorage.STEAMWORKSNET_USER_DIRECTORY;
 
@@ -515,13 +515,13 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
-            private static void InitializeForUser_SteamworksNET(int platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_SteamworksNET(int platformUserIdentifier, InitializationCallback callback)
             {
                 UserDataStorage.InitializeForUser_SteamworksNET(platformUserIdentifier.ToString("x8"), callback);
             }
 
             /// <summary>Reads a user data file. (Steamworks.NET)</summary>
-            private static void ReadFile_SteamworksNET(string filePath, ReadFileCallback callback)
+            public static void ReadFile_SteamworksNET(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
@@ -556,7 +556,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
-            private static void DeleteFile_SteamworksNET(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_SteamworksNET(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -574,7 +574,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Steamworks.NET)</summary>
-            private static void ClearAllData_SteamworksNET(WriteFileCallback callback)
+            public static void ClearAllData_SteamworksNET(WriteFileCallback callback)
             {
                 int fileCount = Steamworks.SteamRemoteStorage.GetFileCount();
                 bool success = true;
@@ -598,12 +598,12 @@ namespace ModIO
         #else
 
             /// <summary>Root directory for the </summary>
-            private static readonly string USERS_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
+            public static readonly string USERS_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
                                                                                   "modio-" + PluginSettings.data.gameId,
                                                                                   "users");
 
             /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
-            private static PlatformFunctions GetPlatformFunctions_Standalone()
+            public static PlatformFunctions GetPlatformFunctions_Standalone()
             {
                 return new PlatformFunctions()
                 {
@@ -615,7 +615,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
-            private static void InitializeForUser_Standalone(string platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_Standalone(string platformUserIdentifier, InitializationCallback callback)
             {
                 string userDir = UserDataStorage.USERS_FOLDER;
 
@@ -633,13 +633,13 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
-            private static void InitializeForUser_Standalone(int platformUserIdentifier, InitializationCallback callback)
+            public static void InitializeForUser_Standalone(int platformUserIdentifier, InitializationCallback callback)
             {
                 UserDataStorage.InitializeForUser_Standalone(platformUserIdentifier.ToString("x8"), callback);
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
-            private static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
+            public static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
@@ -650,7 +650,7 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
-            private static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
+            public static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -665,7 +665,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
-            private static void DeleteFile_Standalone(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_Standalone(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -679,7 +679,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
-            private static void ClearAllData_Standalone(WriteFileCallback callback)
+            public static void ClearAllData_Standalone(WriteFileCallback callback)
             {
                 bool success = IOUtilities.DeleteDirectory(UserDataStorage.USERS_FOLDER);
 
