@@ -28,7 +28,7 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
         public static void ClearAllUserData()
         {
-            UserDataStorage.ClearAllData((success) =>
+            UserDataStorage.WriteFileCallback onClear = (success) =>
             {
                 LocalUser.instance = new LocalUser();
                 LocalUser.isLoaded = true;
@@ -41,7 +41,16 @@ namespace ModIO.EditorCode
                 {
                     Debug.Log("[mod.io] Failed to clear User Data.");
                 }
-            });
+            };
+
+            if(!UserDataStorage.isInitialized)
+            {
+                UserDataStorage.InitializeForUser(null, () => UserDataStorage.ClearAllData(onClear));
+            }
+            else
+            {
+                UserDataStorage.ClearAllData(onClear);
+            }
         }
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
