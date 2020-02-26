@@ -247,7 +247,9 @@ namespace ModIO
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
-            private static readonly string RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath, "Editor Default Resources", "modio");
+            private static readonly string RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
+                                                                                      "Editor Default Resources",
+                                                                                      "modio");
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
             private static PlatformFunctions GetPlatformFunctions()
@@ -263,7 +265,7 @@ namespace ModIO
                 };
             }
 
-            /// <summary>Initializes the data storage system for a given user.</summary>
+            /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
             private static void InitializeForUser_Editor(string platformUserIdentifier)
             {
                 string userDir = UserDataStorage.RESOURCES_FOLDER;
@@ -280,7 +282,7 @@ namespace ModIO
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
             }
 
-            /// <summary>Initializes the data storage system for a given user.</summary>
+            /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
             private static void InitializeForUser_Editor(int platformUserIdentifier)
             {
                 UserDataStorage.InitializeForUser_Editor(platformUserIdentifier.ToString("x8"));
@@ -527,21 +529,44 @@ namespace ModIO
 
         #else
 
+            /// <summary>Root directory for the </summary>
+            private static readonly string USERS_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
+                                                                                  "modio-" + PluginSettings.data.gameId,
+                                                                                  "users");
+
             /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
             private static PlatformFunctions GetPlatformFunctions()
             {
-                string userDir = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
-                                                         "modio-" + PluginSettings.data.gameId,
-                                                         "users");
-
                 return new PlatformFunctions()
                 {
                     ReadFile = ReadFile_Standalone,
                     WriteFile = WriteFile_Standalone,
                     DeleteFile = DeleteFile_Standalone,
                     ClearAllData = ClearAllData_Standalone,
-                    UserDirectoryRoot = userDir,
                 };
+            }
+
+            /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
+            private static void InitializeForUser_Standalone(string platformUserIdentifier)
+            {
+                string userDir = UserDataStorage.USERS_FOLDER;
+
+                if(!string.IsNullOrEmpty(platformUserIdentifier))
+                {
+                    string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
+                    userDir = IOUtilities.CombinePath(USERS_FOLDER,
+                                                      folderName);
+                }
+
+                UserDataStorage._activeUserDirectory = userDir;
+
+                Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage._activeUserDirectory);
+            }
+
+            /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
+            private static void InitializeForUser_Standalone(int platformUserIdentifier)
+            {
+                UserDataStorage.InitializeForUser_Standalone(platformUserIdentifier.ToString("x8"));
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
@@ -587,7 +612,7 @@ namespace ModIO
             /// <summary>Clears all user data. (Standalone Application)</summary>
             private static void ClearAllData_Standalone(WriteFileCallback callback)
             {
-                bool success = IOUtilities.DeleteDirectory(UserDataStorage._USER_DIRECTORY_ROOT);
+                bool success = IOUtilities.DeleteDirectory(UserDataStorage.USERS_FOLDER);
 
                 if(callback != null) { callback.Invoke(success); }
             }
