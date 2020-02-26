@@ -83,7 +83,16 @@ namespace ModIO
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()
         {
-            UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+            // Select the platform appropriate functions
+            #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+            #elif ENABLE_STEAMCLOUD_USERDATA_FACEPUNCH
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+            #elif ENABLE_STEAMCLOUD_USERDATA_STEAMWORKSNET
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+            #else
+                UserDataStorage.platformFunctions = UserDataStorage.GetPlatformFunctions();
+            #endif
 
             Debug.Assert(UserDataStorage.platformFunctions.ReadFile != null);
             Debug.Assert(UserDataStorage.platformFunctions.WriteFile != null);
