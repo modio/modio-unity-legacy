@@ -27,7 +27,52 @@ namespace ModIO
         /// <summary>Delegate for write/delete file callbacks.</summary>
         public delegate void WriteFileCallback(bool success);
 
+        /// <summary>The collection of platform specific functions.</summary>
+        public struct PlatformFunctions
+        {
+            // --- Delegates ---
+            /// <summary>Delegate for initializing the storage system.</summary>
+            public delegate void InitializationStringDelegate(string platformUserIdentifier, InitializationCallback callback);
+
+            /// <summary>Delegate for initializing the storage system.</summary>
+            public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
+
+            /// <summary>Delegate for reading a file.</summary>
+            public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
+
+            /// <summary>Delegate for writing a file.</summary>
+            public delegate void WriteFileDelegate(string filePath, byte[] fileData, WriteFileCallback callback);
+
+            /// <summary>Delegate for deleting a file.</summary>
+            public delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
+
+            /// <summary>Delegate for clearing all data.</summary>
+            public delegate void ClearAllDataDelegate(WriteFileCallback callback);
+
+            // --- Fields ---
+            /// <summary>Delegate for initializing the storage system.</summary>
+            public InitializationIntDelegate InitializeWithInt;
+
+            /// <summary>Delegate for initializing the storage system.</summary>
+            public InitializationStringDelegate InitializeWithString;
+
+            /// <summary>Delegate for reading a file.</summary>
+            public ReadFileDelegate ReadFile;
+
+            /// <summary>Delegate for writing a file.</summary>
+            public WriteFileDelegate WriteFile;
+
+            /// <summary>Delegate for deleting a file.</summary>
+            public DeleteFileDelegate DeleteFile;
+
+            /// <summary>Delegate for clearing all data.</summary>
+            public ClearAllDataDelegate ClearAllData;
+        }
+
         // ---------[ FIELDS ]---------
+        /// <summary>Defines the i/o functions to use for this platform.</summary>
+        public static readonly PlatformFunctions platformFunctions;
+
         /// <summary>Has UserDataStorage been initialized?</summary>
         public static bool isInitialized = false;
 
@@ -206,53 +251,25 @@ namespace ModIO
         }
 
         // ---------[ PLATFORM SPECIFIC I/O ]---------
-        /// <summary>Delegate for initializing the storage system.</summary>
-        private delegate void InitializationStringDelegate(string platformUserIdentifier, InitializationCallback callback);
-
-        /// <summary>Delegate for initializing the storage system.</summary>
-        private delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
-
-        /// <summary>Delegate for reading a file.</summary>
-        private delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
-
-        /// <summary>Delegate for writing a file.</summary>
-        private delegate void WriteFileDelegate(string filePath, byte[] fileData, WriteFileCallback callback);
-
-        /// <summary>Delegate for deleting a file.</summary>
-        private delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
-
-        /// <summary>Delegate for clearing all data.</summary>
-        private delegate void ClearAllDataDelegate(WriteFileCallback callback);
+        /// <summary>Function for initializing the storage system.</summary>
+        private readonly static PlatformFunctions.InitializationStringDelegate _PlatformInitializeWithString = null;
 
         /// <summary>Function for initializing the storage system.</summary>
-        private readonly static InitializationStringDelegate _PlatformInitializeWithString = null;
-
-        /// <summary>Function for initializing the storage system.</summary>
-        private readonly static InitializationIntDelegate _PlatformInitializeWithInt = null;
+        private readonly static PlatformFunctions.InitializationIntDelegate _PlatformInitializeWithInt = null;
 
         /// <summary>Function for reading a user-specific file.</summary>
-        private readonly static ReadFileDelegate _PlatformReadFile = null;
+        private readonly static PlatformFunctions.ReadFileDelegate _PlatformReadFile = null;
 
         /// <summary>Function for writing a user-specific file.</summary>
-        private readonly static WriteFileDelegate _PlatformWriteFile = null;
+        private readonly static PlatformFunctions.WriteFileDelegate _PlatformWriteFile = null;
 
         /// <summary>Function for deleting a user-specific file.</summary>
-        private readonly static DeleteFileDelegate _PlatformDeleteFile = null;
+        private readonly static PlatformFunctions.DeleteFileDelegate _PlatformDeleteFile = null;
 
         /// <summary>Function for clearing all user data.</summary>
-        private readonly static ClearAllDataDelegate _PlatformClearAllData = null;
+        private readonly static PlatformFunctions.ClearAllDataDelegate _PlatformClearAllData = null;
 
         // ------ Platform Specific Functionality ------
-        /// <summary>The collection of platform specific functions.</summary>
-        private struct PlatformFunctions
-        {
-            public InitializationIntDelegate InitializeWithInt;
-            public InitializationStringDelegate InitializeWithString;
-            public ReadFileDelegate ReadFile;
-            public WriteFileDelegate WriteFile;
-            public DeleteFileDelegate DeleteFile;
-            public ClearAllDataDelegate ClearAllData;
-        }
 
         #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
 
