@@ -298,7 +298,7 @@ namespace ModIO
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
             public static void InitializeForUser_Editor(int platformUserIdentifier, InitializationCallback callback)
             {
-                UserDataStorage.InitializeForUser_Editor(platformUserIdentifier.ToString("x8"));
+                UserDataStorage.InitializeForUser_Editor(platformUserIdentifier.ToString("x8"), callback);
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
@@ -308,7 +308,7 @@ namespace ModIO
                 Debug.Assert(callback != null);
 
                 byte[] data = null;
-                data = IOUtilities.LoadFile(filePath);
+                data = IOUtilities.LoadBinaryFile(filePath);
                 callback.Invoke(true, data);
             }
 
@@ -321,7 +321,7 @@ namespace ModIO
                 bool fileExisted = System.IO.File.Exists(filePath);
                 bool success = false;
 
-                success = IOUtilities.WriteFile(filePath, data);
+                success = IOUtilities.WriteBinaryFile(filePath, data);
 
                 if(success && !fileExisted)
                 {
