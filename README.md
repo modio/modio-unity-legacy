@@ -109,30 +109,21 @@ APIClient.GetOAuthToken(securityCodeFromEmail,
                         (token) => OnTokenReceived(token),
                         (e) => OnError(e));
 
-UserAuthenticationData.instance = new UserAuthenticationData()
-{
-	token = receivedOAuthToken,
-};
+LocalUser.instance = new LocalUser();
+LocalUser.OAuthToken = receivedOAuthToken;
 
 APIClient.GetAuthenticatedUser((userProfile) => OnProfileReceived(userProfile),
                                (e) => OnError(e));
 
-UserAuthenticationData userData = UserAuthenticationData.instance;
-userData.userId = userProfile.id;
-UserAuthenticationData.instance = userData;
-
-CacheClient.SaveUserProfile(userProfile);
+LocalUser.Profile = userProfile;
+LocalUser.Save();
 ```
 
 ### Manage Subscriptions
 ```java
 // -- Sub/Unsubscribe --
-APIClient.SubscribedToMod(modId,
-                          (modProfile) => OnSubscribed(modProfile),
-                          (e) => OnError(e));
-APIClient.UnsubscribeFromMod(modId,
-                             () => OnUnsubscribed(),
-                             (e) => OnError(e));
+UserAccountManagement.SubscribedToMod(modId);
+UserAccountManagement.UnsubscribeFromMod(modId);
 
 // -- Fetch and Store ---
 APIClient.GetUserSubscriptions(RequestFilter.None,
@@ -141,7 +132,7 @@ APIClient.GetUserSubscriptions(RequestFilter.None,
                                (e) => OnError(e));
 
 int[] modIds = Utility.MapProfileIds(subscribedMods);
-ModManager.SetSubscribedModIds(modIds);
+LocalUser.SubscribedModIds = new List<int>(modIds);
 
 // -- Download, Update, and Install Subscribed Mods --
 activeSceneComponent.StartCoroutine(ModManager.DownloadAndUpdateMods_Coroutine(modIds,
