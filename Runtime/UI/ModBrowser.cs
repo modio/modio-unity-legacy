@@ -179,7 +179,25 @@ namespace ModIO.UI
                 yield break;
             }
 
-            yield return this.StartCoroutine(LocalUser.Load());
+            if(!UserDataStorage.isInitialized)
+            {
+                bool isDone = false;
+                UserDataStorage.InitializeForUser(null, () => { isDone = true; });
+
+                while(!isDone) { yield return null; }
+            }
+
+            if(UserDataStorage.isInitialized)
+            {
+                yield return this.StartCoroutine(LocalUser.Load());
+            }
+            else
+            {
+                Debug.LogWarning("[mod.io] Failed to initialize user data."
+                                 + " A temporary LocalUser instance will be created.");
+
+                LocalUser.instance = new LocalUser();
+            }
 
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
@@ -1323,7 +1341,6 @@ namespace ModIO.UI
                 subscribedModIds = oldUser.subscribedModIds,
                 enabledModIds = oldUser.enabledModIds,
             };
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
             LocalUser.isLoaded = true;
 
             LocalUser.Save();

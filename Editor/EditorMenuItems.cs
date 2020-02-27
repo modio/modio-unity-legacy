@@ -28,16 +28,29 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
         public static void ClearAllUserData()
         {
-            UserDataStorage.ClearAllData();
-            LocalUser.instance = new LocalUser()
+            UserDataStorage.WriteFileCallback onClear = (success) =>
             {
-                enabledModIds = new List<int>(),
-                subscribedModIds = new List<int>(),
-            };
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
-            LocalUser.isLoaded = true;
+                LocalUser.instance = new LocalUser();
+                LocalUser.isLoaded = true;
 
-            Debug.Log("[mod.io] User Data Cleared.");
+                if(success)
+                {
+                    Debug.Log("[mod.io] User Data Cleared.");
+                }
+                else
+                {
+                    Debug.Log("[mod.io] Failed to clear User Data.");
+                }
+            };
+
+            if(!UserDataStorage.isInitialized)
+            {
+                UserDataStorage.InitializeForUser(null, () => UserDataStorage.ClearAllData(onClear));
+            }
+            else
+            {
+                UserDataStorage.ClearAllData(onClear);
+            }
         }
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()

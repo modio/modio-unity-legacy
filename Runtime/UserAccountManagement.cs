@@ -13,8 +13,6 @@ namespace ModIO
         /// <summary>Add a mod to the subscribed list and modifies the queued actions accordingly.</summary>
         public static void SubscribeToMod(int modId)
         {
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
-
             // add sub to list
             if(!LocalUser.SubscribedModIds.Contains(modId))
             {
@@ -42,8 +40,6 @@ namespace ModIO
         /// <summary>Removes a mod from the subscribed list and modifies the queued actions accordingly.</summary>
         public static void UnsubscribeFromMod(int modId)
         {
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
-
             // remove sub from list
             LocalUser.SubscribedModIds.Remove(modId);
 
@@ -69,8 +65,6 @@ namespace ModIO
         public static void PushSubscriptionChanges(Action onCompletedNoErrors,
                                                    Action<List<WebRequestError>> onCompletedWithErrors)
         {
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
-
             int responsesPending = (LocalUser.QueuedSubscribes.Count
                                     + LocalUser.QueuedUnsubscribes.Count);
 
@@ -208,8 +202,6 @@ namespace ModIO
                 }
                 return;
             }
-
-            LocalUser.AssertListsNotNull(ref LocalUser.instance);
 
             // holding vars
             string userToken = LocalUser.OAuthToken;
