@@ -422,6 +422,12 @@ namespace ModIO
                             headerString.Append(" NONE");
                         }
 
+                        string responseBody = "[ Non-Text Body ]";
+                        if(webRequest.downloadHandler != null)
+                        {
+                            responseBody = webRequest.downloadHandler.text;
+                        }
+
                         var responseTimeStamp = ServerTimeStamp.Now;
                         string logString = ("RESPONSE RECEIVED\n"
                                             + "------[ Request Data ]------\n"
@@ -432,7 +438,7 @@ namespace ModIO
                                             + "\nResponse Headers: " + headerString.ToString()
                                             + "\nResponse Code: " + webRequest.responseCode
                                             + "\nResponse Error: " + webRequest.error
-                                            + "\nResponse Raw: " + webRequest.downloadHandler.text
+                                            + "\nResponse Body: " + responseBody
                                             + "\n");
                         Debug.Log(logString);
                     }
