@@ -329,6 +329,24 @@ namespace ModIO.UI
             this.FocusView(this.m_inspectorView);
         }
 
+        public void ReportMod(int modId)
+        {
+            #if DEBUG
+                if(this.m_reportDialog == null)
+                {
+                    Debug.Log("[mod.io] Report Dialog not found.");
+                }
+            #endif
+
+            if(this.m_reportDialog == null)
+            {
+                return;
+            }
+
+            this.m_reportDialog.SetModId(modId);
+            this.FocusView(this.m_reportDialog);
+        }
+
         public void ActivateExplorerView()
         {
             #if DEBUG
