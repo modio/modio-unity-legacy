@@ -193,7 +193,11 @@ namespace ModIO.UI
         public void OnFocusView(IBrowserView view)
         {
             view.canvasGroup.interactable = true;
-            this.menuBar.interactable = view.isRootView;
+
+            if(this.menuBar != null)
+            {
+                this.menuBar.interactable = view.isRootView;
+            }
 
             GameObject newSelection = EventSystem.current.currentSelectedGameObject;
 
