@@ -47,6 +47,7 @@ namespace ModIO.UI
         private InspectorView m_inspectorView = null;
         private LoginDialog m_loginDialog = null;
         private MessageDialog m_messageDialog = null;
+        private ReportDialog m_reportDialog = null;
         private bool m_viewsFound = false;
 
         /// <summary>Event callback for when a view is hidden.</summary>
@@ -95,6 +96,11 @@ namespace ModIO.UI
         public MessageDialog messageDialog
         {
             get { return this.m_messageDialog; }
+        }
+        /// <summary>Report Mod View in the UI</summary>
+        public ReportDialog reportDialog
+        {
+            get { return this.m_reportDialog; }
         }
 
         /// <summary>Currently focused view.</summary>
@@ -297,6 +303,7 @@ namespace ModIO.UI
             this.m_inspectorView = GetComponentInChildren<InspectorView>(true);
             this.m_loginDialog = GetComponentInChildren<LoginDialog>(true);
             this.m_messageDialog = GetComponentInChildren<MessageDialog>(true);
+            this.m_reportDialog = GetComponentInChildren<ReportDialog>(true);
             this.m_viewsFound = true;
 
             this.m_views = this.gameObject.GetComponentsInChildren<IBrowserView>(true);
@@ -370,6 +377,14 @@ namespace ModIO.UI
             this.m_messageDialog.ApplyData(messageData);
 
             this.FocusView(this.m_messageDialog);
+        }
+
+        /// <summary>Shows the report mod dialog using the given data.</summary>
+        public void ShowReportDialog(int modId)
+        {
+            if(this.m_reportDialog == null) { return; }
+
+            this.FocusView(this.m_reportDialog);
         }
 
         /// <summary>Focuses the given view, showing and hiding views as necessary.</summary>
