@@ -121,6 +121,15 @@ namespace ModIO.UI
             }
         }
 
+        /// <summary>Opens the report dialog for the current mod.</summary>
+        public void ReportMod()
+        {
+            if(this.m_profile != null)
+            {
+                ViewManager.instance.ReportMod(this.m_profile.id);
+            }
+        }
+
         /// <summary>Attempts to subscribe to the currently displayed mod.</summary>
         public void AttemptSubscribe()
         {
