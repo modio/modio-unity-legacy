@@ -52,7 +52,9 @@ namespace ModIO.UI
         /// <summary>Currently hovered selectable.</summary>
         private Selectable m_currentHoverSelectable = null;
 
-        // ---------[ Initialization ]---------
+        /// <summary>Monitored axis values from the previous frame.</summary>
+        private Dictionary<string, float> m_lastAxisValues = new Dictionary<string, float>();
+
         /// <summary>Sets singleton instance.</summary>
         private void Awake()
         {
@@ -87,9 +89,15 @@ namespace ModIO.UI
         /// <summary>Checks whether the input method needs to be switched.</summary>
         private void Update()
         {
-            IBrowserView currentView = ViewManager.instance.currentFocus;
-            if(currentView == null) { return; }
+            if(ViewManager.instance.currentFocus == null) { return; }
 
+            UpdateInputMethod();
+            ProcessViewInputs(ViewManager.instance.currentFocus);
+        }
+
+        /// <summary>Updates the input method as needed.</summary>
+        public void UpdateInputMethod()
+        {
             bool controllerInput = (Input.GetAxis("Horizontal") != 0f
                                     || Input.GetAxis("Vertical") != 0f
                                     || Input.GetButton("Submit")
@@ -105,7 +113,11 @@ namespace ModIO.UI
             if(controllerInput && this.isMouseMode)
             {
                 this.isMouseMode = false;
-                EventSystem.current.SetSelectedGameObject(this.ReacquireSelectionForView(currentView));
+
+                if(ViewManager.instance.currentFocus != null)
+                {
+                    EventSystem.current.SetSelectedGameObject(this.ReacquireSelectionForView(ViewManager.instance.currentFocus));
+                }
 
                 if(this.m_currentHoverSelectable != null)
                 {
@@ -128,6 +140,70 @@ namespace ModIO.UI
                     ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
                                           new PointerEventData(EventSystem.current),
                                           ExecuteEvents.pointerEnterHandler);
+                }
+            }
+        }
+
+        /// <summary>Passes any of the necessary inputs onto the View.</summary>
+        public void ProcessViewInputs(IBrowserView view)
+        {
+            Debug.Assert(view != null);
+
+            ViewControlBindings bindings = view.gameObject.GetComponent<ViewControlBindings>();
+            if(bindings != null)
+            {
+                // process button bindings
+                foreach(ViewControlBindings.ButtonBinding buttonBinding in bindings.buttonBindings)
+                {
+                    if(buttonBinding.fireOnDown && Input.GetButtonDown(buttonBinding.inputName))
+                    {
+                        buttonBinding.actions.Invoke();
+                    }
+                    if(buttonBinding.fireOnHeld && Input.GetButton(buttonBinding.inputName))
+                    {
+                        buttonBinding.actions.Invoke();
+                    }
+                    if(buttonBinding.fireOnUp && Input.GetButtonUp(buttonBinding.inputName))
+                    {
+                        buttonBinding.actions.Invoke();
+                    }
+                }
+
+                // process axis bindings
+                foreach(ViewControlBindings.AxisBinding axisBinding in bindings.axisBindings)
+                {
+                    // get values
+                    float axisValue = Input.GetAxis(axisBinding.inputName);
+                    float previousValue = 0f;
+                    if(!this.m_lastAxisValues.TryGetValue(axisBinding.inputName, out previousValue))
+                    {
+                        previousValue = axisValue;
+                    }
+                    this.m_lastAxisValues[axisBinding.inputName] = axisValue;
+
+                    // process
+                    bool isGreater = axisValue >= axisBinding.thresholdValue;
+                    bool wasGreater = previousValue >= axisBinding.thresholdValue;
+                    bool isLess = axisValue <= axisBinding.thresholdValue;
+                    bool wasLess = previousValue <= axisBinding.thresholdValue;
+
+                    if(axisBinding.fireOnBecameGreaterThan && isGreater && !wasGreater)
+                    {
+                        axisBinding.actions.Invoke(axisValue);
+                    }
+                    if(axisBinding.fireOnIsGreaterThan && isGreater)
+                    {
+                        axisBinding.actions.Invoke(axisValue);
+                    }
+
+                    if(axisBinding.fireOnBecameLessThan && isLess && !wasLess)
+                    {
+                        axisBinding.actions.Invoke(axisValue);
+                    }
+                    if(axisBinding.fireOnIsLessThan && isLess)
+                    {
+                        axisBinding.actions.Invoke(axisValue);
+                    }
                 }
             }
         }
