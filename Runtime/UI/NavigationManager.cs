@@ -169,6 +169,23 @@ namespace ModIO.UI
                     }
                 }
 
+                // process keycode bindings
+                foreach(ViewControlBindings.KeyCodeBinding keyBinding in bindings.keyCodeBindings)
+                {
+                    if(keyBinding.fireOnDown && Input.GetKeyDown(keyBinding.keyCode))
+                    {
+                        keyBinding.actions.Invoke();
+                    }
+                    if(keyBinding.fireOnHeld && Input.GetKey(keyBinding.keyCode))
+                    {
+                        keyBinding.actions.Invoke();
+                    }
+                    if(keyBinding.fireOnUp && Input.GetKeyUp(keyBinding.keyCode))
+                    {
+                        keyBinding.actions.Invoke();
+                    }
+                }
+
                 // process axis bindings
                 foreach(ViewControlBindings.AxisBinding axisBinding in bindings.axisBindings)
                 {

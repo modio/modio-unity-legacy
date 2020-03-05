@@ -33,6 +33,26 @@ namespace ModIO.UI
             public ButtonEvent actions;
         }
 
+        /// <summary>KeyCode variant of the ButtonBinding struct.</summary>
+        [System.Serializable]
+        public struct KeyCodeBinding
+        {
+            /// <summary>Name of the input.</summary>
+            public KeyCode keyCode;
+
+            /// <summary>Should the event be fired on down?</summary>
+            public bool fireOnDown;
+
+            /// <summary>Should the event be fired on up?</summary>
+            public bool fireOnUp;
+
+            /// <summary>Should the event be fired when held?</summary>
+            public bool fireOnHeld;
+
+            /// <summary>Event to activate.</summary>
+            public ButtonEvent actions;
+        }
+
         /// <summary>The Unity Event for axis inputs.</summary>
         [System.Serializable]
         public class AxisEvent : UnityEvent<float> {}
@@ -66,6 +86,9 @@ namespace ModIO.UI
         // ---------[ Fields ]---------
         /// <summary>List of control-function bindings for button inputs.</summary>
         public List<ButtonBinding> buttonBindings = new List<ButtonBinding>();
+
+        /// <summary>List of control-function bindings for axis inputs.</summary>
+        public List<KeyCodeBinding> keyCodeBindings = new List<KeyCodeBinding>();
 
         /// <summary>List of control-function bindings for axis inputs.</summary>
         public List<AxisBinding> axisBindings = new List<AxisBinding>();
