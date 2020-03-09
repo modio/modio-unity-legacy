@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: 224735412309518816}
   - component: {fileID: 114266846254978112}
   - component: {fileID: 114501395606427016}
+  - component: {fileID: 225036514422275872}
   m_Layer: 5
   m_Name: Explorer View
   m_TagString: Untagged
@@ -2647,6 +2648,7 @@ GameObject:
   - component: {fileID: 114572220488036906}
   - component: {fileID: 114338252049279424}
   - component: {fileID: 114043055794999922}
+  - component: {fileID: 225392292179293634}
   m_Layer: 5
   m_Name: Inspector Dialog
   m_TagString: Untagged
@@ -2698,6 +2700,7 @@ GameObject:
   - component: {fileID: 224921981181719412}
   - component: {fileID: 114255938413191684}
   - component: {fileID: 114290431168064924}
+  - component: {fileID: 225608913650372884}
   m_Layer: 5
   m_Name: Subscriptions View
   m_TagString: Untagged
@@ -3586,8 +3589,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224401795909071194}
+  - component: {fileID: 225546233608777928}
   m_Layer: 5
-  m_Name: Footer
+  m_Name: Menu Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4386,6 +4390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224428165367905180}
   - component: {fileID: 114603165061792082}
+  - component: {fileID: 225502679146227306}
   m_Layer: 5
   m_Name: Login Dialog
   m_TagString: Untagged
@@ -31777,3 +31782,58 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 40}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!225 &225036514422275872
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1015707705434222}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &225392292179293634
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1363299595747704}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &225502679146227306
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1679033390067440}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &225546233608777928
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1548176975968490}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &225608913650372884
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1386754495533420}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
