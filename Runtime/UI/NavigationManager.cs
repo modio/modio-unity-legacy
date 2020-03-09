@@ -190,7 +190,7 @@ namespace ModIO.UI
                 foreach(ViewControlBindings.AxisBinding axisBinding in bindings.axisBindings)
                 {
                     // get values
-                    float axisValue = Input.GetAxis(axisBinding.inputName);
+                    float axisValue = Input.GetAxisRaw(axisBinding.inputName);
                     float previousValue = 0f;
                     if(!this.m_lastAxisValues.TryGetValue(axisBinding.inputName, out previousValue))
                     {
