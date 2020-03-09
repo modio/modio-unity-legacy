@@ -7047,7 +7047,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114049672923214640
 MonoBehaviour:
@@ -8053,7 +8053,7 @@ MonoBehaviour:
   onModfileChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModfileView+ModfileChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModfileView+ModfileChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114127197988381874
 MonoBehaviour:
@@ -9721,7 +9721,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114210671864120014
 MonoBehaviour:
@@ -10605,12 +10605,12 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.ModView+ProfileChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModView+ProfileChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onStatisticsChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModView+StatisticsChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModView+StatisticsChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_data:
     profile:
@@ -10828,12 +10828,12 @@ MonoBehaviour:
   onProfileChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModView+ProfileChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModView+ProfileChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onStatisticsChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModView+StatisticsChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModView+StatisticsChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_data:
     profile:
@@ -11366,17 +11366,17 @@ MonoBehaviour:
   onModPageChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.SubscriptionsView+ModPageChanged, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.SubscriptionsView+ModPageChanged, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onNameFieldFilterChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.SubscriptionsView+FilterChanged, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.SubscriptionsView+FilterChanged, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onSortDelegateChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.SubscriptionsView+SortChanged, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.SubscriptionsView+SortChanged, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   itemPrefab: {fileID: 0}
   scrollView: {fileID: 0}
@@ -12603,6 +12603,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72f31809ad4774767b7c63f66ba9c5ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onBeforeHideView:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: ModIO.UI.ViewManager+ViewChangeEvent, modio.UnityPlugin, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  onBeforeShowView:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: ModIO.UI.ViewManager+ViewChangeEvent, modio.UnityPlugin, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  onBeforeDefocusView:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: ModIO.UI.ViewManager+ViewChangeEvent, modio.UnityPlugin, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  onAfterFocusView:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: ModIO.UI.ViewManager+ViewChangeEvent, modio.UnityPlugin, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!114 &114370547984897174
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -14648,7 +14668,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.YouTubeThumbnailDisplay+TextureChangedEvent, mod.io.UnityPlugin,
+    m_TypeName: ModIO.UI.YouTubeThumbnailDisplay+TextureChangedEvent, modio.UnityPlugin,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114497256962824234
 MonoBehaviour:
@@ -14684,12 +14704,12 @@ MonoBehaviour:
   onModPageChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ExplorerView+ModPageChanged, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ExplorerView+ModPageChanged, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onRequestFilterChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ExplorerView+RequestFilterChanged, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ExplorerView+RequestFilterChanged, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   itemPrefab: {fileID: 0}
   defaultSortString: 
@@ -15799,7 +15819,7 @@ MonoBehaviour:
   onProfileChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.UserView+ProfileChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.UserView+ProfileChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   avatarDisplay: {fileID: 0}
   profileDisplay: {fileID: 0}
@@ -16265,12 +16285,12 @@ MonoBehaviour:
   onProfileChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModView+ProfileChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModView+ProfileChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onStatisticsChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModView+StatisticsChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModView+StatisticsChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_data:
     profile:
@@ -16503,7 +16523,7 @@ MonoBehaviour:
   onModfileChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModfileView+ModfileChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModfileView+ModfileChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114577503142422064
 MonoBehaviour:
@@ -17253,7 +17273,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.GridCellCounter+CellCountChanged, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.GridCellCounter+CellCountChanged, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114623679781214046
 MonoBehaviour:
@@ -17365,7 +17385,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.YouTubeThumbnailDisplay+TextureChangedEvent, mod.io.UnityPlugin,
+    m_TypeName: ModIO.UI.YouTubeThumbnailDisplay+TextureChangedEvent, modio.UnityPlugin,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114627616930647220
 MonoBehaviour:
@@ -19423,7 +19443,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.GalleryImageDisplay+TextureChangedEvent, mod.io.UnityPlugin,
+    m_TypeName: ModIO.UI.GalleryImageDisplay+TextureChangedEvent, modio.UnityPlugin,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114759429176399756
 MonoBehaviour:
@@ -20084,7 +20104,7 @@ MonoBehaviour:
   onTextureChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114792783674136930
 MonoBehaviour:
@@ -21864,7 +21884,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.GalleryImageDisplay+TextureChangedEvent, mod.io.UnityPlugin,
+    m_TypeName: ModIO.UI.GalleryImageDisplay+TextureChangedEvent, modio.UnityPlugin,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114894135864648056
 MonoBehaviour:
@@ -22264,7 +22284,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, mod.io.UnityPlugin, Version=0.0.0.0,
+    m_TypeName: ModIO.UI.ModLogoDisplay+TextureChangedEvent, modio.UnityPlugin, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114915776684835712
 MonoBehaviour:
@@ -22496,7 +22516,7 @@ MonoBehaviour:
   onDownloadInfoUpdated:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: ModIO.UI.DownloadView+DownloadInfoUpdatedEvent, mod.io.UnityPlugin,
+    m_TypeName: ModIO.UI.DownloadView+DownloadInfoUpdatedEvent, modio.UnityPlugin,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114933263112154088
 MonoBehaviour:
