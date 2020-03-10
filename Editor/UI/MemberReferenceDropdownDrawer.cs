@@ -27,9 +27,6 @@ namespace ModIO.UI.EditorCode
         /// <summary>Is the dropdown open?</summary>
         public bool isExpanded = false;
 
-        /// <summary>Field Path property.</summary>
-        public SerializedProperty memberPathProperty = null;
-
         /// <summary>DisplayValues for the popup.</summary>
         public string[] displayValues = null;
 
@@ -37,13 +34,11 @@ namespace ModIO.UI.EditorCode
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             // Generate Display Values
-            if(this.memberPathProperty == null
-               || this.displayValues == null)
+            if(this.displayValues == null)
             {
                 MemberReference.DropdownDisplayAttribute dropdownAttribute
                     = (MemberReference.DropdownDisplayAttribute)attribute;
 
-                this.memberPathProperty = property.FindPropertyRelative("m_memberPath");
 
                 Debug.Assert(dropdownAttribute != null);
 
@@ -79,6 +74,11 @@ namespace ModIO.UI.EditorCode
                 this.displayValues = displayNames.ToArray();
             }
 
+            // NOTE(@jackson): This needs to be fetched every time, as when displaying an array,
+            // a single instance of MemberReferenceDropdownDrawer is created all elements of
+            // the array individually.
+            SerializedProperty memberPathProperty = property.FindPropertyRelative("m_memberPath");
+
             // Get Selection
             int selectedIndex = -1;
             string selection = memberPathProperty.stringValue;
@@ -96,7 +96,7 @@ namespace ModIO.UI.EditorCode
             }
 
             selectedIndex = EditorGUI.Popup(position, "Member Path", selectedIndex, this.displayValues);
-            this.memberPathProperty.stringValue = this.displayValues[selectedIndex];
+            memberPathProperty.stringValue = this.displayValues[selectedIndex];
         }
 
         // ---------[ UTILITY ]---------
