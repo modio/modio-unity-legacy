@@ -16897,9 +16897,9 @@ MonoBehaviour:
   onLoggedOutClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1679033390067440}
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 114370122447534924}
+        m_MethodName: ShowLoginDialog
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
