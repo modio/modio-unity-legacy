@@ -292,6 +292,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
@@ -403,6 +408,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
@@ -512,6 +522,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
@@ -630,6 +645,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
