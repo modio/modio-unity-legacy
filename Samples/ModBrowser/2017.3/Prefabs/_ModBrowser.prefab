@@ -14188,7 +14188,7 @@ MonoBehaviour:
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 114893862518387824}
-          m_ObjectArgumentAssemblyTypeName: ModIO.UI.GalleryImageDisplay, mod.io.UnityPlugin
+          m_ObjectArgumentAssemblyTypeName: ModIO.UI.GalleryImageDisplay, modio.UnityPlugin
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -14958,7 +14958,7 @@ MonoBehaviour:
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 114346339252120926}
-          m_ObjectArgumentAssemblyTypeName: ModIO.UI.TagContainerItem, mod.io.UnityPlugin
+          m_ObjectArgumentAssemblyTypeName: ModIO.UI.TagContainerItem, modio.UnityPlugin
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -20565,7 +20565,7 @@ MonoBehaviour:
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 114626633842658052}
-          m_ObjectArgumentAssemblyTypeName: ModIO.UI.YouTubeThumbnailDisplay, mod.io.UnityPlugin
+          m_ObjectArgumentAssemblyTypeName: ModIO.UI.YouTubeThumbnailDisplay, modio.UnityPlugin
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -23730,7 +23730,7 @@ MonoBehaviour:
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 114913914783109874}
-          m_ObjectArgumentAssemblyTypeName: ModIO.UI.ModLogoDisplay, mod.io.UnityPlugin
+          m_ObjectArgumentAssemblyTypeName: ModIO.UI.ModLogoDisplay, modio.UnityPlugin
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
