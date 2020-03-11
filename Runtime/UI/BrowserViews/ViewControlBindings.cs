@@ -13,6 +13,27 @@ namespace ModIO.UI
         [System.Serializable]
         public class ButtonEvent : UnityEvent {}
 
+        /// <summary>Enum to indicate when the event should be triggered for a ButtonBinding.</summary>
+        [System.Flags]
+        public enum ButtonTriggerCondition
+        {
+            OnDown  = 0x01,
+            OnUp    = 0x02,
+            OnHeld  = 0x04,
+        }
+
+        /// <summary>Enum to indicate when the event should be triggered for an AxisBinding.</summary>
+        [System.Flags]
+        public enum AxisTriggerCondition
+        {
+            BecameGreaterThan   = 0x01,
+            BecameLessThan      = 0x02,
+            BecameEqualTo       = 0x04,
+            IsGreaterThan       = 0x08,
+            IsLessThan          = 0x10,
+            IsEqualTo           = 0x20,
+        }
+
         /// <summary>A pairing of the UnityEvent and the control that activates it.</summary>
         [System.Serializable]
         public struct ButtonBinding
@@ -20,14 +41,8 @@ namespace ModIO.UI
             /// <summary>Name of the input.</summary>
             public string inputName;
 
-            /// <summary>Should the event be fired on down?</summary>
-            public bool fireOnDown;
-
-            /// <summary>Should the event be fired on up?</summary>
-            public bool fireOnUp;
-
-            /// <summary>Should the event be fired when held?</summary>
-            public bool fireOnHeld;
+            /// <summary>When the event should be fired.</summary>
+            public ButtonTriggerCondition condition;
 
             /// <summary>Event to activate.</summary>
             public ButtonEvent actions;
@@ -40,14 +55,8 @@ namespace ModIO.UI
             /// <summary>Name of the input.</summary>
             public KeyCode keyCode;
 
-            /// <summary>Should the event be fired on down?</summary>
-            public bool fireOnDown;
-
-            /// <summary>Should the event be fired on up?</summary>
-            public bool fireOnUp;
-
-            /// <summary>Should the event be fired when held?</summary>
-            public bool fireOnHeld;
+            /// <summary>When the event should be fired.</summary>
+            public ButtonTriggerCondition condition;
 
             /// <summary>Event to activate.</summary>
             public ButtonEvent actions;
@@ -67,17 +76,8 @@ namespace ModIO.UI
             /// <summary>Threshold value to trigger the event at.</summary>
             public float thresholdValue;
 
-            /// <summary>Should the event be fired when the threshold is crossed?</summary>
-            public bool fireOnBecameGreaterThan;
-
-            /// <summary>Should the event be fired when the threshold is crossed?</summary>
-            public bool fireOnBecameLessThan;
-
-            /// <summary>Should the event be fired when the axis value is above the threshold value?</summary>
-            public bool fireOnIsGreaterThan;
-
-            /// <summary>Should the event be fired when the axis value is below the threshold value?</summary>
-            public bool fireOnIsLessThan;
+            /// <summary>When the event should be fired.</summary>
+            public AxisTriggerCondition condition;
 
             /// <summary>Event to activate.</summary>
             public AxisEvent actions;
