@@ -182,14 +182,13 @@ namespace ModIO
 
         // ---------[ Data I/O ]---------
         /// <summary>Loads the LocalUser instance.</summary>
-        public static System.Collections.IEnumerator Load(System.Action callback = null)
+        public static void Load(System.Action callback = null)
         {
             Debug.Assert(UserDataStorage.isInitialized,
                          "[mod.io] UserDataStorage is not yet intialized. Please call"
                          + " UserDataStorage.InitializeForUser() before attempting to"
                          + " load the LocalUser from disk.");
 
-            bool isDone = false;
             LocalUser.isLoaded = false;
 
             UserDataStorage.TryReadJSONFile<LocalUser>(LocalUser.FILENAME, (success, fileData) =>
@@ -200,31 +199,22 @@ namespace ModIO
                 LocalUser.isLoaded = success;
 
                 if(callback != null) { callback.Invoke(); }
-
-                isDone = true;
             });
-
-            while(!isDone) { yield return null; }
         }
 
         /// <summary>Saves the LocalUser instance.</summary>
-        public static System.Collections.IEnumerator Save(System.Action callback = null)
+        public static void Save(System.Action callback = null)
         {
             Debug.Assert(UserDataStorage.isInitialized,
                          "[mod.io] UserDataStorage is not yet intialized. Please call"
                          + " UserDataStorage.InitializeForUser() before attempting to"
                          + " save the LocalUser to disk.");
 
-            bool isDone = false;
 
             UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser._instance, (success) =>
             {
                 if(callback != null) { callback.Invoke(); }
-
-                isDone = true;
             });
-
-            while(!isDone) { yield return null; }
         }
 
         // ---------[ Utility ]---------
