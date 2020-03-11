@@ -8535,7 +8535,7 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
+    m_NormalColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
     m_HighlightedColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
     m_PressedColor: {r: 0.21176472, g: 0.46274513, b: 0.85098046, a: 1}
     m_DisabledColor: {r: 0.18823531, g: 0.18823531, b: 0.23137257, a: 0.72156864}
@@ -20801,7 +20801,7 @@ MonoBehaviour:
   - {fileID: 114760419657101986}
   - {fileID: 114239109885045950}
   - {fileID: 114739606958266692}
-  scheme: {fileID: 11400000, guid: 0f0f51b0b269b4d2f87710c54baace6a, type: 2}
+  scheme: {fileID: 11400000, guid: 23baf3b866c7c482599b2cfdb87ba8cf, type: 2}
 --- !u!114 &114794538473239796
 MonoBehaviour:
   m_ObjectHideFlags: 1
