@@ -20,3 +20,4 @@ https://fontawesome.com/icons/trash
 https://fontawesome.com/icons/trash-alt
 https://fontawesome.com/icons/undo
 https://fontawesome.com/icons/undo-alt
+https://fontawesome.com/icons/external-link-alt

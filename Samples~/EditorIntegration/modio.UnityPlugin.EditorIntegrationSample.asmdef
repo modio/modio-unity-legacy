@@ -1,7 +1,7 @@
 {
     "name": "modio.UnityPlugin.EditorIntegrationSample",
     "references": [
-        "mod.io.UnityPlugin"
+        "modio.UnityPlugin"
     ],
     "includePlatforms": [
         "Editor"

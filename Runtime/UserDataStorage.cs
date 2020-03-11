@@ -1,5 +1,4 @@
-// #define DISABLE_EDITOR_USERDATA
-// #define EXCLUDE_STANDALONE_IO
+// #define DISABLE_EDITOR_CODEPATH
 // #define MODIO_FACEPUNCH_SUPPORT
 // #define MODIO_STEAMWORKSNET_SUPPORT
 
@@ -85,13 +84,13 @@ namespace ModIO
         static UserDataStorage()
         {
             // Select the platform appropriate functions
-            #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
+            #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Editor();
             #elif MODIO_FACEPUNCH_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Facepunch();
             #elif MODIO_STEAMWORKSNET_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_SteamworksNET();
-            #elif !EXCLUDE_STANDALONE_IO
+            #else
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Standalone();
             #endif
 
@@ -256,7 +255,7 @@ namespace ModIO
 
         // ---------[ Platform Specific Functionality ]---------
 
-        #if UNITY_EDITOR && !DISABLE_EDITOR_USERDATA
+        #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
@@ -293,6 +292,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
@@ -367,9 +371,7 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #endif // UNITY_EDITOR
-
-        #if MODIO_FACEPUNCH_SUPPORT
+        #elif MODIO_FACEPUNCH_SUPPORT
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
@@ -406,6 +408,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
@@ -478,9 +485,7 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #endif // MODIO_FACEPUNCH_SUPPORT
-
-        #if MODIO_STEAMWORKSNET_SUPPORT
+        #elif MODIO_STEAMWORKSNET_SUPPORT
 
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
@@ -517,6 +522,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
@@ -600,9 +610,7 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #endif // MODIO_STEAMWORKSNET_SUPPORT
-
-        #if !EXCLUDE_STANDALONE_IO
+        #else
 
             /// <summary>Root directory for the </summary>
             public static readonly string STANDALONE_USERS_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
@@ -637,6 +645,11 @@ namespace ModIO
                 UserDataStorage.isInitialized = true;
 
                 Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
+
+                if(callback != null)
+                {
+                    callback.Invoke();
+                }
             }
 
             /// <summary>Initializes the data storage system for a given user. (Standalone Application)</summary>
@@ -693,6 +706,6 @@ namespace ModIO
                 if(callback != null) { callback.Invoke(success); }
             }
 
-        #endif // !EXCLUDE_STANDALONE_IO
+        #endif
     }
 }
