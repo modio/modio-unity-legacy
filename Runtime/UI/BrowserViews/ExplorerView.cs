@@ -352,6 +352,7 @@ namespace ModIO.UI
                 return;
             }
 
+            // collect vars
             int pageSize = this.m_modPageContainer.itemLimit;
             if(pageSize < 0)
             {
@@ -360,13 +361,21 @@ namespace ModIO.UI
 
             int targetPageIndex = this.m_modPage.CalculatePageIndex() + pageDifferential;
             int targetPageProfileOffset = targetPageIndex * pageSize;
-
-            Debug.Assert(targetPageIndex >= 0);
-            Debug.Assert(targetPageIndex < this.m_modPage.CalculatePageCount());
-
+            int modPageCount = this.m_modPage.CalculatePageCount();
             int pageItemCount = (int)Mathf.Min(pageSize,
                                                this.m_modPage.resultTotal - targetPageProfileOffset);
 
+            // Bounds check
+            if(targetPageIndex >= modPageCount) { targetPageIndex = modPageCount-1; }
+            if(targetPageIndex < 0){ targetPageIndex = 0; }
+
+            // early out
+            if(targetPageIndex == this.m_modPage.CalculatePageIndex())
+            {
+                return;
+            }
+
+            // do transition
             RequestPage<ModProfile> transitionPlaceholder = new RequestPage<ModProfile>()
             {
                 size = pageSize,
