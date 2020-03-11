@@ -57,12 +57,19 @@ namespace ModIO.UI
         /// <summary>Displays the enabled state of a mod.</summary>
         public void DisplayModEnabled(int modId)
         {
+            bool isEnabled = LocalUser.EnabledModIds.Contains(modId);
+            this.DisplayModEnabled(modId, isEnabled);
+        }
+
+        /// <summary>Displays the given subscribed state of a mod.</summary>
+        public void DisplayModEnabled(int modId, bool isEnabled)
+        {
             this.m_modId = modId;
 
-            // display
-            bool isEnabled = LocalUser.EnabledModIds.Contains(modId);
-
-            this.gameObject.GetComponent<StateToggleDisplay>().isOn = isEnabled;
+            foreach(StateToggleDisplay display in this.gameObject.GetComponents<StateToggleDisplay>())
+            {
+                display.isOn = isEnabled;
+            }
         }
 
         // ---------[ EVENTS ]---------
@@ -71,7 +78,7 @@ namespace ModIO.UI
         {
             if(modId == this.m_modId)
             {
-                this.gameObject.GetComponent<StateToggleDisplay>().isOn = true;
+                this.DisplayModEnabled(modId, true);
             }
         }
 
@@ -80,7 +87,7 @@ namespace ModIO.UI
         {
             if(modId == this.m_modId)
             {
-                this.gameObject.GetComponent<StateToggleDisplay>().isOn = false;
+                this.DisplayModEnabled(modId, false);
             }
         }
     }
