@@ -155,6 +155,21 @@ namespace ModIO.UI
                 // process button bindings
                 foreach(ViewControlBindings.ButtonBinding buttonBinding in bindings.buttonBindings)
                 {
+                    #if UNITY_EDITOR
+                        try
+                        {
+                            Input.GetButton(buttonBinding.inputName);
+                        }
+                        catch(System.ArgumentException e)
+                        {
+                            Debug.LogWarning("[mod.io] The ViewControlBindings for " + view.gameObject.name
+                                             + " contain a button not defined in the Input Manager.\n"
+                                             + e.Message,
+                                             view.gameObject);
+                            continue;
+                        }
+                    #endif
+
                     var condition = ViewControlBindings.ButtonTriggerCondition.OnDown;
                     if((buttonBinding.condition & condition) == condition
                        && Input.GetButtonDown(buttonBinding.inputName))
@@ -205,6 +220,21 @@ namespace ModIO.UI
                 // process axis bindings
                 foreach(ViewControlBindings.AxisBinding axisBinding in bindings.axisBindings)
                 {
+                    #if UNITY_EDITOR
+                        try
+                        {
+                            Input.GetAxis(axisBinding.inputName);
+                        }
+                        catch(System.ArgumentException e)
+                        {
+                            Debug.LogWarning("[mod.io] The ViewControlBindings for " + view.gameObject.name
+                                             + " contain an axis not defined in the Input Manager.\n"
+                                             + e.Message,
+                                             view.gameObject);
+                            continue;
+                        }
+                    #endif
+
                     // get values
                     float axisValue = Input.GetAxisRaw(axisBinding.inputName);
                     float previousValue = 0f;
