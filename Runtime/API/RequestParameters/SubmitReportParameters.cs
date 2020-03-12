@@ -20,11 +20,11 @@ namespace ModIO.API
             }
         }
         // [REQUIRED] The type of report you are submitting. Must be one of the following values:
-        public int type
+        public ReportType type
         {
             set
             {
-                this.SetStringValue("type", value);
+                this.SetStringValue("type", (int)value);
             }
         }
         // [REQUIRED] Informative title for your report.
