@@ -27,7 +27,15 @@ namespace ModIO.API
                 this.SetStringValue("type", (int)value);
             }
         }
-        // [REQUIRED] Informative title for your report.
+        // [REQUIRED] Detailed description of your report. Make sure you include all relevant information and links to help moderators investigate and respond appropiately.
+        public string summary
+        {
+            set
+            {
+                this.SetStringValue("summary", value);
+            }
+        }
+        // Contact details: Name of the user submitting the report. Recommended for DMCA reports.
         public string name
         {
             set
@@ -35,12 +43,12 @@ namespace ModIO.API
                 this.SetStringValue("name", value);
             }
         }
-        // [REQUIRED] Detailed description of your report. Make sure you include all relevant information and links to help moderators investigate and respond appropiately.
-        public string summary
+        // Contact details: Method of contacting the user submitting the report. Recommended for DMCA reports.
+        public string contact
         {
             set
             {
-                this.SetStringValue("summary", value);
+                this.SetStringValue("contact", value);
             }
         }
     }
