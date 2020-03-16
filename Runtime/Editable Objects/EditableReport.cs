@@ -13,11 +13,12 @@ namespace ModIO
     public class EditableReport
     {
         // ---------[ FIELDS ]---------
-        public ModIO.EditableResourceTypeField resourceType =   new ModIO.EditableResourceTypeField();
-        public EditableIntField resourceId =                    new EditableIntField();
-        public EditableReportTypeField reportType =             new EditableReportTypeField();
-        public EditableStringField name =                       new EditableStringField();
-        public EditableStringField summary =                    new EditableStringField();
+        public EditableResourceTypeField resourceType = new EditableResourceTypeField();
+        public EditableIntField resourceId =            new EditableIntField();
+        public EditableReportTypeField reportType =     new EditableReportTypeField();
+        public EditableStringField summary =            new EditableStringField();
+        public EditableStringField name =               new EditableStringField();
+        public EditableIntField contact =               new EditableIntField();
 
         public static string ResourceTypeToAPIString(ReportedResourceType resourceType)
         {
