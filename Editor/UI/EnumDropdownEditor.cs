@@ -81,12 +81,9 @@ namespace ModIO.UI.EditorCode
             // - Update -
             if(isChanged)
             {
-                Debug.Log("Dropdown Changed");
                 this.pairingArrayProperty.arraySize = pairAssignments.Length;
                 for(int i = 0; i < pairAssignments.Length; ++i)
                 {
-                    Debug.Log("Storing: " + pairAssignments[i].enumValue.ToString() + "=" + pairAssignments[i].selectionIndex.ToString());
-
                     var arrayElement = this.pairingArrayProperty.GetArrayElementAtIndex(i);
                     arrayElement.FindPropertyRelative("selectionIndex").intValue = pairAssignments[i].selectionIndex;
                     arrayElement.FindPropertyRelative("enumValue").intValue = pairAssignments[i].enumValue;
