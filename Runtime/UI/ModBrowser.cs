@@ -259,6 +259,8 @@ namespace ModIO.UI
                 APIClient.GetGame(
                 (g) =>
                 {
+                    if(this == null) { return; }
+
                     m_gameProfile = g;
 
                     IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);
