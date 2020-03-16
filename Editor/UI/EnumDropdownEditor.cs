@@ -69,8 +69,7 @@ namespace ModIO.UI.EditorCode
                 ++pair.selectionIndex;
                 pair.selectionIndex = EditorGUILayout.Popup(enumNames[i],
                                                             pair.selectionIndex,
-                                                            popupOptions,
-                                                            null);
+                                                            popupOptions);
                 --pair.selectionIndex;
 
                 // assign to array & check changed
