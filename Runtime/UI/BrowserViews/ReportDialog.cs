@@ -7,18 +7,27 @@ using UnityEngine.EventSystems;
 namespace ModIO.UI
 {
     /// <summary>A view for allowing a player to report a mod.</summary>
-    public class ReportDialog : MonoBehaviour, IBrowserView, ICancelHandler
+    public class ReportDialog : MonoBehaviour, IBrowserView
     {
         // ---------[ Constants ]---------
-        /// <summary>URL for the mod.io report widget.</summary>
-        public static readonly string REPORT_WIDGET_URL = @"https://mod.io/report/widget";
+        /// <summary>This component is designed for the reporting of mods and no other resource type.</summary>
+        public const ReportedResourceType RESOURCE_TYPE = ReportedResourceType.Mod;
 
         // ---------[ Fields ]---------
+        /// <summary>Dropdown for providing the report type.</summary>
+        public ReportTypeDropdown dropdown = null;
+
+        /// <summary>Input field for providing the report details.</summary>
+        public InputField detailsField = null;
+
+        /// <summary>Input field for providing a contact name.</summary>
+        public InputField contactNameField = null;
+
+        /// <summary>Input field for providing a contact email.</summary>
+        public InputField contactEmailField = null;
+
         /// <summary>Mod id of the mod being reported.</summary>
         private int m_modId = ModProfile.NULL_ID;
-
-        /// <summary>URL link for the report web widget.</summary>
-        private string m_reportURL = string.Empty;
 
         // --- Accessors ---
         /// <summary>Gets the canvas group attached to this gameObject.</summary>
@@ -55,20 +64,10 @@ namespace ModIO.UI
             if(profile == null)
             {
                 this.m_modId = ModProfile.NULL_ID;
-                this.m_reportURL = string.Empty;
             }
             else
             {
                 this.m_modId = profile.id;
-
-                if(string.IsNullOrEmpty(profile.profileURL))
-                {
-                    this.m_reportURL = string.Empty;
-                }
-                else
-                {
-                    this.m_reportURL = "?urls=" + profile.profileURL;
-                }
             }
 
             ModView view = this.GetComponent<ModView>();
@@ -78,22 +77,140 @@ namespace ModIO.UI
             }
         }
 
-        /// <summary>ICancelHandler interface to pass through to the cancel button.</summary>
-        public void OnCancel(BaseEventData eventData)
-        {
-            Close();
-        }
-
         /// <summary>Closes the dialog window.</summary>
         public void Close()
         {
             ViewManager.instance.CloseWindowedView(this);
         }
 
-        /// <summary>Opens a web browser to the report form pre-filled with the mod URL.</summary>
-        public void OpenReportWidgetInWebBrowser()
+        /// <summary>Creates a report using information in the input fields and submits.</summary>
+        public void SubmitReport()
         {
-            Application.OpenURL(ReportDialog.REPORT_WIDGET_URL + this.m_reportURL);
+            var reportParams = new ModIO.API.SubmitReportParameters();
+            var messageData = new MessageDialog.Data();
+
+            reportParams.resource = EditableReport.ResourceTypeToAPIString(ReportDialog.RESOURCE_TYPE);
+
+            // check mod id
+            if(this.m_modId <= 0)
+            {
+                messageData.header = "Error Submitting Report";
+                messageData.message = "The submission process encountered an error.\n[Error: Invalid mod id]";
+                messageData.standardButtonCallback = () =>
+                {
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                };
+                messageData.standardButtonText = "Back";
+                messageData.onClose = () =>
+                {
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                };
+
+                return;
+            }
+            reportParams.id = this.m_modId;
+
+            // check report type
+            ReportType type;
+            if(!this.dropdown.TryGetSelectedValue(out type))
+            {
+                messageData.header = "Error Submitting Report";
+                messageData.message = "A report type needs to be selected from the dropdown options.";
+                messageData.standardButtonCallback = () => ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                messageData.standardButtonText = "Back";
+
+                ViewManager.instance.ShowMessageDialog(messageData);
+
+                return;
+            }
+            reportParams.type = type;
+
+            // check email
+            string email = this.contactEmailField.text;
+            if(!string.IsNullOrEmpty(email)
+               && !Utility.IsEmail(email))
+            {
+                messageData.header = "Error Submitting Report";
+                messageData.message = "Please enter a valid email address or leave the field empty.";
+                messageData.standardButtonCallback = () => ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                messageData.standardButtonText = "Back";
+
+                ViewManager.instance.ShowMessageDialog(messageData);
+
+                return;
+            }
+            reportParams.contact = email;
+
+            // get simple inputs
+            reportParams.summary = this.detailsField.text;
+            reportParams.name = this.contactNameField.text;
+
+            // Create sending message dialog
+            messageData.header = "Report Submission Status";
+            messageData.message = "Please wait while we submit your report.";
+            messageData.onClose = () =>
+            {
+                ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+            };
+            messageData.standardButtonText = "...";
+            ViewManager.instance.ShowMessageDialog(messageData);
+
+            // Submit
+            APIClient.SubmitReport(reportParams,
+                                   this.OnReportSuccessful,
+                                   this.OnReportFailed);
         }
+
+        /// <summary>Callback for a successful report submission.</summary>
+        private void OnReportSuccessful(APIMessage response)
+        {
+            var messageData = new MessageDialog.Data()
+            {
+                header = "Report Submission Status",
+                message = "Report submission successful.\n" + response.message,
+                standardButtonCallback = () =>
+                {
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                },
+                standardButtonText = "Done",
+                onClose = () =>
+                {
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                },
+            };
+
+            ViewManager.instance.ShowMessageDialog(messageData);
+        }
+
+        /// <summary>Callback for a failed report submission.</summary>
+        private void OnReportFailed(WebRequestError error)
+        {
+            var messageData = new MessageDialog.Data()
+            {
+                header = "Report Submission Status",
+                message = ("Report submission failed.\n"
+                           + error.displayMessage
+                           + "\n[Error Code: " + error.webRequest.responseCode.ToString() + "]"),
+                standardButtonCallback = () =>
+                {
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                },
+                standardButtonText = "Done",
+                onClose = () =>
+                {
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.reportDialog);
+                    ViewManager.instance.CloseWindowedView(ViewManager.instance.messageDialog);
+                },
+            };
+
+            ViewManager.instance.ShowMessageDialog(messageData);
+        }
+
     }
 }
