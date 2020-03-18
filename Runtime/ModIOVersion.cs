@@ -20,11 +20,11 @@ namespace ModIO
 
         // ---------[ Initialization ]---------
         /// <summary>Constructs an object with the given version values.</summary>
-        public ModIOVersion(int majorVersion = 0, int minorVersion = 0, int patchNumber = 0)
+        public ModIOVersion(int majorVersion = 0, int minorVersion = 0, int patchVersion = 0)
         {
             this.major = majorVersion;
             this.minor = minorVersion;
-            this.patch = patchNumber;
+            this.patch = patchVersion;
         }
 
         // ---------[ IComparable Interface ]---------
@@ -66,5 +66,25 @@ namespace ModIO
         {
            return a.CompareTo(b) <= 0;
         }
+
+        // ---------[ Utility ]---------
+        /// <summary>Generates a string to represent the version.</summary>
+        public override string ToString()
+        {
+            return this.ToString("X.Y.Z");
+        }
+
+        /// <summary>Generates a string to represent the version following the formatting.</summary>
+        public string ToString(string format)
+        {
+            format = format.ToUpper();
+
+            string result = format.Replace("X", major.ToString())
+                                  .Replace("Y", minor.ToString())
+                                  .Replace("Z", patch.ToString());
+
+            return result;
+        }
+
     }
 }
