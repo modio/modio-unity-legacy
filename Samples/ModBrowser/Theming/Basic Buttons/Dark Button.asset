@@ -15,8 +15,8 @@ MonoBehaviour:
   functionalColors:
     m_NormalColor: {r: 0.09019608, g: 0.09019608, b: 0.15294118, a: 1}
     m_HighlightedColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
-    m_PressedColor: {r: 0.21176472, g: 0.46274513, b: 0.85098046, a: 1}
-    m_DisabledColor: {r: 0.18823531, g: 0.18823531, b: 0.23137257, a: 0.72156864}
+    m_PressedColor: {r: 0.15294118, g: 0.34901962, b: 0.6666667, a: 1}
+    m_DisabledColor: {r: 0.1882353, g: 0.1882353, b: 0.23137255, a: 0.72156864}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   innerElementColor: {r: 1, g: 1, b: 1, a: 1}
