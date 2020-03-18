@@ -27,6 +27,8 @@ namespace ModIO
         /// <summary>URL for the production server</summary>
         public const string API_URL_PRODUCTIONSERVER = "https://api.mod.io/";
 
+        /// <summary>Version information to provide in the request header.</summary>
+        public static readonly string USER_AGENT_HEADER = "modioUnityPlugin-" + ModIOVersion.Current.ToString("X.Y.Z");
 
         /// <summary>Collection of the HTTP request header keys used by Unity.</summary>
         public static readonly string[] UNITY_REQUEST_HEADER_KEYS = new string[]
@@ -228,6 +230,7 @@ namespace ModIO
             }
 
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
             return webRequest;
         }
@@ -257,6 +260,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Get(constructedURL);
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
             return webRequest;
         }
@@ -280,6 +284,7 @@ namespace ModIO
             webRequest.method = UnityWebRequest.kHttpVerbPUT;
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
             #if DEBUG
             if(PluginSettings.data.logAllRequests)
@@ -324,6 +329,7 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
             #if DEBUG
             if(PluginSettings.data.logAllRequests)
@@ -361,6 +367,7 @@ namespace ModIO
             webRequest.method = UnityWebRequest.kHttpVerbDELETE;
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
             #if DEBUG
             if(PluginSettings.data.logAllRequests)
@@ -531,6 +538,7 @@ namespace ModIO
 
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
+            webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
             #if DEBUG
             if(PluginSettings.data.logAllRequests)
