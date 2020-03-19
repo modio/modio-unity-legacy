@@ -399,22 +399,12 @@ namespace ModIO.UI
                 return selection;
             }
 
-            int primaryPriority = -1;
-            GameObject primarySelection = null;
-
-            foreach(var selectionPriority in view.gameObject.GetComponentsInChildren<SelectionFocusPriority>())
+            foreach(var selectionPriority in view.onFocusPriority)
             {
-                if(selectionPriority.gameObject.activeSelf
-                   && selectionPriority.priority > primaryPriority)
+                if(NavigationManager.IsValidSelection(selectionPriority.gameObject))
                 {
-                    primarySelection = selectionPriority.gameObject;
-                    primaryPriority = selectionPriority.priority;
+                    return selectionPriority.gameObject;
                 }
-            }
-
-            if(primarySelection != null)
-            {
-                return primarySelection;
             }
 
             foreach(var sel in view.gameObject.GetComponentsInChildren<Selectable>())
