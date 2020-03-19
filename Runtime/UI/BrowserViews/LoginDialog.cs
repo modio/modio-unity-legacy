@@ -18,6 +18,9 @@ namespace ModIO.UI
         }
 
         [Header("Settings")]
+        /// <summary>The priority to focus the selectables.</summary>
+        public List<Selectable> onFocusPriority = new List<Selectable>();
+
         [Tooltip("Invalid Submission Message")]
         public string invalidSubmissionMessage = "Input needs to be either a valid email address or the 5-Digit authentication code.";
         [Tooltip("Email Refused Message")]
@@ -41,7 +44,7 @@ namespace ModIO.UI
         bool IBrowserView.isRootView { get { return false; } }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.selectablePriority { get { return null; } }
+        List<Selectable> IBrowserView.onFocusPriority { get { return this.onFocusPriority; } }
 
         // --------[ INITIALIZATION ]---------
         private void OnEnable()

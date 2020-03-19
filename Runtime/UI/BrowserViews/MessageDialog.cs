@@ -90,9 +90,29 @@ namespace ModIO.UI
         bool IBrowserView.isRootView { get { return false; } }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.selectablePriority { get { return null; } }
+        private List<Selectable> m_buttonPriority = null;
+
+        /// <summary>The priority to focus the selectables.</summary>
+        List<Selectable> IBrowserView.onFocusPriority
+        {
+            get
+            {
+                return this.m_buttonPriority;
+            }
+        }
 
         // ---------[ Initialization ]---------
+        /// <summary>Builds priority list.</summary>
+        private void Awake()
+        {
+            this.m_buttonPriority = new List<Selectable>()
+            {
+                this.highlightedButton,
+                this.standardButton,
+                this.warningButton,
+            };
+        }
+
         /// <summary>Hooks up button callbacks.</summary>
         private void Start()
         {

@@ -15,6 +15,9 @@ namespace ModIO.UI
         /// <summary>Id of the currently displayed mod.</summary>
         private int m_modId = ModProfile.NULL_ID;
 
+        /// <summary>The priority to focus the selectables.</summary>
+        public List<Selectable> onFocusPriority = new List<Selectable>();
+
         // --- ACCESSORS ---
         /// <summary>Id of the currently displayed mod.</summary>
         public int modId
@@ -82,7 +85,7 @@ namespace ModIO.UI
         bool IBrowserView.isRootView { get { return false; } }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.selectablePriority { get { return null; } }
+        List<Selectable> IBrowserView.onFocusPriority { get { return this.onFocusPriority; } }
 
         // ---------[ UI Functionality ]---------
         /// <summary>Closes this view.</summary>

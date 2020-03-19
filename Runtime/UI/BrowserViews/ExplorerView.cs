@@ -60,6 +60,9 @@ namespace ModIO.UI
         /// <summary>Number of seconds per page transition.</summary>
         public float pageTransitionTimeSeconds = 0.4f;
 
+        /// <summary>The priority to focus the selectables.</summary>
+        public List<Selectable> onFocusPriority = new List<Selectable>();
+
         [Header("Events")]
         /// <summary>Event for notifying listeners of a change to displayed mods.</summary>
         public ModPageChanged onModPageChanged = null;
@@ -196,7 +199,7 @@ namespace ModIO.UI
         bool IBrowserView.isRootView { get { return true; } }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.selectablePriority { get { return null; } }
+        List<Selectable> IBrowserView.onFocusPriority { get { return this.onFocusPriority; } }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Initializes private members.</summary>

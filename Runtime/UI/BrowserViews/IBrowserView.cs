@@ -21,6 +21,6 @@ namespace ModIO.UI
         bool isRootView { get; }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> selectablePriority { get; }
+        List<Selectable> onFocusPriority { get; }
     }
 }

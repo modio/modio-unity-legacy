@@ -41,7 +41,21 @@ namespace ModIO.UI
         bool IBrowserView.isRootView { get { return false; } }
 
         /// <summary>The priority to focus the selectables.</summary>
-        List<Selectable> IBrowserView.selectablePriority { get { return null; } }
+        private List<Selectable> m_onFocusPriority = null;
+
+        /// <summary>The priority to focus the selectables.</summary>
+        List<Selectable> IBrowserView.onFocusPriority { get { return this.m_onFocusPriority; } }
+
+        // ---------[ Initialization ]---------
+        /// <summary>Build the prioritization list.</summary>
+        private void Awake()
+        {
+            this.m_onFocusPriority = new List<Selectable>()
+            {
+                this.dropdown.GetComponent<Dropdown>(),
+                this.detailsField,
+            };
+        }
 
         // ---------[ UI Control ]---------
         /// <summary>Sets the mod id for the mod being reported.</summary>
