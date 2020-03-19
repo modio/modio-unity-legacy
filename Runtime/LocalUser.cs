@@ -210,7 +210,6 @@ namespace ModIO
                          + " UserDataStorage.InitializeForUser() before attempting to"
                          + " save the LocalUser to disk.");
 
-
             UserDataStorage.TryWriteJSONFile(LocalUser.FILENAME, LocalUser._instance, (success) =>
             {
                 if(callback != null) { callback.Invoke(); }

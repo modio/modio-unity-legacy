@@ -114,11 +114,6 @@ namespace ModIO.UI
             {
                 this.isMouseMode = false;
 
-                if(ViewManager.instance.currentFocus != null)
-                {
-                    EventSystem.current.SetSelectedGameObject(this.ReacquireSelectionForView(ViewManager.instance.currentFocus));
-                }
-
                 if(this.m_currentHoverSelectable != null)
                 {
                     ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
