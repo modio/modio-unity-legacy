@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Name: Mod Item Download Bar
   m_EditorClassIdentifier: 
   baseColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
-  innerElementColor: {r: 0.19607843, g: 0.4509804, b: 0.8627451, a: 1}
+  innerElementColor: {r: 0.5254902, g: 0.654902, b: 0.8627451, a: 1}

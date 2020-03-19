@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Editor] PluginSettings directory previews.
 - [UI] NavigationManager to assist controller support for the UI.
 - [UI] Controller supported version of the Mod Browser prefab.
+- [UI] Report Mod Dialog.
 
 ### Removed
 - [Core] UserAuthenticationData - Replaced by LocalUser and UserAccountManagement functionality.
@@ -27,8 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [UI] DownloadView now reactivates correct in OnEnable.
 - [UI] ExplorerView now correctly loads default sort.
+- [UI] ExplorerView page changes now handle out-of-bounds parameters.
 - [UI] InspectorView changelog is now rich-text enabled.
 - [UI] FileSize has been correctly labeled in the Inspector View details table.
+- [UI] StateToggleDisplays are now grabbed using GetComponents in other components.
 
 ## [2.1.1] - 2020-02-12
 ### Added

@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ModIO.UI
 {
@@ -16,5 +19,8 @@ namespace ModIO.UI
 
         /// <summary>Is the view a root view or window view?</summary>
         bool isRootView { get; }
+
+        /// <summary>The priority to focus the selectables.</summary>
+        List<Selectable> onFocusPriority { get; }
     }
 }

@@ -20,19 +20,11 @@ namespace ModIO.API
             }
         }
         // [REQUIRED] The type of report you are submitting. Must be one of the following values:
-        public int type
+        public ReportType type
         {
             set
             {
-                this.SetStringValue("type", value);
-            }
-        }
-        // [REQUIRED] Informative title for your report.
-        public string name
-        {
-            set
-            {
-                this.SetStringValue("name", value);
+                this.SetStringValue("type", (int)value);
             }
         }
         // [REQUIRED] Detailed description of your report. Make sure you include all relevant information and links to help moderators investigate and respond appropiately.
@@ -41,6 +33,22 @@ namespace ModIO.API
             set
             {
                 this.SetStringValue("summary", value);
+            }
+        }
+        // Contact details: Name of the user submitting the report. Recommended for DMCA reports.
+        public string name
+        {
+            set
+            {
+                this.SetStringValue("name", value);
+            }
+        }
+        // Contact details: Method of contacting the user submitting the report. Recommended for DMCA reports.
+        public string contact
+        {
+            set
+            {
+                this.SetStringValue("contact", value);
             }
         }
     }

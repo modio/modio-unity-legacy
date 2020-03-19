@@ -6,6 +6,7 @@ using UnityEditor;
 namespace ModIO.UI.EditorCode
 {
     [CustomEditor(typeof(SelectableColorScheme))]
+    [CanEditMultipleObjects]
     public class SelectableColorSchemeEditor : Editor
     {
         public override void OnInspectorGUI()
@@ -13,7 +14,7 @@ namespace ModIO.UI.EditorCode
             base.OnInspectorGUI();
             serializedObject.Update();
 
-            bool apply = GUILayout.Button("Apply to Scene");
+            bool apply = GUILayout.Button("Update Applicators");
 
             if(apply)
             {
@@ -21,10 +22,7 @@ namespace ModIO.UI.EditorCode
                 SelectableColorApplicator[] applicators = Object.FindObjectsOfType<SelectableColorApplicator>();
                 foreach(SelectableColorApplicator sca in applicators)
                 {
-                    if(sca.scheme == this.target)
-                    {
-                        sca.UpdateColorScheme_withUndo();
-                    }
+                    sca.UpdateColorScheme_withUndo();
                 }
             }
         }

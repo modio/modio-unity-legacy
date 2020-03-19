@@ -189,7 +189,10 @@ namespace ModIO.UI
 
             if(UserDataStorage.isInitialized)
             {
-                yield return this.StartCoroutine(LocalUser.Load());
+                bool isDone = false;
+                LocalUser.Load(() => isDone = true);
+
+                while(!isDone) { yield return null; }
             }
             else
             {
@@ -256,6 +259,8 @@ namespace ModIO.UI
                 APIClient.GetGame(
                 (g) =>
                 {
+                    if(this == null) { return; }
+
                     m_gameProfile = g;
 
                     IEnumerable<IGameProfileUpdateReceiver> updateReceivers = GetComponentsInChildren<IGameProfileUpdateReceiver>(true);

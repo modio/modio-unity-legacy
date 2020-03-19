@@ -7,14 +7,18 @@ namespace ModIO
     public class EditableResourceTypeField : EditableField<ReportedResourceType> {}
 
     [Serializable]
+    public class EditableReportTypeField : EditableField<ReportType> {}
+
+    [Serializable]
     public class EditableReport
     {
         // ---------[ FIELDS ]---------
-        public ModIO.EditableResourceTypeField resourceType =   new ModIO.EditableResourceTypeField();
-        public EditableIntField resourceId =                    new EditableIntField();
-        public EditableBoolField isDMCA =                       new EditableBoolField();
-        public EditableStringField name =                       new EditableStringField();
-        public EditableStringField summary =                    new EditableStringField();
+        public EditableResourceTypeField resourceType = new EditableResourceTypeField();
+        public EditableIntField resourceId =            new EditableIntField();
+        public EditableReportTypeField reportType =     new EditableReportTypeField();
+        public EditableStringField summary =            new EditableStringField();
+        public EditableStringField name =               new EditableStringField();
+        public EditableIntField contact =               new EditableIntField();
 
         public static string ResourceTypeToAPIString(ReportedResourceType resourceType)
         {
@@ -38,5 +42,10 @@ namespace ModIO
                 }
             }
         }
+
+
+        // ---------[ Obsolete ]---------
+        [System.Obsolete("No longer supported. Use EditableReport.reportType instead.", true)]
+        public EditableBoolField isDMCA = null;
     }
 }

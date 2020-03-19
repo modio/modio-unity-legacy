@@ -26,6 +26,9 @@ namespace ModIO.UI
         public class SortChanged : UnityEngine.Events.UnityEvent<Comparison<ModProfile>> {}
 
         // ---------[ FIELDS ]---------
+        /// <summary>The priority to focus the selectables.</summary>
+        public List<Selectable> onFocusPriority = new List<Selectable>();
+
         [Header("UI Components")]
         /// <summary>Container used to display mods.</summary>
         public ModContainer modContainer = null;
@@ -90,6 +93,9 @@ namespace ModIO.UI
 
         /// <summary>Is the view a root view or window view?</summary>
         bool IBrowserView.isRootView { get { return true; } }
+
+        /// <summary>The priority to focus the selectables.</summary>
+        List<Selectable> IBrowserView.onFocusPriority { get { return this.onFocusPriority; } }
 
         // ---------[ INITIALIZATION ]---------
         /// <summary>Collects and sets view on ISubscriptionsViewElements.</summary>

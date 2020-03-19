@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,7 +40,22 @@ namespace ModIO.UI
         /// <summary>Is the view a root view or window view?</summary>
         bool IBrowserView.isRootView { get { return false; } }
 
+        /// <summary>The priority to focus the selectables.</summary>
+        private List<Selectable> m_onFocusPriority = new List<Selectable>();
+
+        /// <summary>The priority to focus the selectables.</summary>
+        List<Selectable> IBrowserView.onFocusPriority { get { return this.m_onFocusPriority; } }
+
         // --------[ INITIALIZATION ]---------
+        /// <summary>Build the focus priority list.</summary>
+        private void Awake()
+        {
+            this.m_onFocusPriority = new List<Selectable>()
+            {
+                this.inputField,
+            };
+        }
+
         private void OnEnable()
         {
             // update button state

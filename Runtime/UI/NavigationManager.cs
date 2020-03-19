@@ -114,11 +114,6 @@ namespace ModIO.UI
             {
                 this.isMouseMode = false;
 
-                if(ViewManager.instance.currentFocus != null)
-                {
-                    EventSystem.current.SetSelectedGameObject(this.ReacquireSelectionForView(ViewManager.instance.currentFocus));
-                }
-
                 if(this.m_currentHoverSelectable != null)
                 {
                     ExecuteEvents.Execute(this.m_currentHoverSelectable.gameObject,
@@ -155,15 +150,38 @@ namespace ModIO.UI
                 // process button bindings
                 foreach(ViewControlBindings.ButtonBinding buttonBinding in bindings.buttonBindings)
                 {
-                    if(buttonBinding.fireOnDown && Input.GetButtonDown(buttonBinding.inputName))
+                    #if UNITY_EDITOR
+                        try
+                        {
+                            Input.GetButton(buttonBinding.inputName);
+                        }
+                        catch(System.ArgumentException e)
+                        {
+                            Debug.LogWarning("[mod.io] The ViewControlBindings for " + view.gameObject.name
+                                             + " contain a button not defined in the Input Manager.\n"
+                                             + e.Message,
+                                             view.gameObject);
+                            continue;
+                        }
+                    #endif
+
+                    var condition = ViewControlBindings.ButtonTriggerCondition.OnDown;
+                    if((buttonBinding.condition & condition) == condition
+                       && Input.GetButtonDown(buttonBinding.inputName))
                     {
                         buttonBinding.actions.Invoke();
                     }
-                    if(buttonBinding.fireOnHeld && Input.GetButton(buttonBinding.inputName))
+
+                    condition = ViewControlBindings.ButtonTriggerCondition.OnHeld;
+                    if((buttonBinding.condition & condition) == condition
+                       && Input.GetButton(buttonBinding.inputName))
                     {
                         buttonBinding.actions.Invoke();
                     }
-                    if(buttonBinding.fireOnUp && Input.GetButtonUp(buttonBinding.inputName))
+
+                    condition = ViewControlBindings.ButtonTriggerCondition.OnUp;
+                    if((buttonBinding.condition & condition) == condition
+                       && Input.GetButtonUp(buttonBinding.inputName))
                     {
                         buttonBinding.actions.Invoke();
                     }
@@ -172,15 +190,23 @@ namespace ModIO.UI
                 // process keycode bindings
                 foreach(ViewControlBindings.KeyCodeBinding keyBinding in bindings.keyCodeBindings)
                 {
-                    if(keyBinding.fireOnDown && Input.GetKeyDown(keyBinding.keyCode))
+                    var condition = ViewControlBindings.ButtonTriggerCondition.OnDown;
+                    if((keyBinding.condition & condition) == condition
+                       && Input.GetKeyDown(keyBinding.keyCode))
                     {
                         keyBinding.actions.Invoke();
                     }
-                    if(keyBinding.fireOnHeld && Input.GetKey(keyBinding.keyCode))
+
+                    condition = ViewControlBindings.ButtonTriggerCondition.OnHeld;
+                    if((keyBinding.condition & condition) == condition
+                       && Input.GetKey(keyBinding.keyCode))
                     {
                         keyBinding.actions.Invoke();
                     }
-                    if(keyBinding.fireOnUp && Input.GetKeyUp(keyBinding.keyCode))
+
+                    condition = ViewControlBindings.ButtonTriggerCondition.OnUp;
+                    if((keyBinding.condition & condition) == condition
+                       && Input.GetKeyUp(keyBinding.keyCode))
                     {
                         keyBinding.actions.Invoke();
                     }
@@ -189,6 +215,21 @@ namespace ModIO.UI
                 // process axis bindings
                 foreach(ViewControlBindings.AxisBinding axisBinding in bindings.axisBindings)
                 {
+                    #if UNITY_EDITOR
+                        try
+                        {
+                            Input.GetAxis(axisBinding.inputName);
+                        }
+                        catch(System.ArgumentException e)
+                        {
+                            Debug.LogWarning("[mod.io] The ViewControlBindings for " + view.gameObject.name
+                                             + " contain an axis not defined in the Input Manager.\n"
+                                             + e.Message,
+                                             view.gameObject);
+                            continue;
+                        }
+                    #endif
+
                     // get values
                     float axisValue = Input.GetAxisRaw(axisBinding.inputName);
                     float previousValue = 0f;
@@ -199,25 +240,52 @@ namespace ModIO.UI
                     this.m_lastAxisValues[axisBinding.inputName] = axisValue;
 
                     // process
-                    bool isGreater = axisValue >= axisBinding.thresholdValue;
-                    bool wasGreater = previousValue >= axisBinding.thresholdValue;
-                    bool isLess = axisValue <= axisBinding.thresholdValue;
-                    bool wasLess = previousValue <= axisBinding.thresholdValue;
+                    bool isGreater = axisValue > axisBinding.thresholdValue;
+                    bool wasGreater = previousValue > axisBinding.thresholdValue;
+                    bool isLess = axisValue < axisBinding.thresholdValue;
+                    bool wasLess = previousValue < axisBinding.thresholdValue;
+                    bool isEqual = !isGreater && !isLess;
+                    bool wasEqual = !wasGreater && !wasLess;
 
-                    if(axisBinding.fireOnBecameGreaterThan && isGreater && !wasGreater)
-                    {
-                        axisBinding.actions.Invoke(axisValue);
-                    }
-                    if(axisBinding.fireOnIsGreaterThan && isGreater)
+
+                    var condition = ViewControlBindings.AxisTriggerCondition.BecameGreaterThan;
+                    if((axisBinding.condition & condition) == condition
+                       && isGreater && !wasGreater)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
 
-                    if(axisBinding.fireOnBecameLessThan && isLess && !wasLess)
+                    condition = ViewControlBindings.AxisTriggerCondition.BecameLessThan;
+                    if((axisBinding.condition & condition) == condition
+                       && isLess && !wasLess)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }
-                    if(axisBinding.fireOnIsLessThan && isLess)
+
+                    condition = ViewControlBindings.AxisTriggerCondition.BecameEqualTo;
+                    if((axisBinding.condition & condition) == condition
+                       && isEqual && !wasEqual)
+                    {
+                        axisBinding.actions.Invoke(axisValue);
+                    }
+
+                    condition = ViewControlBindings.AxisTriggerCondition.IsGreaterThan;
+                    if((axisBinding.condition & condition) == condition
+                       && isGreater)
+                    {
+                        axisBinding.actions.Invoke(axisValue);
+                    }
+
+                    condition = ViewControlBindings.AxisTriggerCondition.IsLessThan;
+                    if((axisBinding.condition & condition) == condition
+                       && isLess)
+                    {
+                        axisBinding.actions.Invoke(axisValue);
+                    }
+
+                    condition = ViewControlBindings.AxisTriggerCondition.IsEqualTo;
+                    if((axisBinding.condition & condition) == condition
+                       && isEqual)
                     {
                         axisBinding.actions.Invoke(axisValue);
                     }

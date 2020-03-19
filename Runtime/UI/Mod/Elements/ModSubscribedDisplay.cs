@@ -81,11 +81,11 @@ namespace ModIO.UI
         {
             if(addedSubscriptions.Contains(this.m_modId))
             {
-                this.gameObject.GetComponent<StateToggleDisplay>().isOn = true;
+                this.DisplayModSubscribed(this.m_modId, true);
             }
             else if(removedSubscriptions.Contains(this.m_modId))
             {
-                this.gameObject.GetComponent<StateToggleDisplay>().isOn = false;
+                this.DisplayModSubscribed(this.m_modId, false);
             }
         }
     }

@@ -260,7 +260,7 @@ namespace ModIO
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                             "Editor Default Resources",
-                                                                                            "modio");
+                                                                                            "mod.io");
 
             /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
             public static PlatformFunctions GetPlatformFunctions_Editor()
