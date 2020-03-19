@@ -11471,6 +11471,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d58100d13f6904c10aba706fdab48f03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onFocusPriority:
+  - {fileID: 114075847015285236}
   modContainer: {fileID: 114162723348600364}
   noSubscriptionsDisplay: {fileID: 1996345605320860}
   noResultsDisplay: {fileID: 1817592628229666}
@@ -15099,6 +15101,8 @@ MonoBehaviour:
     ascending: 0
     fieldName: date_live
   pageTransitionTimeSeconds: 0.4
+  onFocusPriority:
+  - {fileID: 114003620004603470}
   onModPageChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -19598,6 +19602,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06e07e876f4384c249d64c2f61ca6048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onFocusPriority:
+  - {fileID: 114976865516566840}
   selectedMediaPreview: {fileID: 0}
   loadingDisplay: {fileID: 0}
   versionHistoryItemPrefab: {fileID: 0}
