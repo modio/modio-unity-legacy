@@ -91,6 +91,9 @@ namespace ModIO.UI
         /// <summary>Is the view a root view or window view?</summary>
         bool IBrowserView.isRootView { get { return true; } }
 
+        /// <summary>The priority to focus the selectables.</summary>
+        List<Selectable> IBrowserView.selectablePriority { get { return null; } }
+
         // ---------[ INITIALIZATION ]---------
         /// <summary>Collects and sets view on ISubscriptionsViewElements.</summary>
         protected virtual void Start()

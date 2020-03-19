@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,6 +39,9 @@ namespace ModIO.UI
 
         /// <summary>Is the view a root view or window view?</summary>
         bool IBrowserView.isRootView { get { return false; } }
+
+        /// <summary>The priority to focus the selectables.</summary>
+        List<Selectable> IBrowserView.selectablePriority { get { return null; } }
 
         // ---------[ UI Control ]---------
         /// <summary>Sets the mod id for the mod being reported.</summary>
