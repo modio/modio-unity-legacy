@@ -79,6 +79,22 @@ namespace ModIO
             #endif
         }
 
+        // ---------[ I/O Interface ]---------
+        /// <summary>Initializes the data storage system.</summary>
+        public static void Initialize(InitializationCallback callback)
+        {
+            DataStorage.PLATFORM.Initialize(callback);
+        }
+
+        /// <summary>Reads a file.</summary>
+        public static void ReadFile(string filePath, ReadFileCallback callback)
+        {
+            Debug.Assert(DataStorage.isInitialized);
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+
+            DataStorage.PLATFORM.ReadFile(filePath, callback);
+        }
+
         // ---------[ Platform I/O ]---------
         #if true // --- Standalone I/O ---
 
