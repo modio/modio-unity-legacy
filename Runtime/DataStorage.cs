@@ -131,6 +131,39 @@ namespace ModIO
             DataStorage.PLATFORM.WriteFile(filePath, data, callback);
         }
 
+        /// <summary>Writes a JSON file.</summary>
+        public static void WriteJSONFile<T>(string filePath, T jsonObject, WriteFileCallback callback)
+        {
+            Debug.Assert(jsonObject != null);
+
+            byte[] data = null;
+
+            try
+            {
+                string dataString = JsonConvert.SerializeObject(jsonObject);
+                data = Encoding.UTF8.GetBytes(dataString);
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed create JSON representation of object before writing file."
+                                      + "\nFile: " + filePath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+
+                data = null;
+            }
+
+            if(data != null)
+            {
+                DataStorage.WriteFile(filePath, data, callback);
+            }
+            else if(callback != null)
+            {
+                callback.Invoke(false, filePath);
+            }
+        }
+
         // ---------[ Platform I/O ]---------
         #if true // --- Standalone I/O ---
 
