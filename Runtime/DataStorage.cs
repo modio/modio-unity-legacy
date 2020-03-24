@@ -82,10 +82,6 @@ namespace ModIO
         // ---------[ Platform I/O ]---------
         #if true // --- Standalone I/O ---
 
-            /// <summary>Root Directory for the data storage.</summary>
-            public static readonly string ROOT_DIRECTORY = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                                                   "modio-" + PluginSettings.data.gameId);
-
             /// <summary>Returns the platform specific functions. (Standalone Application)</summary>
             public static PlatformFunctions GetPlatformFunctions_Standalone()
             {
@@ -102,17 +98,7 @@ namespace ModIO
             /// <summary>Initializes the data storage system. (Standalone Application)</summary>
             public static void Initialize_Standalone(InitializationCallback callback)
             {
-                DataStorage.isInitialized = true;
-
-                if(IOUtilities.CreateDirectory(DataStorage.ROOT_DIRECTORY))
-                {
-                    Debug.Log("[mod.io] DataStorage successfully initialized: " + DataStorage.ROOT_DIRECTORY);
-                }
-                else
-                {
-                    Debug.Log("[mod.io] DataStorage failed to create root directory on initialization: "
-                              + DataStorage.ROOT_DIRECTORY);
-                }
+                Debug.Log("[mod.io] DataStorage successfully initialized.");
 
                 DataStorage.isInitialized = true;
 
