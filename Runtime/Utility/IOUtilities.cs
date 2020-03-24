@@ -21,28 +21,6 @@ namespace ModIO
             return texture;
         }
 
-        /// <summary>Deletes a file.</summary>
-        public static bool DeleteFile(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            try
-            {
-                if(File.Exists(filePath)) { File.Delete(filePath); }
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to delete file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
-        }
-
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string directoryPath)
         {
@@ -431,5 +409,19 @@ namespace ModIO
             return success;
         }
 
+
+        /// <summary>[Obsolete] Deletes a file.</summary>
+        [Obsolete("Use DataStorage.DeleteFile() instead.")]
+        public static bool DeleteFile(string filePath)
+        {
+            bool success = false;
+
+            DataStorage.DeleteFile(filePath, (s,p) =>
+            {
+                success = s;
+            });
+
+            return success;
+        }
     }
 }
