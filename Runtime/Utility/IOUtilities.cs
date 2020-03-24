@@ -105,24 +105,15 @@ namespace ModIO
             return texture;
         }
 
-        /// <summary>Loads the image data from a file into a new Texture.</summary>
-        public static bool TryReadImageFile(string filePath, out Texture2D texture)
+        /// <summary>Parse data as image.</summary>
+        public static bool TryParseImageData(byte[] data, out Texture2D texture)
         {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            if(File.Exists(filePath))
+            if(data != null
+               && data.Length > 0)
             {
-                byte[] imageData;
-                bool readSuccessful = IOUtilities.TryLoadBinaryFile(filePath, out imageData);
-
-                if(readSuccessful
-                   && imageData != null
-                   && imageData.Length > 0)
-                {
-                    texture = new Texture2D(0,0);
-                    texture.LoadImage(imageData);
-                    return true;
-                }
+                texture = new Texture2D(0,0);
+                texture.LoadImage(data);
+                return true;
             }
 
             texture = null;
@@ -438,6 +429,25 @@ namespace ModIO
             });
 
             return data;
+        }
+
+        /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
+        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.TryParseImageData() instead.")]
+        public static bool TryReadImageFile(string filePath, out Texture2D texture)
+        {
+            Texture2D parsed = null;
+            bool success = false;
+
+            DataStorage.ReadFile(filePath, (s,d,p) =>
+            {
+                if(s)
+                {
+                    success = IOUtilities.TryParseImageData(d, out parsed);
+                }
+            });
+
+            texture = parsed;
+            return success;
         }
     }
 }
