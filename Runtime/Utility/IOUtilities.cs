@@ -35,30 +35,6 @@ namespace ModIO
             return false;
         }
 
-        /// <summary>Writes an entire binary file.</summary>
-        public static bool WriteBinaryFile(string filePath,
-                                           byte[] data)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllBytes(filePath, data);
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to write binary file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
-        }
-
         /// <summary>Parse data as image.</summary>
         public static Texture2D ParseImageData(byte[] data)
         {
@@ -444,6 +420,21 @@ namespace ModIO
             });
 
             jsonObject = parsed;
+            return success;
+        }
+
+        /// <summary>[Obsolete] Writes an entire binary file.</summary>
+        [Obsolete("User DataStorage.WriteFile() instead.")]
+        public static bool WriteBinaryFile(string filePath,
+                                           byte[] data)
+        {
+            bool success = false;
+
+            DataStorage.WriteFile(filePath, data, (s,p) =>
+            {
+                success = s;
+            });
+
             return success;
         }
     }
