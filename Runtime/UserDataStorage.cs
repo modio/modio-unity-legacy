@@ -673,13 +673,13 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
 
-                bool success = false;
-                success = IOUtilities.WriteBinaryFile(filePath, data);
-
-                if(callback != null)
+                DataStorage.WriteFile(filePath, data, (s,p) =>
                 {
-                    callback.Invoke(success);
-                }
+                    if(callback != null)
+                    {
+                        callback.Invoke(s);
+                    }
+                });
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
