@@ -18,7 +18,7 @@ namespace ModIO
         public delegate void InitializationCallback();
 
         /// <summary>Delegate for the read file callback.</summary>
-        public delegate void ReadFileCallback(bool success, byte[] data);
+        public delegate void ReadFileCallback(bool success, byte[] data, string filePath);
 
         /// <summary>Delegate for the read json file callback.</summary>
         public delegate void ReadJsonFileCallback<T>(bool success, T jsonObject);
@@ -135,7 +135,7 @@ namespace ModIO
                     }
                 }
 
-                callback.Invoke(success, data);
+                callback.Invoke(success, data, filePath);
             }
         #endif
     }
