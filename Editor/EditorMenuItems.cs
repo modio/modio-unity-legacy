@@ -55,10 +55,17 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
         {
-            if(IOUtilities.DeleteFile(CacheClient.gameProfileFilePath))
+            DataStorage.DeleteFile(CacheClient.gameProfileFilePath, (s,p) =>
             {
-                Debug.Log("[mod.io] Cached Game Data Deleted.");
-            }
+                if(s)
+                {
+                    Debug.Log("[mod.io] Cached Game Data Deleted.");
+                }
+                else
+                {
+                    Debug.Log("[mod.io] Failed to delete Cached Game Data.");
+                }
+            });
         }
         [MenuItem("Tools/mod.io/Debugging/Clear Mod Data", false)]
         public static void ClearCachedModData()
