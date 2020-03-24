@@ -71,16 +71,6 @@ namespace ModIO
             return false;
         }
 
-        /// <summary>Loads an entire binary file as a byte array.</summary>
-        public static byte[] LoadBinaryFile(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            byte[] fileData = null;
-            TryLoadBinaryFile(filePath, out fileData);
-            return fileData;
-        }
-
         /// <summary>Writes an entire binary file.</summary>
         public static bool WriteBinaryFile(string filePath,
                                            byte[] data)
@@ -434,6 +424,20 @@ namespace ModIO
 
             output = data;
             return success;
+        }
+
+        /// <summary>[Obsolete] Loads an entire binary file as a byte array.</summary>
+        [Obsolete("Use DataStorage.ReadFile() instead.")]
+        public static byte[] LoadBinaryFile(string filePath)
+        {
+            byte[] data = null;
+
+            DataStorage.ReadFile(filePath, (s, d, p) =>
+            {
+                data = d;
+            });
+
+            return data;
         }
     }
 }
