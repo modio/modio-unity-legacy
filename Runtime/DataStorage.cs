@@ -40,9 +40,6 @@ namespace ModIO
             /// <summary>Delegate for deleting a file.</summary>
             public delegate void DeleteFileDelegate(string filePath, DeleteFileCallback callback);
 
-            /// <summary>Delegate for clearing all data.</summary>
-            public delegate void ClearAllDataDelegate(WriteFileCallback callback);
-
             // --- Fields ---
             /// <summary>Delegate for reading a file.</summary>
             public ReadFileDelegate ReadFile;
@@ -52,9 +49,6 @@ namespace ModIO
 
             /// <summary>Delegate for deleting a file.</summary>
             public DeleteFileDelegate DeleteFile;
-
-            /// <summary>Delegate for clearing all data.</summary>
-            public ClearAllDataDelegate ClearAllData;
         }
 
         // ---------[ Constants ]---------
@@ -189,7 +183,6 @@ namespace ModIO
                     ReadFile = ReadFile_Standalone,
                     WriteFile = WriteFile_Standalone,
                     DeleteFile = DeleteFile_Standalone,
-                    // ClearAllData = ClearAllData_Standalone,
                 };
             }
 
@@ -280,6 +273,7 @@ namespace ModIO
                     callback.Invoke(success, filePath);
                 }
             }
+
         #endif
     }
 }
