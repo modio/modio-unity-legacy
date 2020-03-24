@@ -11,16 +11,6 @@ namespace ModIO
 {
     public static class IOUtilities
     {
-        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
-        public static T ReadJsonObjectFile<T>(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            T jsonObject;
-            TryReadJsonObjectFile(filePath, out jsonObject);
-            return jsonObject;
-        }
-
         /// <summary>Writes an object to a file in the JSON Object format.</summary>
         public static bool WriteJsonObjectFile<T>(string filePath,
                                                   T jsonObject)
@@ -426,7 +416,21 @@ namespace ModIO
             return success;
         }
 
-        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
+        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
+        [Obsolete("User DataStorage.ReadJSONFile() instead.")]
+        public static T ReadJsonObjectFile<T>(string filePath)
+        {
+            T parsed = default(T);
+
+            DataStorage.ReadJSONFile<T>(filePath, (s,o,p) =>
+            {
+                parsed = o;
+            });
+
+            return parsed;
+        }
+
+        /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
         [Obsolete("User DataStorage.ReadJSONFile() instead.")]
         public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
         {
