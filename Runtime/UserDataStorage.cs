@@ -612,7 +612,7 @@ namespace ModIO
 
         #else
 
-            /// <summary>Root directory for the </summary>
+            /// <summary>Root directory for the user-specific data.</summary>
             public static readonly string STANDALONE_USERS_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
                                                                                             "modio-" + PluginSettings.data.gameId,
                                                                                             "users");
