@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.IO;
 using System.Collections.Generic;
 
@@ -14,9 +15,6 @@ namespace ModIO
     public static class DataStorage
     {
         // ---------[ Nested Data-Types ]---------
-        /// <summary>Delegate for the initialization callback.</summary>
-        public delegate void InitializationCallback();
-
         /// <summary>Delegate for the read file callback.</summary>
         public delegate void ReadFileCallback(bool success, byte[] data, string filePath);
 
@@ -30,9 +28,6 @@ namespace ModIO
         public struct PlatformFunctions
         {
             // --- Delegates ---
-            /// <summary>Delegate for initializing the storage system.</summary>
-            public delegate void InitializationDelegate(InitializationCallback callback);
-
             /// <summary>Delegate for reading a file.</summary>
             public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
 
@@ -46,9 +41,6 @@ namespace ModIO
             public delegate void ClearAllDataDelegate(WriteFileCallback callback);
 
             // --- Fields ---
-            /// <summary>Delegate for initializing the storage system.</summary>
-            public InitializationDelegate Initialize;
-
             /// <summary>Delegate for reading a file.</summary>
             public ReadFileDelegate ReadFile;
 
@@ -66,10 +58,6 @@ namespace ModIO
         /// <summary>Defines the i/o functions to use for this platform.</summary>
         public static readonly PlatformFunctions PLATFORM;
 
-        // ---------[ Fields ]---------
-        /// <summary>Has DataStorage been initialized?</summary>
-        public static bool isInitialized = false;
-
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static DataStorage()
@@ -77,19 +65,13 @@ namespace ModIO
             #if true
                 DataStorage.PLATFORM = DataStorage.GetPlatformFunctions_Standalone();
             #endif
+
         }
 
         // ---------[ I/O Interface ]---------
-        /// <summary>Initializes the data storage system.</summary>
-        public static void Initialize(InitializationCallback callback)
-        {
-            DataStorage.PLATFORM.Initialize(callback);
-        }
-
         /// <summary>Reads a file.</summary>
         public static void ReadFile(string filePath, ReadFileCallback callback)
         {
-            Debug.Assert(DataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePath));
 
             DataStorage.PLATFORM.ReadFile(filePath, callback);
@@ -141,25 +123,11 @@ namespace ModIO
             {
                 return new PlatformFunctions()
                 {
-                    Initialize = Initialize_Standalone,
                     ReadFile = ReadFile_Standalone,
                     // WriteFile = WriteFile_Standalone,
                     // DeleteFile = DeleteFile_Standalone,
                     // ClearAllData = ClearAllData_Standalone,
                 };
-            }
-
-            /// <summary>Initializes the data storage system. (Standalone Application)</summary>
-            public static void Initialize_Standalone(InitializationCallback callback)
-            {
-                Debug.Log("[mod.io] DataStorage successfully initialized.");
-
-                DataStorage.isInitialized = true;
-
-                if(callback != null)
-                {
-                    callback.Invoke();
-                }
             }
 
             /// <summary>Reads a data file. (Standalone Application)</summary>
