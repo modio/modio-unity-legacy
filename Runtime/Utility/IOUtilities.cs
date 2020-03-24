@@ -45,20 +45,6 @@ namespace ModIO
             return texture;
         }
 
-        /// <summary>Writes a texture to a PNG file.</summary>
-        public static bool WritePNGFile(string filePath,
-                                        Texture2D texture)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            Debug.Assert(Path.GetExtension(filePath).Equals(".png"),
-                         "[mod.io] Images can only be saved in PNG format."
-                         + "\n" + filePath
-                         + " is an invalid file path.");
-
-            return IOUtilities.WriteBinaryFile(filePath, texture.EncodeToPNG());
-        }
-
         /// <summary>Deletes a file.</summary>
         public static bool DeleteFile(string filePath)
         {
@@ -393,7 +379,7 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
-        [Obsolete("User DataStorage.ReadJSONFile() instead.")]
+        [Obsolete("Use DataStorage.ReadJSONFile() instead.")]
         public static T ReadJsonObjectFile<T>(string filePath)
         {
             T parsed = default(T);
@@ -407,7 +393,7 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Reads an entire file and parses the JSON Object it contains.</summary>
-        [Obsolete("User DataStorage.ReadJSONFile() instead.")]
+        [Obsolete("Use DataStorage.ReadJSONFile() instead.")]
         public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
         {
             bool success = false;
@@ -424,9 +410,8 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Writes an entire binary file.</summary>
-        [Obsolete("User DataStorage.WriteFile() instead.")]
-        public static bool WriteBinaryFile(string filePath,
-                                           byte[] data)
+        [Obsolete("Use DataStorage.WriteFile() instead.")]
+        public static bool WriteBinaryFile(string filePath, byte[] data)
         {
             bool success = false;
 
@@ -434,6 +419,23 @@ namespace ModIO
             {
                 success = s;
             });
+
+            return success;
+        }
+
+        /// <summary>[Obsolete] Writes a texture to a PNG file.</summary>
+        [Obsolete("Use DataStorage.WriteFile() and Texture2D.EncodeToPNG() instead.")]
+        public static bool WritePNGFile(string filePath, Texture2D texture)
+        {
+            bool success = false;
+
+            if(texture != null)
+            {
+                DataStorage.WriteFile(filePath, texture.EncodeToPNG(), (s,p) =>
+                {
+                    success = s;
+                });
+            }
 
             return success;
         }
