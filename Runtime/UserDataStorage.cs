@@ -620,6 +620,8 @@ namespace ModIO
             {
                 return new PlatformFunctions()
                 {
+                    InitializeWithInt = InitializeForUser_Standalone,
+                    InitializeWithString = InitializeForUser_Standalone,
                     ReadFile = ReadFile_Standalone,
                     WriteFile = WriteFile_Standalone,
                     DeleteFile = DeleteFile_Standalone,
