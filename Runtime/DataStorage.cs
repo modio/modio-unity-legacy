@@ -77,7 +77,7 @@ namespace ModIO
             DataStorage.PLATFORM.ReadFile(filePath, callback);
         }
 
-        /// <summary>Reads a file and parses the data as a Json Object.</summary>
+        /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
         public static void ReadJSONFile<T>(string filePath, ReadJSONFileCallback<T> callback)
         {
             DataStorage.PLATFORM.ReadFile(filePath,
@@ -102,7 +102,7 @@ namespace ModIO
                     jsonObject = default(T);
                     success = false;
 
-                    string warningInfo = ("[mod.io] Failed to parse data as JSON Object."
+                    string warningInfo = ("[mod.io] Failed to parse data as JSON Object after reading file."
                                           + "\nFile: " + filePath
                                           + " [" + ValueFormatting.ByteCount(data.Length, string.Empty)
                                           + "]\n\n");
