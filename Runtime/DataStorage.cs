@@ -20,8 +20,8 @@ namespace ModIO
         /// <summary>Delegate for the read file callback.</summary>
         public delegate void ReadFileCallback(bool success, byte[] data, string filePath);
 
-        /// <summary>Delegate for the read json file callback.</summary>
-        public delegate void ReadJsonFileCallback<T>(bool success, T jsonObject);
+        /// <summary>Delegate for the read JSON file callback.</summary>
+        public delegate void ReadJSONFileCallback<T>(bool success, T jsonObject, string filePath);
 
         /// <summary>Delegate for write/delete file callbacks.</summary>
         public delegate void WriteFileCallback(bool success);
@@ -93,6 +93,44 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePath));
 
             DataStorage.PLATFORM.ReadFile(filePath, callback);
+        }
+
+        /// <summary>Reads a file and parses the data as a Json Object.</summary>
+        public static void ReadJSONFile<T>(string filePath, ReadJSONFileCallback<T> callback)
+        {
+            DataStorage.PLATFORM.ReadFile(filePath,
+                                          (s,d,p) => DataStorage.ParseJSONFile<T>(s,d,p,callback));
+        }
+
+        /// <summary>Completes the ReadJSONFile call.</summary>
+        private static void ParseJSONFile<T>(bool success, byte[] data, string filePath,
+                                             ReadJSONFileCallback<T> callback)
+        {
+            T jsonObject = default(T);
+
+            if(success)
+            {
+                try
+                {
+                    string dataString = Encoding.UTF8.GetString(data);
+                    jsonObject = JsonConvert.DeserializeObject<T>(dataString);
+                }
+                catch(Exception e)
+                {
+                    jsonObject = default(T);
+                    success = false;
+
+                    string warningInfo = ("[mod.io] Failed to parse data as JSON Object."
+                                          + "\nFile: " + filePath
+                                          + " [" + ValueFormatting.ByteCount(data.Length, string.Empty)
+                                          + "]\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+
+            callback.Invoke(success, jsonObject, filePath);
         }
 
         // ---------[ Platform I/O ]---------
