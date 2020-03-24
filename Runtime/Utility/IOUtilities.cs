@@ -21,32 +21,6 @@ namespace ModIO
             return jsonObject;
         }
 
-        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
-        public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            if(File.Exists(filePath))
-            {
-                try
-                {
-                    jsonObject = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath));
-                    return true;
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("[mod.io] Failed to read json object from file."
-                                          + "\nFile: " + filePath + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-                }
-            }
-
-            jsonObject = default(T);
-            return false;
-        }
-
         /// <summary>Writes an object to a file in the JSON Object format.</summary>
         public static bool WriteJsonObjectFile<T>(string filePath,
                                                   T jsonObject)
@@ -449,6 +423,23 @@ namespace ModIO
             });
 
             texture = parsed;
+            return success;
+        }
+
+        /// <summary>Reads an entire file and parses the JSON Object it contains.</summary>
+        [Obsolete("User DataStorage.ReadJSONFile() instead.")]
+        public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
+        {
+            bool success = false;
+            T parsed = default(T);
+
+            DataStorage.ReadJSONFile<T>(filePath, (s,o,p) =>
+            {
+                success = s;
+                parsed = o;
+            });
+
+            jsonObject = parsed;
             return success;
         }
     }
