@@ -113,11 +113,10 @@ namespace ModIO.EditorCode
                    && !String.IsNullOrEmpty(imageURL))
                 {
                     GalleryImageLocator imageLocator = baseProfile.media.GetGalleryImageWithFileName(imageFileName);
+                    this.textureCache[imageFileName] = EditorImages.LoadingPlaceholder;
 
                     if(imageLocator != null)
                     {
-                        this.textureCache[imageFileName] = EditorImages.LoadingPlaceholder;
-
                         ModManager.GetModGalleryImage(baseProfile.id,
                                                       imageLocator,
                                                       IMAGE_PREVIEW_SIZE,
@@ -126,7 +125,13 @@ namespace ModIO.EditorCode
                     }
                     else
                     {
-                        this.textureCache[imageFileName] = IOUtilities.ReadImageFile(imageURL);
+                        DataStorage.ReadFile(imageURL, (s,d,p) =>
+                        {
+                            if(s)
+                            {
+                                this.textureCache[imageFileName] = IOUtilities.ParseImageData(d);
+                            }
+                        });
                     }
                 }
             }
@@ -239,7 +244,13 @@ namespace ModIO.EditorCode
                     string path = EditorUtility.OpenFilePanelWithFilters("Select Gallery Image",
                                                                          "",
                                                                          ModMediaViewPart.IMAGE_FILE_FILTER);
-                    Texture2D newTexture = IOUtilities.ReadImageFile(path);
+
+                    Texture2D newTexture = null;
+
+                    DataStorage.ReadFile(path, (s,d,p) =>
+                    {
+                        if(s) { newTexture = IOUtilities.ParseImageData(d); }
+                    });
 
                     if(newTexture != null)
                     {
@@ -303,7 +314,14 @@ namespace ModIO.EditorCode
             else
             {
                 string imageSource = GetGalleryImageSource(index);
-                this.textureCache.Add(imageFileName, IOUtilities.ReadImageFile(imageSource));
+                Texture2D imageData = null;
+
+                DataStorage.ReadFile(imageSource, (s,d,p) =>
+                {
+                    if(s) { imageData = IOUtilities.ParseImageData(d); }
+                });
+
+                this.textureCache.Add(imageFileName, imageData);
 
                 return this.textureCache[imageFileName];
             }
