@@ -95,16 +95,6 @@ namespace ModIO
             return false;
         }
 
-        /// <summary>Loads the image data from a file into a new Texture.</summary>
-        public static Texture2D ReadImageFile(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            Texture2D texture = null;
-            TryReadImageFile(filePath, out texture);
-            return texture;
-        }
-
         /// <summary>Parse data as image.</summary>
         public static bool TryParseImageData(byte[] data, out Texture2D texture)
         {
@@ -429,6 +419,23 @@ namespace ModIO
             });
 
             return data;
+        }
+
+        /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
+        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.TryParseImageData() instead.")]
+        public static Texture2D ReadImageFile(string filePath)
+        {
+            Texture2D parsed = null;
+
+            DataStorage.ReadFile(filePath, (s,d,p) =>
+            {
+                if(s)
+                {
+                    IOUtilities.TryParseImageData(d, out parsed);
+                }
+            });
+
+            return parsed;
         }
 
         /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
