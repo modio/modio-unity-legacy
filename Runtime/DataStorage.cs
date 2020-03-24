@@ -24,6 +24,9 @@ namespace ModIO
         /// <summary>Delegate for write/delete file callbacks.</summary>
         public delegate void WriteFileCallback(bool success, string filePath);
 
+        /// <summary>Delegate for write/delete file callbacks.</summary>
+        public delegate void DeleteFileCallback(bool success, string filePath);
+
         /// <summary>The collection of platform specific functions.</summary>
         public struct PlatformFunctions
         {
@@ -35,7 +38,7 @@ namespace ModIO
             public delegate void WriteFileDelegate(string filePath, byte[] data, WriteFileCallback callback);
 
             /// <summary>Delegate for deleting a file.</summary>
-            public delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
+            public delegate void DeleteFileDelegate(string filePath, DeleteFileCallback callback);
 
             /// <summary>Delegate for clearing all data.</summary>
             public delegate void ClearAllDataDelegate(WriteFileCallback callback);
@@ -66,6 +69,9 @@ namespace ModIO
                 DataStorage.PLATFORM = DataStorage.GetPlatformFunctions_Standalone();
             #endif
 
+            Debug.Assert(DataStorage.PLATFORM.ReadFile != null);
+            Debug.Assert(DataStorage.PLATFORM.WriteFile != null);
+            Debug.Assert(DataStorage.PLATFORM.DeleteFile != null);
         }
 
         // ---------[ I/O Interface ]---------
@@ -164,6 +170,14 @@ namespace ModIO
             }
         }
 
+        /// <summary>Deletes a file.</summary>
+        public static void DeleteFile(string filePath, DeleteFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+
+            DataStorage.PLATFORM.DeleteFile(filePath, callback);
+        }
+
         // ---------[ Platform I/O ]---------
         #if true // --- Standalone I/O ---
 
@@ -174,12 +188,12 @@ namespace ModIO
                 {
                     ReadFile = ReadFile_Standalone,
                     WriteFile = WriteFile_Standalone,
-                    // DeleteFile = DeleteFile_Standalone,
+                    DeleteFile = DeleteFile_Standalone,
                     // ClearAllData = ClearAllData_Standalone,
                 };
             }
 
-            /// <summary>Reads a data file. (Standalone Application)</summary>
+            /// <summary>Reads a file. (Standalone Application)</summary>
             public static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
@@ -209,7 +223,7 @@ namespace ModIO
                 callback.Invoke(success, data, filePath);
             }
 
-            /// <summary>Writes a data file. (Standalone Application)</summary>
+            /// <summary>Writes a file. (Standalone Application)</summary>
             public static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
@@ -226,6 +240,36 @@ namespace ModIO
                 catch(Exception e)
                 {
                     string warningInfo = ("[mod.io] Failed to write file.\nFile: " + filePath + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+
+                if(callback != null)
+                {
+                    callback.Invoke(success, filePath);
+                }
+            }
+
+            /// <summary>Deletes a file. (Standalone Application)</summary>
+            public static void DeleteFile_Standalone(string filePath, DeleteFileCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
+
+                bool success = false;
+                try
+                {
+                    if(File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                    success = true;
+                }
+                catch(Exception e)
+                {
+                    success = false;
+
+                    string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + filePath + "\n\n");
 
                     Debug.LogWarning(warningInfo
                                      + Utility.GenerateExceptionDebugString(e));
