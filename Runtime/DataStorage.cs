@@ -22,7 +22,7 @@ namespace ModIO
         public delegate void ReadJSONFileCallback<T>(bool success, T jsonObject, string filePath);
 
         /// <summary>Delegate for write/delete file callbacks.</summary>
-        public delegate void WriteFileCallback(bool success);
+        public delegate void WriteFileCallback(bool success, string filePath);
 
         /// <summary>The collection of platform specific functions.</summary>
         public struct PlatformFunctions
@@ -32,7 +32,7 @@ namespace ModIO
             public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
 
             /// <summary>Delegate for writing a file.</summary>
-            public delegate void WriteFileDelegate(string filePath, byte[] fileData, WriteFileCallback callback);
+            public delegate void WriteFileDelegate(string filePath, byte[] data, WriteFileCallback callback);
 
             /// <summary>Delegate for deleting a file.</summary>
             public delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
@@ -115,6 +115,22 @@ namespace ModIO
             callback.Invoke(success, jsonObject, filePath);
         }
 
+        /// <summary>Writes a file.</summary>
+        public static void WriteFile(string filePath, byte[] data, WriteFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            Debug.Assert(data != null);
+
+            #if DEBUG
+            if(data.Length == 0)
+            {
+                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + filePath);
+            }
+            #endif // DEBUG
+
+            DataStorage.PLATFORM.WriteFile(filePath, data, callback);
+        }
+
         // ---------[ Platform I/O ]---------
         #if true // --- Standalone I/O ---
 
@@ -124,7 +140,7 @@ namespace ModIO
                 return new PlatformFunctions()
                 {
                     ReadFile = ReadFile_Standalone,
-                    // WriteFile = WriteFile_Standalone,
+                    WriteFile = WriteFile_Standalone,
                     // DeleteFile = DeleteFile_Standalone,
                     // ClearAllData = ClearAllData_Standalone,
                 };
@@ -136,8 +152,8 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
 
-                byte[] data = null;
                 bool success = false;
+                byte[] data = null;
 
                 if(File.Exists(filePath))
                 {
@@ -158,6 +174,34 @@ namespace ModIO
                 }
 
                 callback.Invoke(success, data, filePath);
+            }
+
+            /// <summary>Writes a data file. (Standalone Application)</summary>
+            public static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(data != null);
+
+                bool success = false;
+
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                    File.WriteAllBytes(filePath, data);
+                    success = true;
+                }
+                catch(Exception e)
+                {
+                    string warningInfo = ("[mod.io] Failed to write file.\nFile: " + filePath + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+
+                if(callback != null)
+                {
+                    callback.Invoke(success, filePath);
+                }
             }
         #endif
     }
