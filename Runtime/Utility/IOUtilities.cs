@@ -11,30 +11,6 @@ namespace ModIO
 {
     public static class IOUtilities
     {
-        /// <summary>Writes an object to a file in the JSON Object format.</summary>
-        public static bool WriteJsonObjectFile<T>(string filePath,
-                                                  T jsonObject)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllText(filePath, JsonConvert.SerializeObject(jsonObject));
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to write json object to file."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
-        }
-
         /// <summary>Parse data as image.</summary>
         public static Texture2D ParseImageData(byte[] data)
         {
@@ -439,5 +415,21 @@ namespace ModIO
 
             return success;
         }
+
+        /// <summary>[Obsolete] Writes an object to a file in the JSON Object format.</summary>
+        [Obsolete("Use DataStorage.WriteJSONFile() instead.")]
+        public static bool WriteJsonObjectFile<T>(string filePath,
+                                                  T jsonObject)
+        {
+            bool success = false;
+
+            DataStorage.WriteJSONFile<T>(filePath, jsonObject, (s,p) =>
+            {
+                success = s;
+            });
+
+            return success;
+        }
+
     }
 }
