@@ -62,10 +62,9 @@ namespace ModIO
 
                 ModManager.m_data = data;
 
-                IOUtilities.WriteJsonObjectFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
+                DataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
             });
         }
-
 
         // ---------[ MOD MANAGEMENT ]---------
         /// <summary>Generates the path for a given modfile install directory.</summary>
