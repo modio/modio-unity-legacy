@@ -311,9 +311,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
 
-                byte[] data = null;
-                data = IOUtilities.LoadBinaryFile(filePath);
-                callback.Invoke(true, data);
+                DataStorage.ReadFile(filePath, (s,d,p) => callback.Invoke(s,d));
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
@@ -664,9 +662,7 @@ namespace ModIO
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
 
-                byte[] data = null;
-                data = IOUtilities.LoadBinaryFile(filePath);
-                callback.Invoke(true, data);
+                DataStorage.ReadFile(filePath, (s,d,p) => callback.Invoke(s,d));
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
