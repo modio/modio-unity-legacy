@@ -70,7 +70,7 @@ namespace ModIO
         /// <summary>Has DataStorage been initialized?</summary>
         public static bool isInitialized = false;
 
-        // ---------[ INITIALIZATION ]---------
+        // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static DataStorage()
         {
@@ -91,8 +91,8 @@ namespace ModIO
             {
                 return new PlatformFunctions()
                 {
-                    Initialize = Initialize_Standalone
-                    // ReadFile = ReadFile_Standalone,
+                    Initialize = Initialize_Standalone,
+                    ReadFile = ReadFile_Standalone,
                     // WriteFile = WriteFile_Standalone,
                     // DeleteFile = DeleteFile_Standalone,
                     // ClearAllData = ClearAllData_Standalone,
@@ -120,6 +120,36 @@ namespace ModIO
                 {
                     callback.Invoke();
                 }
+            }
+
+            /// <summary>Reads a data file. (Standalone Application)</summary>
+            public static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
+
+                byte[] data = null;
+                bool success = false;
+
+                if(File.Exists(filePath))
+                {
+                    try
+                    {
+                        data = File.ReadAllBytes(filePath);
+                        success = true;
+                    }
+                    catch(Exception e)
+                    {
+                        data = null;
+
+                        string warningInfo = ("[mod.io] Failed to read file.\nFile: " + filePath + "\n\n");
+
+                        Debug.LogWarning(warningInfo
+                                         + Utility.GenerateExceptionDebugString(e));
+                    }
+                }
+
+                callback.Invoke(success, data);
             }
         #endif
     }
