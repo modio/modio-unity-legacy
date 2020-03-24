@@ -21,11 +21,11 @@ namespace ModIO
         /// <summary>Delegate for the read JSON file callback.</summary>
         public delegate void ReadJSONFileCallback<T>(bool success, T jsonObject, string filePath);
 
-        /// <summary>Delegate for write/delete file callbacks.</summary>
+        /// <summary>Delegate for write file callbacks.</summary>
         public delegate void WriteFileCallback(bool success, string filePath);
 
-        /// <summary>Delegate for write/delete file callbacks.</summary>
-        public delegate void DeleteFileCallback(bool success, string filePath);
+        /// <summary>Delegate for delete-at-location callbacks.</summary>
+        public delegate void DeleteCallback(bool success, string path);
 
         /// <summary>The collection of platform specific functions.</summary>
         public struct PlatformFunctions
@@ -38,7 +38,10 @@ namespace ModIO
             public delegate void WriteFileDelegate(string filePath, byte[] data, WriteFileCallback callback);
 
             /// <summary>Delegate for deleting a file.</summary>
-            public delegate void DeleteFileDelegate(string filePath, DeleteFileCallback callback);
+            public delegate void DeleteFileDelegate(string filePath, DeleteCallback callback);
+
+            /// <summary>Delegate for deleting a file.</summary>
+            public delegate void DeleteDirectoryDelegate(string directoryPath, DeleteCallback callback);
 
             // --- Fields ---
             /// <summary>Delegate for reading a file.</summary>
@@ -49,6 +52,9 @@ namespace ModIO
 
             /// <summary>Delegate for deleting a file.</summary>
             public DeleteFileDelegate DeleteFile;
+
+            /// <summary>Delegate for deleting a directory.</summary>
+            public DeleteDirectoryDelegate DeleteDirectory;
         }
 
         // ---------[ Constants ]---------
@@ -165,11 +171,19 @@ namespace ModIO
         }
 
         /// <summary>Deletes a file.</summary>
-        public static void DeleteFile(string filePath, DeleteFileCallback callback)
+        public static void DeleteFile(string filePath, DeleteCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePath));
 
             DataStorage.PLATFORM.DeleteFile(filePath, callback);
+        }
+
+        /// <summary>Deletes a directory.</summary>
+        public static void DeleteDirectory(string directoryPath, DeleteCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+
+            DataStorage.PLATFORM.DeleteDirectory(directoryPath, callback);
         }
 
         // ---------[ Platform I/O ]---------
@@ -183,6 +197,7 @@ namespace ModIO
                     ReadFile = ReadFile_Standalone,
                     WriteFile = WriteFile_Standalone,
                     DeleteFile = DeleteFile_Standalone,
+                    DeleteDirectory = DeleteDirectory_Standalone,
                 };
             }
 
@@ -245,7 +260,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a file. (Standalone Application)</summary>
-            public static void DeleteFile_Standalone(string filePath, DeleteFileCallback callback)
+            public static void DeleteFile_Standalone(string filePath, DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -271,6 +286,36 @@ namespace ModIO
                 if(callback != null)
                 {
                     callback.Invoke(success, filePath);
+                }
+            }
+
+            /// <summary>Deletes a directory. (Standalone Application)</summary>
+            public static void DeleteDirectory_Standalone(string directoryPath, DeleteCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+
+                bool success = false;
+                try
+                {
+                    if(Directory.Exists(directoryPath))
+                    {
+                        Directory.Delete(directoryPath, true);
+                    }
+                    success = true;
+                }
+                catch(Exception e)
+                {
+                    success = false;
+
+                    string warningInfo = ("[mod.io] Failed to delete directory.\nDirectory: " + directoryPath + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+
+                if(callback != null)
+                {
+                    callback.Invoke(success, directoryPath);
                 }
             }
 
