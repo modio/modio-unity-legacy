@@ -96,18 +96,13 @@ namespace ModIO
         }
 
         /// <summary>Parse data as image.</summary>
-        public static bool TryParseImageData(byte[] data, out Texture2D texture)
+        public static Texture2D ParseImageData(byte[] data)
         {
-            if(data != null
-               && data.Length > 0)
-            {
-                texture = new Texture2D(0,0);
-                texture.LoadImage(data);
-                return true;
-            }
+            if(data == null || data.Length > 0) { return null; }
 
-            texture = null;
-            return false;
+            Texture2D texture = new Texture2D(0,0);
+            texture.LoadImage(data);
+            return texture;
         }
 
         /// <summary>Writes a texture to a PNG file.</summary>
@@ -422,7 +417,7 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.TryParseImageData() instead.")]
+        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
         public static Texture2D ReadImageFile(string filePath)
         {
             Texture2D parsed = null;
@@ -431,7 +426,7 @@ namespace ModIO
             {
                 if(s)
                 {
-                    IOUtilities.TryParseImageData(d, out parsed);
+                    parsed = IOUtilities.ParseImageData(d);
                 }
             });
 
@@ -439,7 +434,7 @@ namespace ModIO
         }
 
         /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.TryParseImageData() instead.")]
+        [Obsolete("Use DataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
         public static bool TryReadImageFile(string filePath, out Texture2D texture)
         {
             Texture2D parsed = null;
@@ -449,7 +444,7 @@ namespace ModIO
             {
                 if(s)
                 {
-                    success = IOUtilities.TryParseImageData(d, out parsed);
+                    parsed = IOUtilities.ParseImageData(d);
                 }
             });
 
