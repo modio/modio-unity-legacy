@@ -31,6 +31,9 @@ namespace ModIO
         /// <summary>Delegate for GetFileSize callback.</summary>
         public delegate void GetFileSizeCallback(string path, Int64 byteCount);
 
+        /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
+        public delegate void GetFileSizeAndHashCallback(string path, Int64 byteCount, string md5Hash);
+
         // --- I/O Functions ---
         /// <summary>Delegate for reading a file.</summary>
         public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
@@ -46,6 +49,9 @@ namespace ModIO
 
         /// <summary>Delegate for getting a file's size.</summary>
         public delegate void GetFileSizeDelegate(string filePath, GetFileSizeCallback callback);
+
+        /// <summary>Delegate for getting a file's size and md5 hash.</summary>
+        public delegate void GetFileSizeAndHashDelegate(string filePath, GetFileSizeAndHashCallback callback);
 
         // --- Platform Functions ---
         /// <summary>The collection of platform specific functions.</summary>
@@ -66,6 +72,9 @@ namespace ModIO
 
             /// <summary>Delegate for getting a file's size.</summary>
             public GetFileSizeDelegate GetFileSize;
+
+            /// <summary>Delegate for getting a file's size and md5 hash.</summary>
+            public GetFileSizeAndHashDelegate GetFileSizeAndHash;
         }
 
         // ---------[ Constants ]---------
@@ -84,6 +93,7 @@ namespace ModIO
             Debug.Assert(DataStorage.PLATFORM.WriteFile != null);
             Debug.Assert(DataStorage.PLATFORM.DeleteFile != null);
             Debug.Assert(DataStorage.PLATFORM.GetFileSize != null);
+            Debug.Assert(DataStorage.PLATFORM.GetFileSizeAndHash != null);
         }
 
         // ---------[ I/O Interface ]---------
@@ -176,6 +186,14 @@ namespace ModIO
             DataStorage.PLATFORM.GetFileSize(filePath, callback);
         }
 
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        public static void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+
+            DataStorage.PLATFORM.GetFileSizeAndHash(filePath, callback);
+        }
+
         // ---------[ Platform I/O ]---------
         #if true // --- Standalone I/O ---
 
@@ -189,6 +207,7 @@ namespace ModIO
                     DeleteFile = DeleteFile_Standalone,
                     DeleteDirectory = DeleteDirectory_Standalone,
                     GetFileSize = GetFileSize_Standalone,
+                    GetFileSizeAndHash = GetFileSizeAndHash_Standalone,
                 };
             }
 
@@ -316,24 +335,73 @@ namespace ModIO
                 Debug.Assert(!String.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
 
-                Debug.Assert(File.Exists(filePath));
-
                 Int64 byteCount = -1;
 
-                try
+                if(File.Exists(filePath))
                 {
-                    byteCount = (new FileInfo(filePath)).Length;
-                }
-                catch(Exception e)
-                {
-                    byteCount = -1;
+                    try
+                    {
+                        byteCount = (new FileInfo(filePath)).Length;
+                    }
+                    catch(Exception e)
+                    {
+                        byteCount = -1;
 
-                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
+                        string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
 
-                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                        Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                    }
                 }
 
                 callback.Invoke(filePath, byteCount);
+            }
+
+            /// <summary>Gets the size and md5 hash of a file.</summary>
+            public static void GetFileSizeAndHash_Standalone(string filePath, GetFileSizeAndHashCallback callback)
+            {
+                Debug.Assert(!String.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
+
+                Int64 byteCount = -1;
+                string hashString = null;
+
+                if(File.Exists(filePath))
+                {
+                    try
+                    {
+                        byteCount = (new FileInfo(filePath)).Length;
+                    }
+                    catch(Exception e)
+                    {
+                        byteCount = -1;
+
+                        string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
+
+                        Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                    }
+
+                    try
+                    {
+                        using (var md5 = System.Security.Cryptography.MD5.Create())
+                        {
+                            using (var stream = File.OpenRead(filePath))
+                            {
+                                var hash = md5.ComputeHash(stream);
+                                hashString = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                            }
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        hashString = null;
+
+                        string warningInfo = ("[mod.io] Failed to calculate file hash.\nFile: " + filePath + "\n\n");
+
+                        Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                    }
+                }
+
+                callback.Invoke(filePath, byteCount, hashString);
             }
 
         #endif
