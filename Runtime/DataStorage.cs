@@ -98,39 +98,23 @@ namespace ModIO
         /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
         public static void ReadJSONFile<T>(string filePath, ReadJSONFileCallback<T> callback)
         {
-            DataStorage.PLATFORM.ReadFile(filePath,
-                                          (s,d,p) => DataStorage.ParseJSONFile<T>(s,d,p,callback));
-        }
+            Debug.Assert(callback != null);
 
-        /// <summary>Completes the ReadJSONFile call.</summary>
-        private static void ParseJSONFile<T>(bool success, byte[] data, string filePath,
-                                             ReadJSONFileCallback<T> callback)
-        {
-            T jsonObject = default(T);
-
-            if(success)
+            DataStorage.PLATFORM.ReadFile(filePath, (success, data, path) =>
             {
-                try
+                T jsonObject;
+
+                if(success)
                 {
-                    string dataString = Encoding.UTF8.GetString(data);
-                    jsonObject = JsonConvert.DeserializeObject<T>(dataString);
+                    success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
                 }
-                catch(Exception e)
+                else
                 {
                     jsonObject = default(T);
-                    success = false;
-
-                    string warningInfo = ("[mod.io] Failed to parse data as JSON Object after reading file."
-                                          + "\nFile: " + filePath
-                                          + " [" + ValueFormatting.ByteCount(data.Length, string.Empty)
-                                          + "]\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
                 }
-            }
 
-            callback.Invoke(success, jsonObject, filePath);
+                callback.Invoke(success, jsonObject, path);
+            });
         }
 
         /// <summary>Writes a file.</summary>
