@@ -15,6 +15,7 @@ namespace ModIO
     public static class DataStorage
     {
         // ---------[ Nested Data-Types ]---------
+        // --- Callbacks ---
         /// <summary>Delegate for ReadFile callback.</summary>
         public delegate void ReadFileCallback(bool success, byte[] data, string filePath);
 
@@ -27,28 +28,29 @@ namespace ModIO
         /// <summary>Delegate for DeleteFile/Directory callbacks.</summary>
         public delegate void DeleteCallback(bool success, string path);
 
-        /// <summary>Delegate for file size callback.</summary>
+        /// <summary>Delegate for GetFileSize callback.</summary>
         public delegate void GetFileSizeCallback(Int64 byteCount, string filePath);
 
+        // --- I/O Functions ---
+        /// <summary>Delegate for reading a file.</summary>
+        public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
+
+        /// <summary>Delegate for writing a file.</summary>
+        public delegate void WriteFileDelegate(string filePath, byte[] data, WriteFileCallback callback);
+
+        /// <summary>Delegate for deleting a file.</summary>
+        public delegate void DeleteFileDelegate(string filePath, DeleteCallback callback);
+
+        /// <summary>Delegate for deleting a file.</summary>
+        public delegate void DeleteDirectoryDelegate(string directoryPath, DeleteCallback callback);
+
+        /// <summary>Delegate for getting a file's size.</summary>
+        public delegate void GetFileSizeDelegate(string filePath, GetFileSizeCallback callback);
+
+        // --- Platform Functions ---
         /// <summary>The collection of platform specific functions.</summary>
         public struct PlatformFunctions
         {
-            // --- Delegates ---
-            /// <summary>Delegate for reading a file.</summary>
-            public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
-
-            /// <summary>Delegate for writing a file.</summary>
-            public delegate void WriteFileDelegate(string filePath, byte[] data, WriteFileCallback callback);
-
-            /// <summary>Delegate for deleting a file.</summary>
-            public delegate void DeleteFileDelegate(string filePath, DeleteCallback callback);
-
-            /// <summary>Delegate for deleting a file.</summary>
-            public delegate void DeleteDirectoryDelegate(string directoryPath, DeleteCallback callback);
-
-            /// <summary>Delegate for getting a file's size.</summary>
-            public delegate void GetFileSizeDelegate(string filePath, GetFileSizeCallback callback);
-
             // --- Fields ---
             /// <summary>Delegate for reading a file.</summary>
             public ReadFileDelegate ReadFile;
