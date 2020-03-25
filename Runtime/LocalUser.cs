@@ -191,7 +191,7 @@ namespace ModIO
 
             LocalUser.isLoaded = false;
 
-            UserDataStorage.TryReadJSONFile<LocalUser>(LocalUser.FILENAME, (success, fileData) =>
+            UserDataStorage.TryReadJSONFile<LocalUser>(LocalUser.FILENAME, (success, fileData, path) =>
             {
                 LocalUser.AssertListsNotNull(ref fileData);
 

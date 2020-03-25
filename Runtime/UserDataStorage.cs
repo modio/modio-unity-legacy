@@ -19,9 +19,6 @@ namespace ModIO
         /// <summary>Delegate for the initialization callback.</summary>
         public delegate void InitializationCallback();
 
-        /// <summary>Delegate for the read json file callback.</summary>
-        public delegate void ReadJsonFileCallback<T>(bool success, T jsonObject);
-
         /// <summary>Delegate for write/delete file callbacks.</summary>
         public delegate void WriteFileCallback(bool success);
 
@@ -109,7 +106,7 @@ namespace ModIO
 
         // ---------[ IO FUNCTIONS ]---------
         /// <summary>Function used to read a user data file.</summary>
-        public static void TryReadJSONFile<T>(string filePathRelative, ReadJsonFileCallback<T> callback)
+        public static void TryReadJSONFile<T>(string filePathRelative, DataStorage.ReadJSONFileCallback<T> callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -121,14 +118,14 @@ namespace ModIO
 
                 if(success)
                 {
-                    success = UserDataStorage.TryParseJSONFile(fileData, out jsonObject);
+                    success = IOUtilities.TryParseUTF8JSONData(fileData, out jsonObject);
                 }
                 else
                 {
                     jsonObject = default(T);
                 }
 
-                callback(success, jsonObject);
+                callback(success, jsonObject, path);
             });
         }
 
@@ -167,35 +164,6 @@ namespace ModIO
                                  + Utility.GenerateExceptionDebugString(e));
 
                 fileData = new byte[0];
-                return false;
-            }
-        }
-
-        /// <summary>Parses user data file.</summary>
-        public static bool TryParseJSONFile<T>(byte[] fileData, out T jsonObject)
-        {
-            // early out
-            if(fileData == null || fileData.Length == 0)
-            {
-                jsonObject = default(T);
-                return false;
-            }
-
-            // attempt to parse data
-            try
-            {
-                string dataString = Encoding.UTF8.GetString(fileData);
-                jsonObject = JsonConvert.DeserializeObject<T>(dataString);
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to parse user data from file.");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                jsonObject = default(T);
                 return false;
             }
         }
