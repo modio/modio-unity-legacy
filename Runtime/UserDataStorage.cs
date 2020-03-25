@@ -19,9 +19,6 @@ namespace ModIO
         /// <summary>Delegate for the initialization callback.</summary>
         public delegate void InitializationCallback();
 
-        /// <summary>Delegate for write/delete file callbacks.</summary>
-        public delegate void WriteFileCallback(bool success);
-
         /// <summary>Delegate for the ClearAllData callback.</summary>
         public delegate void ClearAllDataCallback(bool success);
 
@@ -130,7 +127,7 @@ namespace ModIO
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static void TryWriteJSONFile<T>(string filePathRelative, T jsonObject, WriteFileCallback callback)
+        public static void TryWriteJSONFile<T>(string filePathRelative, T jsonObject, DataStorage.WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -138,11 +135,11 @@ namespace ModIO
             byte[] fileData = null;
             if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
             {
-                UserDataStorage.WriteFile(filePathRelative, fileData, (s,p) => { if(callback != null) callback.Invoke(s); });
+                UserDataStorage.WriteFile(filePathRelative, fileData, callback);
             }
             else if(callback != null)
             {
-                callback.Invoke(false);
+                callback.Invoke(false, null);
             }
         }
 
