@@ -49,6 +49,26 @@ namespace ModIO
             return success;
         }
 
+        /// <summary>Generates the byte array for a JSON representation.</summary>
+        public static byte[] GenerateUTF8JSONData<T>(T jsonObject)
+        {
+            Debug.Assert(jsonObject != null);
+
+            byte[] data = null;
+
+            try
+            {
+                string dataString = JsonConvert.SerializeObject(jsonObject);
+                data = Encoding.UTF8.GetBytes(dataString);
+            }
+            catch
+            {
+                data = null;
+            }
+
+            return data;
+        }
+
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string directoryPath)
         {
