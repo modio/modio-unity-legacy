@@ -21,6 +21,33 @@ namespace ModIO
             return texture;
         }
 
+        /// <summary>Attempts to parse the data of a JSON file.</summary>
+        public static bool TryParseUTF8JSONData<T>(byte[] data, out T jsonObject)
+        {
+            bool success = false;
+
+            if(data != null)
+            {
+                try
+                {
+                    string dataString = Encoding.UTF8.GetString(data);
+                    jsonObject = JsonConvert.DeserializeObject<T>(dataString);
+                    success = true;
+                }
+                catch
+                {
+                    jsonObject = default(T);
+                    success = false;
+                }
+            }
+            else
+            {
+                jsonObject = default(T);
+            }
+
+            return success;
+        }
+
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string directoryPath)
         {
