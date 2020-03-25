@@ -410,8 +410,10 @@ namespace ModIO
         {
             var debugString = new System.Text.StringBuilder();
 
-            string headerString = (this.webRequest == null ? "REQUEST FAILED LOCALLY"
-                                   : "WEB REQUEST FAILED");
+            string headerString = "[mod.io] ";
+            debugString.AppendLine(this.webRequest == null
+                                   ? "Web request failed locally"
+                                   : "Web request failed");
             debugString.AppendLine(headerString);
 
             if(this.webRequest != null)
