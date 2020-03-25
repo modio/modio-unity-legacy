@@ -43,32 +43,6 @@ namespace ModIO
             return false;
         }
 
-        /// <summary>Deletes a directory.</summary>
-        public static bool DeleteDirectory(string directoryPath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(directoryPath));
-
-            try
-            {
-                if(Directory.Exists(directoryPath))
-                {
-                    Directory.Delete(directoryPath, true);
-                }
-
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to delete directory."
-                                      + "\nDirectory: " + directoryPath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
-        }
-
         /// <summary>Creates a path using System.IO.Path.Combine().</summary>
         public static string CombinePath(params string[] pathElements)
         {
@@ -409,7 +383,6 @@ namespace ModIO
             return success;
         }
 
-
         /// <summary>[Obsolete] Deletes a file.</summary>
         [Obsolete("Use DataStorage.DeleteFile() instead.")]
         public static bool DeleteFile(string filePath)
@@ -417,6 +390,20 @@ namespace ModIO
             bool success = false;
 
             DataStorage.DeleteFile(filePath, (s,p) =>
+            {
+                success = s;
+            });
+
+            return success;
+        }
+
+        /// <summary>[Obsolete] Deletes a directory.</summary>
+        [Obsolete("Use DataStorage.DeleteDirectory() instead.")]
+        public static bool DeleteDirectory(string directoryPath)
+        {
+            bool success = false;
+
+            DataStorage.DeleteDirectory(directoryPath, (s,p) =>
             {
                 success = s;
             });
