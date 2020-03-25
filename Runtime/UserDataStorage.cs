@@ -103,7 +103,7 @@ namespace ModIO
 
         // ---------[ IO FUNCTIONS ]---------
         /// <summary>Function used to read a user data file.</summary>
-        public static void TryReadJSONFile<T>(string filePathRelative, DataStorage.ReadJSONFileCallback<T> callback)
+        public static void ReadJSONFile<T>(string filePathRelative, DataStorage.ReadJSONFileCallback<T> callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(callback != null);
@@ -126,7 +126,7 @@ namespace ModIO
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static void TryWriteJSONFile<T>(string filePathRelative, T jsonObject, DataStorage.WriteFileCallback callback)
+        public static void WriteJSONFile<T>(string filePathRelative, T jsonObject, DataStorage.WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
 
