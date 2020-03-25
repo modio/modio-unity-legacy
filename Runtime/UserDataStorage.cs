@@ -15,6 +15,7 @@ namespace ModIO
     public static class UserDataStorage
     {
         // ---------[ Nested Data-Types ]---------
+        // --- Callbacks ---
         /// <summary>Delegate for the initialization callback.</summary>
         public delegate void InitializationCallback();
 
@@ -24,19 +25,20 @@ namespace ModIO
         /// <summary>Delegate for write/delete file callbacks.</summary>
         public delegate void WriteFileCallback(bool success);
 
+        // --- I/O Functions ---
+        /// <summary>Delegate for initializing the storage system.</summary>
+        public delegate void InitializationStringDelegate(string platformUserIdentifier, InitializationCallback callback);
+
+        /// <summary>Delegate for initializing the storage system.</summary>
+        public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
+
+        /// <summary>Delegate for clearing all data.</summary>
+        public delegate void ClearAllDataDelegate(WriteFileCallback callback);
+
+        // --- Platform Functions ---
         /// <summary>The collection of platform specific functions.</summary>
         public struct PlatformFunctions
         {
-            // --- Delegates ---
-            /// <summary>Delegate for initializing the storage system.</summary>
-            public delegate void InitializationStringDelegate(string platformUserIdentifier, InitializationCallback callback);
-
-            /// <summary>Delegate for initializing the storage system.</summary>
-            public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
-
-            /// <summary>Delegate for clearing all data.</summary>
-            public delegate void ClearAllDataDelegate(WriteFileCallback callback);
-
             // --- Fields ---
             /// <summary>Delegate for initializing the storage system.</summary>
             public InitializationIntDelegate InitializeWithInt;
