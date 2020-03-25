@@ -17,19 +17,19 @@ namespace ModIO
         // ---------[ Nested Data-Types ]---------
         // --- Callbacks ---
         /// <summary>Delegate for ReadFile callback.</summary>
-        public delegate void ReadFileCallback(bool success, byte[] data, string filePath);
+        public delegate void ReadFileCallback(string path, bool success, byte[] data);
 
         /// <summary>Delegate for ReadJSONFile callback.</summary>
-        public delegate void ReadJSONFileCallback<T>(bool success, T jsonObject, string filePath);
+        public delegate void ReadJSONFileCallback<T>(string path, bool success, T jsonObject);
 
         /// <summary>Delegate for WriteFile callbacks.</summary>
-        public delegate void WriteFileCallback(bool success, string filePath);
+        public delegate void WriteFileCallback(string path, bool success);
 
         /// <summary>Delegate for DeleteFile/Directory callbacks.</summary>
-        public delegate void DeleteCallback(bool success, string path);
+        public delegate void DeleteCallback(string path, bool success);
 
         /// <summary>Delegate for GetFileSize callback.</summary>
-        public delegate void GetFileSizeCallback(Int64 byteCount, string filePath);
+        public delegate void GetFileSizeCallback(string path, Int64 byteCount);
 
         // --- I/O Functions ---
         /// <summary>Delegate for reading a file.</summary>
@@ -100,7 +100,7 @@ namespace ModIO
         {
             Debug.Assert(callback != null);
 
-            DataStorage.PLATFORM.ReadFile(filePath, (success, data, path) =>
+            DataStorage.PLATFORM.ReadFile(filePath, (path, success, data) =>
             {
                 T jsonObject;
 
@@ -113,7 +113,7 @@ namespace ModIO
                     jsonObject = default(T);
                 }
 
-                callback.Invoke(success, jsonObject, path);
+                callback.Invoke(path, success, jsonObject);
             });
         }
 
@@ -147,7 +147,7 @@ namespace ModIO
                 Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
                                  + "\nFile: " + filePath + "\n\n");
 
-                callback.Invoke(false, filePath);
+                callback.Invoke(filePath, false);
             }
         }
 
@@ -219,7 +219,7 @@ namespace ModIO
                     }
                 }
 
-                callback.Invoke(success, data, filePath);
+                callback.Invoke(filePath, success, data);
             }
 
             /// <summary>Writes a file. (Standalone Application)</summary>
@@ -246,7 +246,7 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(success, filePath);
+                    callback.Invoke(filePath, success);
                 }
             }
 
@@ -276,7 +276,7 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(success, filePath);
+                    callback.Invoke(filePath, success);
                 }
             }
 
@@ -306,7 +306,7 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(success, directoryPath);
+                    callback.Invoke(directoryPath, success);
                 }
             }
 
@@ -333,7 +333,7 @@ namespace ModIO
                     Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
                 }
 
-                callback.Invoke(byteCount, filePath);
+                callback.Invoke(filePath, byteCount);
             }
 
         #endif

@@ -19,7 +19,7 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
         public static void ClearCache()
         {
-            DataStorage.DeleteDirectory(CacheClient.cacheDirectory, (success, path) =>
+            DataStorage.DeleteDirectory(CacheClient.cacheDirectory, (path, success) =>
             {
                 if(success)
                 {
@@ -62,9 +62,9 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear Game Data", false)]
         public static void ClearCachedGameProfile()
         {
-            DataStorage.DeleteFile(CacheClient.gameProfileFilePath, (s,p) =>
+            DataStorage.DeleteFile(CacheClient.gameProfileFilePath, (path, success) =>
             {
-                if(s)
+                if(success)
                 {
                     Debug.Log("[mod.io] Cached Game Data Deleted.");
                 }
@@ -79,7 +79,7 @@ namespace ModIO.EditorCode
         {
             string modDir = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
-            DataStorage.DeleteDirectory(modDir, (success, path) =>
+            DataStorage.DeleteDirectory(modDir, (path, success) =>
             {
                 if(success)
                 {
@@ -95,7 +95,7 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Delete Installed Mods", false)]
         public static void RemoveAllInstalledMods()
         {
-            DataStorage.DeleteDirectory(ModManager.installationDirectory, (success, path) =>
+            DataStorage.DeleteDirectory(ModManager.installationDirectory, (path, success) =>
             {
                 if(success)
                 {

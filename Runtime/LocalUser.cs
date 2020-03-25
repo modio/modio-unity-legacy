@@ -191,7 +191,7 @@ namespace ModIO
 
             LocalUser.isLoaded = false;
 
-            UserDataStorage.ReadJSONFile<LocalUser>(LocalUser.FILENAME, (success, fileData, path) =>
+            UserDataStorage.ReadJSONFile<LocalUser>(LocalUser.FILENAME, (path, success, fileData) =>
             {
                 LocalUser.AssertListsNotNull(ref fileData);
 
@@ -210,7 +210,7 @@ namespace ModIO
                          + " UserDataStorage.InitializeForUser() before attempting to"
                          + " save the LocalUser to disk.");
 
-            UserDataStorage.WriteJSONFile(LocalUser.FILENAME, LocalUser._instance, (success, path) =>
+            UserDataStorage.WriteJSONFile(LocalUser.FILENAME, LocalUser._instance, (path, success) =>
             {
                 if(callback != null) { callback.Invoke(); }
             });

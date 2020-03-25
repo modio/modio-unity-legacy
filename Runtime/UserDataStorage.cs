@@ -119,7 +119,7 @@ namespace ModIO
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(callback != null);
 
-            UserDataStorage.ReadFile(filePathRelative, (success, fileData, path) =>
+            UserDataStorage.ReadFile(filePathRelative, (path, success, fileData) =>
             {
                 T jsonObject;
 
@@ -132,7 +132,7 @@ namespace ModIO
                     jsonObject = default(T);
                 }
 
-                callback(success, jsonObject, path);
+                callback.Invoke(path, success, jsonObject);
             });
         }
 
@@ -170,7 +170,7 @@ namespace ModIO
                 Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
                                  + "\nFile: " + filePathRelative + "\n\n");
 
-                callback.Invoke(false, filePathRelative);
+                callback.Invoke(filePathRelative, false);
             }
         }
 
@@ -264,26 +264,26 @@ namespace ModIO
 
                 if(fileExists)
                 {
-                    DataStorage.DeleteFile(filePath, (success, path) =>
+                    DataStorage.DeleteFile(filePath, (path, success) =>
                     {
                         UnityEditor.AssetDatabase.Refresh();
 
                         if(callback != null)
                         {
-                            callback.Invoke(success, path);
+                            callback.Invoke(path, success);
                         }
                     });
                 }
                 else if(callback != null)
                 {
-                    callback.Invoke(true, filePath);
+                    callback.Invoke(filePath, true);
                 }
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
             public static void ClearAllData_Editor(ClearAllDataCallback callback)
             {
-                DataStorage.DeleteDirectory(UserDataStorage.EDITOR_RESOURCES_FOLDER, (success, path) =>
+                DataStorage.DeleteDirectory(UserDataStorage.EDITOR_RESOURCES_FOLDER, (path, success) =>
                 {
                     UnityEditor.AssetDatabase.Refresh();
 
@@ -601,7 +601,7 @@ namespace ModIO
             /// <summary>Clears all user data. (Standalone Application)</summary>
             public static void ClearAllData_Standalone(ClearAllDataCallback callback)
             {
-                DataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER, (success, path) =>
+                DataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER, (path, success) =>
                 {
                     if(callback != null) { callback.Invoke(success); }
                 });

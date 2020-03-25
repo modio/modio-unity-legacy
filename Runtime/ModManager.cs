@@ -49,7 +49,7 @@ namespace ModIO
             ModManager.installationDirectory = settings.installationDirectory;
             ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
 
-            DataStorage.ReadJSONFile<PersistentData>(PERSISTENTDATA_FILEPATH, (success, data, path) =>
+            DataStorage.ReadJSONFile<PersistentData>(PERSISTENTDATA_FILEPATH, (path, success, data) =>
             {
                 if(!success)
                 {

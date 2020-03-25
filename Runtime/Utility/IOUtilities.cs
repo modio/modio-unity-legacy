@@ -274,7 +274,7 @@ namespace ModIO
             bool success = false;
             byte[] data = null;
 
-            DataStorage.ReadFile(filePath, (s, d, p) =>
+            DataStorage.ReadFile(filePath, (p,s,d) =>
             {
                 success = s;
                 data = d;
@@ -290,7 +290,7 @@ namespace ModIO
         {
             byte[] data = null;
 
-            DataStorage.ReadFile(filePath, (s, d, p) =>
+            DataStorage.ReadFile(filePath, (p,s,d) =>
             {
                 data = d;
             });
@@ -304,7 +304,7 @@ namespace ModIO
         {
             Texture2D parsed = null;
 
-            DataStorage.ReadFile(filePath, (s,d,p) =>
+            DataStorage.ReadFile(filePath, (p,s,d) =>
             {
                 if(s)
                 {
@@ -322,7 +322,7 @@ namespace ModIO
             Texture2D parsed = null;
             bool success = false;
 
-            DataStorage.ReadFile(filePath, (s,d,p) =>
+            DataStorage.ReadFile(filePath, (p,s,d) =>
             {
                 if(s)
                 {
@@ -340,7 +340,7 @@ namespace ModIO
         {
             T parsed = default(T);
 
-            DataStorage.ReadJSONFile<T>(filePath, (s,o,p) =>
+            DataStorage.ReadJSONFile<T>(filePath, (p,s,o) =>
             {
                 parsed = o;
             });
@@ -355,7 +355,7 @@ namespace ModIO
             bool success = false;
             T parsed = default(T);
 
-            DataStorage.ReadJSONFile<T>(filePath, (s,o,p) =>
+            DataStorage.ReadJSONFile<T>(filePath, (p,s,o) =>
             {
                 success = s;
                 parsed = o;
@@ -371,7 +371,7 @@ namespace ModIO
         {
             bool success = false;
 
-            DataStorage.WriteFile(filePath, data, (s,p) =>
+            DataStorage.WriteFile(filePath, data, (p,s) =>
             {
                 success = s;
             });
@@ -387,7 +387,7 @@ namespace ModIO
 
             if(texture != null)
             {
-                DataStorage.WriteFile(filePath, texture.EncodeToPNG(), (s,p) =>
+                DataStorage.WriteFile(filePath, texture.EncodeToPNG(), (p,s) =>
                 {
                     success = s;
                 });
@@ -403,7 +403,7 @@ namespace ModIO
         {
             bool success = false;
 
-            DataStorage.WriteJSONFile<T>(filePath, jsonObject, (s,p) =>
+            DataStorage.WriteJSONFile<T>(filePath, jsonObject, (p,s) =>
             {
                 success = s;
             });
@@ -417,7 +417,7 @@ namespace ModIO
         {
             bool success = false;
 
-            DataStorage.DeleteFile(filePath, (s,p) =>
+            DataStorage.DeleteFile(filePath, (p,s) =>
             {
                 success = s;
             });
@@ -431,7 +431,7 @@ namespace ModIO
         {
             bool success = false;
 
-            DataStorage.DeleteDirectory(directoryPath, (s,p) =>
+            DataStorage.DeleteDirectory(directoryPath, (p,s) =>
             {
                 success = s;
             });
@@ -445,7 +445,7 @@ namespace ModIO
         {
             Int64 byteCount = -1;
 
-            DataStorage.GetFileSize(filePath, (b, p) =>
+            DataStorage.GetFileSize(filePath, (p,b) =>
             {
                 byteCount = b;
             });
