@@ -106,7 +106,6 @@ namespace ModIO
         public static void TryReadJSONFile<T>(string filePathRelative, DataStorage.ReadJSONFileCallback<T> callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(callback != null);
 
             UserDataStorage.ReadFile(filePathRelative, (success, fileData, path) =>
@@ -130,38 +129,19 @@ namespace ModIO
         public static void TryWriteJSONFile<T>(string filePathRelative, T jsonObject, DataStorage.WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
 
-            byte[] fileData = null;
-            if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
+            byte[] data = IOUtilities.GenerateUTF8JSONData<T>(jsonObject);
+
+            if(data != null)
             {
-                UserDataStorage.WriteFile(filePathRelative, fileData, callback);
+                UserDataStorage.WriteFile(filePathRelative, data, callback);
             }
             else if(callback != null)
             {
-                callback.Invoke(false, null);
-            }
-        }
+                Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
+                                 + "\nFile: " + filePathRelative + "\n\n");
 
-        /// <summary>Generates user data file.</summary>
-        public static bool TryGenerateJSONFile<T>(T jsonObject, out byte[] fileData)
-        {
-            // create json data bytes
-            try
-            {
-                string dataString = JsonConvert.SerializeObject(jsonObject);
-                fileData = Encoding.UTF8.GetBytes(dataString);
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to generate user file data.");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-
-                fileData = new byte[0];
-                return false;
+                callback.Invoke(false, filePathRelative);
             }
         }
 
