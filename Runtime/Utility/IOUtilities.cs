@@ -64,26 +64,6 @@ namespace ModIO
             return retVal;
         }
 
-        /// <summary>Gets the size (in bytes) of a given file.</summary>
-        public static Int64 GetFileSize(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-            Debug.Assert(File.Exists(filePath));
-
-            try
-            {
-                return (new FileInfo(filePath)).Length;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to calculate file size."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-            }
-            return -1;
-        }
-
         /// <summary>Calculates the MD5 Hash for a given file.</summary>
         public static string CalculateFileMD5Hash(string filePath)
         {
@@ -409,6 +389,20 @@ namespace ModIO
             });
 
             return success;
+        }
+
+        /// <summary>[Obsolete] Gets the size (in bytes) of a given file.</summary>
+        [Obsolete("Use DataStorage.GetFileSize() instead.")]
+        public static Int64 GetFileSize(string filePath)
+        {
+            Int64 byteCount = -1;
+
+            DataStorage.GetFileSize(filePath, (b, p) =>
+            {
+                byteCount = b;
+            });
+
+            return byteCount;
         }
     }
 }
