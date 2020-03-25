@@ -130,6 +130,9 @@ namespace ModIO
                 else
                 {
                     jsonObject = default(T);
+
+                    Debug.LogWarning("[mod.io] Failed convert file data into JSON object."
+                                     + "\nFile: " + path + "\n\n");
                 }
 
                 callback.Invoke(path, success, jsonObject);
