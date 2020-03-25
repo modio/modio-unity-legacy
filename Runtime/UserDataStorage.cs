@@ -56,17 +56,18 @@ namespace ModIO
             public ClearAllDataDelegate ClearAllData;
         }
 
-        // ---------[ FIELDS ]---------
+        // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
         public static readonly PlatformFunctions PLATFORM;
 
+        // ---------[ Fields ]---------
         /// <summary>Has UserDataStorage been initialized?</summary>
         public static bool isInitialized = false;
 
         /// <summary>Defines the active user directory</summary>
         public static string activeUserDirectory = string.Empty;
 
-        // ---------[ INITIALIZATION ]---------
+        // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()
         {
@@ -101,7 +102,17 @@ namespace ModIO
             UserDataStorage.PLATFORM.InitializeWithInt(platformUserIdentifier, callback);
         }
 
-        // ---------[ IO FUNCTIONS ]---------
+        // ---------[ I/O Interface ]---------
+        /// <summary>Function for reading a user-specific file.</summary>
+        public static void ReadFile(string filePathRelative, DataStorage.ReadFileCallback callback)
+        {
+            Debug.Assert(UserDataStorage.isInitialized);
+            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+
+            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
+            UserDataStorage.PLATFORM.ReadFile(filePath, callback);
+        }
+
         /// <summary>Function used to read a user data file.</summary>
         public static void ReadJSONFile<T>(string filePathRelative, DataStorage.ReadJSONFileCallback<T> callback)
         {
@@ -125,6 +136,24 @@ namespace ModIO
             });
         }
 
+        /// <summary>Function for writing a user-specific file.</summary>
+        public static void WriteFile(string filePathRelative, byte[] fileData, DataStorage.WriteFileCallback callback)
+        {
+            Debug.Assert(UserDataStorage.isInitialized);
+            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+            Debug.Assert(fileData != null);
+
+            #if DEBUG
+            if(fileData.Length == 0)
+            {
+                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + filePathRelative);
+            }
+            #endif // DEBUG
+
+            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
+            UserDataStorage.PLATFORM.WriteFile(filePath, fileData, callback);
+        }
+
         /// <summary>Function used to read a user data file.</summary>
         public static void WriteJSONFile<T>(string filePathRelative, T jsonObject, DataStorage.WriteFileCallback callback)
         {
@@ -143,34 +172,6 @@ namespace ModIO
 
                 callback.Invoke(false, filePathRelative);
             }
-        }
-
-        /// <summary>Function for reading a user-specific file.</summary>
-        public static void ReadFile(string filePathRelative, DataStorage.ReadFileCallback callback)
-        {
-            Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
-
-            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.PLATFORM.ReadFile(filePath, callback);
-        }
-
-        /// <summary>Function for writing a user-specific file.</summary>
-        public static void WriteFile(string filePathRelative, byte[] fileData, DataStorage.WriteFileCallback callback)
-        {
-            Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
-            Debug.Assert(fileData != null);
-
-            #if DEBUG
-            if(fileData.Length == 0)
-            {
-                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + filePathRelative);
-            }
-            #endif // DEBUG
-
-            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.PLATFORM.WriteFile(filePath, fileData, callback);
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
