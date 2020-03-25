@@ -35,7 +35,7 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
         public static void ClearAllUserData()
         {
-            UserDataStorage.WriteFileCallback onClear = (success) =>
+            UserDataStorage.ClearAllDataCallback onClear = (success) =>
             {
                 LocalUser.instance = new LocalUser();
                 LocalUser.isLoaded = true;

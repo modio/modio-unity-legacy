@@ -25,6 +25,9 @@ namespace ModIO
         /// <summary>Delegate for write/delete file callbacks.</summary>
         public delegate void WriteFileCallback(bool success);
 
+        /// <summary>Delegate for the ClearAllData callback.</summary>
+        public delegate void ClearAllDataCallback(bool success);
+
         // --- I/O Functions ---
         /// <summary>Delegate for initializing the storage system.</summary>
         public delegate void InitializationStringDelegate(string platformUserIdentifier, InitializationCallback callback);
@@ -33,7 +36,7 @@ namespace ModIO
         public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
 
         /// <summary>Delegate for clearing all data.</summary>
-        public delegate void ClearAllDataDelegate(WriteFileCallback callback);
+        public delegate void ClearAllDataDelegate(ClearAllDataCallback callback);
 
         // --- Platform Functions ---
         /// <summary>The collection of platform specific functions.</summary>
@@ -236,7 +239,7 @@ namespace ModIO
         }
 
         /// <summary>Function for clearing all user data.</summary>
-        public static void ClearAllData(WriteFileCallback callback)
+        public static void ClearAllData(ClearAllDataCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
 
@@ -332,7 +335,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
-            public static void ClearAllData_Editor(WriteFileCallback callback)
+            public static void ClearAllData_Editor(ClearAllDataCallback callback)
             {
                 DataStorage.DeleteDirectory(UserDataStorage.EDITOR_RESOURCES_FOLDER, (success, path) =>
                 {
@@ -440,7 +443,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
-            public static void ClearAllData_Facepunch(WriteFileCallback callback)
+            public static void ClearAllData_Facepunch(ClearAllDataCallback callback)
             {
                 var steamFiles = Steamworks.SteamRemoteStorage.Files;
                 bool success = true;
@@ -560,7 +563,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Steamworks.NET)</summary>
-            public static void ClearAllData_SteamworksNET(WriteFileCallback callback)
+            public static void ClearAllData_SteamworksNET(ClearAllDataCallback callback)
             {
                 int fileCount = Steamworks.SteamRemoteStorage.GetFileCount();
                 bool success = true;
@@ -650,7 +653,7 @@ namespace ModIO
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
-            public static void ClearAllData_Standalone(WriteFileCallback callback)
+            public static void ClearAllData_Standalone(ClearAllDataCallback callback)
             {
                 DataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER, (success, path) =>
                 {
