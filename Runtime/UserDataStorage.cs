@@ -18,9 +18,6 @@ namespace ModIO
         /// <summary>Delegate for the initialization callback.</summary>
         public delegate void InitializationCallback();
 
-        /// <summary>Delegate for the read file callback.</summary>
-        public delegate void ReadFileCallback(bool success, byte[] data);
-
         /// <summary>Delegate for the read json file callback.</summary>
         public delegate void ReadJsonFileCallback<T>(bool success, T jsonObject);
 
@@ -36,9 +33,6 @@ namespace ModIO
 
             /// <summary>Delegate for initializing the storage system.</summary>
             public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
-
-            /// <summary>Delegate for reading a file.</summary>
-            public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
 
             /// <summary>Delegate for writing a file.</summary>
             public delegate void WriteFileDelegate(string filePath, byte[] fileData, WriteFileCallback callback);
@@ -57,7 +51,7 @@ namespace ModIO
             public InitializationStringDelegate InitializeWithString;
 
             /// <summary>Delegate for reading a file.</summary>
-            public ReadFileDelegate ReadFile;
+            public DataStorage.ReadFileDelegate ReadFile;
 
             /// <summary>Delegate for writing a file.</summary>
             public WriteFileDelegate WriteFile;
@@ -122,7 +116,7 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
             Debug.Assert(callback != null);
 
-            UserDataStorage.ReadFile(filePathRelative, (success, fileData) =>
+            UserDataStorage.ReadFile(filePathRelative, (success, fileData, path) =>
             {
                 T jsonObject;
 
@@ -208,7 +202,7 @@ namespace ModIO
         }
 
         /// <summary>Function for reading a user-specific file.</summary>
-        public static void ReadFile(string filePathRelative, ReadFileCallback callback)
+        public static void ReadFile(string filePathRelative, DataStorage.ReadFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -306,9 +300,9 @@ namespace ModIO
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
-            public static void ReadFile_Editor(string filePath, ReadFileCallback callback)
+            public static void ReadFile_Editor(string filePath, DataStorage.ReadFileCallback callback)
             {
-                DataStorage.ReadFile(filePath, (s,d,p) => callback.Invoke(s,d));
+                DataStorage.ReadFile(filePath, callback);
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
@@ -410,7 +404,7 @@ namespace ModIO
             }
 
             /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
-            public static void ReadFile_Facepunch(string filePath, ReadFileCallback callback)
+            public static void ReadFile_Facepunch(string filePath, DataStorage.ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
@@ -421,7 +415,7 @@ namespace ModIO
                     data = Steamworks.SteamRemoteStorage.FileRead(filePath);
                 }
 
-                callback.Invoke(true, data);
+                callback.Invoke(true, data, filePath);
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
@@ -524,7 +518,7 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Steamworks.NET)</summary>
-            public static void ReadFile_SteamworksNET(string filePath, ReadFileCallback callback)
+            public static void ReadFile_SteamworksNET(string filePath, DataStorage.ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
@@ -541,7 +535,7 @@ namespace ModIO
                     }
                 }
 
-                callback.Invoke(true, data);
+                callback.Invoke(true, data, filePath);
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
@@ -649,9 +643,9 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
-            public static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
+            public static void ReadFile_Standalone(string filePath, DataStorage.ReadFileCallback callback)
             {
-                DataStorage.ReadFile(filePath, (s,d,p) => callback.Invoke(s,d));
+                DataStorage.ReadFile(filePath, callback);
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>

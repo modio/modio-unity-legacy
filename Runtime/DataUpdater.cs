@@ -42,7 +42,7 @@ namespace ModIO
             byte[] fileData = null;
 
             UserDataStorage.InitializeForUser(null, () => {});
-            UserDataStorage.ReadFile(LocalUser.FILENAME, (success, data) => fileData = data);
+            UserDataStorage.ReadFile(LocalUser.FILENAME, (success, data, path) => fileData = data);
 
             if(fileData != null && fileData.Length > 0)
             {
