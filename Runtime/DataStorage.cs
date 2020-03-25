@@ -15,17 +15,20 @@ namespace ModIO
     public static class DataStorage
     {
         // ---------[ Nested Data-Types ]---------
-        /// <summary>Delegate for the read file callback.</summary>
+        /// <summary>Delegate for ReadFile callback.</summary>
         public delegate void ReadFileCallback(bool success, byte[] data, string filePath);
 
-        /// <summary>Delegate for the read JSON file callback.</summary>
+        /// <summary>Delegate for ReadJSONFile callback.</summary>
         public delegate void ReadJSONFileCallback<T>(bool success, T jsonObject, string filePath);
 
-        /// <summary>Delegate for write file callbacks.</summary>
+        /// <summary>Delegate for WriteFile callbacks.</summary>
         public delegate void WriteFileCallback(bool success, string filePath);
 
-        /// <summary>Delegate for delete-at-location callbacks.</summary>
+        /// <summary>Delegate for DeleteFile/Directory callbacks.</summary>
         public delegate void DeleteCallback(bool success, string path);
+
+        /// <summary>Delegate for file size callback.</summary>
+        public delegate void GetFileSizeCallback(Int64 byteCount, string filePath);
 
         /// <summary>The collection of platform specific functions.</summary>
         public struct PlatformFunctions
@@ -43,6 +46,9 @@ namespace ModIO
             /// <summary>Delegate for deleting a file.</summary>
             public delegate void DeleteDirectoryDelegate(string directoryPath, DeleteCallback callback);
 
+            /// <summary>Delegate for getting a file's size.</summary>
+            public delegate void GetFileSizeDelegate(string filePath, GetFileSizeCallback callback);
+
             // --- Fields ---
             /// <summary>Delegate for reading a file.</summary>
             public ReadFileDelegate ReadFile;
@@ -55,6 +61,9 @@ namespace ModIO
 
             /// <summary>Delegate for deleting a directory.</summary>
             public DeleteDirectoryDelegate DeleteDirectory;
+
+            /// <summary>Delegate for getting a file's size.</summary>
+            public GetFileSizeDelegate GetFileSize;
         }
 
         // ---------[ Constants ]---------
@@ -72,6 +81,7 @@ namespace ModIO
             Debug.Assert(DataStorage.PLATFORM.ReadFile != null);
             Debug.Assert(DataStorage.PLATFORM.WriteFile != null);
             Debug.Assert(DataStorage.PLATFORM.DeleteFile != null);
+            Debug.Assert(DataStorage.PLATFORM.GetFileSize != null);
         }
 
         // ---------[ I/O Interface ]---------
@@ -186,6 +196,15 @@ namespace ModIO
             DataStorage.PLATFORM.DeleteDirectory(directoryPath, callback);
         }
 
+        /// <summary>Gets the size of a file.</summary>
+        public static void GetFileSize(string filePath, GetFileSizeCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            Debug.Assert(callback != null);
+
+            DataStorage.PLATFORM.GetFileSize(filePath, callback);
+        }
+
         // ---------[ Platform I/O ]---------
         #if true // --- Standalone I/O ---
 
@@ -198,6 +217,7 @@ namespace ModIO
                     WriteFile = WriteFile_Standalone,
                     DeleteFile = DeleteFile_Standalone,
                     DeleteDirectory = DeleteDirectory_Standalone,
+                    GetFileSize = GetFileSize_Standalone,
                 };
             }
 
@@ -317,6 +337,32 @@ namespace ModIO
                 {
                     callback.Invoke(success, directoryPath);
                 }
+            }
+
+            /// <summary>Gets the size of a file.</summary>
+            public static void GetFileSize_Standalone(string filePath, GetFileSizeCallback callback)
+            {
+                Debug.Assert(!String.IsNullOrEmpty(filePath));
+                Debug.Assert(callback != null);
+
+                Debug.Assert(File.Exists(filePath));
+
+                Int64 byteCount = -1;
+
+                try
+                {
+                    byteCount = (new FileInfo(filePath)).Length;
+                }
+                catch(Exception e)
+                {
+                    byteCount = -1;
+
+                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
+
+                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                }
+
+                callback.Invoke(byteCount, filePath);
             }
 
         #endif
