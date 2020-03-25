@@ -308,65 +308,55 @@ namespace ModIO
             /// <summary>Read a user file. (Unity Editor)</summary>
             public static void ReadFile_Editor(string filePath, ReadFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
-                Debug.Assert(callback != null);
-
                 DataStorage.ReadFile(filePath, (s,d,p) => callback.Invoke(s,d));
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
             public static void WriteFile_Editor(string filePath, byte[] data, WriteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
-                Debug.Assert(data != null);
-
-                bool fileExisted = System.IO.File.Exists(filePath);
-                bool success = false;
-
-                success = IOUtilities.WriteBinaryFile(filePath, data);
-
-                if(success && !fileExisted)
+                DataStorage.WriteFile(filePath, data, (success, path) =>
                 {
-                    UnityEditor.AssetDatabase.Refresh();
-                }
+                    if(success)
+                    {
+                        UnityEditor.AssetDatabase.Refresh();
+                    }
 
-                if(callback != null)
-                {
-                    callback.Invoke(success);
-                }
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
             public static void DeleteFile_Editor(string filePath, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
-
                 bool fileExisted = System.IO.File.Exists(filePath);
-                bool success = true;
 
-                if(fileExisted)
+                DataStorage.DeleteFile(filePath, (success, path) =>
                 {
-                    success = IOUtilities.DeleteFile(filePath);
-
-                    if(success)
+                    if(success && fileExisted)
                     {
                         UnityEditor.AssetDatabase.Refresh();
                     }
-                }
 
-                if(callback != null)
-                {
-                    callback.Invoke(success);
-                }
+                    if(callback != null)
+                    {
+                        callback.Invoke(success);
+                    }
+                });
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
             public static void ClearAllData_Editor(WriteFileCallback callback)
             {
-                bool success = IOUtilities.DeleteDirectory(UserDataStorage.EDITOR_RESOURCES_FOLDER);
-                UnityEditor.AssetDatabase.Refresh();
+                DataStorage.DeleteDirectory(UserDataStorage.EDITOR_RESOURCES_FOLDER, (success, path) =>
+                {
+                    UnityEditor.AssetDatabase.Refresh();
 
-                if(callback != null) { callback.Invoke(success); }
+                    if(callback != null) { callback.Invoke(success); }
+                });
             }
 
         #elif MODIO_FACEPUNCH_SUPPORT
@@ -661,18 +651,12 @@ namespace ModIO
             /// <summary>Reads a user data file. (Standalone Application)</summary>
             public static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
-                Debug.Assert(callback != null);
-
                 DataStorage.ReadFile(filePath, (s,d,p) => callback.Invoke(s,d));
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
             public static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
-                Debug.Assert(data != null);
-
                 DataStorage.WriteFile(filePath, data, (s,p) =>
                 {
                     if(callback != null)
@@ -685,23 +669,22 @@ namespace ModIO
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
             public static void DeleteFile_Standalone(string filePath, WriteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
-
-                bool success = false;
-                success = IOUtilities.DeleteFile(filePath);
-
-                if(callback != null)
+                DataStorage.DeleteFile(filePath, (s,p) =>
                 {
-                    callback.Invoke(success);
-                }
+                    if(callback != null)
+                    {
+                        callback.Invoke(s);
+                    }
+                });
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
             public static void ClearAllData_Standalone(WriteFileCallback callback)
             {
-                bool success = IOUtilities.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER);
-
-                if(callback != null) { callback.Invoke(success); }
+                DataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER, (success, path) =>
+                {
+                    if(callback != null) { callback.Invoke(success); }
+                });
             }
 
         #endif
