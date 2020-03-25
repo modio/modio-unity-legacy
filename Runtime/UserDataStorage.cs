@@ -170,7 +170,8 @@ namespace ModIO
                 Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
                                  + "\nFile: " + filePathRelative + "\n\n");
 
-                callback.Invoke(filePathRelative, false);
+                string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
+                callback.Invoke(filePath, false);
             }
         }
 
