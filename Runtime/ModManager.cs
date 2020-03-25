@@ -111,11 +111,7 @@ namespace ModIO
                                  + "\nLocation: " + tempLocation + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
 
-                if(!IOUtilities.DeleteDirectory(tempLocation))
-                {
-                    Debug.LogWarning("[mod.io] Failed to remove the temporary folder."
-                                     + "\nLocation: " + tempLocation + "\n\n");
-                }
+                DataStorage.DeleteDirectory(tempLocation, null);
 
                 return false;
             }
@@ -128,11 +124,7 @@ namespace ModIO
                 Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                  + "\nFailed to uninstall other versions of this mod.");
 
-                if(!IOUtilities.DeleteDirectory(tempLocation))
-                {
-                    Debug.LogWarning("[mod.io] Failed to remove the temporary folder."
-                                     + "\nLocation: " + tempLocation + "\n\n");
-                }
+                DataStorage.DeleteDirectory(tempLocation, null);
 
                 return false;
             }
@@ -160,11 +152,7 @@ namespace ModIO
                                  + "\nDest: " + installDirectory + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
 
-                if(!IOUtilities.DeleteDirectory(tempLocation))
-                {
-                    Debug.LogWarning("[mod.io] Failed to remove the temporary folder."
-                                     + "\nLocation: " + tempLocation + "\n\n");
-                }
+                DataStorage.DeleteDirectory(tempLocation, null);
 
                 return false;
             }
