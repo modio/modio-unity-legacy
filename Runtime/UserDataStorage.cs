@@ -34,9 +34,6 @@ namespace ModIO
             /// <summary>Delegate for initializing the storage system.</summary>
             public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
 
-            /// <summary>Delegate for deleting a file.</summary>
-            public delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
-
             /// <summary>Delegate for clearing all data.</summary>
             public delegate void ClearAllDataDelegate(WriteFileCallback callback);
 
@@ -54,7 +51,7 @@ namespace ModIO
             public DataStorage.WriteFileDelegate WriteFile;
 
             /// <summary>Delegate for deleting a file.</summary>
-            public DeleteFileDelegate DeleteFile;
+            public DataStorage.DeleteFileDelegate DeleteFile;
 
             /// <summary>Delegate for clearing all data.</summary>
             public ClearAllDataDelegate ClearAllData;
@@ -227,7 +224,7 @@ namespace ModIO
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
-        public static void DeleteFile(string filePathRelative, WriteFileCallback callback)
+        public static void DeleteFile(string filePathRelative, DataStorage.DeleteCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -309,23 +306,27 @@ namespace ModIO
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
-            public static void DeleteFile_Editor(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_Editor(string filePath, DataStorage.DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
-                bool fileExisted = System.IO.File.Exists(filePath);
+                bool fileExists = System.IO.File.Exists(filePath);
 
-                DataStorage.DeleteFile(filePath, (success, path) =>
+                if(fileExists)
                 {
-                    if(success && fileExisted)
+                    DataStorage.DeleteFile(filePath, (success, path) =>
                     {
                         UnityEditor.AssetDatabase.Refresh();
-                    }
 
-                    if(callback != null)
-                    {
-                        callback.Invoke(success);
-                    }
-                });
+                        if(callback != null)
+                        {
+                            callback.Invoke(success, path);
+                        }
+                    });
+                }
+                else if(callback != null)
+                {
+                    callback.Invoke(true, filePath);
+                }
             }
 
             /// <summary>Clears all user data. (Unity Editor)</summary>
@@ -419,7 +420,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            public static void DeleteFile_Facepunch(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_Facepunch(string filePath, DataStorage.DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -432,7 +433,7 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(success);
+                    callback.Invoke(success, filePath);
                 }
             }
 
@@ -539,7 +540,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
-            public static void DeleteFile_SteamworksNET(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_SteamworksNET(string filePath, DataStorage.DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -552,7 +553,7 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(success);
+                    callback.Invoke(success, filePath);
                 }
             }
 
@@ -641,15 +642,9 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
-            public static void DeleteFile_Standalone(string filePath, WriteFileCallback callback)
+            public static void DeleteFile_Standalone(string filePath, DataStorage.DeleteCallback callback)
             {
-                DataStorage.DeleteFile(filePath, (s,p) =>
-                {
-                    if(callback != null)
-                    {
-                        callback.Invoke(s);
-                    }
-                });
+                DataStorage.DeleteFile(filePath, callback);
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
