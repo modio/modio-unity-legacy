@@ -34,9 +34,6 @@ namespace ModIO
             /// <summary>Delegate for initializing the storage system.</summary>
             public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
 
-            /// <summary>Delegate for writing a file.</summary>
-            public delegate void WriteFileDelegate(string filePath, byte[] fileData, WriteFileCallback callback);
-
             /// <summary>Delegate for deleting a file.</summary>
             public delegate void DeleteFileDelegate(string filePath, WriteFileCallback callback);
 
@@ -54,7 +51,7 @@ namespace ModIO
             public DataStorage.ReadFileDelegate ReadFile;
 
             /// <summary>Delegate for writing a file.</summary>
-            public WriteFileDelegate WriteFile;
+            public DataStorage.WriteFileDelegate WriteFile;
 
             /// <summary>Delegate for deleting a file.</summary>
             public DeleteFileDelegate DeleteFile;
@@ -142,7 +139,7 @@ namespace ModIO
             byte[] fileData = null;
             if(UserDataStorage.TryGenerateJSONFile(jsonObject, out fileData))
             {
-                UserDataStorage.WriteFile(filePathRelative, fileData, callback);
+                UserDataStorage.WriteFile(filePathRelative, fileData, (s,p) => { if(callback != null) callback.Invoke(s); });
             }
             else if(callback != null)
             {
@@ -212,7 +209,7 @@ namespace ModIO
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
-        public static void WriteFile(string filePathRelative, byte[] fileData, WriteFileCallback callback)
+        public static void WriteFile(string filePathRelative, byte[] fileData, DataStorage.WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -306,20 +303,9 @@ namespace ModIO
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
-            public static void WriteFile_Editor(string filePath, byte[] data, WriteFileCallback callback)
+            public static void WriteFile_Editor(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
             {
-                DataStorage.WriteFile(filePath, data, (success, path) =>
-                {
-                    if(success)
-                    {
-                        UnityEditor.AssetDatabase.Refresh();
-                    }
-
-                    if(callback != null)
-                    {
-                        callback.Invoke(success);
-                    }
-                });
+                DataStorage.WriteFile(filePath, data, callback);
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
@@ -419,7 +405,7 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
-            public static void WriteFile_Facepunch(string filePath, byte[] data, WriteFileCallback callback)
+            public static void WriteFile_Facepunch(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -428,7 +414,7 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(success);
+                    callback.Invoke(success, filePath);
                 }
             }
 
@@ -539,7 +525,7 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
-            public static void WriteFile_SteamworksNET(string filePath, byte[] data, WriteFileCallback callback)
+            public static void WriteFile_SteamworksNET(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -548,7 +534,7 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(success);
+                    callback.Invoke(success, filePath);
                 }
             }
 
@@ -649,15 +635,9 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
-            public static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
+            public static void WriteFile_Standalone(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
             {
-                DataStorage.WriteFile(filePath, data, (s,p) =>
-                {
-                    if(callback != null)
-                    {
-                        callback.Invoke(s);
-                    }
-                });
+                DataStorage.WriteFile(filePath, data, callback);
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
