@@ -112,35 +112,6 @@ namespace ModIO
             return retVal;
         }
 
-        /// <summary>Calculates the MD5 Hash for a given file.</summary>
-        public static string CalculateFileMD5Hash(string filePath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
-            Debug.Assert(File.Exists(filePath));
-
-            try
-            {
-                using (var md5 = System.Security.Cryptography.MD5.Create())
-                {
-                    using (var stream = System.IO.File.OpenRead(filePath))
-                    {
-                        var hash = md5.ComputeHash(stream);
-                        string hashString = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        return hashString;
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to calculate file hash."
-                                      + "\nFile: " + filePath + "\n\n");
-
-                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return null;
-        }
-
         /// <summary>Gets the name of the item (file/folder) at the given path.</summary>
         public static string GetPathItemName(string path)
         {
@@ -451,6 +422,20 @@ namespace ModIO
             });
 
             return byteCount;
+        }
+
+        /// <summary>[Obsolete] Calculates the MD5 Hash for a given file.</summary>
+        [Obsolete("Use DataStorage.GetFileSizeAndHash() instead.")]
+        public static string CalculateFileMD5Hash(string filePath)
+        {
+            string hash = null;
+
+            DataStorage.GetFileSizeAndHash(filePath, (p,b,h) =>
+            {
+                hash = h;
+            });
+
+            return hash;
         }
     }
 }
