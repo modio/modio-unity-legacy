@@ -256,6 +256,12 @@ namespace ModIO
                 }
             }
 
+            /// <summary>Moves a file.</summary>
+            public void MoveFile(string sourceFilePath, string destinationFilePath, DataStorage.MoveCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
             /// <summary>Creates a directory.</summary>
             public void CreateDirectory(string directoryPath, DataStorage.CreateCallback callback)
             {

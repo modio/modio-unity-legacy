@@ -56,6 +56,9 @@ namespace ModIO
             /// <summary>Delegate for deleting a file.</summary>
             void DeleteFile(string filePath, DeleteCallback callback);
 
+            /// <summary>Delegate for moving a file.</summary>
+            void MoveFile(string sourceFilePath, string destinationFilePath, MoveCallback callback);
+
             /// <summary>Delegate for creating a directory.</summary>
             void CreateDirectory(string directoryPath, CreateCallback callback);
 
