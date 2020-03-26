@@ -24,8 +24,8 @@ namespace ModIO
         /// <summary>An event that notifies listeners that a mod has been installed.</summary>
         public static event Action<ModfileIdPair> onModBinaryInstalled;
 
-        /// <summary>An event that notifies listeners that a mod has been uninstalled.</summary>
-        public static event Action<ModfileIdPair> onModBinaryUninstalled;
+        /// <summary>An event that notifies listeners that mods have been uninstalled.</summary>
+        public static event Action<ModfileIdPair[]> onModBinariesUninstalled;
 
         // ---------[ CONSTANTS ]---------
         /// <summary>File name used to store the persistent data.</summary>
@@ -198,12 +198,9 @@ namespace ModIO
                 }
             }
 
-            if(ModManager.onModBinaryUninstalled != null)
+            if(ModManager.onModBinariesUninstalled != null)
             {
-                foreach(ModfileIdPair idPair in uninstalledBinaries)
-                {
-                    ModManager.onModBinaryUninstalled(idPair);
-                }
+                ModManager.onModBinariesUninstalled(uninstalledBinaries.ToArray());
             }
 
             return succeeded;
@@ -226,7 +223,7 @@ namespace ModIO
                 }
             }
 
-            if(succeeded && ModManager.onModBinaryUninstalled != null)
+            if(succeeded && ModManager.onModBinariesUninstalled != null)
             {
                 ModfileIdPair idPair = new ModfileIdPair()
                 {
@@ -234,7 +231,7 @@ namespace ModIO
                     modfileId = modfileId,
                 };
 
-                ModManager.onModBinaryUninstalled(idPair);
+                ModManager.onModBinariesUninstalled(new ModfileIdPair[] { idPair });
             }
 
             return succeeded;
@@ -1870,6 +1867,12 @@ namespace ModIO
         }
 
         // ---------[ OBSOLETE ]---------
+        #pragma warning disable 0067
+
+        /// <summary>[Obsolete] An event that notifies listeners that a mod has been uninstalled.</summary>
+        [Obsolete("Use ModManager.onModBinariesUninstalled instead.", false)]
+        public static event Action<ModfileIdPair> onModBinaryUninstalled;
+
         /// <summary>[Obsolete] Fetches the list of mods associated with the authenticated user.</summary>
         [Obsolete("Use ModManager.FetchAuthenticatedUserMods() instead.")]
         public static void GetAuthenticatedUserMods(Action<List<ModProfile>> onSuccess,
@@ -1957,5 +1960,7 @@ namespace ModIO
             LocalUser.SubscribedModIds = new List<int>(modIds);
             LocalUser.Save();
         }
+
+        #pragma warning restore 0067
     }
 }
