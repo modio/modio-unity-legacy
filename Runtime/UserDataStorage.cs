@@ -38,10 +38,10 @@ namespace ModIO
         {
             // --- Fields ---
             /// <summary>Delegate for initializing the storage system.</summary>
-            void InitializeWithInt(string platformUserIdentifier, InitializationCallback callback);
+            void InitializeForUser(string platformUserIdentifier, InitializationCallback callback);
 
             /// <summary>Delegate for initializing the storage system.</summary>
-            void InitializeWithString(int platformUserIdentifier, InitializationCallback callback);
+            void InitializeForUser(int platformUserIdentifier, InitializationCallback callback);
 
             /// <summary>Delegate for clearing all data.</summary>
             void ClearAllData(ClearAllDataCallback callback);
@@ -90,7 +90,7 @@ namespace ModIO
         {
             // Select the platform appropriate functions
             #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
-                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Editor();
+                UserDataStorage.PLATFORM_IO = new EditorIO();
             #elif MODIO_FACEPUNCH_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Facepunch();
             #elif MODIO_STEAMWORKSNET_SUPPORT
@@ -217,29 +217,17 @@ namespace ModIO
 
         #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
 
+        public class EditorIO : IPlatformIO
+        {
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                             "Editor Default Resources",
                                                                                             "mod.io");
 
-            /// <summary>Returns the platform specific functions. (Unity Editor)</summary>
-            public static PlatformFunctions GetPlatformFunctions_Editor()
-            {
-                return new PlatformFunctions()
-                {
-                    InitializeWithInt = InitializeForUser_Editor,
-                    InitializeWithString = InitializeForUser_Editor,
-                    ReadFile = ReadFile_Editor,
-                    WriteFile = WriteFile_Editor,
-                    DeleteFile = DeleteFile_Editor,
-                    ClearAllData = ClearAllData_Editor,
-                };
-            }
-
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            public static void InitializeForUser_Editor(string platformUserIdentifier, InitializationCallback callback)
+            public void InitializeForUser(string platformUserIdentifier, InitializationCallback callback)
             {
-                string userDir = UserDataStorage.EDITOR_RESOURCES_FOLDER;
+                string userDir = EditorIO.EDITOR_RESOURCES_FOLDER;
 
                 if(!string.IsNullOrEmpty(platformUserIdentifier))
                 {
@@ -260,25 +248,25 @@ namespace ModIO
             }
 
             /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            public static void InitializeForUser_Editor(int platformUserIdentifier, InitializationCallback callback)
+            public void InitializeForUser(int platformUserIdentifier, InitializationCallback callback)
             {
-                UserDataStorage.InitializeForUser_Editor(platformUserIdentifier.ToString("x8"), callback);
+                UserDataStorage.InitializeForUser(platformUserIdentifier.ToString("x8"), callback);
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
-            public static void ReadFile_Editor(string filePath, DataStorage.ReadFileCallback callback)
+            public void ReadFile(string filePath, DataStorage.ReadFileCallback callback)
             {
                 DataStorage.ReadFile(filePath, callback);
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
-            public static void WriteFile_Editor(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
+            public void WriteFile(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
             {
                 DataStorage.WriteFile(filePath, data, callback);
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
-            public static void DeleteFile_Editor(string filePath, DataStorage.DeleteCallback callback)
+            public void DeleteFile(string filePath, DataStorage.DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 bool fileExists = System.IO.File.Exists(filePath);
@@ -301,16 +289,35 @@ namespace ModIO
                 }
             }
 
-            /// <summary>Clears all user data. (Unity Editor)</summary>
-            public static void ClearAllData_Editor(ClearAllDataCallback callback)
+            /// <summary>Deletes a directory.</summary>
+            public void DeleteDirectory(string directoryPath, DataStorage.DeleteCallback callback)
             {
-                DataStorage.DeleteDirectory(UserDataStorage.EDITOR_RESOURCES_FOLDER, (path, success) =>
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Clears all user data. (Unity Editor)</summary>
+            public void ClearAllData(ClearAllDataCallback callback)
+            {
+                DataStorage.DeleteDirectory(EDITOR_RESOURCES_FOLDER, (path, success) =>
                 {
                     UnityEditor.AssetDatabase.Refresh();
 
                     if(callback != null) { callback.Invoke(success); }
                 });
             }
+
+            /// <summary>Gets the size of a file.</summary>
+            public void GetFileSize(string filePath, DataStorage.GetFileSizeCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Gets the size and md5 hash of a file.</summary>
+            public void GetFileSizeAndHash(string filePath, DataStorage.GetFileSizeAndHashCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         #elif MODIO_FACEPUNCH_SUPPORT
 
