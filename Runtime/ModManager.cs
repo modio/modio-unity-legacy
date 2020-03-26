@@ -176,37 +176,6 @@ namespace ModIO
         }
 
         /// <summary>Removes all versions of a mod from the installs folder.</summary>
-        public static bool TryUninstallAllModVersions(int modId)
-        {
-            // Don't accidentally uninstall player-added mods!
-            Debug.Assert(modId != ModProfile.NULL_ID);
-
-            var installedMods = ModManager.IterateInstalledMods(new int[] { modId });
-
-            List<ModfileIdPair> uninstalledBinaries = new List<ModfileIdPair>();
-
-            bool succeeded = true;
-            foreach(var installInfo in installedMods)
-            {
-                if(IOUtilities.DeleteDirectory(installInfo.Value))
-                {
-                    uninstalledBinaries.Add(installInfo.Key);
-                }
-                else
-                {
-                    succeeded = false;
-                }
-            }
-
-            if(ModManager.onModBinariesUninstalled != null)
-            {
-                ModManager.onModBinariesUninstalled(uninstalledBinaries.ToArray());
-            }
-
-            return succeeded;
-        }
-
-        /// <summary>Removes all versions of a mod from the installs folder.</summary>
         public static void UninstallMod(int modId, Action<bool> onComplete)
         {
             // Don't accidentally uninstall player-added mods!
@@ -2026,6 +1995,17 @@ namespace ModIO
             if(modIds == null) { modIds = new int[0]; }
             LocalUser.SubscribedModIds = new List<int>(modIds);
             LocalUser.Save();
+        }
+
+        /// <summary>[Obsolete] Removes all versions of a mod from the installs folder.</summary>
+        [Obsolete("Use UninstallMod() instead.")]
+        public static bool TryUninstallAllModVersions(int modId)
+        {
+            bool succeeded = false;
+
+            ModManager.UninstallMod(modId, (s) => succeeded = s);
+
+            return succeeded;
         }
 
         #pragma warning restore 0067
