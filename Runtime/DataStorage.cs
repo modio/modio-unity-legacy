@@ -31,6 +31,9 @@ namespace ModIO
         /// <summary>Delegate for DeleteFile/Directory callbacks.</summary>
         public delegate void DeleteCallback(string path, bool success);
 
+        /// <summary>Delegate for MoveFile/Directory callbacks.</summary>
+        public delegate void MoveCallback(string sourcePath, string destinationPath, bool success);
+
         /// <summary>Delegate for GetFileExists callback.</summary>
         public delegate void GetFileExistsCallback(string path, bool doesFileExist);
 

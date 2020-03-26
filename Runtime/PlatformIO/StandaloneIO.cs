@@ -96,6 +96,37 @@ namespace ModIO
             }
         }
 
+        /// <summary>Moves a file.</summary>
+        public void MoveFile(string sourceFilePath, string destinationFilePath, DataStorage.MoveCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(sourceFilePath));
+            Debug.Assert(!string.IsNullOrEmpty(destinationFilePath));
+
+            bool success = false;
+            try
+            {
+                File.Move(sourceFilePath, destinationFilePath);
+                success = true;
+            }
+            catch(Exception e)
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to move file."
+                                      + "\nSource File: " + sourceFilePath
+                                      + "\nDestination: " + destinationFilePath
+                                      + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            if(callback != null)
+            {
+                callback.Invoke(sourceFilePath, destinationFilePath, success);
+            }
+        }
+
         /// <summary>Creates a directory.</summary>
         public void CreateDirectory(string directoryPath, DataStorage.CreateCallback callback)
         {
