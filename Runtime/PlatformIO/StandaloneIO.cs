@@ -96,6 +96,35 @@ namespace ModIO
             }
         }
 
+        /// <summary>Creates a directory.</summary>
+        public void CreateDirectory(string directoryPath, DataStorage.CreateCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+
+            bool success = false;
+
+            try
+            {
+                Directory.CreateDirectory(directoryPath);
+                success = true;
+            }
+            catch(Exception e)
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to create directory."
+                                      + "\nDirectory: " + directoryPath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            if(callback != null)
+            {
+                callback.Invoke(directoryPath, success);
+            }
+        }
+
         /// <summary>Deletes a directory.</summary>
         public void DeleteDirectory(string directoryPath, DataStorage.DeleteCallback callback)
         {

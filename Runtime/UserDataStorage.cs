@@ -256,6 +256,12 @@ namespace ModIO
                 }
             }
 
+            /// <summary>Creates a directory.</summary>
+            public void CreateDirectory(string directoryPath, DataStorage.CreateCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
             /// <summary>Deletes a directory.</summary>
             public void DeleteDirectory(string directoryPath, DataStorage.DeleteCallback callback)
             {

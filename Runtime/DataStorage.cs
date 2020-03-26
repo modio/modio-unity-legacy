@@ -25,6 +25,9 @@ namespace ModIO
         /// <summary>Delegate for WriteFile callbacks.</summary>
         public delegate void WriteFileCallback(string path, bool success);
 
+        /// <summary>Delegate for CreateFile/Directory callbacks.</summary>
+        public delegate void CreateCallback(string path, bool success);
+
         /// <summary>Delegate for DeleteFile/Directory callbacks.</summary>
         public delegate void DeleteCallback(string path, bool success);
 
@@ -49,6 +52,9 @@ namespace ModIO
 
             /// <summary>Delegate for deleting a file.</summary>
             void DeleteFile(string filePath, DeleteCallback callback);
+
+            /// <summary>Delegate for creating a directory.</summary>
+            void CreateDirectory(string directoryPath, CreateCallback callback);
 
             /// <summary>Delegate for deleting a directory.</summary>
             void DeleteDirectory(string directoryPath, DeleteCallback callback);
