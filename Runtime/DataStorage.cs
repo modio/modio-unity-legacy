@@ -34,25 +34,6 @@ namespace ModIO
         /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
         public delegate void GetFileSizeAndHashCallback(string path, Int64 byteCount, string md5Hash);
 
-        // --- I/O Functions ---
-        /// <summary>Delegate for reading a file.</summary>
-        public delegate void ReadFileDelegate(string filePath, ReadFileCallback callback);
-
-        /// <summary>Delegate for writing a file.</summary>
-        public delegate void WriteFileDelegate(string filePath, byte[] data, WriteFileCallback callback);
-
-        /// <summary>Delegate for deleting a file.</summary>
-        public delegate void DeleteFileDelegate(string filePath, DeleteCallback callback);
-
-        /// <summary>Delegate for deleting a file.</summary>
-        public delegate void DeleteDirectoryDelegate(string directoryPath, DeleteCallback callback);
-
-        /// <summary>Delegate for getting a file's size.</summary>
-        public delegate void GetFileSizeDelegate(string filePath, GetFileSizeCallback callback);
-
-        /// <summary>Delegate for getting a file's size and md5 hash.</summary>
-        public delegate void GetFileSizeAndHashDelegate(string filePath, GetFileSizeAndHashCallback callback);
-
         // ---------[ I/O Functionality ]---------
         /// <summary>Defines the functions needed for a complete platform IO.</summary>
         public interface IPlatformIO
