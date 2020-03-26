@@ -126,6 +126,15 @@ namespace ModIO
             }
         }
 
+        /// <summary>Checks whether a file exists</summary>
+        public void GetFileExists(string filePath, DataStorage.GetFileExistsCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            Debug.Assert(callback != null);
+
+            callback.Invoke(filePath, File.Exists(filePath));
+        }
+
         /// <summary>Gets the size of a file.</summary>
         public void GetFileSize(string filePath, DataStorage.GetFileSizeCallback callback)
         {
