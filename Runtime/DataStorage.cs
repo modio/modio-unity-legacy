@@ -53,64 +53,53 @@ namespace ModIO
         /// <summary>Delegate for getting a file's size and md5 hash.</summary>
         public delegate void GetFileSizeAndHashDelegate(string filePath, GetFileSizeAndHashCallback callback);
 
-        // --- Platform Functions ---
-        /// <summary>The collection of platform specific functions.</summary>
-        public struct PlatformFunctions
+        // ---------[ I/O Functionality ]---------
+        /// <summary>Defines the functions needed for a complete platform IO.</summary>
+        public interface IPlatformIO
         {
-            // --- Fields ---
             /// <summary>Delegate for reading a file.</summary>
-            public ReadFileDelegate ReadFile;
+            void ReadFile(string filePath, ReadFileCallback callback);
 
             /// <summary>Delegate for writing a file.</summary>
-            public WriteFileDelegate WriteFile;
+            void WriteFile(string filePath, byte[] data, WriteFileCallback callback);
 
             /// <summary>Delegate for deleting a file.</summary>
-            public DeleteFileDelegate DeleteFile;
+            void DeleteFile(string filePath, DeleteCallback callback);
 
             /// <summary>Delegate for deleting a directory.</summary>
-            public DeleteDirectoryDelegate DeleteDirectory;
+            void DeleteDirectory(string directoryPath, DeleteCallback callback);
 
             /// <summary>Delegate for getting a file's size.</summary>
-            public GetFileSizeDelegate GetFileSize;
+            void GetFileSize(string filePath, GetFileSizeCallback callback);
 
             /// <summary>Delegate for getting a file's size and md5 hash.</summary>
-            public GetFileSizeAndHashDelegate GetFileSizeAndHash;
+            void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback);
         }
 
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
-        public static readonly PlatformFunctions PLATFORM;
+        public static readonly IPlatformIO PLATFORM_IO;
 
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static DataStorage()
         {
             #if true
-                DataStorage.PLATFORM = DataStorage.GetPlatformFunctions_Standalone();
+                DataStorage.PLATFORM_IO = new StandaloneIO();
             #endif
-
-            Debug.Assert(DataStorage.PLATFORM.ReadFile != null);
-            Debug.Assert(DataStorage.PLATFORM.WriteFile != null);
-            Debug.Assert(DataStorage.PLATFORM.DeleteFile != null);
-            Debug.Assert(DataStorage.PLATFORM.GetFileSize != null);
-            Debug.Assert(DataStorage.PLATFORM.GetFileSizeAndHash != null);
         }
 
         // ---------[ I/O Interface ]---------
         /// <summary>Reads a file.</summary>
         public static void ReadFile(string filePath, ReadFileCallback callback)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
-
-            DataStorage.PLATFORM.ReadFile(filePath, callback);
+            DataStorage.PLATFORM_IO.ReadFile(filePath, callback);
         }
 
         /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
         public static void ReadJSONFile<T>(string filePath, ReadJSONFileCallback<T> callback)
         {
-            Debug.Assert(callback != null);
-
-            DataStorage.PLATFORM.ReadFile(filePath, (path, success, data) =>
+            DataStorage.PLATFORM_IO.ReadFile(filePath, (path, success, data) =>
             {
                 T jsonObject;
 
@@ -130,9 +119,6 @@ namespace ModIO
         /// <summary>Writes a file.</summary>
         public static void WriteFile(string filePath, byte[] data, WriteFileCallback callback)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
-            Debug.Assert(data != null);
-
             #if DEBUG
             if(data.Length == 0)
             {
@@ -140,7 +126,7 @@ namespace ModIO
             }
             #endif // DEBUG
 
-            DataStorage.PLATFORM.WriteFile(filePath, data, callback);
+            DataStorage.PLATFORM_IO.WriteFile(filePath, data, callback);
         }
 
         /// <summary>Writes a JSON file.</summary>
@@ -164,34 +150,25 @@ namespace ModIO
         /// <summary>Deletes a file.</summary>
         public static void DeleteFile(string filePath, DeleteCallback callback)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
-
-            DataStorage.PLATFORM.DeleteFile(filePath, callback);
+            DataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
         }
 
         /// <summary>Deletes a directory.</summary>
         public static void DeleteDirectory(string directoryPath, DeleteCallback callback)
         {
-            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
-
-            DataStorage.PLATFORM.DeleteDirectory(directoryPath, callback);
+            DataStorage.PLATFORM_IO.DeleteDirectory(directoryPath, callback);
         }
 
         /// <summary>Gets the size of a file.</summary>
         public static void GetFileSize(string filePath, GetFileSizeCallback callback)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
-            Debug.Assert(callback != null);
-
-            DataStorage.PLATFORM.GetFileSize(filePath, callback);
+            DataStorage.PLATFORM_IO.GetFileSize(filePath, callback);
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
         public static void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
-
-            DataStorage.PLATFORM.GetFileSizeAndHash(filePath, callback);
+            DataStorage.PLATFORM_IO.GetFileSizeAndHash(filePath, callback);
         }
 
         // ---------[ Platform I/O ]---------
