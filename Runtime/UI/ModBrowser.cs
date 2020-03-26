@@ -675,7 +675,11 @@ namespace ModIO.UI
                 }
                 else
                 {
-                    ModManager.TryUninstallAllModVersions(idPair.modId);
+                    bool isUninstallDone = false;
+
+                    ModManager.UninstallMod(idPair.modId, (s) => isUninstallDone = true);
+
+                    while(!isUninstallDone) { yield return null; }
                 }
             }
 
@@ -1416,7 +1420,7 @@ namespace ModIO.UI
             // remove from disk
             CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-            ModManager.TryUninstallAllModVersions(modId);
+            ModManager.UninstallMod(modId, null);
 
             DisableMod(modId);
 
@@ -1489,7 +1493,7 @@ namespace ModIO.UI
                     // remove from disk
                     CacheClient.DeleteAllModfileAndBinaryData(modId);
 
-                    ModManager.TryUninstallAllModVersions(modId);
+                    ModManager.UninstallMod(modId, null);
 
                     // disable
                     LocalUser.EnabledModIds.Remove(modId);
