@@ -86,7 +86,13 @@ namespace ModIO
 
                 if(success)
                 {
-                    success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
+                    if(!IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject))
+                    {
+                        success = false;
+
+                        Debug.LogWarning("[mod.io] Failed translate file data into JSON Object."
+                                         + "\nFile: " + filePath + "\n\n");
+                    }
                 }
                 else
                 {
