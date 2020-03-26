@@ -32,7 +32,21 @@ namespace ModIO
         /// <summary>Delegate for clearing all data.</summary>
         public delegate void ClearAllDataDelegate(ClearAllDataCallback callback);
 
-        // --- Platform Functions ---
+        // ---------[ I/O Functionality ]---------
+        /// <summary>Defines the functions needed for a complete platform IO.</summary>
+        public interface IPlatformIO : DataStorage.IPlatformIO
+        {
+            // --- Fields ---
+            /// <summary>Delegate for initializing the storage system.</summary>
+            void InitializeWithInt(string platformUserIdentifier, InitializationCallback callback);
+
+            /// <summary>Delegate for initializing the storage system.</summary>
+            void InitializeWithString(int platformUserIdentifier, InitializationCallback callback);
+
+            /// <summary>Delegate for clearing all data.</summary>
+            void ClearAllData(ClearAllDataCallback callback);
+        }
+
         /// <summary>The collection of platform specific functions.</summary>
         public struct PlatformFunctions
         {
@@ -59,6 +73,9 @@ namespace ModIO
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
         public static readonly PlatformFunctions PLATFORM;
+
+        /// <summary>Defines the i/o functions to use for this platform.</summary>
+        public static readonly IPlatformIO PLATFORM_IO;
 
         // ---------[ Fields ]---------
         /// <summary>Has UserDataStorage been initialized?</summary>
