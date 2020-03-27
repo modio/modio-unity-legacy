@@ -303,32 +303,33 @@ namespace ModIO
             downloadInfo.request = UnityWebRequest.Get(downloadURL);
 
             string tempFilePath = downloadInfo.target + ".download";
-            try
+            DataStorage.WriteFile(tempFilePath, new byte[0], (path, success) =>
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
-                downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
-
-                #if PLATFORM_PS4
-                // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
-                //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
-                //  Spiderling Studios (http://spiderlinggames.co.uk/)
-                downloadInfo.request.redirectLimit = 0;
-                #endif
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("Failed to create download file on disk."
-                                      + "\nFile: " + tempFilePath + "\n\n");
-
-                Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
-
-                if(modfileDownloadFailed != null)
+                if(success)
                 {
+                    downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
+
+                    DownloadClient.DownloadModBinary_FileCreated(idPair, downloadInfo);
+                }
+                else if(DownloadClient.modfileDownloadFailed != null)
+                {
+                    string warningInfo = ("Failed to create download file on disk."
+                                          + "\nSource: " + downloadURL
+                                          + "\nDestination: " + tempFilePath + "\n\n");
+
                     modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
                 }
+            });
+        }
 
-                return;
-            }
+        private static void DownloadModBinary_FileCreated(ModfileIdPair idPair, FileDownloadInfo downloadInfo)
+        {
+            #if PLATFORM_PS4
+            // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
+            //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
+            //  Spiderling Studios (http://spiderlinggames.co.uk/)
+            downloadInfo.request.redirectLimit = 0;
+            #endif
 
             var operation = downloadInfo.request.SendWebRequest();
 
@@ -367,7 +368,6 @@ namespace ModIO
                 DownloadClient.modfileDownloadStarted(idPair, downloadInfo);
             }
         }
-
 
         public static void CancelModBinaryDownload(int modId, int modfileId)
         {
