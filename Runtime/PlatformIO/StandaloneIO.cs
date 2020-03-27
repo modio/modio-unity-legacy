@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Debug = UnityEngine.Debug;
@@ -268,6 +269,34 @@ namespace ModIO
             }
 
             callback.Invoke(filePath, byteCount, hashString);
+        }
+
+        /// <summary>Gets a list of directories contained in the given location.</summary>
+        public void GetDirectories(string directoryPath, Action<string, IList<string>> callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+            Debug.Assert(callback != null);
+
+            string[] subDirs = null;
+
+            if(Directory.Exists(directoryPath))
+            {
+                try
+                {
+                    subDirs = Directory.GetDirectories(directoryPath);
+                }
+                catch(Exception e)
+                {
+                    subDirs = null;
+
+                    string warningInfo = ("[mod.io] Failed to get directories.\nDirectory: " + directoryPath + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+
+            callback.Invoke(directoryPath, subDirs);
         }
     }
 }
