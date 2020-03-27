@@ -186,6 +186,36 @@ namespace ModIO
                 callback.Invoke(directoryPath, success);
             }
         }
+        /// <summary>Moves a directory.</summary>
+        public void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(sourcePath));
+            Debug.Assert(!string.IsNullOrEmpty(destinationPath));
+
+            bool success = false;
+            try
+            {
+                Directory.Move(sourcePath, destinationPath);
+                success = true;
+            }
+            catch(Exception e)
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to move directory."
+                                      + "\nSource Directory: " + sourcePath
+                                      + "\nDestination: " + destinationPath
+                                      + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            if(callback != null)
+            {
+                callback.Invoke(sourcePath, destinationPath, success);
+            }
+        }
 
         /// <summary>Checks whether a file exists.</summary>
         public void GetFileExists(string filePath, DataStorage.GetExistsCallback callback)
