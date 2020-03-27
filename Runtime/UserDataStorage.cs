@@ -286,7 +286,7 @@ namespace ModIO
             }
 
             /// <summary>Checks whether a file exists</summary>
-            public void GetFileExists(string filePath, DataStorage.GetFileExistsCallback callback)
+            public void GetFileExists(string filePath, DataStorage.GetExistsCallback callback)
             {
                 throw new System.NotImplementedException();
             }

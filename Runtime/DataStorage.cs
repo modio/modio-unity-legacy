@@ -34,8 +34,8 @@ namespace ModIO
         /// <summary>Delegate for MoveFile/Directory callbacks.</summary>
         public delegate void MoveCallback(string sourcePath, string destinationPath, bool success);
 
-        /// <summary>Delegate for GetFileExists callback.</summary>
-        public delegate void GetFileExistsCallback(string path, bool doesFileExist);
+        /// <summary>Delegate for GetFile/DirectoryExists callback.</summary>
+        public delegate void GetExistsCallback(string path, bool doesExist);
 
         /// <summary>Delegate for GetFileSize callback.</summary>
         public delegate void GetFileSizeCallback(string path, Int64 byteCount);
@@ -66,7 +66,7 @@ namespace ModIO
             void DeleteDirectory(string directoryPath, DeleteCallback callback);
 
             /// <summary>Gets the size of a file.</summary>
-            void GetFileExists(string filePath, GetFileExistsCallback callback);
+            void GetFileExists(string filePath, GetExistsCallback callback);
 
             /// <summary>Delegate for getting a file's size.</summary>
             void GetFileSize(string filePath, GetFileSizeCallback callback);

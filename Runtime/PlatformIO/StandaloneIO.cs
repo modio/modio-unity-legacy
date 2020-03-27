@@ -186,8 +186,8 @@ namespace ModIO
             }
         }
 
-        /// <summary>Checks whether a file exists</summary>
-        public void GetFileExists(string filePath, DataStorage.GetFileExistsCallback callback)
+        /// <summary>Checks whether a file exists.</summary>
+        public void GetFileExists(string filePath, DataStorage.GetExistsCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePath));
             Debug.Assert(callback != null);
