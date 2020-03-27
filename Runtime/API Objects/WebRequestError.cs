@@ -410,7 +410,6 @@ namespace ModIO
         {
             var debugString = new System.Text.StringBuilder();
 
-            debugString.Append("[mod.io] ");
             debugString.AppendLine(this.webRequest == null
                                    ? "Web request failed locally"
                                    : "Web request failed");
@@ -473,7 +472,7 @@ namespace ModIO
 
         public static void LogAsWarning(WebRequestError error)
         {
-            Debug.LogWarning(error.ToUnityDebugString());
+            Debug.LogWarning("[mod.io] " + error.ToUnityDebugString());
         }
     }
 }
