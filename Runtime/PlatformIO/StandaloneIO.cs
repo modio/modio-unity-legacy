@@ -103,23 +103,56 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(sourceFilePath));
             Debug.Assert(!string.IsNullOrEmpty(destinationFilePath));
 
-            bool success = false;
-            try
+            bool success = true;
+            string failMessage = null;
+
+            if(!File.Exists(sourceFilePath))
             {
-                File.Move(sourceFilePath, destinationFilePath);
-                success = true;
-            }
-            catch(Exception e)
-            {
+                failMessage = ("Failed to move file as the source file does not exist."
+                               + "\nSource File: " + sourceFilePath
+                               + "\nDestination: " + destinationFilePath);
                 success = false;
+            }
+            else
+            {
+                if(File.Exists(destinationFilePath))
+                {
+                    try
+                    {
+                        File.Delete(destinationFilePath);
+                    }
+                    catch(Exception e)
+                    {
+                        failMessage = ("Failed to move file as the existing file at the destination could not be deleted."
+                                       + "\nSource File: " + sourceFilePath
+                                       + "\nDestination: " + destinationFilePath
+                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
 
-                string warningInfo = ("[mod.io] Failed to move file."
-                                      + "\nSource File: " + sourceFilePath
-                                      + "\nDestination: " + destinationFilePath
-                                      + "\n\n");
+                        success = false;
+                    }
+                }
 
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                if(success)
+                {
+                    try
+                    {
+                        File.Move(sourceFilePath, destinationFilePath);
+                    }
+                    catch(Exception e)
+                    {
+                        success = false;
+
+                        failMessage = ("Failed to move file."
+                                       + "\nSource File: " + sourceFilePath
+                                       + "\nDestination: " + destinationFilePath
+                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
+                    }
+                }
+            }
+
+            if(!success)
+            {
+                Debug.LogWarning("[mod.io] " + failMessage);
             }
 
             if(callback != null)
