@@ -405,12 +405,13 @@ namespace ModIO
             {
                 if(downloadInfo.request != null)
                 {
+                    downloadInfo.wasAborted = true;
                     downloadInfo.request.Abort();
                 }
                 else
                 {
-                    downloadInfo.isDone = true;
                     downloadInfo.wasAborted = true;
+                    downloadInfo.isDone = true;
 
                     modfileDownloadMap.Remove(idPair);
                 }
@@ -426,26 +427,11 @@ namespace ModIO
 
             if(request.isNetworkError || request.isHttpError)
             {
-                if(request.error.ToUpper() == "USER ABORTED"
-                   || request.error.ToUpper() == "REQUEST ABORTED")
-                {
-                    #if DEBUG
-                    if(PluginSettings.data.logAllRequests)
-                    {
-                        Debug.Log("[mod.io] Download Aborted by Player."
-                                  + "\nDownload aborted at: " + ServerTimeStamp.Now
-                                  + "\nURL: " + request.url);
-                    }
-                    #endif
-
-                    downloadInfo.wasAborted = true;
-                }
-
                 // NOTE(@jackson): This workaround addresses an issue in UnityWebRequests on the
                 //  PS4 whereby redirects fail in specific cases. Special thanks to @Eamon of
                 //  Spiderling Studios (http://spiderlinggames.co.uk/)
                 #if UNITY_PS4
-                else if (downloadInfo.error.responseCode == 302) // Redirect limit exceeded
+                if (downloadInfo.error.responseCode == 302) // Redirect limit exceeded
                 {
                     string headerLocation = string.Empty;
                     if (downloadInfo.error.responseHeaders.TryGetValue("location", out headerLocation)
@@ -469,7 +455,16 @@ namespace ModIO
                 #if DEBUG
                 if(PluginSettings.data.logAllRequests)
                 {
-                    WebRequestError.LogAsWarning(downloadInfo.error);
+                    if(downloadInfo.wasAborted)
+                    {
+                        Debug.Log("[mod.io] Download Aborted."
+                                  + "\nDownload aborted at: " + ServerTimeStamp.Now
+                                  + "\n" + downloadInfo.error.ToUnityDebugString());
+                    }
+                    else
+                    {
+                        WebRequestError.LogAsWarning(downloadInfo.error);
+                    }
                 }
                 #endif // DEBUG
             }
