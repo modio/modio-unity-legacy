@@ -422,7 +422,6 @@ namespace ModIO
         {
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
             UnityWebRequest request = downloadInfo.request;
-            bool succeeded = false;
             downloadInfo.bytesPerSecond = 0;
 
             if(request.isNetworkError || request.isHttpError)
@@ -467,6 +466,8 @@ namespace ModIO
                     }
                 }
                 #endif // DEBUG
+
+                DownloadClient.CleanUpDownload(idPair, downloadInfo, false);
             }
             else
             {
@@ -481,29 +482,11 @@ namespace ModIO
                 }
                 #endif
 
-                try
+                DataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target, (s, d, success) =>
                 {
-                    if(File.Exists(downloadInfo.target))
-                    {
-                        File.Delete(downloadInfo.target);
-                    }
-
-                    File.Move(downloadInfo.target + ".download", downloadInfo.target);
-
-                    succeeded = true;
-                }
-                catch(Exception e)
-                {
-                    string warningInfo = ("Failed to save mod binary."
-                                          + "\nFile: " + downloadInfo.target + "\n\n");
-
-                    Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
-
-                    downloadInfo.error = WebRequestError.GenerateLocal(warningInfo);
-                }
+                    DownloadClient.CleanUpDownload(idPair, downloadInfo, success);
+                });
             }
-
-            DownloadClient.CleanUpDownload(idPair, downloadInfo, succeeded);
         }
 
         private static void CleanUpDownload(ModfileIdPair idPair, FileDownloadInfo downloadInfo, bool success)
