@@ -186,6 +186,7 @@ namespace ModIO
                 callback.Invoke(directoryPath, success);
             }
         }
+
         /// <summary>Moves a directory.</summary>
         public void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback)
         {

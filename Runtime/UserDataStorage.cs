@@ -274,6 +274,12 @@ namespace ModIO
                 throw new System.NotImplementedException();
             }
 
+            /// <summary>Moves a directory.</summary>
+            public void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
             /// <summary>Clears all user data. (Unity Editor)</summary>
             public void ClearAllData(ClearAllDataCallback callback)
             {

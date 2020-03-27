@@ -79,6 +79,9 @@ namespace ModIO
 
             /// <summary>Delegate for getting the directories at a location.</summary>
             void GetDirectories(string directoryPath, GetDirectoriesCallback callback);
+
+            /// <summary>Moves a directory.</summary>
+            void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback);
         }
 
         // ---------[ Constants ]---------
@@ -180,6 +183,12 @@ namespace ModIO
         public static void DeleteDirectory(string directoryPath, DeleteCallback callback)
         {
             DataStorage.PLATFORM_IO.DeleteDirectory(directoryPath, callback);
+        }
+
+        /// <summary>Moves a directory.</summary>
+        public static void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback)
+        {
+            DataStorage.PLATFORM_IO.MoveDirectory(sourcePath, destinationPath, callback);
         }
 
         /// <summary>Gets the size of a file.</summary>
