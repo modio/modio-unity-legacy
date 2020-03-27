@@ -422,7 +422,6 @@ namespace ModIO
             FileDownloadInfo downloadInfo = DownloadClient.modfileDownloadMap[idPair];
             UnityWebRequest request = downloadInfo.request;
             bool succeeded = false;
-            downloadInfo.isDone = true;
             downloadInfo.bytesPerSecond = 0;
 
             if(request.isNetworkError || request.isHttpError)
@@ -433,7 +432,7 @@ namespace ModIO
                     #if DEBUG
                     if(PluginSettings.data.logAllRequests)
                     {
-                        Debug.Log("DOWNLOAD ABORTED"
+                        Debug.Log("[mod.io] Download Aborted by Player."
                                   + "\nDownload aborted at: " + ServerTimeStamp.Now
                                   + "\nURL: " + request.url);
                     }
@@ -454,7 +453,7 @@ namespace ModIO
                     {
                         if (PluginSettings.data.logAllRequests)
                         {
-                            Debug.LogFormat("CAUGHT DOWNLOAD REDIRECTION\nURL: {0}", headerLocation);
+                            Debug.LogFormat("[mod.io] Caught PS4 redirection error. Reattempting.\nURL: {0}", headerLocation);
                         }
 
                         downloadInfo.error = null;
@@ -463,25 +462,30 @@ namespace ModIO
                         return;
                     }
                 }
-                #endif
+                #endif // UNITY_PS4
 
-                else
+                downloadInfo.error = WebRequestError.GenerateFromWebRequest(downloadInfo.request);
+
+                #if DEBUG
+                if(PluginSettings.data.logAllRequests)
                 {
-                    downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
-
-                    if(PluginSettings.data.logAllRequests)
-                    {
-                        WebRequestError.LogAsWarning(downloadInfo.error);
-                    }
-
-                    if(modfileDownloadFailed != null)
-                    {
-                        modfileDownloadFailed(idPair, downloadInfo.error);
-                    }
+                    WebRequestError.LogAsWarning(downloadInfo.error);
                 }
+                #endif // DEBUG
             }
             else
             {
+                #if DEBUG
+                if(PluginSettings.data.logAllRequests)
+                {
+                    var responseTimeStamp = ServerTimeStamp.Now;
+                    Debug.Log("DOWNLOAD SUCEEDED"
+                              + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
+                              + "\nURL: " + request.url
+                              + "\nFilePath: " + downloadInfo.target);
+                }
+                #endif
+
                 try
                 {
                     if(File.Exists(downloadInfo.target))
@@ -501,34 +505,32 @@ namespace ModIO
                     Debug.LogWarning("[mod.io] " + warningInfo + Utility.GenerateExceptionDebugString(e));
 
                     downloadInfo.error = WebRequestError.GenerateLocal(warningInfo);
-
-                    if(modfileDownloadFailed != null)
-                    {
-                        modfileDownloadFailed(idPair, downloadInfo.error);
-                    }
                 }
             }
 
-            if(succeeded)
+            DownloadClient.CleanUpDownload(idPair, downloadInfo, succeeded);
+        }
+
+        private static void CleanUpDownload(ModfileIdPair idPair, FileDownloadInfo downloadInfo, bool success)
+        {
+            downloadInfo.isDone = true;
+
+            if(success)
             {
-                #if DEBUG
-                if(PluginSettings.data.logAllRequests)
+                if(DownloadClient.modfileDownloadSucceeded != null)
                 {
-                    var responseTimeStamp = ServerTimeStamp.Now;
-                    Debug.Log("DOWNLOAD SUCEEDED"
-                              + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                              + "\nURL: " + request.url
-                              + "\nFilePath: " + downloadInfo.target);
+                    DownloadClient.modfileDownloadSucceeded(idPair, downloadInfo);
                 }
-                #endif
-
-                if(modfileDownloadSucceeded != null)
+            }
+            else if(!downloadInfo.wasAborted)
+            {
+                if(DownloadClient.modfileDownloadFailed != null)
                 {
-                    modfileDownloadSucceeded(idPair, downloadInfo);
+                    DownloadClient.modfileDownloadFailed(idPair, downloadInfo.error);
                 }
             }
 
-            modfileDownloadMap.Remove(idPair);
+            DownloadClient.modfileDownloadMap.Remove(idPair);
             DownloadClient.modfileProgressMarkers.Remove(idPair);
         }
 
