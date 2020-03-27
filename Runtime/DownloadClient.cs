@@ -474,7 +474,7 @@ namespace ModIO
                 if(PluginSettings.data.logAllRequests)
                 {
                     var responseTimeStamp = ServerTimeStamp.Now;
-                    Debug.Log("DOWNLOAD SUCEEDED"
+                    Debug.Log("[mod.io] Download Succeeded"
                               + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
                               + "\nURL: " + request.url
                               + "\nFilePath: " + downloadInfo.target);

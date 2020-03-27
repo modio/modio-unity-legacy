@@ -411,8 +411,8 @@ namespace ModIO
             var debugString = new System.Text.StringBuilder();
 
             debugString.AppendLine(this.webRequest == null
-                                   ? "Web request failed locally"
-                                   : "Web request failed");
+                                   ? "Web Request Failed (Local)"
+                                   : "Web Request Failed");
 
             if(this.webRequest != null)
             {
