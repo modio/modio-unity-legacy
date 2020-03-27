@@ -158,6 +158,12 @@ namespace ModIO
             DataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
         }
 
+        /// <summary>Moves a file.</summary>
+        public static void MoveFile(string sourceFilePath, string destinationFilePath, MoveCallback callback)
+        {
+            DataStorage.PLATFORM_IO.MoveFile(sourceFilePath, destinationFilePath, callback);
+        }
+
         /// <summary>Creates a directory.</summary>
         public static void CreateDirectory(string directoryPath, CreateCallback callback)
         {
