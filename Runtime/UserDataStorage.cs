@@ -302,6 +302,12 @@ namespace ModIO
             {
                 throw new System.NotImplementedException();
             }
+
+            /// <summary>Gets a list of directories found at the given location.</summary>
+            public void GetDirectories(string directoryPath, DataStorage.GetDirectoriesCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
         }
 
         #elif MODIO_FACEPUNCH_SUPPORT

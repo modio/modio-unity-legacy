@@ -271,8 +271,8 @@ namespace ModIO
             callback.Invoke(filePath, byteCount, hashString);
         }
 
-        /// <summary>Gets a list of directories contained in the given location.</summary>
-        public void GetDirectories(string directoryPath, Action<string, IList<string>> callback)
+        /// <summary>Gets a list of directories found at the given location.</summary>
+        public void GetDirectories(string directoryPath, DataStorage.GetDirectoriesCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(directoryPath));
             Debug.Assert(callback != null);

@@ -43,6 +43,9 @@ namespace ModIO
         /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
         public delegate void GetFileSizeAndHashCallback(string path, Int64 byteCount, string md5Hash);
 
+        /// <summary>Delegate for GetDirectories callback.</summary>
+        public delegate void GetDirectoriesCallback(string directoryPath, IList<string> directories);
+
         // ---------[ I/O Functionality ]---------
         /// <summary>Defines the functions needed for a complete platform IO.</summary>
         public interface IPlatformIO
@@ -73,6 +76,9 @@ namespace ModIO
 
             /// <summary>Delegate for getting a file's size and md5 hash.</summary>
             void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback);
+
+            /// <summary>Delegate for getting the directories at a location.</summary>
+            void GetDirectories(string directoryPath, GetDirectoriesCallback callback);
         }
 
         // ---------[ Constants ]---------
@@ -188,5 +194,10 @@ namespace ModIO
             DataStorage.PLATFORM_IO.GetFileSizeAndHash(filePath, callback);
         }
 
+        /// <summary>Gets a list of directories found at the given location.</summary>
+        public static void GetDirectories(string directoryPath, DataStorage.GetDirectoriesCallback callback)
+        {
+            DataStorage.PLATFORM_IO.GetDirectories(directoryPath, callback);
+        }
     }
 }
