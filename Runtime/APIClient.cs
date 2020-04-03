@@ -93,7 +93,7 @@ namespace ModIO
         /// <summary>Generates a debug-friendly string of web request details.</summary>
         public static string GenerateRequestDebugString(UnityWebRequest webRequest)
         {
-            string requestHeaders = "";
+            var requestHeaders = new System.Text.StringBuilder();
             foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
             {
                 string headerValue = webRequest.GetRequestHeader(headerKey);
@@ -101,20 +101,20 @@ namespace ModIO
                 {
                     if(headerKey.ToUpper() == "AUTHORIZATION")
                     {
-                        requestHeaders += "\n  " + headerKey + ": " + headerValue.Substring(0, 6);
+                        requestHeaders.Append("\n  " + headerKey + ": " + headerValue.Substring(0, 6));
 
                         if(headerValue.Length > 8) // Contains more than "Bearer "
                         {
-                            requestHeaders += " [OAUTH TOKEN]";
+                            requestHeaders.Append(" [OAUTH TOKEN]");
                         }
                         else // NULL
                         {
-                            requestHeaders += " [NULL]";
+                            requestHeaders.Append(" [NULL]");
                         }
                     }
                     else
                     {
-                        requestHeaders += "\n  " + headerKey + ": " + headerValue;
+                        requestHeaders.Append("\n  " + headerKey + ": " + headerValue);
                     }
                 }
             }
@@ -153,14 +153,14 @@ namespace ModIO
 
                 return("Endpoint: " + webRequest.url
                        + "\nMethod: " + webRequest.method.ToUpper()
-                       + "\nHeaders: " + requestHeaders
+                       + "\nHeaders: " + requestHeaders.ToString()
                        + "\nForm Data: " + formDataString.ToString());
             }
             else
             {
                 return("Endpoint: " + webRequest.url
                        + "\nMethod: " + webRequest.method.ToUpper()
-                       + "\nHeaders: " + requestHeaders);
+                       + "\nHeaders: " + requestHeaders.ToString());
             }
         }
 
