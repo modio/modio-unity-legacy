@@ -30,41 +30,13 @@ namespace ModIO
         /// <summary>Version information to provide in the request header.</summary>
         public static readonly string USER_AGENT_HEADER = "modioUnityPlugin-" + ModIOVersion.Current.ToString("X.Y.Z");
 
-        /// <summary>Collection of the HTTP request header keys used by Unity.</summary>
-        public static readonly string[] UNITY_REQUEST_HEADER_KEYS = new string[]
-        {
-            // - UNIVERSAL -
-            "accept-charset",
-            "access-control-request-headers",
-            "access-control-request-method",
-            "connection",
-            "content-length",
-            "cookie",
-            "cookie2",
-            "date",
-            "dnt",
-            "expect",
-            "host",
-            "keep-alive",
-            "origin",
-            "referer",
-            "te",
-            "trailer",
-            "transfer-encoding",
-            "upgrade",
-            "via",
-            // - UNITY -
-            "accept-encoding",
-            "content-type",
-            "x-unity-version",
-            "user-agent",
-        };
-
         /// <summary>Collection of the HTTP request header keys used by mod.io.</summary>
         public static readonly string[] MODIO_REQUEST_HEADER_KEYS = new string[]
         {
             "authorization",
             "accept-language",
+            "x-unity-version",
+            "user-agent",
         };
 
         // ---------[ SETTINGS ]---------
@@ -122,10 +94,7 @@ namespace ModIO
         public static string GenerateRequestDebugString(UnityWebRequest webRequest)
         {
             string requestHeaders = "";
-            List<string> requestKeys = new List<string>(UNITY_REQUEST_HEADER_KEYS);
-            requestKeys.AddRange(MODIO_REQUEST_HEADER_KEYS);
-
-            foreach(string headerKey in requestKeys)
+            foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
             {
                 string headerValue = webRequest.GetRequestHeader(headerKey);
                 if(headerValue != null)

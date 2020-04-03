@@ -146,10 +146,7 @@ namespace ModIO
             if(PluginSettings.data.logAllRequests)
             {
                 string requestHeaders = "";
-                List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(APIClient.MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
+                foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
                 {
                     string headerValue = webRequest.GetRequestHeader(headerKey);
                     if(headerValue != null)
@@ -336,10 +333,7 @@ namespace ModIO
             if(PluginSettings.data.logAllRequests)
             {
                 string requestHeaders = "";
-                List<string> requestKeys = new List<string>(APIClient.UNITY_REQUEST_HEADER_KEYS);
-                requestKeys.AddRange(APIClient.MODIO_REQUEST_HEADER_KEYS);
-
-                foreach(string headerKey in requestKeys)
+                foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
                 {
                     string headerValue = downloadInfo.request.GetRequestHeader(headerKey);
                     if(headerValue != null)
