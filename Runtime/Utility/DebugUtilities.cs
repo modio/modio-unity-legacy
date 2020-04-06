@@ -48,6 +48,7 @@ namespace ModIO
                 {
                     operation.completed += DebugUtilities.OnOperationCompleted;
                 }
+
             #endif // DEBUG
         }
 
@@ -207,7 +208,7 @@ namespace ModIO
                     requestString.Append(bdp.fileName);
                     requestString.Append(" (");
                     requestString.Append(bdp.contents == null
-                                         ? "NULL DATA"
+                                         ? "NULL_DATA"
                                          : ValueFormatting.ByteCount(bdp.contents.Length, null));
                     requestString.Append(")");
                     ++count;
@@ -271,6 +272,143 @@ namespace ModIO
             return responseString.ToString();
         }
 
+        /// <summary>Parses an UploadHandler's payload and generates the request info elements.</summary>
+        public static void ParseUploadData(byte[] data,
+                                           out List<API.StringValueParameter> stringFields,
+                                           out List<API.BinaryDataParameter> binaryFields)
+        {
+            stringFields = null;
+            binaryFields = null;
+
+            // early out
+            if(data == null || data.Length == 0) { return; }
+
+            // get dataString and delimiter
+            string dataString = System.Text.Encoding.UTF8.GetString(data);
+            string lineEnd = "\r\n";
+            int lineEndIndex = -1;
+
+            lineEndIndex = dataString.IndexOf(lineEnd, 1);
+            if(lineEndIndex < 0) { return; }
+
+            string delimiter = dataString.Substring(0, lineEndIndex).Trim();
+            string[] sections = dataString.Split(new string[] { delimiter }, System.StringSplitOptions.RemoveEmptyEntries);
+            stringFields = new List<API.StringValueParameter>();
+            binaryFields = new List<API.BinaryDataParameter>();
+
+            foreach(string s in sections)
+            {
+                string searchString = null;
+                int searchIndex = 0;
+                int elementStartIndex = 0;
+                int elementEndIndex = 0;
+
+                // Content-Type
+                searchString = "Content-Type: ";
+                searchIndex = s.IndexOf(searchString);
+                if(searchIndex < 0)
+                {
+                    continue;
+                }
+
+                elementStartIndex = searchIndex + searchString.Length;
+                elementEndIndex = s.IndexOf(lineEnd, elementStartIndex);
+
+                string contentType = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+
+                // process text
+                if(contentType.Contains(@"text/plain"))
+                {
+                    var newStringParam = new API.StringValueParameter();
+
+                    // get key
+                    searchString = "name=\"";
+                    searchIndex = s.IndexOf(searchString);
+
+                    if(searchIndex < 0)
+                    {
+                        newStringParam.key = "KEY_NOT_FOUND";
+                    }
+                    else
+                    {
+                        elementStartIndex = searchIndex + searchString.Length;
+                        elementEndIndex = s.IndexOf("\"", elementStartIndex);
+
+                        newStringParam.key = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+                    }
+
+                    // get value
+                    searchString = lineEnd + lineEnd;
+                    searchIndex = s.IndexOf(searchString);
+
+                    if(searchIndex < 0)
+                    {
+                        newStringParam.value = "VALUE_NOT_FOUND";
+                    }
+                    else
+                    {
+                        elementStartIndex = searchIndex + searchString.Length;
+                        newStringParam.value = s.Substring(elementStartIndex).Trim();
+                    }
+                }
+                // process literally anything else
+                else
+                {
+                    var newBinaryParam = new API.BinaryDataParameter()
+                    {
+                        mimeType = contentType,
+                    };
+
+                    // get key
+                    searchString = "name=\"";
+                    searchIndex = s.IndexOf(searchString);
+
+                    if(searchIndex < 0)
+                    {
+                        newBinaryParam.key = "KEY_NOT_FOUND";
+                    }
+                    else
+                    {
+                        elementStartIndex = searchIndex + searchString.Length;
+                        elementEndIndex = s.IndexOf("\"", elementStartIndex);
+
+                        newBinaryParam.key = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+                    }
+
+                    // get fileName
+                    searchString = "filename=\"";
+                    searchIndex = s.IndexOf(searchString);
+
+                    if(searchIndex < 0)
+                    {
+                        newBinaryParam.fileName = "FILENAME_NOT_FOUND";
+                    }
+                    else
+                    {
+                        elementStartIndex = searchIndex + searchString.Length;
+                        elementEndIndex = s.IndexOf("\"", elementStartIndex);
+
+                        newBinaryParam.fileName = s.Substring(elementStartIndex, elementEndIndex - elementStartIndex);
+                    }
+
+                    // get contents
+                    searchString = lineEnd + lineEnd;
+                    searchIndex = s.IndexOf(searchString);
+
+                    if(searchIndex < 0)
+                    {
+                        newBinaryParam.contents = null;
+                    }
+                    else
+                    {
+                        elementStartIndex = searchIndex + searchString.Length;
+                        newBinaryParam.contents = new byte[s.Length - elementStartIndex - lineEnd.Length];
+                    }
+                }
+            }
+        }
+
+        // ---------[ General ]---------
         /// <summary>Generates a user identifying string to debug with.</summary>
         public static string GenerateUserIdString(UserProfile profile)
         {
