@@ -105,6 +105,7 @@ namespace ModIO
                 logString.Append(" (");
                 logString.Append(webRequest.method.ToUpper());
                 logString.AppendLine(")");
+                logString.AppendLine();
 
                 logString.AppendLine("------[ Request ]------");
                 logString.AppendLine(requestString);
@@ -113,8 +114,6 @@ namespace ModIO
                 logString.Append("Time Stamp: ");
                 logString.AppendLine(timeStampString);
                 logString.AppendLine(responseString);
-
-                logString.AppendLine();
 
                 // log
                 Debug.Log(logString.ToString());
@@ -154,7 +153,7 @@ namespace ModIO
                 if(headerValue != null)
                 {
                     requestString.AppendLine();
-                    requestString.Append('\t');
+                    requestString.Append("  ");
                     requestString.Append(headerKey);
                     requestString.Append(':');
 
@@ -177,46 +176,48 @@ namespace ModIO
                     }
                 }
             }
+            requestString.AppendLine();
 
             // add string fields
             requestString.Append("String Fields: ");
             if(stringFields == null)
             {
-                requestString.Append(" NONE");
+                requestString.AppendLine(" NONE");
             }
             else
             {
+                int countInsertIndex = requestString.Length;
                 int count = 0;
+
                 foreach(var svp in stringFields)
                 {
                     requestString.AppendLine();
-                    requestString.Append('\t');
+                    requestString.Append("  ");
                     requestString.Append(svp.key);
                     requestString.Append(':');
                     requestString.Append(svp.value);
                     ++count;
                 }
 
+                requestString.Insert(countInsertIndex, "[" + count.ToString() + "]");
                 requestString.AppendLine();
-                requestString.Append('\t');
-                requestString.Append("Field Count = ");
-                requestString.AppendLine(count.ToString());
             }
 
             // add binary fields
             requestString.Append("Binary Fields: ");
             if(binaryFields == null)
             {
-                requestString.Append(" NONE");
+                requestString.AppendLine(" NONE");
             }
             else
             {
+                int countInsertIndex = requestString.Length;
                 int count = 0;
 
                 foreach(var bdp in binaryFields)
                 {
                     requestString.AppendLine();
-                    requestString.Append('\t');
+                    requestString.Append("  ");
                     requestString.Append(bdp.key);
                     requestString.Append(':');
                     requestString.Append(bdp.fileName);
@@ -228,10 +229,8 @@ namespace ModIO
                     ++count;
                 }
 
+                requestString.Insert(countInsertIndex, "[" + count.ToString() + "]");
                 requestString.AppendLine();
-                requestString.Append('\t');
-                requestString.Append("Field Count = ");
-                requestString.AppendLine(count.ToString());
             }
 
             return requestString.ToString();
@@ -253,7 +252,14 @@ namespace ModIO
             responseString.AppendLine(webRequest.responseCode.ToString());
 
             responseString.Append("Response Error: ");
-            responseString.AppendLine(webRequest.error);
+            if(string.IsNullOrEmpty(webRequest.error))
+            {
+                responseString.AppendLine("NO_ERROR");
+            }
+            else
+            {
+                responseString.AppendLine(webRequest.error);
+            }
 
             // add request headers
             var responseHeaders = webRequest.GetResponseHeaders();
@@ -270,12 +276,13 @@ namespace ModIO
                 foreach(var kvp in responseHeaders)
                 {
                     responseString.AppendLine();
-                    responseString.Append('\t');
+                    responseString.Append("  ");
                     responseString.Append(kvp.Key);
                     responseString.Append(':');
                     responseString.Append(kvp.Value);
                 }
             }
+            responseString.AppendLine();
 
             // body
             responseString.Append("Body: ");
