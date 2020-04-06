@@ -14,6 +14,9 @@ namespace ModIO
         /// <summary>Pairing of the WWWForm field types.</summary>
         public struct RequestInfo
         {
+            public int userId;
+            public string username;
+
             public IEnumerable<API.StringValueParameter> stringFields;
             public IEnumerable<API.BinaryDataParameter> binaryFields;
         }
@@ -24,17 +27,27 @@ namespace ModIO
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugRequestOperation(UnityWebRequestAsyncOperation operation,
+                                                 LocalUser userData,
                                                  IEnumerable<API.StringValueParameter> stringFields,
                                                  IEnumerable<API.BinaryDataParameter> binaryFields)
         {
             #if DEBUG
                 Debug.Assert(operation != null);
 
-                RequestInfo info = new RequestInfo()
+                RequestInfo info = new RequestInfo();
+
+                if(userData.profile == null)
                 {
-                    stringFields = stringFields,
-                    binaryFields = binaryFields,
-                };
+                    info.userId = UserProfile.NULL_ID;
+                    info.username = "No User Profile";
+                }
+                else
+                {
+                    info.userId = userData.profile.id;
+                    info.username = userData.profile.username;
+                }
+                info.stringFields = stringFields;
+                info.binaryFields = binaryFields;
 
                 DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
 
@@ -88,33 +101,33 @@ namespace ModIO
                 }
             }
 
-            RequestInfo formData;
-            if(webRequestInfo.TryGetValue(webRequest, out formData))
+            RequestInfo info;
+            if(webRequestInfo.TryGetValue(webRequest, out info))
             {
-                var formDataString = new System.Text.StringBuilder();
+                var infoString = new System.Text.StringBuilder();
 
-                if(formData.stringFields != null)
+                if(info.stringFields != null)
                 {
-                    foreach(var svp in formData.stringFields)
+                    foreach(var svp in info.stringFields)
                     {
-                        formDataString.Append("\n  " + svp.key + ": " + svp.value);
+                        infoString.Append("\n  " + svp.key + ": " + svp.value);
                     }
                 }
 
-                if(formData.binaryFields != null)
+                if(info.binaryFields != null)
                 {
-                    foreach(var bdp in formData.binaryFields)
+                    foreach(var bdp in info.binaryFields)
                     {
-                        formDataString.Append("\n  " + bdp.key
+                        infoString.Append("\n  " + bdp.key
                                               + ": " + bdp.fileName);
 
                         if(bdp.contents == null)
                         {
-                            formDataString.Append(" [NULL DATA]");
+                            infoString.Append(" [NULL DATA]");
                         }
                         else
                         {
-                            formDataString.Append(" [" + (bdp.contents.Length/1000).ToString("0.00")
+                            infoString.Append(" [" + (bdp.contents.Length/1000).ToString("0.00")
                                                   + "KB]");
                         }
                     }
@@ -123,7 +136,8 @@ namespace ModIO
                 return("URL: " + webRequest.url
                        + "\nMethod: " + webRequest.method.ToUpper()
                        + "\nHeaders: " + requestHeaders.ToString()
-                       + "\nForm Data: " + formDataString.ToString());
+                       + "\nUser: [" + info.userId.ToString() + "] " + info.username
+                       + "\nForm Data: " + infoString.ToString());
             }
             else
             {
