@@ -70,38 +70,26 @@ namespace ModIO
                 }
 
                 // generate strings
-                string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
-                                                                                 info.userIdString,
-                                                                                 info.stringFields,
-                                                                                 info.binaryFields);
                 var timeStampString = (ServerTimeStamp.Now.ToString()
                                        + " ["
                                        + ServerTimeStamp.ToLocalDateTime(ServerTimeStamp.Now)
                                        + "]");
 
-                // complex strings
-                var responseHeaders = webRequest.GetResponseHeaders();
-                var headerString = new System.Text.StringBuilder();
-                if(responseHeaders != null
-                   && responseHeaders.Count > 0)
-                {
-                    foreach(var kvp in responseHeaders)
-                    {
-                        headerString.AppendLine();
-                        headerString.Append('\t');
-                        headerString.Append(kvp.Key);
-                        headerString.Append(':');
-                        headerString.Append(kvp.Value);
-                    }
-                }
-                else
-                {
-                    headerString.Append(" NONE");
-                }
+                string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
+                                                                                 info.userIdString,
+                                                                                 info.stringFields,
+                                                                                 info.binaryFields);
+
+                string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
 
                 // generate log string
                 var logString = new System.Text.StringBuilder();
-                logString.AppendLine("[mod.io] Web Request Completed: " + webRequest.url);
+                logString.AppendLine("[mod.io] Web Request Completed");
+                logString.Append("URL: ");
+                logString.Append(webRequest.url);
+                logString.Append(" (");
+                logString.Append(webRequest.method.ToUpper());
+                logString.AppendLine(")");
 
                 logString.AppendLine("------[ Request ]------");
                 logString.AppendLine(requestString);
@@ -109,16 +97,8 @@ namespace ModIO
                 logString.AppendLine("------[ Response ]------");
                 logString.Append("Time Stamp: ");
                 logString.AppendLine(timeStampString);
-                logString.Append("Response Code: ");
-                logString.AppendLine(webRequest.responseCode.ToString());
-                logString.Append("Response Headers: ");
-                logString.AppendLine(headerString.ToString());
-                logString.Append("Response Error: ");
-                logString.AppendLine(webRequest.error);
-                logString.Append("Response Body: ");
-                logString.AppendLine(webRequest.downloadHandler == null
-                                     ? " NULL DOWNLOAD HANDLER"
-                                     : webRequest.downloadHandler.text);
+                logString.AppendLine(responseString);
+
                 logString.AppendLine();
 
                 // log
@@ -169,7 +149,7 @@ namespace ModIO
                            && headerValue.StartsWith("Bearer ")
                            && headerValue.Length > 8)
                         {
-                            requestString.Append("Bearer [OAUTH TOKEN]");
+                            requestString.Append("Bearer [OAUTH_TOKEN]");
                         }
                         else // NULL
                         {
@@ -187,10 +167,11 @@ namespace ModIO
             requestString.Append("String Fields: ");
             if(stringFields == null)
             {
-                requestString.Append(" [NONE]");
+                requestString.Append(" NONE");
             }
             else
             {
+                int count = 0;
                 foreach(var svp in stringFields)
                 {
                     requestString.AppendLine();
@@ -198,17 +179,25 @@ namespace ModIO
                     requestString.Append(svp.key);
                     requestString.Append(':');
                     requestString.Append(svp.value);
+                    ++count;
                 }
+
+                requestString.AppendLine();
+                requestString.Append('\t');
+                requestString.Append("Field Count = ");
+                requestString.AppendLine(count.ToString());
             }
 
             // add binary fields
             requestString.Append("Binary Fields: ");
             if(binaryFields == null)
             {
-                requestString.Append(" [NONE]");
+                requestString.Append(" NONE");
             }
             else
             {
+                int count = 0;
+
                 foreach(var bdp in binaryFields)
                 {
                     requestString.AppendLine();
@@ -221,10 +210,65 @@ namespace ModIO
                                          ? "NULL DATA"
                                          : ValueFormatting.ByteCount(bdp.contents.Length, null));
                     requestString.Append(")");
+                    ++count;
                 }
+
+                requestString.AppendLine();
+                requestString.Append('\t');
+                requestString.Append("Field Count = ");
+                requestString.AppendLine(count.ToString());
             }
 
             return requestString.ToString();
+        }
+
+        /// <summary>Generates a debug-friendly string of a web request response.</summary>
+        public static string GenerateResponseDebugString(UnityWebRequest webRequest)
+        {
+            // get info
+            var responseString = new System.Text.StringBuilder();
+
+            responseString.Append("URL: ");
+            responseString.Append(webRequest.url);
+            responseString.Append(" (");
+            responseString.Append(webRequest.method.ToUpper());
+            responseString.AppendLine(")");
+
+            responseString.Append("Response Code: ");
+            responseString.AppendLine(webRequest.responseCode.ToString());
+
+            responseString.Append("Response Error: ");
+            responseString.AppendLine(webRequest.error);
+
+            // add request headers
+            var responseHeaders = webRequest.GetResponseHeaders();
+
+            responseString.Append("Headers: ");
+
+            if(responseHeaders == null
+               || responseHeaders.Count == 0)
+            {
+                responseString.Append(" NONE");
+            }
+            else
+            {
+                foreach(var kvp in responseHeaders)
+                {
+                    responseString.AppendLine();
+                    responseString.Append('\t');
+                    responseString.Append(kvp.Key);
+                    responseString.Append(':');
+                    responseString.Append(kvp.Value);
+                }
+            }
+
+            // body
+            responseString.Append("Body: ");
+            responseString.AppendLine(webRequest.downloadHandler == null
+                                      ? " NULL_DOWNLOAD_HANDLER"
+                                      : webRequest.downloadHandler.text);
+
+            return responseString.ToString();
         }
 
         /// <summary>Generates a user identifying string to debug with.</summary>
