@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 
+using UnityEngine;
+
 using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
+using UnityWebRequestAsyncOperation = UnityEngine.Networking.UnityWebRequestAsyncOperation;
 
 namespace ModIO
 {
@@ -18,6 +21,24 @@ namespace ModIO
         // ---------[ Web Requests ]---------
         /// <summary>Mapping of tracked WebRequests with their sent data.</summary>
         public static Dictionary<UnityWebRequest, RequestInfo> webRequestInfo = new Dictionary<UnityWebRequest, RequestInfo>();
+
+        /// <summary>Tracks and logs a request upon it completing.</summary>
+        public static void DebugRequestOperation(UnityWebRequestAsyncOperation operation)
+        {
+            #if DEBUG
+                operation.completed += DebugUtilities.OnOperationCompleted;
+            #endif // DEBUG
+        }
+
+        /// <summary>Callback upon request operation completion.</summary>
+        private static void OnOperationCompleted(AsyncOperation operation)
+        {
+            #if DEBUG
+                UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
+
+                DebugUtilities.GenerateRequestDebugString(o.webRequest);
+            #endif // DEBUG
+        }
 
         /// <summary>Generates a debug-friendly string of web request details.</summary>
         public static string GenerateRequestDebugString(UnityWebRequest webRequest)
