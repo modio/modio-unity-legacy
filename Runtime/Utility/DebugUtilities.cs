@@ -14,9 +14,7 @@ namespace ModIO
         /// <summary>Pairing of the WWWForm field types.</summary>
         public struct RequestInfo
         {
-            public int userId;
-            public string username;
-
+            public string userId;
             public IEnumerable<API.StringValueParameter> stringFields;
             public IEnumerable<API.BinaryDataParameter> binaryFields;
         }
@@ -38,13 +36,16 @@ namespace ModIO
 
                 if(userData.profile == null)
                 {
-                    info.userId = UserProfile.NULL_ID;
-                    info.username = "No User Profile";
+                    info.userId = ("["
+                                   + UserProfile.NULL_ID.ToString()
+                                   + " ] NO USER");
                 }
                 else
                 {
-                    info.userId = userData.profile.id;
-                    info.username = userData.profile.username;
+                    info.userId = ("["
+                                   + userData.profile.id.ToString()
+                                   + " ] "
+                                   + userData.profile.username);
                 }
                 info.stringFields = stringFields;
                 info.binaryFields = binaryFields;
@@ -83,10 +84,13 @@ namespace ModIO
                 if(responseHeaders != null
                    && responseHeaders.Count > 0)
                 {
-                    headerString.AppendLine();
                     foreach(var kvp in responseHeaders)
                     {
-                        headerString.AppendLine("- [" + kvp.Key + "]:" + kvp.Value);
+                        headerString.AppendLine();
+                        headerString.Append('\t');
+                        headerString.Append(kvp.Key);
+                        headerString.Append(':');
+                        headerString.Append(kvp.Value);
                     }
                 }
                 else
@@ -124,77 +128,97 @@ namespace ModIO
         /// <summary>Generates a debug-friendly string of web request details.</summary>
         public static string GenerateRequestDebugString(UnityWebRequest webRequest)
         {
-            var requestHeaders = new System.Text.StringBuilder();
+            // get info
+            RequestInfo info;
+            if(!webRequestInfo.TryGetValue(webRequest, out info))
+            {
+                info.userId = "[NOT RECORDED]";
+                info.stringFields = null;
+                info.binaryFields = null;
+            }
+
+            var requestString = new System.Text.StringBuilder();
+            requestString.Append("URL: ");
+            requestString.AppendLine(webRequest.url);
+            requestString.Append("Method: ");
+            requestString.AppendLine(webRequest.method.ToUpper());
+            requestString.Append("User: ");
+            requestString.AppendLine(info.userId);
+
+            // add request headers
+            requestString.Append("Headers: ");
             foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
             {
                 string headerValue = webRequest.GetRequestHeader(headerKey);
                 if(headerValue != null)
                 {
+                    requestString.AppendLine();
+                    requestString.Append('\t');
+                    requestString.Append(headerKey);
+                    requestString.Append(':');
+
                     if(headerKey.ToUpper() == "AUTHORIZATION")
                     {
-                        requestHeaders.Append("\n  " + headerKey + ": " + headerValue.Substring(0, 6));
-
-                        if(headerValue.Length > 8) // Contains more than "Bearer "
+                        if(headerValue != null
+                           && headerValue.StartsWith("Bearer ")
+                           && headerValue.Length > 8)
                         {
-                            requestHeaders.Append(" [OAUTH TOKEN]");
+                            requestString.Append("Bearer [OAUTH TOKEN]");
                         }
                         else // NULL
                         {
-                            requestHeaders.Append(" [NULL]");
+                            requestString.Append(headerValue);
                         }
                     }
                     else
                     {
-                        requestHeaders.Append("\n  " + headerKey + ": " + headerValue);
+                        requestString.Append(headerValue);
                     }
                 }
             }
 
-            RequestInfo info;
-            if(webRequestInfo.TryGetValue(webRequest, out info))
+            // add string fields
+            requestString.Append("String Fields: ");
+            if(info.stringFields == null)
             {
-                var infoString = new System.Text.StringBuilder();
-
-                if(info.stringFields != null)
-                {
-                    foreach(var svp in info.stringFields)
-                    {
-                        infoString.Append("\n  " + svp.key + ": " + svp.value);
-                    }
-                }
-
-                if(info.binaryFields != null)
-                {
-                    foreach(var bdp in info.binaryFields)
-                    {
-                        infoString.Append("\n  " + bdp.key
-                                              + ": " + bdp.fileName);
-
-                        if(bdp.contents == null)
-                        {
-                            infoString.Append(" [NULL DATA]");
-                        }
-                        else
-                        {
-                            infoString.Append(" [" + (bdp.contents.Length/1000).ToString("0.00")
-                                                  + "KB]");
-                        }
-                    }
-                }
-
-                return("URL: " + webRequest.url
-                       + "\nMethod: " + webRequest.method.ToUpper()
-                       + "\nHeaders: " + requestHeaders.ToString()
-                       + "\nUser: [" + info.userId.ToString() + "] " + info.username
-                       + "\nForm Data: " + infoString.ToString());
-
+                requestString.Append(" [NONE]");
             }
             else
             {
-                return("URL: " + webRequest.url
-                       + "\nMethod: " + webRequest.method.ToUpper()
-                       + "\nHeaders: " + requestHeaders.ToString());
+                foreach(var svp in info.stringFields)
+                {
+                    requestString.AppendLine();
+                    requestString.Append('\t');
+                    requestString.Append(svp.key);
+                    requestString.Append(':');
+                    requestString.Append(svp.value);
+                }
             }
+
+            // add binary fields
+            requestString.Append("Binary Fields: ");
+            if(info.binaryFields == null)
+            {
+                requestString.Append(" [NONE]");
+            }
+            else
+            {
+                foreach(var bdp in info.binaryFields)
+                {
+                    requestString.AppendLine();
+                    requestString.Append('\t');
+                    requestString.Append(bdp.key);
+                    requestString.Append(':');
+                    requestString.Append(bdp.fileName);
+                    requestString.Append(" (");
+                    requestString.Append(bdp.contents == null
+                                         ? "NULL DATA"
+                                         : ValueFormatting.ByteCount(bdp.contents.Length, null));
+                    requestString.Append(")");
+                }
+            }
+
+            return requestString.ToString();
         }
     }
 }
