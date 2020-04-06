@@ -66,9 +66,58 @@ namespace ModIO
         private static void OnOperationCompleted(AsyncOperation operation)
         {
             #if DEBUG
+                // get vars
                 UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
+                UnityWebRequest webRequest = o.webRequest;
 
-                DebugUtilities.GenerateRequestDebugString(o.webRequest);
+                // simple string
+                string requestString = DebugUtilities.GenerateRequestDebugString(webRequest);
+                var timeStampString = (ServerTimeStamp.Now.ToString()
+                                       + " ["
+                                       + ServerTimeStamp.ToLocalDateTime(ServerTimeStamp.Now)
+                                       + "]");
+
+                // complex strings
+                var responseHeaders = webRequest.GetResponseHeaders();
+                var headerString = new System.Text.StringBuilder();
+                if(responseHeaders != null
+                   && responseHeaders.Count > 0)
+                {
+                    headerString.AppendLine();
+                    foreach(var kvp in responseHeaders)
+                    {
+                        headerString.AppendLine("- [" + kvp.Key + "]:" + kvp.Value);
+                    }
+                }
+                else
+                {
+                    headerString.Append(" NONE");
+                }
+
+                // generate log string
+                var logString = new System.Text.StringBuilder();
+                logString.AppendLine("[mod.io] Web Request Completed: " + webRequest.url);
+
+                logString.AppendLine("------[ Request ]------");
+                logString.AppendLine(requestString);
+
+                logString.AppendLine("------[ Response ]------");
+                logString.Append("Time Stamp: ");
+                logString.AppendLine(timeStampString);
+                logString.Append("Response Code: ");
+                logString.AppendLine(webRequest.responseCode.ToString());
+                logString.Append("Response Headers: ");
+                logString.AppendLine(headerString.ToString());
+                logString.Append("Response Error: ");
+                logString.AppendLine(webRequest.error);
+                logString.Append("Response Body: ");
+                logString.AppendLine(webRequest.downloadHandler == null
+                                     ? " NULL DOWNLOAD HANDLER"
+                                     : webRequest.downloadHandler.text);
+                logString.AppendLine();
+
+                // log
+                Debug.Log(requestString);
             #endif // DEBUG
         }
 
@@ -138,6 +187,7 @@ namespace ModIO
                        + "\nHeaders: " + requestHeaders.ToString()
                        + "\nUser: [" + info.userId.ToString() + "] " + info.username
                        + "\nForm Data: " + infoString.ToString());
+
             }
             else
             {
