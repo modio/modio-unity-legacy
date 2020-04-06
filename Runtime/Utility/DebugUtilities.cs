@@ -9,7 +9,7 @@ namespace ModIO
     {
         // ---------[ Nested Data-Types ]---------
         /// <summary>Pairing of the WWWForm field types.</summary>
-        public struct DebugFormData
+        public struct RequestInfo
         {
             public IEnumerable<API.StringValueParameter> strings;
             public IEnumerable<API.BinaryDataParameter> binaryData;
@@ -17,7 +17,7 @@ namespace ModIO
 
         // ---------[ Web Requests ]---------
         /// <summary>Mapping of tracked WebRequests with their sent data.</summary>
-        public static Dictionary<UnityWebRequest, DebugFormData> webRequestFormData = new Dictionary<UnityWebRequest, DebugFormData>();
+        public static Dictionary<UnityWebRequest, RequestInfo> webRequestInfo = new Dictionary<UnityWebRequest, RequestInfo>();
 
         /// <summary>Generates a debug-friendly string of web request details.</summary>
         public static string GenerateRequestDebugString(UnityWebRequest webRequest)
@@ -48,8 +48,8 @@ namespace ModIO
                 }
             }
 
-            DebugFormData formData;
-            if(webRequestFormData.TryGetValue(webRequest, out formData))
+            RequestInfo formData;
+            if(webRequestInfo.TryGetValue(webRequest, out formData))
             {
                 var formDataString = new System.Text.StringBuilder();
 
