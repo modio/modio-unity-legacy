@@ -102,7 +102,7 @@ namespace ModIO
                 logString.AppendLine();
 
                 // log
-                Debug.Log(requestString);
+                Debug.Log(logString.ToString());
 
             #endif // DEBUG
         }
