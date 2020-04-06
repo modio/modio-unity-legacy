@@ -14,8 +14,8 @@ namespace ModIO
         /// <summary>Pairing of the WWWForm field types.</summary>
         public struct RequestInfo
         {
-            public IEnumerable<API.StringValueParameter> strings;
-            public IEnumerable<API.BinaryDataParameter> binaryData;
+            public IEnumerable<API.StringValueParameter> stringFields;
+            public IEnumerable<API.BinaryDataParameter> binaryFields;
         }
 
         // ---------[ Web Requests ]---------
@@ -23,10 +23,29 @@ namespace ModIO
         public static Dictionary<UnityWebRequest, RequestInfo> webRequestInfo = new Dictionary<UnityWebRequest, RequestInfo>();
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
-        public static void DebugRequestOperation(UnityWebRequestAsyncOperation operation)
+        public static void DebugRequestOperation(UnityWebRequestAsyncOperation operation,
+                                                 IEnumerable<API.StringValueParameter> stringFields,
+                                                 IEnumerable<API.BinaryDataParameter> binaryFields)
         {
             #if DEBUG
-                operation.completed += DebugUtilities.OnOperationCompleted;
+                Debug.Assert(operation != null);
+
+                RequestInfo info = new RequestInfo()
+                {
+                    stringFields = stringFields,
+                    binaryFields = binaryFields,
+                };
+
+                DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
+
+                if(operation.isDone)
+                {
+                    DebugUtilities.OnOperationCompleted(operation);
+                }
+                else
+                {
+                    operation.completed += DebugUtilities.OnOperationCompleted;
+                }
             #endif // DEBUG
         }
 
@@ -74,17 +93,17 @@ namespace ModIO
             {
                 var formDataString = new System.Text.StringBuilder();
 
-                if(formData.strings != null)
+                if(formData.stringFields != null)
                 {
-                    foreach(var svp in formData.strings)
+                    foreach(var svp in formData.stringFields)
                     {
                         formDataString.Append("\n  " + svp.key + ": " + svp.value);
                     }
                 }
 
-                if(formData.binaryData != null)
+                if(formData.binaryFields != null)
                 {
-                    foreach(var bdp in formData.binaryData)
+                    foreach(var bdp in formData.binaryFields)
                     {
                         formDataString.Append("\n  " + bdp.key
                                               + ": " + bdp.fileName);
