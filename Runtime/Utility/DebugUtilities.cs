@@ -25,9 +25,7 @@ namespace ModIO
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugRequestOperation(UnityWebRequestAsyncOperation operation,
-                                                 LocalUser userData,
-                                                 IEnumerable<API.StringValueParameter> stringFields,
-                                                 IEnumerable<API.BinaryDataParameter> binaryFields)
+                                                 LocalUser userData)
         {
             #if DEBUG
                 Debug.Assert(operation != null);
@@ -35,11 +33,27 @@ namespace ModIO
                 RequestInfo info = new RequestInfo()
                 {
                     userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
-                    stringFields = stringFields,
-                    binaryFields = binaryFields,
+                    stringFields = null,
+                    binaryFields = null,
                 };
+
+                // get upload data
+                if(operation.webRequest.uploadHandler != null)
+                {
+                    List<API.StringValueParameter> sf;
+                    List<API.BinaryDataParameter> bf;
+
+                    DebugUtilities.ParseUploadData(operation.webRequest.uploadHandler.data,
+                                                   out sf,
+                                                   out bf);
+
+                    info.stringFields = sf;
+                    info.binaryFields = bf;
+                }
+
                 DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
 
+                // handle completion
                 if(operation.isDone)
                 {
                     DebugUtilities.OnOperationCompleted(operation);
