@@ -14,7 +14,7 @@ namespace ModIO
         /// <summary>Pairing of the WWWForm field types.</summary>
         public struct RequestInfo
         {
-            public string userId;
+            public string userIdString;
             public IEnumerable<API.StringValueParameter> stringFields;
             public IEnumerable<API.BinaryDataParameter> binaryFields;
         }
@@ -32,24 +32,12 @@ namespace ModIO
             #if DEBUG
                 Debug.Assert(operation != null);
 
-                RequestInfo info = new RequestInfo();
-
-                if(userData.profile == null)
+                RequestInfo info = new RequestInfo()
                 {
-                    info.userId = ("["
-                                   + UserProfile.NULL_ID.ToString()
-                                   + " ] NO USER");
-                }
-                else
-                {
-                    info.userId = ("["
-                                   + userData.profile.id.ToString()
-                                   + " ] "
-                                   + userData.profile.username);
-                }
-                info.stringFields = stringFields;
-                info.binaryFields = binaryFields;
-
+                    userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
+                    stringFields = stringFields,
+                    binaryFields = binaryFields,
+                };
                 DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
 
                 if(operation.isDone)
@@ -70,9 +58,22 @@ namespace ModIO
                 // get vars
                 UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
                 UnityWebRequest webRequest = o.webRequest;
+                RequestInfo info;
+                if(!DebugUtilities.webRequestInfo.TryGetValue(webRequest, out info))
+                {
+                    info = new RequestInfo()
+                    {
+                        userIdString = "NONE_RECORDED",
+                        stringFields = null,
+                        binaryFields = null,
+                    };
+                }
 
-                // simple string
-                string requestString = DebugUtilities.GenerateRequestDebugString(webRequest);
+                // generate strings
+                string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
+                                                                                 info.userIdString,
+                                                                                 info.stringFields,
+                                                                                 info.binaryFields);
                 var timeStampString = (ServerTimeStamp.Now.ToString()
                                        + " ["
                                        + ServerTimeStamp.ToLocalDateTime(ServerTimeStamp.Now)
@@ -122,28 +123,33 @@ namespace ModIO
 
                 // log
                 Debug.Log(requestString);
+
             #endif // DEBUG
         }
 
-        /// <summary>Generates a debug-friendly string of web request details.</summary>
-        public static string GenerateRequestDebugString(UnityWebRequest webRequest)
+        /// <summary>Generates a debug-friendly string of a web request.</summary>
+        public static string GenerateRequestDebugString(UnityWebRequest webRequest,
+                                                        string userIdString,
+                                                        IEnumerable<API.StringValueParameter> stringFields,
+                                                        IEnumerable<API.BinaryDataParameter> binaryFields)
         {
-            // get info
-            RequestInfo info;
-            if(!webRequestInfo.TryGetValue(webRequest, out info))
+            // check user string
+            if(userIdString == null)
             {
-                info.userId = "[NOT RECORDED]";
-                info.stringFields = null;
-                info.binaryFields = null;
+                userIdString = "[NOT RECORDED]";
             }
 
+            // build string
             var requestString = new System.Text.StringBuilder();
+
             requestString.Append("URL: ");
-            requestString.AppendLine(webRequest.url);
-            requestString.Append("Method: ");
-            requestString.AppendLine(webRequest.method.ToUpper());
+            requestString.Append(webRequest.url);
+            requestString.Append(" (");
+            requestString.Append(webRequest.method.ToUpper());
+            requestString.AppendLine(")");
+
             requestString.Append("User: ");
-            requestString.AppendLine(info.userId);
+            requestString.AppendLine(userIdString);
 
             // add request headers
             requestString.Append("Headers: ");
@@ -179,13 +185,13 @@ namespace ModIO
 
             // add string fields
             requestString.Append("String Fields: ");
-            if(info.stringFields == null)
+            if(stringFields == null)
             {
                 requestString.Append(" [NONE]");
             }
             else
             {
-                foreach(var svp in info.stringFields)
+                foreach(var svp in stringFields)
                 {
                     requestString.AppendLine();
                     requestString.Append('\t');
@@ -197,13 +203,13 @@ namespace ModIO
 
             // add binary fields
             requestString.Append("Binary Fields: ");
-            if(info.binaryFields == null)
+            if(binaryFields == null)
             {
                 requestString.Append(" [NONE]");
             }
             else
             {
-                foreach(var bdp in info.binaryFields)
+                foreach(var bdp in binaryFields)
                 {
                     requestString.AppendLine();
                     requestString.Append('\t');
@@ -219,6 +225,23 @@ namespace ModIO
             }
 
             return requestString.ToString();
+        }
+
+        /// <summary>Generates a user identifying string to debug with.</summary>
+        public static string GenerateUserIdString(UserProfile profile)
+        {
+            if(profile == null)
+            {
+                return "NULL_USER_PROFILE";
+            }
+
+            string username = profile.username;
+            if(string.IsNullOrEmpty(username))
+            {
+                username = "NO_USERNAME";
+            }
+
+            return ("[" + profile.id.ToString() + "] " + username);
         }
     }
 }
