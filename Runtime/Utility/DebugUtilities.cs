@@ -24,21 +24,21 @@ namespace ModIO
         public static Dictionary<UnityWebRequest, RequestInfo> webRequestInfo = new Dictionary<UnityWebRequest, RequestInfo>();
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
-        public static void LogRequestOperation(UnityWebRequestAsyncOperation operation,
-                                               LocalUser userData,
-                                               int timeStarted = -1)
+        public static void DebugWebRequest(UnityWebRequestAsyncOperation operation,
+                                           LocalUser userData,
+                                           int timeStarted = -1)
         {
             #if DEBUG
-                DebugUtilities.LogDownloadOperation(operation, userData, null, timeStarted);
+                DebugUtilities.DebugDownload(operation, userData, null, timeStarted);
 
             #endif // DEBUG
         }
 
         /// <summary>Tracks and logs a download upon it completing.</summary>
-        public static void LogDownloadOperation(UnityWebRequestAsyncOperation operation,
-                                                LocalUser userData,
-                                                string downloadLocation,
-                                                int timeStarted = -1)
+        public static void DebugDownload(UnityWebRequestAsyncOperation operation,
+                                         LocalUser userData,
+                                         string downloadLocation,
+                                         int timeStarted = -1)
         {
             #if DEBUG
 
