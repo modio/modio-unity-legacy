@@ -43,6 +43,7 @@ namespace ModIO
                                                   int timeStarted = -1)
         {
             #if DEBUG
+
                 Debug.Assert(operation != null);
 
                 if(timeStarted < 0)
@@ -59,35 +60,6 @@ namespace ModIO
                     downloadLocation = downloadLocation,
                 };
 
-                // get upload data
-                var uploadHandler = operation.webRequest.uploadHandler;
-                if(uploadHandler != null)
-                {
-                    List<API.StringValueParameter> sf = null;
-                    List<API.BinaryDataParameter> bf = null;
-
-                    string contentType = operation.webRequest.GetRequestHeader("content-type");
-                    if(contentType.ToLower() == "application/x-www-form-urlencoded")
-                    {
-                        DebugUtilities.ParseURLEncodedFormData(uploadHandler.data,
-                                                               out sf);
-                    }
-                    else if(contentType.ToLower() == "multipart/form-data")
-                    {
-                        DebugUtilities.ParseMultipartFormData(uploadHandler.data,
-                                                              out sf,
-                                                              out bf);
-                    }
-                    else
-                    {
-                        Debug.Log("[mod.io] Unable to parse upload data for content-type \'"
-                                  + contentType + "\'");
-                    }
-
-                    info.stringFields = sf;
-                    info.binaryFields = bf;
-                }
-
                 DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
 
                 // handle completion
@@ -103,10 +75,10 @@ namespace ModIO
             #endif // DEBUG
         }
 
+        #if DEBUG
         /// <summary>Callback upon request operation completion.</summary>
         private static void OnOperationCompleted(AsyncOperation operation)
         {
-            #if DEBUG
                 // get vars
                 var now = ServerTimeStamp.Now;
                 UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
@@ -126,9 +98,7 @@ namespace ModIO
 
                 // generate strings
                 string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
-                                                                                 info.userIdString,
-                                                                                 info.stringFields,
-                                                                                 info.binaryFields);
+                                                                                 info.userIdString);
 
                 string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
 
@@ -172,15 +142,12 @@ namespace ModIO
 
                 // log
                 Debug.Log(logString.ToString());
-
-            #endif // DEBUG
         }
+        #endif // DEBUG
 
         /// <summary>Generates a debug-friendly string of a web request.</summary>
         public static string GenerateRequestDebugString(UnityWebRequest webRequest,
-                                                        string userIdString,
-                                                        IEnumerable<API.StringValueParameter> stringFields,
-                                                        IEnumerable<API.BinaryDataParameter> binaryFields)
+                                                        string userIdString)
         {
             // check user string
             if(userIdString == null)
@@ -233,57 +200,77 @@ namespace ModIO
                 }
             }
 
-            // add string fields
-            requestString.AppendLine("String Fields:");
-            if(stringFields == null)
+            // add uploaded data
+            var uploadHandler = webRequest.uploadHandler;
+            if(uploadHandler != null)
             {
-                requestString.AppendLine("  NONE");
-            }
-            else
-            {
-                int countInsertIndex = requestString.Length-1;
-                int count = 0;
+                List<API.StringValueParameter> stringFields = null;
+                List<API.BinaryDataParameter> binaryFields = null;
 
-                foreach(var svp in stringFields)
+                string contentType = webRequest.GetRequestHeader("content-type");
+                if(contentType.ToLower() == "application/x-www-form-urlencoded")
                 {
-                    requestString.Append("  ");
-                    requestString.Append(svp.key);
-                    requestString.Append(':');
-                    requestString.Append(svp.value);
-                    requestString.AppendLine();
-                    ++count;
+                    DebugUtilities.ParseURLEncodedFormData(uploadHandler.data,
+                                                           out stringFields);
+                }
+                else if(contentType.ToLower() == "multipart/form-data")
+                {
+                    DebugUtilities.ParseMultipartFormData(uploadHandler.data,
+                                                          out stringFields,
+                                                          out binaryFields);
+                }
+                else
+                {
+                    Debug.Log("[mod.io] Unable to parse upload data for content-type \'"
+                              + contentType + "\'");
                 }
 
-                requestString.Insert(countInsertIndex, "[" + count.ToString() + "]");
-            }
-
-            // add binary fields
-            requestString.AppendLine("Binary Fields:");
-            if(binaryFields == null)
-            {
-                requestString.AppendLine("  NONE");
-            }
-            else
-            {
-                int countInsertIndex = requestString.Length;
-                int count = 0;
-
-                foreach(var bdp in binaryFields)
+                // add string fields
+                if(stringFields != null)
                 {
-                    requestString.Append("  ");
-                    requestString.Append(bdp.key);
-                    requestString.Append(':');
-                    requestString.Append(bdp.fileName);
-                    requestString.Append(" (");
-                    requestString.Append(bdp.contents == null
-                                         ? "NULL_DATA"
-                                         : ValueFormatting.ByteCount(bdp.contents.Length, null));
-                    requestString.Append(")");
-                    requestString.AppendLine();
-                    ++count;
+                    requestString.AppendLine("String Fields:");
+
+                    int countInsertIndex = requestString.Length-1;
+                    int count = 0;
+
+                    foreach(var svp in stringFields)
+                    {
+                        requestString.Append("  ");
+                        requestString.Append(svp.key);
+                        requestString.Append(':');
+                        requestString.Append(svp.value);
+                        requestString.AppendLine();
+                        ++count;
+                    }
+
+                    requestString.Insert(countInsertIndex, " [" + count.ToString() + "]");
                 }
 
-                requestString.Insert(countInsertIndex, "[" + count.ToString() + "]");
+                // add binary fields
+                if(binaryFields != null)
+                {
+                    requestString.AppendLine("Binary Fields:");
+
+                    int countInsertIndex = requestString.Length;
+                    int count = 0;
+
+                    foreach(var bdp in binaryFields)
+                    {
+                        requestString.Append("  ");
+                        requestString.Append(bdp.key);
+                        requestString.Append(':');
+                        requestString.Append(bdp.fileName);
+                        requestString.Append(" (");
+                        requestString.Append(bdp.contents == null
+                                             ? "NULL_DATA"
+                                             : ValueFormatting.ByteCount(bdp.contents.Length, null));
+                        requestString.Append(")");
+                        requestString.AppendLine();
+                        ++count;
+                    }
+
+                    requestString.Insert(countInsertIndex, " [" + count.ToString() + "]");
+                }
             }
 
             return requestString.ToString();
