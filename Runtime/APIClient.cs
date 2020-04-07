@@ -182,19 +182,6 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
-            #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                // Setup form data logging
-                DebugFormData formData = new DebugFormData()
-                {
-                    strings = valueFields,
-                    binaryData = null,
-                };
-                webRequestFormData.Add(webRequest, formData);
-            }
-            #endif
-
             return webRequest;
         }
 
@@ -227,20 +214,6 @@ namespace ModIO
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
 
-            #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                // Setup form data logging
-                DebugFormData formData = new DebugFormData()
-                {
-                    strings = valueFields,
-                    binaryData = dataFields,
-                };
-                webRequestFormData.Add(webRequest, formData);
-
-            }
-            #endif
-
             return webRequest;
         }
 
@@ -264,19 +237,6 @@ namespace ModIO
             webRequest.SetRequestHeader("Authorization", "Bearer " + LocalUser.OAuthToken);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-
-            #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                // Setup form data logging
-                DebugFormData formData = new DebugFormData()
-                {
-                    strings = valueFields,
-                    binaryData = null,
-                };
-                webRequestFormData.Add(webRequest, formData);
-            }
-            #endif
 
             return webRequest;
         }
@@ -382,28 +342,6 @@ namespace ModIO
             UnityWebRequest webRequest = UnityWebRequest.Post(endpointURL, form);
             webRequest.SetRequestHeader("Accept-Language", APIClient.languageCode);
             webRequest.SetRequestHeader("user-agent", APIClient.USER_AGENT_HEADER);
-
-            #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                StringValueParameter[] stringValueParams = new StringValueParameter[authData.Length+1];
-                stringValueParams[0] = StringValueParameter.Create("api_key", PluginSettings.data.gameAPIKey);
-
-                for(int i = 0; i < authData.Length; ++i)
-                {
-                    var kvp = authData[i];
-                    stringValueParams[i+1] = StringValueParameter.Create(kvp.Key, kvp.Value);
-                }
-
-                // Setup form data logging
-                DebugFormData debugFormData = new DebugFormData()
-                {
-                    strings = stringValueParams,
-                    binaryData = null,
-                };
-                webRequestFormData.Add(webRequest, debugFormData);
-            }
-            #endif
 
             return webRequest;
         }
