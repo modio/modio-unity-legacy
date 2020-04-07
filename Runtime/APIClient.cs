@@ -35,6 +35,7 @@ namespace ModIO
         {
             "authorization",
             "accept-language",
+            "content-type",
             "x-unity-version",
             "user-agent",
         };
