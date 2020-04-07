@@ -16,8 +16,6 @@ namespace ModIO
         {
             public string userIdString;
             public int timeStarted;
-            public IEnumerable<API.StringValueParameter> stringFields;
-            public IEnumerable<API.BinaryDataParameter> binaryFields;
             public string downloadLocation;
         }
 
@@ -55,8 +53,6 @@ namespace ModIO
                 {
                     userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
                     timeStarted = timeStarted,
-                    stringFields = null,
-                    binaryFields = null,
                     downloadLocation = downloadLocation,
                 };
 
@@ -90,8 +86,6 @@ namespace ModIO
                     {
                         userIdString = "NONE_RECORDED",
                         timeStarted = -1,
-                        stringFields = null,
-                        binaryFields = null,
                         downloadLocation = null,
                     };
                 }
