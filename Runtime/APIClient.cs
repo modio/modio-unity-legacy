@@ -364,64 +364,11 @@ namespace ModIO
             UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
 
             #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                Debug.Log("REQUEST SENT\n"
-                          + APIClient.GenerateRequestDebugString(webRequest)
-                          + "\n");
-            }
+                DebugUtilities.DebugWebRequest(requestOperation, LocalUser.instance);
             #endif
 
             requestOperation.completed += (operation) =>
             {
-                #if DEBUG
-                if(PluginSettings.data.logAllRequests)
-                {
-                    if(webRequest.isNetworkError || webRequest.isHttpError)
-                    {
-                        WebRequestError.LogAsWarning(WebRequestError.GenerateFromWebRequest(webRequest));
-                    }
-                    else
-                    {
-                        var headerString = new System.Text.StringBuilder();
-                        var responseHeaders = webRequest.GetResponseHeaders();
-                        if(responseHeaders != null
-                           && responseHeaders.Count > 0)
-                        {
-                            headerString.Append("\n");
-                            foreach(var kvp in responseHeaders)
-                            {
-                                headerString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                            }
-                        }
-                        else
-                        {
-                            headerString.Append(" NONE");
-                        }
-
-                        string responseBody = "[ Non-Text Body ]";
-                        if(webRequest.downloadHandler != null)
-                        {
-                            responseBody = webRequest.downloadHandler.text;
-                        }
-
-                        var responseTimeStamp = ServerTimeStamp.Now;
-                        string logString = ("RESPONSE RECEIVED\n"
-                                            + "------[ Request Data ]------\n"
-                                            + APIClient.GenerateRequestDebugString(webRequest)
-                                            + "\n------[ Response Data ]------"
-                                            + "\nTime Stamp: " + responseTimeStamp + " ("
-                                            + ServerTimeStamp.ToLocalDateTime(responseTimeStamp) + ")"
-                                            + "\nResponse Headers: " + headerString.ToString()
-                                            + "\nResponse Code: " + webRequest.responseCode
-                                            + "\nResponse Error: " + webRequest.error
-                                            + "\nResponse Body: " + responseBody
-                                            + "\n");
-                        Debug.Log(logString);
-                    }
-                }
-                #endif
-
                 if(webRequest.isNetworkError || webRequest.isHttpError)
                 {
                     if(errorCallback != null)
