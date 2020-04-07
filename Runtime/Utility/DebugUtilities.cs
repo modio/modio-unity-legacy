@@ -60,14 +60,29 @@ namespace ModIO
                 };
 
                 // get upload data
-                if(operation.webRequest.uploadHandler != null)
+                var uploadHandler = operation.webRequest.uploadHandler;
+                if(uploadHandler != null)
                 {
-                    List<API.StringValueParameter> sf;
-                    List<API.BinaryDataParameter> bf;
+                    List<API.StringValueParameter> sf = null;
+                    List<API.BinaryDataParameter> bf = null;
 
-                    DebugUtilities.ParseUploadData(operation.webRequest.uploadHandler.data,
-                                                   out sf,
-                                                   out bf);
+                    string contentType = operation.webRequest.GetRequestHeader("content-type");
+                    if(contentType.ToLower() == "application/x-www-form-urlencoded")
+                    {
+                        DebugUtilities.ParseURLEncodedFormData(uploadHandler.data,
+                                                               out sf);
+                    }
+                    else if(contentType.ToLower() == "multipart/form-data")
+                    {
+                        DebugUtilities.ParseMultipartFormData(uploadHandler.data,
+                                                              out sf,
+                                                              out bf);
+                    }
+                    else
+                    {
+                        Debug.Log("[mod.io] Unable to parse upload data for content-type \'"
+                                  + contentType + "\'");
+                    }
 
                     info.stringFields = sf;
                     info.binaryFields = bf;
@@ -344,10 +359,44 @@ namespace ModIO
             return responseString.ToString();
         }
 
-        /// <summary>Parses an UploadHandler's payload and generates the request info elements.</summary>
-        public static void ParseUploadData(byte[] data,
-                                           out List<API.StringValueParameter> stringFields,
-                                           out List<API.BinaryDataParameter> binaryFields)
+        /// <summary>Parses an UploadHandler's payload for content-type = "application/x-www-form-urlencoded".</summary>
+        public static void ParseURLEncodedFormData(byte[] data,
+                                                   out List<API.StringValueParameter> stringFields)
+        {
+            stringFields = null;
+
+            // early out
+            if(data == null || data.Length == 0) { return; }
+
+            // parse
+            stringFields = new List<API.StringValueParameter>();
+
+            string dataString = System.Text.Encoding.UTF8.GetString(data);
+
+            string[] pairs = dataString.Split(new char[] { '&' }, System.StringSplitOptions.RemoveEmptyEntries);
+            foreach(string pairString in pairs)
+            {
+                string[] elements = pairString.Split(new char[] { '=' });
+
+                if(elements.Length == 0)
+                {
+                    continue;
+                }
+                else if(elements.Length != 2)
+                {
+                    stringFields.Add(API.StringValueParameter.Create(pairString, "BADLY_FORMATTED_FORMDATA"));
+                }
+                else
+                {
+                    stringFields.Add(API.StringValueParameter.Create(elements[0], elements[1]));
+                }
+            }
+        }
+
+        /// <summary>Parses an UploadHandler's payload for content-type = "multipart/form-data".</summary>
+        public static void ParseMultipartFormData(byte[] data,
+                                                  out List<API.StringValueParameter> stringFields,
+                                                  out List<API.BinaryDataParameter> binaryFields)
         {
             stringFields = null;
             binaryFields = null;
