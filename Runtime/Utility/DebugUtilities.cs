@@ -44,28 +44,32 @@ namespace ModIO
 
                 Debug.Assert(operation != null);
 
-                if(timeStarted < 0)
+                if(PluginSettings.data.logAllRequests
+                   || PluginSettings.data.logFailedRequestWarnings)
                 {
-                    timeStarted = ServerTimeStamp.Now;
-                }
+                    if(timeStarted < 0)
+                    {
+                        timeStarted = ServerTimeStamp.Now;
+                    }
 
-                RequestInfo info = new RequestInfo()
-                {
-                    userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
-                    timeStarted = timeStarted,
-                    downloadLocation = downloadLocation,
-                };
+                    RequestInfo info = new RequestInfo()
+                    {
+                        userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
+                        timeStarted = timeStarted,
+                        downloadLocation = downloadLocation,
+                    };
 
-                DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
+                    DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
 
-                // handle completion
-                if(operation.isDone)
-                {
-                    DebugUtilities.OnOperationCompleted(operation);
-                }
-                else
-                {
-                    operation.completed += DebugUtilities.OnOperationCompleted;
+                    // handle completion
+                    if(operation.isDone)
+                    {
+                        DebugUtilities.OnOperationCompleted(operation);
+                    }
+                    else
+                    {
+                        operation.completed += DebugUtilities.OnOperationCompleted;
+                    }
                 }
 
             #endif // DEBUG
@@ -81,77 +85,81 @@ namespace ModIO
             var now = ServerTimeStamp.Now;
             bool isError = (webRequest.isNetworkError || webRequest.isHttpError);
 
-            RequestInfo info;
-            if(!DebugUtilities.webRequestInfo.TryGetValue(webRequest, out info))
+            // should we log?
+            if(PluginSettings.data.logAllRequests || isError)
             {
-                info = new RequestInfo()
+                RequestInfo info;
+                if(!DebugUtilities.webRequestInfo.TryGetValue(webRequest, out info))
                 {
-                    userIdString = "NONE_RECORDED",
-                    timeStarted = -1,
-                    downloadLocation = null,
-                };
-            }
+                    info = new RequestInfo()
+                    {
+                        userIdString = "NONE_RECORDED",
+                        timeStarted = -1,
+                        downloadLocation = null,
+                    };
+                }
 
-            // generate strings
-            string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
-                                                                             info.userIdString);
+                // generate strings
+                string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
+                                                                                 info.userIdString);
 
-            string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
+                string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
 
-            // generate log string
-            var logString = new System.Text.StringBuilder();
-            if(!isError)
-            {
-                logString.AppendLine("[mod.io] Web Request Succeeded");
-            }
-            else
-            {
-                logString.AppendLine("[mod.io] Web Request Failed");
-            }
+                // generate log string
+                var logString = new System.Text.StringBuilder();
+                if(!isError)
+                {
+                    logString.AppendLine("[mod.io] Web Request Succeeded");
+                }
+                else
+                {
+                    logString.AppendLine("[mod.io] Web Request Failed");
+                }
 
-            logString.Append("URL: ");
-            logString.Append(webRequest.url);
-            logString.Append(" (");
-            logString.Append(webRequest.method.ToUpper());
-            logString.AppendLine(")");
+                logString.Append("URL: ");
+                logString.Append(webRequest.url);
+                logString.Append(" (");
+                logString.Append(webRequest.method.ToUpper());
+                logString.AppendLine(")");
 
-            if(!string.IsNullOrEmpty(info.downloadLocation))
-            {
-                logString.Append("Download Location: ");
-                logString.AppendLine(info.downloadLocation);
-            }
+                if(!string.IsNullOrEmpty(info.downloadLocation))
+                {
+                    logString.Append("Download Location: ");
+                    logString.AppendLine(info.downloadLocation);
+                }
 
-            if(info.timeStarted >= 0)
-            {
-                logString.Append("Started: ");
-                logString.Append(ServerTimeStamp.ToLocalDateTime(info.timeStarted).ToString());
+                if(info.timeStarted >= 0)
+                {
+                    logString.Append("Started: ");
+                    logString.Append(ServerTimeStamp.ToLocalDateTime(info.timeStarted).ToString());
+                    logString.Append(" [");
+                    logString.Append(info.timeStarted.ToString());
+                    logString.AppendLine("]");
+                }
+
+                logString.Append("Completed: ");
+                logString.Append(ServerTimeStamp.ToLocalDateTime(now).ToString());
                 logString.Append(" [");
-                logString.Append(info.timeStarted.ToString());
+                logString.Append(now.ToString());
                 logString.AppendLine("]");
-            }
 
-            logString.Append("Completed: ");
-            logString.Append(ServerTimeStamp.ToLocalDateTime(now).ToString());
-            logString.Append(" [");
-            logString.Append(now.ToString());
-            logString.AppendLine("]");
+                logString.AppendLine();
 
-            logString.AppendLine();
+                logString.AppendLine("------[ Request ]------");
+                logString.AppendLine(requestString);
 
-            logString.AppendLine("------[ Request ]------");
-            logString.AppendLine(requestString);
+                logString.AppendLine("------[ Response ]------");
+                logString.AppendLine(responseString);
 
-            logString.AppendLine("------[ Response ]------");
-            logString.AppendLine(responseString);
-
-            // log
-            if(isError)
-            {
-                Debug.LogWarning(logString.ToString());
-            }
-            else
-            {
-                Debug.Log(logString.ToString());
+                // log
+                if(isError && PluginSettings.data.logFailedRequestWarnings)
+                {
+                    Debug.LogWarning(logString.ToString());
+                }
+                else
+                {
+                    Debug.Log(logString.ToString());
+                }
             }
         }
         #endif // DEBUG
