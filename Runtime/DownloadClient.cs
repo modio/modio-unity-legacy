@@ -143,25 +143,7 @@ namespace ModIO
 
 
             #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                string requestHeaders = "";
-                foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        requestHeaders += "\n" + headerKey + ": " + headerValue;
-                    }
-                }
-
-                int timeStamp = ServerTimeStamp.Now;
-                Debug.Log("IMAGE REQUEST SENT"
-                          + "\nTimeStamp: [" + timeStamp.ToString() + "] "
-                          + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
-                          + "\nURL: " + webRequest.url
-                          + "\nHeaders: " + requestHeaders);
-            }
+                DebugUtilities.DebugDownload(operation, LocalUser.instance, null);
             #endif
 
             return request;
@@ -180,16 +162,6 @@ namespace ModIO
             }
             else
             {
-                #if DEBUG
-                if(PluginSettings.data.logAllRequests)
-                {
-                    var responseTimeStamp = ServerTimeStamp.Now;
-                    Debug.Log("IMAGE DOWNLOAD SUCEEDED"
-                              + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                              + "\nURL: " + webRequest.url);
-                }
-                #endif
-
                 request.imageTexture = (webRequest.downloadHandler as DownloadHandlerTexture).texture;
                 request.NotifySucceeded();
             }
@@ -330,25 +302,7 @@ namespace ModIO
             var operation = downloadInfo.request.SendWebRequest();
 
             #if DEBUG
-            if(PluginSettings.data.logAllRequests)
-            {
-                string requestHeaders = "";
-                foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
-                {
-                    string headerValue = downloadInfo.request.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        requestHeaders += "\n" + headerKey + ": " + headerValue;
-                    }
-                }
-
-                int timeStamp = ServerTimeStamp.Now;
-                Debug.Log("DOWNLOAD REQUEST SENT"
-                          + "\nTimeStamp: [" + timeStamp.ToString() + "] "
-                          + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
-                          + "\nURL: " + downloadInfo.request.url
-                          + "\nHeaders: " + requestHeaders);
-            }
+                DebugUtilities.DebugDownload(operation, LocalUser.instance, tempFilePath);
             #endif
 
             operation.completed += (o) => DownloadClient.OnModBinaryRequestCompleted(idPair);
@@ -424,15 +378,6 @@ namespace ModIO
                 if(request.error.ToUpper() == "USER ABORTED"
                    || request.error.ToUpper() == "REQUEST ABORTED")
                 {
-                    #if DEBUG
-                    if(PluginSettings.data.logAllRequests)
-                    {
-                        Debug.Log("DOWNLOAD ABORTED"
-                                  + "\nDownload aborted at: " + ServerTimeStamp.Now
-                                  + "\nURL: " + request.url);
-                    }
-                    #endif
-
                     downloadInfo.wasAborted = true;
                 }
 
@@ -462,11 +407,6 @@ namespace ModIO
                 else
                 {
                     downloadInfo.error = WebRequestError.GenerateFromWebRequest(request);
-
-                    if(PluginSettings.data.logAllRequests)
-                    {
-                        WebRequestError.LogAsWarning(downloadInfo.error);
-                    }
 
                     if(modfileDownloadFailed != null)
                     {
@@ -505,17 +445,6 @@ namespace ModIO
 
             if(succeeded)
             {
-                #if DEBUG
-                if(PluginSettings.data.logAllRequests)
-                {
-                    var responseTimeStamp = ServerTimeStamp.Now;
-                    Debug.Log("DOWNLOAD SUCEEDED"
-                              + "\nDownload completed at: " + ServerTimeStamp.ToLocalDateTime(responseTimeStamp)
-                              + "\nURL: " + request.url
-                              + "\nFilePath: " + downloadInfo.target);
-                }
-                #endif
-
                 if(modfileDownloadSucceeded != null)
                 {
                     modfileDownloadSucceeded(idPair, downloadInfo);
