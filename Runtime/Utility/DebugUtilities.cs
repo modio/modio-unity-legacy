@@ -146,13 +146,12 @@ namespace ModIO
             requestString.AppendLine(userIdString);
 
             // add request headers
-            requestString.Append("Headers: ");
+            requestString.AppendLine("Headers:");
             foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
             {
                 string headerValue = webRequest.GetRequestHeader(headerKey);
                 if(headerValue != null)
                 {
-                    requestString.AppendLine();
                     requestString.Append("  ");
                     requestString.Append(headerKey);
                     requestString.Append(':');
@@ -174,40 +173,40 @@ namespace ModIO
                     {
                         requestString.Append(headerValue);
                     }
+
+                    requestString.AppendLine();
                 }
             }
-            requestString.AppendLine();
 
             // add string fields
-            requestString.Append("String Fields: ");
+            requestString.AppendLine("String Fields:");
             if(stringFields == null)
             {
                 requestString.AppendLine(" NONE");
             }
             else
             {
-                int countInsertIndex = requestString.Length;
+                int countInsertIndex = requestString.Length-1;
                 int count = 0;
 
                 foreach(var svp in stringFields)
                 {
-                    requestString.AppendLine();
                     requestString.Append("  ");
                     requestString.Append(svp.key);
                     requestString.Append(':');
                     requestString.Append(svp.value);
+                    requestString.AppendLine();
                     ++count;
                 }
 
                 requestString.Insert(countInsertIndex, "[" + count.ToString() + "]");
-                requestString.AppendLine();
             }
 
             // add binary fields
-            requestString.Append("Binary Fields: ");
+            requestString.AppendLine("Binary Fields:");
             if(binaryFields == null)
             {
-                requestString.AppendLine(" NONE");
+                requestString.AppendLine("  NONE");
             }
             else
             {
@@ -216,7 +215,6 @@ namespace ModIO
 
                 foreach(var bdp in binaryFields)
                 {
-                    requestString.AppendLine();
                     requestString.Append("  ");
                     requestString.Append(bdp.key);
                     requestString.Append(':');
@@ -226,11 +224,11 @@ namespace ModIO
                                          ? "NULL_DATA"
                                          : ValueFormatting.ByteCount(bdp.contents.Length, null));
                     requestString.Append(")");
+                    requestString.AppendLine();
                     ++count;
                 }
 
                 requestString.Insert(countInsertIndex, "[" + count.ToString() + "]");
-                requestString.AppendLine();
             }
 
             return requestString.ToString();
@@ -262,27 +260,25 @@ namespace ModIO
             }
 
             // add request headers
+            responseString.AppendLine("Headers:");
+
             var responseHeaders = webRequest.GetResponseHeaders();
-
-            responseString.Append("Headers: ");
-
             if(responseHeaders == null
                || responseHeaders.Count == 0)
             {
-                responseString.Append(" NONE");
+                responseString.AppendLine("  NONE");
             }
             else
             {
                 foreach(var kvp in responseHeaders)
                 {
-                    responseString.AppendLine();
                     responseString.Append("  ");
                     responseString.Append(kvp.Key);
                     responseString.Append(':');
                     responseString.Append(kvp.Value);
+                    responseString.AppendLine();
                 }
             }
-            responseString.AppendLine();
 
             // body
             responseString.AppendLine("Body:");
@@ -292,7 +288,7 @@ namespace ModIO
             {
                 if(webRequest.downloadHandler == null)
                 {
-                    bodyText = " NULL_DOWNLOAD_HANDLER";
+                    bodyText = "  NULL_DOWNLOAD_HANDLER";
                 }
                 else
                 {
@@ -301,7 +297,7 @@ namespace ModIO
             }
             catch
             {
-                bodyText = " TEXT_ACCESS_NOT_SUPPORTED";
+                bodyText = "  TEXT_ACCESS_NOT_SUPPORTED";
             }
             responseString.AppendLine(bodyText);
 
