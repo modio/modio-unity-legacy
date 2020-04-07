@@ -15,6 +15,7 @@ namespace ModIO
         public struct RequestInfo
         {
             public string userIdString;
+            public int timeStarted;
             public IEnumerable<API.StringValueParameter> stringFields;
             public IEnumerable<API.BinaryDataParameter> binaryFields;
             public string downloadLocation;
@@ -26,10 +27,11 @@ namespace ModIO
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugRequestOperation(UnityWebRequestAsyncOperation operation,
-                                                 LocalUser userData)
+                                                 LocalUser userData,
+                                                 int timeStarted = -1)
         {
             #if DEBUG
-                DebugUtilities.DebugDownloadOperation(operation, userData, null);
+                DebugUtilities.DebugDownloadOperation(operation, userData, null, timeStarted);
 
             #endif // DEBUG
         }
@@ -37,14 +39,21 @@ namespace ModIO
         /// <summary>Tracks and logs a download upon it completing.</summary>
         public static void DebugDownloadOperation(UnityWebRequestAsyncOperation operation,
                                                   LocalUser userData,
-                                                  string downloadLocation)
+                                                  string downloadLocation,
+                                                  int timeStarted = -1)
         {
             #if DEBUG
                 Debug.Assert(operation != null);
 
+                if(timeStarted < 0)
+                {
+                    timeStarted = ServerTimeStamp.Now;
+                }
+
                 RequestInfo info = new RequestInfo()
                 {
                     userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
+                    timeStarted = timeStarted,
                     stringFields = null,
                     binaryFields = null,
                     downloadLocation = downloadLocation,
@@ -84,6 +93,7 @@ namespace ModIO
         {
             #if DEBUG
                 // get vars
+                var now = ServerTimeStamp.Now;
                 UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
                 UnityWebRequest webRequest = o.webRequest;
                 RequestInfo info;
@@ -92,6 +102,7 @@ namespace ModIO
                     info = new RequestInfo()
                     {
                         userIdString = "NONE_RECORDED",
+                        timeStarted = -1,
                         stringFields = null,
                         binaryFields = null,
                         downloadLocation = null,
@@ -99,11 +110,6 @@ namespace ModIO
                 }
 
                 // generate strings
-                var timeStampString = (ServerTimeStamp.Now.ToString()
-                                       + " ["
-                                       + ServerTimeStamp.ToLocalDateTime(ServerTimeStamp.Now)
-                                       + "]");
-
                 string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
                                                                                  info.userIdString,
                                                                                  info.stringFields,
@@ -126,14 +132,27 @@ namespace ModIO
                     logString.AppendLine(info.downloadLocation);
                 }
 
+                if(info.timeStarted >= 0)
+                {
+                    logString.Append("Started: ");
+                    logString.Append(ServerTimeStamp.ToLocalDateTime(info.timeStarted).ToString());
+                    logString.Append(" [");
+                    logString.Append(info.timeStarted.ToString());
+                    logString.AppendLine("]");
+                }
+
+                logString.Append("Completed: ");
+                logString.Append(ServerTimeStamp.ToLocalDateTime(now).ToString());
+                logString.Append(" [");
+                logString.Append(now.ToString());
+                logString.AppendLine("]");
+
                 logString.AppendLine();
 
                 logString.AppendLine("------[ Request ]------");
                 logString.AppendLine(requestString);
 
                 logString.AppendLine("------[ Response ]------");
-                logString.Append("Time Stamp: ");
-                logString.AppendLine(timeStampString);
                 logString.AppendLine(responseString);
 
                 // log
