@@ -53,52 +53,6 @@ namespace ModIO
         /// <summary>A player/user-friendly message to display on the UI.</summary>
         public string displayMessage;
 
-        // --- OBSOLETE FIELDS ---
-        [System.Obsolete("Use webRequest.responseCode instead")]
-        public int responseCode
-        {
-            get { return (webRequest != null ? (int)webRequest.responseCode : -1); }
-        }
-        [System.Obsolete("Use webRequest.method instead")]
-        public string method
-        {
-            get { return (webRequest != null ? webRequest.method : "LOCAL"); }
-        }
-        [System.Obsolete("Use webRequest.url instead")]
-        public string url
-        {
-            get { return (webRequest != null ? webRequest.url : string.Empty); }
-        }
-        [System.Obsolete("Use webRequest.GetResponseHeaders() instead")]
-        public Dictionary<string, string> responseHeaders
-        {
-            get { return (webRequest != null ? webRequest.GetResponseHeaders() : null); }
-        }
-
-        [System.Obsolete("Use webRequest.downloadHandler.text instead")]
-        public string responseBody
-        {
-            get
-            {
-                if(webRequest != null
-                   && webRequest.downloadHandler != null
-                   && !(webRequest.downloadHandler is DownloadHandlerFile))
-                {
-                    return webRequest.downloadHandler.text;
-                }
-                return string.Empty;
-            }
-        }
-
-        /// <summary>[Obsolete] The message returned by the API explaining the error.</summary>
-        [System.Obsolete("Use WebRequestError.errorMessage instead")]
-        public string message
-        {
-            get { return this.errorMessage; }
-            set { this.errorMessage = value; }
-        }
-
-
         // ---------[ INITIALIZATION ]---------
         public static WebRequestError GenerateFromWebRequest(UnityWebRequest webRequest)
         {
@@ -473,6 +427,51 @@ namespace ModIO
         public static void LogAsWarning(WebRequestError error)
         {
             Debug.LogWarning(error.ToUnityDebugString());
+        }
+
+        // ---------[ Obsolete ]---------
+        [System.Obsolete("Use webRequest.responseCode instead")]
+        public int responseCode
+        {
+            get { return (webRequest != null ? (int)webRequest.responseCode : -1); }
+        }
+        [System.Obsolete("Use webRequest.method instead")]
+        public string method
+        {
+            get { return (webRequest != null ? webRequest.method : "LOCAL"); }
+        }
+        [System.Obsolete("Use webRequest.url instead")]
+        public string url
+        {
+            get { return (webRequest != null ? webRequest.url : string.Empty); }
+        }
+        [System.Obsolete("Use webRequest.GetResponseHeaders() instead")]
+        public Dictionary<string, string> responseHeaders
+        {
+            get { return (webRequest != null ? webRequest.GetResponseHeaders() : null); }
+        }
+
+        [System.Obsolete("Use webRequest.downloadHandler.text instead")]
+        public string responseBody
+        {
+            get
+            {
+                if(webRequest != null
+                   && webRequest.downloadHandler != null
+                   && !(webRequest.downloadHandler is DownloadHandlerFile))
+                {
+                    return webRequest.downloadHandler.text;
+                }
+                return string.Empty;
+            }
+        }
+
+        /// <summary>[Obsolete] The message returned by the API explaining the error.</summary>
+        [System.Obsolete("Use WebRequestError.errorMessage instead")]
+        public string message
+        {
+            get { return this.errorMessage; }
+            set { this.errorMessage = value; }
         }
     }
 }
