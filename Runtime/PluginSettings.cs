@@ -23,6 +23,8 @@ namespace ModIO
             public string   cacheDirectory;
             [Tooltip("Log all web requests made to using Debug.Log")]
             public bool     logAllRequests;
+            [Tooltip("Should failed requests be logged as warnings")]
+            public bool     logFailedRequestWarnings;
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
@@ -217,6 +219,7 @@ namespace ModIO
                 cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
                 installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
                 logAllRequests = false,
+                logFailedRequestWarnings = true,
             };
 
             return SetGlobalValues(data);
