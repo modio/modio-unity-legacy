@@ -362,71 +362,21 @@ namespace ModIO
         // ---------[ HELPER FUNCTIONS ]---------
         public string ToUnityDebugString()
         {
-            var debugString = new System.Text.StringBuilder();
-
-            string headerString = (this.webRequest == null ? "REQUEST FAILED LOCALLY"
-                                   : "WEB REQUEST FAILED");
-            debugString.AppendLine(headerString);
-
-            if(this.webRequest != null)
+            if(this.webRequest == null)
             {
-                debugString.AppendLine("------[ Request Data ]------");
-                debugString.AppendLine(APIClient.GenerateRequestDebugString(this.webRequest));
-
-                debugString.AppendLine("------[ Response Data ]------");
-                debugString.AppendLine("Time Stamp: " + this.timeStamp + " ("
-                                       + ServerTimeStamp.ToLocalDateTime(this.timeStamp) + ")");
-
-                var responseHeaders = webRequest.GetResponseHeaders();
-                if(responseHeaders != null
-                   && responseHeaders.Count > 0)
-                {
-                    debugString.AppendLine("Response Headers:");
-                    foreach(var kvp in responseHeaders)
-                    {
-                        debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                    }
-                }
-                debugString.AppendLine("Response Code: " + this.webRequest.responseCode.ToString());
-
-                debugString.AppendLine("errorMessage: " + this.errorMessage);
-
-                if(this.fieldValidationMessages != null
-                   && this.fieldValidationMessages.Count > 0)
-                {
-                    debugString.AppendLine("Field Validation Messages:");
-                    foreach(var kvp in fieldValidationMessages)
-                    {
-                        debugString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                    }
-                }
-
-                debugString.AppendLine("isAuthenticationInvalid = "    + this.isAuthenticationInvalid.ToString());
-                debugString.AppendLine("isServerUnreachable = "        + this.isServerUnreachable.ToString());
-                debugString.AppendLine("isRequestUnresolvable = "      + this.isRequestUnresolvable.ToString());
-                debugString.AppendLine("limitedUntilTimeStamp = "      + this.limitedUntilTimeStamp.ToString());
-                debugString.AppendLine("displayMessage = "             + this.displayMessage);
-
-                string contentText = "[NULL]";
-                if(this.webRequest.downloadHandler != null)
-                {
-                    try
-                    {
-                        contentText = this.webRequest.downloadHandler.text;
-                    }
-                    catch
-                    {
-                        contentText = "[NON-TEXT DATA]";
-                    }
-                }
+                return ("Request failed prior to being sent.\n"
+                        + this.errorMessage);
             }
-
-            return debugString.ToString();
+            else
+            {
+                return DebugUtilities.GenerateResponseDebugString(this.webRequest);
+            }
         }
 
         public static void LogAsWarning(WebRequestError error)
         {
-            Debug.LogWarning(error.ToUnityDebugString());
+            Debug.LogWarning("[mod.io] Web Request Failed\n"
+                             + error.ToUnityDebugString());
         }
 
         // ---------[ Obsolete ]---------
