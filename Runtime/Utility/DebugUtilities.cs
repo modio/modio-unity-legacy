@@ -76,9 +76,11 @@ namespace ModIO
         private static void OnOperationCompleted(AsyncOperation operation)
         {
             // get vars
-            var now = ServerTimeStamp.Now;
             UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
             UnityWebRequest webRequest = o.webRequest;
+            var now = ServerTimeStamp.Now;
+            bool isError = (webRequest.isNetworkError || webRequest.isHttpError);
+
             RequestInfo info;
             if(!DebugUtilities.webRequestInfo.TryGetValue(webRequest, out info))
             {
@@ -98,7 +100,15 @@ namespace ModIO
 
             // generate log string
             var logString = new System.Text.StringBuilder();
-            logString.AppendLine("[mod.io] Web Request Completed");
+            if(!isError)
+            {
+                logString.AppendLine("[mod.io] Web Request Succeeded");
+            }
+            else
+            {
+                logString.AppendLine("[mod.io] Web Request Failed");
+            }
+
             logString.Append("URL: ");
             logString.Append(webRequest.url);
             logString.Append(" (");
@@ -135,7 +145,14 @@ namespace ModIO
             logString.AppendLine(responseString);
 
             // log
-            Debug.Log(logString.ToString());
+            if(isError)
+            {
+                Debug.LogWarning(logString.ToString());
+            }
+            else
+            {
+                Debug.Log(logString.ToString());
+            }
         }
         #endif // DEBUG
 
@@ -314,6 +331,67 @@ namespace ModIO
                     responseString.Append(kvp.Value);
                     responseString.AppendLine();
                 }
+            }
+
+            // add error information
+            if(webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                var error = WebRequestError.GenerateFromWebRequest(webRequest);
+
+                responseString.AppendLine("mod.io Error Details:");
+
+                // add flags
+                responseString.Append("  flags:");
+
+                if(error.isAuthenticationInvalid)
+                {
+                    responseString.Append("[AuthenticationInvalid]");
+                }
+
+                if(error.isServerUnreachable)
+                {
+                    responseString.Append("[ServerUnreachable]");
+                }
+
+                if(error.isRequestUnresolvable)
+                {
+                    responseString.Append("[RequestUnresolvable]");
+                }
+
+                if(!error.isAuthenticationInvalid
+                   && !error.isServerUnreachable
+                   && !error.isRequestUnresolvable)
+                {
+                    responseString.Append("[NONE]");
+                }
+
+                responseString.AppendLine();
+
+                // add rate limiting
+                responseString.Append("  limitedUntilTimeStamp:");
+                responseString.AppendLine(error.limitedUntilTimeStamp.ToString());
+
+                // add messages
+                responseString.Append("  errorMessage:");
+                responseString.AppendLine(error.errorMessage);
+
+                if(error.fieldValidationMessages != null
+                   && error.fieldValidationMessages.Count > 0)
+                {
+                    responseString.AppendLine("  fieldValidation:");
+
+                    foreach(var kvp in error.fieldValidationMessages)
+                    {
+                        responseString.Append("    [");
+                        responseString.Append(kvp.Key);
+                        responseString.Append("]:");
+                        responseString.Append(kvp.Value);
+                        responseString.AppendLine();
+                    }
+                }
+
+                responseString.Append("  displayMessage:");
+                responseString.AppendLine(error.displayMessage);
             }
 
             // body
