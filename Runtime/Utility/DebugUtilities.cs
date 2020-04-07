@@ -285,10 +285,25 @@ namespace ModIO
             responseString.AppendLine();
 
             // body
-            responseString.Append("Body: ");
-            responseString.AppendLine(webRequest.downloadHandler == null
-                                      ? " NULL_DOWNLOAD_HANDLER"
-                                      : webRequest.downloadHandler.text);
+            responseString.AppendLine("Body:");
+
+            string bodyText = null;
+            try
+            {
+                if(webRequest.downloadHandler == null)
+                {
+                    bodyText = " NULL_DOWNLOAD_HANDLER";
+                }
+                else
+                {
+                    bodyText = webRequest.downloadHandler.text;
+                }
+            }
+            catch
+            {
+                bodyText = " TEXT_ACCESS_NOT_SUPPORTED";
+            }
+            responseString.AppendLine(bodyText);
 
             return responseString.ToString();
         }
