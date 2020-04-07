@@ -79,6 +79,8 @@ namespace ModIO
         /// <summary>Callback upon request operation completion.</summary>
         private static void OnOperationCompleted(AsyncOperation operation)
         {
+            if(operation == null) { return; }
+
             // get vars
             UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
             UnityWebRequest webRequest = o.webRequest;
@@ -161,6 +163,8 @@ namespace ModIO
                     Debug.Log(logString.ToString());
                 }
             }
+
+            DebugUtilities.webRequestInfo.Remove(webRequest);
         }
         #endif // DEBUG
 
