@@ -44,17 +44,6 @@ namespace ModIO
         /// <summary>Requested language for the API response messages.</summary>
         public static string languageCode = "en";
 
-        // ---------[ DEBUGGING ]---------
-        /// <summary>Pairing of the WWWForm field types.</summary>
-        private struct DebugFormData
-        {
-            public IEnumerable<StringValueParameter> strings;
-            public IEnumerable<BinaryDataParameter> binaryData;
-        }
-
-        /// <summary>Mapping of UnityWebRequests to their form data.</summary>
-        private static Dictionary<UnityWebRequest, DebugFormData> webRequestFormData = new Dictionary<UnityWebRequest, DebugFormData>();
-
         // ---------[ DEBUG FUNCTIONALITY ]---------
         /// <summary>Asserts that the required authorization data for making API requests is set.</summary>
         public static bool AssertAuthorizationDetails(bool isUserTokenRequired)
@@ -266,10 +255,6 @@ namespace ModIO
                 {
                     if(successCallback != null) { successCallback(); }
                 }
-
-                #if DEBUG
-                APIClient.webRequestFormData.Remove(webRequest);
-                #endif
             };
 
             return requestOperation;
