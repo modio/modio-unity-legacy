@@ -356,9 +356,9 @@ namespace ModIO
         }
 
         /// <summary>A wrapper for sending a UnityWebRequest and attaching callbacks.</summary>
-        public static void SendRequest(UnityWebRequest webRequest,
-                                       Action successCallback,
-                                       Action<WebRequestError> errorCallback)
+        public static UnityWebRequestAsyncOperation SendRequest(UnityWebRequest webRequest,
+                                                                Action successCallback,
+                                                                Action<WebRequestError> errorCallback)
         {
             // - Start Request -
             UnityWebRequestAsyncOperation requestOperation = webRequest.SendWebRequest();
@@ -438,12 +438,14 @@ namespace ModIO
                 APIClient.webRequestFormData.Remove(webRequest);
                 #endif
             };
+
+            return requestOperation;
         }
 
         /// <summary>A wrapper for sending a web request to mod.io and parsing the result.</summary>
-        public static void SendRequest<T>(UnityWebRequest webRequest,
-                                          Action<T> successCallback,
-                                          Action<WebRequestError> errorCallback)
+        public static UnityWebRequestAsyncOperation SendRequest<T>(UnityWebRequest webRequest,
+                                                                   Action<T> successCallback,
+                                                                   Action<WebRequestError> errorCallback)
         {
             Action processResponse = () =>
             {
@@ -467,9 +469,7 @@ namespace ModIO
                 }
             };
 
-            APIClient.SendRequest(webRequest,
-                                  processResponse,
-                                  errorCallback);
+            return APIClient.SendRequest(webRequest, processResponse, errorCallback);
         }
 
 
