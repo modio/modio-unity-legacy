@@ -17,6 +17,7 @@ namespace ModIO
             public string userIdString;
             public IEnumerable<API.StringValueParameter> stringFields;
             public IEnumerable<API.BinaryDataParameter> binaryFields;
+            public string downloadLocation;
         }
 
         // ---------[ Web Requests ]---------
@@ -66,6 +67,51 @@ namespace ModIO
             #endif // DEBUG
         }
 
+        /// <summary>Tracks and logs a download upon it completing.</summary>
+        public static void DebugDownloadOperation(UnityWebRequestAsyncOperation operation,
+                                                  LocalUser userData,
+                                                  string downloadLocation)
+        {
+            #if DEBUG
+                Debug.Assert(operation != null);
+
+                RequestInfo info = new RequestInfo()
+                {
+                    userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
+                    stringFields = null,
+                    binaryFields = null,
+                    downloadLocation = downloadLocation,
+                };
+
+                // get upload data
+                if(operation.webRequest.uploadHandler != null)
+                {
+                    List<API.StringValueParameter> sf;
+                    List<API.BinaryDataParameter> bf;
+
+                    DebugUtilities.ParseUploadData(operation.webRequest.uploadHandler.data,
+                                                   out sf,
+                                                   out bf);
+
+                    info.stringFields = sf;
+                    info.binaryFields = bf;
+                }
+
+                DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
+
+                // handle completion
+                if(operation.isDone)
+                {
+                    DebugUtilities.OnOperationCompleted(operation);
+                }
+                else
+                {
+                    operation.completed += DebugUtilities.OnOperationCompleted;
+                }
+
+            #endif // DEBUG
+        }
+
         /// <summary>Callback upon request operation completion.</summary>
         private static void OnOperationCompleted(AsyncOperation operation)
         {
@@ -81,6 +127,7 @@ namespace ModIO
                         userIdString = "NONE_RECORDED",
                         stringFields = null,
                         binaryFields = null,
+                        downloadLocation = null,
                     };
                 }
 
@@ -105,6 +152,13 @@ namespace ModIO
                 logString.Append(" (");
                 logString.Append(webRequest.method.ToUpper());
                 logString.AppendLine(")");
+
+                if(!string.IsNullOrEmpty(info.downloadLocation))
+                {
+                    logString.Append("Download Location: ");
+                    logString.AppendLine(info.downloadLocation);
+                }
+
                 logString.AppendLine();
 
                 logString.AppendLine("------[ Request ]------");
@@ -182,7 +236,7 @@ namespace ModIO
             requestString.AppendLine("String Fields:");
             if(stringFields == null)
             {
-                requestString.AppendLine(" NONE");
+                requestString.AppendLine("  NONE");
             }
             else
             {
