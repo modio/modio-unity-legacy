@@ -29,40 +29,7 @@ namespace ModIO
                                                  LocalUser userData)
         {
             #if DEBUG
-                Debug.Assert(operation != null);
-
-                RequestInfo info = new RequestInfo()
-                {
-                    userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
-                    stringFields = null,
-                    binaryFields = null,
-                };
-
-                // get upload data
-                if(operation.webRequest.uploadHandler != null)
-                {
-                    List<API.StringValueParameter> sf;
-                    List<API.BinaryDataParameter> bf;
-
-                    DebugUtilities.ParseUploadData(operation.webRequest.uploadHandler.data,
-                                                   out sf,
-                                                   out bf);
-
-                    info.stringFields = sf;
-                    info.binaryFields = bf;
-                }
-
-                DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
-
-                // handle completion
-                if(operation.isDone)
-                {
-                    DebugUtilities.OnOperationCompleted(operation);
-                }
-                else
-                {
-                    operation.completed += DebugUtilities.OnOperationCompleted;
-                }
+                DebugUtilities.DebugDownloadOperation(operation, userData, null);
 
             #endif // DEBUG
         }
