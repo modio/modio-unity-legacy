@@ -75,67 +75,67 @@ namespace ModIO
         /// <summary>Callback upon request operation completion.</summary>
         private static void OnOperationCompleted(AsyncOperation operation)
         {
-                // get vars
-                var now = ServerTimeStamp.Now;
-                UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
-                UnityWebRequest webRequest = o.webRequest;
-                RequestInfo info;
-                if(!DebugUtilities.webRequestInfo.TryGetValue(webRequest, out info))
+            // get vars
+            var now = ServerTimeStamp.Now;
+            UnityWebRequestAsyncOperation o = operation as UnityWebRequestAsyncOperation;
+            UnityWebRequest webRequest = o.webRequest;
+            RequestInfo info;
+            if(!DebugUtilities.webRequestInfo.TryGetValue(webRequest, out info))
+            {
+                info = new RequestInfo()
                 {
-                    info = new RequestInfo()
-                    {
-                        userIdString = "NONE_RECORDED",
-                        timeStarted = -1,
-                        downloadLocation = null,
-                    };
-                }
+                    userIdString = "NONE_RECORDED",
+                    timeStarted = -1,
+                    downloadLocation = null,
+                };
+            }
 
-                // generate strings
-                string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
-                                                                                 info.userIdString);
+            // generate strings
+            string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
+                                                                             info.userIdString);
 
-                string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
+            string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
 
-                // generate log string
-                var logString = new System.Text.StringBuilder();
-                logString.AppendLine("[mod.io] Web Request Completed");
-                logString.Append("URL: ");
-                logString.Append(webRequest.url);
-                logString.Append(" (");
-                logString.Append(webRequest.method.ToUpper());
-                logString.AppendLine(")");
+            // generate log string
+            var logString = new System.Text.StringBuilder();
+            logString.AppendLine("[mod.io] Web Request Completed");
+            logString.Append("URL: ");
+            logString.Append(webRequest.url);
+            logString.Append(" (");
+            logString.Append(webRequest.method.ToUpper());
+            logString.AppendLine(")");
 
-                if(!string.IsNullOrEmpty(info.downloadLocation))
-                {
-                    logString.Append("Download Location: ");
-                    logString.AppendLine(info.downloadLocation);
-                }
+            if(!string.IsNullOrEmpty(info.downloadLocation))
+            {
+                logString.Append("Download Location: ");
+                logString.AppendLine(info.downloadLocation);
+            }
 
-                if(info.timeStarted >= 0)
-                {
-                    logString.Append("Started: ");
-                    logString.Append(ServerTimeStamp.ToLocalDateTime(info.timeStarted).ToString());
-                    logString.Append(" [");
-                    logString.Append(info.timeStarted.ToString());
-                    logString.AppendLine("]");
-                }
-
-                logString.Append("Completed: ");
-                logString.Append(ServerTimeStamp.ToLocalDateTime(now).ToString());
+            if(info.timeStarted >= 0)
+            {
+                logString.Append("Started: ");
+                logString.Append(ServerTimeStamp.ToLocalDateTime(info.timeStarted).ToString());
                 logString.Append(" [");
-                logString.Append(now.ToString());
+                logString.Append(info.timeStarted.ToString());
                 logString.AppendLine("]");
+            }
 
-                logString.AppendLine();
+            logString.Append("Completed: ");
+            logString.Append(ServerTimeStamp.ToLocalDateTime(now).ToString());
+            logString.Append(" [");
+            logString.Append(now.ToString());
+            logString.AppendLine("]");
 
-                logString.AppendLine("------[ Request ]------");
-                logString.AppendLine(requestString);
+            logString.AppendLine();
 
-                logString.AppendLine("------[ Response ]------");
-                logString.AppendLine(responseString);
+            logString.AppendLine("------[ Request ]------");
+            logString.AppendLine(requestString);
 
-                // log
-                Debug.Log(logString.ToString());
+            logString.AppendLine("------[ Response ]------");
+            logString.AppendLine(responseString);
+
+            // log
+            Debug.Log(logString.ToString());
         }
         #endif // DEBUG
 
