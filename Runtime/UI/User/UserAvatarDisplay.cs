@@ -106,7 +106,7 @@ namespace ModIO.UI
                     ImageRequestManager.instance.RequestUserAvatar(userId, locator, this.avatarSize,
                                                                    displayDelegate,
                                                                    displayDelegate, // fallback
-                                                                   WebRequestError.LogAsWarning);
+                                                                   null);
                 }
             }
         }

@@ -122,7 +122,7 @@ namespace ModIO.EditorCode
                                                       imageLocator,
                                                       IMAGE_PREVIEW_SIZE,
                                                       (t) => { this.textureCache[imageFileName] = t; isRepaintRequired = true; },
-                                                      WebRequestError.LogAsWarning);
+                                                      null);
                     }
                     else
                     {

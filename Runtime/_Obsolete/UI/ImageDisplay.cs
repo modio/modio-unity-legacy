@@ -103,7 +103,7 @@ namespace ModIO.UI
                         SetOverlayVisibility(true);
                     }
                 },
-                WebRequestError.LogAsWarning);
+                null);
             }
         }
 

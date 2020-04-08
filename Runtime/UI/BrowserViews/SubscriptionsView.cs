@@ -345,7 +345,7 @@ namespace ModIO.UI
                         }
                     }
                 },
-                WebRequestError.LogAsWarning);
+                null);
             }
         }
 

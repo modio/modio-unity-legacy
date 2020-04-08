@@ -57,7 +57,7 @@ namespace ModIO.UI
 
                     ImageRequestManager.instance.RequestYouTubeThumbnail(modId, youTubeId,
                                                                          displayDelegate,
-                                                                         WebRequestError.LogAsWarning);
+                                                                         null);
                 }
             }
         }

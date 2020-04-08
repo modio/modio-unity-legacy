@@ -1242,7 +1242,7 @@ namespace ModIO.UI
                     {
                         ModProfileRequestManager.instance.CacheModProfiles(r.items);
                     },
-                    WebRequestError.LogAsWarning);
+                    null);
                 }
 
                 // get new versions of subscribed mods
@@ -1335,8 +1335,7 @@ namespace ModIO.UI
         public void LogUserOut()
         {
             // push queued subs/unsubs
-            UserAccountManagement.PushSubscriptionChanges(null,
-                                                          (e) => WebRequestError.LogAsWarning(e[0]));
+            UserAccountManagement.PushSubscriptionChanges(null, null);
 
             // - clear current user -
             LocalUser oldUser = LocalUser.instance;

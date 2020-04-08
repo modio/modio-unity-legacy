@@ -322,8 +322,7 @@ namespace ModIO.UI
                     this.DisplayModPage(page);
                     wasDisplayUpdated = true;
                 }
-            },
-            WebRequestError.LogAsWarning);
+            }, null);
 
             if(!wasDisplayUpdated)
             {
@@ -786,7 +785,7 @@ namespace ModIO.UI
                         }
                     }
                 },
-                WebRequestError.LogAsWarning);
+                null);
             }
         }
 

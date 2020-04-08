@@ -529,8 +529,6 @@ namespace ModIO
 
                 if(error != null)
                 {
-                    WebRequestError.LogAsWarning(error);
-
                     if(error.isAuthenticationInvalid)
                     {
                         yield break;

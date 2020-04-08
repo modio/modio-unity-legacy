@@ -49,7 +49,7 @@ namespace ModIO.UI
                                 this.modView.profile = p;
                             }
                         },
-                        WebRequestError.LogAsWarning);
+                        null);
 
                         // statistics
                         ModStatisticsRequestManager.instance.RequestModStatistics(this.m_modId,
@@ -61,7 +61,7 @@ namespace ModIO.UI
                                 this.modView.statistics = s;
                             }
                         },
-                        WebRequestError.LogAsWarning);
+                        null);
                     }
                 }
             }

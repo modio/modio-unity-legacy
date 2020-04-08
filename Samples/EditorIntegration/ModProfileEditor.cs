@@ -78,7 +78,6 @@ namespace ModIO.EditorCode
 
                     Action<WebRequestError> onError = (e) =>
                     {
-                        WebRequestError.LogAsWarning(e);
                         isModListLoading = false;
                     };
 

@@ -71,7 +71,7 @@ namespace ModIO.EditorCode
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
-                                      WebRequestError.LogAsWarning);
+                                      null);
             }
             else
             {
@@ -342,7 +342,7 @@ namespace ModIO.EditorCode
 
                 ModManager.GetModLogo(profile, LOGO_PREVIEW_SIZE,
                                       (t) => { logoTexture = t; isRepaintRequired = true; },
-                                      WebRequestError.LogAsWarning);
+                                      null);
             }
         }
 
