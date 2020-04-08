@@ -419,24 +419,9 @@ namespace ModIO.UI
             };
 
             #if DEBUG
-            if(PluginSettings.data.logAllRequests && !this.excludeDownloadsFromLogs)
+            if(!this.excludeDownloadsFromLogs)
             {
-                string requestHeaders = "";
-                foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
-                {
-                    string headerValue = webRequest.GetRequestHeader(headerKey);
-                    if(headerValue != null)
-                    {
-                        requestHeaders += "\n" + headerKey + ": " + headerValue;
-                    }
-                }
-
-                int timeStamp = ServerTimeStamp.Now;
-                Debug.Log("IMAGE DOWNLOAD STARTED"
-                          + "\nURL: " + webRequest.url
-                          + "\nTimeStamp: [" + timeStamp.ToString() + "] "
-                          + ServerTimeStamp.ToLocalDateTime(timeStamp).ToString()
-                          + "\nHeaders: " + requestHeaders);
+                DebugUtilities.DebugDownload(operation, LocalUser.instance, null);
             }
             #endif
 
@@ -450,46 +435,6 @@ namespace ModIO.UI
             if(this == null) { return; }
 
             Debug.Assert(webRequest != null);
-
-            // - logging -
-            #if DEBUG
-            if(PluginSettings.data.logAllRequests && !this.excludeDownloadsFromLogs)
-            {
-                if(webRequest.isNetworkError || webRequest.isHttpError)
-                {
-                    WebRequestError.LogAsWarning(WebRequestError.GenerateFromWebRequest(webRequest));
-                }
-                else
-                {
-                    var headerString = new System.Text.StringBuilder();
-                    var responseHeaders = webRequest.GetResponseHeaders();
-                    if(responseHeaders != null
-                       && responseHeaders.Count > 0)
-                    {
-                        headerString.Append("\n");
-                        foreach(var kvp in responseHeaders)
-                        {
-                            headerString.AppendLine("- [" + kvp.Key + "] " + kvp.Value);
-                        }
-                    }
-                    else
-                    {
-                        headerString.Append(" NONE");
-                    }
-
-                    var responseTimeStamp = ServerTimeStamp.Now;
-                    string logString = ("IMAGE DOWNLOAD SUCCEEDED"
-                                        + "\nURL: " + webRequest.url
-                                        + "\nTime Stamp: " + responseTimeStamp + " ("
-                                        + ServerTimeStamp.ToLocalDateTime(responseTimeStamp) + ")"
-                                        + "\nResponse Headers: " + headerString.ToString()
-                                        + "\nResponse Code: " + webRequest.responseCode
-                                        + "\nResponse Error: " + webRequest.error
-                                        + "\n");
-                    Debug.Log(logString);
-                }
-            }
-            #endif
 
             // handle callbacks
             Callbacks callbacks;
