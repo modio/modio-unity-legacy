@@ -14,8 +14,13 @@ namespace ModIO
         /// <summary>Pairing of the WWWForm field types.</summary>
         public struct RequestInfo
         {
+            /// <summary>User identifier to display in logs.</summary>
             public string userIdString;
+
+            /// <summary>ServerTimeStamp at which the request was sent.</summary>
             public int timeStarted;
+
+            /// <summary>FilePath to which the request is saving data.</summary>
             public string downloadLocation;
         }
 
@@ -30,7 +35,6 @@ namespace ModIO
         {
             #if DEBUG
                 DebugUtilities.DebugDownload(operation, userData, null, timeStarted);
-
             #endif // DEBUG
         }
 
@@ -619,7 +623,7 @@ namespace ModIO
                 username = "NO_USERNAME";
             }
 
-            return ("[" + profile.id.ToString() + "] " + username);
+            return ("[" + profile.id.ToString() + "]:" + username);
         }
     }
 }
