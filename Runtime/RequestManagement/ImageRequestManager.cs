@@ -37,8 +37,9 @@ namespace ModIO.UI
         }
 
         // ---------[ FIELDS ]---------
-        /// <summary>Should requests made by the ImageRequestManager be logged.</summary>
-        public bool logDownloads = false;
+        /// <summary>Should the downloads made by this object be excluded from logging?</summary>
+        [Tooltip("Should the downloads made by this object be excluded from logging?")]
+        public bool excludeDownloadsFromLogs = true;
 
         /// <summary>Should the cache be cleared on disable.</summary>
         public bool clearCacheOnDisable = true;
@@ -723,5 +724,13 @@ namespace ModIO.UI
                                        onError);
         }
         #pragma warning restore 0618
+
+        /// <summary>Should requests made by the ImageRequestManager be logged.</summary>
+        [Obsolete("Use ImageRequestManager.excludeDownloadsFromLogs instead")]
+        public bool logDownloads
+        {
+            get { return !this.excludeDownloadsFromLogs; }
+            set { this.excludeDownloadsFromLogs = !value; }
+        }
     }
 }
