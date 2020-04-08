@@ -596,6 +596,8 @@ namespace ModIO
                         elementStartIndex = searchIndex + searchString.Length;
                         newBinaryParam.contents = new byte[s.Length - elementStartIndex - lineEnd.Length];
                     }
+
+                    binaryFields.Add(newBinaryParam);
                 }
             }
         }
