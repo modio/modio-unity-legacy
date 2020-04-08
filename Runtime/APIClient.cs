@@ -1490,5 +1490,11 @@ namespace ModIO
         public static void GetUser(int userId,
                                    Action<UserProfile> successCallback, Action<WebRequestError> errorCallback) {}
 
+        /// <summary>[Obsolete] Generates a debug-friendly string of a web request.</summary>
+        [Obsolete("Use DebugUtilities.GenerateRequestDebugString() instead.")]
+        public static string GenerateRequestDebugString(UnityWebRequest webRequest)
+        {
+            return DebugUtilities.GenerateRequestDebugString(webRequest, DebugUtilities.GenerateUserIdString(LocalUser.instance.profile));
+        }
     }
 }
