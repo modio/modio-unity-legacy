@@ -236,7 +236,7 @@ namespace ModIO
                     DebugUtilities.ParseURLEncodedFormData(uploadHandler.data,
                                                            out stringFields);
                 }
-                else if(contentType.ToLower() == "multipart/form-data")
+                else if(contentType.Contains("multipart/form-data"))
                 {
                     DebugUtilities.ParseMultipartFormData(uploadHandler.data,
                                                           out stringFields,
