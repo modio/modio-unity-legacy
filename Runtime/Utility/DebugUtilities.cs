@@ -274,7 +274,7 @@ namespace ModIO
                 {
                     requestString.AppendLine("Binary Fields:");
 
-                    int countInsertIndex = requestString.Length;
+                    int countInsertIndex = requestString.Length-1;
                     int count = 0;
 
                     foreach(var bdp in binaryFields)
