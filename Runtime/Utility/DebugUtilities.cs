@@ -199,7 +199,7 @@ namespace ModIO
                 {
                     requestString.Append("  ");
                     requestString.Append(headerKey);
-                    requestString.Append(':');
+                    requestString.Append('=');
 
                     if(headerKey.ToUpper() == "AUTHORIZATION")
                     {
@@ -260,7 +260,7 @@ namespace ModIO
                     {
                         requestString.Append("  ");
                         requestString.Append(svp.key);
-                        requestString.Append(':');
+                        requestString.Append('=');
                         requestString.Append(svp.value);
                         requestString.AppendLine();
                         ++count;
@@ -281,7 +281,7 @@ namespace ModIO
                     {
                         requestString.Append("  ");
                         requestString.Append(bdp.key);
-                        requestString.Append(':');
+                        requestString.Append('=');
                         requestString.Append(bdp.fileName);
                         requestString.Append(" (");
                         requestString.Append(bdp.contents == null
@@ -339,7 +339,7 @@ namespace ModIO
                 {
                     responseString.Append("  ");
                     responseString.Append(kvp.Key);
-                    responseString.Append(':');
+                    responseString.Append('=');
                     responseString.Append(kvp.Value);
                     responseString.AppendLine();
                 }
@@ -353,7 +353,7 @@ namespace ModIO
                 responseString.AppendLine("mod.io Error Details:");
 
                 // add flags
-                responseString.Append("  flags:");
+                responseString.Append("  flags=");
 
                 if(error.isAuthenticationInvalid)
                 {
@@ -380,11 +380,11 @@ namespace ModIO
                 responseString.AppendLine();
 
                 // add rate limiting
-                responseString.Append("  limitedUntilTimeStamp:");
+                responseString.Append("  limitedUntilTimeStamp=");
                 responseString.AppendLine(error.limitedUntilTimeStamp.ToString());
 
                 // add messages
-                responseString.Append("  errorMessage:");
+                responseString.Append("  errorMessage=");
                 responseString.AppendLine(error.errorMessage);
 
                 if(error.fieldValidationMessages != null
@@ -396,13 +396,13 @@ namespace ModIO
                     {
                         responseString.Append("    [");
                         responseString.Append(kvp.Key);
-                        responseString.Append("]:");
+                        responseString.Append("]=");
                         responseString.Append(kvp.Value);
                         responseString.AppendLine();
                     }
                 }
 
-                responseString.Append("  displayMessage:");
+                responseString.Append("  displayMessage=");
                 responseString.AppendLine(error.displayMessage);
             }
 
