@@ -105,10 +105,10 @@ namespace ModIO
                     }
 
                     // generate strings
-                    string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
-                                                                                     debugData.userIdString);
+                    string requestString = DebugUtilities.GetRequestInfo(webRequest,
+                                                                         debugData.userIdString);
 
-                    string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
+                    string responseString = DebugUtilities.GetResponseInfo(webRequest);
 
                     // generate log string
                     var logString = new System.Text.StringBuilder();
@@ -172,8 +172,7 @@ namespace ModIO
         #endif // DEBUG
 
         /// <summary>Generates a debug-friendly string of a web request.</summary>
-        public static string GenerateRequestDebugString(UnityWebRequest webRequest,
-                                                        string userIdString)
+        public static string GetRequestInfo(UnityWebRequest webRequest, string userIdString)
         {
             // check user string
             if(userIdString == null)
@@ -303,7 +302,7 @@ namespace ModIO
         }
 
         /// <summary>Generates a debug-friendly string of a web request response.</summary>
-        public static string GenerateResponseDebugString(UnityWebRequest webRequest)
+        public static string GetResponseInfo(UnityWebRequest webRequest)
         {
             // get info
             var responseString = new System.Text.StringBuilder();

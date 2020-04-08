@@ -369,7 +369,7 @@ namespace ModIO
             }
             else
             {
-                return DebugUtilities.GenerateResponseDebugString(this.webRequest);
+                return DebugUtilities.GetResponseInfo(this.webRequest);
             }
         }
 
