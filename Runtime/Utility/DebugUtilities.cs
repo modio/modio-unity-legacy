@@ -10,9 +10,9 @@ namespace ModIO
     /// <summary>Tools to assist in debugging.</summary>
     public static class DebugUtilities
     {
-        // ---------[ Nested Data-Types ]---------
-        /// <summary>Pairing of the WWWForm field types.</summary>
-        public struct RequestInfo
+        // ---------[ Web Requests ]---------
+        /// <summary>Data state at the time of the request being sent.</summary>
+        public struct RequestDebugData
         {
             /// <summary>User identifier to display in logs.</summary>
             public string userIdString;
@@ -24,9 +24,8 @@ namespace ModIO
             public string downloadLocation;
         }
 
-        // ---------[ Web Requests ]---------
         /// <summary>Mapping of tracked WebRequests with their sent data.</summary>
-        public static Dictionary<UnityWebRequest, RequestInfo> webRequestInfo = new Dictionary<UnityWebRequest, RequestInfo>();
+        public static Dictionary<UnityWebRequest, RequestDebugData> webRequestDebugData = new Dictionary<UnityWebRequest, RequestDebugData>();
 
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugWebRequest(UnityWebRequestAsyncOperation operation,
@@ -56,14 +55,14 @@ namespace ModIO
                         timeStarted = ServerTimeStamp.Now;
                     }
 
-                    RequestInfo info = new RequestInfo()
+                    RequestDebugData debugData = new RequestDebugData()
                     {
                         userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
                         timeStarted = timeStarted,
                         downloadLocation = downloadLocation,
                     };
 
-                    DebugUtilities.webRequestInfo.Add(operation.webRequest, info);
+                    DebugUtilities.webRequestDebugData.Add(operation.webRequest, debugData);
 
                     // handle completion
                     if(operation.isDone)
@@ -94,10 +93,10 @@ namespace ModIO
                 // should we log?
                 if(PluginSettings.data.logAllRequests || isError)
                 {
-                    RequestInfo info;
-                    if(!DebugUtilities.webRequestInfo.TryGetValue(webRequest, out info))
+                    RequestDebugData debugData;
+                    if(!DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
                     {
-                        info = new RequestInfo()
+                        debugData = new RequestDebugData()
                         {
                             userIdString = "NONE_RECORDED",
                             timeStarted = -1,
@@ -107,7 +106,7 @@ namespace ModIO
 
                     // generate strings
                     string requestString = DebugUtilities.GenerateRequestDebugString(webRequest,
-                                                                                     info.userIdString);
+                                                                                     debugData.userIdString);
 
                     string responseString = DebugUtilities.GenerateResponseDebugString(webRequest);
 
@@ -128,18 +127,18 @@ namespace ModIO
                     logString.Append(webRequest.method.ToUpper());
                     logString.AppendLine(")");
 
-                    if(!string.IsNullOrEmpty(info.downloadLocation))
+                    if(!string.IsNullOrEmpty(debugData.downloadLocation))
                     {
                         logString.Append("Download Location: ");
-                        logString.AppendLine(info.downloadLocation);
+                        logString.AppendLine(debugData.downloadLocation);
                     }
 
-                    if(info.timeStarted >= 0)
+                    if(debugData.timeStarted >= 0)
                     {
                         logString.Append("Started: ");
-                        logString.Append(ServerTimeStamp.ToLocalDateTime(info.timeStarted).ToString());
+                        logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeStarted).ToString());
                         logString.Append(" [");
-                        logString.Append(info.timeStarted.ToString());
+                        logString.Append(debugData.timeStarted.ToString());
                         logString.AppendLine("]");
                     }
 
@@ -168,7 +167,7 @@ namespace ModIO
                     }
                 }
 
-                DebugUtilities.webRequestInfo.Remove(webRequest);
+                DebugUtilities.webRequestDebugData.Remove(webRequest);
             }
         #endif // DEBUG
 
