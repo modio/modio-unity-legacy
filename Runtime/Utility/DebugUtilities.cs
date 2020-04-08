@@ -594,7 +594,9 @@ namespace ModIO
                     else
                     {
                         elementStartIndex = searchIndex + searchString.Length;
-                        newBinaryParam.contents = new byte[s.Length - elementStartIndex - lineEnd.Length];
+
+                        int byteCount = (s.Length - elementStartIndex - lineEnd.Length);
+                        newBinaryParam.contents = System.Text.Encoding.UTF8.GetBytes(s.Substring(elementStartIndex, byteCount));
                     }
 
                     binaryFields.Add(newBinaryParam);
