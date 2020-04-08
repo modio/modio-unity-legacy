@@ -299,7 +299,7 @@ namespace ModIO.UI
             if(string.IsNullOrEmpty(url))
             {
                 #if UNITY_EDITOR
-                if(this.logDownloads)
+                if(!this.excludeDownloadsFromLogs)
                 {
                     Debug.Log("[mod.io] Attempted to fetch image with a Null or Empty"
                               + " url in the locator.");
@@ -419,7 +419,7 @@ namespace ModIO.UI
             };
 
             #if DEBUG
-            if(PluginSettings.data.logAllRequests && logDownloads)
+            if(PluginSettings.data.logAllRequests && !this.excludeDownloadsFromLogs)
             {
                 string requestHeaders = "";
                 foreach(string headerKey in APIClient.MODIO_REQUEST_HEADER_KEYS)
@@ -453,7 +453,7 @@ namespace ModIO.UI
 
             // - logging -
             #if DEBUG
-            if(PluginSettings.data.logAllRequests && logDownloads)
+            if(PluginSettings.data.logAllRequests && !this.excludeDownloadsFromLogs)
             {
                 if(webRequest.isNetworkError || webRequest.isHttpError)
                 {
