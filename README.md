@@ -7,7 +7,7 @@
 
 Welcome to [mod.io](https://mod.io) Unity Plugin. It allows game developers to easily control the browsing and installation of User-Generated Content in UGC-supported games. The C# interface built on the Unity Engine provides an easy way of connecting to the [mod.io API](https://docs.mod.io). We have a [test environment](https://test.mod.io) available which offers developers a private sandbox to try the Unity Plugin out.
 
-<p align="center"><a href="https://www.assetstore.unity3d.com/#!/content/138866"><img src="https://cdn-images-1.medium.com/max/1600/1*eopj1hgjlJJZ8Q9l8dNVBA.png"></a></p>
+<p align="center"><a href="https://assetstore.unity.com/packages/templates/systems/mod-browser-manager-138866"><img src="https://cdn-images-1.medium.com/max/1600/1*eopj1hgjlJJZ8Q9l8dNVBA.png"></a></p>
 
 ## Features
 * Platform agnostic (support 1 click mod installs on Steam, Epic Games Store, Discord, GOG, itch.io and even consoles in the future)
