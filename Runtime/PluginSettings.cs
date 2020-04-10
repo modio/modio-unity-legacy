@@ -6,22 +6,31 @@ namespace ModIO
     public class PluginSettings : ScriptableObject
     {
         // ---------[ NESTED CLASSES ]---------
+        /// <summary>Attribute for denoting a field as containing directory variables.</summary>
+        public class VariableDirectoryAttribute : PropertyAttribute {}
+
         /// <summary>Data struct that is wrapped by the ScriptableObject.</summary>
         [System.Serializable]
         public struct Data
         {
             // ---------[ FIELDS ]---------
             [Tooltip("API URL to use when making requests")]
-            public string   apiURL;
+            public string apiURL;
+
             [Tooltip("Game Id assigned to your game profile")]
-            public int      gameId;
+            public int gameId;
+
             [Tooltip("API Key assigned to your game profile")]
-            public string   gameAPIKey;
+            public string gameAPIKey;
+
             [Tooltip("Directory to use for mod installations")]
-            public string   installationDirectory;
+            [VariableDirectory]
+            public string installationDirectory;
+
             [Tooltip("Directory to use for cached server data")]
-            public string   cacheDirectory;
-            [Tooltip("Log all web requests made to using Debug.Log")]
+            [VariableDirectory]
+            public string cacheDirectory;
+
             public bool     logAllRequests;
             [Tooltip("Should failed requests be logged as warnings")]
             public bool     logFailedRequestWarnings;
