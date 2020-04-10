@@ -18,6 +18,9 @@ namespace ModIO
 
             [Tooltip("Log all web request responses made received")]
             public bool logAllResponses;
+
+            [Tooltip("Should the sending of a request be logged separately")]
+            public bool logOnSend;
         }
 
         /// <summary>Data struct that is wrapped by the ScriptableObject.</summary>
@@ -250,6 +253,7 @@ namespace ModIO
                 {
                     errorsAsWarnings = true,
                     logAllResponses = false,
+                    logOnSend = false,
                 },
             };
 
