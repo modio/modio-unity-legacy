@@ -213,6 +213,8 @@ namespace ModIO
         /// <summary>Generates a debug-friendly string of a web request.</summary>
         public static string GetRequestInfo(UnityWebRequest webRequest, string userIdString)
         {
+            if(webRequest == null) { return "NULL_WEB_REQUEST"; }
+
             // check user string
             if(userIdString == null)
             {
@@ -343,6 +345,8 @@ namespace ModIO
         /// <summary>Generates a debug-friendly string of a web request response.</summary>
         public static string GetResponseInfo(UnityWebRequest webRequest)
         {
+            if(webRequest == null) { return "NULL_WEB_REQUEST"; }
+
             // get info
             var responseString = new System.Text.StringBuilder();
 
