@@ -13,11 +13,11 @@ namespace ModIO
         [System.Serializable]
         public struct RequestLoggingOptions
         {
-            [Tooltip("Log all web requests made to using Debug.Log")]
-            public bool logAllRequests;
-
             [Tooltip("Should failed requests be logged as warnings")]
             public bool errorsAsWarnings;
+
+            [Tooltip("Log all web request responses made received")]
+            public bool logAllResponses;
         }
 
         /// <summary>Data struct that is wrapped by the ScriptableObject.</summary>
@@ -46,12 +46,12 @@ namespace ModIO
             public RequestLoggingOptions requestLogging;
 
             // ---------[ Obsolete ]---------
-            [System.Obsolete("Use requestLogging.logAllRequests instead.")]
+            [System.Obsolete("Use requestLogging.logAllResponses instead.")]
             [HideInInspector]
             public bool logAllRequests
             {
-                get { return this.requestLogging.logAllRequests; }
-                set { this.requestLogging.logAllRequests = value; }
+                get { return this.requestLogging.logAllResponses; }
+                set { this.requestLogging.logAllResponses = value; }
             }
         }
 
@@ -248,8 +248,8 @@ namespace ModIO
                 installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
                 requestLogging = new RequestLoggingOptions()
                 {
-                    logAllRequests = false,
                     errorsAsWarnings = true,
+                    logAllResponses = false,
                 },
             };
 
