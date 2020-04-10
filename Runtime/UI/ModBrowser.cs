@@ -309,8 +309,8 @@ namespace ModIO.UI
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching Game Profile failed.\n"
-                                         + requestError.ToUnityDebugString());
+                        Debug.LogWarning("[mod.io] Fetching Game Profile failed.\n---[ Response Info ]---\n"
+                                         + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect game data from mod.io.\n"
@@ -382,8 +382,8 @@ namespace ModIO.UI
                     else if(requestError.isRequestUnresolvable
                             || reattemptDelay < 0)
                     {
-                        Debug.LogWarning("[mod.io] Fetching User Profile failed.\n"
-                                         + requestError.ToUnityDebugString());
+                        Debug.LogWarning("[mod.io] Fetching User Profile failed.\n---[ Response Info ]---\n"
+                                         + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
                         MessageSystem.QueueMessage(MessageDisplayData.Type.Warning,
                                                    "Failed to collect user profile data from mod.io.\n"
@@ -1056,8 +1056,8 @@ namespace ModIO.UI
                         else if(requestError.isRequestUnresolvable
                                 || reattemptDelay < 0)
                         {
-                            Debug.LogWarning("[mod.io] Polling for user updates failed."
-                                             + requestError.ToUnityDebugString());
+                            Debug.LogWarning("[mod.io] Polling for user updates failed.\n---[ Response Info ]---\n"
+                                             + DebugUtilities.GetResponseInfo(requestError.webRequest));
 
                             cancelUpdates = true;
                         }

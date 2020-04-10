@@ -676,8 +676,8 @@ namespace ModIO
                         Debug.LogWarning("[mod.io] Unable to get a good download locator for"
                                          + " (modId:" + modfile.modId.ToString()
                                          + "-modfileId:" + modfile.id.ToString()
-                                         + ").\n"
-                                         + e.ToUnityDebugString());
+                                         + ").\n---[ Response Info ]---\n"
+                                         + DebugUtilities.GetResponseInfo(e.webRequest));
                     });
                 }
             }
