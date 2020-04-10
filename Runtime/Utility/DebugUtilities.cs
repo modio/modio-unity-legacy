@@ -47,22 +47,61 @@ namespace ModIO
 
                 Debug.Assert(operation != null);
 
+                UnityWebRequest webRequest = operation.webRequest;
+                string userIdString = DebugUtilities.GenerateUserIdString(userData.profile);
+
+                if(timeStarted < 0)
+                {
+                    timeStarted = ServerTimeStamp.Now;
+                }
+
+                if(PluginSettings.data.requestLogging.logOnSend)
+                {
+                    var logString = new System.Text.StringBuilder();
+                    logString.AppendLine("[mod.io] Web Request Sent");
+                    logString.Append("URL: ");
+                    logString.Append(webRequest.url);
+                    logString.Append(" (");
+                    logString.Append(webRequest.method.ToUpper());
+                    logString.AppendLine(")");
+
+                    if(!string.IsNullOrEmpty(downloadLocation))
+                    {
+                        logString.Append("Download Location: ");
+                        logString.AppendLine(downloadLocation);
+                    }
+
+                    if(timeStarted >= 0)
+                    {
+                        logString.Append("Sent: ");
+                        logString.Append(ServerTimeStamp.ToLocalDateTime(timeStarted).ToString());
+                        logString.Append(" [");
+                        logString.Append(timeStarted.ToString());
+                        logString.AppendLine("]");
+                    }
+
+                    logString.AppendLine();
+
+                    string requestString = DebugUtilities.GetRequestInfo(webRequest, userIdString);
+
+                    logString.AppendLine("------[ Request ]------");
+                    logString.AppendLine(requestString);
+
+                    Debug.Log(logString.ToString());
+                }
+
                 if(PluginSettings.data.requestLogging.logAllResponses
                    || PluginSettings.data.requestLogging.errorsAsWarnings)
                 {
-                    if(timeStarted < 0)
-                    {
-                        timeStarted = ServerTimeStamp.Now;
-                    }
 
                     RequestDebugData debugData = new RequestDebugData()
                     {
-                        userIdString = DebugUtilities.GenerateUserIdString(userData.profile),
+                        userIdString = userIdString,
                         timeStarted = timeStarted,
                         downloadLocation = downloadLocation,
                     };
 
-                    DebugUtilities.webRequestDebugData.Add(operation.webRequest, debugData);
+                    DebugUtilities.webRequestDebugData.Add(webRequest, debugData);
 
                     // handle completion
                     if(operation.isDone)
