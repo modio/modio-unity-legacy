@@ -47,8 +47,8 @@ namespace ModIO
 
                 Debug.Assert(operation != null);
 
-                if(PluginSettings.data.logAllRequests
-                   || PluginSettings.data.logFailedRequestWarnings)
+                if(PluginSettings.data.requestLogging.logAllRequests
+                   || PluginSettings.data.requestLogging.errorsAsWarnings)
                 {
                     if(timeStarted < 0)
                     {
@@ -91,7 +91,7 @@ namespace ModIO
                 bool isError = (webRequest.isNetworkError || webRequest.isHttpError);
 
                 // should we log?
-                if(PluginSettings.data.logAllRequests || isError)
+                if(PluginSettings.data.requestLogging.logAllRequests || isError)
                 {
                     RequestDebugData debugData;
                     if(!DebugUtilities.webRequestDebugData.TryGetValue(webRequest, out debugData))
@@ -157,7 +157,7 @@ namespace ModIO
                     logString.AppendLine(responseString);
 
                     // log
-                    if(isError && PluginSettings.data.logFailedRequestWarnings)
+                    if(isError && PluginSettings.data.requestLogging.errorsAsWarnings)
                     {
                         Debug.LogWarning(logString.ToString());
                     }

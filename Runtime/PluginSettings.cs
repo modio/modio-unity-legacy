@@ -246,8 +246,11 @@ namespace ModIO
                 gameAPIKey = string.Empty,
                 cacheDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$",
                 installationDirectory = "$PERSISTENT_DATA_PATH$/modio-$GAME_ID$/_installedMods",
-                logAllRequests = false,
-                logFailedRequestWarnings = true,
+                requestLogging = new RequestLoggingOptions()
+                {
+                    logAllRequests = false,
+                    errorsAsWarnings = true,
+                },
             };
 
             return SetGlobalValues(data);
