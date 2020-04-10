@@ -9,11 +9,22 @@ namespace ModIO
         /// <summary>Attribute for denoting a field as containing directory variables.</summary>
         public class VariableDirectoryAttribute : PropertyAttribute {}
 
+        /// <summary>Request logging options.</summary>
+        [System.Serializable]
+        public struct RequestLoggingOptions
+        {
+            [Tooltip("Log all web requests made to using Debug.Log")]
+            public bool logAllRequests;
+
+            [Tooltip("Should failed requests be logged as warnings")]
+            public bool errorsAsWarnings;
+        }
+
         /// <summary>Data struct that is wrapped by the ScriptableObject.</summary>
         [System.Serializable]
         public struct Data
         {
-            // ---------[ FIELDS ]---------
+            // ---------[ Fields ]---------
             [Tooltip("API URL to use when making requests")]
             public string apiURL;
 
@@ -31,9 +42,17 @@ namespace ModIO
             [VariableDirectory]
             public string cacheDirectory;
 
-            public bool     logAllRequests;
+            /// <summary>Request logging options.</summary>
+            public RequestLoggingOptions requestLogging;
+
+            // ---------[ Obsolete ]---------
+            [System.Obsolete("Use requestLogging.logEverything instead.")]
+            [HideInInspector]
+            public bool logAllRequests;
+
             [Tooltip("Should failed requests be logged as warnings")]
-            public bool     logFailedRequestWarnings;
+            [HideInInspector]
+            public bool logFailedRequestWarnings;
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
