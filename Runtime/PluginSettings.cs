@@ -46,13 +46,13 @@ namespace ModIO
             public RequestLoggingOptions requestLogging;
 
             // ---------[ Obsolete ]---------
-            [System.Obsolete("Use requestLogging.logEverything instead.")]
+            [System.Obsolete("Use requestLogging.logAllRequests instead.")]
             [HideInInspector]
-            public bool logAllRequests;
-
-            [Tooltip("Should failed requests be logged as warnings")]
-            [HideInInspector]
-            public bool logFailedRequestWarnings;
+            public bool logAllRequests
+            {
+                get { return this.requestLogging.logAllRequests; }
+                set { this.requestLogging.logAllRequests = value; }
+            }
         }
 
         // ---------[ CONSTANTS & STATICS ]---------
