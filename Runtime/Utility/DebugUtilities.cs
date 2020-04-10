@@ -18,7 +18,7 @@ namespace ModIO
             public string userIdString;
 
             /// <summary>ServerTimeStamp at which the request was sent.</summary>
-            public int timeStarted;
+            public int timeSent;
 
             /// <summary>FilePath to which the request is saving data.</summary>
             public string downloadLocation;
@@ -30,10 +30,10 @@ namespace ModIO
         /// <summary>Tracks and logs a request upon it completing.</summary>
         public static void DebugWebRequest(UnityWebRequestAsyncOperation operation,
                                            LocalUser userData,
-                                           int timeStarted = -1)
+                                           int timeSent = -1)
         {
             #if DEBUG
-                DebugUtilities.DebugDownload(operation, userData, null, timeStarted);
+                DebugUtilities.DebugDownload(operation, userData, null, timeSent);
             #endif // DEBUG
         }
 
@@ -41,7 +41,7 @@ namespace ModIO
         public static void DebugDownload(UnityWebRequestAsyncOperation operation,
                                          LocalUser userData,
                                          string downloadLocation,
-                                         int timeStarted = -1)
+                                         int timeSent = -1)
         {
             #if DEBUG
 
@@ -50,9 +50,9 @@ namespace ModIO
                 UnityWebRequest webRequest = operation.webRequest;
                 string userIdString = DebugUtilities.GenerateUserIdString(userData.profile);
 
-                if(timeStarted < 0)
+                if(timeSent < 0)
                 {
-                    timeStarted = ServerTimeStamp.Now;
+                    timeSent = ServerTimeStamp.Now;
                 }
 
                 if(PluginSettings.data.requestLogging.logOnSend)
@@ -71,12 +71,12 @@ namespace ModIO
                         logString.AppendLine(downloadLocation);
                     }
 
-                    if(timeStarted >= 0)
+                    if(timeSent >= 0)
                     {
                         logString.Append("Sent: ");
-                        logString.Append(ServerTimeStamp.ToLocalDateTime(timeStarted).ToString());
+                        logString.Append(ServerTimeStamp.ToLocalDateTime(timeSent).ToString());
                         logString.Append(" [");
-                        logString.Append(timeStarted.ToString());
+                        logString.Append(timeSent.ToString());
                         logString.AppendLine("]");
                     }
 
@@ -97,7 +97,7 @@ namespace ModIO
                     RequestDebugData debugData = new RequestDebugData()
                     {
                         userIdString = userIdString,
-                        timeStarted = timeStarted,
+                        timeSent = timeSent,
                         downloadLocation = downloadLocation,
                     };
 
@@ -138,7 +138,7 @@ namespace ModIO
                         debugData = new RequestDebugData()
                         {
                             userIdString = "NONE_RECORDED",
-                            timeStarted = -1,
+                            timeSent = -1,
                             downloadLocation = null,
                         };
                     }
@@ -172,12 +172,12 @@ namespace ModIO
                         logString.AppendLine(debugData.downloadLocation);
                     }
 
-                    if(debugData.timeStarted >= 0)
+                    if(debugData.timeSent >= 0)
                     {
-                        logString.Append("Started: ");
-                        logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeStarted).ToString());
+                        logString.Append("Sent: ");
+                        logString.Append(ServerTimeStamp.ToLocalDateTime(debugData.timeSent).ToString());
                         logString.Append(" [");
-                        logString.Append(debugData.timeStarted.ToString());
+                        logString.Append(debugData.timeSent.ToString());
                         logString.AppendLine("]");
                     }
 
