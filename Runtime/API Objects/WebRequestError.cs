@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 using DateTime = System.DateTime;
@@ -359,26 +359,6 @@ namespace ModIO
             }
         }
 
-        // ---------[ HELPER FUNCTIONS ]---------
-        public string ToUnityDebugString()
-        {
-            if(this.webRequest == null)
-            {
-                return ("Request failed prior to being sent.\n"
-                        + this.errorMessage);
-            }
-            else
-            {
-                return DebugUtilities.GetResponseInfo(this.webRequest);
-            }
-        }
-
-        public static void LogAsWarning(WebRequestError error)
-        {
-            Debug.LogWarning("[mod.io] Web Request Failed\n"
-                             + error.ToUnityDebugString());
-        }
-
         // ---------[ Obsolete ]---------
         [System.Obsolete("Use webRequest.responseCode instead")]
         public int responseCode
@@ -422,6 +402,27 @@ namespace ModIO
         {
             get { return this.errorMessage; }
             set { this.errorMessage = value; }
+        }
+
+        [System.Obsolete("Set PluginSettings.requestLogging.errorsAsWarnings instead.")]
+        public static void LogAsWarning(WebRequestError error)
+        {
+            Debug.LogWarning("[mod.io] Web Request Failed\n"
+                             + error.ToUnityDebugString());
+        }
+
+        [System.Obsolete("Use DebugUtilities.GetResponseInfo() instead.")]
+        public string ToUnityDebugString()
+        {
+            if(this.webRequest == null)
+            {
+                return ("Request failed prior to being sent.\n"
+                        + this.errorMessage);
+            }
+            else
+            {
+                return DebugUtilities.GetResponseInfo(this.webRequest);
+            }
         }
     }
 }
