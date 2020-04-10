@@ -8,25 +8,17 @@ namespace ModIO.UI.EditorCode
     public class PluginSettingsEditor : Editor
     {
         SerializedProperty apiURLProperty;
-        SerializedProperty gameIdProperty;
 
         private void OnEnable()
         {
+            serializedObject.FindProperty("m_data").isExpanded = true;
+
             apiURLProperty = serializedObject.FindProperty("m_data.apiURL");
-            gameIdProperty = serializedObject.FindProperty("m_data.gameId");
         }
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
-
-            var propEnum = serializedObject.FindProperty("m_data").GetEnumerator();
-
-            while(propEnum.MoveNext())
-            {
-                SerializedProperty displayProp = propEnum.Current as SerializedProperty;
-                EditorGUILayout.PropertyField(displayProp);
-            }
+            base.OnInspectorGUI();
 
             EditorGUILayout.Space();
 
