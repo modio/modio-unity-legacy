@@ -34,7 +34,7 @@ namespace ModIO
 
         // ---------[ I/O Functionality ]---------
         /// <summary>Defines the functions needed for a complete platform IO.</summary>
-        public interface IPlatformIO : DataStorage.IPlatformIO
+        public interface IPlatformIO : LocalDataStorage.IPlatformIO
         {
             // --- Fields ---
             /// <summary>Delegate for initializing the storage system.</summary>
@@ -88,7 +88,7 @@ namespace ModIO
 
         // ---------[ I/O Interface ]---------
         /// <summary>Function for reading a user-specific file.</summary>
-        public static void ReadFile(string filePathRelative, DataStorage.ReadFileCallback callback)
+        public static void ReadFile(string filePathRelative, LocalDataStorage.ReadFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -98,7 +98,7 @@ namespace ModIO
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static void ReadJSONFile<T>(string filePathRelative, DataStorage.ReadJSONFileCallback<T> callback)
+        public static void ReadJSONFile<T>(string filePathRelative, LocalDataStorage.ReadJSONFileCallback<T> callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(callback != null);
@@ -124,7 +124,7 @@ namespace ModIO
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
-        public static void WriteFile(string filePathRelative, byte[] fileData, DataStorage.WriteFileCallback callback)
+        public static void WriteFile(string filePathRelative, byte[] fileData, LocalDataStorage.WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -142,7 +142,7 @@ namespace ModIO
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static void WriteJSONFile<T>(string filePathRelative, T jsonObject, DataStorage.WriteFileCallback callback)
+        public static void WriteJSONFile<T>(string filePathRelative, T jsonObject, LocalDataStorage.WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
 
@@ -163,7 +163,7 @@ namespace ModIO
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
-        public static void DeleteFile(string filePathRelative, DataStorage.DeleteCallback callback)
+        public static void DeleteFile(string filePathRelative, LocalDataStorage.DeleteCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
@@ -221,26 +221,26 @@ namespace ModIO
             }
 
             /// <summary>Read a user file. (Unity Editor)</summary>
-            public void ReadFile(string filePath, DataStorage.ReadFileCallback callback)
+            public void ReadFile(string filePath, LocalDataStorage.ReadFileCallback callback)
             {
-                DataStorage.ReadFile(filePath, callback);
+                LocalDataStorage.ReadFile(filePath, callback);
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
-            public void WriteFile(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
+            public void WriteFile(string filePath, byte[] data, LocalDataStorage.WriteFileCallback callback)
             {
-                DataStorage.WriteFile(filePath, data, callback);
+                LocalDataStorage.WriteFile(filePath, data, callback);
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
-            public void DeleteFile(string filePath, DataStorage.DeleteCallback callback)
+            public void DeleteFile(string filePath, LocalDataStorage.DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 bool fileExists = System.IO.File.Exists(filePath);
 
                 if(fileExists)
                 {
-                    DataStorage.DeleteFile(filePath, (path, success) =>
+                    LocalDataStorage.DeleteFile(filePath, (path, success) =>
                     {
                         UnityEditor.AssetDatabase.Refresh();
 
@@ -257,25 +257,25 @@ namespace ModIO
             }
 
             /// <summary>Moves a file.</summary>
-            public void MoveFile(string sourceFilePath, string destinationFilePath, DataStorage.MoveCallback callback)
+            public void MoveFile(string sourceFilePath, string destinationFilePath, LocalDataStorage.MoveCallback callback)
             {
                 throw new System.NotImplementedException();
             }
 
             /// <summary>Creates a directory.</summary>
-            public void CreateDirectory(string directoryPath, DataStorage.CreateCallback callback)
+            public void CreateDirectory(string directoryPath, LocalDataStorage.CreateCallback callback)
             {
                 throw new System.NotImplementedException();
             }
 
             /// <summary>Deletes a directory.</summary>
-            public void DeleteDirectory(string directoryPath, DataStorage.DeleteCallback callback)
+            public void DeleteDirectory(string directoryPath, LocalDataStorage.DeleteCallback callback)
             {
                 throw new System.NotImplementedException();
             }
 
             /// <summary>Moves a directory.</summary>
-            public void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback)
+            public void MoveDirectory(string sourcePath, string destinationPath, LocalDataStorage.MoveCallback callback)
             {
                 throw new System.NotImplementedException();
             }
@@ -283,7 +283,7 @@ namespace ModIO
             /// <summary>Clears all user data. (Unity Editor)</summary>
             public void ClearAllData(ClearAllDataCallback callback)
             {
-                DataStorage.DeleteDirectory(EDITOR_RESOURCES_FOLDER, (path, success) =>
+                LocalDataStorage.DeleteDirectory(EDITOR_RESOURCES_FOLDER, (path, success) =>
                 {
                     UnityEditor.AssetDatabase.Refresh();
 
@@ -292,25 +292,25 @@ namespace ModIO
             }
 
             /// <summary>Checks whether a file exists</summary>
-            public void GetFileExists(string filePath, DataStorage.GetExistsCallback callback)
+            public void GetFileExists(string filePath, LocalDataStorage.GetExistsCallback callback)
             {
                 throw new System.NotImplementedException();
             }
 
             /// <summary>Gets the size of a file.</summary>
-            public void GetFileSize(string filePath, DataStorage.GetFileSizeCallback callback)
+            public void GetFileSize(string filePath, LocalDataStorage.GetFileSizeCallback callback)
             {
                 throw new System.NotImplementedException();
             }
 
             /// <summary>Gets the size and md5 hash of a file.</summary>
-            public void GetFileSizeAndHash(string filePath, DataStorage.GetFileSizeAndHashCallback callback)
+            public void GetFileSizeAndHash(string filePath, LocalDataStorage.GetFileSizeAndHashCallback callback)
             {
                 throw new System.NotImplementedException();
             }
 
             /// <summary>Gets a list of directories found at the given location.</summary>
-            public void GetDirectories(string directoryPath, DataStorage.GetDirectoriesCallback callback)
+            public void GetDirectories(string directoryPath, LocalDataStorage.GetDirectoriesCallback callback)
             {
                 throw new System.NotImplementedException();
             }
@@ -367,7 +367,7 @@ namespace ModIO
             }
 
             /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
-            public static void ReadFile_Facepunch(string filePath, DataStorage.ReadFileCallback callback)
+            public static void ReadFile_Facepunch(string filePath, LocalDataStorage.ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
@@ -382,7 +382,7 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
-            public static void WriteFile_Facepunch(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
+            public static void WriteFile_Facepunch(string filePath, byte[] data, LocalDataStorage.WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -396,7 +396,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            public static void DeleteFile_Facepunch(string filePath, DataStorage.DeleteCallback callback)
+            public static void DeleteFile_Facepunch(string filePath, LocalDataStorage.DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -481,7 +481,7 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Steamworks.NET)</summary>
-            public static void ReadFile_SteamworksNET(string filePath, DataStorage.ReadFileCallback callback)
+            public static void ReadFile_SteamworksNET(string filePath, LocalDataStorage.ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(callback != null);
@@ -502,7 +502,7 @@ namespace ModIO
             }
 
             /// <summary>Writes a user data file. (Steamworks.NET)</summary>
-            public static void WriteFile_SteamworksNET(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
+            public static void WriteFile_SteamworksNET(string filePath, byte[] data, LocalDataStorage.WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
                 Debug.Assert(data != null);
@@ -516,7 +516,7 @@ namespace ModIO
             }
 
             /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
-            public static void DeleteFile_SteamworksNET(string filePath, DataStorage.DeleteCallback callback)
+            public static void DeleteFile_SteamworksNET(string filePath, LocalDataStorage.DeleteCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -606,27 +606,27 @@ namespace ModIO
             }
 
             /// <summary>Reads a user data file. (Standalone Application)</summary>
-            public static void ReadFile_Standalone(string filePath, DataStorage.ReadFileCallback callback)
+            public static void ReadFile_Standalone(string filePath, LocalDataStorage.ReadFileCallback callback)
             {
-                DataStorage.ReadFile(filePath, callback);
+                LocalDataStorage.ReadFile(filePath, callback);
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
-            public static void WriteFile_Standalone(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
+            public static void WriteFile_Standalone(string filePath, byte[] data, LocalDataStorage.WriteFileCallback callback)
             {
-                DataStorage.WriteFile(filePath, data, callback);
+                LocalDataStorage.WriteFile(filePath, data, callback);
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
-            public static void DeleteFile_Standalone(string filePath, DataStorage.DeleteCallback callback)
+            public static void DeleteFile_Standalone(string filePath, LocalDataStorage.DeleteCallback callback)
             {
-                DataStorage.DeleteFile(filePath, callback);
+                LocalDataStorage.DeleteFile(filePath, callback);
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
             public static void ClearAllData_Standalone(ClearAllDataCallback callback)
             {
-                DataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER, (path, success) =>
+                LocalDataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER, (path, success) =>
                 {
                     if(callback != null) { callback.Invoke(success); }
                 });

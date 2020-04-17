@@ -49,7 +49,7 @@ namespace ModIO
             ModManager.installationDirectory = settings.installationDirectory;
             ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
 
-            DataStorage.ReadJSONFile<PersistentData>(PERSISTENTDATA_FILEPATH, (path, success, data) =>
+            LocalDataStorage.ReadJSONFile<PersistentData>(PERSISTENTDATA_FILEPATH, (path, success, data) =>
             {
                 if(!success)
                 {
@@ -62,7 +62,7 @@ namespace ModIO
 
                 ModManager.m_data = data;
 
-                DataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
+                LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
             });
         }
 
@@ -111,7 +111,7 @@ namespace ModIO
                                  + "\nLocation: " + tempLocation + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
 
-                DataStorage.DeleteDirectory(tempLocation, null);
+                LocalDataStorage.DeleteDirectory(tempLocation, null);
 
                 return false;
             }
@@ -124,7 +124,7 @@ namespace ModIO
                 Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                  + "\nFailed to uninstall other versions of this mod.");
 
-                DataStorage.DeleteDirectory(tempLocation, null);
+                LocalDataStorage.DeleteDirectory(tempLocation, null);
 
                 return false;
             }
@@ -152,14 +152,14 @@ namespace ModIO
                                  + "\nDest: " + installDirectory + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
 
-                DataStorage.DeleteDirectory(tempLocation, null);
+                LocalDataStorage.DeleteDirectory(tempLocation, null);
 
                 return false;
             }
 
             if(removeArchiveOnSuccess)
             {
-                DataStorage.DeleteFile(zipFilePath, null);
+                LocalDataStorage.DeleteFile(zipFilePath, null);
             }
 
             if(ModManager.onModBinaryInstalled != null)
@@ -186,7 +186,7 @@ namespace ModIO
             int operationsRemaining = 0;
 
             // Operation for finalizing the process
-            DataStorage.DeleteCallback finalizeUninstall = (path, success) =>
+            LocalDataStorage.DeleteCallback finalizeUninstall = (path, success) =>
             {
                 --operationsRemaining;
 
@@ -235,7 +235,7 @@ namespace ModIO
             foreach(var installInfo in installedMods)
             {
                 ++operationsRemaining;
-                DataStorage.DeleteDirectory(installInfo.Value, finalizeUninstall);
+                LocalDataStorage.DeleteDirectory(installInfo.Value, finalizeUninstall);
             }
 
             // NOTE(@jackson): false to prevent null-string being added to successful list

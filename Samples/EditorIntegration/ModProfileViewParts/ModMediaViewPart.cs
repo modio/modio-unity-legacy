@@ -125,7 +125,7 @@ namespace ModIO.EditorCode
                     }
                     else
                     {
-                        DataStorage.ReadFile(imageURL, (p,s,d) =>
+                        LocalDataStorage.ReadFile(imageURL, (p,s,d) =>
                         {
                             if(s)
                             {
@@ -247,7 +247,7 @@ namespace ModIO.EditorCode
 
                     Texture2D newTexture = null;
 
-                    DataStorage.ReadFile(path, (p,s,d) =>
+                    LocalDataStorage.ReadFile(path, (p,s,d) =>
                     {
                         if(s) { newTexture = IOUtilities.ParseImageData(d); }
                     });
@@ -316,7 +316,7 @@ namespace ModIO.EditorCode
                 string imageSource = GetGalleryImageSource(index);
                 Texture2D imageData = null;
 
-                DataStorage.ReadFile(imageSource, (p,s,d) =>
+                LocalDataStorage.ReadFile(imageSource, (p,s,d) =>
                 {
                     if(s) { imageData = IOUtilities.ParseImageData(d); }
                 });

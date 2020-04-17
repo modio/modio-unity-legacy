@@ -59,7 +59,7 @@ namespace ModIO.EditorCode
             {
                 logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
 
-                DataStorage.ReadFile(logoLocation, (p,s,d) =>
+                LocalDataStorage.ReadFile(logoLocation, (p,s,d) =>
                 {
                     if(s)
                     {
@@ -96,7 +96,7 @@ namespace ModIO.EditorCode
                     FileInfo imageInfo = new FileInfo(logoLocation);
                     if(lastLogoWriteTime < imageInfo.LastWriteTime)
                     {
-                        DataStorage.ReadFile(logoLocation, (p,s,d) =>
+                        LocalDataStorage.ReadFile(logoLocation, (p,s,d) =>
                         {
                             if(s)
                             {
@@ -326,7 +326,7 @@ namespace ModIO.EditorCode
                                                                          "",
                                                                          IMAGE_FILE_FILTER);
 
-                    DataStorage.ReadFile(path, (p,s,d) =>
+                    LocalDataStorage.ReadFile(path, (p,s,d) =>
                     {
                         if(s)
                         {

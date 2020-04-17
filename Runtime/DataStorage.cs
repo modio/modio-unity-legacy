@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using System.IO;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -12,7 +11,7 @@ using ModIO.API;
 namespace ModIO
 {
     /// <summary>An interface for storing/loading mod.io data on disk.</summary>
-    public static class DataStorage
+    public static class LocalDataStorage
     {
         // ---------[ Nested Data-Types ]---------
         // --- Callbacks ---
@@ -81,7 +80,7 @@ namespace ModIO
             void GetDirectories(string directoryPath, GetDirectoriesCallback callback);
 
             /// <summary>Moves a directory.</summary>
-            void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback);
+            void MoveDirectory(string sourcePath, string destinationPath, LocalDataStorage.MoveCallback callback);
         }
 
         // ---------[ Constants ]---------
@@ -90,10 +89,10 @@ namespace ModIO
 
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
-        static DataStorage()
+        static LocalDataStorage()
         {
             #if true
-                DataStorage.PLATFORM_IO = new StandaloneIO();
+                LocalDataStorage.PLATFORM_IO = new StandaloneIO();
             #endif
         }
 
@@ -101,13 +100,13 @@ namespace ModIO
         /// <summary>Reads a file.</summary>
         public static void ReadFile(string filePath, ReadFileCallback callback)
         {
-            DataStorage.PLATFORM_IO.ReadFile(filePath, callback);
+            LocalDataStorage.PLATFORM_IO.ReadFile(filePath, callback);
         }
 
         /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
         public static void ReadJSONFile<T>(string filePath, ReadJSONFileCallback<T> callback)
         {
-            DataStorage.PLATFORM_IO.ReadFile(filePath, (path, success, data) =>
+            LocalDataStorage.PLATFORM_IO.ReadFile(filePath, (path, success, data) =>
             {
                 T jsonObject;
 
@@ -140,7 +139,7 @@ namespace ModIO
             }
             #endif // DEBUG
 
-            DataStorage.PLATFORM_IO.WriteFile(filePath, data, callback);
+            LocalDataStorage.PLATFORM_IO.WriteFile(filePath, data, callback);
         }
 
         /// <summary>Writes a JSON file.</summary>
@@ -150,7 +149,7 @@ namespace ModIO
 
             if(data != null)
             {
-                DataStorage.WriteFile(filePath, data, callback);
+                LocalDataStorage.WriteFile(filePath, data, callback);
             }
             else if(callback != null)
             {
@@ -164,49 +163,49 @@ namespace ModIO
         /// <summary>Deletes a file.</summary>
         public static void DeleteFile(string filePath, DeleteCallback callback)
         {
-            DataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
+            LocalDataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
         }
 
         /// <summary>Moves a file.</summary>
         public static void MoveFile(string sourceFilePath, string destinationFilePath, MoveCallback callback)
         {
-            DataStorage.PLATFORM_IO.MoveFile(sourceFilePath, destinationFilePath, callback);
+            LocalDataStorage.PLATFORM_IO.MoveFile(sourceFilePath, destinationFilePath, callback);
         }
 
         /// <summary>Creates a directory.</summary>
         public static void CreateDirectory(string directoryPath, CreateCallback callback)
         {
-            DataStorage.PLATFORM_IO.CreateDirectory(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO.CreateDirectory(directoryPath, callback);
         }
 
         /// <summary>Deletes a directory.</summary>
         public static void DeleteDirectory(string directoryPath, DeleteCallback callback)
         {
-            DataStorage.PLATFORM_IO.DeleteDirectory(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO.DeleteDirectory(directoryPath, callback);
         }
 
         /// <summary>Moves a directory.</summary>
-        public static void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback)
+        public static void MoveDirectory(string sourcePath, string destinationPath, LocalDataStorage.MoveCallback callback)
         {
-            DataStorage.PLATFORM_IO.MoveDirectory(sourcePath, destinationPath, callback);
+            LocalDataStorage.PLATFORM_IO.MoveDirectory(sourcePath, destinationPath, callback);
         }
 
         /// <summary>Gets the size of a file.</summary>
         public static void GetFileSize(string filePath, GetFileSizeCallback callback)
         {
-            DataStorage.PLATFORM_IO.GetFileSize(filePath, callback);
+            LocalDataStorage.PLATFORM_IO.GetFileSize(filePath, callback);
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
         public static void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback)
         {
-            DataStorage.PLATFORM_IO.GetFileSizeAndHash(filePath, callback);
+            LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(filePath, callback);
         }
 
         /// <summary>Gets a list of directories found at the given location.</summary>
-        public static void GetDirectories(string directoryPath, DataStorage.GetDirectoriesCallback callback)
+        public static void GetDirectories(string directoryPath, LocalDataStorage.GetDirectoriesCallback callback)
         {
-            DataStorage.PLATFORM_IO.GetDirectories(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO.GetDirectories(directoryPath, callback);
         }
     }
 }

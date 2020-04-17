@@ -303,7 +303,7 @@ namespace ModIO
             downloadInfo.request = UnityWebRequest.Get(downloadURL);
 
             string tempFilePath = downloadInfo.target + ".download";
-            DataStorage.WriteFile(tempFilePath, new byte[0], (path, success) =>
+            LocalDataStorage.WriteFile(tempFilePath, new byte[0], (path, success) =>
             {
                 if(success)
                 {
@@ -482,7 +482,7 @@ namespace ModIO
                 }
                 #endif
 
-                DataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target, (s, d, success) =>
+                LocalDataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target, (s, d, success) =>
                 {
                     DownloadClient.CleanUpDownload(idPair, downloadInfo, success);
                 });

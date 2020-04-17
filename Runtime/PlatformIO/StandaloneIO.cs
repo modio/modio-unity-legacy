@@ -7,10 +7,10 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>Defines the standalone i/o functionality.</summary>
-    public class StandaloneIO : DataStorage.IPlatformIO
+    public class StandaloneIO : LocalDataStorage.IPlatformIO
     {
         /// <summary>Reads a file.</summary>
-        public void ReadFile(string filePath, DataStorage.ReadFileCallback callback)
+        public void ReadFile(string filePath, LocalDataStorage.ReadFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePath));
             Debug.Assert(callback != null);
@@ -40,7 +40,7 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        public void WriteFile(string filePath, byte[] data, DataStorage.WriteFileCallback callback)
+        public void WriteFile(string filePath, byte[] data, LocalDataStorage.WriteFileCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePath));
             Debug.Assert(data != null);
@@ -68,7 +68,7 @@ namespace ModIO
         }
 
         /// <summary>Deletes a file.</summary>
-        public void DeleteFile(string filePath, DataStorage.DeleteCallback callback)
+        public void DeleteFile(string filePath, LocalDataStorage.DeleteCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePath));
 
@@ -98,7 +98,7 @@ namespace ModIO
         }
 
         /// <summary>Moves a file.</summary>
-        public void MoveFile(string sourceFilePath, string destinationFilePath, DataStorage.MoveCallback callback)
+        public void MoveFile(string sourceFilePath, string destinationFilePath, LocalDataStorage.MoveCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(sourceFilePath));
             Debug.Assert(!string.IsNullOrEmpty(destinationFilePath));
@@ -162,7 +162,7 @@ namespace ModIO
         }
 
         /// <summary>Creates a directory.</summary>
-        public void CreateDirectory(string directoryPath, DataStorage.CreateCallback callback)
+        public void CreateDirectory(string directoryPath, LocalDataStorage.CreateCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(directoryPath));
 
@@ -191,7 +191,7 @@ namespace ModIO
         }
 
         /// <summary>Deletes a directory.</summary>
-        public void DeleteDirectory(string directoryPath, DataStorage.DeleteCallback callback)
+        public void DeleteDirectory(string directoryPath, LocalDataStorage.DeleteCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(directoryPath));
 
@@ -221,7 +221,7 @@ namespace ModIO
         }
 
         /// <summary>Moves a directory.</summary>
-        public void MoveDirectory(string sourcePath, string destinationPath, DataStorage.MoveCallback callback)
+        public void MoveDirectory(string sourcePath, string destinationPath, LocalDataStorage.MoveCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(sourcePath));
             Debug.Assert(!string.IsNullOrEmpty(destinationPath));
@@ -252,7 +252,7 @@ namespace ModIO
         }
 
         /// <summary>Checks whether a file exists.</summary>
-        public void GetFileExists(string filePath, DataStorage.GetExistsCallback callback)
+        public void GetFileExists(string filePath, LocalDataStorage.GetExistsCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(filePath));
             Debug.Assert(callback != null);
@@ -261,7 +261,7 @@ namespace ModIO
         }
 
         /// <summary>Gets the size of a file.</summary>
-        public void GetFileSize(string filePath, DataStorage.GetFileSizeCallback callback)
+        public void GetFileSize(string filePath, LocalDataStorage.GetFileSizeCallback callback)
         {
             Debug.Assert(!String.IsNullOrEmpty(filePath));
             Debug.Assert(callback != null);
@@ -288,7 +288,7 @@ namespace ModIO
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        public void GetFileSizeAndHash(string filePath, DataStorage.GetFileSizeAndHashCallback callback)
+        public void GetFileSizeAndHash(string filePath, LocalDataStorage.GetFileSizeAndHashCallback callback)
         {
             Debug.Assert(!String.IsNullOrEmpty(filePath));
             Debug.Assert(callback != null);
@@ -336,7 +336,7 @@ namespace ModIO
         }
 
         /// <summary>Gets a list of directories found at the given location.</summary>
-        public void GetDirectories(string directoryPath, DataStorage.GetDirectoriesCallback callback)
+        public void GetDirectories(string directoryPath, LocalDataStorage.GetDirectoriesCallback callback)
         {
             Debug.Assert(!string.IsNullOrEmpty(directoryPath));
             Debug.Assert(callback != null);
