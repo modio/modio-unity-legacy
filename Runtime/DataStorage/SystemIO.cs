@@ -93,7 +93,62 @@ namespace ModIO
         /// <summary>Moves a file.</summary>
         public bool MoveFile(string sourceFilePath, string destinationFilePath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(sourceFilePath));
+            Debug.Assert(!string.IsNullOrEmpty(destinationFilePath));
+
+            bool success = true;
+            string failMessage = null;
+
+            if(!File.Exists(sourceFilePath))
+            {
+                failMessage = ("Failed to move file as the source file does not exist."
+                               + "\nSource File: " + sourceFilePath
+                               + "\nDestination: " + destinationFilePath);
+                success = false;
+            }
+            else
+            {
+                if(File.Exists(destinationFilePath))
+                {
+                    try
+                    {
+                        File.Delete(destinationFilePath);
+                    }
+                    catch(Exception e)
+                    {
+                        failMessage = ("Failed to move file as the existing file at the destination could not be deleted."
+                                       + "\nSource File: " + sourceFilePath
+                                       + "\nDestination: " + destinationFilePath
+                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
+
+                        success = false;
+                    }
+                }
+
+                if(success)
+                {
+                    try
+                    {
+                        File.Move(sourceFilePath, destinationFilePath);
+                    }
+                    catch(Exception e)
+                    {
+                        success = false;
+
+                        failMessage = ("Failed to move file."
+                                       + "\nSource File: " + sourceFilePath
+                                       + "\nDestination: " + destinationFilePath
+                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
+                    }
+                }
+            }
+
+            if(!success)
+            {
+                Debug.LogWarning("[mod.io] " + failMessage);
+            }
+
+            return success;
         }
 
         /// <summary>Gets the size of a file.</summary>
