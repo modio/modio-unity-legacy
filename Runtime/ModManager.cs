@@ -186,7 +186,7 @@ namespace ModIO
             int operationsRemaining = 0;
 
             // Operation for finalizing the process
-            LocalDataStorage.DeleteCallback finalizeUninstall = (path, success) =>
+            DataStorageCallbacks.DeleteDirectoryCallback finalizeUninstall = (path, success) =>
             {
                 --operationsRemaining;
 
