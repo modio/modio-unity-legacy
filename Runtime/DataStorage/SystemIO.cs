@@ -154,19 +154,94 @@ namespace ModIO
         /// <summary>Gets the size of a file.</summary>
         public bool GetFileExists(string filePath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            return File.Exists(filePath);
         }
 
         /// <summary>Gets the size of a file.</summary>
         public Int64 GetFileSize(string filePath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
+            Int64 byteCount = -1;
+
+            if(File.Exists(filePath))
+            {
+                try
+                {
+                    byteCount = (new FileInfo(filePath)).Length;
+                }
+                catch(Exception e)
+                {
+                    byteCount = -1;
+
+                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
+
+                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+
+            return byteCount;
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
         public bool GetFileSizeAndHash(string filePath, out Int64 byteCount, out string md5Hash)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!String.IsNullOrEmpty(filePath));
+
+            byteCount = -1;
+            md5Hash = null;
+
+            bool success = true;
+
+            if(File.Exists(filePath))
+            {
+                try
+                {
+                    byteCount = (new FileInfo(filePath)).Length;
+                }
+                catch(Exception e)
+                {
+                    byteCount = -1;
+                    success = false;
+
+                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
+
+                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                }
+
+                try
+                {
+                    using (var md5 = System.Security.Cryptography.MD5.Create())
+                    {
+                        using (var stream = File.OpenRead(filePath))
+                        {
+                            var hash = md5.ComputeHash(stream);
+                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    md5Hash = null;
+                    success = false;
+
+                    string warningInfo = ("[mod.io] Failed to calculate file hash.\nFile: " + filePath + "\n\n");
+
+                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+            else
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to get information for file. File does not exist.\nFile: "
+                                      + filePath);
+
+                Debug.LogWarning(warningInfo);
+            }
+
+            return success;
         }
 
         // --- Directory Management ---
