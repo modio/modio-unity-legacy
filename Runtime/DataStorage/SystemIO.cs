@@ -248,25 +248,109 @@ namespace ModIO
         /// <summary>Creates a directory.</summary>
         public bool CreateDirectory(string directoryPath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+
+            bool success = false;
+
+            try
+            {
+                Directory.CreateDirectory(directoryPath);
+                success = true;
+            }
+            catch(Exception e)
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to create directory."
+                                      + "\nDirectory: " + directoryPath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return success;
         }
 
         /// <summary>Deletes a directory.</summary>
         public bool DeleteDirectory(string directoryPath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+
+            bool success = false;
+            try
+            {
+                if(Directory.Exists(directoryPath))
+                {
+                    Directory.Delete(directoryPath, true);
+                }
+                success = true;
+            }
+            catch(Exception e)
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to delete directory.\nDirectory: " + directoryPath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return success;
         }
 
         /// <summary>Moves a directory.</summary>
         public bool MoveDirectory(string sourcePath, string destinationPath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(sourcePath));
+            Debug.Assert(!string.IsNullOrEmpty(destinationPath));
+
+            bool success = false;
+            try
+            {
+                Directory.Move(sourcePath, destinationPath);
+                success = true;
+            }
+            catch(Exception e)
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to move directory."
+                                      + "\nSource Directory: " + sourcePath
+                                      + "\nDestination: " + destinationPath
+                                      + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return success;
         }
 
         /// <summary>Gets the sub-directories at a location.</summary>
         public IList<string> GetDirectories(string directoryPath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+
+            string[] subDirs = null;
+
+            if(Directory.Exists(directoryPath))
+            {
+                try
+                {
+                    subDirs = Directory.GetDirectories(directoryPath);
+                }
+                catch(Exception e)
+                {
+                    subDirs = null;
+
+                    string warningInfo = ("[mod.io] Failed to get directories.\nDirectory: " + directoryPath + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+
+            return subDirs;
         }
     }
 }
