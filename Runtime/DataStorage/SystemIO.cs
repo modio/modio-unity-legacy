@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+
+using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
@@ -10,7 +13,28 @@ namespace ModIO
         /// <summary>Reads a file.</summary>
         public byte[] ReadFile(string filePath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+
+            byte[] data = null;
+
+            if(File.Exists(filePath))
+            {
+                try
+                {
+                    data = File.ReadAllBytes(filePath);
+                }
+                catch(Exception e)
+                {
+                    data = null;
+
+                    string warningInfo = ("[mod.io] Failed to read file.\nFile: " + filePath + "\n\n");
+
+                    Debug.LogWarning(warningInfo
+                                     + Utility.GenerateExceptionDebugString(e));
+                }
+            }
+
+            return data;
         }
 
         /// <summary>Writes a file.</summary>
