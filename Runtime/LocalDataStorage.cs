@@ -29,7 +29,7 @@ namespace ModIO
 
         // ---------[ I/O Interface ]---------
         /// <summary>Reads a file.</summary>
-        public static void ReadFile(string filePath, ReadFileCallback callback)
+        public static void ReadFileAsync(string filePath, ReadFileCallback callback)
         {
             LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(filePath, callback);
         }
