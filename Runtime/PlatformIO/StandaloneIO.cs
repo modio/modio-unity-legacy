@@ -7,7 +7,7 @@ using Debug = UnityEngine.Debug;
 namespace ModIO
 {
     /// <summary>Defines the standalone i/o functionality.</summary>
-    public class StandaloneIO : LocalDataStorage.IPlatformIO
+    public class StandaloneIO : IPlatformIO
     {
         /// <summary>Reads a file.</summary>
         public void ReadFile(string filePath, LocalDataStorage.ReadFileCallback callback)

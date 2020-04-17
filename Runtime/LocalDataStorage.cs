@@ -45,44 +45,6 @@ namespace ModIO
         /// <summary>Delegate for GetDirectories callback.</summary>
         public delegate void GetDirectoriesCallback(string directoryPath, IList<string> directories);
 
-        // ---------[ I/O Functionality ]---------
-        /// <summary>Defines the functions needed for a complete platform IO.</summary>
-        public interface IPlatformIO
-        {
-            /// <summary>Delegate for reading a file.</summary>
-            void ReadFile(string filePath, ReadFileCallback callback);
-
-            /// <summary>Delegate for writing a file.</summary>
-            void WriteFile(string filePath, byte[] data, WriteFileCallback callback);
-
-            /// <summary>Delegate for deleting a file.</summary>
-            void DeleteFile(string filePath, DeleteCallback callback);
-
-            /// <summary>Delegate for moving a file.</summary>
-            void MoveFile(string sourceFilePath, string destinationFilePath, MoveCallback callback);
-
-            /// <summary>Delegate for creating a directory.</summary>
-            void CreateDirectory(string directoryPath, CreateCallback callback);
-
-            /// <summary>Delegate for deleting a directory.</summary>
-            void DeleteDirectory(string directoryPath, DeleteCallback callback);
-
-            /// <summary>Gets the size of a file.</summary>
-            void GetFileExists(string filePath, GetExistsCallback callback);
-
-            /// <summary>Delegate for getting a file's size.</summary>
-            void GetFileSize(string filePath, GetFileSizeCallback callback);
-
-            /// <summary>Delegate for getting a file's size and md5 hash.</summary>
-            void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback);
-
-            /// <summary>Delegate for getting the directories at a location.</summary>
-            void GetDirectories(string directoryPath, GetDirectoriesCallback callback);
-
-            /// <summary>Moves a directory.</summary>
-            void MoveDirectory(string sourcePath, string destinationPath, LocalDataStorage.MoveCallback callback);
-        }
-
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
         public static readonly IPlatformIO PLATFORM_IO;

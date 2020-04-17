@@ -34,7 +34,7 @@ namespace ModIO
 
         // ---------[ I/O Functionality ]---------
         /// <summary>Defines the functions needed for a complete platform IO.</summary>
-        public interface IPlatformIO : LocalDataStorage.IPlatformIO
+        public interface IPlatformIO : ModIO.IPlatformIO
         {
             // --- Fields ---
             /// <summary>Delegate for initializing the storage system.</summary>
