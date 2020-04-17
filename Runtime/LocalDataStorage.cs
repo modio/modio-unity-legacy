@@ -16,14 +16,14 @@ namespace ModIO
     {
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
-        public static readonly IPlatformIOAsync PLATFORM_IO;
+        public static readonly IPlatformIOAsync PLATFORM_IO_ASYNC;
 
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static LocalDataStorage()
         {
             #if true
-                LocalDataStorage.PLATFORM_IO = new StandaloneIO();
+                LocalDataStorage.PLATFORM_IO_ASYNC = new StandaloneIO();
             #endif
         }
 
@@ -31,13 +31,13 @@ namespace ModIO
         /// <summary>Reads a file.</summary>
         public static void ReadFile(string filePath, ReadFileCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.ReadFile(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(filePath, callback);
         }
 
         /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
         public static void ReadJSONFile<T>(string filePath, ReadJSONFileCallback<T> callback)
         {
-            LocalDataStorage.PLATFORM_IO.ReadFile(filePath, (path, success, data) =>
+            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(filePath, (path, success, data) =>
             {
                 T jsonObject;
 
@@ -70,7 +70,7 @@ namespace ModIO
             }
             #endif // DEBUG
 
-            LocalDataStorage.PLATFORM_IO.WriteFile(filePath, data, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.WriteFile(filePath, data, callback);
         }
 
         /// <summary>Writes a JSON file.</summary>
@@ -94,49 +94,49 @@ namespace ModIO
         /// <summary>Deletes a file.</summary>
         public static void DeleteFile(string filePath, DeleteFileCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.DeleteFile(filePath, callback);
         }
 
         /// <summary>Moves a file.</summary>
         public static void MoveFile(string sourceFilePath, string destinationFilePath, MoveFileCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.MoveFile(sourceFilePath, destinationFilePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.MoveFile(sourceFilePath, destinationFilePath, callback);
         }
 
         /// <summary>Creates a directory.</summary>
         public static void CreateDirectory(string directoryPath, CreateDirectoryCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.CreateDirectory(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.CreateDirectory(directoryPath, callback);
         }
 
         /// <summary>Deletes a directory.</summary>
         public static void DeleteDirectory(string directoryPath, DeleteDirectoryCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.DeleteDirectory(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.DeleteDirectory(directoryPath, callback);
         }
 
         /// <summary>Moves a directory.</summary>
         public static void MoveDirectory(string sourcePath, string destinationPath, MoveDirectoryCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.MoveDirectory(sourcePath, destinationPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.MoveDirectory(sourcePath, destinationPath, callback);
         }
 
         /// <summary>Gets the size of a file.</summary>
         public static void GetFileSize(string filePath, GetFileSizeCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.GetFileSize(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.GetFileSize(filePath, callback);
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
         public static void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.GetFileSizeAndHash(filePath, callback);
         }
 
         /// <summary>Gets a list of directories found at the given location.</summary>
         public static void GetDirectories(string directoryPath, GetDirectoriesCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO.GetDirectories(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.GetDirectories(directoryPath, callback);
         }
     }
 }
