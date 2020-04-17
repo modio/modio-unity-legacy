@@ -66,7 +66,28 @@ namespace ModIO
         /// <summary>Deletes a file.</summary>
         public bool DeleteFile(string filePath)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+
+            bool success = false;
+            try
+            {
+                if(File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+                success = true;
+            }
+            catch(Exception e)
+            {
+                success = false;
+
+                string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + filePath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return success;
         }
 
         /// <summary>Moves a file.</summary>
