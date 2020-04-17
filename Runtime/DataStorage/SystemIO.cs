@@ -40,7 +40,26 @@ namespace ModIO
         /// <summary>Writes a file.</summary>
         public bool WriteFile(string filePath, byte[] data)
         {
-            throw new System.NotImplementedException();
+            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            Debug.Assert(data != null);
+
+            bool success = false;
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                File.WriteAllBytes(filePath, data);
+                success = true;
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to write file.\nFile: " + filePath + "\n\n");
+
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+            }
+
+            return success;
         }
 
         // --- File Management ---
