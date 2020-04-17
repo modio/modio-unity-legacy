@@ -36,7 +36,7 @@ namespace ModIO
 
         // ---------[ I/O Functionality ]---------
         /// <summary>Defines the functions needed for a complete platform IO.</summary>
-        public interface IPlatformIO : ModIO.IPlatformIO
+        public interface IPlatformIO : ModIO.IPlatformIOAsync
         {
             // --- Fields ---
             /// <summary>Delegate for initializing the storage system.</summary>
@@ -186,7 +186,7 @@ namespace ModIO
 
         #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
 
-        public class EditorIO : IPlatformIO
+        public class EditorIO : UserDataStorage.IPlatformIO
         {
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,

@@ -3,7 +3,7 @@ using ModIO.DataStorageCallbacks;
 namespace ModIO
 {
     /// <summary>Defines the functions necessary for a complete platform IO.</summary>
-    public interface IPlatformIO
+    public interface IPlatformIOAsync
     {
         // --- File I/O ---
         /// <summary>Delegate for reading a file.</summary>
