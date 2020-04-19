@@ -11,23 +11,23 @@ namespace ModIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        public byte[] ReadFile(string filePath)
+        public byte[] ReadFile(string path)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            Debug.Assert(!string.IsNullOrEmpty(path));
 
             byte[] data = null;
 
-            if(File.Exists(filePath))
+            if(File.Exists(path))
             {
                 try
                 {
-                    data = File.ReadAllBytes(filePath);
+                    data = File.ReadAllBytes(path);
                 }
                 catch(Exception e)
                 {
                     data = null;
 
-                    string warningInfo = ("[mod.io] Failed to read file.\nFile: " + filePath + "\n\n");
+                    string warningInfo = ("[mod.io] Failed to read file.\nFile: " + path + "\n\n");
 
                     Debug.LogWarning(warningInfo
                                      + Utility.GenerateExceptionDebugString(e));
@@ -38,22 +38,22 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        public bool WriteFile(string filePath, byte[] data)
+        public bool WriteFile(string path, byte[] data)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            Debug.Assert(!string.IsNullOrEmpty(path));
             Debug.Assert(data != null);
 
             bool success = false;
 
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllBytes(filePath, data);
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                File.WriteAllBytes(path, data);
                 success = true;
             }
             catch(Exception e)
             {
-                string warningInfo = ("[mod.io] Failed to write file.\nFile: " + filePath + "\n\n");
+                string warningInfo = ("[mod.io] Failed to write file.\nFile: " + path + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
@@ -64,16 +64,16 @@ namespace ModIO
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        public bool DeleteFile(string filePath)
+        public bool DeleteFile(string path)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
+            Debug.Assert(!string.IsNullOrEmpty(path));
 
             bool success = false;
             try
             {
-                if(File.Exists(filePath))
+                if(File.Exists(path))
                 {
-                    File.Delete(filePath);
+                    File.Delete(path);
                 }
                 success = true;
             }
@@ -81,7 +81,7 @@ namespace ModIO
             {
                 success = false;
 
-                string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + filePath + "\n\n");
+                string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + path + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
@@ -91,34 +91,34 @@ namespace ModIO
         }
 
         /// <summary>Moves a file.</summary>
-        public bool MoveFile(string sourceFilePath, string destinationFilePath)
+        public bool MoveFile(string source, string destination)
         {
-            Debug.Assert(!string.IsNullOrEmpty(sourceFilePath));
-            Debug.Assert(!string.IsNullOrEmpty(destinationFilePath));
+            Debug.Assert(!string.IsNullOrEmpty(source));
+            Debug.Assert(!string.IsNullOrEmpty(destination));
 
             bool success = true;
             string failMessage = null;
 
-            if(!File.Exists(sourceFilePath))
+            if(!File.Exists(source))
             {
                 failMessage = ("Failed to move file as the source file does not exist."
-                               + "\nSource File: " + sourceFilePath
-                               + "\nDestination: " + destinationFilePath);
+                               + "\nSource File: " + source
+                               + "\nDestination: " + destination);
                 success = false;
             }
             else
             {
-                if(File.Exists(destinationFilePath))
+                if(File.Exists(destination))
                 {
                     try
                     {
-                        File.Delete(destinationFilePath);
+                        File.Delete(destination);
                     }
                     catch(Exception e)
                     {
                         failMessage = ("Failed to move file as the existing file at the destination could not be deleted."
-                                       + "\nSource File: " + sourceFilePath
-                                       + "\nDestination: " + destinationFilePath
+                                       + "\nSource File: " + source
+                                       + "\nDestination: " + destination
                                        + "\n\n" + Utility.GenerateExceptionDebugString(e));
 
                         success = false;
@@ -129,15 +129,15 @@ namespace ModIO
                 {
                     try
                     {
-                        File.Move(sourceFilePath, destinationFilePath);
+                        File.Move(source, destination);
                     }
                     catch(Exception e)
                     {
                         success = false;
 
                         failMessage = ("Failed to move file."
-                                       + "\nSource File: " + sourceFilePath
-                                       + "\nDestination: " + destinationFilePath
+                                       + "\nSource File: " + source
+                                       + "\nDestination: " + destination
                                        + "\n\n" + Utility.GenerateExceptionDebugString(e));
                     }
                 }
@@ -152,30 +152,30 @@ namespace ModIO
         }
 
         /// <summary>Gets the size of a file.</summary>
-        public bool GetFileExists(string filePath)
+        public bool GetFileExists(string path)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath));
-            return File.Exists(filePath);
+            Debug.Assert(!string.IsNullOrEmpty(path));
+            return File.Exists(path);
         }
 
         /// <summary>Gets the size of a file.</summary>
-        public Int64 GetFileSize(string filePath)
+        public Int64 GetFileSize(string path)
         {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            Debug.Assert(!String.IsNullOrEmpty(path));
 
             Int64 byteCount = -1;
 
-            if(File.Exists(filePath))
+            if(File.Exists(path))
             {
                 try
                 {
-                    byteCount = (new FileInfo(filePath)).Length;
+                    byteCount = (new FileInfo(path)).Length;
                 }
                 catch(Exception e)
                 {
                     byteCount = -1;
 
-                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
+                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + path + "\n\n");
 
                     Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
                 }
@@ -185,27 +185,27 @@ namespace ModIO
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        public bool GetFileSizeAndHash(string filePath, out Int64 byteCount, out string md5Hash)
+        public bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
         {
-            Debug.Assert(!String.IsNullOrEmpty(filePath));
+            Debug.Assert(!String.IsNullOrEmpty(path));
 
             byteCount = -1;
             md5Hash = null;
 
             bool success = true;
 
-            if(File.Exists(filePath))
+            if(File.Exists(path))
             {
                 try
                 {
-                    byteCount = (new FileInfo(filePath)).Length;
+                    byteCount = (new FileInfo(path)).Length;
                 }
                 catch(Exception e)
                 {
                     byteCount = -1;
                     success = false;
 
-                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + filePath + "\n\n");
+                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + path + "\n\n");
 
                     Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
                 }
@@ -214,7 +214,7 @@ namespace ModIO
                 {
                     using (var md5 = System.Security.Cryptography.MD5.Create())
                     {
-                        using (var stream = File.OpenRead(filePath))
+                        using (var stream = File.OpenRead(path))
                         {
                             var hash = md5.ComputeHash(stream);
                             md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
@@ -226,7 +226,7 @@ namespace ModIO
                     md5Hash = null;
                     success = false;
 
-                    string warningInfo = ("[mod.io] Failed to calculate file hash.\nFile: " + filePath + "\n\n");
+                    string warningInfo = ("[mod.io] Failed to calculate file hash.\nFile: " + path + "\n\n");
 
                     Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
                 }
@@ -236,7 +236,7 @@ namespace ModIO
                 success = false;
 
                 string warningInfo = ("[mod.io] Failed to get information for file. File does not exist.\nFile: "
-                                      + filePath);
+                                      + path);
 
                 Debug.LogWarning(warningInfo);
             }
@@ -246,15 +246,15 @@ namespace ModIO
 
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>
-        public bool CreateDirectory(string directoryPath)
+        public bool CreateDirectory(string path)
         {
-            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+            Debug.Assert(!string.IsNullOrEmpty(path));
 
             bool success = false;
 
             try
             {
-                Directory.CreateDirectory(directoryPath);
+                Directory.CreateDirectory(path);
                 success = true;
             }
             catch(Exception e)
@@ -262,7 +262,7 @@ namespace ModIO
                 success = false;
 
                 string warningInfo = ("[mod.io] Failed to create directory."
-                                      + "\nDirectory: " + directoryPath + "\n\n");
+                                      + "\nDirectory: " + path + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
@@ -272,16 +272,16 @@ namespace ModIO
         }
 
         /// <summary>Deletes a directory.</summary>
-        public bool DeleteDirectory(string directoryPath)
+        public bool DeleteDirectory(string path)
         {
-            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+            Debug.Assert(!string.IsNullOrEmpty(path));
 
             bool success = false;
             try
             {
-                if(Directory.Exists(directoryPath))
+                if(Directory.Exists(path))
                 {
-                    Directory.Delete(directoryPath, true);
+                    Directory.Delete(path, true);
                 }
                 success = true;
             }
@@ -289,7 +289,7 @@ namespace ModIO
             {
                 success = false;
 
-                string warningInfo = ("[mod.io] Failed to delete directory.\nDirectory: " + directoryPath + "\n\n");
+                string warningInfo = ("[mod.io] Failed to delete directory.\nDirectory: " + path + "\n\n");
 
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
@@ -299,15 +299,15 @@ namespace ModIO
         }
 
         /// <summary>Moves a directory.</summary>
-        public bool MoveDirectory(string sourcePath, string destinationPath)
+        public bool MoveDirectory(string source, string destination)
         {
-            Debug.Assert(!string.IsNullOrEmpty(sourcePath));
-            Debug.Assert(!string.IsNullOrEmpty(destinationPath));
+            Debug.Assert(!string.IsNullOrEmpty(source));
+            Debug.Assert(!string.IsNullOrEmpty(destination));
 
             bool success = false;
             try
             {
-                Directory.Move(sourcePath, destinationPath);
+                Directory.Move(source, destination);
                 success = true;
             }
             catch(Exception e)
@@ -315,8 +315,8 @@ namespace ModIO
                 success = false;
 
                 string warningInfo = ("[mod.io] Failed to move directory."
-                                      + "\nSource Directory: " + sourcePath
-                                      + "\nDestination: " + destinationPath
+                                      + "\nSource Directory: " + source
+                                      + "\nDestination: " + destination
                                       + "\n\n");
 
                 Debug.LogWarning(warningInfo
@@ -327,23 +327,23 @@ namespace ModIO
         }
 
         /// <summary>Gets the sub-directories at a location.</summary>
-        public IList<string> GetDirectories(string directoryPath)
+        public IList<string> GetDirectories(string path)
         {
-            Debug.Assert(!string.IsNullOrEmpty(directoryPath));
+            Debug.Assert(!string.IsNullOrEmpty(path));
 
             string[] subDirs = null;
 
-            if(Directory.Exists(directoryPath))
+            if(Directory.Exists(path))
             {
                 try
                 {
-                    subDirs = Directory.GetDirectories(directoryPath);
+                    subDirs = Directory.GetDirectories(path);
                 }
                 catch(Exception e)
                 {
                     subDirs = null;
 
-                    string warningInfo = ("[mod.io] Failed to get directories.\nDirectory: " + directoryPath + "\n\n");
+                    string warningInfo = ("[mod.io] Failed to get directories.\nDirectory: " + path + "\n\n");
 
                     Debug.LogWarning(warningInfo
                                      + Utility.GenerateExceptionDebugString(e));

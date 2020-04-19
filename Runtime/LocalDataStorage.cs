@@ -29,15 +29,15 @@ namespace ModIO
 
         // ---------[ I/O Interface ]---------
         /// <summary>Reads a file.</summary>
-        public static void ReadFileAsync(string filePath, ReadFileCallback callback)
+        public static void ReadFileAsync(string path, ReadFileCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(path, callback);
         }
 
         /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
-        public static void ReadJSONFile<T>(string filePath, ReadJSONFileCallback<T> callback)
+        public static void ReadJSONFile<T>(string path, ReadJSONFileCallback<T> callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(filePath, (path, success, data) =>
+            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(path, (p, success, data) =>
             {
                 T jsonObject;
 
@@ -48,7 +48,7 @@ namespace ModIO
                         success = false;
 
                         Debug.LogWarning("[mod.io] Failed translate file data into JSON Object."
-                                         + "\nFile: " + filePath + "\n\n");
+                                         + "\nFile: " + path + "\n\n");
                     }
                 }
                 else
@@ -61,82 +61,82 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        public static void WriteFile(string filePath, byte[] data, WriteFileCallback callback)
+        public static void WriteFile(string path, byte[] data, WriteFileCallback callback)
         {
             #if DEBUG
             if(data.Length == 0)
             {
-                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + filePath);
+                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + path);
             }
             #endif // DEBUG
 
-            LocalDataStorage.PLATFORM_IO_ASYNC.WriteFile(filePath, data, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.WriteFile(path, data, callback);
         }
 
         /// <summary>Writes a JSON file.</summary>
-        public static void WriteJSONFile<T>(string filePath, T jsonObject, WriteFileCallback callback)
+        public static void WriteJSONFile<T>(string path, T jsonObject, WriteFileCallback callback)
         {
             byte[] data = IOUtilities.GenerateUTF8JSONData<T>(jsonObject);
 
             if(data != null)
             {
-                LocalDataStorage.WriteFile(filePath, data, callback);
+                LocalDataStorage.WriteFile(path, data, callback);
             }
             else if(callback != null)
             {
                 Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
-                                 + "\nFile: " + filePath + "\n\n");
+                                 + "\nFile: " + path + "\n\n");
 
-                callback.Invoke(filePath, false);
+                callback.Invoke(path, false);
             }
         }
 
         /// <summary>Deletes a file.</summary>
-        public static void DeleteFile(string filePath, DeleteFileCallback callback)
+        public static void DeleteFile(string path, DeleteFileCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.DeleteFile(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.DeleteFile(path, callback);
         }
 
         /// <summary>Moves a file.</summary>
-        public static void MoveFile(string sourceFilePath, string destinationFilePath, MoveFileCallback callback)
+        public static void MoveFile(string source, string destination, MoveFileCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.MoveFile(sourceFilePath, destinationFilePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.MoveFile(source, destination, callback);
         }
 
         /// <summary>Creates a directory.</summary>
-        public static void CreateDirectory(string directoryPath, CreateDirectoryCallback callback)
+        public static void CreateDirectory(string path, CreateDirectoryCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.CreateDirectory(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.CreateDirectory(path, callback);
         }
 
         /// <summary>Deletes a directory.</summary>
-        public static void DeleteDirectory(string directoryPath, DeleteDirectoryCallback callback)
+        public static void DeleteDirectory(string path, DeleteDirectoryCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.DeleteDirectory(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.DeleteDirectory(path, callback);
         }
 
         /// <summary>Moves a directory.</summary>
-        public static void MoveDirectory(string sourcePath, string destinationPath, MoveDirectoryCallback callback)
+        public static void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.MoveDirectory(sourcePath, destinationPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.MoveDirectory(source, destination, callback);
         }
 
         /// <summary>Gets the size of a file.</summary>
-        public static void GetFileSize(string filePath, GetFileSizeCallback callback)
+        public static void GetFileSize(string path, GetFileSizeCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.GetFileSize(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.GetFileSize(path, callback);
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        public static void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback)
+        public static void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.GetFileSizeAndHash(filePath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.GetFileSizeAndHash(path, callback);
         }
 
         /// <summary>Gets a list of directories found at the given location.</summary>
-        public static void GetDirectories(string directoryPath, GetDirectoriesCallback callback)
+        public static void GetDirectories(string path, GetDirectoriesCallback callback)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.GetDirectories(directoryPath, callback);
+            LocalDataStorage.PLATFORM_IO_ASYNC.GetDirectories(path, callback);
         }
     }
 }

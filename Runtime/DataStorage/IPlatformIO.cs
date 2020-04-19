@@ -8,38 +8,38 @@ namespace ModIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        byte[] ReadFile(string filePath);
+        byte[] ReadFile(string path);
 
         /// <summary>Writes a file.</summary>
-        bool WriteFile(string filePath, byte[] data);
+        bool WriteFile(string path, byte[] data);
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        bool DeleteFile(string filePath);
+        bool DeleteFile(string path);
 
         /// <summary>Moves a file.</summary>
-        bool MoveFile(string sourceFilePath, string destinationFilePath);
+        bool MoveFile(string source, string destination);
 
         /// <summary>Gets the size of a file.</summary>
-        bool GetFileExists(string filePath);
+        bool GetFileExists(string path);
 
         /// <summary>Gets the size of a file.</summary>
-        Int64 GetFileSize(string filePath);
+        Int64 GetFileSize(string path);
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        bool GetFileSizeAndHash(string filePath, out Int64 byteCount, out string md5Hash);
+        bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash);
 
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>
-        bool CreateDirectory(string directoryPath);
+        bool CreateDirectory(string path);
 
         /// <summary>Deletes a directory.</summary>
-        bool DeleteDirectory(string directoryPath);
+        bool DeleteDirectory(string path);
 
         /// <summary>Moves a directory.</summary>
-        bool MoveDirectory(string sourcePath, string destinationPath);
+        bool MoveDirectory(string source, string destination);
 
         /// <summary>Gets the sub-directories at a location.</summary>
-        IList<string> GetDirectories(string directoryPath);
+        IList<string> GetDirectories(string path);
     }
 }
