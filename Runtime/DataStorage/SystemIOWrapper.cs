@@ -77,23 +77,21 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            bool success = false;
-            try
+            bool success = true;
+            if(File.Exists(path))
             {
-                if(File.Exists(path))
+                try
                 {
                     File.Delete(path);
                 }
-                success = true;
-            }
-            catch(Exception e)
-            {
-                success = false;
+                catch(Exception e)
+                {
+                    success = false;
 
-                string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + path + "\n\n");
+                    string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + path + "\n\n");
 
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
+                }
             }
 
             return success;
