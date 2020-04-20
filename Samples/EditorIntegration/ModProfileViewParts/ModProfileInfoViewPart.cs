@@ -59,14 +59,13 @@ namespace ModIO.EditorCode
             {
                 logoLocation = logoProperty.FindPropertyRelative("value.url").stringValue;
 
-                LocalDataStorage.ReadFileAsync(logoLocation, (p,s,d) =>
+                byte[] data = null;
+
+                if(LocalDataStorage.ReadFile(logoLocation, out data))
                 {
-                    if(s)
-                    {
-                        lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
-                        logoTexture = IOUtilities.ParseImageData(d);
-                    }
-                });
+                    lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
+                    logoTexture = IOUtilities.ParseImageData(data);
+                }
             }
             else if(profile != null)
             {
@@ -96,15 +95,14 @@ namespace ModIO.EditorCode
                     FileInfo imageInfo = new FileInfo(logoLocation);
                     if(lastLogoWriteTime < imageInfo.LastWriteTime)
                     {
-                        LocalDataStorage.ReadFileAsync(logoLocation, (p,s,d) =>
+                        byte[] data = null;
+
+                        if(LocalDataStorage.ReadFile(logoLocation, out data))
                         {
-                            if(s)
-                            {
-                                logoTexture = IOUtilities.ParseImageData(d);
-                                lastLogoWriteTime = imageInfo.LastWriteTime;
-                                isRepaintRequired = true;
-                            }
-                        });
+                            logoTexture = IOUtilities.ParseImageData(data);
+                            lastLogoWriteTime = imageInfo.LastWriteTime;
+                            isRepaintRequired = true;
+                        }
                     }
                 }
                 catch(Exception e)
@@ -326,20 +324,19 @@ namespace ModIO.EditorCode
                                                                          "",
                                                                          IMAGE_FILE_FILTER);
 
-                    LocalDataStorage.ReadFileAsync(path, (p,s,d) =>
-                    {
-                        if(s)
-                        {
-                            logoProperty.FindPropertyRelative("value.url").stringValue = path;
-                            logoProperty.FindPropertyRelative("value.fileName").stringValue = Path.GetFileName(path);
-                            logoProperty.FindPropertyRelative("isDirty").boolValue = true;
-                            logoProperty.serializedObject.ApplyModifiedProperties();
+                    byte[] data = null;
 
-                            logoTexture = IOUtilities.ParseImageData(d);
-                            logoLocation = path;
-                            lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
-                        }
-                    });
+                    if(LocalDataStorage.ReadFile(path, out data))
+                    {
+                        logoProperty.FindPropertyRelative("value.url").stringValue = path;
+                        logoProperty.FindPropertyRelative("value.fileName").stringValue = Path.GetFileName(path);
+                        logoProperty.FindPropertyRelative("isDirty").boolValue = true;
+                        logoProperty.serializedObject.ApplyModifiedProperties();
+
+                        logoTexture = IOUtilities.ParseImageData(data);
+                        logoLocation = path;
+                        lastLogoWriteTime = (new FileInfo(logoLocation)).LastWriteTime;
+                    }
                 };
             }
 
