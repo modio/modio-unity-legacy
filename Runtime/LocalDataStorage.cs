@@ -26,7 +26,7 @@ namespace ModIO
         static LocalDataStorage()
         {
             #if true
-                LocalDataStorage.PLATFORM_IO = new SystemIO();
+                LocalDataStorage.PLATFORM_IO = new SystemIOWrapper();
                 LocalDataStorage.PLATFORM_IO_ASYNC = new StandaloneIO();
             #endif
         }

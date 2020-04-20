@@ -6,8 +6,9 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
+    // TODO(@jackson): Avoid Exception where possible (check file/directory exists in move)
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
-    public class SystemIO : IPlatformIO
+    public class SystemIOWrapper : IPlatformIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
