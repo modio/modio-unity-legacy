@@ -11,7 +11,7 @@ namespace ModIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        public bool ReadFile(string path, out byte[] data)
+        public virtual bool ReadFile(string path, out byte[] data)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
@@ -46,7 +46,7 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        public bool WriteFile(string path, byte[] data)
+        public virtual bool WriteFile(string path, byte[] data)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
             Debug.Assert(data != null);
@@ -72,7 +72,7 @@ namespace ModIO
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        public bool DeleteFile(string path)
+        public virtual bool DeleteFile(string path)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
@@ -97,7 +97,7 @@ namespace ModIO
         }
 
         /// <summary>Moves a file.</summary>
-        public bool MoveFile(string source, string destination)
+        public virtual bool MoveFile(string source, string destination)
         {
             Debug.Assert(!string.IsNullOrEmpty(source));
             Debug.Assert(!string.IsNullOrEmpty(destination));
@@ -158,14 +158,14 @@ namespace ModIO
         }
 
         /// <summary>Gets the size of a file.</summary>
-        public bool GetFileExists(string path)
+        public virtual bool GetFileExists(string path)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
             return File.Exists(path);
         }
 
         /// <summary>Gets the size of a file.</summary>
-        public Int64 GetFileSize(string path)
+        public virtual Int64 GetFileSize(string path)
         {
             Debug.Assert(!String.IsNullOrEmpty(path));
 
@@ -191,7 +191,7 @@ namespace ModIO
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        public bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
+        public virtual bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
         {
             Debug.Assert(!String.IsNullOrEmpty(path));
 
@@ -252,7 +252,7 @@ namespace ModIO
 
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>
-        public bool CreateDirectory(string path)
+        public virtual bool CreateDirectory(string path)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
@@ -278,7 +278,7 @@ namespace ModIO
         }
 
         /// <summary>Deletes a directory.</summary>
-        public bool DeleteDirectory(string path)
+        public virtual bool DeleteDirectory(string path)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
@@ -305,7 +305,7 @@ namespace ModIO
         }
 
         /// <summary>Moves a directory.</summary>
-        public bool MoveDirectory(string source, string destination)
+        public virtual bool MoveDirectory(string source, string destination)
         {
             Debug.Assert(!string.IsNullOrEmpty(source));
             Debug.Assert(!string.IsNullOrEmpty(destination));
@@ -366,7 +366,7 @@ namespace ModIO
         }
 
         /// <summary>Gets the sub-directories at a location.</summary>
-        public IList<string> GetDirectories(string path)
+        public virtual IList<string> GetDirectories(string path)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
