@@ -38,6 +38,36 @@ namespace ModIO
             LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(path, callback);
         }
 
+        /// <summary>Reads a file.</summary>
+        public static byte[] ReadFile(string path)
+        {
+            return LocalDataStorage.PLATFORM_IO.ReadFile(path);
+        }
+
+        /// <summary>Reads a file and parses the data as a JSON object instance.</summary>
+        public static bool ReadJSONFile<T>(string path, out T jsonObject)
+        {
+            byte[] data = LocalDataStorage.PLATFORM_IO.ReadFile(path);
+            bool success = false;
+
+            if(data != null)
+            {
+                success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
+
+                if(!success)
+                {
+                    Debug.LogWarning("[mod.io] Failed translate file data into JSON Object."
+                                     + "\nFile: " + path + "\n\n");
+                }
+            }
+            else
+            {
+                jsonObject = default(T);
+            }
+
+            return success;
+        }
+
         /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
         public static void ReadJSONFile<T>(string path, ReadJSONFileCallback<T> callback)
         {
