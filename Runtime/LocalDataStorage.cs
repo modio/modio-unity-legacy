@@ -153,10 +153,5 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
         }
 
-        /// <summary>Gets a list of directories found at the given location.</summary>
-        public static void GetDirectories(string path, GetDirectoriesCallback callback)
-        {
-            LocalDataStorage.PLATFORM_IO_ASYNC.GetDirectories(path, callback);
-        }
     }
 }
