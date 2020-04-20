@@ -110,11 +110,47 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
         }
 
+        /// <summary>Checks for the existence of a file.</summary>
+        public static bool GetFileExists(string path)
+        {
+            return LocalDataStorage.PLATFORM_IO.GetFileExists(path);
+        }
+
+        /// <summary>Gets the size of a file in bytes.</summary>
+        public static Int64 GetFileSize(string path)
+        {
+            return LocalDataStorage.PLATFORM_IO.GetFileSize(path);
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        public static bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
+        {
+            return LocalDataStorage.PLATFORM_IO.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+        }
+
         // ------ Directory Management ------
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string path)
         {
             return LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
+        }
+
+        /// <summary>Deletes a directory.</summary>
+        public static bool DeleteDirectory(string path)
+        {
+            return LocalDataStorage.PLATFORM_IO.DeleteDirectory(path);
+        }
+
+        /// <summary>Moves a directory.</summary>
+        public static bool MoveDirectory(string source, string destination)
+        {
+            return LocalDataStorage.PLATFORM_IO.MoveDirectory(source, destination);
+        }
+
+        /// <summary>Gets a list of directories found at the given location.</summary>
+        public static IList<string> GetDirectories(string path)
+        {
+            return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
         }
 
         /// <summary>Deletes a directory.</summary>
