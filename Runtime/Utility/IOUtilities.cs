@@ -374,14 +374,7 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.GetFileSize() instead.")]
         public static Int64 GetFileSize(string filePath)
         {
-            Int64 byteCount = -1;
-
-            LocalDataStorage.GetFileSize(filePath, (p,b) =>
-            {
-                byteCount = b;
-            });
-
-            return byteCount;
+            return LocalDataStorage.GetFileSize(filePath);
         }
 
         /// <summary>[Obsolete] Calculates the MD5 Hash for a given file.</summary>
