@@ -12,79 +12,95 @@ namespace ModIO
     public class SystemIOWrapper_Editor : SystemIOWrapper
     {
         /// <summary>Determines whether an AssetDatabase refresh is applicable.</summary>
-        public bool IsPathWithinEditorAssetDatabase(string path)
+        public static bool IsPathWithinEditorAssetDatabase(string path)
         {
             return path.StartsWith(Application.dataPath);
         }
 
         // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
-        /// <summary>Reads a file.</summary>
-        public override bool ReadFile(string path, out byte[] data)
-        {
-            return base.ReadFile(path, out data);
-        }
-
         /// <summary>Writes a file.</summary>
         public override bool WriteFile(string path, byte[] data)
         {
-            return base.WriteFile(path, data);
+            bool success = base.WriteFile(path, data);
+
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            {
+                AssetDatabase.Refresh();
+            }
+
+            return success;
         }
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
         public override bool DeleteFile(string path)
         {
-            return base.DeleteFile(path);
+            bool success = base.DeleteFile(path);
+
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            {
+                AssetDatabase.Refresh();
+            }
+
+            return success;
         }
 
         /// <summary>Moves a file.</summary>
         public override bool MoveFile(string source, string destination)
         {
-            return base.MoveFile(source, destination);
-        }
+            bool success = base.MoveFile(source, destination);
+            bool isInDatabase = (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
+                                 || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
 
-        /// <summary>Checks for the existence of a file.</summary>
-        public override bool GetFileExists(string path)
-        {
-            return base.GetFileExists(path);
-        }
+            if(success && isInDatabase)
+            {
+                AssetDatabase.Refresh();
+            }
 
-        /// <summary>Gets the size of a file.</summary>
-        public override Int64 GetFileSize(string path)
-        {
-            return base.GetFileSize(path);
-        }
-
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        public override bool GetFileSizeAndHash(string path, out Int64 byteCount, out string md5Hash)
-        {
-            return base.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+            return success;
         }
 
         // --- Directory Management ---
         /// <summary>Creates a directory.</summary>
         public override bool CreateDirectory(string path)
         {
-            return base.CreateDirectory(path);
+            bool success = base.CreateDirectory(path);
+
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            {
+                AssetDatabase.Refresh();
+            }
+
+            return success;
         }
 
         /// <summary>Deletes a directory.</summary>
         public override bool DeleteDirectory(string path)
         {
-            return base.DeleteDirectory(path);
+            bool success = base.DeleteDirectory(path);
+
+            if(success && SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(path))
+            {
+                AssetDatabase.Refresh();
+            }
+
+            return success;
         }
 
         /// <summary>Moves a directory.</summary>
         public override bool MoveDirectory(string source, string destination)
         {
-            return base.MoveDirectory(source, destination);
-        }
+            bool success = base.MoveDirectory(source, destination);
+            bool isInDatabase = (SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(source)
+                                 || SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(destination));
 
-        /// <summary>Gets the sub-directories at a location.</summary>
-        public override IList<string> GetDirectories(string path)
-        {
-            return base.GetDirectories(path);
+            if(success && isInDatabase)
+            {
+                AssetDatabase.Refresh();
+            }
+
+            return success;
         }
     }
 }
