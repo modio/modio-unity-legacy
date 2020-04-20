@@ -77,6 +77,19 @@ namespace ModIO
             LocalDataStorage.PLATFORM_IO_ASYNC.WriteFile(path, data, callback);
         }
 
+        /// <summary>Writes a file.</summary>
+        public static bool WriteFile(string path, byte[] data)
+        {
+            #if DEBUG
+            if(data.Length == 0)
+            {
+                Debug.Log("[mod.io] Writing 0-byte user file to: " + path);
+            }
+            #endif // DEBUG
+
+            return LocalDataStorage.PLATFORM_IO.WriteFile(path, data);
+        }
+
         /// <summary>Writes a JSON file.</summary>
         public static void WriteJSONFile<T>(string path, T jsonObject, WriteFileCallback callback)
         {
