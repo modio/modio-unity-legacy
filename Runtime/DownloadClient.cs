@@ -483,10 +483,17 @@ namespace ModIO
                 }
                 #endif
 
-                LocalDataStorage.MoveFile(downloadInfo.target + ".download", downloadInfo.target, (s, d, success) =>
+                bool success = LocalDataStorage.MoveFile(downloadInfo.target + ".download",
+                                                         downloadInfo.target);
+
+                if(!success)
                 {
-                    DownloadClient.CleanUpDownload(idPair, downloadInfo, success);
-                });
+                    Debug.LogWarning("[mod.io] Download succeeded but failed to rename temporary"
+                                     + " from in-progress file name."
+                                     + "\nTemporary file name: " + downloadInfo.target + ".download");
+                }
+
+                DownloadClient.CleanUpDownload(idPair, downloadInfo, success);
             }
         }
 
