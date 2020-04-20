@@ -302,12 +302,9 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
         public static T ReadJsonObjectFile<T>(string filePath)
         {
-            T parsed = default(T);
+            T parsed;
 
-            LocalDataStorage.ReadJSONFile<T>(filePath, (p,s,o) =>
-            {
-                parsed = o;
-            });
+            LocalDataStorage.ReadJSONFile<T>(filePath, out parsed);
 
             return parsed;
         }
@@ -316,16 +313,12 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.ReadJSONFile() instead.")]
         public static bool TryReadJsonObjectFile<T>(string filePath, out T jsonObject)
         {
+            T parsed;
             bool success = false;
-            T parsed = default(T);
 
-            LocalDataStorage.ReadJSONFile<T>(filePath, (p,s,o) =>
-            {
-                success = s;
-                parsed = o;
-            });
-
+            success = LocalDataStorage.ReadJSONFile<T>(filePath, out parsed);
             jsonObject = parsed;
+
             return success;
         }
 
