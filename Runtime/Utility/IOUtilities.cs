@@ -238,67 +238,61 @@ namespace ModIO
 
         // ---------[ Obsolete ]---------
         /// <summary>[Obsolete] Loads an entire binary file as a byte array.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFileAsync() instead.")]
+        [Obsolete("Use LocalDataStorage.ReadFile() instead.")]
         public static bool TryLoadBinaryFile(string filePath, out byte[] output)
         {
             bool success = false;
             byte[] data = null;
 
-            LocalDataStorage.ReadFileAsync(filePath, (p,s,d) =>
-            {
-                success = s;
-                data = d;
-            });
-
+            success = LocalDataStorage.ReadFile(filePath, out data);
             output = data;
+
             return success;
         }
 
         /// <summary>[Obsolete] Loads an entire binary file as a byte array.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFileAsync() instead.")]
+        [Obsolete("Use LocalDataStorage.ReadFile() instead.")]
         public static byte[] LoadBinaryFile(string filePath)
         {
             byte[] data = null;
 
-            LocalDataStorage.ReadFileAsync(filePath, (p,s,d) =>
-            {
-                data = d;
-            });
+            LocalDataStorage.ReadFile(filePath, out data);
 
             return data;
         }
 
         /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFileAsync() and IOUtilities.ParseImageData() instead.")]
+        [Obsolete("Use LocalDataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
         public static Texture2D ReadImageFile(string filePath)
         {
             Texture2D parsed = null;
+            bool success = false;
+            byte[] data = null;
 
-            LocalDataStorage.ReadFileAsync(filePath, (p,s,d) =>
+            success = LocalDataStorage.ReadFile(filePath, out data);
+
+            if(success)
             {
-                if(s)
-                {
-                    parsed = IOUtilities.ParseImageData(d);
-                }
-            });
+                parsed = IOUtilities.ParseImageData(data);
+            }
 
             return parsed;
         }
 
         /// <summary>[Obsolete] Loads the image data from a file into a new Texture.</summary>
-        [Obsolete("Use LocalDataStorage.ReadFileAsync() and IOUtilities.ParseImageData() instead.")]
+        [Obsolete("Use LocalDataStorage.ReadFile() and IOUtilities.ParseImageData() instead.")]
         public static bool TryReadImageFile(string filePath, out Texture2D texture)
         {
             Texture2D parsed = null;
             bool success = false;
+            byte[] data = null;
 
-            LocalDataStorage.ReadFileAsync(filePath, (p,s,d) =>
+            success = LocalDataStorage.ReadFile(filePath, out data);
+
+            if(success)
             {
-                if(s)
-                {
-                    parsed = IOUtilities.ParseImageData(d);
-                }
-            });
+                parsed = IOUtilities.ParseImageData(data);
+            }
 
             texture = parsed;
             return success;
