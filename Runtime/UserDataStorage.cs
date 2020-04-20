@@ -228,7 +228,14 @@ namespace ModIO
             /// <summary>Read a user file. (Unity Editor)</summary>
             public void ReadFile(string filePath, ReadFileCallback callback)
             {
-                LocalDataStorage.ReadFileAsync(filePath, callback);
+                Debug.Assert(callback != null);
+
+                bool success = false;
+                byte[] data = null;
+
+                success = EditorIO.BASE_IO.ReadFile(filePath, out data);
+
+                callback.Invoke(filePath, success, data);
             }
 
             /// <summary>Write a user file. (Unity Editor)</summary>
@@ -613,7 +620,12 @@ namespace ModIO
             /// <summary>Reads a user data file. (Standalone Application)</summary>
             public static void ReadFile_Standalone(string filePath, ReadFileCallback callback)
             {
-                LocalDataStorage.ReadFileAsync(filePath, callback);
+                bool success = false;
+                byte[] data = null;
+
+                success = LocalDataStorage.ReadFile(filePath, out data);
+
+                callback.Invoke(filePath, success, data);
             }
 
             /// <summary>Writes a user data file. (Standalone Application)</summary>
