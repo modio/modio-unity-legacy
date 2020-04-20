@@ -109,9 +109,9 @@ namespace ModIO
         }
 
         /// <summary>Creates a directory.</summary>
-        public static void CreateDirectory(string path, CreateDirectoryCallback callback)
+        public static bool CreateDirectory(string path)
         {
-            LocalDataStorage.PLATFORM_IO_ASYNC.CreateDirectory(path, callback);
+            return LocalDataStorage.PLATFORM_IO.CreateDirectory(path);
         }
 
         /// <summary>Deletes a directory.</summary>
