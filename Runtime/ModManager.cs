@@ -184,64 +184,27 @@ namespace ModIO
             Debug.Assert(modId != ModProfile.NULL_ID);
 
             var installedMods = new List<KeyValuePair<ModfileIdPair, string>>(ModManager.IterateInstalledMods(new int[] { modId }));
-            List<string> successfulUninstalls = new List<string>();
-            int operationsRemaining = 0;
-
-            // Operation for finalizing the process
-            DataStorageCallbacks.DeleteDirectoryCallback finalizeUninstall = (path, success) =>
-            {
-                --operationsRemaining;
-
-                if(success)
-                {
-                    successfulUninstalls.Add(path);
-                }
-
-                if(operationsRemaining <= 0)
-                {
-                    // notify uninstall listeners
-                    if(ModManager.onModBinariesUninstalled != null)
-                    {
-                        ModfileIdPair[] successfulPairs = new ModfileIdPair[successfulUninstalls.Count];
-
-                        for(int i = 0; i < successfulPairs.Length; ++i)
-                        {
-                            ModfileIdPair pair = ModfileIdPair.NULL;
-
-                            foreach(var installInfo in installedMods)
-                            {
-                                if(installInfo.Value == successfulUninstalls[i])
-                                {
-                                    pair = installInfo.Key;
-                                    break;
-                                }
-                            }
-
-                            successfulPairs[i] = pair;
-                        }
-
-                        ModManager.onModBinariesUninstalled(successfulPairs);
-                    }
-
-                    // invoke callback
-                    if(onComplete != null)
-                    {
-                        onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
-                    }
-                }
-            };
-
-            // To ensure that the finalization is done after all installations are processed.
-            ++operationsRemaining;
+            List<ModfileIdPair> successfulUninstalls = new List<ModfileIdPair>();
 
             foreach(var installInfo in installedMods)
             {
-                ++operationsRemaining;
-                LocalDataStorage.DeleteDirectory(installInfo.Value, finalizeUninstall);
+                if(LocalDataStorage.DeleteDirectory(installInfo.Value))
+                {
+                    successfulUninstalls.Add(installInfo.Key);
+                }
             }
 
-            // NOTE(@jackson): false to prevent null-string being added to successful list
-            finalizeUninstall.Invoke(null, false);
+            // notify uninstall listeners
+            if(ModManager.onModBinariesUninstalled != null)
+            {
+                ModManager.onModBinariesUninstalled(successfulUninstalls.ToArray());
+            }
+
+            // invoke callback
+            if(onComplete != null)
+            {
+                onComplete.Invoke(successfulUninstalls.Count == installedMods.Count);
+            }
         }
 
         /// <summary>Removes a specific version of a mod from the installs folder.</summary>
