@@ -22,7 +22,10 @@ namespace ModIO
         /// <summary>Loads the platform I/O behaviour.</summary>
         static LocalDataStorage()
         {
-            #if true
+            // Selects the platform appropriate functions
+            #if UNITY_EDITOR
+                LocalDataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
+            #else
                 LocalDataStorage.PLATFORM_IO = new SystemIOWrapper();
             #endif
         }
