@@ -31,7 +31,8 @@ namespace ModIO
             #endif
         }
 
-        // ---------[ I/O Interface ]---------
+        // ---------[ Data Management Interface ]---------
+        // ------ File I/O ------
         /// <summary>Reads a file.</summary>
         public static bool ReadFile(string path, out byte[] data)
         {
@@ -96,6 +97,7 @@ namespace ModIO
             return success;
         }
 
+        // ------ File Management ------
         /// <summary>Deletes a file.</summary>
         public static bool DeleteFile(string path)
         {
@@ -108,6 +110,7 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
         }
 
+        // ------ Directory Management ------
         /// <summary>Creates a directory.</summary>
         public static bool CreateDirectory(string path)
         {
