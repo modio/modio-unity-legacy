@@ -153,11 +153,6 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
         }
 
-        /// <summary>Deletes a directory.</summary>
-        public static void DeleteDirectory(string path, DeleteDirectoryCallback callback)
-        {
-            LocalDataStorage.PLATFORM_IO_ASYNC.DeleteDirectory(path, callback);
-        }
 
         /// <summary>Moves a directory.</summary>
         public static void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
