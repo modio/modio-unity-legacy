@@ -153,13 +153,6 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
         }
 
-
-        /// <summary>Moves a directory.</summary>
-        public static void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
-        {
-            LocalDataStorage.PLATFORM_IO_ASYNC.MoveDirectory(source, destination, callback);
-        }
-
         /// <summary>Gets the size of a file.</summary>
         public static void GetFileSize(string path, GetFileSizeCallback callback)
         {
