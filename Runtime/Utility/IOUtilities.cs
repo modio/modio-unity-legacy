@@ -326,31 +326,26 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.WriteFile() instead.")]
         public static bool WriteBinaryFile(string filePath, byte[] data)
         {
-            bool success = false;
-
-            LocalDataStorage.WriteFile(filePath, data, (p,s) =>
-            {
-                success = s;
-            });
-
-            return success;
+            return LocalDataStorage.WriteFile(filePath, data);
         }
 
         /// <summary>[Obsolete] Writes a texture to a PNG file.</summary>
         [Obsolete("Use LocalDataStorage.WriteFile() and Texture2D.EncodeToPNG() instead.")]
         public static bool WritePNGFile(string filePath, Texture2D texture)
         {
-            bool success = false;
+            byte[] data = null;
 
             if(texture != null)
             {
-                LocalDataStorage.WriteFile(filePath, texture.EncodeToPNG(), (p,s) =>
+                data = texture.EncodeToPNG();
+
+                if(data != null)
                 {
-                    success = s;
-                });
+                    return LocalDataStorage.WriteFile(filePath, data);
+                }
             }
 
-            return success;
+            return false;
         }
 
         /// <summary>[Obsolete] Writes an object to a file in the JSON Object format.</summary>

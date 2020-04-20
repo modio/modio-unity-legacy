@@ -241,7 +241,9 @@ namespace ModIO
             /// <summary>Write a user file. (Unity Editor)</summary>
             public void WriteFile(string filePath, byte[] data, WriteFileCallback callback)
             {
-                LocalDataStorage.WriteFile(filePath, data, callback);
+                bool success = LocalDataStorage.WriteFile(filePath, data);
+
+                if(callback != null) { callback.Invoke(filePath, success); }
             }
 
             /// <summary>Delete a user file. (Unity Editor)</summary>
@@ -631,7 +633,9 @@ namespace ModIO
             /// <summary>Writes a user data file. (Standalone Application)</summary>
             public static void WriteFile_Standalone(string filePath, byte[] data, WriteFileCallback callback)
             {
-                LocalDataStorage.WriteFile(filePath, data, callback);
+                bool success = LocalDataStorage.WriteFile(filePath, data);
+
+                if(callback != null) { callback.Invoke(filePath, success); }
             }
 
             /// <summary>Deletes a user data file. (Standalone Application)</summary>

@@ -303,23 +303,24 @@ namespace ModIO
             downloadInfo.request = UnityWebRequest.Get(downloadURL);
 
             string tempFilePath = downloadInfo.target + ".download";
-            LocalDataStorage.WriteFile(tempFilePath, new byte[0], (path, success) =>
+            bool success = false;
+
+            success = LocalDataStorage.WriteFile(tempFilePath, new byte[0]);
+
+            if(success)
             {
-                if(success)
-                {
-                    downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
+                downloadInfo.request.downloadHandler = new DownloadHandlerFile(tempFilePath);
 
-                    DownloadClient.DownloadModBinary_FileCreated(idPair, downloadInfo);
-                }
-                else if(DownloadClient.modfileDownloadFailed != null)
-                {
-                    string warningInfo = ("Failed to create download file on disk."
-                                          + "\nSource: " + downloadURL
-                                          + "\nDestination: " + tempFilePath + "\n\n");
+                DownloadClient.DownloadModBinary_FileCreated(idPair, downloadInfo);
+            }
+            else if(DownloadClient.modfileDownloadFailed != null)
+            {
+                string warningInfo = ("Failed to create download file on disk."
+                                      + "\nSource: " + downloadURL
+                                      + "\nDestination: " + tempFilePath + "\n\n");
 
-                    modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
-                }
-            });
+                modfileDownloadFailed(idPair, WebRequestError.GenerateLocal(warningInfo));
+            }
         }
 
         private static void DownloadModBinary_FileCreated(ModfileIdPair idPair, FileDownloadInfo downloadInfo)
