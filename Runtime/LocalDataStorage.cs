@@ -103,6 +103,12 @@ namespace ModIO
         }
 
         /// <summary>Moves a file.</summary>
+        public static bool MoveFile(string source, string destination)
+        {
+            return LocalDataStorage.PLATFORM_IO.MoveFile(source, destination);
+        }
+
+        /// <summary>Moves a file.</summary>
         public static void MoveFile(string source, string destination, MoveFileCallback callback)
         {
             LocalDataStorage.PLATFORM_IO_ASYNC.MoveFile(source, destination, callback);
