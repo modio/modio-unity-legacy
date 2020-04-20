@@ -6,7 +6,6 @@ using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
-    // TODO(@jackson): Avoid Exception where possible (check file/directory exists in move)
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
     public class SystemIOWrapper : IPlatformIO
     {
@@ -311,23 +310,56 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(source));
             Debug.Assert(!string.IsNullOrEmpty(destination));
 
-            bool success = false;
-            try
+            bool success = true;
+            string failMessage = null;
+
+            if(!Directory.Exists(source))
             {
-                Directory.Move(source, destination);
-                success = true;
-            }
-            catch(Exception e)
-            {
+                failMessage = ("Failed to move directory as the source directory does not exist."
+                               + "\nSource Directory: " + source
+                               + "\nDestination: " + destination);
                 success = false;
+            }
+            else
+            {
+                if(Directory.Exists(destination))
+                {
+                    try
+                    {
+                        Directory.Delete(destination);
+                    }
+                    catch(Exception e)
+                    {
+                        failMessage = ("Failed to move directory as the existing directory at the destination could not be deleted."
+                                       + "\nSource Directory: " + source
+                                       + "\nDestination: " + destination
+                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
 
-                string warningInfo = ("[mod.io] Failed to move directory."
-                                      + "\nSource Directory: " + source
-                                      + "\nDestination: " + destination
-                                      + "\n\n");
+                        success = false;
+                    }
+                }
 
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                if(success)
+                {
+                    try
+                    {
+                        Directory.Move(source, destination);
+                    }
+                    catch(Exception e)
+                    {
+                        success = false;
+
+                        failMessage = ("Failed to move directory."
+                                       + "\nSource Directory: " + source
+                                       + "\nDestination: " + destination
+                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
+                    }
+                }
+            }
+
+            if(!success)
+            {
+                Debug.LogWarning("[mod.io] " + failMessage);
             }
 
             return success;
