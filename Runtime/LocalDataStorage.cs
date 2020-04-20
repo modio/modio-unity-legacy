@@ -97,6 +97,12 @@ namespace ModIO
         }
 
         /// <summary>Deletes a file.</summary>
+        public static bool DeleteFile(string path)
+        {
+            return LocalDataStorage.PLATFORM_IO.DeleteFile(path);
+        }
+
+        /// <summary>Deletes a file.</summary>
         public static void DeleteFile(string path, DeleteFileCallback callback)
         {
             LocalDataStorage.PLATFORM_IO_ASYNC.DeleteFile(path, callback);
