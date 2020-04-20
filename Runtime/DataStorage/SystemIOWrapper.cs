@@ -12,30 +12,38 @@ namespace ModIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        public byte[] ReadFile(string path)
+        public bool ReadFile(string path, out byte[] data)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            byte[] data = null;
+            string errorMessage = null;
 
             if(File.Exists(path))
             {
                 try
                 {
                     data = File.ReadAllBytes(path);
+                    return true;
                 }
                 catch(Exception e)
                 {
-                    data = null;
-
-                    string warningInfo = ("[mod.io] Failed to read file.\nFile: " + path + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
+                    errorMessage = Utility.GenerateExceptionDebugString(e);
                 }
             }
+            else // !File.Exists
+            {
+                errorMessage = "File does not exist.";
+            }
 
-            return data;
+            if(errorMessage != null)
+            {
+                Debug.LogWarning("[mod.io] Failed to read file."
+                                 + "\nFile: " + path + "\n\n"
+                                 + errorMessage);
+            }
+
+            data = null;
+            return false;
         }
 
         /// <summary>Writes a file.</summary>

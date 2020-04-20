@@ -39,18 +39,20 @@ namespace ModIO
         }
 
         /// <summary>Reads a file.</summary>
-        public static byte[] ReadFile(string path)
+        public static bool ReadFile(string path, out byte[] data)
         {
-            return LocalDataStorage.PLATFORM_IO.ReadFile(path);
+            return LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
         }
 
         /// <summary>Reads a file and parses the data as a JSON object instance.</summary>
         public static bool ReadJSONFile<T>(string path, out T jsonObject)
         {
-            byte[] data = LocalDataStorage.PLATFORM_IO.ReadFile(path);
             bool success = false;
+            byte[] data = null;
 
-            if(data != null)
+            success = LocalDataStorage.PLATFORM_IO.ReadFile(path, out data);
+
+            if(success)
             {
                 success = IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject);
 

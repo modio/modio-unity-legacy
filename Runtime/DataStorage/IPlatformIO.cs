@@ -8,7 +8,7 @@ namespace ModIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        byte[] ReadFile(string path);
+        bool ReadFile(string path, out byte[] data);
 
         /// <summary>Writes a file.</summary>
         bool WriteFile(string path, byte[] data);
