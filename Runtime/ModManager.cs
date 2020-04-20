@@ -49,21 +49,23 @@ namespace ModIO
             ModManager.installationDirectory = settings.installationDirectory;
             ModManager.PERSISTENTDATA_FILEPATH = IOUtilities.CombinePath(settings.cacheDirectory, PERSISTENTDATA_FILENAME);
 
-            LocalDataStorage.ReadJSONFile<PersistentData>(PERSISTENTDATA_FILEPATH, (path, success, data) =>
+            bool success = false;
+            PersistentData data;
+
+            success = LocalDataStorage.ReadJSONFile(PERSISTENTDATA_FILEPATH, out data);
+
+            if(!success)
             {
-                if(!success)
-                {
-                    data = new PersistentData();
-                }
-                else if(data.lastRunVersion < ModIOVersion.Current)
-                {
-                    DataUpdater.UpdateFromVersion(data.lastRunVersion);
-                }
+                data = new PersistentData();
+            }
+            else if(data.lastRunVersion < ModIOVersion.Current)
+            {
+                DataUpdater.UpdateFromVersion(data.lastRunVersion);
+            }
 
-                ModManager.m_data = data;
+            ModManager.m_data = data;
 
-                LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
-            });
+            LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
         }
 
         // ---------[ MOD MANAGEMENT ]---------
