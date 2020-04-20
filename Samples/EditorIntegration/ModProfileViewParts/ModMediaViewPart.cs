@@ -125,13 +125,15 @@ namespace ModIO.EditorCode
                     }
                     else
                     {
-                        LocalDataStorage.ReadFileAsync(imageURL, (p,s,d) =>
+                        byte[] data = null;
+                        bool success = false;
+
+                        success = LocalDataStorage.ReadFile(imageURL, out data);
+
+                        if(success)
                         {
-                            if(s)
-                            {
-                                this.textureCache[imageFileName] = IOUtilities.ParseImageData(d);
-                            }
-                        });
+                            this.textureCache[imageFileName] = IOUtilities.ParseImageData(data);
+                        }
                     }
                 }
             }
@@ -245,12 +247,13 @@ namespace ModIO.EditorCode
                                                                          "",
                                                                          ModMediaViewPart.IMAGE_FILE_FILTER);
 
-                    Texture2D newTexture = null;
+                    bool success = false;
+                    byte[] data = null;
 
-                    LocalDataStorage.ReadFileAsync(path, (p,s,d) =>
-                    {
-                        if(s) { newTexture = IOUtilities.ParseImageData(d); }
-                    });
+                    success = LocalDataStorage.ReadFile(path, out data);
+
+                    Texture2D newTexture = null;
+                    if(success) { newTexture = IOUtilities.ParseImageData(data); }
 
                     if(newTexture != null)
                     {
@@ -314,12 +317,14 @@ namespace ModIO.EditorCode
             else
             {
                 string imageSource = GetGalleryImageSource(index);
+
+                byte[] data = null;
                 Texture2D imageData = null;
 
-                LocalDataStorage.ReadFileAsync(imageSource, (p,s,d) =>
+                if(LocalDataStorage.ReadFile(imageSource, out data))
                 {
-                    if(s) { imageData = IOUtilities.ParseImageData(d); }
-                });
+                    imageData = IOUtilities.ParseImageData(data);
+                }
 
                 this.textureCache.Add(imageFileName, imageData);
 
