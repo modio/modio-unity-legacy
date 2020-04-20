@@ -65,19 +65,6 @@ namespace ModIO
         }
 
         /// <summary>Writes a file.</summary>
-        public static void WriteFile(string path, byte[] data, WriteFileCallback callback)
-        {
-            #if DEBUG
-            if(data.Length == 0)
-            {
-                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + path);
-            }
-            #endif // DEBUG
-
-            LocalDataStorage.PLATFORM_IO_ASYNC.WriteFile(path, data, callback);
-        }
-
-        /// <summary>Writes a file.</summary>
         public static bool WriteFile(string path, byte[] data)
         {
             #if DEBUG
@@ -107,24 +94,6 @@ namespace ModIO
             }
 
             return success;
-        }
-
-        /// <summary>Writes a JSON file.</summary>
-        public static void WriteJSONFile<T>(string path, T jsonObject, WriteFileCallback callback)
-        {
-            byte[] data = IOUtilities.GenerateUTF8JSONData<T>(jsonObject);
-
-            if(data != null)
-            {
-                LocalDataStorage.WriteFile(path, data, callback);
-            }
-            else if(callback != null)
-            {
-                Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
-                                 + "\nFile: " + path + "\n\n");
-
-                callback.Invoke(path, false);
-            }
         }
 
         /// <summary>Deletes a file.</summary>
