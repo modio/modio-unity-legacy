@@ -18,16 +18,12 @@ namespace ModIO
         /// <summary>Defines the I/O functions to use for this platform.</summary>
         public static readonly IPlatformIO PLATFORM_IO;
 
-        /// <summary>Defines the async I/O functions to use for this platform.</summary>
-        public static readonly IPlatformIOAsync PLATFORM_IO_ASYNC;
-
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static LocalDataStorage()
         {
             #if true
                 LocalDataStorage.PLATFORM_IO = new SystemIOWrapper();
-                LocalDataStorage.PLATFORM_IO_ASYNC = new StandaloneIO();
             #endif
         }
 
