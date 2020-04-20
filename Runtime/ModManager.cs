@@ -65,7 +65,7 @@ namespace ModIO
 
             ModManager.m_data = data;
 
-            LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data, null);
+            LocalDataStorage.WriteJSONFile(PERSISTENTDATA_FILEPATH, ModManager.m_data);
         }
 
         // ---------[ MOD MANAGEMENT ]---------
