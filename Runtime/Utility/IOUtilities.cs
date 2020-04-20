@@ -381,12 +381,10 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.GetFileSizeAndHash() instead.")]
         public static string CalculateFileMD5Hash(string filePath)
         {
-            string hash = null;
+            Int64 byteCount;
+            string hash;
 
-            LocalDataStorage.GetFileSizeAndHash(filePath, (p,b,h) =>
-            {
-                hash = h;
-            });
+            LocalDataStorage.GetFileSizeAndHash(filePath, out byteCount, out hash);
 
             return hash;
         }

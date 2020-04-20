@@ -153,12 +153,6 @@ namespace ModIO
             return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
         }
 
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        public static void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
-        {
-            LocalDataStorage.PLATFORM_IO_ASYNC.GetFileSizeAndHash(path, callback);
-        }
-
         /// <summary>Gets a list of directories found at the given location.</summary>
         public static void GetDirectories(string path, GetDirectoriesCallback callback)
         {
