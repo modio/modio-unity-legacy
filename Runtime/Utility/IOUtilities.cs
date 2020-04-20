@@ -360,14 +360,7 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.DeleteFile() instead.")]
         public static bool DeleteFile(string filePath)
         {
-            bool success = false;
-
-            LocalDataStorage.DeleteFile(filePath, (p,s) =>
-            {
-                success = s;
-            });
-
-            return success;
+            return LocalDataStorage.DeleteFile(filePath);
         }
 
         /// <summary>[Obsolete] Deletes a directory.</summary>

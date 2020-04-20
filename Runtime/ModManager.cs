@@ -161,7 +161,7 @@ namespace ModIO
 
             if(removeArchiveOnSuccess)
             {
-                LocalDataStorage.DeleteFile(zipFilePath, null);
+                LocalDataStorage.DeleteFile(zipFilePath);
             }
 
             if(ModManager.onModBinaryInstalled != null)

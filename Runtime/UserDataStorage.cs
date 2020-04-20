@@ -250,21 +250,14 @@ namespace ModIO
             public void DeleteFile(string filePath, DeleteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(filePath));
-                bool fileExists = System.IO.File.Exists(filePath);
 
-                if(fileExists)
+                if(System.IO.File.Exists(filePath)
+                   && LocalDataStorage.DeleteFile(filePath))
                 {
-                    LocalDataStorage.DeleteFile(filePath, (path, success) =>
-                    {
-                        UnityEditor.AssetDatabase.Refresh();
-
-                        if(callback != null)
-                        {
-                            callback.Invoke(path, success);
-                        }
-                    });
+                    UnityEditor.AssetDatabase.Refresh();
                 }
-                else if(callback != null)
+
+                if(callback != null)
                 {
                     callback.Invoke(filePath, true);
                 }
@@ -641,7 +634,12 @@ namespace ModIO
             /// <summary>Deletes a user data file. (Standalone Application)</summary>
             public static void DeleteFile_Standalone(string filePath, DeleteFileCallback callback)
             {
-                LocalDataStorage.DeleteFile(filePath, callback);
+                bool success = LocalDataStorage.DeleteFile(filePath);
+
+                if(callback != null)
+                {
+                    callback.Invoke(filePath, success);
+                }
             }
 
             /// <summary>Clears all user data. (Standalone Application)</summary>
