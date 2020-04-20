@@ -188,6 +188,9 @@ namespace ModIO
 
         public class EditorIO : UserDataStorage.IPlatformIO
         {
+            /// <summary>The SystemIOWrapper for the EditorIO to work with.</summary>
+            public static readonly SystemIOWrapper BASE_IO = new SystemIOWrapper();
+
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                             "Editor Default Resources",
