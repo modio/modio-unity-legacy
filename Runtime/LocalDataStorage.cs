@@ -32,7 +32,6 @@ namespace ModIO
         }
 
         // ---------[ I/O Interface ]---------
-
         /// <summary>Reads a file.</summary>
         public static bool ReadFile(string path, out byte[] data)
         {
@@ -63,32 +62,6 @@ namespace ModIO
             }
 
             return success;
-        }
-
-        /// <summary>Reads a JSON file and parses the data as a new object instance.</summary>
-        public static void ReadJSONFile<T>(string path, ReadJSONFileCallback<T> callback)
-        {
-            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(path, (p, success, data) =>
-            {
-                T jsonObject;
-
-                if(success)
-                {
-                    if(!IOUtilities.TryParseUTF8JSONData<T>(data, out jsonObject))
-                    {
-                        success = false;
-
-                        Debug.LogWarning("[mod.io] Failed translate file data into JSON Object."
-                                         + "\nFile: " + path + "\n\n");
-                    }
-                }
-                else
-                {
-                    jsonObject = default(T);
-                }
-
-                callback.Invoke(path, success, jsonObject);
-            });
         }
 
         /// <summary>Writes a file.</summary>
