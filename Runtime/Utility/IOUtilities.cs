@@ -367,14 +367,7 @@ namespace ModIO
         [Obsolete("Use LocalDataStorage.DeleteDirectory() instead.")]
         public static bool DeleteDirectory(string directoryPath)
         {
-            bool success = false;
-
-            LocalDataStorage.DeleteDirectory(directoryPath, (p,s) =>
-            {
-                success = s;
-            });
-
-            return success;
+            return LocalDataStorage.DeleteDirectory(directoryPath);
         }
 
         /// <summary>[Obsolete] Gets the size (in bytes) of a given file.</summary>

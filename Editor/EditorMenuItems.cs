@@ -19,17 +19,14 @@ namespace ModIO.EditorCode
         [MenuItem("Tools/mod.io/Debugging/Clear All Cached Data", false)]
         public static void ClearCache()
         {
-            LocalDataStorage.DeleteDirectory(CacheClient.cacheDirectory, (path, success) =>
+            if(LocalDataStorage.DeleteDirectory(CacheClient.cacheDirectory))
             {
-                if(success)
-                {
-                    Debug.Log("[mod.io] Cache Cleared.");
-                }
-                else
-                {
-                    Debug.Log("[mod.io] Failed to clear cache.");
-                }
-            });
+                Debug.Log("[mod.io] Cache Cleared.");
+            }
+            else
+            {
+                Debug.Log("[mod.io] Failed to clear cache.");
+            }
         }
 
         [MenuItem("Tools/mod.io/Debugging/Clear All User Data", false)]
@@ -78,33 +75,27 @@ namespace ModIO.EditorCode
         {
             string modDir = IOUtilities.CombinePath(CacheClient.cacheDirectory, "mods");
 
-            LocalDataStorage.DeleteDirectory(modDir, (path, success) =>
+            if(LocalDataStorage.DeleteDirectory(modDir))
             {
-                if(success)
-                {
-                    Debug.Log("[mod.io] Cached Mod Data Deleted.");
-                }
-                else
-                {
-                    Debug.Log("[mod.io] Failed to clear cached Mod Data.");
-                }
-            });
+                Debug.Log("[mod.io] Cached Mod Data Deleted.");
+            }
+            else
+            {
+                Debug.Log("[mod.io] Failed to clear cached Mod Data.");
+            }
         }
 
         [MenuItem("Tools/mod.io/Debugging/Delete Installed Mods", false)]
         public static void RemoveAllInstalledMods()
         {
-            LocalDataStorage.DeleteDirectory(ModManager.installationDirectory, (path, success) =>
+            if(LocalDataStorage.DeleteDirectory(ModManager.installationDirectory))
             {
-                if(success)
-                {
-                    Debug.Log("[mod.io] Mod Installation Data removed.");
-                }
-                else
-                {
-                    Debug.Log("[mod.io] Failed to removed installed mods.");
-                }
-            });
+                Debug.Log("[mod.io] Mod Installation Data removed.");
+            }
+            else
+            {
+                Debug.Log("[mod.io] Failed to removed installed mods.");
+            }
         }
 
         [MenuItem("Tools/mod.io/Update ALL Color Scheme Applicators", false)]

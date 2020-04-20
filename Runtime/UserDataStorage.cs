@@ -290,12 +290,14 @@ namespace ModIO
             /// <summary>Clears all user data. (Unity Editor)</summary>
             public void ClearAllData(ClearAllDataCallback callback)
             {
-                LocalDataStorage.DeleteDirectory(EDITOR_RESOURCES_FOLDER, (path, success) =>
+                bool success = LocalDataStorage.DeleteDirectory(EDITOR_RESOURCES_FOLDER);
+
+                if(success)
                 {
                     UnityEditor.AssetDatabase.Refresh();
+                };
 
-                    if(callback != null) { callback.Invoke(success); }
-                });
+                if(callback != null) { callback.Invoke(success); }
             }
 
             /// <summary>Checks whether a file exists</summary>
@@ -645,10 +647,9 @@ namespace ModIO
             /// <summary>Clears all user data. (Standalone Application)</summary>
             public static void ClearAllData_Standalone(ClearAllDataCallback callback)
             {
-                LocalDataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER, (path, success) =>
-                {
-                    if(callback != null) { callback.Invoke(success); }
-                });
+                bool success = LocalDataStorage.DeleteDirectory(UserDataStorage.STANDALONE_USERS_FOLDER);
+
+                if(callback != null) { callback.Invoke(success); }
             }
 
         #endif

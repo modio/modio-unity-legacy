@@ -20,7 +20,7 @@ namespace ModIO
         /// <summary>Moves a file.</summary>
         bool MoveFile(string source, string destination);
 
-        /// <summary>Gets the size of a file.</summary>
+        /// <summary>Checks for the existence of a file.</summary>
         bool GetFileExists(string path);
 
         /// <summary>Gets the size of a file.</summary>

@@ -113,7 +113,7 @@ namespace ModIO
                                  + "\nLocation: " + tempLocation + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
 
-                LocalDataStorage.DeleteDirectory(tempLocation, null);
+                LocalDataStorage.DeleteDirectory(tempLocation);
 
                 return false;
             }
@@ -126,7 +126,7 @@ namespace ModIO
                 Debug.LogWarning("[mod.io] Unable to extract binary to the mod install folder."
                                  + "\nFailed to uninstall other versions of this mod.");
 
-                LocalDataStorage.DeleteDirectory(tempLocation, null);
+                LocalDataStorage.DeleteDirectory(tempLocation);
 
                 return false;
             }
@@ -154,7 +154,7 @@ namespace ModIO
                                  + "\nDest: " + installDirectory + "\n\n"
                                  + Utility.GenerateExceptionDebugString(e));
 
-                LocalDataStorage.DeleteDirectory(tempLocation, null);
+                LocalDataStorage.DeleteDirectory(tempLocation);
 
                 return false;
             }
