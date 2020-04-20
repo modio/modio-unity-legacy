@@ -32,11 +32,6 @@ namespace ModIO
         }
 
         // ---------[ I/O Interface ]---------
-        /// <summary>Reads a file.</summary>
-        public static void ReadFileAsync(string path, ReadFileCallback callback)
-        {
-            LocalDataStorage.PLATFORM_IO_ASYNC.ReadFile(path, callback);
-        }
 
         /// <summary>Reads a file.</summary>
         public static bool ReadFile(string path, out byte[] data)
