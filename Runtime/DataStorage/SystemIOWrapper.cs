@@ -515,17 +515,9 @@ namespace ModIO
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
         {
-            string userDir = SystemIOWrapper.USER_DIR_ROOT;
-
-            if(!string.IsNullOrEmpty(platformUserId))
-            {
-                string folderName = IOUtilities.MakeValidFileName(platformUserId);
-                userDir = IOUtilities.CombinePath(SystemIOWrapper.USER_DIR_ROOT, folderName);
-            }
-            this.userDir = userDir;
+            this.userDir = this.GenerateActiveUserDirectory(platformUserId);
 
             bool success = this.CreateDirectory(this.userDir);
-
             if(callback != null)
             {
                 callback.Invoke(platformUserId, success);
@@ -533,15 +525,29 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
+        public virtual void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
         {
-            SetActiveUserCallback<string> callbackTranslator = null;
+            this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+
+            bool success = this.CreateDirectory(this.userDir);
             if(callback != null)
             {
-                callbackTranslator = (uid, success) => callback(platformUserId, success);
+                callback.Invoke(platformUserId, success);
+            }
+        }
+
+        /// <summary>Determines the user directory for a given user id..</summary>
+        protected virtual string GenerateActiveUserDirectory(string platformUserId)
+        {
+            string userDir = SystemIOWrapper.USER_DIR_ROOT;
+
+            if(!string.IsNullOrEmpty(platformUserId))
+            {
+                string folderName = IOUtilities.MakeValidFileName(platformUserId);
+                userDir = IOUtilities.CombinePath(SystemIOWrapper.USER_DIR_ROOT, folderName);
             }
 
-            this.SetActiveUser(platformUserId.ToString("x8"), callbackTranslator);
+            return userDir;
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
