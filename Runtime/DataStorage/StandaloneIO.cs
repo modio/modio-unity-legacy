@@ -9,7 +9,7 @@ using ModIO.DataStorageCallbacks;
 namespace ModIO
 {
     /// <summary>Defines the standalone i/o functionality.</summary>
-    public class StandaloneIO : IPlatformIOAsync
+    public class StandaloneIO : IPlatformUserDataIO
     {
         /// <summary>Reads a file.</summary>
         public void ReadFile(string filePath, ReadFileCallback callback)

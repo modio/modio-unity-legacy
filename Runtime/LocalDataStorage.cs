@@ -151,6 +151,5 @@ namespace ModIO
         {
             return LocalDataStorage.PLATFORM_IO.GetDirectories(path);
         }
-
     }
 }
