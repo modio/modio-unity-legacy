@@ -66,7 +66,7 @@ namespace ModIO
         {
             // Select the platform appropriate functions
             #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
-                UserDataStorage.PLATFORM_IO = new EditorIO();
+                UserDataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
             #elif MODIO_FACEPUNCH_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Facepunch();
             #elif MODIO_STEAMWORKSNET_SUPPORT
@@ -183,56 +183,6 @@ namespace ModIO
 
         // ---------[ Platform Specific Functionality ]---------
         #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
-
-        public class EditorIO : SystemIOWrapper_Editor, UserDataStorage.IPlatformIO
-        {
-            /// <summary>Defines the base directory for the user-specific data.</summary>
-            public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
-                                                                                            "Editor Default Resources",
-                                                                                            "mod.io");
-
-            /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            public void InitializeForUser(string platformUserIdentifier, InitializationCallback callback)
-            {
-                string userDir = EditorIO.EDITOR_RESOURCES_FOLDER;
-
-                if(!string.IsNullOrEmpty(platformUserIdentifier))
-                {
-                    string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
-                    userDir = IOUtilities.CombinePath(EDITOR_RESOURCES_FOLDER,
-                                                      folderName);
-                }
-
-                UserDataStorage.activeUserDirectory = userDir;
-                UserDataStorage.isInitialized = true;
-
-                Debug.Log("[mod.io] User Data Directory set: " + UserDataStorage.activeUserDirectory);
-
-                if(callback != null)
-                {
-                    callback.Invoke();
-                }
-            }
-
-            /// <summary>Initializes the data storage system for a given user. (Unity Editor)</summary>
-            public void InitializeForUser(int platformUserIdentifier, InitializationCallback callback)
-            {
-                UserDataStorage.InitializeForUser(platformUserIdentifier.ToString("x8"), callback);
-            }
-
-            /// <summary>Clears all user data. (Unity Editor)</summary>
-            public void ClearAllData(ClearAllDataCallback callback)
-            {
-                bool success = LocalDataStorage.DeleteDirectory(EDITOR_RESOURCES_FOLDER);
-
-                if(success)
-                {
-                    UnityEditor.AssetDatabase.Refresh();
-                };
-
-                if(callback != null) { callback.Invoke(success); }
-            }
-        }
 
         #elif MODIO_FACEPUNCH_SUPPORT
 
