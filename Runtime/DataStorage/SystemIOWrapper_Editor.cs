@@ -110,7 +110,7 @@ namespace ModIO
                                                                                         "mod.io");
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(string platformUserId, DataStorageCallbacks.SetActiveUserCallback<string> callback)
+        public override void SetActiveUser(string platformUserId, DataStorageCallbacks.SetActiveUserCallback<string> callback)
         {
             base.SetActiveUser(platformUserId, callback);
 
@@ -121,7 +121,7 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public virtual void SetActiveUser(int platformUserId, DataStorageCallbacks.SetActiveUserCallback<int> callback)
+        public override void SetActiveUser(int platformUserId, DataStorageCallbacks.SetActiveUserCallback<int> callback)
         {
             base.SetActiveUser(platformUserId, callback);
 
@@ -132,7 +132,7 @@ namespace ModIO
         }
 
         /// <summary>Determines the user directory for a given user id..</summary>
-        protected virtual string GenerateActiveUserDirectory(string platformUserId)
+        protected override string GenerateActiveUserDirectory(string platformUserId)
         {
             string userDir = SystemIOWrapper_Editor.EDITOR_RESOURCES_FOLDER;
 
@@ -146,7 +146,7 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
-        public virtual void ClearActiveUserData(DataStorageCallbacks.ClearActiveUserDataCallback callback)
+        public override void ClearActiveUserData(DataStorageCallbacks.ClearActiveUserDataCallback callback)
         {
             base.ClearActiveUserData(callback);
 
