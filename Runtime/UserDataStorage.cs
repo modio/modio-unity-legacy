@@ -51,7 +51,7 @@ namespace ModIO
 
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
-        public static readonly IPlatformIO PLATFORM_IO;
+        public static readonly IPlatformUserDataIO PLATFORM_IO;
 
         // ---------[ Fields ]---------
         /// <summary>Has UserDataStorage been initialized?</summary>
@@ -74,18 +74,6 @@ namespace ModIO
             #else
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Standalone();
             #endif
-        }
-
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void InitializeForUser(string platformUserIdentifier = null, InitializationCallback callback = null)
-        {
-            UserDataStorage.PLATFORM_IO.InitializeForUser(platformUserIdentifier, callback);
-        }
-
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
-        public static void InitializeForUser(int platformUserIdentifier, InitializationCallback callback = null)
-        {
-            UserDataStorage.PLATFORM_IO.InitializeForUser(platformUserIdentifier, callback);
         }
 
         // ---------[ I/O Interface ]---------
@@ -172,14 +160,6 @@ namespace ModIO
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
             UserDataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
-        }
-
-        /// <summary>Function for clearing all user data.</summary>
-        public static void ClearAllData(ClearAllDataCallback callback)
-        {
-            Debug.Assert(UserDataStorage.isInitialized);
-
-            UserDataStorage.PLATFORM_IO.ClearAllData(callback);
         }
 
         // ---------[ Platform Specific Functionality ]---------
@@ -563,5 +543,29 @@ namespace ModIO
             }
 
         #endif
+
+        // ---------[ Obsolete ]---------
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        [System.Obsolete()]
+        public static void InitializeForUser(string platformUserIdentifier = null, InitializationCallback callback = null)
+        {
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserIdentifier, null);
+        }
+
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        [System.Obsolete()]
+        public static void InitializeForUser(int platformUserIdentifier, InitializationCallback callback = null)
+        {
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserIdentifier, null);
+        }
+
+        /// <summary>Function for clearing all user data.</summary>
+        [System.Obsolete()]
+        public static void ClearAllData(ClearAllDataCallback callback)
+        {
+            Debug.Assert(UserDataStorage.isInitialized);
+
+            UserDataStorage.PLATFORM_IO.ClearActiveUserData(null);
+        }
     }
 }
