@@ -152,7 +152,7 @@ namespace ModIO
     #if MODIO_FACEPUNCH_SUPPORT
 
         /// <summary>Facepunch User Data I/O interface</summary>
-        public class FacepunchUserDataIO
+        public class FacepunchUserDataIO : IPlatformUserDataIO
         {
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath("mod.io");
@@ -160,8 +160,12 @@ namespace ModIO
             /// <summary>The directory for the active user's data.</summary>
             public string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
 
+            /// <summary>Gets the directory for the active user's data.</summary>
+            public string activeUserDirectory { get; set; }
+
+            // --- Initialization ---
             /// <summary>Initializes the storage system for the given user.</summary>
-            public virtual void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
+            public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
             {
                 this.userDir = this.GenerateActiveUserDirectory(platformUserId);
 
@@ -172,7 +176,7 @@ namespace ModIO
             }
 
             /// <summary>Initializes the storage system for the given user.</summary>
-            public virtual void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
+            public void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
             {
                 this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
 
@@ -183,7 +187,7 @@ namespace ModIO
             }
 
             /// <summary>Determines the user directory for a given user id..</summary>
-            protected virtual string GenerateActiveUserDirectory(string platformUserId)
+            protected string GenerateActiveUserDirectory(string platformUserId)
             {
                 string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
 
@@ -196,8 +200,9 @@ namespace ModIO
                 return userDir;
             }
 
-            /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
-            public static void ReadFile(string path, ReadFileCallback callback)
+            // --- File I/O ---
+            /// <summary>Reads a file.</summary>
+            public void ReadFile(string path, ReadFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(path));
                 Debug.Assert(callback != null);
@@ -211,8 +216,8 @@ namespace ModIO
                 callback.Invoke(path, (data != null), data);
             }
 
-            /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
-            public static void WriteFile(string path, byte[] data, WriteFileCallback callback)
+            /// <summary>Writes a file.</summary>
+            public void WriteFile(string path, byte[] data, WriteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(path));
                 Debug.Assert(data != null);
@@ -225,8 +230,9 @@ namespace ModIO
                 }
             }
 
-            /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            public static void DeleteFile(string path, DeleteFileCallback callback)
+            // --- File Management ---
+            /// <summary>Deletes a file.</summary>
+            public void DeleteFile(string path, DeleteFileCallback callback)
             {
                 Debug.Assert(!string.IsNullOrEmpty(path));
 
@@ -243,8 +249,57 @@ namespace ModIO
                 }
             }
 
-            /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
-            public static void ClearActiveUserData(ClearActiveUserDataCallback callback)
+            /// <summary>Moves a file.</summary>
+            public void MoveFile(string source, string destination, MoveFileCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Checks for the existence of a file.</summary>
+            public void GetFileExists(string path, GetFileExistsCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Gets the size of a file.</summary>
+            public void GetFileSize(string path, GetFileSizeCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Gets the size and md5 hash of a file.</summary>
+            public void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            // --- Directory Management ---
+            /// <summary>Creates a directory.</summary>
+            public void CreateDirectory(string path, CreateDirectoryCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Deletes a directory.</summary>
+            public void DeleteDirectory(string path, DeleteDirectoryCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Moves a directory.</summary>
+            public void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Gets the sub-directories at a location.</summary>
+            public void GetDirectories(string path, GetDirectoriesCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Clears all of the active user's data.</summary>
+            public void ClearActiveUserData(ClearActiveUserDataCallback callback)
             {
                 var steamFiles = Steamworks.SteamRemoteStorage.Files;
                 bool success = true;
