@@ -44,4 +44,11 @@ namespace ModIO.DataStorageCallbacks
 
     /// <summary>Delegate for GetDirectories callback.</summary>
     public delegate void GetDirectoriesCallback(string path, IList<string> directories);
+
+    // --- User Data Callbacks ---
+    /// <summary>Delegate for SetActiveUser callback.</summary>
+    public delegate void SetActiveUserCallback<T>(T userId, bool success);
+
+    /// <summary>Delegate for ClearActiveUserData callback.</summary>
+    public delegate void ClearActiveUserDataCallback(bool success);
 }

@@ -495,5 +495,57 @@ namespace ModIO
             IList<string> subDirs = this.GetDirectories(path);
             callback.Invoke(path, subDirs);
         }
+
+        // --- User Data Specific ---
+        /// <summary>Root directory for the user-specific data.</summary>
+        public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
+                                                                              "modio-" + PluginSettings.data.gameId,
+                                                                              "users");
+
+        /// <summary>The directory for the active user's data.</summary>
+        public string userDir = SystemIOWrapper.USER_DIR_ROOT;
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
+        {
+            string userDir = SystemIOWrapper.USER_DIR_ROOT;
+
+            if(!string.IsNullOrEmpty(platformUserId))
+            {
+                string folderName = IOUtilities.MakeValidFileName(platformUserId);
+                userDir = IOUtilities.CombinePath(SystemIOWrapper.USER_DIR_ROOT, folderName);
+            }
+            this.userDir = userDir;
+
+            bool success = this.CreateDirectory(this.userDir);
+
+            if(callback != null)
+            {
+                callback.Invoke(platformUserId, success);
+            }
+        }
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
+        {
+            SetActiveUserCallback<string> callbackTranslator = null;
+            if(callback != null)
+            {
+                callbackTranslator = (uid, success) => callback(platformUserId, success);
+            }
+
+            this.SetActiveUser(platformUserId.ToString("x8"), callbackTranslator);
+        }
+
+        /// <summary>Deletes all of the active user's data.</summary>
+        public void ClearActiveUserData(ClearActiveUserDataCallback callback)
+        {
+            bool success = this.DeleteDirectory(this.userDir);
+
+            if(callback != null)
+            {
+                callback.Invoke(success);
+            }
+        }
     }
 }
