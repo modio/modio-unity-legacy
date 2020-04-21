@@ -76,6 +76,19 @@ namespace ModIO
             #endif
         }
 
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        public static void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
+        {
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
+        }
+
+        /// <summary>Initializes the data storage functionality for a given user.</summary>
+        public static void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
+        {
+            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
+        }
+
+
         // ---------[ I/O Interface ]---------
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadFile(string filePathRelative, ReadFileCallback callback)
@@ -160,6 +173,12 @@ namespace ModIO
 
             string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
             UserDataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
+        }
+
+        /// <summary>Function for clearing of the active user's data.</summary>
+        public static void ClearActiveUserData(ClearActiveUserDataCallback callback)
+        {
+            UserDataStorage.PLATFORM_IO.ClearActiveUserData(callback);
         }
 
         // ---------[ Platform Specific Functionality ]---------

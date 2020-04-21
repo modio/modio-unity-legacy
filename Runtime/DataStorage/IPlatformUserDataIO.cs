@@ -51,7 +51,7 @@ namespace ModIO
         /// <summary>Initializes the storage system for the given user.</summary>
         void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
 
-        /// <summary>Clears all of the actuve user's data.</summary>
+        /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);
     }
 }
