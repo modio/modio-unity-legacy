@@ -14,9 +14,6 @@ namespace ModIO.DataStorageCallbacks
     public delegate void WriteFileCallback(string path, bool success);
 
     // --- File Management ---
-    /// <summary>Delegate for CreateFile callbacks.</summary>
-    public delegate void CreateFileCallback(string path, bool success);
-
     /// <summary>Delegate for DeleteFile callbacks.</summary>
     public delegate void DeleteFileCallback(string path, bool success);
 
@@ -30,7 +27,7 @@ namespace ModIO.DataStorageCallbacks
     public delegate void GetFileSizeCallback(string path, Int64 byteCount);
 
     /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
-    public delegate void GetFileSizeAndHashCallback(string path, Int64 byteCount, string md5Hash);
+    public delegate void GetFileSizeAndHashCallback(string path, bool success, Int64 byteCount, string md5Hash);
 
     // --- Directory Management ---
     /// <summary>Delegate for CreateDirectory callbacks.</summary>

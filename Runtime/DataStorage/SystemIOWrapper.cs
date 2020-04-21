@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using ModIO.DataStorageCallbacks;
+
 using Debug = UnityEngine.Debug;
 
 namespace ModIO
 {
     /// <summary>Wraps the System.IO functionality in an IPlatformIO class.</summary>
-    public class SystemIOWrapper : IPlatformIO
+    public class SystemIOWrapper : IPlatformIO, IPlatformUserDataIO
     {
+        // ---------[ IPlatformIO Interface ]---------
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         public virtual bool ReadFile(string path, out byte[] data)
@@ -390,6 +393,107 @@ namespace ModIO
             }
 
             return subDirs;
+        }
+
+        // ---------[ IPlatformUserDataIO Interface ]---------
+        // --- File I/O ---
+        /// <summary>Reads a file.</summary>
+        public void ReadFile(string path, ReadFileCallback callback)
+        {
+            Debug.Assert(callback != null);
+
+            byte[] data;
+            bool success = this.ReadFile(path, out data);
+
+            callback.Invoke(path, success, data);
+        }
+
+        /// <summary>Writes a file.</summary>
+        public void WriteFile(string path, byte[] data, WriteFileCallback callback)
+        {
+            bool success = this.WriteFile(path, data);
+
+            if(callback != null) { callback.Invoke(path, success); }
+        }
+
+        // --- File Management ---
+        /// <summary>Deletes a file.</summary>
+        public void DeleteFile(string path, DeleteFileCallback callback)
+        {
+            bool success = this.DeleteFile(path);
+
+            if(callback != null) { callback.Invoke(path, success); }
+        }
+
+        /// <summary>Moves a file.</summary>
+        public void MoveFile(string source, string destination, MoveFileCallback callback)
+        {
+            bool success = this.MoveFile(source, destination);
+
+            if(callback != null) { callback.Invoke(source, destination, success); }
+        }
+
+        /// <summary>Checks for the existence of a file.</summary>
+        public void GetFileExists(string path, GetFileExistsCallback callback)
+        {
+            Debug.Assert(callback != null);
+
+            bool doesExist = this.GetFileExists(path);
+            callback.Invoke(path, doesExist);
+        }
+
+        /// <summary>Gets the size of a file.</summary>
+        public void GetFileSize(string path, GetFileSizeCallback callback)
+        {
+            Debug.Assert(callback != null);
+
+            Int64 byteCount = this.GetFileSize(path);
+            callback.Invoke(path, byteCount);
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        public void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
+        {
+            Debug.Assert(callback != null);
+
+            Int64 byteCount;
+            string md5Hash;
+            bool success = this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+            callback.Invoke(path, success, byteCount, md5Hash);
+        }
+
+        // --- Directory Management ---
+        /// <summary>Creates a directory.</summary>
+        public void CreateDirectory(string path, CreateDirectoryCallback callback)
+        {
+            bool success = this.CreateDirectory(path);
+
+            if(callback != null) { callback.Invoke(path, success); }
+        }
+
+        /// <summary>Deletes a directory.</summary>
+        public void DeleteDirectory(string path, DeleteDirectoryCallback callback)
+        {
+            bool success = this.DeleteDirectory(path);
+
+            if(callback != null) { callback.Invoke(path, success); }
+        }
+
+        /// <summary>Moves a directory.</summary>
+        public void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
+        {
+            bool success = this.MoveDirectory(source, destination);
+
+            if(callback != null) { callback.Invoke(source, destination, success); }
+        }
+
+        /// <summary>Gets the sub-directories at a location.</summary>
+        public void GetDirectories(string path, GetDirectoriesCallback callback)
+        {
+            Debug.Assert(callback != null);
+
+            IList<string> subDirs = this.GetDirectories(path);
+            callback.Invoke(path, subDirs);
         }
     }
 }
