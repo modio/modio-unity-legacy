@@ -55,7 +55,6 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserId, callback);
         }
 
-
         // ---------[ I/O Interface ]---------
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadFile(string filePathRelative, ReadFileCallback callback)
@@ -147,12 +146,14 @@ namespace ModIO
         {
             UserDataStorage.PLATFORM_IO.ClearActiveUserData(callback);
         }
+    }
 
-        // ---------[ Platform Specific Functionality ]---------
-        #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
+    // ---------[ Further User Data Interfaces ]---------
+    #if MODIO_FACEPUNCH_SUPPORT
 
-        #elif MODIO_FACEPUNCH_SUPPORT
-
+        /// <summary>Facepunch User Data I/O interface</summary>
+        public class FacepunchUserDataIO
+        {
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
 
@@ -264,9 +265,15 @@ namespace ModIO
 
                 if(callback != null) { callback.Invoke(success); }
             }
+        }
 
-        #elif MODIO_STEAMWORKSNET_SUPPORT
+    #endif // MODIO_FACEPUNCH_SUPPORT
 
+    #if MODIO_STEAMWORKSNET_SUPPORT
+
+        /// <summary>Steamworks.NET </summary>
+        public class SteamworksNETUserDataIO
+        {
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
 
@@ -389,8 +396,9 @@ namespace ModIO
 
                 if(callback != null) { callback.Invoke(success); }
             }
+        }
+
+    #endif // MODIO_STEAMWORKSNET_SUPPORT
 
 
-
-    }
 }
