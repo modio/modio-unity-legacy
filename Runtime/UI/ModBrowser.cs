@@ -181,10 +181,7 @@ namespace ModIO.UI
 
             if(!UserDataStorage.isInitialized)
             {
-                bool isDone = false;
-                UserDataStorage.InitializeForUser(null, () => { isDone = true; });
-
-                while(!isDone) { yield return null; }
+                UserDataStorage.isInitialized = true;
             }
 
             if(UserDataStorage.isInitialized)

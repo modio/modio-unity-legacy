@@ -41,7 +41,6 @@ namespace ModIO
             // check if the file already exists
             byte[] fileData = null;
 
-            UserDataStorage.InitializeForUser(null, () => {});
             UserDataStorage.ReadFile(LocalUser.FILENAME, (path, success, data) => fileData = data);
 
             if(fileData != null && fileData.Length > 0)
