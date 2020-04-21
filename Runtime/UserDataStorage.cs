@@ -155,111 +155,105 @@ namespace ModIO
         public class FacepunchUserDataIO
         {
             /// <summary>Defines the base directory for the user-specific data.</summary>
-            public static readonly string FACEPUNCH_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
+            public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath("mod.io");
 
-            /// <summary>Returns the platform specific functions. (Facepunch.Steamworks)</summary>
-            public static PlatformFunctions GetPlatformFunctions_Facepunch()
+            /// <summary>The directory for the active user's data.</summary>
+            public string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
+
+            /// <summary>Initializes the storage system for the given user.</summary>
+            public virtual void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
             {
-                Debug.Log("[mod.io] User Data I/O being handled by Facepunch.Steamworks");
-
-                return new PlatformFunctions()
-                {
-                    InitializeWithInt = InitializeForUser_Facepunch,
-                    InitializeWithString = InitializeForUser_Facepunch,
-                    ReadFile = ReadFile_Facepunch,
-                    WriteFile = WriteFile_Facepunch,
-                    DeleteFile = DeleteFile_Facepunch,
-                    ClearAllData = ClearAllData_Facepunch,
-                };
-            }
-
-            /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
-            public static void InitializeForUser_Facepunch(string platformUserIdentifier, InitializationCallback callback)
-            {
-                string userDir = UserDataStorage.FACEPUNCH_USER_DIRECTORY;
-
-                if(!string.IsNullOrEmpty(platformUserIdentifier))
-                {
-                    string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
-                    userDir = IOUtilities.CombinePath(FACEPUNCH_USER_DIRECTORY,
-                                                      folderName);
-                }
-
-                UserDataStorage.activeUserDirectory = userDir;
-                UserDataStorage.isInitialized = true;
-
-                Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+                this.userDir = this.GenerateActiveUserDirectory(platformUserId);
 
                 if(callback != null)
                 {
-                    callback.Invoke();
+                    callback.Invoke(platformUserId, true);
                 }
             }
 
-            /// <summary>Initializes the data storage system for a given user. (Facepunch.Steamworks)</summary>
-            public static void InitializeForUser_Facepunch(int platformUserIdentifier, InitializationCallback callback)
+            /// <summary>Initializes the storage system for the given user.</summary>
+            public virtual void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
             {
-                UserDataStorage.InitializeForUser_Facepunch(platformUserIdentifier.ToString("x8"), callback);
+                this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+
+                if(callback != null)
+                {
+                    callback.Invoke(platformUserId, true);
+                }
+            }
+
+            /// <summary>Determines the user directory for a given user id..</summary>
+            protected virtual string GenerateActiveUserDirectory(string platformUserId)
+            {
+                string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
+
+                if(!string.IsNullOrEmpty(platformUserId))
+                {
+                    string folderName = IOUtilities.MakeValidFileName(platformUserId);
+                    userDir = IOUtilities.CombinePath(FacepunchUserDataIO.USER_DIR_ROOT, folderName);
+                }
+
+                return userDir;
             }
 
             /// <summary>Loads the user data file. (Facepunch.Steamworks)</summary>
-            public static void ReadFile_Facepunch(string filePath, ReadFileCallback callback)
+            public static void ReadFile(string path, ReadFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(!string.IsNullOrEmpty(path));
                 Debug.Assert(callback != null);
 
                 byte[] data = null;
-                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
+                if(Steamworks.SteamRemoteStorage.FileExists(path))
                 {
-                    data = Steamworks.SteamRemoteStorage.FileRead(filePath);
+                    data = Steamworks.SteamRemoteStorage.FileRead(path);
                 }
 
-                callback.Invoke(true, data, filePath);
+                callback.Invoke(path, (data != null), data);
             }
 
             /// <summary>Writes a user data file. (Facepunch.Steamworks)</summary>
-            public static void WriteFile_Facepunch(string filePath, byte[] data, WriteFileCallback callback)
+            public static void WriteFile(string path, byte[] data, WriteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(!string.IsNullOrEmpty(path));
                 Debug.Assert(data != null);
 
-                bool success = Steamworks.SteamRemoteStorage.FileWrite(filePath, data);
+                bool success = Steamworks.SteamRemoteStorage.FileWrite(path, data);
 
                 if(callback != null)
                 {
-                    callback.Invoke(success, filePath);
+                    callback.Invoke(path, success);
                 }
             }
 
             /// <summary>Deletes a user data file. (Facepunch.Steamworks)</summary>
-            public static void DeleteFile_Facepunch(string filePath, DeleteFileCallback callback)
+            public static void DeleteFile(string path, DeleteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(!string.IsNullOrEmpty(path));
 
                 bool success = true;
 
-                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
+                if(Steamworks.SteamRemoteStorage.FileExists(path))
                 {
-                    success = Steamworks.SteamRemoteStorage.FileDelete(filePath);
+                    success = Steamworks.SteamRemoteStorage.FileDelete(path);
                 }
 
                 if(callback != null)
                 {
-                    callback.Invoke(success, filePath);
+                    callback.Invoke(path, success);
                 }
             }
 
             /// <summary>Clears all user data. (Facepunch.Steamworks)</summary>
-            public static void ClearAllData_Facepunch(ClearAllDataCallback callback)
+            public static void ClearActiveUserData(ClearActiveUserDataCallback callback)
             {
                 var steamFiles = Steamworks.SteamRemoteStorage.Files;
                 bool success = true;
 
-                foreach(string filePath in steamFiles)
+                foreach(string path in steamFiles)
                 {
-                    if(filePath.StartsWith(UserDataStorage.FACEPUNCH_USER_DIRECTORY))
+                    if(path.StartsWith(FacepunchUserDataIO.USER_DIR_ROOT))
                     {
-                        success = Steamworks.SteamRemoteStorage.FileDelete(filePath) && success;
+                        success = Steamworks.SteamRemoteStorage.FileDelete(path) && success;
                     }
                 }
 
