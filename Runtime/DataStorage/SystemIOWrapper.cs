@@ -506,7 +506,7 @@ namespace ModIO
         public string userDir = SystemIOWrapper.USER_DIR_ROOT;
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
+        public virtual void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
         {
             string userDir = SystemIOWrapper.USER_DIR_ROOT;
 
@@ -538,7 +538,7 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
-        public void ClearActiveUserData(ClearActiveUserDataCallback callback)
+        public virtual void ClearActiveUserData(ClearActiveUserDataCallback callback)
         {
             bool success = this.DeleteDirectory(this.userDir);
 

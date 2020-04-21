@@ -102,6 +102,29 @@ namespace ModIO
 
             return success;
         }
+
+        // ---------[ IPlatformUserDataIO Interface ]---------
+        /// <summary>Initializes the storage system for the given user.</summary>
+        public virtual void SetActiveUser(string platformUserId, DataStorageCallbacks.SetActiveUserCallback<string> callback)
+        {
+            base.SetActiveUser(platformUserId, callback);
+
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir))
+            {
+                AssetDatabase.Refresh();
+            }
+        }
+
+        /// <summary>Deletes all of the active user's data.</summary>
+        public virtual void ClearActiveUserData(DataStorageCallbacks.ClearActiveUserDataCallback callback)
+        {
+            base.ClearActiveUserData(callback);
+
+            if(SystemIOWrapper_Editor.IsPathWithinEditorAssetDatabase(this.userDir))
+            {
+                AssetDatabase.Refresh();
+            }
+        }
     }
 }
 
