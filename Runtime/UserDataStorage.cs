@@ -16,39 +16,6 @@ namespace ModIO
     /// <summary>Functions for user-specific data I/O.</summary>
     public static class UserDataStorage
     {
-        // ---------[ Nested Data-Types ]---------
-        // --- Callbacks ---
-        /// <summary>Delegate for the initialization callback.</summary>
-        public delegate void InitializationCallback();
-
-        /// <summary>Delegate for the ClearAllData callback.</summary>
-        public delegate void ClearAllDataCallback(bool success);
-
-        // --- I/O Functions ---
-        /// <summary>Delegate for initializing the storage system.</summary>
-        public delegate void InitializationStringDelegate(string platformUserIdentifier, InitializationCallback callback);
-
-        /// <summary>Delegate for initializing the storage system.</summary>
-        public delegate void InitializationIntDelegate(int platformUserIdentifier, InitializationCallback callback);
-
-        /// <summary>Delegate for clearing all data.</summary>
-        public delegate void ClearAllDataDelegate(ClearAllDataCallback callback);
-
-        // ---------[ I/O Functionality ]---------
-        /// <summary>Defines the functions needed for a complete platform IO.</summary>
-        public interface IPlatformIO : ModIO.IPlatformUserDataIO
-        {
-            // --- Fields ---
-            /// <summary>Delegate for initializing the storage system.</summary>
-            void InitializeForUser(string platformUserIdentifier, InitializationCallback callback);
-
-            /// <summary>Delegate for initializing the storage system.</summary>
-            void InitializeForUser(int platformUserIdentifier, InitializationCallback callback);
-
-            /// <summary>Delegate for clearing all data.</summary>
-            void ClearAllData(ClearAllDataCallback callback);
-        }
-
         // ---------[ Constants ]---------
         /// <summary>Defines the i/o functions to use for this platform.</summary>
         public static readonly IPlatformUserDataIO PLATFORM_IO;
@@ -512,29 +479,5 @@ namespace ModIO
             }
 
         #endif
-
-        // ---------[ Obsolete ]---------
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
-        [System.Obsolete()]
-        public static void InitializeForUser(string platformUserIdentifier = null, InitializationCallback callback = null)
-        {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserIdentifier, null);
-        }
-
-        /// <summary>Initializes the data storage functionality for a given user.</summary>
-        [System.Obsolete()]
-        public static void InitializeForUser(int platformUserIdentifier, InitializationCallback callback = null)
-        {
-            UserDataStorage.PLATFORM_IO.SetActiveUser(platformUserIdentifier, null);
-        }
-
-        /// <summary>Function for clearing all user data.</summary>
-        [System.Obsolete()]
-        public static void ClearAllData(ClearAllDataCallback callback)
-        {
-            Debug.Assert(UserDataStorage.isInitialized);
-
-            UserDataStorage.PLATFORM_IO.ClearActiveUserData(null);
-        }
     }
 }
