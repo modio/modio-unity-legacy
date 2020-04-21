@@ -183,14 +183,10 @@ namespace ModIO
         }
 
         // ---------[ Platform Specific Functionality ]---------
-
         #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
 
-        public class EditorIO : UserDataStorage.IPlatformIO
+        public class EditorIO : SystemIOWrapper_Editor, UserDataStorage.IPlatformIO
         {
-            /// <summary>The SystemIOWrapper for the EditorIO to work with.</summary>
-            public static readonly SystemIOWrapper BASE_IO = new SystemIOWrapper();
-
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string EDITOR_RESOURCES_FOLDER = IOUtilities.CombinePath(UnityEngine.Application.dataPath,
                                                                                             "Editor Default Resources",
@@ -225,68 +221,6 @@ namespace ModIO
                 UserDataStorage.InitializeForUser(platformUserIdentifier.ToString("x8"), callback);
             }
 
-            /// <summary>Read a user file. (Unity Editor)</summary>
-            public void ReadFile(string filePath, ReadFileCallback callback)
-            {
-                Debug.Assert(callback != null);
-
-                bool success = false;
-                byte[] data = null;
-
-                success = EditorIO.BASE_IO.ReadFile(filePath, out data);
-
-                callback.Invoke(filePath, success, data);
-            }
-
-            /// <summary>Write a user file. (Unity Editor)</summary>
-            public void WriteFile(string filePath, byte[] data, WriteFileCallback callback)
-            {
-                bool success = LocalDataStorage.WriteFile(filePath, data);
-
-                if(callback != null) { callback.Invoke(filePath, success); }
-            }
-
-            /// <summary>Delete a user file. (Unity Editor)</summary>
-            public void DeleteFile(string filePath, DeleteFileCallback callback)
-            {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
-
-                if(System.IO.File.Exists(filePath)
-                   && LocalDataStorage.DeleteFile(filePath))
-                {
-                    UnityEditor.AssetDatabase.Refresh();
-                }
-
-                if(callback != null)
-                {
-                    callback.Invoke(filePath, true);
-                }
-            }
-
-            /// <summary>Moves a file.</summary>
-            public void MoveFile(string sourceFilePath, string destinationFilePath, MoveFileCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Creates a directory.</summary>
-            public void CreateDirectory(string directoryPath, CreateDirectoryCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Deletes a directory.</summary>
-            public void DeleteDirectory(string directoryPath, DeleteDirectoryCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Moves a directory.</summary>
-            public void MoveDirectory(string sourcePath, string destinationPath, MoveDirectoryCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
             /// <summary>Clears all user data. (Unity Editor)</summary>
             public void ClearAllData(ClearAllDataCallback callback)
             {
@@ -298,30 +232,6 @@ namespace ModIO
                 };
 
                 if(callback != null) { callback.Invoke(success); }
-            }
-
-            /// <summary>Checks whether a file exists</summary>
-            public void GetFileExists(string filePath, GetFileExistsCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Gets the size of a file.</summary>
-            public void GetFileSize(string filePath, GetFileSizeCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Gets the size and md5 hash of a file.</summary>
-            public void GetFileSizeAndHash(string filePath, GetFileSizeAndHashCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Gets a list of directories found at the given location.</summary>
-            public void GetDirectories(string directoryPath, GetDirectoriesCallback callback)
-            {
-                throw new System.NotImplementedException();
             }
         }
 
