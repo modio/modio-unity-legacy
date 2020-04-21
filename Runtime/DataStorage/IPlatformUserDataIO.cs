@@ -40,5 +40,18 @@ namespace ModIO
 
         /// <summary>Gets the sub-directories at a location.</summary>
         void GetDirectories(string path, GetDirectoriesCallback callback);
+
+        // --- User Data Specific ---
+        /// <summary>Gets the directory for the active user's data.</summary>
+        string activeUserDirectory { get; set; }
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
+
+        /// <summary>Clears all of the actuve user's data.</summary>
+        void ClearActiveUserData(ClearActiveUserDataCallback callback);
     }
 }
