@@ -110,7 +110,7 @@ namespace ModIO
                                                                                         "mod.io");
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(string platformUserId, DataStorageCallbacks.SetActiveUserCallback<string> callback)
+        public override void SetActiveUser(string platformUserId, UserDataIOCallbacks.SetActiveUserCallback<string> callback)
         {
             base.SetActiveUser(platformUserId, callback);
 
@@ -121,7 +121,7 @@ namespace ModIO
         }
 
         /// <summary>Initializes the storage system for the given user.</summary>
-        public override void SetActiveUser(int platformUserId, DataStorageCallbacks.SetActiveUserCallback<int> callback)
+        public override void SetActiveUser(int platformUserId, UserDataIOCallbacks.SetActiveUserCallback<int> callback)
         {
             base.SetActiveUser(platformUserId, callback);
 
@@ -146,7 +146,7 @@ namespace ModIO
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
-        public override void ClearActiveUserData(DataStorageCallbacks.ClearActiveUserDataCallback callback)
+        public override void ClearActiveUserData(UserDataIOCallbacks.ClearActiveUserDataCallback callback)
         {
             base.ClearActiveUserData(callback);
 

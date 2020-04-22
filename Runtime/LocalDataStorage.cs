@@ -7,7 +7,6 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 using ModIO.API;
-using ModIO.DataStorageCallbacks;
 
 namespace ModIO
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ModIO.DataStorageCallbacks
+namespace ModIO.UserDataIOCallbacks
 {
     // --- Initialization ---
     /// <summary>Delegate for SetActiveUser callback.</summary>

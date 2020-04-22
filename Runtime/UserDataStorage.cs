@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 using Debug = UnityEngine.Debug;
 
-using ModIO.DataStorageCallbacks;
+using ModIO.UserDataIOCallbacks;
 
 namespace ModIO
 {
