@@ -154,9 +154,11 @@ namespace ModIO
         /// <summary>Facepunch User Data I/O interface</summary>
         public class FacepunchUserDataIO : IPlatformUserDataIO
         {
+            // ---------[ Constants ]---------
             /// <summary>Defines the base directory for the user-specific data.</summary>
             public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath("mod.io");
 
+            // ---------[ Fields ]--------
             /// <summary>The directory for the active user's data.</summary>
             public string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
 
@@ -278,7 +280,30 @@ namespace ModIO
             /// <summary>Gets the size and md5 hash of a file.</summary>
             public void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
             {
-                throw new System.NotImplementedException();
+                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(callback != null);
+
+                byte[] data = null;
+                Int64 byteCount = -1;
+                string md5Hash = null;
+
+                if(Steamworks.SteamRemoteStorage.FileExists(path))
+                {
+                    data = Steamworks.SteamRemoteStorage.FileRead(path);
+
+                    if(data != null)
+                    {
+                        byteCount = data.Length;
+
+                        using (var md5 = System.Security.Cryptography.MD5.Create())
+                        {
+                            var hash = md5.ComputeHash(data);
+                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                        }
+                    }
+                }
+
+                callback.Invoke(path, (data != null), byteCount, md5Hash);
             }
 
             // --- Directory Management ---
