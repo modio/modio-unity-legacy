@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace ModIO.DataStorageCallbacks
 {
+    // --- Initialization ---
+    /// <summary>Delegate for SetActiveUser callback.</summary>
+    public delegate void SetActiveUserCallback<T>(T userId, bool success);
+
     // --- File I/O ---
     /// <summary>Delegate for ReadFile callback.</summary>
     public delegate void ReadFileCallback(string path, bool success, byte[] data);
@@ -25,10 +29,6 @@ namespace ModIO.DataStorageCallbacks
 
     /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
     public delegate void GetFileSizeAndHashCallback(string path, bool success, Int64 byteCount, string md5Hash);
-
-    // --- User Data Callbacks ---
-    /// <summary>Delegate for SetActiveUser callback.</summary>
-    public delegate void SetActiveUserCallback<T>(T userId, bool success);
 
     /// <summary>Delegate for ClearActiveUserData callback.</summary>
     public delegate void ClearActiveUserDataCallback(bool success);
