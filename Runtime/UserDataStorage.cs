@@ -35,7 +35,7 @@ namespace ModIO
             #if UNITY_EDITOR && !DISABLE_EDITOR_CODEPATH
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper_Editor();
             #elif MODIO_FACEPUNCH_SUPPORT
-                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Facepunch();
+                UserDataStorage.PLATFORM_IO = new FacepunchUserDataIO();
             #elif MODIO_STEAMWORKSNET_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_SteamworksNET();
             #else
