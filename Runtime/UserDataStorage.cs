@@ -258,13 +258,21 @@ namespace ModIO
             /// <summary>Checks for the existence of a file.</summary>
             public void GetFileExists(string path, GetFileExistsCallback callback)
             {
-                throw new System.NotImplementedException();
+                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(callback != null);
+
+                bool fileExists = Steamworks.SteamRemoteStorage.FileExists(path);
+                callback.Invoke(path, fileExists);
             }
 
             /// <summary>Gets the size of a file.</summary>
             public void GetFileSize(string path, GetFileSizeCallback callback)
             {
-                throw new System.NotImplementedException();
+                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(callback != null);
+
+                int fileSize = Steamworks.SteamRemoteStorage.FileSize(path);
+                callback.Invoke(path, (Int64)fileSize);
             }
 
             /// <summary>Gets the size and md5 hash of a file.</summary>
