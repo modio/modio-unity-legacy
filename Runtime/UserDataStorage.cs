@@ -151,7 +151,7 @@ namespace ModIO
     // ---------[ Further User Data Interfaces ]---------
     #if MODIO_FACEPUNCH_SUPPORT
 
-        /// <summary>Facepunch User Data I/O interface</summary>
+        /// <summary>Facepunch User Data I/O interface.</summary>
         public class FacepunchUserDataIO : IPlatformUserDataIO
         {
             // ---------[ Constants ]---------
@@ -188,7 +188,7 @@ namespace ModIO
                 }
             }
 
-            /// <summary>Determines the user directory for a given user id..</summary>
+            /// <summary>Determines the user directory for a given user id.</summary>
             protected string GenerateActiveUserDirectory(string platformUserId)
             {
                 string userDir = FacepunchUserDataIO.USER_DIR_ROOT;
@@ -328,126 +328,183 @@ namespace ModIO
 
     #if MODIO_STEAMWORKSNET_SUPPORT
 
-        /// <summary>Steamworks.NET </summary>
-        public class SteamworksNETUserDataIO
+        /// <summary>Steamworks.NET User Data I/O interface.</summary>
+        public class SteamworksNETUserDataIO : IPlatformUserDataIO
         {
+            // ---------[ Constants ]---------
             /// <summary>Defines the base directory for the user-specific data.</summary>
-            public static readonly string STEAMWORKSNET_USER_DIRECTORY = IOUtilities.CombinePath("modio", "users");
+            public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath("mod.io");
 
-            /// <summary>Returns the platform specific functions. (Steamworks.NET)</summary>
-            public static PlatformFunctions GetPlatformFunctions_SteamworksNET()
+            // ---------[ Fields ]--------
+            /// <summary>The directory for the active user's data.</summary>
+            public string userDir = SteamworksNETUserDataIO.USER_DIR_ROOT;
+
+            /// <summary>Gets the directory for the active user's data.</summary>
+            public string activeUserDirectory { get; set; }
+
+            // --- Initialization ---
+            /// <summary>Initializes the storage system for the given user.</summary>
+            public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
             {
-                Debug.Log("[mod.io] User Data I/O being handled by Steamworks.NET");
-
-                return new PlatformFunctions()
-                {
-                    InitializeWithInt = InitializeForUser_SteamworksNET,
-                    InitializeWithString = InitializeForUser_SteamworksNET,
-                    ReadFile = ReadFile_SteamworksNET,
-                    WriteFile = WriteFile_SteamworksNET,
-                    DeleteFile = DeleteFile_SteamworksNET,
-                    ClearAllData = ClearAllData_SteamworksNET,
-                };
-            }
-
-            /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
-            public static void InitializeForUser_SteamworksNET(string platformUserIdentifier, InitializationCallback callback)
-            {
-                string userDir = UserDataStorage.STEAMWORKSNET_USER_DIRECTORY;
-
-                if(!string.IsNullOrEmpty(platformUserIdentifier))
-                {
-                    string folderName = IOUtilities.MakeValidFileName(platformUserIdentifier);
-                    userDir = IOUtilities.CombinePath(STEAMWORKSNET_USER_DIRECTORY,
-                                                      folderName);
-                }
-
-                UserDataStorage.activeUserDirectory = userDir;
-                UserDataStorage.isInitialized = true;
-
-                Debug.Log("[mod.io] Steam User Data Directory set: " + UserDataStorage.activeUserDirectory);
+                this.userDir = this.GenerateActiveUserDirectory(platformUserId);
 
                 if(callback != null)
                 {
-                    callback.Invoke();
+                    callback.Invoke(platformUserId, true);
                 }
             }
 
-            /// <summary>Initializes the data storage system for a given user. (Steamworks.NET)</summary>
-            public static void InitializeForUser_SteamworksNET(int platformUserIdentifier, InitializationCallback callback)
+            /// <summary>Initializes the storage system for the given user.</summary>
+            public void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback)
             {
-                UserDataStorage.InitializeForUser_SteamworksNET(platformUserIdentifier.ToString("x8"), callback);
+                this.userDir = this.GenerateActiveUserDirectory(platformUserId.ToString("x8"));
+
+                if(callback != null)
+                {
+                    callback.Invoke(platformUserId, true);
+                }
             }
 
-            /// <summary>Reads a user data file. (Steamworks.NET)</summary>
-            public static void ReadFile_SteamworksNET(string filePath, ReadFileCallback callback)
+            /// <summary>Determines the user directory for a given user id.</summary>
+            protected string GenerateActiveUserDirectory(string platformUserId)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                string userDir = SteamworksNETUserDataIO.USER_DIR_ROOT;
+
+                if(!string.IsNullOrEmpty(platformUserId))
+                {
+                    string folderName = IOUtilities.MakeValidFileName(platformUserId);
+                    userDir = IOUtilities.CombinePath(SteamworksNETUserDataIO.USER_DIR_ROOT, folderName);
+                }
+
+                return userDir;
+            }
+
+            // --- File I/O ---
+            /// <summary>Reads a file.</summary>
+            public void ReadFile(string path, ReadFileCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(path));
                 Debug.Assert(callback != null);
 
                 byte[] data = null;
-                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
+                if(Steamworks.SteamRemoteStorage.FileExists(path))
                 {
-                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(filePath);
+                    int fileSize = Steamworks.SteamRemoteStorage.GetFileSize(path);
 
                     if(fileSize > 0)
                     {
                         data = new byte[fileSize];
-                        Steamworks.SteamRemoteStorage.FileRead(filePath, data, fileSize);
+                        Steamworks.SteamRemoteStorage.FileRead(path, data, fileSize);
                     }
                 }
 
-                callback.Invoke(true, data, filePath);
+                callback.Invoke(path, (data != null), data);
             }
 
-            /// <summary>Writes a user data file. (Steamworks.NET)</summary>
-            public static void WriteFile_SteamworksNET(string filePath, byte[] data, WriteFileCallback callback)
+            /// <summary>Writes a file.</summary>
+            public void WriteFile(string path, byte[] data, WriteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(!string.IsNullOrEmpty(path));
                 Debug.Assert(data != null);
 
-                bool success = Steamworks.SteamRemoteStorage.FileWrite(filePath, data, data.Length);
+                bool success = Steamworks.SteamRemoteStorage.FileWrite(path, data, data.Length);
 
                 if(callback != null)
                 {
-                    callback.Invoke(success, filePath);
+                    callback.Invoke(path, success);
                 }
             }
 
-            /// <summary>Deletes a user data file. (Steamworks.NET)</summary>
-            public static void DeleteFile_SteamworksNET(string filePath, DeleteFileCallback callback)
+            // --- File Management ---
+            /// <summary>Deletes a file.</summary>
+            public void DeleteFile(string path, DeleteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(filePath));
+                Debug.Assert(!string.IsNullOrEmpty(path));
 
                 bool success = true;
 
-                if(Steamworks.SteamRemoteStorage.FileExists(filePath))
+                if(Steamworks.SteamRemoteStorage.FileExists(path))
                 {
-                    success = Steamworks.SteamRemoteStorage.FileDelete(filePath);
+                    success = Steamworks.SteamRemoteStorage.FileDelete(path);
                 }
 
                 if(callback != null)
                 {
-                    callback.Invoke(success, filePath);
+                    callback.Invoke(path, success);
                 }
             }
 
-            /// <summary>Clears all user data. (Steamworks.NET)</summary>
-            public static void ClearAllData_SteamworksNET(ClearAllDataCallback callback)
+            /// <summary>Moves a file.</summary>
+            public void MoveFile(string source, string destination, MoveFileCallback callback)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            /// <summary>Checks for the existence of a file.</summary>
+            public void GetFileExists(string path, GetFileExistsCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(callback != null);
+
+                bool fileExists = Steamworks.SteamRemoteStorage.FileExists(path);
+                callback.Invoke(path, fileExists);
+            }
+
+            /// <summary>Gets the size of a file.</summary>
+            public void GetFileSize(string path, GetFileSizeCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(callback != null);
+
+                int fileSize = Steamworks.SteamRemoteStorage.FileSize(path);
+                callback.Invoke(path, (Int64)fileSize);
+            }
+
+            /// <summary>Gets the size and md5 hash of a file.</summary>
+            public void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(callback != null);
+
+                byte[] data = null;
+                Int64 byteCount = -1;
+                string md5Hash = null;
+
+                if(Steamworks.SteamRemoteStorage.FileExists(path))
+                {
+                    data = Steamworks.SteamRemoteStorage.FileRead(path);
+
+                    if(data != null)
+                    {
+                        byteCount = data.Length;
+
+                        using (var md5 = System.Security.Cryptography.MD5.Create())
+                        {
+                            var hash = md5.ComputeHash(data);
+                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                        }
+                    }
+                }
+
+                callback.Invoke(path, (data != null), byteCount, md5Hash);
+            }
+
+            /// <summary>Clears all of the active user's data.</summary>
+            public void ClearActiveUserData(ClearActiveUserDataCallback callback)
             {
                 int fileCount = Steamworks.SteamRemoteStorage.GetFileCount();
                 bool success = true;
 
                 for(int i = 0; i < fileCount; ++i)
                 {
-                    string filePath;
+                    string path;
                     int fileSize;
 
-                    filePath = Steamworks.SteamRemoteStorage.GetFileNameAndSize(i, out fileSize);
+                    path = Steamworks.SteamRemoteStorage.GetFileNameAndSize(i, out fileSize);
 
-                    if(filePath.StartsWith(UserDataStorage.STEAMWORKSNET_USER_DIRECTORY))
+                    if(path.StartsWith(SteamworksNETUserDataIO.USER_DIR_ROOT))
                     {
-                        success = Steamworks.SteamRemoteStorage.FileDelete(filePath) && success;
+                        success = Steamworks.SteamRemoteStorage.FileDelete(path) && success;
                     }
                 }
 
