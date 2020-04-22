@@ -5,6 +5,13 @@ namespace ModIO
     /// <summary>Defines the functions necessary for the platform user data IO.</summary>
     public interface IPlatformUserDataIO
     {
+        // --- Initialization ---
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
+
+        /// <summary>Initializes the storage system for the given user.</summary>
+        void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
+
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
         void ReadFile(string pathRelative, ReadFileCallback callback);
@@ -24,13 +31,6 @@ namespace ModIO
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
         void GetFileSizeAndHash(string pathRelative, GetFileSizeAndHashCallback callback);
-
-        // --- User Data Specific ---
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
-
-        /// <summary>Initializes the storage system for the given user.</summary>
-        void SetActiveUser(int platformUserId, SetActiveUserCallback<int> callback);
 
         /// <summary>Clears all of the active user's data.</summary>
         void ClearActiveUserData(ClearActiveUserDataCallback callback);

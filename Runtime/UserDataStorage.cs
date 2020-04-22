@@ -124,6 +124,24 @@ namespace ModIO
             UserDataStorage.PLATFORM_IO.DeleteFile(relativePath, callback);
         }
 
+        /// <summary>Checks for the existence of a file.</summary>
+        public static void GetFileExists(string pathRelative, GetFileExistsCallback callback)
+        {
+            UserDataStorage.PLATFORM_IO.GetFileExists(pathRelative, callback);
+        }
+
+        /// <summary>Gets the size of a file.</summary>
+        public static void GetFileSize(string pathRelative, GetFileSizeCallback callback)
+        {
+            UserDataStorage.PLATFORM_IO.GetFileSize(pathRelative, callback);
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        public static void GetFileSizeAndHash(string pathRelative, GetFileSizeAndHashCallback callback)
+        {
+            UserDataStorage.PLATFORM_IO.GetFileSizeAndHash(pathRelative, callback);
+        }
+
         /// <summary>Function for clearing of the active user's data.</summary>
         public static void ClearActiveUserData(ClearActiveUserDataCallback callback)
         {
