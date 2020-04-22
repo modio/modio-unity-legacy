@@ -17,9 +17,6 @@ namespace ModIO.DataStorageCallbacks
     /// <summary>Delegate for DeleteFile callbacks.</summary>
     public delegate void DeleteFileCallback(string path, bool success);
 
-    /// <summary>Delegate for MoveFile callbacks.</summary>
-    public delegate void MoveFileCallback(string source, string destination, bool success);
-
     /// <summary>Delegate for GetFileExists callback.</summary>
     public delegate void GetFileExistsCallback(string path, bool doesExist);
 
