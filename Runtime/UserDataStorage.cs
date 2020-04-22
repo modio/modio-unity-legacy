@@ -306,31 +306,6 @@ namespace ModIO
                 callback.Invoke(path, (data != null), byteCount, md5Hash);
             }
 
-            // --- Directory Management ---
-            /// <summary>Creates a directory.</summary>
-            public void CreateDirectory(string path, CreateDirectoryCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Deletes a directory.</summary>
-            public void DeleteDirectory(string path, DeleteDirectoryCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Moves a directory.</summary>
-            public void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <summary>Gets the sub-directories at a location.</summary>
-            public void GetDirectories(string path, GetDirectoriesCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
             /// <summary>Clears all of the active user's data.</summary>
             public void ClearActiveUserData(ClearActiveUserDataCallback callback)
             {
