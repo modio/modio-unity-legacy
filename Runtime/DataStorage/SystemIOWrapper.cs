@@ -425,14 +425,6 @@ namespace ModIO
             if(callback != null) { callback.Invoke(path, success); }
         }
 
-        /// <summary>Moves a file.</summary>
-        public void MoveFile(string source, string destination, MoveFileCallback callback)
-        {
-            bool success = this.MoveFile(source, destination);
-
-            if(callback != null) { callback.Invoke(source, destination, success); }
-        }
-
         /// <summary>Checks for the existence of a file.</summary>
         public void GetFileExists(string path, GetFileExistsCallback callback)
         {

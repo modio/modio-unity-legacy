@@ -252,12 +252,6 @@ namespace ModIO
                 }
             }
 
-            /// <summary>Moves a file.</summary>
-            public void MoveFile(string source, string destination, MoveFileCallback callback)
-            {
-                throw new System.NotImplementedException();
-            }
-
             /// <summary>Checks for the existence of a file.</summary>
             public void GetFileExists(string path, GetFileExistsCallback callback)
             {
@@ -433,12 +427,6 @@ namespace ModIO
                 {
                     callback.Invoke(path, success);
                 }
-            }
-
-            /// <summary>Moves a file.</summary>
-            public void MoveFile(string source, string destination, MoveFileCallback callback)
-            {
-                throw new System.NotImplementedException();
             }
 
             /// <summary>Checks for the existence of a file.</summary>
