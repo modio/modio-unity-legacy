@@ -39,7 +39,7 @@ namespace ModIO
             #elif MODIO_STEAMWORKSNET_SUPPORT
                 UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_SteamworksNET();
             #else
-                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_Standalone();
+                UserDataStorage.PLATFORM_IO = new SystemIOWrapper();
             #endif
         }
 
