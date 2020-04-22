@@ -321,9 +321,6 @@ namespace ModIO
             /// <summary>The directory for the active user's data.</summary>
             public string userDir = SteamworksNETUserDataIO.USER_DIR_ROOT;
 
-            /// <summary>Gets the directory for the active user's data.</summary>
-            public string activeUserDirectory { get; set; }
-
             // --- Initialization ---
             /// <summary>Initializes the storage system for the given user.</summary>
             public void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
@@ -363,11 +360,12 @@ namespace ModIO
 
             // --- File I/O ---
             /// <summary>Reads a file.</summary>
-            public void ReadFile(string path, ReadFileCallback callback)
+            public void ReadFile(string relativePath, ReadFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(callback != null);
 
+                string path = IOUtilities.CombinePath(this.userDir, relativePath);
                 byte[] data = null;
                 if(Steamworks.SteamRemoteStorage.FileExists(path))
                 {
@@ -380,29 +378,31 @@ namespace ModIO
                     }
                 }
 
-                callback.Invoke(path, (data != null), data);
+                callback.Invoke(relativePath, (data != null), data);
             }
 
             /// <summary>Writes a file.</summary>
-            public void WriteFile(string path, byte[] data, WriteFileCallback callback)
+            public void WriteFile(string relativePath, byte[] data, WriteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(data != null);
 
+                string path = IOUtilities.CombinePath(this.userDir, relativePath);
                 bool success = Steamworks.SteamRemoteStorage.FileWrite(path, data, data.Length);
 
                 if(callback != null)
                 {
-                    callback.Invoke(path, success);
+                    callback.Invoke(relativePath, success);
                 }
             }
 
             // --- File Management ---
             /// <summary>Deletes a file.</summary>
-            public void DeleteFile(string path, DeleteFileCallback callback)
+            public void DeleteFile(string relativePath, DeleteFileCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
+                string path = IOUtilities.CombinePath(this.userDir, relativePath);
                 bool success = true;
 
                 if(Steamworks.SteamRemoteStorage.FileExists(path))
@@ -412,36 +412,41 @@ namespace ModIO
 
                 if(callback != null)
                 {
-                    callback.Invoke(path, success);
+                    callback.Invoke(relativePath, success);
                 }
             }
 
             /// <summary>Checks for the existence of a file.</summary>
-            public void GetFileExists(string path, GetFileExistsCallback callback)
+            public void GetFileExists(string relativePath, GetFileExistsCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(callback != null);
 
+                string path = IOUtilities.CombinePath(this.userDir, relativePath);
                 bool fileExists = Steamworks.SteamRemoteStorage.FileExists(path);
-                callback.Invoke(path, fileExists);
+
+                callback.Invoke(relativePath, fileExists);
             }
 
             /// <summary>Gets the size of a file.</summary>
-            public void GetFileSize(string path, GetFileSizeCallback callback)
+            public void GetFileSize(string relativePath, GetFileSizeCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(callback != null);
 
+                string path = IOUtilities.CombinePath(this.userDir, relativePath);
                 int fileSize = Steamworks.SteamRemoteStorage.FileSize(path);
-                callback.Invoke(path, (Int64)fileSize);
+
+                callback.Invoke(relativePath, (Int64)fileSize);
             }
 
             /// <summary>Gets the size and md5 hash of a file.</summary>
-            public void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
+            public void GetFileSizeAndHash(string relativePath, GetFileSizeAndHashCallback callback)
             {
-                Debug.Assert(!string.IsNullOrEmpty(path));
+                Debug.Assert(!string.IsNullOrEmpty(relativePath));
                 Debug.Assert(callback != null);
 
+                string path = IOUtilities.CombinePath(this.userDir, relativePath);
                 byte[] data = null;
                 Int64 byteCount = -1;
                 string md5Hash = null;
@@ -462,7 +467,7 @@ namespace ModIO
                     }
                 }
 
-                callback.Invoke(path, (data != null), byteCount, md5Hash);
+                callback.Invoke(relativePath, (data != null), byteCount, md5Hash);
             }
 
             /// <summary>Clears all of the active user's data.</summary>
