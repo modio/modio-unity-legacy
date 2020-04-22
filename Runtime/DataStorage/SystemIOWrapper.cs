@@ -462,40 +462,6 @@ namespace ModIO
             callback.Invoke(path, success, byteCount, md5Hash);
         }
 
-        // --- Directory Management ---
-        /// <summary>Creates a directory.</summary>
-        public void CreateDirectory(string path, CreateDirectoryCallback callback)
-        {
-            bool success = this.CreateDirectory(path);
-
-            if(callback != null) { callback.Invoke(path, success); }
-        }
-
-        /// <summary>Deletes a directory.</summary>
-        public void DeleteDirectory(string path, DeleteDirectoryCallback callback)
-        {
-            bool success = this.DeleteDirectory(path);
-
-            if(callback != null) { callback.Invoke(path, success); }
-        }
-
-        /// <summary>Moves a directory.</summary>
-        public void MoveDirectory(string source, string destination, MoveDirectoryCallback callback)
-        {
-            bool success = this.MoveDirectory(source, destination);
-
-            if(callback != null) { callback.Invoke(source, destination, success); }
-        }
-
-        /// <summary>Gets the sub-directories at a location.</summary>
-        public void GetDirectories(string path, GetDirectoriesCallback callback)
-        {
-            Debug.Assert(callback != null);
-
-            IList<string> subDirs = this.GetDirectories(path);
-            callback.Invoke(path, subDirs);
-        }
-
         // --- User Data Specific ---
         /// <summary>Root directory for the user-specific data.</summary>
         public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
