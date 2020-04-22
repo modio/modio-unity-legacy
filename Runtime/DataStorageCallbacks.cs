@@ -29,22 +29,6 @@ namespace ModIO.DataStorageCallbacks
     /// <summary>Delegate for GetFileSizeAndHash callback.</summary>
     public delegate void GetFileSizeAndHashCallback(string path, bool success, Int64 byteCount, string md5Hash);
 
-    // --- Directory Management ---
-    /// <summary>Delegate for CreateDirectory callbacks.</summary>
-    public delegate void CreateDirectoryCallback(string path, bool success);
-
-    /// <summary>Delegate for DeleteDirectory callbacks.</summary>
-    public delegate void DeleteDirectoryCallback(string path, bool success);
-
-    /// <summary>Delegate for MoveDirectory callbacks.</summary>
-    public delegate void MoveDirectoryCallback(string source, string destination, bool success);
-
-    /// <summary>Delegate for GetDirectoryExists callback.</summary>
-    public delegate void GetDirectoryExistsCallback(string path, bool doesExist);
-
-    /// <summary>Delegate for GetDirectories callback.</summary>
-    public delegate void GetDirectoriesCallback(string path, IList<string> directories);
-
     // --- User Data Callbacks ---
     /// <summary>Delegate for SetActiveUser callback.</summary>
     public delegate void SetActiveUserCallback<T>(T userId, bool success);
