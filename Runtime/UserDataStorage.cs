@@ -56,21 +56,13 @@ namespace ModIO
         /// <summary>Function for reading a user-specific file.</summary>
         public static void ReadFile(string relativePath, ReadFileCallback callback)
         {
-            Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-
-            string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
-                                                  relativePath);
-            UserDataStorage.PLATFORM_IO.ReadFile(path, callback);
+            UserDataStorage.PLATFORM_IO.ReadFile(relativePath, callback);
         }
 
         /// <summary>Function used to read a user data file.</summary>
         public static void ReadJSONFile<T>(string relativePath, ReadJSONFileCallback<T> callback)
         {
-            Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(callback != null);
-
-            UserDataStorage.ReadFile(relativePath, (path, success, fileData) =>
+            UserDataStorage.ReadFile(relativePath, (p, success, fileData) =>
             {
                 T jsonObject;
 
@@ -83,63 +75,53 @@ namespace ModIO
                     jsonObject = default(T);
 
                     Debug.LogWarning("[mod.io] Failed convert file data into JSON object."
-                                     + "\nFile: " + path + "\n\n");
+                                     + "\nFile: " + relativePath + "\n\n");
                 }
 
-                callback.Invoke(path, success, jsonObject);
+                callback.Invoke(relativePath, success, jsonObject);
             });
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
-        public static void WriteFile(string relativePath, byte[] fileData, WriteFileCallback callback)
+        public static void WriteFile(string relativePath, byte[] data, WriteFileCallback callback)
         {
-            Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-            Debug.Assert(fileData != null);
+            Debug.Assert(data != null);
 
             #if DEBUG
-            if(fileData.Length == 0)
+            if(data.Length == 0)
             {
                 Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + relativePath);
             }
             #endif // DEBUG
 
-            string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
-                                                  relativePath);
-            UserDataStorage.PLATFORM_IO.WriteFile(path, fileData, callback);
+            UserDataStorage.PLATFORM_IO.WriteFile(relativePath, data, callback);
         }
 
         /// <summary>Function used to read a user data file.</summary>
         public static void WriteJSONFile<T>(string relativePath, T jsonObject, WriteFileCallback callback)
         {
-            Debug.Assert(UserDataStorage.isInitialized);
-
             byte[] data = IOUtilities.GenerateUTF8JSONData<T>(jsonObject);
 
             if(data != null)
             {
                 UserDataStorage.WriteFile(relativePath, data, callback);
             }
-            else if(callback != null)
+            else
             {
                 Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
                                  + "\nFile: " + relativePath + "\n\n");
 
-                string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
-                                                      relativePath);
-                callback.Invoke(path, false);
+                if(callback != null)
+                {
+                    callback.Invoke(relativePath, false);
+                }
             }
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
         public static void DeleteFile(string relativePath, DeleteFileCallback callback)
         {
-            Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(relativePath));
-
-            string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
-                                                  relativePath);
-            UserDataStorage.PLATFORM_IO.DeleteFile(path, callback);
+            UserDataStorage.PLATFORM_IO.DeleteFile(relativePath, callback);
         }
 
         /// <summary>Function for clearing of the active user's data.</summary>

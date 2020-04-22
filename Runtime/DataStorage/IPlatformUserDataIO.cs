@@ -7,28 +7,25 @@ namespace ModIO
     {
         // --- File I/O ---
         /// <summary>Reads a file.</summary>
-        void ReadFile(string path, ReadFileCallback callback);
+        void ReadFile(string pathRelative, ReadFileCallback callback);
 
         /// <summary>Writes a file.</summary>
-        void WriteFile(string path, byte[] data, WriteFileCallback callback);
+        void WriteFile(string pathRelative, byte[] data, WriteFileCallback callback);
 
         // --- File Management ---
         /// <summary>Deletes a file.</summary>
-        void DeleteFile(string path, DeleteFileCallback callback);
+        void DeleteFile(string pathRelative, DeleteFileCallback callback);
 
         /// <summary>Checks for the existence of a file.</summary>
-        void GetFileExists(string path, GetFileExistsCallback callback);
+        void GetFileExists(string pathRelative, GetFileExistsCallback callback);
 
         /// <summary>Gets the size of a file.</summary>
-        void GetFileSize(string path, GetFileSizeCallback callback);
+        void GetFileSize(string pathRelative, GetFileSizeCallback callback);
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
-        void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback);
+        void GetFileSizeAndHash(string pathRelative, GetFileSizeAndHashCallback callback);
 
         // --- User Data Specific ---
-        /// <summary>Gets the directory for the active user's data.</summary>
-        string activeUserDirectory { get; set; }
-
         /// <summary>Initializes the storage system for the given user.</summary>
         void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback);
 

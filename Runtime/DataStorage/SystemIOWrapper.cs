@@ -463,13 +463,6 @@ namespace ModIO
         /// <summary>The directory for the active user's data.</summary>
         public string userDir = SystemIOWrapper.USER_DIR_ROOT;
 
-        /// <summary>Gets the directory for the active user's data.</summary>
-        string IPlatformUserDataIO.activeUserDirectory
-        {
-            get { return this.userDir;  }
-            set { this.userDir = value; }
-        }
-
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
         {
