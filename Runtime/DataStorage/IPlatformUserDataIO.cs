@@ -28,19 +28,6 @@ namespace ModIO
         /// <summary>Gets the size and md5 hash of a file.</summary>
         void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback);
 
-        // --- Directory Management ---
-        /// <summary>Creates a directory.</summary>
-        void CreateDirectory(string path, CreateDirectoryCallback callback);
-
-        /// <summary>Deletes a directory.</summary>
-        void DeleteDirectory(string path, DeleteDirectoryCallback callback);
-
-        /// <summary>Moves a directory.</summary>
-        void MoveDirectory(string source, string destination, MoveDirectoryCallback callback);
-
-        /// <summary>Gets the sub-directories at a location.</summary>
-        void GetDirectories(string path, GetDirectoriesCallback callback);
-
         // --- User Data Specific ---
         /// <summary>Gets the directory for the active user's data.</summary>
         string activeUserDirectory { get; set; }
