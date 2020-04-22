@@ -24,9 +24,6 @@ namespace ModIO
         /// <summary>Has UserDataStorage been initialized?</summary>
         public static bool isInitialized = false;
 
-        /// <summary>Defines the active user directory</summary>
-        public static string activeUserDirectory = string.Empty;
-
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()
@@ -57,22 +54,23 @@ namespace ModIO
 
         // ---------[ I/O Interface ]---------
         /// <summary>Function for reading a user-specific file.</summary>
-        public static void ReadFile(string filePathRelative, ReadFileCallback callback)
+        public static void ReadFile(string relativePath, ReadFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.PLATFORM_IO.ReadFile(filePath, callback);
+            string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
+                                                  relativePath);
+            UserDataStorage.PLATFORM_IO.ReadFile(path, callback);
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static void ReadJSONFile<T>(string filePathRelative, ReadJSONFileCallback<T> callback)
+        public static void ReadJSONFile<T>(string relativePath, ReadJSONFileCallback<T> callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
             Debug.Assert(callback != null);
 
-            UserDataStorage.ReadFile(filePathRelative, (path, success, fileData) =>
+            UserDataStorage.ReadFile(relativePath, (path, success, fileData) =>
             {
                 T jsonObject;
 
@@ -93,25 +91,26 @@ namespace ModIO
         }
 
         /// <summary>Function for writing a user-specific file.</summary>
-        public static void WriteFile(string filePathRelative, byte[] fileData, WriteFileCallback callback)
+        public static void WriteFile(string relativePath, byte[] fileData, WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
             Debug.Assert(fileData != null);
 
             #if DEBUG
             if(fileData.Length == 0)
             {
-                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + filePathRelative);
+                Debug.LogWarning("[mod.io] Writing 0-byte user file to: " + relativePath);
             }
             #endif // DEBUG
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.PLATFORM_IO.WriteFile(filePath, fileData, callback);
+            string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
+                                                  relativePath);
+            UserDataStorage.PLATFORM_IO.WriteFile(path, fileData, callback);
         }
 
         /// <summary>Function used to read a user data file.</summary>
-        public static void WriteJSONFile<T>(string filePathRelative, T jsonObject, WriteFileCallback callback)
+        public static void WriteJSONFile<T>(string relativePath, T jsonObject, WriteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
 
@@ -119,26 +118,28 @@ namespace ModIO
 
             if(data != null)
             {
-                UserDataStorage.WriteFile(filePathRelative, data, callback);
+                UserDataStorage.WriteFile(relativePath, data, callback);
             }
             else if(callback != null)
             {
                 Debug.LogWarning("[mod.io] Failed create JSON representation of object before writing file."
-                                 + "\nFile: " + filePathRelative + "\n\n");
+                                 + "\nFile: " + relativePath + "\n\n");
 
-                string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-                callback.Invoke(filePath, false);
+                string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
+                                                      relativePath);
+                callback.Invoke(path, false);
             }
         }
 
         /// <summary>Function for deleting a user-specific file.</summary>
-        public static void DeleteFile(string filePathRelative, DeleteFileCallback callback)
+        public static void DeleteFile(string relativePath, DeleteFileCallback callback)
         {
             Debug.Assert(UserDataStorage.isInitialized);
-            Debug.Assert(!string.IsNullOrEmpty(filePathRelative));
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
 
-            string filePath = IOUtilities.CombinePath(UserDataStorage.activeUserDirectory, filePathRelative);
-            UserDataStorage.PLATFORM_IO.DeleteFile(filePath, callback);
+            string path = IOUtilities.CombinePath(UserDataStorage.PLATFORM_IO.activeUserDirectory,
+                                                  relativePath);
+            UserDataStorage.PLATFORM_IO.DeleteFile(path, callback);
         }
 
         /// <summary>Function for clearing of the active user's data.</summary>
@@ -513,6 +514,4 @@ namespace ModIO
         }
 
     #endif // MODIO_STEAMWORKSNET_SUPPORT
-
-
 }
