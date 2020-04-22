@@ -396,65 +396,6 @@ namespace ModIO
         }
 
         // ---------[ IPlatformUserDataIO Interface ]---------
-        // --- File I/O ---
-        /// <summary>Reads a file.</summary>
-        public void ReadFile(string path, ReadFileCallback callback)
-        {
-            Debug.Assert(callback != null);
-
-            byte[] data;
-            bool success = this.ReadFile(path, out data);
-
-            callback.Invoke(path, success, data);
-        }
-
-        /// <summary>Writes a file.</summary>
-        public void WriteFile(string path, byte[] data, WriteFileCallback callback)
-        {
-            bool success = this.WriteFile(path, data);
-
-            if(callback != null) { callback.Invoke(path, success); }
-        }
-
-        // --- File Management ---
-        /// <summary>Deletes a file.</summary>
-        public void DeleteFile(string path, DeleteFileCallback callback)
-        {
-            bool success = this.DeleteFile(path);
-
-            if(callback != null) { callback.Invoke(path, success); }
-        }
-
-        /// <summary>Checks for the existence of a file.</summary>
-        public void GetFileExists(string path, GetFileExistsCallback callback)
-        {
-            Debug.Assert(callback != null);
-
-            bool doesExist = this.GetFileExists(path);
-            callback.Invoke(path, doesExist);
-        }
-
-        /// <summary>Gets the size of a file.</summary>
-        public void GetFileSize(string path, GetFileSizeCallback callback)
-        {
-            Debug.Assert(callback != null);
-
-            Int64 byteCount = this.GetFileSize(path);
-            callback.Invoke(path, byteCount);
-        }
-
-        /// <summary>Gets the size and md5 hash of a file.</summary>
-        public void GetFileSizeAndHash(string path, GetFileSizeAndHashCallback callback)
-        {
-            Debug.Assert(callback != null);
-
-            Int64 byteCount;
-            string md5Hash;
-            bool success = this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
-            callback.Invoke(path, success, byteCount, md5Hash);
-        }
-
-        // --- User Data Specific ---
         /// <summary>Root directory for the user-specific data.</summary>
         public static readonly string USER_DIR_ROOT = IOUtilities.CombinePath(UnityEngine.Application.persistentDataPath,
                                                                               "modio-" + PluginSettings.data.gameId,
@@ -463,6 +404,7 @@ namespace ModIO
         /// <summary>The directory for the active user's data.</summary>
         public string userDir = SystemIOWrapper.USER_DIR_ROOT;
 
+        // --- Initialization ---
         /// <summary>Initializes the storage system for the given user.</summary>
         public virtual void SetActiveUser(string platformUserId, SetActiveUserCallback<string> callback)
         {
@@ -499,6 +441,82 @@ namespace ModIO
             }
 
             return userDir;
+        }
+
+        // --- File I/O ---
+        /// <summary>Reads a file.</summary>
+        public void ReadFile(string relativePath, ReadFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            byte[] data;
+            bool success = this.ReadFile(path, out data);
+
+            callback.Invoke(relativePath, success, data);
+        }
+
+        /// <summary>Writes a file.</summary>
+        public void WriteFile(string relativePath, byte[] data, WriteFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(data != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            bool success = this.WriteFile(path, data);
+
+            if(callback != null) { callback.Invoke(relativePath, success); }
+        }
+
+        // --- File Management ---
+        /// <summary>Deletes a file.</summary>
+        public void DeleteFile(string relativePath, DeleteFileCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            bool success = this.DeleteFile(path);
+
+            if(callback != null) { callback.Invoke(relativePath, success); }
+        }
+
+        /// <summary>Checks for the existence of a file.</summary>
+        public void GetFileExists(string relativePath, GetFileExistsCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            bool doesExist = this.GetFileExists(path);
+
+            callback.Invoke(relativePath, doesExist);
+        }
+
+        /// <summary>Gets the size of a file.</summary>
+        public void GetFileSize(string relativePath, GetFileSizeCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            Int64 byteCount = this.GetFileSize(path);
+
+            callback.Invoke(relativePath, byteCount);
+        }
+
+        /// <summary>Gets the size and md5 hash of a file.</summary>
+        public void GetFileSizeAndHash(string relativePath, GetFileSizeAndHashCallback callback)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(relativePath));
+            Debug.Assert(callback != null);
+
+            string path = IOUtilities.CombinePath(this.userDir, relativePath);
+            Int64 byteCount;
+            string md5Hash;
+            bool success = this.GetFileSizeAndHash(path, out byteCount, out md5Hash);
+
+            callback.Invoke(relativePath, success, byteCount, md5Hash);
         }
 
         /// <summary>Deletes all of the active user's data.</summary>
