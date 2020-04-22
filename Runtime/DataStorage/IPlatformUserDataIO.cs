@@ -16,9 +16,6 @@ namespace ModIO
         /// <summary>Deletes a file.</summary>
         void DeleteFile(string path, DeleteFileCallback callback);
 
-        /// <summary>Moves a file.</summary>
-        void MoveFile(string source, string destination, MoveFileCallback callback);
-
         /// <summary>Checks for the existence of a file.</summary>
         void GetFileExists(string path, GetFileExistsCallback callback);
 
