@@ -37,7 +37,7 @@ namespace ModIO
             #elif MODIO_FACEPUNCH_SUPPORT
                 UserDataStorage.PLATFORM_IO = new FacepunchUserDataIO();
             #elif MODIO_STEAMWORKSNET_SUPPORT
-                UserDataStorage.PLATFORM = UserDataStorage.GetPlatformFunctions_SteamworksNET();
+                UserDataStorage.PLATFORM_IO = new SteamworksNETUserDataIO();
             #else
                 UserDataStorage.PLATFORM_IO = new SystemIOWrapper();
             #endif
