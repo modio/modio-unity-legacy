@@ -220,7 +220,7 @@ namespace ModIO
             {
                 if(installInfo.Key.modfileId == modfileId)
                 {
-                    succeeded = IOUtilities.DeleteDirectory(installInfo.Value) && succeeded;
+                    succeeded = LocalDataStorage.DeleteDirectory(installInfo.Value) && succeeded;
                 }
             }
 
@@ -370,13 +370,18 @@ namespace ModIO
                 }
                 else
                 {
-                    bool fileExists = System.IO.File.Exists(zipFilePath);
-                    Int64 binarySize = (fileExists ? IOUtilities.GetFileSize(zipFilePath) : -1);
-                    string binaryHash = (fileExists ? IOUtilities.CalculateFileMD5Hash(zipFilePath) : string.Empty);
+                    bool fileExists;
+                    Int64 binarySize;
+                    string binaryHash;
+
+                    fileExists = LocalDataStorage.GetFileSizeAndHash(zipFilePath,
+                                                                     out binarySize,
+                                                                     out binaryHash);
 
                     bool isBinaryZipValid = (fileExists
                                              && modfile.fileSize == binarySize
-                                             && modfile.fileHash.md5 == binaryHash);
+                                             && (modfile.fileHash == null
+                                                 || modfile.fileHash.md5 == binaryHash));
 
                     if(isBinaryZipValid)
                     {
@@ -603,10 +608,20 @@ namespace ModIO
                     if(!isInstalled)
                     {
                         string zipFilePath = CacheClient.GenerateModBinaryZipFilePath(m.modId, m.id);
-                        bool isDownloadedAndValid = (System.IO.File.Exists(zipFilePath)
-                                                     && m.fileSize == IOUtilities.GetFileSize(zipFilePath)
-                                                     && m.fileHash != null
-                                                     && m.fileHash.md5 == IOUtilities.CalculateFileMD5Hash(zipFilePath));
+
+                        bool fileExists;
+                        Int64 fileSize;
+                        string fileHash;
+
+                        fileExists = LocalDataStorage.GetFileSizeAndHash(zipFilePath,
+                                                                         out fileSize,
+                                                                         out fileHash);
+
+
+                        bool isDownloadedAndValid = (fileExists
+                                                     && m.fileSize == fileSize
+                                                     && (m.fileHash == null
+                                                         || m.fileHash.md5 == fileHash));
 
                         isInstalled = (isDownloadedAndValid
                                        && ModManager.TryInstallMod(m.modId, m.id, true));
