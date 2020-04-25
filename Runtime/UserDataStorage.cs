@@ -20,10 +20,6 @@ namespace ModIO
         /// <summary>Defines the i/o functions to use for this platform.</summary>
         public static readonly IPlatformUserDataIO PLATFORM_IO;
 
-        // ---------[ Fields ]---------
-        /// <summary>Has UserDataStorage been initialized?</summary>
-        public static bool isInitialized = false;
-
         // ---------[ Initialization ]---------
         /// <summary>Loads the platform I/O behaviour.</summary>
         static UserDataStorage()

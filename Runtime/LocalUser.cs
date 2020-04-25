@@ -184,11 +184,6 @@ namespace ModIO
         /// <summary>Loads the LocalUser instance.</summary>
         public static void Load(System.Action callback = null)
         {
-            Debug.Assert(UserDataStorage.isInitialized,
-                         "[mod.io] UserDataStorage is not yet intialized. Please call"
-                         + " UserDataStorage.InitializeForUser() before attempting to"
-                         + " load the LocalUser from disk.");
-
             LocalUser.isLoaded = false;
 
             UserDataStorage.ReadJSONFile<LocalUser>(LocalUser.FILENAME, (path, success, fileData) =>
@@ -205,11 +200,6 @@ namespace ModIO
         /// <summary>Saves the LocalUser instance.</summary>
         public static void Save(System.Action callback = null)
         {
-            Debug.Assert(UserDataStorage.isInitialized,
-                         "[mod.io] UserDataStorage is not yet intialized. Please call"
-                         + " UserDataStorage.InitializeForUser() before attempting to"
-                         + " save the LocalUser to disk.");
-
             UserDataStorage.WriteJSONFile(LocalUser.FILENAME, LocalUser._instance, (path, success) =>
             {
                 if(callback != null) { callback.Invoke(); }

@@ -179,25 +179,10 @@ namespace ModIO.UI
                 yield break;
             }
 
-            if(!UserDataStorage.isInitialized)
-            {
-                UserDataStorage.isInitialized = true;
-            }
-
-            if(UserDataStorage.isInitialized)
-            {
-                bool isDone = false;
-                LocalUser.Load(() => isDone = true);
-
-                while(!isDone) { yield return null; }
-            }
-            else
-            {
-                Debug.LogWarning("[mod.io] Failed to initialize user data."
-                                 + " A temporary LocalUser instance will be created.");
-
-                LocalUser.instance = new LocalUser();
-            }
+            // load user
+            bool isDone = false;
+            LocalUser.Load(() => isDone = true);
+            while(!isDone) { yield return null; }
 
             if(LocalUser.AuthenticationState == AuthenticationState.ValidToken)
             {
