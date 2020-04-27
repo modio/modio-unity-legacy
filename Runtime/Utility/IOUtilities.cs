@@ -1,7 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Path = System.IO.Path;
 
 using Newtonsoft.Json;
 
@@ -67,28 +67,6 @@ namespace ModIO
             }
 
             return data;
-        }
-
-        /// <summary>Creates a directory.</summary>
-        public static bool CreateDirectory(string directoryPath)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(directoryPath));
-
-            try
-            {
-                Directory.CreateDirectory(directoryPath);
-                return true;
-            }
-            catch(Exception e)
-            {
-                string warningInfo = ("[mod.io] Failed to create directory."
-                                      + "\nDirectory: " + directoryPath + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
-            }
-
-            return false;
         }
 
         /// <summary>Creates a path using System.IO.Path.Combine().</summary>
@@ -361,6 +339,13 @@ namespace ModIO
         public static bool DeleteFile(string filePath)
         {
             return LocalDataStorage.DeleteFile(filePath);
+        }
+
+        /// <summary>[Obsolete] Creates a directory.</summary>
+        [Obsolete("Use LocalDataStorage.CreateDirectory() instead.")]
+        public static bool CreateDirectory(string directoryPath)
+        {
+            return LocalDataStorage.CreateDirectory(directoryPath);
         }
 
         /// <summary>[Obsolete] Deletes a directory.</summary>
