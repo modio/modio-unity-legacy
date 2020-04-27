@@ -18,34 +18,26 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            string errorMessage = null;
-
-            if(File.Exists(path))
+            if(!File.Exists(path))
             {
-                try
-                {
-                    data = File.ReadAllBytes(path);
-                    return true;
-                }
-                catch(Exception e)
-                {
-                    errorMessage = Utility.GenerateExceptionDebugString(e);
-                }
-            }
-            else // !File.Exists
-            {
-                errorMessage = "File does not exist.";
+                data = null;
+                return false;
             }
 
-            if(errorMessage != null)
+            try
             {
-                Debug.LogWarning("[mod.io] Failed to read file."
-                                 + "\nFile: " + path + "\n\n"
-                                 + errorMessage);
+                data = File.ReadAllBytes(path);
+                return true;
             }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to read file.\nFile: " + path + "\n\n");
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
 
-            data = null;
-            return false;
+                data = null;
+                return false;
+            }
         }
 
         /// <summary>Writes a file.</summary>
@@ -54,23 +46,21 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(path));
             Debug.Assert(data != null);
 
-            bool success = false;
-
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
                 File.WriteAllBytes(path, data);
-                success = true;
+
+                return true;
             }
             catch(Exception e)
             {
                 string warningInfo = ("[mod.io] Failed to write file.\nFile: " + path + "\n\n");
-
                 Debug.LogWarning(warningInfo
                                  + Utility.GenerateExceptionDebugString(e));
-            }
 
-            return success;
+                return false;
+            }
         }
 
         // --- File Management ---
@@ -79,24 +69,22 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            bool success = true;
-            if(File.Exists(path))
+            try
             {
-                try
+                if(File.Exists(path))
                 {
                     File.Delete(path);
                 }
-                catch(Exception e)
-                {
-                    success = false;
 
-                    string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + path + "\n\n");
-
-                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-                }
+                return true;
             }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to delete file.\nFile: " + path + "\n\n");
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-            return success;
+                return false;
+            }
         }
 
         /// <summary>Moves a file.</summary>
@@ -105,65 +93,29 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(source));
             Debug.Assert(!string.IsNullOrEmpty(destination));
 
-            bool success = true;
-            string failMessage = null;
-
-            if(!File.Exists(source))
+            try
             {
-                failMessage = ("Failed to move file as the source file does not exist."
-                               + "\nSource File: " + source
-                               + "\nDestination: " + destination);
-                success = false;
+                File.Move(source, destination);
+
+                return true;
             }
-            else
+            catch(Exception e)
             {
-                if(File.Exists(destination))
-                {
-                    try
-                    {
-                        File.Delete(destination);
-                    }
-                    catch(Exception e)
-                    {
-                        failMessage = ("Failed to move file as the existing file at the destination could not be deleted."
-                                       + "\nSource File: " + source
-                                       + "\nDestination: " + destination
-                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
+                string warningInfo = ("Failed to move file."
+                                      + "\nSource File: " + source
+                                      + "\nDestination: " + destination
+                                      + "\n\n");
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-                        success = false;
-                    }
-                }
-
-                if(success)
-                {
-                    try
-                    {
-                        File.Move(source, destination);
-                    }
-                    catch(Exception e)
-                    {
-                        success = false;
-
-                        failMessage = ("Failed to move file."
-                                       + "\nSource File: " + source
-                                       + "\nDestination: " + destination
-                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
-                    }
-                }
+                return false;
             }
-
-            if(!success)
-            {
-                Debug.LogWarning("[mod.io] " + failMessage);
-            }
-
-            return success;
         }
 
         /// <summary>Gets the size of a file.</summary>
         public virtual bool GetFileExists(string path)
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
+
             return File.Exists(path);
         }
 
@@ -172,25 +124,21 @@ namespace ModIO
         {
             Debug.Assert(!String.IsNullOrEmpty(path));
 
-            Int64 byteCount = -1;
+            if(!File.Exists(path)) { return -1; }
 
-            if(File.Exists(path))
+            try
             {
-                try
-                {
-                    byteCount = (new FileInfo(path)).Length;
-                }
-                catch(Exception e)
-                {
-                    byteCount = -1;
+                var fileInfo = new FileInfo(path);
 
-                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + path + "\n\n");
-
-                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-                }
+                return fileInfo.Length;
             }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + path + "\n\n");
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-            return byteCount;
+                return -1;
+            }
         }
 
         /// <summary>Gets the size and md5 hash of a file.</summary>
@@ -201,65 +149,53 @@ namespace ModIO
             byteCount = -1;
             md5Hash = null;
 
-            bool success = true;
+            if(!File.Exists(path)) { return false; }
 
-            if(File.Exists(path))
+            // get byteCount
+            try
             {
-                try
-                {
-                    byteCount = (new FileInfo(path)).Length;
-                }
-                catch(Exception e)
-                {
-                    byteCount = -1;
-                    success = false;
+                byteCount = (new FileInfo(path)).Length;
+            }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + path + "\n\n");
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-                    string warningInfo = ("[mod.io] Failed to get file size.\nFile: " + path + "\n\n");
+                byteCount = -1;
+                return false;
+            }
 
-                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-                }
-
-                try
+            // get hash
+            try
+            {
+                using (var md5 = System.Security.Cryptography.MD5.Create())
                 {
-                    using (var md5 = System.Security.Cryptography.MD5.Create())
+                    using (var stream = File.OpenRead(path))
                     {
-                        using (var stream = File.OpenRead(path))
-                        {
-                            var hash = md5.ComputeHash(stream);
-                            md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        }
+                        var hash = md5.ComputeHash(stream);
+                        md5Hash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                     }
                 }
-                catch(Exception e)
-                {
-                    md5Hash = null;
-                    success = false;
-
-                    string warningInfo = ("[mod.io] Failed to calculate file hash.\nFile: " + path + "\n\n");
-
-                    Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
-                }
             }
-            else
+            catch(Exception e)
             {
-                success = false;
+                string warningInfo = ("[mod.io] Failed to calculate file hash.\nFile: " + path + "\n\n");
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-                string warningInfo = ("[mod.io] Failed to get information for file. File does not exist.\nFile: "
-                                      + path);
-
-                Debug.LogWarning(warningInfo);
+                md5Hash = null;
+                return false;
             }
 
-            return success;
+            // success!
+            return true;
         }
 
         /// <summary>Gets the files at a location.</summary>
         public virtual IList<string> GetFiles(string path, string nameFilter, bool recurseSubdirectories)
         {
-            if(!Directory.Exists(path))
-            {
-                return null;
-            }
+            Debug.Assert(!string.IsNullOrEmpty(path));
+
+            if(!Directory.Exists(path)) { return null; }
 
             var searchOption = (recurseSubdirectories
                                 ? SearchOption.AllDirectories
@@ -279,25 +215,19 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            bool success = false;
-
             try
             {
                 Directory.CreateDirectory(path);
-                success = true;
+
+                return true;
             }
             catch(Exception e)
             {
-                success = false;
+                string warningInfo = ("[mod.io] Failed to create directory.\nDirectory: " + path + "\n\n");
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-                string warningInfo = ("[mod.io] Failed to create directory."
-                                      + "\nDirectory: " + path + "\n\n");
-
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                return true;
             }
-
-            return success;
         }
 
         /// <summary>Deletes a directory.</summary>
@@ -305,26 +235,22 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            bool success = false;
             try
             {
                 if(Directory.Exists(path))
                 {
                     Directory.Delete(path, true);
                 }
-                success = true;
+
+                return true;
             }
             catch(Exception e)
             {
-                success = false;
-
                 string warningInfo = ("[mod.io] Failed to delete directory.\nDirectory: " + path + "\n\n");
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-                Debug.LogWarning(warningInfo
-                                 + Utility.GenerateExceptionDebugString(e));
+                return false;
             }
-
-            return success;
         }
 
         /// <summary>Moves a directory.</summary>
@@ -333,64 +259,29 @@ namespace ModIO
             Debug.Assert(!string.IsNullOrEmpty(source));
             Debug.Assert(!string.IsNullOrEmpty(destination));
 
-            bool success = true;
-            string failMessage = null;
-
-            if(!Directory.Exists(source))
+            try
             {
-                failMessage = ("Failed to move directory as the source directory does not exist."
-                               + "\nSource Directory: " + source
-                               + "\nDestination: " + destination);
-                success = false;
+                Directory.Move(source, destination);
+
+                return true;
             }
-            else
+            catch(Exception e)
             {
-                if(Directory.Exists(destination))
-                {
-                    try
-                    {
-                        Directory.Delete(destination);
-                    }
-                    catch(Exception e)
-                    {
-                        failMessage = ("Failed to move directory as the existing directory at the destination could not be deleted."
-                                       + "\nSource Directory: " + source
-                                       + "\nDestination: " + destination
-                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
+                string warningInfo = ("[mod.io] Failed to move directory."
+                                      + "\nSource Directory: " + source
+                                      + "\nDestination: " + destination
+                                      + "\n\n" + Utility.GenerateExceptionDebugString(e));
+                Debug.LogWarning(warningInfo + Utility.GenerateExceptionDebugString(e));
 
-                        success = false;
-                    }
-                }
-
-                if(success)
-                {
-                    try
-                    {
-                        Directory.Move(source, destination);
-                    }
-                    catch(Exception e)
-                    {
-                        success = false;
-
-                        failMessage = ("Failed to move directory."
-                                       + "\nSource Directory: " + source
-                                       + "\nDestination: " + destination
-                                       + "\n\n" + Utility.GenerateExceptionDebugString(e));
-                    }
-                }
+                return false;
             }
-
-            if(!success)
-            {
-                Debug.LogWarning("[mod.io] " + failMessage);
-            }
-
-            return success;
         }
 
         /// <summary>Checks for the existence of a directory.</summary>
         public virtual bool GetDirectoryExists(string path)
         {
+            Debug.Assert(!string.IsNullOrEmpty(path));
+
             return Directory.Exists(path);
         }
 
@@ -399,26 +290,21 @@ namespace ModIO
         {
             Debug.Assert(!string.IsNullOrEmpty(path));
 
-            string[] subDirs = null;
+            if(!Directory.Exists(path)) { return null; }
 
-            if(Directory.Exists(path))
+            try
             {
-                try
-                {
-                    subDirs = Directory.GetDirectories(path);
-                }
-                catch(Exception e)
-                {
-                    subDirs = null;
-
-                    string warningInfo = ("[mod.io] Failed to get directories.\nDirectory: " + path + "\n\n");
-
-                    Debug.LogWarning(warningInfo
-                                     + Utility.GenerateExceptionDebugString(e));
-                }
+                return Directory.GetDirectories(path);
             }
+            catch(Exception e)
+            {
+                string warningInfo = ("[mod.io] Failed to get directories.\nDirectory: " + path + "\n\n");
 
-            return subDirs;
+                Debug.LogWarning(warningInfo
+                                 + Utility.GenerateExceptionDebugString(e));
+
+                return null;
+            }
         }
 
         // ---------[ IPlatformUserDataIO Interface ]---------
