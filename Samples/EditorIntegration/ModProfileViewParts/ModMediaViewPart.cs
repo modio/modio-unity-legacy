@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 
+using Path = System.IO.Path;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
@@ -45,8 +47,8 @@ namespace ModIO.EditorCode
 
         private string GenerateUniqueFileName(string path)
         {
-            string fileNameNoExtension = System.IO.Path.GetFileNameWithoutExtension(path);
-            string fileExtension = System.IO.Path.GetExtension(path);
+            string fileNameNoExtension = Path.GetFileNameWithoutExtension(path);
+            string fileExtension = Path.GetExtension(path);
             int numberToAppend = 0;
             string regexPattern = fileNameNoExtension + "\\d*\\" + fileExtension;
 

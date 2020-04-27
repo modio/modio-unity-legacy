@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Path = System.IO.Path;
+
 using UnityEditor;
 using UnityEngine;
 
@@ -338,7 +340,7 @@ namespace ModIO.EditorCode
                             smp.editableModProfile = EditableModProfile.CreateFromProfile(profile);
 
                             string smpFilePath = AssetDatabase.GetAssetPath(smp);
-                            string smpDir = System.IO.Path.GetDirectoryName(smpFilePath);
+                            string smpDir = Path.GetDirectoryName(smpFilePath);
 
                             int profileCount
                             = LocalDataStorage.GetFiles(smpDir, profile.name + "*.asset", false).Count;

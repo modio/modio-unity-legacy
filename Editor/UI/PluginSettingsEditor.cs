@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using Path = System.IO.Path;
+
 using UnityEngine;
 using UnityEditor;
 
@@ -95,7 +97,7 @@ namespace ModIO.UI.EditorCode
                     while(!directoryIsValid
                           && !string.IsNullOrEmpty(testDir))
                     {
-                        testDir = System.IO.Path.GetDirectoryName(testDir);
+                        testDir = Path.GetDirectoryName(testDir);
                         directoryIsValid = LocalDataStorage.GetDirectoryExists(testDir);
                     }
                 }

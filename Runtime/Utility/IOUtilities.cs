@@ -82,7 +82,7 @@ namespace ModIO
                 {
                     if(!string.IsNullOrEmpty(pathElem))
                     {
-                        retVal = System.IO.Path.Combine(retVal, pathElem);
+                        retVal = Path.Combine(retVal, pathElem);
                     }
                 }
             }

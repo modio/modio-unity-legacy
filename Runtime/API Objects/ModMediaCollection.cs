@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 #endif
 
+using Path = System.IO.Path;
+
 using Newtonsoft.Json;
 
 namespace ModIO
@@ -56,7 +58,7 @@ namespace ModIO
 
                 foreach(var locator in this.galleryImageLocators)
                 {
-                    string imageExtension = System.IO.Path.GetExtension(locator.fileName);
+                    string imageExtension = Path.GetExtension(locator.fileName);
                     if(imageExtension.ToUpper() == ".GIF")
                     {
                         gifLocators.Add(locator);

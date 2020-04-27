@@ -6,8 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-using Directory = System.IO.Directory;
-
 namespace ModIO.UI
 {
     public class ModBrowser : MonoBehaviour

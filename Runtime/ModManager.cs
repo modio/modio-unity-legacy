@@ -1755,14 +1755,11 @@ namespace ModIO
             parameters.isActiveBuild = setActiveBuild;
 
             // - Generate Hash -
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-            {
-                using (var stream = System.IO.File.OpenRead(binaryZipLocation))
-                {
-                    var hash = md5.ComputeHash(stream);
-                    parameters.fileHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                }
-            }
+            string hash;
+            Int64 fileSize;
+
+            LocalDataStorage.GetFileSizeAndHash(binaryZipLocation, out fileSize, out hash);
+            parameters.fileHash = hash;
 
             APIClient.AddModfile(modId, parameters, onSuccess, onError);
         }
